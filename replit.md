@@ -95,6 +95,37 @@ This is a decentralized finance (DeFi) liquidity provisioning portal built for t
 - **Migrations**: Generated and applied via Drizzle Kit
 - **Type Safety**: Automatic TypeScript types from schema
 
+## Component Architecture (New Tabbed Interface)
+
+### Main Dashboard Structure
+- **MainDashboard**: Central hub with 6-tab interface organizing all features
+- **Overview Tab**: Key metrics, KILT price, market data, welcome interface
+- **Liquidity Tab**: LiquidityProvision component for pool management
+- **Positions Tab**: UserPositions component for LP tracking
+- **Rewards Tab**: RewardsTracking component for incentive management
+- **Analytics Tab**: AnalyticsDashboard with comprehensive performance data
+- **Integration Tab**: IntegrationDashboard for technical Uniswap V3 features
+
+### Advanced Analytics Features
+- **Position Snapshots**: Historical liquidity position tracking
+- **Performance Metrics**: Impermanent loss calculations and ROI analysis
+- **Fee Events**: Complete fee earning history and analytics
+- **Pool Metrics**: Price and TVL historical data with charts
+- **User Analytics**: Portfolio-wide performance dashboards
+
+### Removed/Consolidated Components
+- **SmartContractDemo**: Functionality moved to IntegrationDashboard
+- **LiquidityMint**: Consolidated into LiquidityProvision
+- **PoolOverview**: Integrated into MainDashboard overview tab
+- **UniswapV3Manager**: Advanced features moved to Integration tab
+
+### Benefits
+- Clean navigation with logical feature separation
+- Responsive design optimized for mobile and desktop
+- Consistent Cluely.com aesthetic throughout all tabs
+- Reduced code duplication and improved maintainability
+- Better user experience with intuitive tab organization
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -109,3 +140,4 @@ Changelog:
 - July 05, 2025. Implemented comprehensive smart contract reward distribution mechanism with time/size multipliers
 - July 05, 2025. Added real Uniswap V3 contract integration with LP NFT management on Base network
 - July 05, 2025. Implemented comprehensive advanced analytics and historical data tracking system
+- July 05, 2025. Implemented tabbed interface for critical components and cleaned codebase organization

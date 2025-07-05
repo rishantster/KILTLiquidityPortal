@@ -25,8 +25,7 @@ import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
-// Import KILT logo
-import kiltIconWhite from '@assets/KILT-icon-white_1751723139912.png';
+
 
 export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();
@@ -64,8 +63,8 @@ export function MainDashboard() {
           <div className="text-center pt-16 pb-8">
             {/* Hero Section */}
             <div className="mb-12 animate-fade-in">
-              <div className="w-32 h-32 cluely-card rounded-full mx-auto mb-8 flex items-center justify-center animate-floating">
-                <img src={kiltIconWhite} alt="KILT" className="h-16 w-16" />
+              <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full mx-auto mb-8 flex items-center justify-center animate-floating shadow-2xl">
+                <span className="text-white font-bold text-6xl">K</span>
               </div>
               
               {/* Main Headline - KILT focused */}
@@ -150,11 +149,9 @@ export function MainDashboard() {
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <img 
-              src={kiltIconWhite} 
-              alt="KILT" 
-              className="w-12 h-12"
-            />
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-xl">K</span>
+            </div>
             <div>
               <h1 className="text-2xl font-bold text-white">KILT Liquidity Portal</h1>
               <p className="text-gray-400 text-sm">Advanced DeFi liquidity management on Base network</p>
@@ -162,10 +159,10 @@ export function MainDashboard() {
           </div>
           
           <div className="flex items-center space-x-3">
-            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-3 py-1">
               Base Network
             </Badge>
-            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 px-3 py-1">
               ${kiltData?.price?.toFixed(4) || '0.0289'}
             </Badge>
             <WalletConnect />

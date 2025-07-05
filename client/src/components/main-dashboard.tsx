@@ -24,7 +24,7 @@ import { UserPositions } from './user-positions';
 import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
-import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
+import kiltLogo from '@assets/KILT_logo_converted.png';
 
 
 

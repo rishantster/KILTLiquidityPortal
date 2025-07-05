@@ -141,13 +141,13 @@ export function RewardsTracking() {
         <Card className="cluely-card rounded-xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-heading text-lg">Total Earned</h3>
+              <h3 className="text-white font-semibold text-lg">Total Earned</h3>
               <Award className="h-5 w-5 text-yellow-400" />
             </div>
-            <div className="text-2xl font-mono text-white">
+            <div className="text-2xl font-mono-numbers text-white">
               {rewardStats?.totalAccumulated.toFixed(2) || '0.00'} KILT
             </div>
-            <div className="text-sm text-white/60 mt-1">
+            <div className="text-sm text-white/60 mt-1 font-medium">
               From {rewardStats?.activePositions || 0} positions
             </div>
           </CardContent>
@@ -156,13 +156,13 @@ export function RewardsTracking() {
         <Card className="cluely-card rounded-xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-heading text-lg">Claimable</h3>
+              <h3 className="text-white font-semibold text-lg">Claimable</h3>
               <Unlock className="h-5 w-5 text-green-400" />
             </div>
-            <div className="text-2xl font-mono text-white">
+            <div className="text-2xl font-mono-numbers text-white">
               {totalClaimableAmount.toFixed(2)} KILT
             </div>
-            <div className="text-sm text-white/60 mt-1">
+            <div className="text-sm text-white/60 mt-1 font-medium">
               Ready to claim
             </div>
           </CardContent>
@@ -171,13 +171,13 @@ export function RewardsTracking() {
         <Card className="cluely-card rounded-xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-heading text-lg">Daily Rate</h3>
+              <h3 className="text-white font-semibold text-lg">Daily Rate</h3>
               <TrendingUp className="h-5 w-5 text-blue-400" />
             </div>
-            <div className="text-2xl font-mono text-white">
+            <div className="text-2xl font-mono-numbers text-white">
               {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} KILT
             </div>
-            <div className="text-sm text-white/60 mt-1">
+            <div className="text-sm text-white/60 mt-1 font-medium">
               Average per day
             </div>
           </CardContent>
@@ -186,13 +186,13 @@ export function RewardsTracking() {
         <Card className="cluely-card rounded-xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-heading text-lg">Claimed</h3>
+              <h3 className="text-white font-semibold text-lg">Claimed</h3>
               <CheckCircle className="h-5 w-5 text-purple-400" />
             </div>
-            <div className="text-2xl font-mono text-white">
+            <div className="text-2xl font-mono-numbers text-white">
               {rewardStats?.totalClaimed.toFixed(2) || '0.00'} KILT
             </div>
-            <div className="text-sm text-white/60 mt-1">
+            <div className="text-sm text-white/60 mt-1 font-medium">
               Total claimed
             </div>
           </CardContent>
@@ -203,7 +203,7 @@ export function RewardsTracking() {
         {/* Claim Rewards */}
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center space-x-2 text-white font-heading">
+            <CardTitle className="flex items-center space-x-2 text-white font-semibold">
               <Award className="h-5 w-5 text-yellow-400" />
               <span>Claim Rewards</span>
             </CardTitle>
@@ -211,8 +211,8 @@ export function RewardsTracking() {
           <CardContent className="space-y-6">
             {/* Claimable Amount */}
             <div className="text-center p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
-              <div className="text-white/60 text-sm mb-2">Available to Claim</div>
-              <div className="text-white text-3xl font-mono font-bold mb-4">
+              <div className="text-white/60 text-sm mb-2 font-medium">Available to Claim</div>
+              <div className="text-white text-3xl font-mono-numbers font-bold mb-4">
                 {totalClaimableAmount.toFixed(2)} KILT
               </div>
               

@@ -57,7 +57,7 @@ export function MainDashboard() {
               </div>
               
               {/* Main Headline - KILT focused */}
-              <h1 className="text-5xl sm:text-6xl font-heading text-white mb-6 leading-tight animate-slide-up">
+              <h1 className="text-5xl sm:text-6xl font-display text-white mb-6 leading-tight animate-slide-up">
                 KILT Liquidity
                 <br />
                 <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
@@ -85,7 +85,7 @@ export function MainDashboard() {
                 <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="h-6 w-6 text-blue-300" />
                 </div>
-                <h3 className="text-white font-heading text-lg mb-2">KILT/ETH Pool</h3>
+                <h3 className="text-white font-semibold text-lg mb-2">KILT/ETH Pool</h3>
                 <p className="text-white/60 text-sm font-body">
                   Provide liquidity to the official KILT/ETH Uniswap V3 pool on Base network with concentrated positions.
                 </p>
@@ -95,7 +95,7 @@ export function MainDashboard() {
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
                   <Award className="h-6 w-6 text-emerald-300" />
                 </div>
-                <h3 className="text-white font-heading text-lg mb-2">Treasury Rewards</h3>
+                <h3 className="text-white font-semibold text-lg mb-2">Treasury Rewards</h3>
                 <p className="text-white/60 text-sm font-body">
                   Earn KILT tokens from treasury allocation with up to 47.2% APR plus time and size multipliers.
                 </p>
@@ -105,7 +105,7 @@ export function MainDashboard() {
                 <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
                   <BarChart3 className="h-6 w-6 text-purple-300" />
                 </div>
-                <h3 className="text-white font-heading text-lg mb-2">Program Analytics</h3>
+                <h3 className="text-white font-semibold text-lg mb-2">Program Analytics</h3>
                 <p className="text-white/60 text-sm font-body">
                   Track your position performance, rewards earned, and program progress with detailed analytics.
                 </p>
@@ -117,7 +117,7 @@ export function MainDashboard() {
               <h2 className="text-3xl font-heading text-white mb-4">
                 Join the
               </h2>
-              <h1 className="text-5xl font-heading bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-6">
+              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-6">
                 KILT Ecosystem
               </h1>
               <p className="text-white/60 text-lg font-body max-w-xl mx-auto">
@@ -142,10 +142,10 @@ export function MainDashboard() {
                   <Coins className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-white font-heading text-2xl">
+                  <CardTitle className="text-white font-display text-2xl">
                     KILT Liquidity Portal
                   </CardTitle>
-                  <p className="text-white/70 font-body">
+                  <p className="text-white/70 font-medium">
                     Advanced DeFi liquidity management on Base network
                   </p>
                 </div>
@@ -214,11 +214,11 @@ export function MainDashboard() {
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className="text-white/70 text-sm font-body">KILT Price</div>
-                            <div className="text-white font-heading text-2xl mt-1">
+                            <div className="text-white/70 text-sm font-medium">KILT Price</div>
+                            <div className="text-white font-mono-numbers text-2xl mt-1">
                               ${kiltData?.price?.toFixed(4) || '0.0000'}
                             </div>
-                            <div className="text-emerald-300 text-xs font-medium mt-1">
+                            <div className="text-emerald-300 text-xs font-semibold mt-1">
                               +{kiltData?.priceChange24h?.toFixed(2) || '0.00'}%
                             </div>
                           </div>
@@ -233,11 +233,11 @@ export function MainDashboard() {
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className="text-white/70 text-sm font-body">Market Cap</div>
-                            <div className="text-white font-heading text-2xl mt-1">
+                            <div className="text-white/70 text-sm font-medium">Market Cap</div>
+                            <div className="text-white font-mono-numbers text-2xl mt-1">
                               ${((kiltData?.marketCap || 0) / 1000000).toFixed(1)}M
                             </div>
-                            <div className="text-blue-300 text-xs font-medium mt-1">
+                            <div className="text-blue-300 text-xs font-semibold mt-1">
                               290.56M supply
                             </div>
                           </div>
@@ -252,11 +252,11 @@ export function MainDashboard() {
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className="text-white/70 text-sm font-body">Treasury APR</div>
-                            <div className="text-white font-heading text-2xl mt-1">
+                            <div className="text-white/70 text-sm font-medium">Treasury APR</div>
+                            <div className="text-white font-mono-numbers text-2xl mt-1">
                               47.2%
                             </div>
-                            <div className="text-purple-300 text-xs font-medium mt-1">
+                            <div className="text-purple-300 text-xs font-semibold mt-1">
                               Base reward rate
                             </div>
                           </div>
@@ -276,10 +276,10 @@ export function MainDashboard() {
                           <Wallet className="h-7 w-7 text-white" />
                         </div>
                         <div className="flex-1 animate-slide-in-left animate-delay-500">
-                          <h3 className="text-white font-heading text-xl mb-1">
+                          <h3 className="text-white font-semibold text-xl mb-1">
                             Welcome to KILT Liquidity Portal
                           </h3>
-                          <p className="text-white/70 font-body">
+                          <p className="text-white/70 font-mono-numbers">
                             Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
                           </p>
                           <p className="text-white/50 text-sm mt-2 font-body">

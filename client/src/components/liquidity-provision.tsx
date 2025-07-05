@@ -163,32 +163,32 @@ export function LiquidityProvision() {
               />
               
               {/* Key percentage buttons */}
-              <div className="flex justify-between text-xs">
+              <div className="relative h-4 mt-1">
                 <button
                   type="button"
                   onClick={() => handleSliderChange([0])}
-                  className="text-white/60 hover:text-white transition-colors font-body"
+                  className="absolute left-0 transform -translate-x-1/2 text-white/60 hover:text-white transition-colors font-body text-xs"
                 >
                   0%
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSliderChange([25])}
-                  className="text-white/60 hover:text-white transition-colors font-body"
+                  className="absolute left-1/4 transform -translate-x-1/2 text-white/60 hover:text-white transition-colors font-body text-xs"
                 >
                   25%
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSliderChange([75])}
-                  className="text-white/60 hover:text-white transition-colors font-body"
+                  className="absolute left-3/4 transform -translate-x-1/2 text-white/60 hover:text-white transition-colors font-body text-xs"
                 >
                   75%
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSliderChange([100])}
-                  className="text-white/60 hover:text-white transition-colors font-body"
+                  className="absolute right-0 transform translate-x-1/2 text-white/60 hover:text-white transition-colors font-body text-xs"
                 >
                   100%
                 </button>

@@ -11,11 +11,12 @@ import {
   Award,
   Activity,
   Target,
-  Wallet
+  Wallet,
+  Plus
 } from 'lucide-react';
 
 // Import critical components
-import { LiquidityProvision } from './liquidity-provision';
+import { LiquidityProvisionSimple } from './liquidity-provision-simple';
 import { RewardsTracking } from './rewards-tracking';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { PositionsDashboard } from './positions-dashboard';
@@ -168,7 +169,7 @@ export function MainDashboard() {
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="border-b border-white/10 px-3 sm:px-6 pt-6 animate-fade-in animate-delay-400">
-                <TabsList className="grid w-full grid-cols-4 nav-glass h-10 sm:h-12 overflow-x-auto rounded-xl">
+                <TabsList className="grid w-full grid-cols-3 nav-glass h-10 sm:h-12 overflow-x-auto rounded-xl">
                   <TabsTrigger 
                     value="overview" 
                     className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-300 data-[state=active]:border-blue-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
@@ -178,28 +179,20 @@ export function MainDashboard() {
                     <span className="sm:hidden truncate">Home</span>
                   </TabsTrigger>
                   <TabsTrigger 
-                    value="positions" 
+                    value="liquidity" 
                     className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border-emerald-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
                   >
-                    <Target className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Liquidity</span>
-                    <span className="sm:hidden truncate">LPs</span>
+                    <Plus className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="hidden sm:inline truncate">Add Liquidity</span>
+                    <span className="sm:hidden truncate">Add</span>
                   </TabsTrigger>
                   <TabsTrigger 
-                    value="rewards" 
+                    value="positions" 
                     className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300 data-[state=active]:border-amber-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
                   >
-                    <Award className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Rewards</span>
-                    <span className="sm:hidden truncate">Earn</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="analytics" 
-                    className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 data-[state=active]:border-purple-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
-                  >
                     <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Analytics</span>
-                    <span className="sm:hidden truncate">Stats</span>
+                    <span className="hidden sm:inline truncate">My Positions</span>
+                    <span className="sm:hidden truncate">Mine</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -291,19 +284,20 @@ export function MainDashboard() {
                 </div>
               </TabsContent>
 
-              {/* Liquidity & Positions Tab */}
+              {/* Add Liquidity Tab */}
+              <TabsContent value="liquidity" className="p-6">
+                <LiquidityProvisionSimple />
+              </TabsContent>
+
+              {/* My Positions Tab - Combines positions, rewards, and analytics */}
               <TabsContent value="positions" className="p-6">
-                <PositionsDashboard />
-              </TabsContent>
-
-              {/* Rewards Tab */}
-              <TabsContent value="rewards" className="p-6">
-                <RewardsTracking />
-              </TabsContent>
-
-              {/* Analytics Tab */}
-              <TabsContent value="analytics" className="p-6">
-                <AnalyticsDashboard selectedPositionId={null} userId={null} />
+                <div className="space-y-6">
+                  <PositionsDashboard />
+                  <div className="mt-8">
+                    <h3 className="text-white font-heading text-xl mb-4">Rewards Summary</h3>
+                    <RewardsTracking />
+                  </div>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>

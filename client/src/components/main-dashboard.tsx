@@ -46,18 +46,18 @@ export function MainDashboard() {
                 <Coins className="h-16 w-16 text-white" />
               </div>
               
-              {/* Main Headline - Cluely style */}
-              <h1 className="text-6xl sm:text-7xl font-heading text-white mb-6 leading-tight animate-slide-up">
-                Everything You Need.
+              {/* Main Headline - KILT focused */}
+              <h1 className="text-5xl sm:text-6xl font-heading text-white mb-6 leading-tight animate-slide-up">
+                KILT Liquidity
                 <br />
                 <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
-                  Before You Ask.
+                  Incentive Program
                 </span>
               </h1>
               
               <p className="text-xl text-white/80 font-body max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
-                KILT is an advanced liquidity management platform that anticipates your DeFi needs — 
-                providing intelligent position optimization, automated rewards, and real-time analytics.
+                Provide liquidity for KILT/ETH on Base network and earn up to 47.2% APR with time and size multipliers. 
+                1% of total KILT supply (2.9M tokens) allocated from treasury.
               </p>
             </div>
 
@@ -75,9 +75,9 @@ export function MainDashboard() {
                 <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="h-6 w-6 text-blue-300" />
                 </div>
-                <h3 className="text-white font-heading text-lg mb-2">Smart Positioning</h3>
+                <h3 className="text-white font-heading text-lg mb-2">KILT/ETH Pool</h3>
                 <p className="text-white/60 text-sm font-body">
-                  Advanced algorithms optimize your liquidity ranges for maximum efficiency and returns.
+                  Provide liquidity to the official KILT/ETH Uniswap V3 pool on Base network with concentrated positions.
                 </p>
               </Card>
 
@@ -85,9 +85,9 @@ export function MainDashboard() {
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
                   <Award className="h-6 w-6 text-emerald-300" />
                 </div>
-                <h3 className="text-white font-heading text-lg mb-2">Instant Rewards</h3>
+                <h3 className="text-white font-heading text-lg mb-2">Treasury Rewards</h3>
                 <p className="text-white/60 text-sm font-body">
-                  Earn 47.2% base APR with time and size multipliers — no complex staking required.
+                  Earn KILT tokens from treasury allocation with up to 47.2% APR plus time and size multipliers.
                 </p>
               </Card>
 
@@ -95,9 +95,9 @@ export function MainDashboard() {
                 <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
                   <BarChart3 className="h-6 w-6 text-purple-300" />
                 </div>
-                <h3 className="text-white font-heading text-lg mb-2">Live Analytics</h3>
+                <h3 className="text-white font-heading text-lg mb-2">Program Analytics</h3>
                 <p className="text-white/60 text-sm font-body">
-                  Real-time performance tracking with impermanent loss calculations and ROI insights.
+                  Track your position performance, rewards earned, and program progress with detailed analytics.
                 </p>
               </Card>
             </div>
@@ -105,13 +105,13 @@ export function MainDashboard() {
             {/* Bottom CTA */}
             <div className="text-center animate-fade-in animate-delay-500">
               <h2 className="text-3xl font-heading text-white mb-4">
-                Welcome to
+                Join the
               </h2>
               <h1 className="text-5xl font-heading bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent mb-6">
-                The Future of Liquidity.
+                KILT Ecosystem
               </h1>
               <p className="text-white/60 text-lg font-body max-w-xl mx-auto">
-                Join thousands of DeFi enthusiasts earning passive income through intelligent liquidity management on Base network.
+                Become a liquidity provider for KILT Protocol and earn substantial rewards while supporting the decentralized identity ecosystem.
               </p>
             </div>
           </div>

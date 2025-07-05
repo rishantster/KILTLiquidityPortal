@@ -167,4 +167,4 @@ Changelog:
 - July 05, 2025. Added mobile wallet compatibility with deep link support and responsive design
 - July 05, 2025. Enhanced UI with advanced Cluely.com-inspired glassmorphism design featuring sophisticated dark theme, enhanced blur effects, and premium visual hierarchy
 - July 05, 2025. Implemented smooth glassmorphism transition animations with advanced micro-interactions, shimmer effects, floating animations, and sophisticated easing curves for premium user experience
-- July 05, 2025. Revamped landing page with Cluely.com-inspired messaging featuring "Everything You Need. Before You Ask." tagline, floating background elements, feature showcase grid, and compelling conversion-focused copy
+- July 05, 2025. Revamped landing page with KILT-focused messaging featuring "KILT Liquidity Incentive Program" headline, treasury allocation details, and program-specific feature descriptions

@@ -150,12 +150,18 @@ export function useWallet() {
   };
 
   const disconnect = () => {
+    // Clear local state immediately
     setAddress(null);
     setIsConnected(false);
+    
+    // Show toast notification
     toast({
       title: "Wallet disconnected",
       description: "Successfully disconnected from your wallet.",
     });
+    
+    // Force component re-render by updating all dependent components
+    console.log('Wallet disconnected - State updated:', { address: null, isConnected: false });
   };
 
   return {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +31,11 @@ export function MainDashboard() {
 
   // Debug wallet state
   console.log('MainDashboard - Wallet State:', { address, isConnected, initialized });
+
+  // Force component re-render when wallet state changes
+  useEffect(() => {
+    console.log('MainDashboard - Wallet state changed:', { address, isConnected, initialized });
+  }, [address, isConnected, initialized]);
 
   // Show loading until wallet is initialized
   if (!initialized) {

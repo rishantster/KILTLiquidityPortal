@@ -137,22 +137,22 @@ export function LiquidityProvision() {
 
   return (
     <Card className="cluely-card rounded-2xl">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center space-x-2 text-white font-heading">
-          <Plus className="h-5 w-5 text-blue-400" />
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center space-x-2 text-white font-heading text-lg">
+          <Plus className="h-4 w-4 text-blue-400" />
           <span>Add Liquidity</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <CardContent className="pt-0">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Position Size Slider */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-white font-heading">Position Size</Label>
-              <span className="text-blue-400 font-medium">{positionSizePercent[0].toFixed(0)}%</span>
+              <Label className="text-white font-heading text-sm">Position Size</Label>
+              <span className="text-blue-400 font-medium text-sm">{positionSizePercent[0].toFixed(0)}%</span>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Slider
                 value={positionSizePercent}
                 onValueChange={handleSliderChange}
@@ -163,7 +163,7 @@ export function LiquidityProvision() {
               />
               
               {/* Key percentage buttons */}
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs">
                 <button
                   type="button"
                   onClick={() => handleSliderChange([0])}
@@ -197,8 +197,8 @@ export function LiquidityProvision() {
           </div>
 
           {/* KILT Amount */}
-          <div className="space-y-3">
-            <Label className="text-white font-heading">KILT Amount</Label>
+          <div className="space-y-2">
+            <Label className="text-white font-heading text-sm">KILT Amount</Label>
             <div className="relative">
               <Input
                 type="number"
@@ -206,21 +206,21 @@ export function LiquidityProvision() {
                 onChange={(e) => handleKiltChange(e.target.value)}
                 placeholder="0.0"
                 step="0.01"
-                className="cluely-button h-14 pl-4 pr-20 text-white placeholder:text-white/40 text-lg"
+                className="cluely-button h-10 pl-3 pr-16 text-white placeholder:text-white/40"
               />
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                <span className="text-white/60 font-body">KILT</span>
-                <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                <span className="text-white/60 font-body text-sm">KILT</span>
+                <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
               </div>
             </div>
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-xs">
               <span className="text-white/60 font-body">Balance: {kiltBalance.toFixed(2)} KILT</span>
               <Button
                 type="button"
                 variant="link"
                 size="sm"
                 onClick={setMaxKilt}
-                className="text-blue-400 hover:text-blue-300 font-body"
+                className="text-blue-400 hover:text-blue-300 font-body text-xs h-auto p-0"
               >
                 Max
               </Button>
@@ -228,8 +228,8 @@ export function LiquidityProvision() {
           </div>
 
           {/* ETH Amount */}
-          <div className="space-y-3">
-            <Label className="text-white font-heading">ETH Amount</Label>
+          <div className="space-y-2">
+            <Label className="text-white font-heading text-sm">ETH Amount</Label>
             <div className="relative">
               <Input
                 type="number"
@@ -237,21 +237,21 @@ export function LiquidityProvision() {
                 onChange={(e) => handleEthChange(e.target.value)}
                 placeholder="0.0"
                 step="0.001"
-                className="cluely-button h-14 pl-4 pr-20 text-white placeholder:text-white/40 text-lg"
+                className="cluely-button h-10 pl-3 pr-16 text-white placeholder:text-white/40"
               />
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                <span className="text-white/60 font-body">ETH</span>
-                <div className="w-6 h-6 bg-blue-500 rounded-full"></div>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                <span className="text-white/60 font-body text-sm">ETH</span>
+                <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
               </div>
             </div>
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-xs">
               <span className="text-white/60 font-body">Balance: {ethBalance.toFixed(3)} ETH</span>
               <Button
                 type="button"
                 variant="link"
                 size="sm"
                 onClick={setMaxEth}
-                className="text-blue-400 hover:text-blue-300 font-body"
+                className="text-blue-400 hover:text-blue-300 font-body text-xs h-auto p-0"
               >
                 Max
               </Button>
@@ -259,50 +259,50 @@ export function LiquidityProvision() {
           </div>
 
           {/* Price Range */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-white font-heading">Price Range</Label>
+              <Label className="text-white font-heading text-sm">Price Range</Label>
               <Button
                 type="button"
                 variant="link"
                 size="sm"
                 onClick={setFullRange}
-                className="text-blue-400 hover:text-blue-300 font-body"
+                className="text-blue-400 hover:text-blue-300 font-body text-xs h-auto p-0"
               >
                 Full Range
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-white/60 text-sm font-body">Min Price</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-white/60 text-xs font-body">Min Price</Label>
                 <Input
                   type="number"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                   placeholder="0.0"
                   step="0.000001"
-                  className="cluely-button h-12 text-white placeholder:text-white/40"
+                  className="cluely-button h-9 text-white placeholder:text-white/40 text-sm"
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-white/60 text-sm font-body">Max Price</Label>
+              <div className="space-y-1">
+                <Label className="text-white/60 text-xs font-body">Max Price</Label>
                 <Input
                   type="number"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   placeholder="0.0"
                   step="0.000001"
-                  className="cluely-button h-12 text-white placeholder:text-white/40"
+                  className="cluely-button h-9 text-white placeholder:text-white/40 text-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-2">
             <Button 
               type="submit" 
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-heading rounded-xl"
+              className="w-full h-10 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-heading rounded-xl text-sm"
               disabled={!isConnected || addLiquidityMutation.isPending}
             >
               {addLiquidityMutation.isPending ? 'Adding Liquidity...' : 'Add Liquidity'}

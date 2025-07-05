@@ -25,8 +25,16 @@ export const rewards = pgTable("rewards", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   positionId: integer("position_id").references(() => lpPositions.id),
-  amount: decimal("amount", { precision: 18, scale: 8 }).notNull(),
+  nftTokenId: text("nft_token_id").notNull(), // Uniswap V3 NFT token ID
+  positionValueUSD: decimal("position_value_usd", { precision: 20, scale: 8 }).notNull(),
+  dailyRewardAmount: decimal("daily_reward_amount", { precision: 18, scale: 8 }).notNull(),
+  accumulatedAmount: decimal("accumulated_amount", { precision: 18, scale: 8 }).notNull(),
+  claimedAmount: decimal("claimed_amount", { precision: 18, scale: 8 }).default("0"),
+  stakingStartDate: timestamp("staking_start_date").defaultNow().notNull(),
+  lastRewardCalculation: timestamp("last_reward_calculation").defaultNow().notNull(),
   claimedAt: timestamp("claimed_at"),
+  isEligibleForClaim: boolean("is_eligible_for_claim").default(false),
+  lockPeriodMonths: integer("lock_period_months").default(3).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -94,6 +102,25 @@ export const feeEvents = pgTable("fee_events", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+// Daily reward tracking table
+export const dailyRewards = pgTable("daily_rewards", {
+  id: serial("id").primaryKey(),
+  rewardId: integer("reward_id").references(() => rewards.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  positionId: integer("position_id").references(() => lpPositions.id).notNull(),
+  date: date("date").notNull(),
+  positionValueUSD: decimal("position_value_usd", { precision: 20, scale: 8 }).notNull(),
+  baseAPR: decimal("base_apr", { precision: 5, scale: 2 }).notNull(),
+  timeMultiplier: decimal("time_multiplier", { precision: 5, scale: 2 }).notNull(),
+  sizeMultiplier: decimal("size_multiplier", { precision: 5, scale: 2 }).notNull(),
+  effectiveAPR: decimal("effective_apr", { precision: 5, scale: 2 }).notNull(),
+  dailyRewardAmount: decimal("daily_reward_amount", { precision: 18, scale: 8 }).notNull(),
+  daysStaked: integer("days_staked").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  uniqueUserPositionDate: unique().on(table.userId, table.positionId, table.date),
+}));
+
 export const performanceMetrics = pgTable("performance_metrics", {
   id: serial("id").primaryKey(),
   positionId: integer("position_id").references(() => lpPositions.id).notNull(),
@@ -124,7 +151,24 @@ export const insertLpPositionSchema = createInsertSchema(lpPositions).pick({
 export const insertRewardSchema = createInsertSchema(rewards).pick({
   userId: true,
   positionId: true,
-  amount: true,
+  nftTokenId: true,
+  positionValueUSD: true,
+  dailyRewardAmount: true,
+  accumulatedAmount: true,
+});
+
+export const insertDailyRewardSchema = createInsertSchema(dailyRewards).pick({
+  rewardId: true,
+  userId: true,
+  positionId: true,
+  date: true,
+  positionValueUSD: true,
+  baseAPR: true,
+  timeMultiplier: true,
+  sizeMultiplier: true,
+  effectiveAPR: true,
+  dailyRewardAmount: true,
+  daysStaked: true,
 });
 
 export const insertPoolStatsSchema = createInsertSchema(poolStats).pick({
@@ -197,6 +241,8 @@ export type InsertLpPosition = z.infer<typeof insertLpPositionSchema>;
 export type LpPosition = typeof lpPositions.$inferSelect;
 export type InsertReward = z.infer<typeof insertRewardSchema>;
 export type Reward = typeof rewards.$inferSelect;
+export type InsertDailyReward = z.infer<typeof insertDailyRewardSchema>;
+export type DailyReward = typeof dailyRewards.$inferSelect;
 export type InsertPoolStats = z.infer<typeof insertPoolStatsSchema>;
 export type PoolStats = typeof poolStats.$inferSelect;
 

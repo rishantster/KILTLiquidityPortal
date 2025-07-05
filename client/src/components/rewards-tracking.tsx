@@ -1,190 +1,427 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calculator, Building2, Loader2 } from 'lucide-react';
-import { useKiltTokenData, useRewardCalculator } from '@/hooks/use-kilt-data';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { 
+  Calculator, 
+  Building2, 
+  Clock, 
+  Lock, 
+  Unlock,
+  TrendingUp,
+  DollarSign,
+  Calendar,
+  Award,
+  CheckCircle,
+  XCircle,
+  Loader2
+} from 'lucide-react';
+import { useWallet } from '@/hooks/use-wallet';
+import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+
+interface RewardCalculation {
+  baseAPR: number;
+  timeMultiplier: number;
+  sizeMultiplier: number;
+  effectiveAPR: number;
+  dailyRewards: number;
+  liquidityAmount: number;
+  daysStaked: number;
+  accumulatedRewards: number;
+  canClaim: boolean;
+  daysUntilClaim: number;
+}
+
+interface UserRewardStats {
+  totalAccumulated: number;
+  totalClaimed: number;
+  totalClaimable: number;
+  activePositions: number;
+  avgDailyRewards: number;
+}
+
+interface ClaimResult {
+  success: boolean;
+  claimedAmount: number;
+  transactionHash?: string;
+  error?: string;
+}
 
 export function RewardsTracking() {
-  const { data: kiltData, isLoading: kiltLoading } = useKiltTokenData();
-  const { params, calculation, setParams, isLoading: calcLoading } = useRewardCalculator();
+  const { address, isConnected } = useWallet();
+  const { data: kiltData } = useKiltTokenData();
+  const { kiltEthPositions, calculatePositionValue } = useUniswapV3();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Calculator inputs
   const [liquidityInput, setLiquidityInput] = useState('1000');
   const [daysInput, setDaysInput] = useState('0');
+  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const liquidity = parseFloat(liquidityInput) || 0;
-    const days = parseInt(daysInput) || 0;
-    setParams(prev => ({ 
-      ...prev, 
-      liquidityAmount: liquidity,
-      daysStaked: days,
-      positionSize: liquidity // Use liquidity as position size for simplicity
-    }));
-  }, [liquidityInput, daysInput, setParams]);
+  // Get user from address
+  const { data: user } = useQuery({
+    queryKey: ['user', address],
+    queryFn: async () => {
+      if (!address) return null;
+      const response = await fetch(`/api/users/${address}`);
+      if (!response.ok) return null;
+      return response.json();
+    },
+    enabled: !!address && isConnected
+  });
+
+  // Get reward calculation
+  const { data: rewardCalculation, isLoading: calcLoading } = useQuery<RewardCalculation>({
+    queryKey: ['reward-calculation', user?.id, selectedPositionId, liquidityInput, daysInput],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const response = await fetch('/api/rewards/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          nftTokenId: selectedPositionId || 'calculator',
+          positionValueUSD: parseFloat(liquidityInput) || 1000,
+          daysStaked: parseInt(daysInput) || 0
+        })
+      });
+      return response.json();
+    },
+    enabled: !!user?.id
+  });
+
+  // Get user reward statistics
+  const { data: rewardStats } = useQuery<UserRewardStats>({
+    queryKey: ['reward-stats', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const response = await fetch(`/api/rewards/user/${user.id}/stats`);
+      return response.json();
+    },
+    enabled: !!user?.id,
+    refetchInterval: 30000
+  });
+
+  // Get claimable rewards
+  const { data: claimableRewards } = useQuery({
+    queryKey: ['claimable-rewards', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await fetch(`/api/rewards/user/${user.id}/claimable`);
+      return response.json();
+    },
+    enabled: !!user?.id,
+    refetchInterval: 30000
+  });
+
+  // Claim rewards mutation
+  const claimMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('User not found');
+      const response = await fetch(`/api/rewards/claim/${user.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to claim rewards');
+      }
+      
+      return response.json() as Promise<ClaimResult>;
+    },
+    onSuccess: (result) => {
+      toast({
+        title: "Rewards Claimed!",
+        description: `Successfully claimed ${result.claimedAmount.toFixed(2)} KILT tokens`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['reward-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['claimable-rewards'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Claim Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const totalClaimableAmount = claimableRewards?.reduce((total: number, reward: any) => {
+    const accumulated = Number(reward.accumulatedAmount);
+    const claimed = Number(reward.claimedAmount || 0);
+    return total + (accumulated - claimed);
+  }, 0) || 0;
+
+  const lockProgress = rewardCalculation ? 
+    Math.min(100, (rewardCalculation.daysStaked / 90) * 100) : 0;
+
+  if (!isConnected) {
+    return (
+      <Card className="cluely-card rounded-2xl">
+        <CardContent className="p-12 text-center">
+          <Lock className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+          <h3 className="text-white font-heading text-xl mb-2">Connect Wallet</h3>
+          <p className="text-white/60">Connect your wallet to view and manage rewards</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Reward Calculator */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center space-x-2 text-white font-heading">
-            <Calculator className="h-5 w-5 text-emerald-400" />
-            <span>Reward Calculator</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Input Controls */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-white/60 text-sm font-medium">Liquidity Amount (USD)</Label>
-              <Input
-                type="number"
-                value={liquidityInput}
-                onChange={(e) => setLiquidityInput(e.target.value)}
-                placeholder="1000"
-                className="cluely-button border-white/10 bg-white/5 text-white placeholder:text-white/40"
-              />
+    <div className="space-y-6">
+      {/* Reward Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="cluely-card rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-heading text-lg">Total Earned</h3>
+              <Award className="h-5 w-5 text-yellow-400" />
             </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 text-sm font-medium">Days Staked</Label>
-              <Input
-                type="number"
-                value={daysInput}
-                onChange={(e) => setDaysInput(e.target.value)}
-                placeholder="0"
-                className="cluely-button border-white/10 bg-white/5 text-white placeholder:text-white/40"
-              />
+            <div className="text-2xl font-mono text-white">
+              {rewardStats?.totalAccumulated.toFixed(2) || '0.00'} KILT
             </div>
-          </div>
+            <div className="text-sm text-white/60 mt-1">
+              From {rewardStats?.activePositions || 0} positions
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Calculation Results */}
-          <Card className="cluely-card bg-white/3">
-            <CardContent className="p-4">
-              {calcLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="h-5 w-5 animate-spin text-white/60" />
+        <Card className="cluely-card rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-heading text-lg">Claimable</h3>
+              <Unlock className="h-5 w-5 text-green-400" />
+            </div>
+            <div className="text-2xl font-mono text-white">
+              {totalClaimableAmount.toFixed(2)} KILT
+            </div>
+            <div className="text-sm text-white/60 mt-1">
+              Ready to claim
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cluely-card rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-heading text-lg">Daily Rate</h3>
+              <TrendingUp className="h-5 w-5 text-blue-400" />
+            </div>
+            <div className="text-2xl font-mono text-white">
+              {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} KILT
+            </div>
+            <div className="text-sm text-white/60 mt-1">
+              Average per day
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cluely-card rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-heading text-lg">Claimed</h3>
+              <CheckCircle className="h-5 w-5 text-purple-400" />
+            </div>
+            <div className="text-2xl font-mono text-white">
+              {rewardStats?.totalClaimed.toFixed(2) || '0.00'} KILT
+            </div>
+            <div className="text-sm text-white/60 mt-1">
+              Total claimed
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Reward Calculator */}
+        <Card className="cluely-card rounded-2xl">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading">
+              <Calculator className="h-5 w-5 text-emerald-400" />
+              <span>Reward Calculator</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Input Controls */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-white/60 text-sm font-medium">Liquidity Amount (USD)</Label>
+                <Input
+                  type="number"
+                  value={liquidityInput}
+                  onChange={(e) => setLiquidityInput(e.target.value)}
+                  placeholder="1000"
+                  className="cluely-button border-white/10 bg-white/5 text-white placeholder:text-white/40"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 text-sm font-medium">Days Staked</Label>
+                <Input
+                  type="number"
+                  value={daysInput}
+                  onChange={(e) => setDaysInput(e.target.value)}
+                  placeholder="0"
+                  className="cluely-button border-white/10 bg-white/5 text-white placeholder:text-white/40"
+                />
+              </div>
+            </div>
+
+            {/* Calculation Results */}
+            {calcLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 text-blue-400 animate-spin" />
+              </div>
+            ) : rewardCalculation && (
+              <div className="space-y-4">
+                <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Base APR</span>
+                      <span className="text-white font-mono">{rewardCalculation.baseAPR}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Time Multiplier</span>
+                      <span className="text-green-400 font-mono">{rewardCalculation.timeMultiplier.toFixed(1)}x</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Size Multiplier</span>
+                      <span className="text-yellow-400 font-mono">{rewardCalculation.sizeMultiplier.toFixed(1)}x</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Lock Progress</span>
+                      <span className="text-white font-mono">{rewardCalculation.daysStaked}/90 days</span>
+                    </div>
+                  </div>
+                  <Separator className="my-3 bg-white/10" />
+                  <div className="flex justify-between">
+                    <span className="text-white/60">Effective APR</span>
+                    <span className="text-white font-mono text-lg">{rewardCalculation.effectiveAPR.toFixed(1)}%</span>
+                  </div>
                 </div>
-              ) : calculation ? (
+
+                {/* Lock Progress */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60 font-body">Base APR</span>
-                    <span className="text-white font-medium">{calculation.baseAPR}%</span>
+                    <span className="text-white/60 text-sm">3-Month Lock Period</span>
+                    <Badge variant={rewardCalculation.canClaim ? "default" : "secondary"} className="text-xs">
+                      {rewardCalculation.canClaim ? (
+                        <><Unlock className="h-3 w-3 mr-1" /> Unlocked</>
+                      ) : (
+                        <><Lock className="h-3 w-3 mr-1" /> {rewardCalculation.daysUntilClaim} days left</>
+                      )}
+                    </Badge>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/60 font-body">Time Multiplier</span>
-                    <span className="text-emerald-400 font-medium">{calculation.timeMultiplier.toFixed(1)}x</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/60 font-body">Size Multiplier</span>
-                    <span className="text-amber-400 font-medium">{calculation.sizeMultiplier.toFixed(1)}x</span>
-                  </div>
-                  <hr className="border-white/10 my-3" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium">Effective APR</span>
-                    <span className="text-white font-heading text-lg">{calculation.effectiveAPR.toFixed(1)}%</span>
-                  </div>
+                  <Progress value={lockProgress} className="h-2" />
                 </div>
-              ) : (
-                <div className="text-center text-white/40 py-4 font-body">
-                  Enter liquidity amount to calculate rewards
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* Daily Rewards Display */}
-          <Card className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border-emerald-500/20 rounded-xl">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-sm text-white/60 mb-1 font-body">Daily Rewards</div>
-                <div className="text-3xl font-display text-white">
-                  {calculation ? `${calculation.dailyRewards.toFixed(1)} KILT` : '0.0 KILT'}
+                {/* Daily Rewards */}
+                <div className="p-4 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-lg border border-emerald-500/20">
+                  <div className="text-center">
+                    <div className="text-white/60 text-sm mb-1">Daily Rewards</div>
+                    <div className="text-white text-2xl font-mono font-bold">
+                      {rewardCalculation.dailyRewards.toFixed(1)} KILT
+                    </div>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Treasury Information */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center space-x-2 text-white font-heading">
-            <Building2 className="h-5 w-5 text-emerald-400" />
-            <span>Treasury Information</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {kiltLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-white/60" />
+        {/* Claim Rewards */}
+        <Card className="cluely-card rounded-2xl">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading">
+              <Award className="h-5 w-5 text-yellow-400" />
+              <span>Claim Rewards</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Claimable Amount */}
+            <div className="text-center p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+              <div className="text-white/60 text-sm mb-2">Available to Claim</div>
+              <div className="text-white text-3xl font-mono font-bold mb-4">
+                {totalClaimableAmount.toFixed(2)} KILT
+              </div>
+              
+              {totalClaimableAmount > 0 ? (
+                <Button 
+                  onClick={() => claimMutation.mutate()}
+                  disabled={claimMutation.isPending}
+                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-3 rounded-lg transition-all duration-200"
+                >
+                  {claimMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Claiming...
+                    </>
+                  ) : (
+                    <>
+                      <Award className="h-4 w-4 mr-2" />
+                      Claim Rewards
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <div className="text-white/60 text-sm">
+                  No rewards available to claim yet
+                </div>
+              )}
             </div>
-          ) : kiltData ? (
-            <>
-              <Card className="cluely-card bg-white/3">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60 font-body">Total KILT Supply</span>
-                      <span className="text-white font-medium">
-                        {kiltData.totalSupply.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60 font-body">Treasury Allocation</span>
-                      <span className="text-blue-400 font-medium">
-                        {kiltData.treasuryAllocation.toLocaleString()} KILT (1%)
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60 font-body">Remaining</span>
-                      <span className="text-emerald-400 font-medium">
-                        {kiltData.treasuryRemaining.toLocaleString()} KILT
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              <Card className="cluely-card bg-white/3">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60 font-body">Distribution Rate</span>
-                      <span className="text-white font-medium">~{kiltData.distributionRate} KILT/day</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60 font-body">Program Duration</span>
-                      <span className="text-white font-medium">~{kiltData.programDuration.toLocaleString()} days</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60 font-body">Progress</span>
-                      <span className="text-white font-medium">{kiltData.progress.toFixed(3)}%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Treasury Information */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-white font-heading">
+                <Building2 className="h-4 w-4 text-purple-400" />
+                <span>Treasury Information</span>
+              </div>
+              
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-white/60">Total Allocation</span>
+                  <span className="text-white font-mono">2,905,600 KILT</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Distribution Rate</span>
+                  <span className="text-white font-mono">47.2% APR</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Lock Period</span>
+                  <span className="text-white font-mono">3 months</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">KILT Price</span>
+                  <span className="text-white font-mono">${kiltData?.price.toFixed(4) || '0.0289'}</span>
+                </div>
+              </div>
 
-              <Card className="cluely-card bg-white/3">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm text-white/60 font-body">
-                      <span>Program Progress</span>
-                      <span>{kiltData.progress.toFixed(3)}% Complete</span>
-                    </div>
-                    <Progress value={kiltData.progress} className="h-2" />
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          ) : (
-            <div className="text-center text-white/40 py-8 font-body">
-              Failed to load treasury data
+              <Progress value={30} className="h-2" />
+              <div className="text-xs text-white/60 text-center">
+                30% of treasury allocated
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+
+            {/* Important Notes */}
+            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+              <div className="flex items-start gap-2">
+                <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-white/70">
+                  <strong>3-Month Lock:</strong> Rewards can only be claimed after positions have been active for 90 days. This ensures long-term commitment to the KILT ecosystem.
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

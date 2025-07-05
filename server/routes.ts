@@ -10,6 +10,7 @@ import {
 import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 import { AnalyticsService } from "./analytics";
+import { rewardService } from "./reward-service";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -338,6 +339,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(metrics);
     } catch (error) {
       res.status(500).json({ error: "Failed to calculate performance metrics" });
+    }
+  });
+
+  // Reward System API Routes
+  
+  // Calculate rewards for a position
+  app.post("/api/rewards/calculate", async (req, res) => {
+    try {
+      const { userId, nftTokenId, positionValueUSD, daysStaked } = req.body;
+      
+      if (!userId || !nftTokenId || !positionValueUSD) {
+        res.status(400).json({ error: "Missing required parameters" });
+        return;
+      }
+      
+      const calculation = await rewardService.calculatePositionRewards(
+        userId,
+        nftTokenId,
+        positionValueUSD,
+        daysStaked || 0
+      );
+      
+      res.json(calculation);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to calculate rewards" });
+    }
+  });
+
+  // Create position reward tracking
+  app.post("/api/rewards/position", async (req, res) => {
+    try {
+      const { userId, positionId, nftTokenId, positionValueUSD } = req.body;
+      
+      if (!userId || !positionId || !nftTokenId || !positionValueUSD) {
+        res.status(400).json({ error: "Missing required parameters" });
+        return;
+      }
+      
+      const reward = await rewardService.createPositionReward(
+        userId,
+        positionId,
+        nftTokenId,
+        positionValueUSD
+      );
+      
+      res.json(reward);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create position reward" });
+    }
+  });
+
+  // Get user rewards
+  app.get("/api/rewards/user/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const rewards = await rewardService.getUserRewards(userId);
+      res.json(rewards);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user rewards" });
+    }
+  });
+
+  // Get claimable rewards
+  app.get("/api/rewards/user/:userId/claimable", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const claimableRewards = await rewardService.getClaimableRewards(userId);
+      res.json(claimableRewards);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch claimable rewards" });
+    }
+  });
+
+  // Claim rewards
+  app.post("/api/rewards/claim/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const result = await rewardService.claimRewards(userId);
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to claim rewards" });
+    }
+  });
+
+  // Get user reward statistics
+  app.get("/api/rewards/user/:userId/stats", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const stats = await rewardService.getUserRewardStats(userId);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reward statistics" });
+    }
+  });
+
+  // Get position reward history
+  app.get("/api/rewards/position/:userId/:positionId/history", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const positionId = parseInt(req.params.positionId);
+      const days = parseInt(req.query.days as string) || 30;
+      
+      const history = await rewardService.getPositionRewardHistory(userId, positionId, days);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reward history" });
+    }
+  });
+
+  // Update daily rewards (typically called by a cron job)
+  app.post("/api/rewards/update-daily", async (req, res) => {
+    try {
+      await rewardService.updateDailyRewards();
+      res.json({ success: true, message: "Daily rewards updated successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update daily rewards" });
     }
   });
 

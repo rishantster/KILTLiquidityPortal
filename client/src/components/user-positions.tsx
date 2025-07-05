@@ -60,6 +60,12 @@ export function UserPositions() {
     isPositionInRange
   } = useUniswapV3();
 
+  // Safe BigInt renderer to prevent React errors
+  const safeBigIntRender = (value: bigint | number | string) => {
+    if (typeof value === 'bigint') return value.toString();
+    return value?.toString() || '0';
+  };
+
   // Mock data for demonstration
   const mockPositions = isConnected ? [
     {

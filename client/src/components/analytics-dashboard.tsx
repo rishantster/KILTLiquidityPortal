@@ -47,12 +47,12 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
   const [activeTab, setActiveTab] = useState('overview');
 
   // Get analytics data
-  const { data: userDashboard, isLoading: userLoading } = useUserAnalyticsDashboard(userId);
-  const { data: positionHistory } = usePositionHistory(selectedPositionId, timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90);
-  const { data: positionPerformance } = usePositionPerformance(selectedPositionId);
-  const { data: positionFees } = usePositionFees(selectedPositionId);
-  const { data: poolPriceHistory } = usePoolPriceHistory(kiltEthPoolAddress, timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : 720);
-  const { data: poolTVLHistory } = usePoolTVLHistory(kiltEthPoolAddress, timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90);
+  const { data: userDashboard, isLoading: userLoading } = useUserAnalyticsDashboard(userId || null);
+  const { data: positionHistory } = usePositionHistory(selectedPositionId || null, timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90);
+  const { data: positionPerformance } = usePositionPerformance(selectedPositionId || null);
+  const { data: positionFees } = usePositionFees(selectedPositionId || null);
+  const { data: poolPriceHistory } = usePoolPriceHistory(kiltEthPoolAddress || null, timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : 720);
+  const { data: poolTVLHistory } = usePoolTVLHistory(kiltEthPoolAddress || null, timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90);
 
   // Calculate key metrics
   const currentPositionValue = positionHistory?.[0] ? parseFloat(positionHistory[0].totalValueUSD) : 0;

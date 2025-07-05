@@ -19,7 +19,8 @@ import {
 import { LiquidityMint } from './liquidity-mint';
 import { RewardsTracking } from './rewards-tracking';
 import { AnalyticsDashboard } from './analytics-dashboard';
-import { PositionsDashboard } from './positions-dashboard';
+import { UserPositions } from './user-positions';
+
 import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
@@ -316,7 +317,7 @@ export function MainDashboard() {
 
               {/* My Positions Tab - Clean without rewards */}
               <TabsContent value="positions" className="p-6">
-                <PositionsDashboard />
+                <UserPositions />
               </TabsContent>
             </Tabs>
           </CardContent>

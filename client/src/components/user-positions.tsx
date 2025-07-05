@@ -19,12 +19,14 @@ export function UserPositions() {
     enabled: !!address,
   });
 
-  const { data: positions, isLoading: positionsLoading } = useUserPositions(userData?.id);
-  const { data: rewards, isLoading: rewardsLoading } = useUserRewards(userData?.id);
+  const typedUserData = userData as { id: number } | undefined;
+  const { data: positions = [], isLoading: positionsLoading } = useUserPositions(typedUserData?.id || null);
+  const { data: rewards = [], isLoading: rewardsLoading } = useUserRewards(typedUserData?.id || null);
 
   const claimRewardsMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', `/api/rewards/claim/${userData.id}`, {});
+      if (!typedUserData?.id) throw new Error('User not found');
+      const response = await apiRequest('POST', `/api/rewards/claim/${typedUserData.id}`, {});
       return response.json();
     },
     onSuccess: () => {
@@ -32,7 +34,9 @@ export function UserPositions() {
         title: "Rewards Claimed",
         description: "Your rewards have been successfully claimed.",
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/rewards/user/${userData.id}`] });
+      if (typedUserData?.id) {
+        queryClient.invalidateQueries({ queryKey: [`/api/rewards/user/${typedUserData.id}`] });
+      }
     },
     onError: (error: any) => {
       toast({

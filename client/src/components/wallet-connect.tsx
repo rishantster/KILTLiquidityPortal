@@ -66,25 +66,26 @@ export function WalletConnect() {
 
       {/* Mobile Wallet Selection Modal */}
       <Dialog open={showMobileModal} onOpenChange={setShowMobileModal}>
-        <DialogContent className="cluely-card border-white/10 w-[90vw] max-w-md mx-auto my-auto">
+        <DialogContent className="cluely-card border-white/10 w-[90vw] max-w-md mx-auto my-auto transform-gpu">
           <DialogHeader>
-            <DialogTitle className="text-white">Connect Mobile Wallet</DialogTitle>
+            <DialogTitle className="text-white font-semibold">Connect Mobile Wallet</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-gray-400">
               Choose your preferred wallet to connect:
             </p>
-            {mobileWallets.map((wallet) => (
+            {mobileWallets.map((wallet, index) => (
               <Button
                 key={wallet.name}
                 onClick={() => {
                   openInWallet(wallet);
-                  setShowMobileModal(false);
+                  setTimeout(() => setShowMobileModal(false), 150);
                 }}
                 variant="outline"
-                className="w-full justify-start border-white/20 hover:bg-white/10 text-white touch-manipulation active:bg-white/20"
+                className="w-full justify-start mobile-wallet-button text-white touch-manipulation"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                {wallet.name}
+                <span className="font-medium">{wallet.name}</span>
               </Button>
             ))}
           </div>

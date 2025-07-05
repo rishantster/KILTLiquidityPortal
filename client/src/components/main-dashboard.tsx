@@ -30,21 +30,90 @@ export function MainDashboard() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center py-20">
-            <div className="mb-8">
-              <div className="w-24 h-24 cluely-card rounded-full mx-auto mb-6 flex items-center justify-center">
-                <Wallet className="h-12 w-12 text-white" />
+      <div className="min-h-screen p-6 relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-floating"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-floating" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-floating" style={{animationDelay: '2s'}}></div>
+        </div>
+
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center pt-16 pb-8">
+            {/* Hero Section */}
+            <div className="mb-12 animate-fade-in">
+              <div className="w-32 h-32 cluely-card rounded-full mx-auto mb-8 flex items-center justify-center animate-floating">
+                <Coins className="h-16 w-16 text-white" />
               </div>
-              <h1 className="text-4xl font-heading text-white mb-3">
-                KILT Liquidity Portal
+              
+              {/* Main Headline - Cluely style */}
+              <h1 className="text-6xl sm:text-7xl font-heading text-white mb-6 leading-tight animate-slide-up">
+                Everything You Need.
+                <br />
+                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+                  Before You Ask.
+                </span>
               </h1>
-              <p className="text-white/70 text-lg font-body max-w-md mx-auto">
-                Connect your wallet to access advanced DeFi liquidity management
+              
+              <p className="text-xl text-white/80 font-body max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
+                KILT is an advanced liquidity management platform that anticipates your DeFi needs — 
+                providing intelligent position optimization, automated rewards, and real-time analytics.
               </p>
             </div>
-            <WalletConnect />
+
+            {/* Connection Section */}
+            <div className="mb-16 animate-scale-in animate-delay-300">
+              <WalletConnect />
+              <p className="text-white/50 text-sm mt-4 font-body">
+                No signup required. Connect and start earning in seconds.
+              </p>
+            </div>
+
+            {/* Feature Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-16">
+              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-100">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-6 w-6 text-blue-300" />
+                </div>
+                <h3 className="text-white font-heading text-lg mb-2">Smart Positioning</h3>
+                <p className="text-white/60 text-sm font-body">
+                  Advanced algorithms optimize your liquidity ranges for maximum efficiency and returns.
+                </p>
+              </Card>
+
+              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-200">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Award className="h-6 w-6 text-emerald-300" />
+                </div>
+                <h3 className="text-white font-heading text-lg mb-2">Instant Rewards</h3>
+                <p className="text-white/60 text-sm font-body">
+                  Earn 47.2% base APR with time and size multipliers — no complex staking required.
+                </p>
+              </Card>
+
+              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-300">
+                <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="h-6 w-6 text-purple-300" />
+                </div>
+                <h3 className="text-white font-heading text-lg mb-2">Live Analytics</h3>
+                <p className="text-white/60 text-sm font-body">
+                  Real-time performance tracking with impermanent loss calculations and ROI insights.
+                </p>
+              </Card>
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="text-center animate-fade-in animate-delay-500">
+              <h2 className="text-3xl font-heading text-white mb-4">
+                Welcome to
+              </h2>
+              <h1 className="text-5xl font-heading bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent mb-6">
+                The Future of Liquidity.
+              </h1>
+              <p className="text-white/60 text-lg font-body max-w-xl mx-auto">
+                Join thousands of DeFi enthusiasts earning passive income through intelligent liquidity management on Base network.
+              </p>
+            </div>
           </div>
         </div>
       </div>

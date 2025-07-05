@@ -114,6 +114,13 @@ export function LiquidityMint() {
       if (wethAmountCalculated >= 0) {
         setWethAmount(wethAmountCalculated.toFixed(6));
       }
+      
+      // Update position size slider to reflect manual input
+      if (kiltBalance) {
+        const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
+        const percentageUsed = Math.min(100, Math.max(1, (numValue / maxKiltAmount) * 100));
+        setPositionSizePercent([Math.round(percentageUsed)]);
+      }
     }
   };
 
@@ -204,7 +211,7 @@ export function LiquidityMint() {
         amount1Desired: wethAmountParsed,
         amount0Min: BigInt(0),
         amount1Min: BigInt(0),
-        recipient: address,
+        recipient: address as `0x${string}`,
         deadline
       });
 
@@ -258,7 +265,40 @@ export function LiquidityMint() {
         </Badge>
       </div>
 
-      {/* Token Amounts */}
+      {/* Token Amounts with Integrated Position Size */}
+      <Card className="cluely-card rounded-2xl">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            <Target className="h-5 w-5 text-emerald-400" />
+            Position Size
+          </CardTitle>
+          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of balance</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Slider
+            value={positionSizePercent}
+            onValueChange={setPositionSizePercent}
+            max={100}
+            min={1}
+            step={1}
+            className="w-full"
+          />
+          <div className="flex gap-2">
+            {[25, 50, 75, 100].map((percent) => (
+              <Button
+                key={percent}
+                variant={positionSizePercent[0] === percent ? "default" : "outline"}
+                size="sm"
+                onClick={() => handlePercentageSelect(percent)}
+                className="flex-1"
+              >
+                {percent}%
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
@@ -323,40 +363,6 @@ export function LiquidityMint() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Position Size Slider - Positioned right below amount inputs */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Target className="h-5 w-5 text-emerald-400" />
-            Position Size
-          </CardTitle>
-          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of balance</p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Slider
-            value={positionSizePercent}
-            onValueChange={setPositionSizePercent}
-            max={100}
-            min={1}
-            step={1}
-            className="w-full"
-          />
-          <div className="flex gap-2">
-            {[25, 50, 75, 100].map((percent) => (
-              <Button
-                key={percent}
-                variant={positionSizePercent[0] === percent ? "default" : "outline"}
-                size="sm"
-                onClick={() => handlePercentageSelect(percent)}
-                className="flex-1"
-              >
-                {percent}%
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Price Range Strategy */}
       <Card className="cluely-card rounded-2xl">

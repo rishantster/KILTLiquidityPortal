@@ -16,11 +16,6 @@ export const TOKENS = {
   WETH: '0x4200000000000000000000000000000000000006' as Address
 } as const;
 
-// Pool addresses on Base network
-export const POOLS = {
-  KILT_ETH: '0xf6b32094c1a0701483d2c80bb255b4059a827b7b' as Address
-} as const;
-
 // Uniswap V3 ABIs
 export const NONFUNGIBLE_POSITION_MANAGER_ABI = parseAbi([
   // View functions
@@ -256,8 +251,12 @@ export class UniswapV3Service {
   // Pool Functions
 
   async getKiltEthPool(): Promise<Address> {
-    // Return the specific Base network KILT/ETH pool address
-    return POOLS.KILT_ETH;
+    return await this.publicClient.readContract({
+      address: UNISWAP_V3_CONTRACTS.FACTORY,
+      abi: UNISWAP_V3_FACTORY_ABI,
+      functionName: 'getPool',
+      args: [TOKENS.KILT, TOKENS.WETH, 3000] // 0.3% fee tier
+    });
   }
 
   async getPoolData(poolAddress: Address): Promise<PoolData> {

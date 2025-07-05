@@ -11,7 +11,6 @@ import {
   type DecreaseLiquidityParams,
   type CollectParams,
   TOKENS,
-  POOLS,
   UNISWAP_V3_CONTRACTS
 } from '@/lib/uniswap-v3';
 import { useToast } from './use-toast';

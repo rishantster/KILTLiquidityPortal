@@ -26,88 +26,36 @@ export function LiquidityProvisionSimple() {
         </div>
       </div>
 
-      {/* Token Pair Selection */}
+      {/* Pool Information */}
       <Card className="cluely-card rounded-2xl">
         <CardHeader className="pb-4">
-          <CardTitle className="text-white text-lg">Select pair</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="h-16 justify-start bg-white/5 border-white/20 hover:bg-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">Ξ</span>
-                </div>
-                <div className="text-left">
-                  <div className="text-white font-medium">ETH</div>
-                  <div className="text-white/60 text-sm">Ethereum</div>
-                </div>
-              </div>
-            </Button>
-
-            <Button variant="outline" className="h-16 justify-start bg-white/5 border-white/20 hover:bg-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">K</span>
-                </div>
-                <div className="text-left">
-                  <div className="text-white font-medium">KILT</div>
-                  <div className="text-white/60 text-sm">KILT Protocol</div>
-                </div>
-              </div>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Fee Tier */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-white text-lg">Fee tier</CardTitle>
+          <CardTitle className="text-white text-lg">KILT/ETH Pool</CardTitle>
           <p className="text-white/70 text-sm">
-            The amount earned providing liquidity. Choose an amount that suits your risk tolerance and strategy.
+            Add liquidity to the existing KILT/ETH 0.3% fee tier pool
           </p>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-            <div className="text-white font-medium">0.3% fee tier</div>
-            <div className="text-white/70 text-sm">The % you will earn in fees</div>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { rate: '0.01%', desc: 'Best for very stable pairs.', tvl: '0TVL' },
-              { rate: '0.05%', desc: 'Best for stable pairs.', tvl: '0TVL' },
-              { rate: '0.3%', desc: 'Best for most pairs.', tvl: '0TVL', selected: true },
-              { rate: '1%', desc: 'Best for exotic pairs.', tvl: '0TVL' }
-            ].map((tier) => (
-              <Button
-                key={tier.rate}
-                variant={tier.selected ? "default" : "outline"}
-                className={`h-auto p-4 flex flex-col items-start text-left ${
-                  tier.selected 
-                    ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' 
-                    : 'border-white/20 hover:bg-white/10'
-                }`}
-              >
-                <div className="font-medium mb-1">{tier.rate}</div>
-                {tier.desc && <div className="text-xs mb-2 opacity-60">{tier.desc}</div>}
-                <div className="text-xs opacity-40">{tier.tvl}</div>
-              </Button>
-            ))}
-          </div>
-
-          <div className="flex items-start gap-3 p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
-            <Info className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <div className="text-amber-400 font-medium text-sm mb-1">Creating new pool</div>
-              <div className="text-white/80 text-sm">
-                Your selections will create a new liquidity pool which may result in lower initial liquidity and increased volatility.
+        <CardContent>
+          <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center -space-x-2">
+                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center border-2 border-gray-800">
+                  <span className="text-white font-bold text-sm">Ξ</span>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center border-2 border-gray-800">
+                  <span className="text-white font-bold text-sm">K</span>
+                </div>
+              </div>
+              <div>
+                <div className="text-white font-medium">KILT/ETH</div>
+                <div className="text-white/60 text-sm">0.3% Fee Tier</div>
               </div>
             </div>
+            <Badge className="bg-emerald-500/20 text-emerald-300 border-0">Active Pool</Badge>
           </div>
         </CardContent>
       </Card>
+
+
 
 
 

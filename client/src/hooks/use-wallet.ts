@@ -49,7 +49,10 @@ export function useWallet() {
   };
 
   const connect = async () => {
+    console.log('🚀 Connect function called');
+    
     if (!(window as any).ethereum) {
+      console.log('❌ No ethereum provider found');
       toast({
         title: "Wallet not found",
         description: "Please install MetaMask or another Ethereum wallet.",
@@ -58,18 +61,27 @@ export function useWallet() {
       return;
     }
 
+    console.log('✅ Ethereum provider found, starting connection...');
     setIsConnecting(true);
+    
     try {
+      console.log('📞 Requesting accounts...');
+      
       // Always request account access - this will show MetaMask popup
       const accounts = await (window as any).ethereum.request({
         method: 'eth_requestAccounts',
       });
 
+      console.log('📋 Received accounts:', accounts);
+
       if (accounts && accounts.length > 0) {
         const connectedAddress = accounts[0];
+        console.log('🔗 Setting connected address:', connectedAddress);
+        
         setAddress(connectedAddress);
         setIsConnected(true);
         
+        console.log('🌐 Switching to Base network...');
         // Switch to Base network
         await switchToBase();
         
@@ -77,13 +89,16 @@ export function useWallet() {
         localStorage.setItem('wallet_connected', 'true');
         localStorage.setItem('wallet_address', connectedAddress);
         
+        console.log('✅ Connection successful!');
         toast({
           title: "Wallet connected",
           description: "Successfully connected to Base network.",
         });
+      } else {
+        console.log('❌ No accounts in response');
       }
     } catch (error: any) {
-      console.error('Error connecting wallet:', error);
+      console.error('❌ Error connecting wallet:', error);
       if (error.code === 4001) {
         toast({
           title: "Connection rejected",
@@ -99,6 +114,7 @@ export function useWallet() {
       }
     } finally {
       setIsConnecting(false);
+      console.log('🏁 Connection process finished');
     }
   };
 

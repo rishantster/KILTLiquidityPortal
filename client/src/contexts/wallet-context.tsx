@@ -17,6 +17,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
   const { toast } = useToast();
 
   // Switch to Base network
@@ -60,7 +61,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           method: 'eth_accounts',
         });
 
-        if (accounts && accounts.length > 0) {
+        if (accounts && accounts.length > 0 && !manuallyDisconnected) {
           setAddress(accounts[0]);
           setIsConnected(true);
         }
@@ -136,6 +137,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const connectedAddress = accounts[0];
         setAddress(connectedAddress);
         setIsConnected(true);
+        setManuallyDisconnected(false); // Reset flag when manually connecting
         
         await switchToBase();
         
@@ -167,6 +169,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const disconnect = () => {
     setAddress(null);
     setIsConnected(false);
+    setManuallyDisconnected(true); // Set flag to prevent auto-reconnection
     
     toast({
       title: "Wallet disconnected",

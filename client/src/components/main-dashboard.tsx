@@ -229,8 +229,10 @@ export function MainDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">Market Cap</p>
-                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">$8.4M</p>
-                      <p className="text-blue-300 text-xs mt-1">290.56M supply</p>
+                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">
+                        ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
+                      </p>
+                      <p className="text-blue-300 text-xs mt-1">276.97M circulating</p>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
                       <Coins className="h-6 w-6 text-blue-300" />

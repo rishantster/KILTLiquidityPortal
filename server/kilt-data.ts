@@ -1,6 +1,7 @@
 // Constants for KILT token
 const KILT_TOKEN_ADDRESS = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
 const KILT_TOTAL_SUPPLY = 290560000;
+const KILT_CIRCULATING_SUPPLY = 276970000; // From CoinMarketCap: 276.97M KILT
 const TREASURY_TOTAL = KILT_TOTAL_SUPPLY * 0.01;
 
 export interface KiltTokenData {
@@ -45,9 +46,10 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     const progress = (distributed / TREASURY_TOTAL) * 100;
     
     // Handle market cap calculation when CoinGecko returns 0
+    // Use circulating supply (276.97M) instead of total supply (290.56M) for accurate market cap
     const marketCap = kiltData?.usd_market_cap && kiltData.usd_market_cap > 0 
       ? kiltData.usd_market_cap 
-      : (kiltData?.usd ? kiltData.usd * KILT_TOTAL_SUPPLY : 4650000);
+      : (kiltData?.usd ? kiltData.usd * KILT_CIRCULATING_SUPPLY : 4650000);
     
     const result = {
       price: kiltData?.usd || 0.016,

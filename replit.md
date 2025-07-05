@@ -180,3 +180,5 @@ Changelog:
 - July 05, 2025. Implemented real-time KILT token data integration using CoinGecko API (kilt-protocol endpoint) replacing mock data with live price ($0.0160), volume (426 USDT), and market cap calculations
 - July 05, 2025. Completed comprehensive typography standardization across all numerical displays using "font-bold tabular-nums" for consistent formatting throughout rewards tracking, analytics, and dashboard components
 - July 05, 2025. Removed "Advanced DeFi liquidity management on Base network" tagline from header per user request for cleaner KILT-focused messaging
+- July 05, 2025. Fixed critical market cap calculation error by using correct circulating supply (276.97M KILT) instead of total supply (290.56M), correcting market cap from incorrect $8.4M to accurate $4.4M based on real CoinMarketCap data
+- July 05, 2025. Improved mobile wallet deeplink functionality by removing incorrect URL encoding for MetaMask and Rainbow wallets while maintaining proper encoding for Trust Wallet and Coinbase Wallet based on their specific deeplink requirements

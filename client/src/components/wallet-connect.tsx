@@ -6,10 +6,10 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const mobileWallets = [
-  { name: 'MetaMask', deepLink: 'https://metamask.app.link/dapp/' },
-  { name: 'Trust Wallet', deepLink: 'https://link.trustwallet.com/open_url?coin_id=60&url=' },
-  { name: 'Coinbase Wallet', deepLink: 'https://go.cb-w.com/dapp?cb_url=' },
-  { name: 'Rainbow', deepLink: 'https://rainbow.me/dapp/' },
+  { name: 'MetaMask', deepLink: 'https://metamask.app.link/dapp/', needsEncoding: false },
+  { name: 'Trust Wallet', deepLink: 'https://link.trustwallet.com/open_url?coin_id=60&url=', needsEncoding: true },
+  { name: 'Coinbase Wallet', deepLink: 'https://go.cb-w.com/dapp?cb_url=', needsEncoding: true },
+  { name: 'Rainbow', deepLink: 'https://rainbow.me/dapp/', needsEncoding: false },
 ];
 
 export function WalletConnect() {
@@ -27,7 +27,11 @@ export function WalletConnect() {
 
   const openInWallet = (wallet: typeof mobileWallets[0]) => {
     const currentUrl = window.location.href;
-    const walletUrl = wallet.deepLink + encodeURIComponent(currentUrl);
+    // Handle encoding based on wallet requirements
+    const targetUrl = wallet.needsEncoding ? encodeURIComponent(currentUrl) : currentUrl;
+    const walletUrl = wallet.deepLink + targetUrl;
+    
+    console.log('Opening wallet deeplink:', walletUrl);
     window.open(walletUrl, '_blank');
   };
 

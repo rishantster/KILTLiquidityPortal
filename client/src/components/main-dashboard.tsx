@@ -21,7 +21,7 @@ import { RewardsTracking } from './rewards-tracking';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { PositionsDashboard } from './positions-dashboard';
 import { WalletConnect } from './wallet-connect';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
 export function MainDashboard() {

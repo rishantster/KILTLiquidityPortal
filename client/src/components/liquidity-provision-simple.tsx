@@ -109,34 +109,7 @@ export function LiquidityProvisionSimple() {
         </CardContent>
       </Card>
 
-      {/* Set Initial Price */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-white text-lg">Set initial price</CardTitle>
-          <p className="text-white/70 text-sm">
-            When creating a new pool, you must set the starting exchange rate for both tokens.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-white/70 text-sm">Initial price</label>
-            <Input
-              type="number"
-              placeholder="0"
-              className="bg-white/5 border-white/10 text-white text-4xl font-light h-20"
-              readOnly
-            />
-            <div className="text-white/60 text-sm">KILT = 1 ETH</div>
-          </div>
-          
-          <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-            <AlertCircle className="h-4 w-4 text-amber-400 flex-shrink-0" />
-            <div className="text-sm text-amber-200">
-              Market price not found. Please do your own research to avoid loss of funds.
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Set Price Range */}
       <Card className="cluely-card rounded-2xl">

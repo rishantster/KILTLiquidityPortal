@@ -8,6 +8,7 @@ import {
   insertPoolStatsSchema 
 } from "@shared/schema";
 import { z } from "zod";
+import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -139,32 +140,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Calculate rewards for a position
+  // Get real-time KILT token data
+  app.get("/api/kilt-data", async (req, res) => {
+    try {
+      const kiltData = await fetchKiltTokenData();
+      res.json(kiltData);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch KILT token data" });
+    }
+  });
+
+  // Calculate dynamic rewards based on real parameters
   app.post("/api/calculate-rewards", async (req, res) => {
     try {
-      const { positionId, timeStaked, liquidity } = req.body;
+      const { liquidityAmount, daysStaked, positionSize } = req.body;
       
-      // Base APR calculation
-      const baseAPR = 47.2;
+      const rewardCalculation = calculateRewards(
+        parseFloat(liquidityAmount) || 0,
+        parseInt(daysStaked) || 0,
+        parseFloat(positionSize) || 0
+      );
       
-      // Time multiplier (up to 2x after 30 days)
-      const timeMultiplier = Math.min(1 + (timeStaked / 30), 2);
-      
-      // Size multiplier (up to 1.5x for large positions)
-      const sizeMultiplier = Math.min(1 + (parseFloat(liquidity) / 100000), 1.5);
-      
-      const effectiveAPR = baseAPR * timeMultiplier * sizeMultiplier;
-      const dailyRewards = (parseFloat(liquidity) * effectiveAPR) / (365 * 100);
-      
-      res.json({
-        baseAPR,
-        timeMultiplier,
-        sizeMultiplier,
-        effectiveAPR,
-        dailyRewards
-      });
+      res.json(rewardCalculation);
     } catch (error) {
       res.status(400).json({ error: "Invalid calculation parameters" });
+    }
+  });
+
+  // Get Base network statistics
+  app.get("/api/network-stats", async (req, res) => {
+    try {
+      const networkStats = await getBaseNetworkStats();
+      res.json(networkStats);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch network stats" });
     }
   });
 

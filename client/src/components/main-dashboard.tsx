@@ -29,6 +29,9 @@ export function MainDashboard() {
   const { data: kiltData } = useKiltTokenData();
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Debug wallet state
+  console.log('MainDashboard - Wallet State:', { address, isConnected, initialized });
+
   // Show loading until wallet is initialized
   if (!initialized) {
     return (

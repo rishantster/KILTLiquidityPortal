@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(222, 84%, 5%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217, 32%, 17%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(224, 71%, 4%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(224, 71%, 4%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(215, 27%, 32%);
+  --input: hsl(215, 27%, 32%);
+  --primary: hsl(263, 70%, 50%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(215, 27%, 32%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(215, 27%, 32%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(263, 70%, 50%);
+  --radius: 0.5rem;
+  
+  /* KILT Brand Colors */
+  --kilt-50: hsl(240, 100%, 98%);
+  --kilt-500: hsl(239, 84%, 67%);
+  --kilt-600: hsl(238, 83%, 62%);
+  --kilt-700: hsl(237, 83%, 58%);
+}
+
+.dark {
+  --background: hsl(222, 84%, 5%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217, 32%, 17%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(224, 71%, 4%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(224, 71%, 4%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(215, 27%, 32%);
+  --input: hsl(215, 27%, 32%);
+  --primary: hsl(263, 70%, 50%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(215, 27%, 32%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(215, 27%, 32%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(263, 70%, 50%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .kilt-gradient {
+    @apply bg-gradient-to-r from-kilt-500 to-kilt-600;
+  }
+  
+  .kilt-text {
+    @apply text-kilt-500;
+  }
+}

@@ -9,8 +9,7 @@ export function useWallet() {
   const { toast } = useToast();
 
   useEffect(() => {
-    checkConnection();
-    
+    // Only check for already connected accounts, don't auto-connect
     if (typeof window !== 'undefined' && window.ethereum) {
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       window.ethereum.on('chainChanged', handleChainChanged);
@@ -24,19 +23,7 @@ export function useWallet() {
     };
   }, []);
 
-  const checkConnection = async () => {
-    if (typeof window !== 'undefined' && window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-          setIsConnected(true);
-        }
-      } catch (error) {
-        console.error('Error checking connection:', error);
-      }
-    }
-  };
+  // Removed auto-connection check to prevent unwanted wallet connections
 
   const handleAccountsChanged = (accounts: string[]) => {
     if (accounts.length > 0) {

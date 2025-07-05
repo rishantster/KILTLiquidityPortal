@@ -18,7 +18,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useKiltStaker } from '@/hooks/use-smart-contract';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 
 export function SmartContractDemo() {
   const { address, isConnected } = useWallet();

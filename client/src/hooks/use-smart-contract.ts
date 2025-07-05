@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useWallet } from './use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { kiltStakerService, type StakeInfo, type ProgramStats, type RewardCalculation } from '@/lib/smart-contracts';
 import { useToast } from './use-toast';
 

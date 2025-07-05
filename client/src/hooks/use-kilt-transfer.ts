@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useWallet } from './use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { parseUnits, formatUnits } from 'viem';
 
 // KILT token contract address on Base

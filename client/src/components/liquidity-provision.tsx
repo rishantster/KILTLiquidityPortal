@@ -180,6 +180,13 @@ export function LiquidityProvision() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => handleSliderChange([50])}
+                  className="absolute left-1/2 transform -translate-x-1/2 text-white/60 hover:text-white transition-colors font-body text-xs"
+                >
+                  50%
+                </button>
+                <button
+                  type="button"
                   onClick={() => handleSliderChange([75])}
                   className="absolute left-3/4 transform -translate-x-1/2 text-white/60 hover:text-white transition-colors font-body text-xs"
                 >

@@ -145,27 +145,29 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
               <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">KILT Liquidity Portal</h1>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">KILT Liquidity Portal</h1>
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
-            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-3 py-1">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <Badge className="hidden sm:flex bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-1 text-xs">
               Base Network
             </Badge>
-            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 px-3 py-1">
+            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-1 text-xs">
               ${kiltData?.price?.toFixed(4) || '0.0289'}
             </Badge>
-            <WalletConnect />
+            <div className="flex-shrink-0">
+              <WalletConnect />
+            </div>
           </div>
         </div>
 

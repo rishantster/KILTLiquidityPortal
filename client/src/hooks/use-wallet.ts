@@ -26,8 +26,19 @@ export function useWallet() {
   }, []);
 
   const checkExistingConnection = async () => {
-    // Don't auto-connect - user must explicitly connect
-    return;
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
+      try {
+        // Only check for already granted permissions, don't request new ones
+        const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
+        if (accounts && accounts.length > 0) {
+          setAddress(accounts[0]);
+          setIsConnected(true);
+        }
+      } catch (error) {
+        console.error('Error checking existing connection:', error);
+        // Ignore errors when checking existing connections
+      }
+    }
   };
 
   const handleAccountsChanged = (accounts: string[]) => {

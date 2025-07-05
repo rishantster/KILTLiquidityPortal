@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,8 @@ import {
   Loader2,
   Info,
   Target,
-  Zap
+  Zap,
+  TrendingUp
 } from 'lucide-react';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useWallet } from '@/hooks/use-wallet';
@@ -39,49 +40,108 @@ export function LiquidityMint() {
 
   const [kiltAmount, setKiltAmount] = useState('');
   const [wethAmount, setWethAmount] = useState('');
-  const [priceRange, setPriceRange] = useState([75, 125]); // Default to ±25% range
-  const [selectedPreset, setSelectedPreset] = useState(25);
   const [positionSizePercent, setPositionSizePercent] = useState([25]);
+  const [selectedStrategy, setSelectedStrategy] = useState('narrow');
 
-  // Price range presets
-  const pricePresets = [
-    { value: 25, label: 'Narrow (±25%)', range: [75, 125] },
-    { value: 50, label: 'Balanced (±50%)', range: [50, 150] },
-    { value: 100, label: 'Wide (±100%)', range: [0, 200] },
-    { value: -1, label: 'Full Range', range: [-887220, 887220] }
+  // Price range strategies
+  const priceStrategies = [
+    { 
+      id: 'narrow', 
+      label: 'Narrow (±25%)', 
+      range: 0.25,
+      description: '75% to 125% of current price',
+      risk: 'Higher fees, higher impermanent loss risk'
+    },
+    { 
+      id: 'balanced', 
+      label: 'Balanced (±50%)', 
+      range: 0.50,
+      description: '50% to 150% of current price',
+      risk: 'Balanced fees and impermanent loss'
+    },
+    { 
+      id: 'wide', 
+      label: 'Wide (±100%)', 
+      range: 1.00,
+      description: '0% to 200% of current price',
+      risk: 'Lower fees, lower impermanent loss risk'
+    },
+    { 
+      id: 'full', 
+      label: 'Full Range', 
+      range: Infinity,
+      description: 'Full price range (0 to ∞)',
+      risk: 'Lowest fees, minimal impermanent loss'
+    }
   ];
 
-  const handlePresetSelect = (preset: typeof pricePresets[0]) => {
-    setSelectedPreset(preset.value);
-    setPriceRange(preset.range);
-  };
+  // Auto-calculate amounts based on slider percentage
+  useEffect(() => {
+    const percent = positionSizePercent[0];
+    if (kiltBalance && percent > 0) {
+      const kiltAmountCalculated = (Number(formatTokenAmount(kiltBalance)) * percent / 100);
+      
+      // Ensure no negative values
+      if (kiltAmountCalculated >= 0) {
+        setKiltAmount(kiltAmountCalculated.toFixed(6));
+        
+        // Auto-calculate WETH amount based on current pool ratio (simplified)
+        // In real implementation, this would use actual pool price
+        const kiltPrice = kiltData?.price || 0.0289;
+        const ethPrice = 3200; // Approximate ETH price
+        const wethAmountCalculated = (kiltAmountCalculated * kiltPrice) / ethPrice;
+        
+        if (wethAmountCalculated >= 0) {
+          setWethAmount(wethAmountCalculated.toFixed(6));
+        }
+      }
+    }
+  }, [positionSizePercent, kiltBalance, formatTokenAmount, kiltData?.price]);
 
   const handleKiltAmountChange = (value: string) => {
+    // Prevent negative values
+    const numValue = parseFloat(value);
+    if (numValue < 0) return;
+    
     setKiltAmount(value);
-    // Auto-calculate WETH amount based on current price
-    if (value && kiltData?.price) {
-      const kiltValue = parseFloat(value);
-      const ethPrice = 3000; // Approximate ETH price
-      const wethNeeded = (kiltValue * kiltData.price) / ethPrice;
-      setWethAmount(wethNeeded.toFixed(6));
+    
+    // Auto-calculate WETH amount
+    if (value && !isNaN(numValue)) {
+      const kiltPrice = kiltData?.price || 0.0289;
+      const ethPrice = 3200;
+      const wethAmountCalculated = (numValue * kiltPrice) / ethPrice;
+      
+      if (wethAmountCalculated >= 0) {
+        setWethAmount(wethAmountCalculated.toFixed(6));
+      }
     }
   };
 
-  const handlePercentageSelect = (percentage: number) => {
-    if (kiltBalance) {
-      const amount = (Number(formatTokenAmount(kiltBalance)) * percentage / 100).toFixed(4);
-      handleKiltAmountChange(amount);
+  const handleWethAmountChange = (value: string) => {
+    // Prevent negative values
+    const numValue = parseFloat(value);
+    if (numValue < 0) return;
+    
+    setWethAmount(value);
+    
+    // Auto-calculate KILT amount
+    if (value && !isNaN(numValue)) {
+      const kiltPrice = kiltData?.price || 0.0289;
+      const ethPrice = 3200;
+      const kiltAmountCalculated = (numValue * ethPrice) / kiltPrice;
+      
+      if (kiltAmountCalculated >= 0) {
+        setKiltAmount(kiltAmountCalculated.toFixed(6));
+      }
     }
   };
 
-  // Handle slider change for position size
-  const handleSliderChange = (value: number[]) => {
-    setPositionSizePercent(value);
-    const percent = value[0];
-    if (kiltBalance) {
-      const amount = (Number(formatTokenAmount(kiltBalance)) * percent / 100).toFixed(4);
-      handleKiltAmountChange(amount);
-    }
+  const handlePercentageSelect = (percent: number) => {
+    setPositionSizePercent([percent]);
+  };
+
+  const getSelectedStrategy = () => {
+    return priceStrategies.find(s => s.id === selectedStrategy) || priceStrategies[0];
   };
 
   const handleApproveTokens = async () => {
@@ -117,27 +177,40 @@ export function LiquidityMint() {
       const wethAmountParsed = parseTokenAmount(wethAmount);
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600); // 1 hour from now
 
-      // Convert price range to ticks (simplified - in production use proper tick math)
-      const tickLower = priceRange[0] === -887220 ? -887220 : Math.floor(priceRange[0] * 100);
-      const tickUpper = priceRange[1] === 887220 ? 887220 : Math.floor(priceRange[1] * 100);
+      // Convert price range to ticks based on selected strategy
+      const strategy = getSelectedStrategy();
+      let tickLower, tickUpper;
+      
+      if (strategy.id === 'full') {
+        // Full range: approximately -887220 to 887220
+        tickLower = -887220;
+        tickUpper = 887220;
+      } else {
+        // Calculate ticks based on percentage range
+        // This is simplified - real implementation would use proper tick math
+        const baseSpacing = 60; // For 0.3% fee tier
+        const rangeInTicks = Math.floor(strategy.range * 1000 / baseSpacing) * baseSpacing;
+        tickLower = -rangeInTicks;
+        tickUpper = rangeInTicks;
+      }
 
       await mintPosition({
-        token0: TOKENS.KILT < TOKENS.WETH ? TOKENS.KILT as `0x${string}` : TOKENS.WETH as `0x${string}`,
-        token1: TOKENS.KILT < TOKENS.WETH ? TOKENS.WETH as `0x${string}` : TOKENS.KILT as `0x${string}`,
-        fee: 3000, // 0.3% fee tier
+        token0: TOKENS.KILT as `0x${string}`,
+        token1: TOKENS.WETH as `0x${string}`,
+        fee: 3000,
         tickLower,
         tickUpper,
-        amount0Desired: TOKENS.KILT < TOKENS.WETH ? kiltAmountParsed : wethAmountParsed,
-        amount1Desired: TOKENS.KILT < TOKENS.WETH ? wethAmountParsed : kiltAmountParsed,
-        amount0Min: BigInt(0), // Simplified - should calculate proper slippage
+        amount0Desired: kiltAmountParsed,
+        amount1Desired: wethAmountParsed,
+        amount0Min: BigInt(0),
         amount1Min: BigInt(0),
-        recipient: address as `0x${string}`,
-        deadline,
+        recipient: address,
+        deadline
       });
 
       toast({
-        title: "Position Created",
-        description: "Your Uniswap V3 LP position has been successfully created",
+        title: "Position Created!",
+        description: "Your liquidity position has been successfully created",
       });
 
       // Reset form
@@ -147,7 +220,7 @@ export function LiquidityMint() {
     } catch (error: any) {
       toast({
         title: "Position Creation Failed",
-        description: error.message || "Failed to create LP position",
+        description: error.message || "Failed to create liquidity position",
         variant: "destructive",
       });
     }
@@ -177,7 +250,7 @@ export function LiquidityMint() {
             Add Liquidity to KILT/ETH Pool
           </h2>
           <p className="text-white/70 text-sm mt-1">
-            Add liquidity to the existing official KILT/ETH pool and earn trading fees
+            Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + trading fees
           </p>
         </div>
         <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
@@ -185,76 +258,8 @@ export function LiquidityMint() {
         </Badge>
       </div>
 
-      {/* Pool Status */}
-      <Card className="cluely-card rounded-2xl">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center -space-x-2">
-                <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center border-2 border-gray-800">
-                  <span className="text-white font-bold text-sm">K</span>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center border-2 border-gray-800">
-                  <span className="text-white font-bold text-sm">Ξ</span>
-                </div>
-              </div>
-              <div>
-                <div className="text-white font-medium">KILT/ETH Pool</div>
-                <div className="text-white/60 text-sm">0.3% Fee Tier • Uniswap V3</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-white font-medium">${kiltData?.price?.toFixed(6) || '0.000000'}</div>
-              <div className="text-white/60 text-sm">Current Price</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Position Size Slider */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-white font-heading flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Position Size
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label className="text-white/70 text-sm">Amount to Provide</Label>
-            <span className="text-emerald-400 font-medium">{positionSizePercent[0]}% of balance</span>
-          </div>
-          
-          <Slider
-            value={positionSizePercent}
-            onValueChange={handleSliderChange}
-            max={100}
-            min={0}
-            step={1}
-            className="w-full"
-          />
-          
-          {/* Quick percentage buttons */}
-          <div className="flex gap-2">
-            {[25, 50, 75, 100].map((percent) => (
-              <Button
-                key={percent}
-                variant="outline"
-                size="sm"
-                onClick={() => handleSliderChange([percent])}
-                className={`border-white/20 text-white/70 hover:bg-white/10 ${
-                  positionSizePercent[0] === percent ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : ''
-                }`}
-              >
-                {percent}%
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Token Amounts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-white text-lg flex items-center gap-2">
@@ -270,6 +275,7 @@ export function LiquidityMint() {
               value={kiltAmount}
               onChange={(e) => handleKiltAmountChange(e.target.value)}
               placeholder="0.0"
+              min="0"
               className="bg-white/5 border-white/10 text-white text-xl h-12"
             />
             <div className="flex justify-between text-sm">
@@ -301,8 +307,9 @@ export function LiquidityMint() {
             <Input
               type="number"
               value={wethAmount}
-              onChange={(e) => setWethAmount(e.target.value)}
+              onChange={(e) => handleWethAmountChange(e.target.value)}
               placeholder="0.0"
+              min="0"
               className="bg-white/5 border-white/10 text-white text-xl h-12"
             />
             <div className="flex justify-between text-sm">
@@ -317,96 +324,126 @@ export function LiquidityMint() {
         </Card>
       </div>
 
-      {/* Price Range */}
+      {/* Position Size Slider - Positioned right below amount inputs */}
       <Card className="cluely-card rounded-2xl">
         <CardHeader className="pb-4">
-          <CardTitle className="text-white font-heading flex items-center gap-2">
-            <Zap className="h-5 w-5" />
-            Price Range Strategy
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            <Target className="h-5 w-5 text-emerald-400" />
+            Position Size
           </CardTitle>
+          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of balance</p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {pricePresets.map((preset) => (
+          <Slider
+            value={positionSizePercent}
+            onValueChange={setPositionSizePercent}
+            max={100}
+            min={1}
+            step={1}
+            className="w-full"
+          />
+          <div className="flex gap-2">
+            {[25, 50, 75, 100].map((percent) => (
               <Button
-                key={preset.value}
-                variant="outline"
-                onClick={() => handlePresetSelect(preset)}
-                className={`border-white/20 text-white/70 hover:bg-white/10 text-xs ${
-                  selectedPreset === preset.value ? 'bg-blue-500/20 border-blue-500/50 text-blue-300' : ''
-                }`}
+                key={percent}
+                variant={positionSizePercent[0] === percent ? "default" : "outline"}
+                size="sm"
+                onClick={() => handlePercentageSelect(percent)}
+                className="flex-1"
               >
-                {preset.label}
+                {percent}%
               </Button>
             ))}
-          </div>
-          
-          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <div className="flex items-center gap-2 mb-2">
-              <Info className="h-4 w-4 text-blue-400" />
-              <span className="text-white/70 text-sm">Selected Range</span>
-            </div>
-            <div className="text-white font-medium">
-              {selectedPreset === -1 ? 'Full Range (0 to ∞)' : 
-               `${priceRange[0]}% to ${priceRange[1]}% of current price`}
-            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="space-y-3">
+      {/* Price Range Strategy */}
+      <Card className="cluely-card rounded-2xl">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            <Zap className="h-5 w-5 text-yellow-400" />
+            Price Range Strategy
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {priceStrategies.map((strategy) => (
+              <Button
+                key={strategy.id}
+                variant={selectedStrategy === strategy.id ? "default" : "outline"}
+                onClick={() => setSelectedStrategy(strategy.id)}
+                className="h-auto p-3 flex-col items-start"
+              >
+                <span className="font-semibold">{strategy.label}</span>
+              </Button>
+            ))}
+          </div>
+          
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+            <div className="flex items-center gap-2 mb-2">
+              <Info className="h-4 w-4 text-blue-400" />
+              <span className="text-white font-medium">Selected Range</span>
+            </div>
+            <p className="text-white/80 text-sm mb-1">{getSelectedStrategy().description}</p>
+            <p className="text-white/60 text-xs">{getSelectedStrategy().risk}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button
           onClick={handleApproveTokens}
-          disabled={isApproving || !kiltAmount || !wethAmount}
-          className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-heading"
+          disabled={isApproving || !poolExists}
+          className="h-12 bg-blue-600 hover:bg-blue-700"
         >
           {isApproving ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Approving Tokens...
+              Approving...
             </>
           ) : (
             <>
               <CheckCircle2 className="h-4 w-4 mr-2" />
-              1. Approve Tokens
+              Approve Tokens
             </>
           )}
         </Button>
 
         <Button
           onClick={handleMintPosition}
-          disabled={isMinting || !kiltAmount || !wethAmount}
-          className="w-full h-12 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-heading"
+          disabled={isMinting || !kiltAmount || !wethAmount || !poolExists}
+          className="h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
         >
           {isMinting ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Creating Position...
+              Adding Liquidity...
             </>
           ) : (
             <>
-              <Coins className="h-4 w-4 mr-2" />
-              2. Create LP Position
+              <Plus className="h-4 w-4 mr-2" />
+              Add Liquidity
             </>
           )}
         </Button>
       </div>
 
-      {/* Info Card */}
+      {/* Important Info */}
       <Card className="cluely-card rounded-2xl border-blue-500/20">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+            <TrendingUp className="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0" />
             <div className="space-y-2">
               <p className="text-white/70 text-sm">
-                This will create a real Uniswap V3 LP NFT position on Base network. 
-                You'll earn trading fees and KILT rewards based on your liquidity and time staked.
+                Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
               </p>
               <ul className="text-white/60 text-xs space-y-1">
-                <li>• Fee earnings accrue automatically to your position</li>
-                <li>• KILT rewards calculated based on position size and duration</li>
-                <li>• You can manage your position in the Positions tab</li>
+                <li>• <strong className="text-emerald-400">KILT Rewards:</strong> Earn KILT tokens from the treasury allocation (47.2% APR)</li>
+                <li>• <strong className="text-blue-400">Trading Fees:</strong> Earn 0.3% of all trades within your price range</li>
+                <li>• <strong className="text-yellow-400">Size Multipliers:</strong> Larger positions earn up to 1.8x reward multipliers</li>
+                <li>• <strong className="text-purple-400">Time Multipliers:</strong> Long-term staking earns up to 2.0x multipliers</li>
               </ul>
             </div>
           </div>

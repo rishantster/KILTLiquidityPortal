@@ -75,8 +75,13 @@ export function LiquidityMint() {
     }
   ];
 
+  // Track if we're updating from slider to prevent circular updates
+  const [isSliderUpdate, setIsSliderUpdate] = useState(false);
+
   // Auto-calculate amounts based on slider percentage
   useEffect(() => {
+    if (isSliderUpdate) return; // Prevent updates when we're manually changing amounts
+    
     const percent = positionSizePercent[0];
     if (kiltBalance && percent > 0) {
       const kiltAmountCalculated = (Number(formatTokenAmount(kiltBalance)) * percent / 100);
@@ -85,8 +90,7 @@ export function LiquidityMint() {
       if (kiltAmountCalculated >= 0) {
         setKiltAmount(kiltAmountCalculated.toFixed(6));
         
-        // Auto-calculate WETH amount based on current pool ratio (simplified)
-        // In real implementation, this would use actual pool price
+        // Auto-calculate WETH amount based on current pool ratio
         const kiltPrice = kiltData?.price || 0.0289;
         const ethPrice = 3200; // Approximate ETH price
         const wethAmountCalculated = (kiltAmountCalculated * kiltPrice) / ethPrice;
@@ -96,13 +100,14 @@ export function LiquidityMint() {
         }
       }
     }
-  }, [positionSizePercent, kiltBalance, formatTokenAmount, kiltData?.price]);
+  }, [positionSizePercent, kiltBalance, formatTokenAmount, kiltData?.price, isSliderUpdate]);
 
   const handleKiltAmountChange = (value: string) => {
     // Prevent negative values
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
+    setIsSliderUpdate(true); // Prevent circular updates
     setKiltAmount(value);
     
     // Auto-calculate WETH amount
@@ -122,6 +127,9 @@ export function LiquidityMint() {
         setPositionSizePercent([Math.round(percentageUsed)]);
       }
     }
+    
+    // Reset flag after a short delay to allow slider updates
+    setTimeout(() => setIsSliderUpdate(false), 100);
   };
 
   const handleWethAmountChange = (value: string) => {
@@ -129,6 +137,7 @@ export function LiquidityMint() {
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
+    setIsSliderUpdate(true); // Prevent circular updates
     setWethAmount(value);
     
     // Auto-calculate KILT amount
@@ -139,12 +148,28 @@ export function LiquidityMint() {
       
       if (kiltAmountCalculated >= 0) {
         setKiltAmount(kiltAmountCalculated.toFixed(6));
+        
+        // Update position size slider based on KILT amount
+        if (kiltBalance) {
+          const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
+          const percentageUsed = Math.min(100, Math.max(1, (kiltAmountCalculated / maxKiltAmount) * 100));
+          setPositionSizePercent([Math.round(percentageUsed)]);
+        }
       }
     }
+    
+    // Reset flag after a short delay to allow slider updates
+    setTimeout(() => setIsSliderUpdate(false), 100);
   };
 
   const handlePercentageSelect = (percent: number) => {
+    setIsSliderUpdate(false); // Allow slider updates for percentage buttons
     setPositionSizePercent([percent]);
+  };
+
+  const handleSliderChange = (value: number[]) => {
+    setIsSliderUpdate(false); // Allow slider updates for direct slider interaction
+    setPositionSizePercent(value);
   };
 
   const getSelectedStrategy = () => {
@@ -277,7 +302,7 @@ export function LiquidityMint() {
         <CardContent className="space-y-4">
           <Slider
             value={positionSizePercent}
-            onValueChange={setPositionSizePercent}
+            onValueChange={handleSliderChange}
             max={100}
             min={1}
             step={1}

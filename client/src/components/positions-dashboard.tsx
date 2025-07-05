@@ -18,7 +18,7 @@ import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useWallet } from '@/hooks/use-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { TOKENS, UNISWAP_V3_CONTRACTS } from '@/lib/uniswap-v3';
-import { LiquidityProvisionSimple } from './liquidity-provision-simple';
+import { LiquidityMint } from './liquidity-mint';
 import { UniswapV3Manager } from './uniswap-v3-manager';
 import { UserPositions } from './user-positions';
 
@@ -204,12 +204,12 @@ export function PositionsDashboard() {
 
             {/* Pool Management Tab */}
             <TabsContent value="pool" className="p-6">
-              <LiquidityProvisionSimple />
+              <LiquidityMint />
             </TabsContent>
 
             {/* Uniswap V3 NFTs Tab */}
             <TabsContent value="manage" className="p-6">
-              <LiquidityProvisionSimple />
+              <LiquidityMint />
             </TabsContent>
 
             {/* My Positions Tab */}

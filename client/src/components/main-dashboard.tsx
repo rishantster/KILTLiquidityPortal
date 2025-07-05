@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 // Import critical components
-import { LiquidityProvisionSimple } from './liquidity-provision-simple';
+import { LiquidityMint } from './liquidity-mint';
 import { RewardsTracking } from './rewards-tracking';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { PositionsDashboard } from './positions-dashboard';
@@ -294,7 +294,7 @@ export function MainDashboard() {
 
               {/* Add Liquidity Tab */}
               <TabsContent value="liquidity" className="p-6">
-                <LiquidityProvisionSimple />
+                <LiquidityMint />
               </TabsContent>
 
               {/* Dedicated Rewards Tab */}

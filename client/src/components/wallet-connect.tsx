@@ -66,7 +66,7 @@ export function WalletConnect() {
 
       {/* Mobile Wallet Selection Modal */}
       <Dialog open={showMobileModal} onOpenChange={setShowMobileModal}>
-        <DialogContent className="cluely-card border-white/10 max-w-md">
+        <DialogContent className="cluely-card border-white/10 w-[90vw] max-w-md mx-auto my-auto">
           <DialogHeader>
             <DialogTitle className="text-white">Connect Mobile Wallet</DialogTitle>
           </DialogHeader>
@@ -77,9 +77,12 @@ export function WalletConnect() {
             {mobileWallets.map((wallet) => (
               <Button
                 key={wallet.name}
-                onClick={() => openInWallet(wallet)}
+                onClick={() => {
+                  openInWallet(wallet);
+                  setShowMobileModal(false);
+                }}
                 variant="outline"
-                className="w-full justify-start border-white/20 hover:bg-white/10"
+                className="w-full justify-start border-white/20 hover:bg-white/10 text-white touch-manipulation active:bg-white/20"
               >
                 {wallet.name}
               </Button>

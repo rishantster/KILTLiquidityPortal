@@ -472,3 +472,33 @@
     transform: translateY(-6px);
   }
 }
+
+/* Mobile Dialog Positioning Fix */
+@media (max-width: 768px) {
+  [data-radix-dialog-content] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90vw !important;
+    max-width: 400px !important;
+    margin: 0 !important;
+    z-index: 50 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+  
+  [data-radix-dialog-overlay] {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 50 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+
+  /* Improve mobile touch targets */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}

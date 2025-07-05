@@ -1,12 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
+// Global state to ensure consistency across all hook instances
+let globalWalletState = {
+  address: null as string | null,
+  isConnected: false,
+  initialized: false,
+};
+
 export function useWallet() {
-  const [address, setAddress] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [address, setAddress] = useState<string | null>(globalWalletState.address);
+  const [isConnected, setIsConnected] = useState(globalWalletState.isConnected);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const [initialized, setInitialized] = useState(globalWalletState.initialized);
   const { toast } = useToast();
+
+  // Helper function to update both local and global state
+  const updateWalletState = (newAddress: string | null, newIsConnected: boolean, newInitialized: boolean = true) => {
+    globalWalletState = { address: newAddress, isConnected: newIsConnected, initialized: newInitialized };
+    setAddress(newAddress);
+    setIsConnected(newIsConnected);
+    setInitialized(newInitialized);
+  };
 
   // Check if wallet is already connected on mount and set up event listeners
   useEffect(() => {
@@ -22,8 +37,7 @@ export function useWallet() {
         });
 
         if (accounts && accounts.length > 0) {
-          setAddress(accounts[0]);
-          setIsConnected(true);
+          updateWalletState(accounts[0], true);
         }
       } catch (error) {
         console.error('Error checking wallet connection:', error);
@@ -35,16 +49,14 @@ export function useWallet() {
     const handleAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
         // User disconnected their wallet
-        setAddress(null);
-        setIsConnected(false);
+        updateWalletState(null, false);
         toast({
           title: "Wallet disconnected",
           description: "Your wallet has been disconnected.",
         });
       } else if (accounts[0] !== address) {
         // User switched accounts
-        setAddress(accounts[0]);
-        setIsConnected(true);
+        updateWalletState(accounts[0], true);
         toast({
           title: "Account switched",
           description: `Switched to ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
@@ -119,8 +131,7 @@ export function useWallet() {
 
       if (accounts && accounts.length > 0) {
         const connectedAddress = accounts[0];
-        setAddress(connectedAddress);
-        setIsConnected(true);
+        updateWalletState(connectedAddress, true);
         
         await switchToBase();
         
@@ -150,9 +161,8 @@ export function useWallet() {
   };
 
   const disconnect = () => {
-    // Clear local state immediately
-    setAddress(null);
-    setIsConnected(false);
+    // Clear both local and global state immediately
+    updateWalletState(null, false);
     
     // Show toast notification
     toast({

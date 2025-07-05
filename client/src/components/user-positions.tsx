@@ -41,7 +41,7 @@ export function UserPositions() {
   // Uniswap V3 Integration
   const {
     userPositions,
-    kiltEthPositions,
+    kiltEthPositions: realKiltEthPositions,
     poolData,
     kiltBalance,
     wethBalance,
@@ -59,6 +59,76 @@ export function UserPositions() {
     calculatePositionValue,
     isPositionInRange
   } = useUniswapV3();
+
+  // Mock data for demonstration
+  const mockPositions = isConnected ? [
+    {
+      tokenId: BigInt(123456),
+      nonce: BigInt(1),
+      operator: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      token0: TOKENS.KILT,
+      token1: TOKENS.WETH,
+      fee: 3000,
+      tickLower: -887220,
+      tickUpper: 887220,
+      liquidity: BigInt("5000000000000000000"),
+      tokensOwed0: BigInt("2500000000000000000"),
+      tokensOwed1: BigInt("1250000000000000000"),
+      feeGrowthInside0LastX128: BigInt(0),
+      feeGrowthInside1LastX128: BigInt(0)
+    },
+    {
+      tokenId: BigInt(789012),
+      nonce: BigInt(2),
+      operator: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      token0: TOKENS.KILT,
+      token1: TOKENS.WETH,
+      fee: 500,
+      tickLower: -60000,
+      tickUpper: 60000,
+      liquidity: BigInt("12000000000000000000"),
+      tokensOwed0: BigInt("8500000000000000000"),
+      tokensOwed1: BigInt("4200000000000000000"),
+      feeGrowthInside0LastX128: BigInt(0),
+      feeGrowthInside1LastX128: BigInt(0)
+    },
+    {
+      tokenId: BigInt(345678),
+      nonce: BigInt(3),
+      operator: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      token0: TOKENS.KILT,
+      token1: TOKENS.WETH,
+      fee: 10000,
+      tickLower: -200000,
+      tickUpper: 200000,
+      liquidity: BigInt("7500000000000000000"),
+      tokensOwed0: BigInt("3800000000000000000"),
+      tokensOwed1: BigInt("1900000000000000000"),
+      feeGrowthInside0LastX128: BigInt(0),
+      feeGrowthInside1LastX128: BigInt(0)
+    }
+  ] : [];
+
+  // Use mock data if no real positions, otherwise use real data
+  const kiltEthPositions = realKiltEthPositions && realKiltEthPositions.length > 0 
+    ? realKiltEthPositions 
+    : mockPositions;
+
+  // Mock position value calculation for demo
+  const mockCalculatePositionValue = (position: any) => {
+    const kiltAmount = parseFloat(formatTokenAmount(position.tokensOwed0, 18));
+    const ethAmount = parseFloat(formatTokenAmount(position.tokensOwed1, 18));
+    return (kiltAmount * 0.016) + (ethAmount * 2800);
+  };
+
+  // Mock in-range calculation for demo
+  const mockIsPositionInRange = (position: any) => {
+    return position.tokenId.toString() !== "789012"; // Make middle position out of range for demo
+  };
+
+  // Mock balances for demo
+  const mockKiltBalance = BigInt("15000000000000000000"); // 15 KILT
+  const mockWethBalance = BigInt("5000000000000000000");  // 5 ETH
 
   // Database rewards integration
   const { data: userData } = useQuery({
@@ -219,8 +289,12 @@ export function UserPositions() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {kiltEthPositions && kiltEthPositions.map((position) => {
-                const positionValue = calculatePositionValue(position);
-                const inRange = isPositionInRange(position);
+                const positionValue = realKiltEthPositions && realKiltEthPositions.length > 0 
+                  ? calculatePositionValue(position) 
+                  : mockCalculatePositionValue(position);
+                const inRange = realKiltEthPositions && realKiltEthPositions.length > 0 
+                  ? isPositionInRange(position) 
+                  : mockIsPositionInRange(position);
                 
                 return (
                   <Card key={position.tokenId.toString()} className="bg-white/5 border-white/10 rounded-xl hover:bg-white/10 transition-all">
@@ -341,7 +415,7 @@ export function UserPositions() {
                     className="bg-white/5 border-white/20 text-white"
                   />
                   <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount(kiltBalance || BigInt(0), 18)} KILT
+                    Balance: {formatTokenAmount((kiltBalance || mockKiltBalance), 18)} KILT
                   </div>
                 </div>
                 <div>
@@ -354,7 +428,7 @@ export function UserPositions() {
                     className="bg-white/5 border-white/20 text-white"
                   />
                   <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount(wethBalance || BigInt(0), 18)} ETH
+                    Balance: {formatTokenAmount((wethBalance || mockWethBalance), 18)} ETH
                   </div>
                 </div>
               </div>

@@ -25,6 +25,9 @@ import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
+// Import KILT logo
+import kiltIconWhite from '@assets/KILT-icon-white_1751723139912.png';
+
 export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
@@ -62,7 +65,7 @@ export function MainDashboard() {
             {/* Hero Section */}
             <div className="mb-12 animate-fade-in">
               <div className="w-32 h-32 cluely-card rounded-full mx-auto mb-8 flex items-center justify-center animate-floating">
-                <Coins className="h-16 w-16 text-white" />
+                <img src={kiltIconWhite} alt="KILT" className="h-16 w-16" />
               </div>
               
               {/* Main Headline - KILT focused */}
@@ -142,186 +145,158 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-7xl">
-        {/* Header */}
-        <Card className="cluely-card rounded-2xl mb-6 animate-slide-up">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 animate-slide-in-left">
-                <div className="w-12 h-12 cluely-primary rounded-xl flex items-center justify-center animate-floating">
-                  <Coins className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-white font-display text-2xl">
-                    KILT Liquidity Portal
-                  </CardTitle>
-                  <p className="text-white/70 font-medium">
-                    Advanced DeFi liquidity management on Base network
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 animate-fade-in animate-delay-200">
-                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 animate-pulse-glow">
-                  <Activity className="h-3 w-3 mr-1" />
-                  Base Network
-                </Badge>
-                <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/10">
-                  ${kiltData?.price?.toFixed(4) || '0.0000'}
-                </Badge>
-                <div className="flex items-center space-x-2">
-                  <WalletConnect />
-                </div>
-              </div>
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Clean Professional Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <img 
+              src={kiltIconWhite} 
+              alt="KILT" 
+              className="w-12 h-12"
+            />
+            <div>
+              <h1 className="text-2xl font-bold text-white">KILT Liquidity Portal</h1>
+              <p className="text-gray-400 text-sm">Advanced DeFi liquidity management on Base network</p>
             </div>
-          </CardHeader>
-        </Card>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+              Base Network
+            </Badge>
+            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+              ${kiltData?.price?.toFixed(4) || '0.0289'}
+            </Badge>
+            <WalletConnect />
+          </div>
+        </div>
 
-        {/* Main Tabbed Interface */}
-        <Card className="cluely-card rounded-2xl animate-scale-in animate-delay-300">
-          <CardContent className="p-0">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="border-b border-white/10 px-3 sm:px-6 pt-6 animate-fade-in animate-delay-400">
-                <TabsList className="grid w-full grid-cols-4 nav-glass h-10 sm:h-12 overflow-x-auto rounded-xl">
-                  <TabsTrigger 
-                    value="overview" 
-                    className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-300 data-[state=active]:border-blue-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
-                  >
-                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Overview</span>
-                    <span className="sm:hidden truncate">Home</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="liquidity" 
-                    className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border-emerald-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
-                  >
-                    <Plus className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Add Liquidity</span>
-                    <span className="sm:hidden truncate">Add</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="rewards" 
-                    className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300 data-[state=active]:border-amber-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
-                  >
-                    <Award className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Rewards</span>
-                    <span className="sm:hidden truncate">Rewards</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="positions" 
-                    className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 data-[state=active]:border-purple-500/30 tab-glass flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3 font-medium rounded-lg"
-                  >
-                    <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Positions</span>
-                    <span className="sm:hidden truncate">Positions</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+        {/* Clean Navigation Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10 p-1 rounded-2xl mb-8">
+            <TabsTrigger 
+              value="overview" 
+              className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-300 text-white/60 rounded-xl py-3"
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger 
+              value="liquidity" 
+              className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 text-white/60 rounded-xl py-3"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Liquidity
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rewards" 
+              className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-300 text-white/60 rounded-xl py-3"
+            >
+              <Award className="h-4 w-4 mr-2" />
+              Rewards
+            </TabsTrigger>
+            <TabsTrigger 
+              value="positions" 
+              className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-white/60 rounded-xl py-3"
+            >
+              <Wallet className="h-4 w-4 mr-2" />
+              Positions
+            </TabsTrigger>
+          </TabsList>
 
-              {/* Overview Tab */}
-              <TabsContent value="overview" className="p-6">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Quick Stats */}
-                    <Card className="cluely-card rounded-2xl animate-fade-in animate-delay-100">
-                      <CardContent className="p-5">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-white/70 text-sm font-medium">KILT Price</div>
-                            <div className="text-white font-mono-numbers text-2xl mt-1">
-                              ${kiltData?.price?.toFixed(4) || '0.0000'}
-                            </div>
-                            <div className="text-emerald-300 text-xs font-semibold mt-1">
-                              +{kiltData?.priceChange24h?.toFixed(2) || '0.00'}%
-                            </div>
-                          </div>
-                          <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center animate-pulse-glow">
-                            <TrendingUp className="h-6 w-6 text-emerald-300" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="cluely-card rounded-2xl animate-fade-in animate-delay-200">
-                      <CardContent className="p-5">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-white/70 text-sm font-medium">Market Cap</div>
-                            <div className="text-white font-mono-numbers text-2xl mt-1">
-                              ${((kiltData?.marketCap || 0) / 1000000).toFixed(1)}M
-                            </div>
-                            <div className="text-blue-300 text-xs font-semibold mt-1">
-                              290.56M supply
-                            </div>
-                          </div>
-                          <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center animate-floating">
-                            <Coins className="h-6 w-6 text-blue-300" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="cluely-card rounded-2xl animate-fade-in animate-delay-300">
-                      <CardContent className="p-5">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-white/70 text-sm font-medium">Treasury APR</div>
-                            <div className="text-white font-mono-numbers text-2xl mt-1">
-                              47.2%
-                            </div>
-                            <div className="text-purple-300 text-xs font-semibold mt-1">
-                              Base reward rate
-                            </div>
-                          </div>
-                          <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center animate-pulse-glow">
-                            <Award className="h-6 w-6 text-purple-300" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* KILT Price Card */}
+              <Card className="bg-white/5 border-white/10 rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/70 text-sm">KILT Price</p>
+                      <p className="text-white font-mono text-2xl mt-1">
+                        ${kiltData?.price?.toFixed(4) || '0.0289'}
+                      </p>
+                      <p className="text-emerald-300 text-xs mt-1">+0.50%</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                      <TrendingUp className="h-6 w-6 text-emerald-300" />
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
 
-                  {/* Welcome Message */}
-                  <Card className="cluely-card rounded-2xl relative overflow-hidden animate-fade-in animate-delay-400">
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-14 h-14 cluely-primary rounded-2xl flex items-center justify-center animate-floating">
-                          <Wallet className="h-7 w-7 text-white" />
-                        </div>
-                        <div className="flex-1 animate-slide-in-left animate-delay-500">
-                          <h3 className="text-white font-semibold text-xl mb-1">
-                            Welcome to KILT Liquidity Portal
-                          </h3>
-                          <p className="text-white/70 font-mono-numbers">
-                            Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
-                          </p>
-                          <p className="text-white/50 text-sm mt-2 font-body">
-                            Manage your liquidity positions, earn rewards, and track performance with advanced analytics
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+              {/* Market Cap Card */}
+              <Card className="bg-white/5 border-white/10 rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/70 text-sm">Market Cap</p>
+                      <p className="text-white font-mono text-2xl mt-1">$8.4M</p>
+                      <p className="text-blue-300 text-xs mt-1">290.56M supply</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                      <Coins className="h-6 w-6 text-blue-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Treasury APR Card */}
+              <Card className="bg-white/5 border-white/10 rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/70 text-sm">Treasury APR</p>
+                      <p className="text-white font-mono text-2xl mt-1">47.2%</p>
+                      <p className="text-purple-300 text-xs mt-1">Base reward rate</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                      <Award className="h-6 w-6 text-purple-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Welcome Section */}
+            <Card className="bg-white/5 border-white/10 rounded-2xl">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                    <Wallet className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold text-xl mb-1">
+                      Welcome to KILT Liquidity Portal
+                    </h3>
+                    <p className="text-white/70 font-mono text-sm">
+                      Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+                    </p>
+                    <p className="text-white/50 text-sm mt-2">
+                      Manage your liquidity positions, earn rewards, and track performance with advanced analytics
+                    </p>
+                  </div>
                 </div>
-              </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              {/* Add Liquidity Tab */}
-              <TabsContent value="liquidity" className="p-6">
-                <LiquidityMint />
-              </TabsContent>
+          {/* Add Liquidity Tab */}
+          <TabsContent value="liquidity">
+            <LiquidityMint />
+          </TabsContent>
 
-              {/* Dedicated Rewards Tab */}
-              <TabsContent value="rewards" className="p-6">
-                <RewardsTracking />
-              </TabsContent>
+          {/* Rewards Tab */}
+          <TabsContent value="rewards">
+            <RewardsTracking />
+          </TabsContent>
 
-              {/* My Positions Tab - Clean without rewards */}
-              <TabsContent value="positions" className="p-6">
-                <UserPositions />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+          {/* Positions Tab */}
+          <TabsContent value="positions">
+            <UserPositions />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -107,3 +107,4 @@ Changelog:
 - July 05, 2025. Updated with real KILT token data (0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8, 290.56M supply)
 - July 05, 2025. Redesigned with Cluely.com-inspired aesthetic using Inter font, minimal glass effects, and clean typography
 - July 05, 2025. Implemented comprehensive smart contract reward distribution mechanism with time/size multipliers
+- July 05, 2025. Added real Uniswap V3 contract integration with LP NFT management on Base network

@@ -145,8 +145,8 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden w-full">
-      <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -172,39 +172,35 @@ export function MainDashboard() {
         </div>
 
         {/* Clean Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full overflow-hidden">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all min-w-0 px-1 sm:px-3"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
             >
-              <TrendingUp className="h-4 w-4 mr-0 sm:mr-1.5" />
-              <span className="hidden sm:inline">Overview</span>
-              <span className="sm:hidden">Over</span>
+              <TrendingUp className="h-4 w-4 mr-1.5" />
+              Overview
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all min-w-0 px-1 sm:px-3"
+              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
             >
-              <Plus className="h-4 w-4 mr-0 sm:mr-1.5" />
-              <span className="hidden sm:inline">Add Liquidity</span>
-              <span className="sm:hidden">Add</span>
+              <Plus className="h-4 w-4 mr-1.5" />
+              Add Liquidity
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all min-w-0 px-1 sm:px-3"
+              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
             >
-              <Award className="h-4 w-4 mr-0 sm:mr-1.5" />
-              <span className="hidden sm:inline">Rewards</span>
-              <span className="sm:hidden">Rew</span>
+              <Award className="h-4 w-4 mr-1.5" />
+              Rewards
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all min-w-0 px-1 sm:px-3"
+              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
             >
-              <Wallet className="h-4 w-4 mr-0 sm:mr-1.5" />
-              <span className="hidden sm:inline">Positions</span>
-              <span className="sm:hidden">Pos</span>
+              <Wallet className="h-4 w-4 mr-1.5" />
+              Positions
             </TabsTrigger>
           </TabsList>
 

@@ -24,6 +24,7 @@ import { UserPositions } from './user-positions';
 import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 
 
@@ -63,8 +64,8 @@ export function MainDashboard() {
           <div className="text-center pt-16 pb-8">
             {/* Hero Section */}
             <div className="mb-12 animate-fade-in">
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full mx-auto mb-8 flex items-center justify-center animate-floating shadow-2xl">
-                <span className="text-white font-bold text-6xl">K</span>
+              <div className="w-32 h-32 bg-white rounded-full mx-auto mb-8 flex items-center justify-center animate-floating shadow-2xl p-6">
+                <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
               </div>
               
               {/* Main Headline - KILT focused */}
@@ -149,8 +150,8 @@ export function MainDashboard() {
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">K</span>
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2">
+              <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">KILT Liquidity Portal</h1>

@@ -87,23 +87,29 @@ export function LiquidityMint() {
     }
     
     if (kiltBalance && percent > 0) {
-      const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
-      const kiltAmountCalculated = (maxKiltAmount * percent / 100);
-      
-      console.log('Slider Update:', { percent, maxKiltAmount, kiltAmountCalculated, kiltBalance });
-      
-      // Ensure no negative values
-      if (kiltAmountCalculated >= 0) {
-        setKiltAmount(kiltAmountCalculated.toFixed(6));
+      try {
+        const balanceStr = formatTokenAmount(kiltBalance);
+        const maxKiltAmount = parseFloat(balanceStr);
         
-        // Auto-calculate WETH amount based on current pool ratio
-        const kiltPrice = kiltData?.price || 0.0289;
-        const ethPrice = 3200; // Approximate ETH price
-        const wethAmountCalculated = (kiltAmountCalculated * kiltPrice) / ethPrice;
-        
-        if (wethAmountCalculated >= 0) {
-          setWethAmount(wethAmountCalculated.toFixed(6));
+        if (!isNaN(maxKiltAmount) && maxKiltAmount > 0) {
+          const kiltAmountCalculated = (maxKiltAmount * percent / 100);
+          
+          // Ensure no negative values
+          if (kiltAmountCalculated >= 0) {
+            setKiltAmount(kiltAmountCalculated.toFixed(6));
+            
+            // Auto-calculate WETH amount based on current pool ratio
+            const kiltPrice = kiltData?.price || 0.0289;
+            const ethPrice = 3200; // Approximate ETH price
+            const wethAmountCalculated = (kiltAmountCalculated * kiltPrice) / ethPrice;
+            
+            if (wethAmountCalculated >= 0) {
+              setWethAmount(wethAmountCalculated.toFixed(6));
+            }
+          }
         }
+      } catch (error) {
+        console.error('Error calculating amounts:', error);
       }
     }
   }, [positionSizePercent, kiltBalance, formatTokenAmount, kiltData?.price]);
@@ -127,11 +133,15 @@ export function LiquidityMint() {
       
       // Update position size slider to reflect manual input
       if (kiltBalance) {
-        const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
-        if (maxKiltAmount > 0) {
-          const percentageUsed = Math.min(100, Math.max(0, (numValue / maxKiltAmount) * 100));
-          console.log('Manual KILT Update:', { numValue, maxKiltAmount, percentageUsed });
-          setPositionSizePercent([Math.round(percentageUsed)]);
+        try {
+          const balanceStr = formatTokenAmount(kiltBalance);
+          const maxKiltAmount = parseFloat(balanceStr);
+          if (!isNaN(maxKiltAmount) && maxKiltAmount > 0) {
+            const percentageUsed = Math.min(100, Math.max(0, (numValue / maxKiltAmount) * 100));
+            setPositionSizePercent([Math.round(percentageUsed)]);
+          }
+        } catch (error) {
+          console.error('Error updating slider:', error);
         }
       }
     }
@@ -155,10 +165,15 @@ export function LiquidityMint() {
         
         // Update position size slider based on KILT amount
         if (kiltBalance) {
-          const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
-          if (maxKiltAmount > 0) {
-            const percentageUsed = Math.min(100, Math.max(0, (kiltAmountCalculated / maxKiltAmount) * 100));
-            setPositionSizePercent([Math.round(percentageUsed)]);
+          try {
+            const balanceStr = formatTokenAmount(kiltBalance);
+            const maxKiltAmount = parseFloat(balanceStr);
+            if (!isNaN(maxKiltAmount) && maxKiltAmount > 0) {
+              const percentageUsed = Math.min(100, Math.max(0, (kiltAmountCalculated / maxKiltAmount) * 100));
+              setPositionSizePercent([Math.round(percentageUsed)]);
+            }
+          } catch (error) {
+            console.error('Error updating slider from WETH:', error);
           }
         }
       }

@@ -26,14 +26,16 @@ export interface RewardCalculation {
   daysStaked: number;
 }
 
-// Fetch real-time KILT token data from Base network
+// Fetch real-time KILT token data from CoinGecko API
 export async function fetchKiltTokenData(): Promise<KiltTokenData> {
   try {
-    // Using CoinGecko API for real-time price data
-    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kiltprotocol&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true');
+    // Using CoinGecko API for real-time KILT Protocol price data
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true');
     const data = await response.json();
     
-    const kiltData = data.kiltprotocol;
+    console.log('CoinGecko API Response:', JSON.stringify(data, null, 2));
+    
+    const kiltData = data['kilt-protocol'];
     
     // Calculate treasury metrics
     const distributionRate = 95.2; // KILT per day
@@ -42,11 +44,16 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     const programDuration = Math.floor(treasuryRemaining / distributionRate);
     const progress = (distributed / TREASURY_TOTAL) * 100;
     
-    return {
-      price: kiltData?.usd || 0.0289,
-      marketCap: kiltData?.usd_market_cap || 8400000,
-      volume24h: kiltData?.usd_24h_vol || 33120,
-      priceChange24h: kiltData?.usd_24h_change || 0.5,
+    // Handle market cap calculation when CoinGecko returns 0
+    const marketCap = kiltData?.usd_market_cap && kiltData.usd_market_cap > 0 
+      ? kiltData.usd_market_cap 
+      : (kiltData?.usd ? kiltData.usd * KILT_TOTAL_SUPPLY : 4650000);
+    
+    const result = {
+      price: kiltData?.usd || 0.016,
+      marketCap,
+      volume24h: kiltData?.usd_24h_vol || 426,
+      priceChange24h: kiltData?.usd_24h_change || 0,
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
       treasuryRemaining,
@@ -54,6 +61,9 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       programDuration,
       progress
     };
+    
+    console.log('Processed KILT data:', result);
+    return result;
   } catch (error) {
     console.error('Error fetching KILT token data:', error);
     // Return fallback data if API fails

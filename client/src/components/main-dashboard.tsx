@@ -155,7 +155,6 @@ export function MainDashboard() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">KILT Liquidity Portal</h1>
-              <p className="text-gray-400 text-sm">Advanced DeFi liquidity management on Base network</p>
             </div>
           </div>
           

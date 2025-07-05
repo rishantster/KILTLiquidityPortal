@@ -98,8 +98,11 @@ This is a decentralized finance (DeFi) liquidity provisioning portal built for t
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Design inspiration: Cluely.com aesthetic with Inter font and minimal design.
 
 ## Changelog
 
 Changelog:
 - July 05, 2025. Initial setup
+- July 05, 2025. Updated with real KILT token data (0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8, 290.56M supply)
+- July 05, 2025. Redesigned with Cluely.com-inspired aesthetic using Inter font, minimal glass effects, and clean typography

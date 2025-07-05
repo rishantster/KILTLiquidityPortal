@@ -9,31 +9,31 @@ import { Coins } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen text-slate-100">
+    <div className="min-h-screen text-white">
       {/* Header */}
-      <header className="glass-header sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-6">
+      <header className="cluely-header sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 kilt-gradient rounded-2xl flex items-center justify-center floating-animation">
-                  <Coins className="h-5 w-5 text-white" />
+                <div className="w-8 h-8 kilt-gradient rounded-xl flex items-center justify-center">
+                  <Coins className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-display text-white">KILT Liquidity Incentive Portal</h1>
-                  <p className="text-xs text-slate-400 font-light">Decentralized Identity Meets DeFi</p>
+                  <h1 className="text-xl font-heading text-white">KILT Liquidity Incentive Portal</h1>
+                  <p className="text-xs text-slate-400 font-body">Decentralized Identity Meets DeFi</p>
                 </div>
               </div>
-              <div className="hidden md:flex items-center space-x-2 glass-button rounded-full px-3 py-1">
-                <span className="text-xs text-slate-300 font-body">Base Network</span>
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+              <div className="hidden lg:flex items-center space-x-2 cluely-button rounded-full px-3 py-1">
+                <span className="text-xs text-white/80 font-medium">Base Network</span>
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
               </div>
             </div>
             
             <div className="flex items-center space-x-6">
               <div className="hidden md:flex items-center space-x-3 text-sm">
-                <span className="text-slate-400 font-body">Treasury Allocation:</span>
-                <span className="text-kilt-500 font-heading">
+                <span className="text-white/60 font-body">Treasury:</span>
+                <span className="text-white font-medium">
                   {TREASURY_TOTAL.toLocaleString()} KILT
                 </span>
               </div>
@@ -43,31 +43,45 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 space-y-12">
+      <main className="container mx-auto px-6 py-16 space-y-16">
+        {/* Hero Section */}
+        <section className="text-center space-y-8">
+          <div className="space-y-4">
+            <h1 className="text-5xl md:text-7xl font-display text-white text-balance">
+              Everything You Need.<br />
+              <span className="text-white/60">Before You Provide.</span>
+            </h1>
+            <p className="text-xl text-white/70 font-body max-w-2xl mx-auto text-balance">
+              KILT Liquidity Incentive Portal enables seamless liquidity provision for the KILT/ETH Uniswap V3 pool — with real-time rewards.
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-3 bg-amber-500/10 border border-amber-500/20 rounded-full px-6 py-3 w-fit mx-auto">
+            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+            <span className="text-amber-300 font-medium">Pool Deployment Pending</span>
+          </div>
+        </section>
+
         {/* Pool Overview */}
         <section>
-          <Card className="glass-card neon-border rounded-3xl overflow-hidden">
-            <CardHeader className="pb-8">
+          <Card className="cluely-card rounded-2xl overflow-hidden">
+            <CardHeader className="pb-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div className="space-y-3">
-                  <CardTitle className="text-4xl font-display text-white mb-2">
+                <div className="space-y-2">
+                  <CardTitle className="text-3xl font-heading text-white">
                     KILT/ETH Pool
                   </CardTitle>
-                  <p className="text-slate-300 font-body text-lg">
+                  <p className="text-white/60 font-body">
                     Uniswap V3 Liquidity Incentive Program on Base Network
                   </p>
-                  <div className="flex items-center space-x-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-4 py-2 w-fit">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                    <span className="text-yellow-400 text-sm font-body">Pool Deployment Pending</span>
-                  </div>
                 </div>
-                <div className="flex items-center space-x-3 mt-6 md:mt-0">
-                  <div className="w-12 h-12 kilt-gradient rounded-2xl flex items-center justify-center floating-animation">
-                    <Coins className="h-6 w-6 text-white" />
+                <div className="flex items-center space-x-3 mt-4 md:mt-0">
+                  <div className="w-10 h-10 kilt-gradient rounded-xl flex items-center justify-center">
+                    <Coins className="h-5 w-5 text-white" />
                   </div>
-                  <span className="text-slate-400 text-2xl font-light">/</span>
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center floating-animation" style={{animationDelay: '2s'}}>
-                    <span className="text-white text-lg font-bold">Ξ</span>
+                  <span className="text-white/40 text-xl font-light">/</span>
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-bold">Ξ</span>
                   </div>
                 </div>
               </div>
@@ -95,26 +109,26 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="glass-header mt-24">
-        <div className="container mx-auto px-4 py-8">
+      <footer className="cluely-header mt-32">
+        <div className="container mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center space-x-6 mb-6 md:mb-0">
+            <div className="flex items-center space-x-6 mb-8 md:mb-0">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 kilt-gradient rounded-2xl flex items-center justify-center">
-                  <Coins className="h-4 w-4 text-white" />
+                <div className="w-6 h-6 kilt-gradient rounded-lg flex items-center justify-center">
+                  <Coins className="h-3 w-3 text-white" />
                 </div>
-                <span className="text-white font-heading text-lg">KILT Liquidity Incentive Portal</span>
+                <span className="text-white font-medium">KILT Liquidity Incentive Portal</span>
               </div>
-              <div className="text-slate-400 text-sm font-body">
+              <div className="text-white/40 text-sm font-body">
                 Powered by Uniswap V3 on Base Network
               </div>
             </div>
             
-            <div className="flex items-center space-x-8 text-sm text-slate-300">
-              <a href="https://www.kilt.io/" className="hover:text-kilt-500 transition-colors font-body">Documentation</a>
-              <a href="#" className="hover:text-kilt-500 transition-colors font-body">Support</a>
-              <a href="#" className="hover:text-kilt-500 transition-colors font-body">Terms</a>
-              <a href="#" className="hover:text-kilt-500 transition-colors font-body">Privacy</a>
+            <div className="flex items-center space-x-8 text-sm text-white/60">
+              <a href="https://www.kilt.io/" className="hover:text-white transition-colors font-body">Documentation</a>
+              <a href="#" className="hover:text-white transition-colors font-body">Support</a>
+              <a href="#" className="hover:text-white transition-colors font-body">Terms</a>
+              <a href="#" className="hover:text-white transition-colors font-body">Privacy</a>
             </div>
           </div>
         </div>

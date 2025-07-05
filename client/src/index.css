@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -64,9 +64,10 @@
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Merriweather', serif;
-    background: radial-gradient(ellipse at top, hsl(222, 84%, 8%) 0%, hsl(222, 84%, 3%) 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #0a0a0a;
     min-height: 100vh;
+    letter-spacing: -0.02em;
   }
 
   body::before {
@@ -77,86 +78,113 @@
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(circle at 25% 25%, hsl(239, 84%, 67%, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, hsl(263, 70%, 50%, 0.1) 0%, transparent 50%);
+      radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
   }
 }
 
 @layer components {
-  .glass-card {
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-
-  .glass-header {
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .glass-button {
-    background: rgba(255, 255, 255, 0.05);
+  .cluely-card {
+    background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .cluely-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    transition: all 0.2s ease;
+  }
+
+  .cluely-header {
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .cluely-button {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+    transition: all 0.15s ease;
+    font-weight: 500;
   }
 
-  .glass-button:hover {
+  .cluely-button:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
   }
 
-  .neon-border {
-    position: relative;
-    border: 1px solid transparent;
-    background: linear-gradient(rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02)) padding-box,
-                linear-gradient(45deg, hsl(239, 84%, 67%), hsl(263, 70%, 50%)) border-box;
+  .cluely-primary {
+    background: rgba(120, 119, 198, 0.9);
+    border: 1px solid rgba(120, 119, 198, 0.5);
+    color: white;
+    font-weight: 600;
   }
 
-  .floating-animation {
-    animation: float 6s ease-in-out infinite;
+  .cluely-primary:hover {
+    background: rgba(120, 119, 198, 1);
+    border-color: rgba(120, 119, 198, 0.8);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(120, 119, 198, 0.2);
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+  .minimal-border {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .subtle-glow {
+    box-shadow: 0 0 0 1px rgba(120, 119, 198, 0.1);
   }
 }
 
 @layer utilities {
   .kilt-gradient {
-    background: linear-gradient(135deg, hsl(239, 84%, 67%) 0%, hsl(263, 70%, 50%) 100%);
+    background: linear-gradient(135deg, rgba(120, 119, 198, 0.9) 0%, rgba(120, 119, 198, 1) 100%);
   }
   
   .kilt-text {
-    @apply text-kilt-500;
+    color: rgb(120, 119, 198);
   }
 
   .font-display {
-    font-family: 'Merriweather', serif;
-    font-weight: 900;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.04em;
   }
 
   .font-heading {
-    font-family: 'Merriweather', serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
+    letter-spacing: -0.03em;
   }
 
   .font-body {
-    font-family: 'Merriweather', serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 400;
+    letter-spacing: -0.01em;
   }
 
   .font-light {
-    font-family: 'Merriweather', serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 300;
+    letter-spacing: -0.01em;
+  }
+
+  .font-medium {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .text-balance {
+    text-wrap: balance;
   }
 }

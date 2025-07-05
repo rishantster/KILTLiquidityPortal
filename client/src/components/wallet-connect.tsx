@@ -17,7 +17,7 @@ export function WalletConnect() {
       <Button 
         onClick={connect} 
         disabled={isConnecting}
-        className="kilt-gradient hover:shadow-lg hover:shadow-kilt-500/25 transition-all duration-300 glass-button font-body"
+        className="cluely-primary rounded-lg px-4 py-2 font-medium"
       >
         <Wallet className="mr-2 h-4 w-4" />
         {isConnecting ? 'Connecting...' : 'Connect Wallet'}
@@ -28,13 +28,13 @@ export function WalletConnect() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="glass-button border-kilt-500/50 hover:border-kilt-500 font-body">
+        <Button variant="outline" className="cluely-button border-white/10 hover:border-white/20 font-medium rounded-lg">
           <Wallet className="mr-2 h-4 w-4" />
           {formatAddress(address!)}
           <ChevronDown className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="glass-card border-slate-700">
+      <DropdownMenuContent className="cluely-card border-white/10">
         <DropdownMenuItem onClick={disconnect} className="text-red-400 hover:text-red-300 font-body">
           Disconnect
         </DropdownMenuItem>

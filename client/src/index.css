@@ -97,16 +97,20 @@
     box-shadow: 
       0 4px 24px rgba(0, 0, 0, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateZ(0);
+    will-change: transform, background, border-color, box-shadow;
   }
 
   .cluely-card:hover {
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
+    transform: translateY(-4px) translateZ(0) scale(1.002);
     box-shadow: 
-      0 8px 40px rgba(0, 0, 0, 0.12),
+      0 12px 48px rgba(0, 0, 0, 0.15),
+      0 4px 16px rgba(102, 126, 234, 0.1),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(24px);
   }
 
   .cluely-header {
@@ -120,17 +124,39 @@
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
+    transform: translateZ(0);
+    will-change: transform, background, border-color, box-shadow;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cluely-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cluely-button:hover::before {
+    left: 100%;
   }
 
   .cluely-button:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
+    transform: translateY(-2px) translateZ(0) scale(1.02);
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 
+      0 8px 20px rgba(0, 0, 0, 0.15),
+      0 2px 8px rgba(102, 126, 234, 0.2);
+    backdrop-filter: blur(20px);
   }
 
   .cluely-primary {
@@ -141,14 +167,35 @@
     box-shadow: 
       0 4px 16px rgba(102, 126, 234, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateZ(0);
+    will-change: transform, background, box-shadow;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cluely-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cluely-primary:hover::before {
+    left: 100%;
   }
 
   .cluely-primary:hover {
     background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
     border-color: rgba(102, 126, 234, 0.4);
-    transform: translateY(-1px);
+    transform: translateY(-3px) translateZ(0) scale(1.05);
     box-shadow: 
-      0 8px 25px rgba(102, 126, 234, 0.35),
+      0 12px 32px rgba(102, 126, 234, 0.4),
+      0 4px 16px rgba(102, 126, 234, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
 
@@ -165,12 +212,34 @@
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateZ(0);
+    will-change: transform, background, border-color;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tab-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .tab-glass:hover::before {
+    left: 100%;
   }
 
   .tab-glass:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px) translateZ(0);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .status-indicator {
@@ -266,5 +335,113 @@
 
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Advanced Animation Utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-glass-shimmer {
+    animation: glassShimmer 2s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  .animate-floating {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  /* Staggered Animation Delays */
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
+  .animate-delay-500 { animation-delay: 500ms; }
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glassShimmer {
+  0%, 100% {
+    background-position: -200% 0;
+  }
+  50% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(102, 126, 234, 0.3);
+  }
+}
+
+@keyframes floating {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 }

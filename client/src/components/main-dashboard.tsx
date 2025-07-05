@@ -55,11 +55,11 @@ export function MainDashboard() {
     <div className="min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-7xl">
         {/* Header */}
-        <Card className="cluely-card rounded-2xl mb-6">
+        <Card className="cluely-card rounded-2xl mb-6 animate-slide-up">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 cluely-primary rounded-xl flex items-center justify-center">
+              <div className="flex items-center space-x-4 animate-slide-in-left">
+                <div className="w-12 h-12 cluely-primary rounded-xl flex items-center justify-center animate-floating">
                   <Coins className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -71,8 +71,8 @@ export function MainDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+              <div className="flex items-center space-x-3 animate-fade-in animate-delay-200">
+                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 animate-pulse-glow">
                   <Activity className="h-3 w-3 mr-1" />
                   Base Network
                 </Badge>
@@ -86,10 +86,10 @@ export function MainDashboard() {
         </Card>
 
         {/* Main Tabbed Interface */}
-        <Card className="cluely-card rounded-2xl">
+        <Card className="cluely-card rounded-2xl animate-scale-in animate-delay-300">
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="border-b border-white/10 px-3 sm:px-6 pt-6">
+              <div className="border-b border-white/10 px-3 sm:px-6 pt-6 animate-fade-in animate-delay-400">
                 <TabsList className="grid w-full grid-cols-4 nav-glass h-10 sm:h-12 overflow-x-auto rounded-xl">
                   <TabsTrigger 
                     value="overview" 
@@ -131,7 +131,7 @@ export function MainDashboard() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* Quick Stats */}
-                    <Card className="cluely-card rounded-2xl">
+                    <Card className="cluely-card rounded-2xl animate-fade-in animate-delay-100">
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
                           <div>
@@ -143,14 +143,14 @@ export function MainDashboard() {
                               +{kiltData?.priceChange24h?.toFixed(2) || '0.00'}%
                             </div>
                           </div>
-                          <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center animate-pulse-glow">
                             <TrendingUp className="h-6 w-6 text-emerald-300" />
                           </div>
                         </div>
                       </CardContent>
                     </Card>
 
-                    <Card className="cluely-card rounded-2xl">
+                    <Card className="cluely-card rounded-2xl animate-fade-in animate-delay-200">
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
                           <div>
@@ -162,14 +162,14 @@ export function MainDashboard() {
                               290.56M supply
                             </div>
                           </div>
-                          <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center animate-floating">
                             <Coins className="h-6 w-6 text-blue-300" />
                           </div>
                         </div>
                       </CardContent>
                     </Card>
 
-                    <Card className="cluely-card rounded-2xl">
+                    <Card className="cluely-card rounded-2xl animate-fade-in animate-delay-300">
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
                           <div>
@@ -181,7 +181,7 @@ export function MainDashboard() {
                               Base reward rate
                             </div>
                           </div>
-                          <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center animate-pulse-glow">
                             <Award className="h-6 w-6 text-purple-300" />
                           </div>
                         </div>
@@ -190,13 +190,13 @@ export function MainDashboard() {
                   </div>
 
                   {/* Welcome Message */}
-                  <Card className="cluely-card rounded-2xl relative overflow-hidden">
+                  <Card className="cluely-card rounded-2xl relative overflow-hidden animate-fade-in animate-delay-400">
                     <CardContent className="p-6">
                       <div className="flex items-center space-x-4">
-                        <div className="w-14 h-14 cluely-primary rounded-2xl flex items-center justify-center">
+                        <div className="w-14 h-14 cluely-primary rounded-2xl flex items-center justify-center animate-floating">
                           <Wallet className="h-7 w-7 text-white" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 animate-slide-in-left animate-delay-500">
                           <h3 className="text-white font-heading text-xl mb-1">
                             Welcome to KILT Liquidity Portal
                           </h3>

@@ -529,6 +529,67 @@
     border-color: rgba(255, 255, 255, 0.2) !important;
   }
 
+  /* Remove purple focus rings on mobile */
+  button:focus,
+  button:focus-visible,
+  input:focus,
+  input:focus-visible,
+  select:focus,
+  select:focus-visible,
+  textarea:focus,
+  textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Replace with subtle glow for accessibility */
+  button:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* Remove tap highlight on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* Specific button focus fixes */
+  .cluely-button:focus,
+  .cluely-button:focus-visible,
+  .cluely-button:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  /* Remove all default button outlines */
+  button[class*="outline"]:focus,
+  button[class*="outline"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  /* Fix specific button variants */
+  .inline-flex:focus,
+  .inline-flex:focus-visible,
+  [role="button"]:focus,
+  [role="button"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Override any purple/blue focus states */
+  *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Re-add accessible focus only for keyboard navigation */
+  *:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.3) !important;
+    outline-offset: 2px !important;
+  }
+
   /* Improve mobile touch targets */
   .touch-manipulation {
     touch-action: manipulation;

@@ -60,7 +60,7 @@ export function WalletConnect() {
   }, []);
 
   const handleConnect = () => {
-    if (userIsMobile && !window.ethereum) {
+    if (userIsMobile && !(window as any).ethereum) {
       setShowMobileModal(true);
     } else {
       connect();
@@ -101,7 +101,7 @@ export function WalletConnect() {
               </div>
 
               {/* Installed Wallet Check */}
-              {userIsMobile && window.ethereum && (
+              {userIsMobile && (window as any).ethereum && (
                 <Card className="cluely-card bg-emerald-500/10 border-emerald-500/20">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">

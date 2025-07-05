@@ -80,6 +80,7 @@ export function MainDashboard() {
                 <Badge variant="outline" className="border-purple-500/20 text-purple-400">
                   ${kiltData?.price?.toFixed(4) || '0.0000'}
                 </Badge>
+                <WalletConnect />
               </div>
             </div>
           </CardHeader>

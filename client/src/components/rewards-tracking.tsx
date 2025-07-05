@@ -266,19 +266,19 @@ export function RewardsTracking() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-white/60">Total Allocation</span>
-                  <span className="text-white font-mono">2,905,600 KILT</span>
+                  <span className="text-white font-bold tabular-nums">2,905,600 KILT</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Distribution Rate</span>
-                  <span className="text-white font-mono">47.2% APR</span>
+                  <span className="text-white font-bold tabular-nums">47.2% APR</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Lock Period</span>
-                  <span className="text-white font-mono">90 days</span>
+                  <span className="text-white font-bold tabular-nums">90 days</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">KILT Price</span>
-                  <span className="text-white font-mono">${kiltData?.price.toFixed(4) || '0.0289'}</span>
+                  <span className="text-white font-bold tabular-nums">${kiltData?.price.toFixed(4) || '0.0289'}</span>
                 </div>
               </div>
 

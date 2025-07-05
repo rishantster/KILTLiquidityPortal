@@ -212,7 +212,7 @@ export function MainDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">KILT Price</p>
-                      <p className="text-white font-mono text-2xl mt-1">
+                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">
                         ${kiltData?.price?.toFixed(4) || '0.0289'}
                       </p>
                       <p className="text-emerald-300 text-xs mt-1">+0.50%</p>
@@ -230,7 +230,7 @@ export function MainDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">Market Cap</p>
-                      <p className="text-white font-mono text-2xl mt-1">$8.4M</p>
+                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">$8.4M</p>
                       <p className="text-blue-300 text-xs mt-1">290.56M supply</p>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
@@ -246,7 +246,7 @@ export function MainDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">Treasury APR</p>
-                      <p className="text-white font-mono text-2xl mt-1">47.2%</p>
+                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">47.2%</p>
                       <p className="text-purple-300 text-xs mt-1">Base reward rate</p>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">

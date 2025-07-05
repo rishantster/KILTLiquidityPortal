@@ -35,7 +35,7 @@ export const rewards = pgTable("rewards", {
   lastRewardCalculation: timestamp("last_reward_calculation").defaultNow().notNull(),
   claimedAt: timestamp("claimed_at"),
   isEligibleForClaim: boolean("is_eligible_for_claim").default(false),
-  lockPeriodDays: integer("lock_period_days").default(30).notNull(), // 30 days from liquidity addition
+  lockPeriodDays: integer("lock_period_days").default(90).notNull(), // 90 days from liquidity addition
   createdAt: timestamp("created_at").defaultNow(),
 });
 

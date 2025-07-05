@@ -1,43 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
-  Calculator, 
   Building2, 
   Clock, 
   Lock, 
   Unlock,
   TrendingUp,
-  DollarSign,
-  Calendar,
   Award,
   CheckCircle,
-  XCircle,
   Loader2
 } from 'lucide-react';
 import { useWallet } from '@/hooks/use-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
-import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-
-interface RewardCalculation {
-  baseAPR: number;
-  timeMultiplier: number;
-  sizeMultiplier: number;
-  effectiveAPR: number;
-  dailyRewards: number;
-  liquidityAmount: number;
-  daysStaked: number;
-  accumulatedRewards: number;
-  canClaim: boolean;
-  daysUntilClaim: number;
-}
 
 interface UserRewardStats {
   totalAccumulated: number;
@@ -51,20 +30,21 @@ interface ClaimResult {
   success: boolean;
   claimedAmount: number;
   transactionHash?: string;
+  transactionData?: {
+    to: string;
+    amount: number;
+    tokenContract: string;
+    networkId: number;
+    timestamp: string;
+  };
   error?: string;
 }
 
 export function RewardsTracking() {
   const { address, isConnected } = useWallet();
   const { data: kiltData } = useKiltTokenData();
-  const { kiltEthPositions, calculatePositionValue } = useUniswapV3();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Calculator inputs
-  const [liquidityInput, setLiquidityInput] = useState('1000');
-  const [daysInput, setDaysInput] = useState('0');
-  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
 
   // Get user from address
   const { data: user } = useQuery({
@@ -76,26 +56,6 @@ export function RewardsTracking() {
       return response.json();
     },
     enabled: !!address && isConnected
-  });
-
-  // Get reward calculation
-  const { data: rewardCalculation, isLoading: calcLoading } = useQuery<RewardCalculation>({
-    queryKey: ['reward-calculation', user?.id, selectedPositionId, liquidityInput, daysInput],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const response = await fetch('/api/rewards/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          nftTokenId: selectedPositionId || 'calculator',
-          positionValueUSD: parseFloat(liquidityInput) || 1000,
-          daysStaked: parseInt(daysInput) || 0
-        })
-      });
-      return response.json();
-    },
-    enabled: !!user?.id
   });
 
   // Get user reward statistics
@@ -161,9 +121,6 @@ export function RewardsTracking() {
     const claimed = Number(reward.claimedAmount || 0);
     return total + (accumulated - claimed);
   }, 0) || 0;
-
-  const lockProgress = rewardCalculation ? 
-    Math.min(100, ((30 - rewardCalculation.daysUntilClaim) / 30) * 100) : 0;
 
   if (!isConnected) {
     return (
@@ -243,101 +200,6 @@ export function RewardsTracking() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Reward Calculator */}
-        <Card className="cluely-card rounded-2xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center space-x-2 text-white font-heading">
-              <Calculator className="h-5 w-5 text-emerald-400" />
-              <span>Reward Calculator</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Input Controls */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-white/60 text-sm font-medium">Liquidity Amount (USD)</Label>
-                <Input
-                  type="number"
-                  value={liquidityInput}
-                  onChange={(e) => setLiquidityInput(e.target.value)}
-                  placeholder="1000"
-                  className="cluely-button border-white/10 bg-white/5 text-white placeholder:text-white/40"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-white/60 text-sm font-medium">Days Staked</Label>
-                <Input
-                  type="number"
-                  value={daysInput}
-                  onChange={(e) => setDaysInput(e.target.value)}
-                  placeholder="0"
-                  className="cluely-button border-white/10 bg-white/5 text-white placeholder:text-white/40"
-                />
-              </div>
-            </div>
-
-            {/* Calculation Results */}
-            {calcLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 text-blue-400 animate-spin" />
-              </div>
-            ) : rewardCalculation && (
-              <div className="space-y-4">
-                <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-white/60">Base APR</span>
-                      <span className="text-white font-mono">{rewardCalculation.baseAPR}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/60">Time Multiplier</span>
-                      <span className="text-green-400 font-mono">{rewardCalculation.timeMultiplier.toFixed(1)}x</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/60">Size Multiplier</span>
-                      <span className="text-yellow-400 font-mono">{rewardCalculation.sizeMultiplier.toFixed(1)}x</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/60">Lock Progress</span>
-                      <span className="text-white font-mono">{Math.min(30, Math.max(0, 30 - rewardCalculation.daysUntilClaim))}/30 days</span>
-                    </div>
-                  </div>
-                  <Separator className="my-3 bg-white/10" />
-                  <div className="flex justify-between">
-                    <span className="text-white/60">Effective APR</span>
-                    <span className="text-white font-mono text-lg">{rewardCalculation.effectiveAPR.toFixed(1)}%</span>
-                  </div>
-                </div>
-
-                {/* Lock Progress */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/60 text-sm">30-Day Lock Period</span>
-                    <Badge variant={rewardCalculation.canClaim ? "default" : "secondary"} className="text-xs">
-                      {rewardCalculation.canClaim ? (
-                        <><Unlock className="h-3 w-3 mr-1" /> Unlocked</>
-                      ) : (
-                        <><Lock className="h-3 w-3 mr-1" /> {rewardCalculation.daysUntilClaim} days left</>
-                      )}
-                    </Badge>
-                  </div>
-                  <Progress value={lockProgress} className="h-2" />
-                </div>
-
-                {/* Daily Rewards */}
-                <div className="p-4 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-lg border border-emerald-500/20">
-                  <div className="text-center">
-                    <div className="text-white/60 text-sm mb-1">Daily Rewards</div>
-                    <div className="text-white text-2xl font-mono font-bold">
-                      {rewardCalculation.dailyRewards.toFixed(1)} KILT
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
         {/* Claim Rewards */}
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
@@ -379,13 +241,28 @@ export function RewardsTracking() {
               )}
             </div>
 
-            {/* Treasury Information */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-white font-heading">
-                <Building2 className="h-4 w-4 text-purple-400" />
-                <span>Treasury Information</span>
+            {/* Important Notes */}
+            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+              <div className="flex items-start gap-2">
+                <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-white/70">
+                  <strong>90-Day Lock:</strong> Rewards can only be claimed after 90 days from the date you added liquidity to the pool. However, you earn rewards daily as long as your position remains active.
+                </div>
               </div>
-              
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Treasury Information */}
+        <Card className="cluely-card rounded-2xl">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading">
+              <Building2 className="h-5 w-5 text-purple-400" />
+              <span>Treasury Information</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-white/60">Total Allocation</span>
@@ -397,7 +274,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Lock Period</span>
-                  <span className="text-white font-mono">30 days</span>
+                  <span className="text-white font-mono">90 days</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">KILT Price</span>
@@ -411,12 +288,29 @@ export function RewardsTracking() {
               </div>
             </div>
 
-            {/* Important Notes */}
-            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-              <div className="flex items-start gap-2">
-                <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="text-xs text-white/70">
-                  <strong>30-Day Lock:</strong> Rewards can only be claimed after 30 days from the date you added liquidity to the pool. Rewards accumulate continuously regardless of position duration.
+            {/* Reward Features */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-white font-heading text-sm">
+                <TrendingUp className="h-4 w-4 text-emerald-400" />
+                <span>Reward Features</span>
+              </div>
+              
+              <div className="space-y-2 text-xs text-white/70">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                  <span>Daily reward accumulation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
+                  <span>Position size multipliers (1.0x - 1.8x)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                  <span>Time-based multipliers (1.0x - 2.0x)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
+                  <span>Automatic KILT token distribution</span>
                 </div>
               </div>
             </div>

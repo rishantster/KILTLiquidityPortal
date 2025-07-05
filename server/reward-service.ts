@@ -44,7 +44,7 @@ export class RewardService {
   // Base reward parameters
   private readonly BASE_APR = 47.2; // 47.2% base APR
   private readonly TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
-  private readonly LOCK_PERIOD_DAYS = 30; // 30 days from liquidity addition
+  private readonly LOCK_PERIOD_DAYS = 90; // 90 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
 
   /**

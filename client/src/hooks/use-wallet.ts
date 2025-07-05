@@ -9,21 +9,26 @@ export function useWallet() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only check for already connected accounts, don't auto-connect
-    if (typeof window !== 'undefined' && window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
+    // Check for existing connections without requesting new ones
+    checkExistingConnection();
+    
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
+      (window as any).ethereum.on('accountsChanged', handleAccountsChanged);
+      (window as any).ethereum.on('chainChanged', handleChainChanged);
     }
 
     return () => {
-      if (typeof window !== 'undefined' && window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      if (typeof window !== 'undefined' && (window as any).ethereum) {
+        (window as any).ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        (window as any).ethereum.removeListener('chainChanged', handleChainChanged);
       }
     };
   }, []);
 
-  // Removed auto-connection check to prevent unwanted wallet connections
+  const checkExistingConnection = async () => {
+    // Don't auto-connect - user must explicitly connect
+    return;
+  };
 
   const handleAccountsChanged = (accounts: string[]) => {
     if (accounts.length > 0) {
@@ -40,7 +45,7 @@ export function useWallet() {
   };
 
   const connect = async () => {
-    if (!window.ethereum) {
+    if (!(window as any).ethereum) {
       toast({
         title: "Wallet not found",
         description: "Please install MetaMask or another Ethereum wallet.",
@@ -51,11 +56,11 @@ export function useWallet() {
 
     setIsConnecting(true);
     try {
-      const accounts = await window.ethereum.request({
+      const accounts = await (window as any).ethereum.request({
         method: 'eth_requestAccounts',
       });
 
-      if (accounts.length > 0) {
+      if (accounts && accounts.length > 0) {
         setAddress(accounts[0]);
         setIsConnected(true);
         
@@ -81,14 +86,14 @@ export function useWallet() {
 
   const switchToBase = async () => {
     try {
-      await window.ethereum.request({
+      await (window as any).ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x2105' }], // Base network chain ID
       });
     } catch (error: any) {
       if (error.code === 4902) {
         // Network not added, add it
-        await window.ethereum.request({
+        await (window as any).ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [{
             chainId: '0x2105',

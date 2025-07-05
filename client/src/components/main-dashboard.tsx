@@ -16,10 +16,9 @@ import {
 
 // Import critical components
 import { LiquidityProvision } from './liquidity-provision';
-import { UserPositions } from './user-positions';
 import { RewardsTracking } from './rewards-tracking';
 import { AnalyticsDashboard } from './analytics-dashboard';
-import { IntegrationDashboard } from './integration-dashboard';
+import { PositionsDashboard } from './positions-dashboard';
 import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/hooks/use-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
@@ -91,7 +90,7 @@ export function MainDashboard() {
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="border-b border-white/10 px-3 sm:px-6 pt-6">
-                <TabsList className="grid w-full grid-cols-6 bg-white/5 h-10 sm:h-12 overflow-x-auto">
+                <TabsList className="grid w-full grid-cols-5 bg-white/5 h-10 sm:h-12 overflow-x-auto">
                   <TabsTrigger 
                     value="overview" 
                     className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
@@ -131,14 +130,6 @@ export function MainDashboard() {
                     <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="hidden sm:inline truncate">Analytics</span>
                     <span className="sm:hidden truncate">Stats</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="integration" 
-                    className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
-                  >
-                    <Settings className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Integration</span>
-                    <span className="sm:hidden truncate">Tech</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -228,7 +219,7 @@ export function MainDashboard() {
 
               {/* Positions Tab */}
               <TabsContent value="positions" className="p-6">
-                <UserPositions />
+                <PositionsDashboard />
               </TabsContent>
 
               {/* Rewards Tab */}
@@ -238,12 +229,7 @@ export function MainDashboard() {
 
               {/* Analytics Tab */}
               <TabsContent value="analytics" className="p-6">
-                <AnalyticsDashboard />
-              </TabsContent>
-
-              {/* Integration Tab */}
-              <TabsContent value="integration" className="p-6">
-                <IntegrationDashboard />
+                <AnalyticsDashboard selectedPositionId={null} userId={null} />
               </TabsContent>
             </Tabs>
           </CardContent>

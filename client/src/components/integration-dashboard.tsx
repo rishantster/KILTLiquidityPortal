@@ -29,93 +29,55 @@ import { UniswapV3Manager } from './uniswap-v3-manager';
 export function IntegrationDashboard() {
   const { address, isConnected } = useWallet();
   const {
-    userPositions,
     kiltEthPositions,
-    poolData,
-    kiltEthPoolAddress,
-    kiltBalance,
-    wethBalance,
     poolExists,
     isLoading,
-    formatTokenAmount,
     calculatePositionValue,
     isPositionInRange
   } = useUniswapV3();
-  const { data: kiltData } = useKiltTokenData();
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('positions');
 
-  // Calculate total position value
+  // Calculate metrics
   const totalPositionValue = kiltEthPositions.reduce((total, position) => {
     return total + calculatePositionValue(position);
   }, 0);
-
   const inRangePositions = kiltEthPositions.filter(position => isPositionInRange(position));
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Quick Status */}
       <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center space-x-2 text-white font-heading">
-            <Zap className="h-6 w-6 text-purple-400" />
-            <span>Real Uniswap V3 Integration Dashboard</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Connection Status */}
-            <div className="cluely-card bg-white/3 p-4 rounded-xl">
-              <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
-                <div>
-                  <div className="text-white font-medium text-sm">Wallet</div>
-                  <div className="text-white/60 text-xs">
-                    {isConnected ? 'Connected' : 'Disconnected'}
-                  </div>
-                </div>
-              </div>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <Zap className="h-5 w-5 text-purple-400" />
+              <span className="text-white font-heading">Uniswap V3 Integration</span>
             </div>
-
-            {/* Pool Status */}
-            <div className="cluely-card bg-white/3 p-4 rounded-xl">
-              <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${poolExists ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
-                <div>
-                  <div className="text-white font-medium text-sm">KILT/ETH Pool</div>
-                  <div className="text-white/60 text-xs">
-                    {poolExists ? 'Live on Base' : 'Not Deployed'}
-                  </div>
-                </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                <span className="text-white/60 text-sm">{isConnected ? 'Connected' : 'Disconnected'}</span>
               </div>
-            </div>
-
-            {/* Position Count */}
-            <div className="cluely-card bg-white/3 p-4 rounded-xl">
-              <div className="flex items-center space-x-3">
-                <Eye className="h-4 w-4 text-blue-400" />
-                <div>
-                  <div className="text-white font-medium text-sm">LP Positions</div>
-                  <div className="text-white/60 text-xs">
-                    {kiltEthPositions.length} KILT/ETH, {inRangePositions.length} in range
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Total Value */}
-            <div className="cluely-card bg-white/3 p-4 rounded-xl">
-              <div className="flex items-center space-x-3">
-                <DollarSign className="h-4 w-4 text-emerald-400" />
-                <div>
-                  <div className="text-white font-medium text-sm">Total Value</div>
-                  <div className="text-white/60 text-xs">
-                    ${totalPositionValue.toFixed(2)}
-                  </div>
-                </div>
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${poolExists ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                <span className="text-white/60 text-sm">{poolExists ? 'Pool Live' : 'Pool Pending'}</span>
               </div>
             </div>
           </div>
+          
+          {kiltEthPositions.length > 0 && (
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-white/60">Positions: </span>
+                <span className="text-white">{kiltEthPositions.length} total, {inRangePositions.length} in range</span>
+              </div>
+              <div>
+                <span className="text-white/60">Total Value: </span>
+                <span className="text-white">${totalPositionValue.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -230,26 +192,7 @@ export function IntegrationDashboard() {
                     </Button>
                   </div>
                 </div>
-                {kiltEthPoolAddress && poolExists && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/60">KILT/ETH Pool</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-white font-mono text-xs">
-                        {kiltEthPoolAddress.slice(0, 6)}...{kiltEthPoolAddress.slice(-4)}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 text-emerald-400 hover:text-emerald-300"
-                        asChild
-                      >
-                        <a href={`https://basescan.org/address/${kiltEthPoolAddress}`} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                )}
+
               </div>
             </div>
           </div>

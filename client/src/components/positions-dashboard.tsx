@@ -10,7 +10,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { TOKENS, UNISWAP_V3_CONTRACTS } from '@/lib/uniswap-v3';
 import { UserPositions } from './user-positions';

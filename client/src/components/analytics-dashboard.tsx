@@ -32,7 +32,7 @@ import {
   type PositionSnapshot,
   type PerformanceMetrics
 } from '@/hooks/use-analytics';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 
 interface AnalyticsDashboardProps {

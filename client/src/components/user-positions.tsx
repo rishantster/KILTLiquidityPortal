@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useUserPositions, useUserRewards } from '@/hooks/use-pool-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Layers, Gift, Award } from 'lucide-react';

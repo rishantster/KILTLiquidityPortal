@@ -17,7 +17,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { useToast } from '@/hooks/use-toast';

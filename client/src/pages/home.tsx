@@ -8,6 +8,7 @@ import { SmartContractDemo } from '@/components/smart-contract-demo';
 import { UniswapV3Manager } from '@/components/uniswap-v3-manager';
 import { LiquidityMint } from '@/components/liquidity-mint';
 import { IntegrationDashboard } from '@/components/integration-dashboard';
+import { AnalyticsDashboard } from '@/components/analytics-dashboard';
 import { TREASURY_TOTAL } from '@/lib/constants';
 import { Coins } from 'lucide-react';
 
@@ -114,6 +115,11 @@ export default function Home() {
         {/* Real Uniswap V3 Integration Dashboard */}
         <section>
           <IntegrationDashboard />
+        </section>
+
+        {/* Advanced Analytics Dashboard */}
+        <section>
+          <AnalyticsDashboard />
         </section>
 
         {/* Smart Contract Demo - Temporarily Disabled */}

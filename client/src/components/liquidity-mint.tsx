@@ -177,7 +177,7 @@ export function LiquidityMint() {
             Add Liquidity to KILT/ETH Pool
           </h2>
           <p className="text-white/70 text-sm mt-1">
-            Create a new Uniswap V3 liquidity position with concentrated liquidity
+            Add liquidity to the existing official KILT/ETH pool and earn trading fees
           </p>
         </div>
         <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">

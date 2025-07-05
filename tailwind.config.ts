@@ -66,6 +66,8 @@ export default {
           500: "var(--kilt-500)",
           600: "var(--kilt-600)",
           700: "var(--kilt-700)",
+          800: "var(--kilt-800)",
+          900: "var(--kilt-900)",
         },
       },
       keyframes: {

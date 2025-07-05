@@ -48,17 +48,9 @@ export class MemStorage implements IStorage {
   private statsIdCounter = 1;
 
   constructor() {
-    // Initialize with KILT/ETH pool data
-    const kiltEthPool: PoolStats = {
-      id: this.statsIdCounter++,
-      poolAddress: "0x1234567890123456789012345678901234567890",
-      tvl: "2847392.50",
-      volume24h: "184629.00",
-      apr: "47.20",
-      currentPrice: "0.00142000",
-      updatedAt: new Date(),
-    };
-    this.poolStats.set(kiltEthPool.poolAddress, kiltEthPool);
+    // Note: Pool will be initialized once Uniswap V3 KILT/ETH pool is deployed
+    // For now, we don't initialize any pool data as the pool doesn't exist yet
+    // The application will show appropriate messages for the pending pool deployment
   }
 
   async getUser(id: number): Promise<User | undefined> {

@@ -1,5 +1,9 @@
 import { MainDashboard } from '@/components/main-dashboard';
 
 export default function Home() {
-  return <MainDashboard />;
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <MainDashboard />
+    </div>
+  );
 }

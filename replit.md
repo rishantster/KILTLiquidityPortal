@@ -178,3 +178,4 @@ Changelog:
 - July 05, 2025. Fixed critical wallet approve tokens functionality by temporarily setting poolExists to true, enabling users to test token approval process for liquidity provision
 - July 05, 2025. Completely redesigned dashboard interface with clean, professional layout featuring simplified header, proper KILT branding with gradient K logo, streamlined navigation tabs, and improved overall user experience removing cluttered elements
 - July 05, 2025. Updated KILT token data integration to use real CoinGecko API sources (kilt-protocol-old endpoint) with current authentic data: $0.01602 price, $2.65M market cap, $426.09 volume, 290.56M max supply
+- July 05, 2025. Updated Uniswap V3 integration to use specific Base network KILT/ETH pool address (0xf6b32094c1a0701483d2c80bb255b4059a827b7b) for authentic liquidity pool interactions and position management

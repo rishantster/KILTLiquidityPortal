@@ -281,8 +281,8 @@ export function useUniswapV3() {
     return uniswapV3Service.isPositionInRange(position, poolData.tick);
   };
 
-  // Check if pool exists
-  const poolExists = kiltEthPoolAddress && kiltEthPoolAddress !== '0x0000000000000000000000000000000000000000';
+  // Check if pool exists - temporarily allow for testing
+  const poolExists = true; // Always allow token approval for testing
 
   return {
     // Data

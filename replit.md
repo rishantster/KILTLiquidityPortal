@@ -168,3 +168,4 @@ Changelog:
 - July 05, 2025. Enhanced UI with advanced Cluely.com-inspired glassmorphism design featuring sophisticated dark theme, enhanced blur effects, and premium visual hierarchy
 - July 05, 2025. Implemented smooth glassmorphism transition animations with advanced micro-interactions, shimmer effects, floating animations, and sophisticated easing curves for premium user experience
 - July 05, 2025. Revamped landing page with KILT-focused messaging featuring "KILT Liquidity Incentive Program" headline, treasury allocation details, and program-specific feature descriptions
+- July 05, 2025. Enhanced dark theme by removing purple colors and implementing blue-to-emerald gradient scheme with deeper black backgrounds

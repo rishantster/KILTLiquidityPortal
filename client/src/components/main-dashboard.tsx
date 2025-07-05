@@ -34,7 +34,7 @@ export function MainDashboard() {
         {/* Background Elements */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-floating"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-floating" style={{animationDelay: '1s'}}></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-slate-500/8 rounded-full blur-3xl animate-floating" style={{animationDelay: '1s'}}></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-floating" style={{animationDelay: '2s'}}></div>
         </div>
 
@@ -50,7 +50,7 @@ export function MainDashboard() {
               <h1 className="text-5xl sm:text-6xl font-heading text-white mb-6 leading-tight animate-slide-up">
                 KILT Liquidity
                 <br />
-                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
                   Incentive Program
                 </span>
               </h1>
@@ -107,7 +107,7 @@ export function MainDashboard() {
               <h2 className="text-3xl font-heading text-white mb-4">
                 Join the
               </h2>
-              <h1 className="text-5xl font-heading bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent mb-6">
+              <h1 className="text-5xl font-heading bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-6">
                 KILT Ecosystem
               </h1>
               <p className="text-white/60 text-lg font-body max-w-xl mx-auto">

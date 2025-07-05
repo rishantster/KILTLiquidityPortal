@@ -40,7 +40,7 @@ export function LiquidityMint() {
 
   const [kiltAmount, setKiltAmount] = useState('');
   const [wethAmount, setWethAmount] = useState('');
-  const [positionSizePercent, setPositionSizePercent] = useState([25]);
+  const [positionSizePercent, setPositionSizePercent] = useState([0]);
   const [selectedStrategy, setSelectedStrategy] = useState('narrow');
 
   // Price range strategies
@@ -75,16 +75,22 @@ export function LiquidityMint() {
     }
   ];
 
-  // Track if we're updating from slider to prevent circular updates
-  const [isSliderUpdate, setIsSliderUpdate] = useState(false);
-
   // Auto-calculate amounts based on slider percentage
   useEffect(() => {
-    if (isSliderUpdate) return; // Prevent updates when we're manually changing amounts
-    
     const percent = positionSizePercent[0];
+    
+    // Handle 0% case - clear amounts
+    if (percent === 0) {
+      setKiltAmount('');
+      setWethAmount('');
+      return;
+    }
+    
     if (kiltBalance && percent > 0) {
-      const kiltAmountCalculated = (Number(formatTokenAmount(kiltBalance)) * percent / 100);
+      const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
+      const kiltAmountCalculated = (maxKiltAmount * percent / 100);
+      
+      console.log('Slider Update:', { percent, maxKiltAmount, kiltAmountCalculated, kiltBalance });
       
       // Ensure no negative values
       if (kiltAmountCalculated >= 0) {
@@ -100,14 +106,13 @@ export function LiquidityMint() {
         }
       }
     }
-  }, [positionSizePercent, kiltBalance, formatTokenAmount, kiltData?.price, isSliderUpdate]);
+  }, [positionSizePercent, kiltBalance, formatTokenAmount, kiltData?.price]);
 
   const handleKiltAmountChange = (value: string) => {
     // Prevent negative values
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
-    setIsSliderUpdate(true); // Prevent circular updates
     setKiltAmount(value);
     
     // Auto-calculate WETH amount
@@ -123,13 +128,13 @@ export function LiquidityMint() {
       // Update position size slider to reflect manual input
       if (kiltBalance) {
         const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
-        const percentageUsed = Math.min(100, Math.max(1, (numValue / maxKiltAmount) * 100));
-        setPositionSizePercent([Math.round(percentageUsed)]);
+        if (maxKiltAmount > 0) {
+          const percentageUsed = Math.min(100, Math.max(0, (numValue / maxKiltAmount) * 100));
+          console.log('Manual KILT Update:', { numValue, maxKiltAmount, percentageUsed });
+          setPositionSizePercent([Math.round(percentageUsed)]);
+        }
       }
     }
-    
-    // Reset flag after a short delay to allow slider updates
-    setTimeout(() => setIsSliderUpdate(false), 100);
   };
 
   const handleWethAmountChange = (value: string) => {
@@ -137,7 +142,6 @@ export function LiquidityMint() {
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
-    setIsSliderUpdate(true); // Prevent circular updates
     setWethAmount(value);
     
     // Auto-calculate KILT amount
@@ -152,23 +156,20 @@ export function LiquidityMint() {
         // Update position size slider based on KILT amount
         if (kiltBalance) {
           const maxKiltAmount = Number(formatTokenAmount(kiltBalance));
-          const percentageUsed = Math.min(100, Math.max(1, (kiltAmountCalculated / maxKiltAmount) * 100));
-          setPositionSizePercent([Math.round(percentageUsed)]);
+          if (maxKiltAmount > 0) {
+            const percentageUsed = Math.min(100, Math.max(0, (kiltAmountCalculated / maxKiltAmount) * 100));
+            setPositionSizePercent([Math.round(percentageUsed)]);
+          }
         }
       }
     }
-    
-    // Reset flag after a short delay to allow slider updates
-    setTimeout(() => setIsSliderUpdate(false), 100);
   };
 
   const handlePercentageSelect = (percent: number) => {
-    setIsSliderUpdate(false); // Allow slider updates for percentage buttons
     setPositionSizePercent([percent]);
   };
 
   const handleSliderChange = (value: number[]) => {
-    setIsSliderUpdate(false); // Allow slider updates for direct slider interaction
     setPositionSizePercent(value);
   };
 
@@ -304,7 +305,7 @@ export function LiquidityMint() {
             value={positionSizePercent}
             onValueChange={handleSliderChange}
             max={100}
-            min={1}
+            min={0}
             step={1}
             className="w-full"
           />

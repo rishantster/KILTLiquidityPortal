@@ -18,8 +18,7 @@ import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useWallet } from '@/hooks/use-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { TOKENS, UNISWAP_V3_CONTRACTS } from '@/lib/uniswap-v3';
-import { LiquidityMint } from './liquidity-mint';
-import { LiquidityProvision } from './liquidity-provision';
+import { LiquidityProvisionSimple } from './liquidity-provision-simple';
 import { UniswapV3Manager } from './uniswap-v3-manager';
 import { UserPositions } from './user-positions';
 
@@ -111,15 +110,15 @@ export function PositionsDashboard() {
                   value="pool" 
                   className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 flex items-center space-x-1"
                 >
-                  <Zap className="h-3 w-3" />
-                  <span>Pool</span>
+                  <Plus className="h-3 w-3" />
+                  <span>Add Liquidity</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="manage" 
                   className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 flex items-center space-x-1"
                 >
-                  <Plus className="h-3 w-3" />
-                  <span>V3 NFTs</span>
+                  <Zap className="h-3 w-3" />
+                  <span>Quick Add</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="positions" 
@@ -205,12 +204,12 @@ export function PositionsDashboard() {
 
             {/* Pool Management Tab */}
             <TabsContent value="pool" className="p-6">
-              <LiquidityProvision />
+              <LiquidityProvisionSimple />
             </TabsContent>
 
             {/* Uniswap V3 NFTs Tab */}
             <TabsContent value="manage" className="p-6">
-              <LiquidityMint />
+              <LiquidityProvisionSimple />
             </TabsContent>
 
             {/* My Positions Tab */}

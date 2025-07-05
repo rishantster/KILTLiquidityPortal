@@ -145,8 +145,8 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden w-full">
+      <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 overflow-x-hidden">
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">

@@ -3,20 +3,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { useWallet } from '@/hooks/use-wallet';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Info } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
 export function LiquidityProvision() {
   const [kiltAmount, setKiltAmount] = useState('');
   const [ethAmount, setEthAmount] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [positionSizePercent, setPositionSizePercent] = useState([25]);
   const { address, isConnected } = useWallet();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: kiltData } = useKiltTokenData();
+
+  // Mock user balances (in real app, these would come from wallet)
+  const kiltBalance = 1250.00;
+  const ethBalance = 0.847;
 
   const addLiquidityMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -87,161 +95,216 @@ export function LiquidityProvision() {
     addLiquidityMutation.mutate(positionData);
   };
 
-  const setMaxKilt = () => setKiltAmount('1250.00');
-  const setMaxEth = () => setEthAmount('0.847');
+  // Helper functions for percentage-based amounts
+  const calculateKiltFromPercent = (percent: number) => {
+    return ((kiltBalance * percent) / 100).toFixed(2);
+  };
+
+  const calculateEthFromPercent = (percent: number) => {
+    return ((ethBalance * percent) / 100).toFixed(4);
+  };
+
+  const setMaxKilt = () => setKiltAmount(kiltBalance.toString());
+  const setMaxEth = () => setEthAmount(ethBalance.toString());
   const setFullRange = () => {
-    setMinPrice('0.0012');
-    setMaxPrice('0.0018');
+    const currentPrice = kiltData?.price || 0.0289;
+    setMinPrice((currentPrice * 0.8).toFixed(6)); // 20% below current
+    setMaxPrice((currentPrice * 1.2).toFixed(6)); // 20% above current
+  };
+
+  // Handle slider change
+  const handleSliderChange = (value: number[]) => {
+    setPositionSizePercent(value);
+    const percent = value[0];
+    setKiltAmount(calculateKiltFromPercent(percent));
+    setEthAmount(calculateEthFromPercent(percent));
+  };
+
+  // Handle manual input changes
+  const handleKiltChange = (value: string) => {
+    setKiltAmount(value);
+    const amount = parseFloat(value) || 0;
+    const percent = Math.min((amount / kiltBalance) * 100, 100);
+    setPositionSizePercent([percent]);
+  };
+
+  const handleEthChange = (value: string) => {
+    setEthAmount(value);
+    const amount = parseFloat(value) || 0;
+    const percent = Math.min((amount / ethBalance) * 100, 100);
+    setPositionSizePercent([percent]);
   };
 
   return (
-    <Card className="bg-slate-700 border-slate-600">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Plus className="h-5 w-5 text-kilt-500" />
+    <Card className="cluely-card rounded-2xl">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center space-x-2 text-white font-heading">
+          <Plus className="h-5 w-5 text-blue-400" />
           <span>Add Liquidity</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Position Size Slider */}
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="kilt-amount">KILT Amount</Label>
-              <div className="relative">
-                <Input
-                  id="kilt-amount"
-                  type="number"
-                  placeholder="0.0"
-                  value={kiltAmount}
-                  onChange={(e) => setKiltAmount(e.target.value)}
-                  className="pr-20"
-                />
-                <div className="absolute right-3 top-2.5 flex items-center space-x-2">
-                  <span className="text-sm text-slate-400">KILT</span>
-                  <div className="w-5 h-5 kilt-gradient rounded-full"></div>
-                </div>
-              </div>
-              <div className="flex justify-between text-sm text-slate-400">
-                <span>Balance: 1,250.00 KILT</span>
-                <button
-                  type="button"
-                  onClick={setMaxKilt}
-                  className="text-kilt-500 hover:text-kilt-400"
-                >
-                  Max
-                </button>
-              </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-white font-heading">Position Size</Label>
+              <span className="text-blue-400 font-medium">{positionSizePercent[0].toFixed(0)}%</span>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="eth-amount">ETH Amount</Label>
-              <div className="relative">
-                <Input
-                  id="eth-amount"
-                  type="number"
-                  placeholder="0.0"
-                  value={ethAmount}
-                  onChange={(e) => setEthAmount(e.target.value)}
-                  className="pr-20"
-                />
-                <div className="absolute right-3 top-2.5 flex items-center space-x-2">
-                  <span className="text-sm text-slate-400">ETH</span>
-                  <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                </div>
-              </div>
-              <div className="flex justify-between text-sm text-slate-400">
-                <span>Balance: 0.847 ETH</span>
+            
+            <div className="space-y-3">
+              <Slider
+                value={positionSizePercent}
+                onValueChange={handleSliderChange}
+                max={100}
+                min={0}
+                step={1}
+                className="w-full"
+              />
+              
+              {/* Key percentage buttons */}
+              <div className="flex justify-between text-sm">
                 <button
                   type="button"
-                  onClick={setMaxEth}
-                  className="text-kilt-500 hover:text-kilt-400"
+                  onClick={() => handleSliderChange([0])}
+                  className="text-white/60 hover:text-white transition-colors font-body"
                 >
-                  Max
+                  0%
                 </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Price Range</Label>
                 <button
                   type="button"
-                  onClick={setFullRange}
-                  className="text-kilt-500 hover:text-kilt-400 text-sm"
+                  onClick={() => handleSliderChange([25])}
+                  className="text-white/60 hover:text-white transition-colors font-body"
                 >
-                  Full Range
+                  25%
                 </button>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="min-price" className="text-xs text-slate-400">Min Price</Label>
-                  <Input
-                    id="min-price"
-                    type="number"
-                    placeholder="0.0"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                    className="text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="max-price" className="text-xs text-slate-400">Max Price</Label>
-                  <Input
-                    id="max-price"
-                    type="number"
-                    placeholder="0.0"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    className="text-sm"
-                  />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSliderChange([75])}
+                  className="text-white/60 hover:text-white transition-colors font-body"
+                >
+                  75%
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSliderChange([100])}
+                  className="text-white/60 hover:text-white transition-colors font-body"
+                >
+                  100%
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <Card className="bg-slate-600 border-slate-500">
-              <CardContent className="p-4">
-                <h3 className="font-medium text-white mb-3">Position Summary</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Pool Share</span>
-                    <span className="text-white">0.0847%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Current Price</span>
-                    <span className="text-white">0.00142 ETH</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Est. APR</span>
-                    <span className="text-emerald-500">47.2%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Network Fee</span>
-                    <span className="text-slate-300">~$2.50</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* KILT Amount */}
+          <div className="space-y-3">
+            <Label className="text-white font-heading">KILT Amount</Label>
+            <div className="relative">
+              <Input
+                type="number"
+                value={kiltAmount}
+                onChange={(e) => handleKiltChange(e.target.value)}
+                placeholder="0.0"
+                step="0.01"
+                className="cluely-button h-14 pl-4 pr-20 text-white placeholder:text-white/40 text-lg"
+              />
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                <span className="text-white/60 font-body">KILT</span>
+                <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-white/60 font-body">Balance: {kiltBalance.toFixed(2)} KILT</span>
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={setMaxKilt}
+                className="text-blue-400 hover:text-blue-300 font-body"
+              >
+                Max
+              </Button>
+            </div>
+          </div>
 
-            <Card className="bg-gradient-to-r from-kilt-500/10 to-purple-500/10 border-kilt-500/20">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Info className="h-4 w-4 text-kilt-500" />
-                  <span className="text-kilt-500 font-medium">LP NFT Position</span>
-                </div>
-                <p className="text-sm text-slate-300">
-                  Your liquidity will be represented as an NFT position. This NFT will track your rewards and must be held to earn KILT incentives.
-                </p>
-              </CardContent>
-            </Card>
+          {/* ETH Amount */}
+          <div className="space-y-3">
+            <Label className="text-white font-heading">ETH Amount</Label>
+            <div className="relative">
+              <Input
+                type="number"
+                value={ethAmount}
+                onChange={(e) => handleEthChange(e.target.value)}
+                placeholder="0.0"
+                step="0.001"
+                className="cluely-button h-14 pl-4 pr-20 text-white placeholder:text-white/40 text-lg"
+              />
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                <span className="text-white/60 font-body">ETH</span>
+                <div className="w-6 h-6 bg-blue-500 rounded-full"></div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-white/60 font-body">Balance: {ethBalance.toFixed(3)} ETH</span>
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={setMaxEth}
+                className="text-blue-400 hover:text-blue-300 font-body"
+              >
+                Max
+              </Button>
+            </div>
+          </div>
 
+          {/* Price Range */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-white font-heading">Price Range</Label>
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={setFullRange}
+                className="text-blue-400 hover:text-blue-300 font-body"
+              >
+                Full Range
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-white/60 text-sm font-body">Min Price</Label>
+                <Input
+                  type="number"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  placeholder="0.0"
+                  step="0.000001"
+                  className="cluely-button h-12 text-white placeholder:text-white/40"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 text-sm font-body">Max Price</Label>
+                <Input
+                  type="number"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  placeholder="0.0"
+                  step="0.000001"
+                  className="cluely-button h-12 text-white placeholder:text-white/40"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-4">
             <Button 
               type="submit" 
-              className="w-full kilt-gradient hover:from-kilt-600 hover:to-kilt-700"
-              disabled={addLiquidityMutation.isPending}
+              className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-heading rounded-xl"
+              disabled={!isConnected || addLiquidityMutation.isPending}
             >
-              <Plus className="mr-2 h-4 w-4" />
               {addLiquidityMutation.isPending ? 'Adding Liquidity...' : 'Add Liquidity'}
             </Button>
           </div>

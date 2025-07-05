@@ -162,7 +162,7 @@ export function MainDashboard() {
             <Badge className="hidden sm:flex bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-1 text-xs">
               Base Network
             </Badge>
-            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-1 text-xs">
+            <Badge className="hidden sm:flex bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-1 text-xs">
               ${kiltData?.price?.toFixed(4) || '0.0289'}
             </Badge>
             <div className="flex-shrink-0">

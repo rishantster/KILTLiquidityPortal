@@ -601,6 +601,20 @@
     box-sizing: border-box !important;
   }
 
+  /* Ensure tabs don't overflow on mobile */
+  [data-radix-tabs-list] {
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  [data-radix-tabs-trigger] {
+    min-width: 0 !important;
+    flex: 1 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
   /* Improve mobile touch targets */
   .touch-manipulation {
     touch-action: manipulation;

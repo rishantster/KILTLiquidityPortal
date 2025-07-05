@@ -19,6 +19,7 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { TOKENS, UNISWAP_V3_CONTRACTS } from '@/lib/uniswap-v3';
 import { LiquidityMint } from './liquidity-mint';
+import { LiquidityProvision } from './liquidity-provision';
 import { UniswapV3Manager } from './uniswap-v3-manager';
 import { UserPositions } from './user-positions';
 
@@ -61,7 +62,7 @@ export function PositionsDashboard() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <Target className="h-5 w-5 text-emerald-400" />
-              <span className="text-white font-heading">LP Positions & Uniswap V3</span>
+              <span className="text-white font-heading">Liquidity Management</span>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
@@ -98,33 +99,40 @@ export function PositionsDashboard() {
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="border-b border-white/10 px-6 pt-6">
-              <TabsList className="grid w-full grid-cols-4 bg-white/5 h-12">
+              <TabsList className="grid w-full grid-cols-5 bg-white/5 h-12 text-xs">
                 <TabsTrigger 
                   value="overview" 
-                  className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 flex items-center space-x-2"
+                  className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 flex items-center space-x-1"
                 >
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-3 w-3" />
                   <span>Overview</span>
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="manage" 
-                  className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 flex items-center space-x-2"
+                  value="pool" 
+                  className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 flex items-center space-x-1"
                 >
-                  <Plus className="h-4 w-4" />
-                  <span>Add Liquidity</span>
+                  <Zap className="h-3 w-3" />
+                  <span>Pool</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="manage" 
+                  className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 flex items-center space-x-1"
+                >
+                  <Plus className="h-3 w-3" />
+                  <span>V3 NFTs</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="positions" 
-                  className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 flex items-center space-x-2"
+                  className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 flex items-center space-x-1"
                 >
-                  <Target className="h-4 w-4" />
-                  <span>My Positions</span>
+                  <Target className="h-3 w-3" />
+                  <span>Positions</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="technical" 
-                  className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 flex items-center space-x-2"
+                  className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 flex items-center space-x-1"
                 >
-                  <Settings className="h-4 w-4" />
+                  <Settings className="h-3 w-3" />
                   <span>Technical</span>
                 </TabsTrigger>
               </TabsList>
@@ -195,7 +203,12 @@ export function PositionsDashboard() {
               </div>
             </TabsContent>
 
-            {/* Add Liquidity Tab */}
+            {/* Pool Management Tab */}
+            <TabsContent value="pool" className="p-6">
+              <LiquidityProvision />
+            </TabsContent>
+
+            {/* Uniswap V3 NFTs Tab */}
             <TabsContent value="manage" className="p-6">
               <LiquidityMint />
             </TabsContent>

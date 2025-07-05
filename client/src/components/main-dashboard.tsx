@@ -90,7 +90,7 @@ export function MainDashboard() {
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="border-b border-white/10 px-3 sm:px-6 pt-6">
-                <TabsList className="grid w-full grid-cols-5 bg-white/5 h-10 sm:h-12 overflow-x-auto">
+                <TabsList className="grid w-full grid-cols-4 bg-white/5 h-10 sm:h-12 overflow-x-auto">
                   <TabsTrigger 
                     value="overview" 
                     className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
@@ -100,19 +100,11 @@ export function MainDashboard() {
                     <span className="sm:hidden truncate">Home</span>
                   </TabsTrigger>
                   <TabsTrigger 
-                    value="liquidity" 
-                    className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
-                  >
-                    <Zap className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Liquidity</span>
-                    <span className="sm:hidden truncate">Add</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
                     value="positions" 
                     className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
                   >
                     <Target className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">Positions</span>
+                    <span className="hidden sm:inline truncate">Liquidity</span>
                     <span className="sm:hidden truncate">LPs</span>
                   </TabsTrigger>
                   <TabsTrigger 
@@ -212,12 +204,7 @@ export function MainDashboard() {
                 </div>
               </TabsContent>
 
-              {/* Liquidity Tab */}
-              <TabsContent value="liquidity" className="p-6">
-                <LiquidityProvision />
-              </TabsContent>
-
-              {/* Positions Tab */}
+              {/* Liquidity & Positions Tab */}
               <TabsContent value="positions" className="p-6">
                 <PositionsDashboard />
               </TabsContent>

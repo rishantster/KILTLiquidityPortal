@@ -24,9 +24,18 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
 export function MainDashboard() {
-  const { address, isConnected } = useWallet();
+  const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Show loading until wallet is initialized
+  if (!initialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return (
@@ -145,7 +154,7 @@ export function MainDashboard() {
                   <Activity className="h-3 w-3 mr-1" />
                   Base Network
                 </Badge>
-                <Badge variant="outline" className="border-purple-500/30 text-purple-400 bg-purple-500/10">
+                <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/10">
                   ${kiltData?.price?.toFixed(4) || '0.0000'}
                 </Badge>
                 <WalletConnect />

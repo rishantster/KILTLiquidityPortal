@@ -6,16 +6,25 @@ export function useWallet() {
   const [address, setAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for existing connections without requesting new ones
-    checkExistingConnection();
-    
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
-      (window as any).ethereum.on('accountsChanged', handleAccountsChanged);
-      (window as any).ethereum.on('chainChanged', handleChainChanged);
-    }
+    // Initialize wallet state and set up event listeners
+    const initializeWallet = async () => {
+      if (typeof window !== 'undefined' && (window as any).ethereum) {
+        // Set up event listeners
+        (window as any).ethereum.on('accountsChanged', handleAccountsChanged);
+        (window as any).ethereum.on('chainChanged', handleChainChanged);
+        
+        // Don't auto-connect - let user explicitly connect
+        setInitialized(true);
+      } else {
+        setInitialized(true);
+      }
+    };
+
+    initializeWallet();
 
     return () => {
       if (typeof window !== 'undefined' && (window as any).ethereum) {
@@ -24,12 +33,6 @@ export function useWallet() {
       }
     };
   }, []);
-
-  const checkExistingConnection = async () => {
-    // Don't auto-connect on page load - user must explicitly connect
-    // This ensures clean UX with proper landing page display
-    return;
-  };
 
   const handleAccountsChanged = (accounts: string[]) => {
     if (accounts.length > 0) {
@@ -57,16 +60,22 @@ export function useWallet() {
 
     setIsConnecting(true);
     try {
+      // Always request account access - this will show MetaMask popup
       const accounts = await (window as any).ethereum.request({
         method: 'eth_requestAccounts',
       });
 
       if (accounts && accounts.length > 0) {
-        setAddress(accounts[0]);
+        const connectedAddress = accounts[0];
+        setAddress(connectedAddress);
         setIsConnected(true);
         
         // Switch to Base network
         await switchToBase();
+        
+        // Save connection state
+        localStorage.setItem('wallet_connected', 'true');
+        localStorage.setItem('wallet_address', connectedAddress);
         
         toast({
           title: "Wallet connected",
@@ -75,11 +84,19 @@ export function useWallet() {
       }
     } catch (error: any) {
       console.error('Error connecting wallet:', error);
-      toast({
-        title: "Connection failed",
-        description: error.message || "Failed to connect wallet.",
-        variant: "destructive",
-      });
+      if (error.code === 4001) {
+        toast({
+          title: "Connection rejected",
+          description: "Please approve the connection request in your wallet.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Connection failed",
+          description: error.message || "Failed to connect wallet.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsConnecting(false);
     }
@@ -115,6 +132,11 @@ export function useWallet() {
   const disconnect = () => {
     setAddress(null);
     setIsConnected(false);
+    
+    // Clear saved connection state
+    localStorage.removeItem('wallet_connected');
+    localStorage.removeItem('wallet_address');
+    
     // Force page reload to ensure clean state
     window.location.reload();
   };
@@ -123,6 +145,7 @@ export function useWallet() {
     address,
     isConnected,
     isConnecting,
+    initialized,
     connect,
     disconnect,
   };

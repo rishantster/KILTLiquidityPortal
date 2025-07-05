@@ -90,7 +90,7 @@ export function WalletConnect() {
           <DialogContent className="cluely-card border-white/10 max-w-md">
             <DialogHeader>
               <DialogTitle className="text-white font-heading flex items-center space-x-2">
-                <Smartphone className="h-5 w-5 text-purple-400" />
+                <Smartphone className="h-5 w-5 text-blue-400" />
                 <span>Connect Mobile Wallet</span>
               </DialogTitle>
             </DialogHeader>
@@ -151,7 +151,7 @@ export function WalletConnect() {
                           <Button 
                             onClick={() => window.open(wallet.downloadUrl, '_blank')}
                             size="sm"
-                            className="bg-purple-500/20 text-purple-400 hover:bg-purple-500/30"
+                            className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"
                           >
                             Install
                           </Button>

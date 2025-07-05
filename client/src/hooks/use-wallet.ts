@@ -8,7 +8,7 @@ export function useWallet() {
   const [initialized, setInitialized] = useState(false);
   const { toast } = useToast();
 
-  // Check if wallet is already connected on mount
+  // Check if wallet is already connected on mount and set up event listeners
   useEffect(() => {
     const checkConnection = async () => {
       if (typeof window === 'undefined' || !(window as any).ethereum) {
@@ -32,8 +32,49 @@ export function useWallet() {
       }
     };
 
-    checkConnection();
-  }, []);
+    const handleAccountsChanged = (accounts: string[]) => {
+      if (accounts.length === 0) {
+        // User disconnected their wallet
+        setAddress(null);
+        setIsConnected(false);
+        toast({
+          title: "Wallet disconnected",
+          description: "Your wallet has been disconnected.",
+        });
+      } else if (accounts[0] !== address) {
+        // User switched accounts
+        setAddress(accounts[0]);
+        setIsConnected(true);
+        toast({
+          title: "Account switched",
+          description: `Switched to ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
+        });
+      }
+    };
+
+    const handleChainChanged = () => {
+      // Reload the page when chain changes to avoid state issues
+      window.location.reload();
+    };
+
+    if ((window as any).ethereum) {
+      checkConnection();
+      
+      // Set up event listeners
+      (window as any).ethereum.on('accountsChanged', handleAccountsChanged);
+      (window as any).ethereum.on('chainChanged', handleChainChanged);
+      
+      // Cleanup function
+      return () => {
+        if ((window as any).ethereum?.removeListener) {
+          (window as any).ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          (window as any).ethereum.removeListener('chainChanged', handleChainChanged);
+        }
+      };
+    } else {
+      setInitialized(true);
+    }
+  }, [address, toast]);
 
   // Switch to Base network
   const switchToBase = async () => {
@@ -111,6 +152,10 @@ export function useWallet() {
   const disconnect = () => {
     setAddress(null);
     setIsConnected(false);
+    toast({
+      title: "Wallet disconnected",
+      description: "Successfully disconnected from your wallet.",
+    });
   };
 
   return {

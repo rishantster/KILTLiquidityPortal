@@ -72,9 +72,11 @@ export function MainDashboard() {
             </div>
 
             {/* Connection Section */}
-            <div className="mb-16 animate-scale-in animate-delay-300">
-              <WalletConnect />
-              <p className="text-white/50 text-sm mt-4 font-body">
+            <div className="mb-16 animate-scale-in animate-delay-300 flex flex-col items-center">
+              <div className="mb-4">
+                <WalletConnect />
+              </div>
+              <p className="text-white/50 text-sm font-body text-center">
                 No signup required. Connect and start earning in seconds.
               </p>
             </div>
@@ -158,7 +160,9 @@ export function MainDashboard() {
                 <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/10">
                   ${kiltData?.price?.toFixed(4) || '0.0000'}
                 </Badge>
-                <WalletConnect />
+                <div className="flex items-center space-x-2">
+                  <WalletConnect />
+                </div>
               </div>
             </div>
           </CardHeader>

@@ -6,6 +6,8 @@ import { UserPositions } from '@/components/user-positions';
 import { RewardsTracking } from '@/components/rewards-tracking';
 import { SmartContractDemo } from '@/components/smart-contract-demo';
 import { UniswapV3Manager } from '@/components/uniswap-v3-manager';
+import { LiquidityMint } from '@/components/liquidity-mint';
+import { IntegrationDashboard } from '@/components/integration-dashboard';
 import { TREASURY_TOTAL } from '@/lib/constants';
 import { Coins } from 'lucide-react';
 
@@ -109,9 +111,9 @@ export default function Home() {
           <RewardsTracking />
         </section>
 
-        {/* Uniswap V3 NFT Management */}
+        {/* Real Uniswap V3 Integration Dashboard */}
         <section>
-          <UniswapV3Manager />
+          <IntegrationDashboard />
         </section>
 
         {/* Smart Contract Demo - Temporarily Disabled */}

@@ -352,7 +352,7 @@ export function UserPositions() {
                       </div>
 
                       {/* Position Management Actions */}
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex gap-1 mt-4">
                         <Button
                           variant="outline"
                           size="sm"
@@ -360,7 +360,7 @@ export function UserPositions() {
                             setSelectedPosition(position.tokenId);
                             setManagementMode('increase');
                           }}
-                          className="flex-1 border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300"
+                          className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300"
                         >
                           <Plus className="h-3 w-3 mr-1" />
                           Add
@@ -372,7 +372,7 @@ export function UserPositions() {
                             setSelectedPosition(position.tokenId);
                             setManagementMode('decrease');
                           }}
-                          className="flex-1 border-white/20 hover:border-red-400 text-red-400 hover:text-red-300"
+                          className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300"
                         >
                           <Minus className="h-3 w-3 mr-1" />
                           Remove
@@ -384,7 +384,7 @@ export function UserPositions() {
                             setSelectedPosition(position.tokenId);
                             setManagementMode('collect');
                           }}
-                          className="flex-1 border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300"
+                          className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300"
                         >
                           <DollarSign className="h-3 w-3 mr-1" />
                           Collect

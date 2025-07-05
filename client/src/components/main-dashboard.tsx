@@ -233,6 +233,7 @@ export function MainDashboard() {
                         ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                       </p>
                       <p className="text-blue-300 text-xs mt-1">276.97M circulating</p>
+                      <p className="text-white/50 text-xs">290.56M total supply</p>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
                       <Coins className="h-6 w-6 text-blue-300" />

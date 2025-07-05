@@ -74,8 +74,8 @@ export function UserPositions() {
       liquidity: BigInt("5000000000000000000"),
       tokensOwed0: BigInt("2500000000000000000"),
       tokensOwed1: BigInt("1250000000000000000"),
-      feeGrowthInside0LastX128: BigInt(0),
-      feeGrowthInside1LastX128: BigInt(0)
+      feeGrowthInside0LastX128: BigInt("0"),
+      feeGrowthInside1LastX128: BigInt("0")
     },
     {
       tokenId: BigInt(789012),
@@ -89,8 +89,8 @@ export function UserPositions() {
       liquidity: BigInt("12000000000000000000"),
       tokensOwed0: BigInt("8500000000000000000"),
       tokensOwed1: BigInt("4200000000000000000"),
-      feeGrowthInside0LastX128: BigInt(0),
-      feeGrowthInside1LastX128: BigInt(0)
+      feeGrowthInside0LastX128: BigInt("0"),
+      feeGrowthInside1LastX128: BigInt("0")
     },
     {
       tokenId: BigInt(345678),
@@ -104,8 +104,8 @@ export function UserPositions() {
       liquidity: BigInt("7500000000000000000"),
       tokensOwed0: BigInt("3800000000000000000"),
       tokensOwed1: BigInt("1900000000000000000"),
-      feeGrowthInside0LastX128: BigInt(0),
-      feeGrowthInside1LastX128: BigInt(0)
+      feeGrowthInside0LastX128: BigInt("0"),
+      feeGrowthInside1LastX128: BigInt("0")
     }
   ] : [];
 
@@ -173,8 +173,8 @@ export function UserPositions() {
             tokenId: selectedPosition,
             amount0Desired: parseTokenAmount(amount0, 18),
             amount1Desired: parseTokenAmount(amount1, 18),
-            amount0Min: BigInt(0),
-            amount1Min: BigInt(0),
+            amount0Min: BigInt("0"),
+            amount1Min: BigInt("0"),
             deadline: BigInt(Math.floor(Date.now() / 1000) + 3600)
           });
           break;
@@ -182,8 +182,8 @@ export function UserPositions() {
           await decreaseLiquidity({
             tokenId: selectedPosition,
             liquidity: parseTokenAmount(liquidityAmount, 18),
-            amount0Min: BigInt(0),
-            amount1Min: BigInt(0),
+            amount0Min: BigInt("0"),
+            amount1Min: BigInt("0"),
             deadline: BigInt(Math.floor(Date.now() / 1000) + 3600)
           });
           break;
@@ -254,9 +254,9 @@ export function UserPositions() {
   const totalUnclaimed = unclaimedRewards.reduce((sum: number, r: any) => sum + parseFloat(r.amount), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full overflow-y-auto">
       {/* Main Positions Grid */}
-      <Card className="cluely-card rounded-2xl">
+      <Card className="cluely-card rounded-2xl min-h-0">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2 text-white font-heading">
@@ -319,7 +319,7 @@ export function UserPositions() {
                             ${positionValue.toFixed(2)}
                           </div>
                           <div className="text-emerald-400 text-sm font-bold tabular-nums">
-                            {formatTokenAmount(position.liquidity, 18)} L
+                            {formatTokenAmount(position.liquidity, 18) || '0'} L
                           </div>
                         </div>
                       </div>
@@ -328,13 +328,13 @@ export function UserPositions() {
                         <div className="flex justify-between">
                           <span className="text-white/60">KILT Amount</span>
                           <span className="text-white font-bold tabular-nums">
-                            {formatTokenAmount(position.tokensOwed0, 18)}
+                            {formatTokenAmount(position.tokensOwed0, 18) || '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-white/60">ETH Amount</span>
                           <span className="text-white font-bold tabular-nums">
-                            {formatTokenAmount(position.tokensOwed1, 18)}
+                            {formatTokenAmount(position.tokensOwed1, 18) || '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -415,7 +415,7 @@ export function UserPositions() {
                     className="bg-white/5 border-white/20 text-white"
                   />
                   <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount((kiltBalance || mockKiltBalance), 18)} KILT
+                    Balance: {formatTokenAmount((kiltBalance || mockKiltBalance), 18) || '0'} KILT
                   </div>
                 </div>
                 <div>
@@ -428,7 +428,7 @@ export function UserPositions() {
                     className="bg-white/5 border-white/20 text-white"
                   />
                   <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount((wethBalance || mockWethBalance), 18)} ETH
+                    Balance: {formatTokenAmount((wethBalance || mockWethBalance), 18) || '0'} ETH
                   </div>
                 </div>
               </div>

@@ -75,7 +75,7 @@ export function LiquidityMint() {
     }
   ];
 
-  // Auto-calculate amounts based on slider percentage
+  // Auto-calculate amounts based on slider percentage - limited by WETH balance
   useEffect(() => {
     const percent = positionSizePercent[0];
     
@@ -86,25 +86,25 @@ export function LiquidityMint() {
       return;
     }
     
-    if (kiltBalance && percent > 0) {
+    if (wethBalance && percent > 0) {
       try {
-        const balanceStr = formatTokenAmount(kiltBalance);
-        const maxKiltAmount = parseFloat(balanceStr);
+        const wethBalanceStr = formatTokenAmount(wethBalance);
+        const maxWethAmount = parseFloat(wethBalanceStr);
         
-        if (!isNaN(maxKiltAmount) && maxKiltAmount > 0) {
-          const kiltAmountCalculated = (maxKiltAmount * percent / 100);
+        if (!isNaN(maxWethAmount) && maxWethAmount > 0) {
+          const wethAmountCalculated = (maxWethAmount * percent / 100);
           
           // Ensure no negative values
-          if (kiltAmountCalculated >= 0) {
-            setKiltAmount(kiltAmountCalculated.toFixed(6));
+          if (wethAmountCalculated >= 0) {
+            setWethAmount(wethAmountCalculated.toFixed(3)); // 3 decimal places
             
-            // Auto-calculate WETH amount based on current pool ratio
+            // Auto-calculate KILT amount based on current pool ratio
             const kiltPrice = kiltData?.price || 0.0289;
             const ethPrice = 3200; // Approximate ETH price
-            const wethAmountCalculated = (kiltAmountCalculated * kiltPrice) / ethPrice;
+            const kiltAmountCalculated = (wethAmountCalculated * ethPrice) / kiltPrice;
             
-            if (wethAmountCalculated >= 0) {
-              setWethAmount(wethAmountCalculated.toFixed(6));
+            if (kiltAmountCalculated >= 0) {
+              setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
             }
           }
         }
@@ -112,7 +112,7 @@ export function LiquidityMint() {
         console.error('Error calculating amounts:', error);
       }
     }
-  }, [positionSizePercent, kiltBalance, formatTokenAmount, kiltData?.price]);
+  }, [positionSizePercent, wethBalance, formatTokenAmount, kiltData?.price]);
 
   const handleKiltAmountChange = (value: string) => {
     // Prevent negative values
@@ -128,16 +128,16 @@ export function LiquidityMint() {
       const wethAmountCalculated = (numValue * kiltPrice) / ethPrice;
       
       if (wethAmountCalculated >= 0) {
-        setWethAmount(wethAmountCalculated.toFixed(6));
+        setWethAmount(wethAmountCalculated.toFixed(3)); // 3 decimal places
       }
       
-      // Update position size slider to reflect manual input
-      if (kiltBalance) {
+      // Update position size slider based on WETH balance (limiting factor)
+      if (wethBalance) {
         try {
-          const balanceStr = formatTokenAmount(kiltBalance);
-          const maxKiltAmount = parseFloat(balanceStr);
-          if (!isNaN(maxKiltAmount) && maxKiltAmount > 0) {
-            const percentageUsed = Math.min(100, Math.max(0, (numValue / maxKiltAmount) * 100));
+          const wethBalanceStr = formatTokenAmount(wethBalance);
+          const maxWethAmount = parseFloat(wethBalanceStr);
+          if (!isNaN(maxWethAmount) && maxWethAmount > 0) {
+            const percentageUsed = Math.min(100, Math.max(0, (wethAmountCalculated / maxWethAmount) * 100));
             setPositionSizePercent([Math.round(percentageUsed)]);
           }
         } catch (error) {
@@ -161,15 +161,15 @@ export function LiquidityMint() {
       const kiltAmountCalculated = (numValue * ethPrice) / kiltPrice;
       
       if (kiltAmountCalculated >= 0) {
-        setKiltAmount(kiltAmountCalculated.toFixed(6));
+        setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
         
-        // Update position size slider based on KILT amount
-        if (kiltBalance) {
+        // Update position size slider based on WETH balance (limiting factor)
+        if (wethBalance) {
           try {
-            const balanceStr = formatTokenAmount(kiltBalance);
-            const maxKiltAmount = parseFloat(balanceStr);
-            if (!isNaN(maxKiltAmount) && maxKiltAmount > 0) {
-              const percentageUsed = Math.min(100, Math.max(0, (kiltAmountCalculated / maxKiltAmount) * 100));
+            const wethBalanceStr = formatTokenAmount(wethBalance);
+            const maxWethAmount = parseFloat(wethBalanceStr);
+            if (!isNaN(maxWethAmount) && maxWethAmount > 0) {
+              const percentageUsed = Math.min(100, Math.max(0, (numValue / maxWethAmount) * 100));
               setPositionSizePercent([Math.round(percentageUsed)]);
             }
           } catch (error) {
@@ -313,7 +313,7 @@ export function LiquidityMint() {
             <Target className="h-5 w-5 text-emerald-400" />
             Position Size
           </CardTitle>
-          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of balance</p>
+          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <Slider

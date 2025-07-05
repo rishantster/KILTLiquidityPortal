@@ -54,7 +54,7 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-7xl">
         {/* Header */}
         <Card className="cluely-card rounded-2xl mb-6">
           <CardHeader className="pb-4">
@@ -89,49 +89,55 @@ export function MainDashboard() {
         <Card className="cluely-card rounded-2xl">
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="border-b border-white/10 px-6 pt-6">
-                <TabsList className="grid w-full grid-cols-6 bg-white/5 h-12">
+              <div className="border-b border-white/10 px-3 sm:px-6 pt-6">
+                <TabsList className="grid w-full grid-cols-6 bg-white/5 h-10 sm:h-12 overflow-x-auto">
                   <TabsTrigger 
                     value="overview" 
-                    className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 flex items-center space-x-2"
+                    className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
                   >
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="hidden sm:inline">Overview</span>
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="hidden sm:inline truncate">Overview</span>
+                    <span className="sm:hidden truncate">Home</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="liquidity" 
-                    className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 flex items-center space-x-2"
+                    className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
                   >
-                    <Zap className="h-4 w-4" />
-                    <span className="hidden sm:inline">Liquidity</span>
+                    <Zap className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="hidden sm:inline truncate">Liquidity</span>
+                    <span className="sm:hidden truncate">Add</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="positions" 
-                    className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 flex items-center space-x-2"
+                    className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
                   >
-                    <Target className="h-4 w-4" />
-                    <span className="hidden sm:inline">Positions</span>
+                    <Target className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="hidden sm:inline truncate">Positions</span>
+                    <span className="sm:hidden truncate">LPs</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="rewards" 
-                    className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 flex items-center space-x-2"
+                    className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
                   >
-                    <Award className="h-4 w-4" />
-                    <span className="hidden sm:inline">Rewards</span>
+                    <Award className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="hidden sm:inline truncate">Rewards</span>
+                    <span className="sm:hidden truncate">Earn</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="analytics" 
-                    className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 flex items-center space-x-2"
+                    className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
                   >
-                    <BarChart3 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Analytics</span>
+                    <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="hidden sm:inline truncate">Analytics</span>
+                    <span className="sm:hidden truncate">Stats</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="integration" 
-                    className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 flex items-center space-x-2"
+                    className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0 px-1 sm:px-3"
                   >
-                    <Settings className="h-4 w-4" />
-                    <span className="hidden sm:inline">Integration</span>
+                    <Settings className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="hidden sm:inline truncate">Integration</span>
+                    <span className="sm:hidden truncate">Tech</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -139,7 +145,7 @@ export function MainDashboard() {
               {/* Overview Tab */}
               <TabsContent value="overview" className="p-6">
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {/* Quick Stats */}
                     <Card className="cluely-card bg-white/3 rounded-xl">
                       <CardContent className="p-4">

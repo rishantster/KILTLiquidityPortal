@@ -126,6 +126,29 @@ This is a decentralized finance (DeFi) liquidity provisioning portal built for t
 - Reduced code duplication and improved maintainability
 - Better user experience with intuitive tab organization
 
+## Mobile Wallet Compatibility
+
+### Mobile Detection and Optimization
+- **Responsive Tabbed Interface**: Mobile-optimized tabs with shorter labels and compact layout
+- **Device Detection**: Automatic detection of mobile devices and screen sizes
+- **Viewport Management**: Dynamic responsive behavior based on screen dimensions
+
+### Mobile Wallet Support
+- **Deep Link Integration**: Direct connection to popular mobile wallets:
+  - MetaMask Mobile (metamask.app.link)
+  - Trust Wallet (link.trustwallet.com)
+  - Coinbase Wallet (go.cb-w.com)
+  - Rainbow Wallet (rainbow.me)
+- **Wallet Detection**: Automatic detection of installed wallet apps
+- **Installation Prompts**: Direct links to wallet app downloads
+- **Connection Instructions**: Step-by-step guidance for mobile users
+
+### Mobile UX Features
+- **Modal Interface**: Clean mobile wallet selection modal
+- **Touch-Optimized**: All interactions designed for touch interfaces
+- **Responsive Cards**: Adaptive card layouts for mobile screens
+- **Compact Navigation**: Space-efficient tab design with icons and short labels
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -141,3 +164,4 @@ Changelog:
 - July 05, 2025. Added real Uniswap V3 contract integration with LP NFT management on Base network
 - July 05, 2025. Implemented comprehensive advanced analytics and historical data tracking system
 - July 05, 2025. Implemented tabbed interface for critical components and cleaned codebase organization
+- July 05, 2025. Added mobile wallet compatibility with deep link support and responsive design

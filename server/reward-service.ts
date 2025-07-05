@@ -28,6 +28,13 @@ export interface ClaimRewardResult {
   success: boolean;
   claimedAmount: number;
   transactionHash?: string;
+  transactionData?: {
+    to: string;
+    amount: number;
+    tokenContract: string;
+    networkId: number;
+    timestamp: string;
+  };
   error?: string;
 }
 
@@ -37,7 +44,7 @@ export class RewardService {
   // Base reward parameters
   private readonly BASE_APR = 47.2; // 47.2% base APR
   private readonly TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
-  private readonly LOCK_PERIOD_DAYS = 90; // 3 months
+  private readonly LOCK_PERIOD_DAYS = 30; // 30 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
 
   /**
@@ -65,14 +72,32 @@ export class RewardService {
 
   /**
    * Calculate rewards for a specific position and time period
+   * Uses both liquidity addition date and NFT staking date for accurate calculations
    */
   async calculatePositionRewards(
     userId: number,
     nftTokenId: string,
     positionValueUSD: number,
-    daysStaked: number = 0
+    liquidityAddedAt?: Date,
+    stakingStartDate?: Date
   ): Promise<RewardCalculationResult> {
-    // Calculate multipliers
+    // Get existing reward record for dates if not provided
+    let existingReward = null;
+    if (!liquidityAddedAt || !stakingStartDate) {
+      existingReward = await this.getPositionReward(userId, nftTokenId);
+    }
+    
+    // Use provided dates or fall back to existing record
+    const liquidityDate = liquidityAddedAt || (existingReward ? new Date(existingReward.liquidityAddedAt) : new Date());
+    const stakingDate = stakingStartDate || (existingReward ? new Date(existingReward.stakingStartDate) : new Date());
+    
+    // Calculate days since liquidity was added (for claim eligibility)
+    const daysSinceLiquidity = Math.floor((Date.now() - liquidityDate.getTime()) / (24 * 60 * 60 * 1000));
+    
+    // Calculate days since NFT staking started (for reward accumulation)
+    const daysStaked = Math.floor((Date.now() - stakingDate.getTime()) / (24 * 60 * 60 * 1000));
+    
+    // Calculate multipliers based on staking duration
     const timeMultiplier = this.calculateTimeMultiplier(daysStaked);
     const sizeMultiplier = this.calculateSizeMultiplier(positionValueUSD);
     
@@ -82,13 +107,12 @@ export class RewardService {
     // Calculate daily rewards in KILT tokens
     const dailyRewards = (positionValueUSD * (effectiveAPR / 100)) / 365;
     
-    // Get existing reward record
-    const existingReward = await this.getPositionReward(userId, nftTokenId);
+    // Get accumulated rewards
     const accumulatedRewards = existingReward ? Number(existingReward.accumulatedAmount) : 0;
     
-    // Check if eligible for claiming (3 month lock)
-    const canClaim = daysStaked >= this.LOCK_PERIOD_DAYS;
-    const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysStaked);
+    // Check if eligible for claiming (30 day lock from liquidity addition)
+    const canClaim = daysSinceLiquidity >= this.LOCK_PERIOD_DAYS;
+    const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity);
 
     return {
       baseAPR: this.BASE_APR,
@@ -111,9 +135,19 @@ export class RewardService {
     userId: number,
     positionId: number,
     nftTokenId: string,
-    positionValueUSD: number
+    positionValueUSD: number,
+    liquidityAddedAt: Date,
+    stakingStartDate?: Date
   ): Promise<Reward> {
-    const calculation = await this.calculatePositionRewards(userId, nftTokenId, positionValueUSD, 0);
+    const stakingDate = stakingStartDate || new Date(); // Default to now if not provided
+    
+    const calculation = await this.calculatePositionRewards(
+      userId, 
+      nftTokenId, 
+      positionValueUSD, 
+      liquidityAddedAt,
+      stakingDate
+    );
     
     const rewardData: InsertReward = {
       userId,
@@ -121,7 +155,9 @@ export class RewardService {
       nftTokenId,
       positionValueUSD: positionValueUSD.toString(),
       dailyRewardAmount: calculation.dailyRewards.toString(),
-      accumulatedAmount: "0"
+      accumulatedAmount: "0",
+      liquidityAddedAt,
+      stakingStartDate: stakingDate
     };
 
     const [reward] = await this.db
@@ -153,8 +189,9 @@ export class RewardService {
     for (const { reward, position } of activeRewards) {
       if (!reward || !position) continue;
 
-      // Calculate days staked
+      // Calculate days staked and liquidity duration
       const stakingStart = new Date(reward.stakingStartDate);
+      const liquidityStart = new Date(reward.liquidityAddedAt);
       const daysStaked = Math.floor((Date.now() - stakingStart.getTime()) / (24 * 60 * 60 * 1000));
 
       // Recalculate rewards based on current position value and staking time
@@ -163,7 +200,8 @@ export class RewardService {
         reward.userId,
         reward.nftTokenId,
         positionValue,
-        daysStaked
+        liquidityStart,
+        stakingStart
       );
 
       // Check if we already recorded today's reward
@@ -256,9 +294,9 @@ export class RewardService {
   }
 
   /**
-   * Claim rewards for a user
+   * Claim rewards for a user - transfers KILT tokens to user's wallet
    */
-  async claimRewards(userId: number): Promise<ClaimRewardResult> {
+  async claimRewards(userId: number, userAddress: string): Promise<ClaimRewardResult> {
     try {
       const claimableRewards = await this.getClaimableRewards(userId);
       
@@ -287,7 +325,16 @@ export class RewardService {
         };
       }
 
-      // Update claimed amounts
+      // Prepare transaction data for KILT token transfer
+      const transferData = {
+        to: userAddress,
+        amount: totalClaimable,
+        tokenContract: "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8", // KILT token address
+        networkId: 8453, // Base network
+        timestamp: new Date().toISOString()
+      };
+
+      // Update claimed amounts in database
       for (const reward of claimableRewards) {
         await this.db
           .update(rewards)
@@ -298,14 +345,12 @@ export class RewardService {
           .where(eq(rewards.id, reward.id));
       }
 
-      // In a real implementation, this would trigger the actual token transfer
-      // For now, we simulate it
-      const mockTransactionHash = `0x${Math.random().toString(16).substr(2, 64)}`;
-
+      // Return transaction data for frontend to handle the actual token transfer
+      // Frontend will use this data to prepare the transaction for user signing
       return {
         success: true,
         claimedAmount: totalClaimable,
-        transactionHash: mockTransactionHash
+        transactionData: transferData
       };
 
     } catch (error) {

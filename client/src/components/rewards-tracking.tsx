@@ -125,10 +125,11 @@ export function RewardsTracking() {
   // Claim rewards mutation
   const claimMutation = useMutation({
     mutationFn: async () => {
-      if (!user?.id) throw new Error('User not found');
+      if (!user?.id || !address) throw new Error('User not found or wallet not connected');
       const response = await fetch(`/api/rewards/claim/${user.id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userAddress: address })
       });
       
       if (!response.ok) {
@@ -162,7 +163,7 @@ export function RewardsTracking() {
   }, 0) || 0;
 
   const lockProgress = rewardCalculation ? 
-    Math.min(100, (rewardCalculation.daysStaked / 90) * 100) : 0;
+    Math.min(100, ((30 - rewardCalculation.daysUntilClaim) / 30) * 100) : 0;
 
   if (!isConnected) {
     return (
@@ -298,7 +299,7 @@ export function RewardsTracking() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/60">Lock Progress</span>
-                      <span className="text-white font-mono">{rewardCalculation.daysStaked}/90 days</span>
+                      <span className="text-white font-mono">{Math.min(30, Math.max(0, 30 - rewardCalculation.daysUntilClaim))}/30 days</span>
                     </div>
                   </div>
                   <Separator className="my-3 bg-white/10" />
@@ -311,7 +312,7 @@ export function RewardsTracking() {
                 {/* Lock Progress */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60 text-sm">3-Month Lock Period</span>
+                    <span className="text-white/60 text-sm">30-Day Lock Period</span>
                     <Badge variant={rewardCalculation.canClaim ? "default" : "secondary"} className="text-xs">
                       {rewardCalculation.canClaim ? (
                         <><Unlock className="h-3 w-3 mr-1" /> Unlocked</>
@@ -396,7 +397,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Lock Period</span>
-                  <span className="text-white font-mono">3 months</span>
+                  <span className="text-white font-mono">30 days</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">KILT Price</span>
@@ -415,7 +416,7 @@ export function RewardsTracking() {
               <div className="flex items-start gap-2">
                 <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
                 <div className="text-xs text-white/70">
-                  <strong>3-Month Lock:</strong> Rewards can only be claimed after positions have been active for 90 days. This ensures long-term commitment to the KILT ecosystem.
+                  <strong>30-Day Lock:</strong> Rewards can only be claimed after 30 days from the date you added liquidity to the pool. Rewards accumulate continuously regardless of position duration.
                 </div>
               </div>
             </div>

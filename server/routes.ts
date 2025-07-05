@@ -347,7 +347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate rewards for a position
   app.post("/api/rewards/calculate", async (req, res) => {
     try {
-      const { userId, nftTokenId, positionValueUSD, daysStaked } = req.body;
+      const { userId, nftTokenId, positionValueUSD, liquidityAddedAt, stakingStartDate } = req.body;
       
       if (!userId || !nftTokenId || !positionValueUSD) {
         res.status(400).json({ error: "Missing required parameters" });
@@ -358,7 +358,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         nftTokenId,
         positionValueUSD,
-        daysStaked || 0
+        liquidityAddedAt ? new Date(liquidityAddedAt) : undefined,
+        stakingStartDate ? new Date(stakingStartDate) : undefined
       );
       
       res.json(calculation);
@@ -370,9 +371,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create position reward tracking
   app.post("/api/rewards/position", async (req, res) => {
     try {
-      const { userId, positionId, nftTokenId, positionValueUSD } = req.body;
+      const { userId, positionId, nftTokenId, positionValueUSD, liquidityAddedAt, stakingStartDate } = req.body;
       
-      if (!userId || !positionId || !nftTokenId || !positionValueUSD) {
+      if (!userId || !positionId || !nftTokenId || !positionValueUSD || !liquidityAddedAt) {
         res.status(400).json({ error: "Missing required parameters" });
         return;
       }
@@ -381,7 +382,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         positionId,
         nftTokenId,
-        positionValueUSD
+        positionValueUSD,
+        new Date(liquidityAddedAt),
+        stakingStartDate ? new Date(stakingStartDate) : undefined
       );
       
       res.json(reward);
@@ -416,7 +419,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/rewards/claim/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      const result = await rewardService.claimRewards(userId);
+      const { userAddress } = req.body;
+      
+      if (!userAddress) {
+        res.status(400).json({ error: "User address is required" });
+        return;
+      }
+      
+      const result = await rewardService.claimRewards(userId, userAddress);
       
       if (result.success) {
         res.json(result);

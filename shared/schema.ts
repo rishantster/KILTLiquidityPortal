@@ -30,11 +30,12 @@ export const rewards = pgTable("rewards", {
   dailyRewardAmount: decimal("daily_reward_amount", { precision: 18, scale: 8 }).notNull(),
   accumulatedAmount: decimal("accumulated_amount", { precision: 18, scale: 8 }).notNull(),
   claimedAmount: decimal("claimed_amount", { precision: 18, scale: 8 }).default("0"),
-  stakingStartDate: timestamp("staking_start_date").defaultNow().notNull(),
+  liquidityAddedAt: timestamp("liquidity_added_at").notNull(), // When liquidity was first added to pool
+  stakingStartDate: timestamp("staking_start_date").defaultNow().notNull(), // When NFT staking for rewards started
   lastRewardCalculation: timestamp("last_reward_calculation").defaultNow().notNull(),
   claimedAt: timestamp("claimed_at"),
   isEligibleForClaim: boolean("is_eligible_for_claim").default(false),
-  lockPeriodMonths: integer("lock_period_months").default(3).notNull(),
+  lockPeriodDays: integer("lock_period_days").default(30).notNull(), // 30 days from liquidity addition
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -155,6 +156,8 @@ export const insertRewardSchema = createInsertSchema(rewards).pick({
   positionValueUSD: true,
   dailyRewardAmount: true,
   accumulatedAmount: true,
+  liquidityAddedAt: true,
+  stakingStartDate: true,
 });
 
 export const insertDailyRewardSchema = createInsertSchema(dailyRewards).pick({

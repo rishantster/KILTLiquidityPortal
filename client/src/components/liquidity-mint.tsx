@@ -358,7 +358,7 @@ export function LiquidityMint() {
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-white text-lg flex items-center gap-2">
-              <img src={kiltLogo} alt="KILT" className="w-5 h-5 align-middle" />
+              <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
               KILT Amount
             </CardTitle>
           </CardHeader>
@@ -373,7 +373,7 @@ export function LiquidityMint() {
             />
             <div className="flex justify-between text-sm">
               <span className="text-white/60">
-                Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img src={kiltLogo} alt="KILT" className="w-3 h-3 align-middle" />KILT</span>
+                Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img src={kiltLogo} alt="KILT" className="w-3 h-3" />KILT</span>
               </span>
               <Button
                 variant="ghost"

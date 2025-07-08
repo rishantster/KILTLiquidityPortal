@@ -368,7 +368,7 @@ export function UserPositions() {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <img src={kiltLogo} alt="KILT" className="w-3 h-3 align-middle" />
+                            <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
                             KILT Amount
                           </span>
                           <span className="text-white font-bold tabular-nums">

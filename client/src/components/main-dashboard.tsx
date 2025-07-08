@@ -357,7 +357,7 @@ export function MainDashboard() {
                 {/* KILT Price */}
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <img src={kiltLogo} alt="KILT" className="w-6 h-6 align-middle" />
+                    <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
                   </div>
                   <p className="text-white/70 text-sm mb-1 text-label">KILT Price</p>
                   <p className="text-white font-bold text-xl text-numbers">
@@ -438,7 +438,7 @@ export function MainDashboard() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <img src={kiltLogo} alt="KILT" className="w-5 h-5 rounded-full" />
+                          <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
                           <span className="text-white/70 text-sm text-body">KILT:</span>
                         </div>
                         <span className="text-white font-bold text-numbers">

@@ -29,7 +29,7 @@ export function UserPersonalAPR({ address }: UserPersonalAPRProps) {
   }
 
   return (
-    <span className="tabular-nums">
+    <span className="text-numbers">
       {userAPR.effectiveAPR.toFixed(1)}%
     </span>
   );

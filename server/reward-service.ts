@@ -22,6 +22,8 @@ export interface RewardCalculationResult {
   accumulatedRewards: number;
   canClaim: boolean;
   daysUntilClaim: number;
+  rank: number | null;
+  totalParticipants: number;
 }
 
 export interface ClaimRewardResult {
@@ -80,6 +82,24 @@ export class RewardService {
     // Sort by liquidity value (descending) and take top 100
     const sortedPositions = positions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
     return sortedPositions.slice(0, this.MAX_PARTICIPANTS);
+  }
+
+  /**
+   * Get user's current ranking position
+   */
+  async getUserRanking(userId: number): Promise<{ rank: number | null, totalParticipants: number }> {
+    const positions = await this.db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
+    
+    // Sort by liquidity value (descending)
+    const sortedPositions = positions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
+    
+    // Find user's position
+    const userPositionIndex = sortedPositions.findIndex(pos => pos.userId === userId);
+    
+    return {
+      rank: userPositionIndex >= 0 ? userPositionIndex + 1 : null,
+      totalParticipants: Math.min(sortedPositions.length, this.MAX_PARTICIPANTS)
+    };
   }
 
   /**
@@ -161,7 +181,9 @@ export class RewardService {
           daysStaked,
           accumulatedRewards: 0,
           canClaim: false,
-          daysUntilClaim: Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity)
+          daysUntilClaim: Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity),
+          rank: null,
+          totalParticipants: Math.min(top100.length, this.MAX_PARTICIPANTS)
         };
       }
     }
@@ -191,16 +213,18 @@ export class RewardService {
     const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity);
 
     return {
-      baseAPR: effectiveAPR, // Now calculated from bonding curve
+      baseAPR: effectiveAPR, // Now calculated from ranking system
       timeMultiplier: timeFactor, // Now 0-1 normalized time factor
-      sizeMultiplier: bondingCurveFactor, // Now bonding curve factor
+      sizeMultiplier: rankMultiplier, // Now rank multiplier
       effectiveAPR,
       dailyRewards,
       liquidityAmount: positionValueUSD,
       daysStaked,
       accumulatedRewards,
       canClaim,
-      daysUntilClaim
+      daysUntilClaim,
+      rank: userRank || null,
+      totalParticipants: Math.min(top100.length, this.MAX_PARTICIPANTS)
     };
   }
 

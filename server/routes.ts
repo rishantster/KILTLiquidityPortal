@@ -491,8 +491,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user from database
       const user = await storage.getUserByAddress(userAddress);
       if (!user) {
-        // User not found, return 0% APR
-        res.json({ effectiveAPR: 0 });
+        // User not found, return 0% APR with no ranking
+        res.json({ effectiveAPR: 0, rank: null, totalParticipants: 100 });
         return;
       }
       
@@ -500,14 +500,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const positions = await storage.getLpPositionsByUserId(user.id);
       
       if (positions.length === 0) {
-        // No positions, return 0% APR
-        res.json({ effectiveAPR: 0 });
+        // No positions, return 0% APR with no ranking
+        res.json({ effectiveAPR: 0, rank: null, totalParticipants: 100 });
         return;
       }
       
       // Calculate average APR across all positions
       let totalAPR = 0;
       let totalValueUSD = 0;
+      let bestRank = null;
+      let totalParticipants = 100;
       
       for (const position of positions) {
         const positionValueUSD = position.amount0 * 0.01602203 + position.amount1 * 2500; // Rough calculation
@@ -522,11 +524,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         totalAPR += rewardCalc.effectiveAPR * positionValueUSD;
         totalValueUSD += positionValueUSD;
+        
+        // Track the best (lowest) rank across all positions
+        if (rewardCalc.rank && (!bestRank || rewardCalc.rank < bestRank)) {
+          bestRank = rewardCalc.rank;
+        }
+        
+        totalParticipants = rewardCalc.totalParticipants;
       }
       
       const weightedAPR = totalValueUSD > 0 ? totalAPR / totalValueUSD : 0;
       
-      res.json({ effectiveAPR: weightedAPR });
+      res.json({ 
+        effectiveAPR: weightedAPR, 
+        rank: bestRank, 
+        totalParticipants 
+      });
     } catch (error) {
       console.error('Error calculating user APR:', error);
       res.status(500).json({ error: "Failed to calculate user APR" });

@@ -25,12 +25,22 @@ export function UserPersonalAPR({ address }: UserPersonalAPRProps) {
   }
 
   if (!userAPR) {
-    return <span className="text-white/50">0.0%</span>;
+    return (
+      <div className="text-center">
+        <span className="text-white/50">0.0%</span>
+        <div className="text-white/40 text-xs mt-1">No ranking</div>
+      </div>
+    );
   }
 
   return (
-    <span className="text-numbers">
-      {userAPR.effectiveAPR.toFixed(1)}%
-    </span>
+    <div className="text-center">
+      <span className="text-numbers">
+        {userAPR.effectiveAPR.toFixed(1)}%
+      </span>
+      <div className="text-white/60 text-xs mt-1">
+        {userAPR.rank ? `#${userAPR.rank} of ${userAPR.totalParticipants}` : 'Not ranked'}
+      </div>
+    </div>
   );
 }

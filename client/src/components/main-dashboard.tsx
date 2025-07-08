@@ -384,14 +384,16 @@ export function MainDashboard() {
                     <Award className="h-8 w-8 text-white" />
                   </div>
                   <p className="text-white/70 text-sm mb-1 text-label">Your Reward APR</p>
-                  <p className="text-white font-bold text-xl text-numbers">
+                  <div className="text-white font-bold text-xl text-numbers">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
-                      <span className="text-white/50">--</span>
+                      <div className="text-center">
+                        <span className="text-white/50">--</span>
+                        <div className="text-white/40 text-xs mt-1">Connect wallet</div>
+                      </div>
                     )}
-                  </p>
-                  <p className="text-purple-300 text-xs mt-1 text-body">Based on ranking</p>
+                  </div>
                 </div>
 
                 {/* Treasury Status */}

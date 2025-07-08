@@ -232,16 +232,21 @@ export class UniswapV3Service {
     const positions: UniswapV3Position[] = [];
 
     for (const tokenId of allTokenIds) {
-      const position = await this.getPosition(tokenId);
-      
-      // Check if this is a KILT/ETH position
-      const isKiltEthPosition = (
-        (position.token0 === TOKENS.KILT && position.token1 === TOKENS.WETH) ||
-        (position.token0 === TOKENS.WETH && position.token1 === TOKENS.KILT)
-      );
+      try {
+        const position = await this.getPosition(tokenId);
+        
+        // Check if this is a KILT/ETH position
+        const isKiltEthPosition = (
+          (position.token0 === TOKENS.KILT && position.token1 === TOKENS.WETH) ||
+          (position.token0 === TOKENS.WETH && position.token1 === TOKENS.KILT)
+        );
 
-      if (isKiltEthPosition && position.liquidity > 0n) {
-        positions.push(position);
+        // Include both open and closed positions (removed liquidity > 0n check)
+        if (isKiltEthPosition) {
+          positions.push(position);
+        }
+      } catch (error) {
+        console.error('Error fetching position:', tokenId.toString(), error);
       }
     }
 

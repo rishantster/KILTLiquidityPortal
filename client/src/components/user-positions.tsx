@@ -73,10 +73,7 @@ export function UserPositions() {
   // Use real positions from connected wallet only
   const kiltEthPositions = realKiltEthPositions || [];
   
-  // Debug logging
-  console.log('UserPositions - Wallet State:', { address, isConnected });
-  console.log('UserPositions - Real positions:', realKiltEthPositions);
-  console.log('UserPositions - Final positions:', kiltEthPositions);
+
 
 
 
@@ -233,8 +230,13 @@ export function UserPositions() {
         <CardContent>
           {!kiltEthPositions || kiltEthPositions.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-white/60">No LP positions found</p>
-              <p className="text-white/40 text-sm">Add liquidity to get started</p>
+              <p className="text-white/60">No KILT/ETH positions found</p>
+              <p className="text-white/40 text-sm">Add liquidity to the KILT/ETH pool to get started</p>
+              {userPositions && userPositions.length > 0 && (
+                <p className="text-white/40 text-xs mt-2">
+                  Found {userPositions.length} other Uniswap V3 position(s) in wallet
+                </p>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

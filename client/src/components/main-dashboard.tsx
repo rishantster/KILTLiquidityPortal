@@ -34,6 +34,10 @@ import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
+import kiltIconWhite from '@assets/KILT-icon-white_1752017513214.png';
+import kiltIconBlack from '@assets/KILT-icon-black_1752017513214.png';
+import kiltHorizontalWhite from '@assets/KILT-Horizontal-white_1752017513213.png';
+import kiltHorizontalBlack from '@assets/KILT-Horizontal-black_1752017513213.png';
 
 // Ethereum logo component
 const EthereumLogo = ({ className = "w-5 h-5" }) => (

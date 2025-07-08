@@ -28,6 +28,19 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
+import kiltIconWhite from '@assets/KILT-icon-white_1752017513214.png';
+
+// Ethereum logo component
+const EthereumLogo = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#343434"/>
+    <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
+    <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
+    <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
+    <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141114"/>
+    <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
+  </svg>
+);
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
 export function UserPositions() {
@@ -354,13 +367,19 @@ export function UserPositions() {
                       
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-white/60">KILT Amount</span>
+                          <span className="text-white/60 flex items-center gap-1">
+                            <img src={kiltIconWhite} alt="KILT" className="w-3 h-3 rounded-full" />
+                            KILT Amount
+                          </span>
                           <span className="text-white font-bold tabular-nums">
                             {formatTokenAmount(position.tokensOwed0, 18) || '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-white/60">ETH Amount</span>
+                          <span className="text-white/60 flex items-center gap-1">
+                            <EthereumLogo className="w-3 h-3" />
+                            ETH Amount
+                          </span>
                           <span className="text-white font-bold tabular-nums">
                             {formatTokenAmount(position.tokensOwed1, 18) || '0'}
                           </span>

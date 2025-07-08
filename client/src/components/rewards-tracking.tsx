@@ -17,6 +17,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import kiltIconWhite from '@assets/KILT-icon-white_1752017513214.png';
 
 interface UserRewardStats {
   totalAccumulated: number;
@@ -195,8 +196,10 @@ export function RewardsTracking() {
               <h3 className="text-white font-semibold text-lg">Daily Rate</h3>
               <TrendingUp className="h-5 w-5 text-blue-400" />
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white">
-              {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} KILT
+            <div className="text-2xl font-bold tabular-nums text-white flex items-center gap-2">
+              {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} 
+              <img src={kiltIconWhite} alt="KILT" className="w-5 h-5 rounded-full" />
+              KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
               Average per day
@@ -210,8 +213,10 @@ export function RewardsTracking() {
               <h3 className="text-white font-semibold text-lg">Claimed</h3>
               <CheckCircle className="h-5 w-5 text-purple-400" />
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white">
-              {rewardStats?.totalClaimed.toFixed(2) || '0.00'} KILT
+            <div className="text-2xl font-bold tabular-nums text-white flex items-center gap-2">
+              {rewardStats?.totalClaimed.toFixed(2) || '0.00'} 
+              <img src={kiltIconWhite} alt="KILT" className="w-5 h-5 rounded-full" />
+              KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
               Total claimed
@@ -233,8 +238,10 @@ export function RewardsTracking() {
             {/* Claimable Amount */}
             <div className="text-center p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
               <div className="text-white/60 text-sm mb-2 font-medium">Available to Claim</div>
-              <div className="text-white text-3xl font-bold tabular-nums mb-4">
-                {totalClaimableAmount.toFixed(2)} KILT
+              <div className="text-white text-3xl font-bold tabular-nums mb-4 flex items-center justify-center gap-2">
+                {totalClaimableAmount.toFixed(2)} 
+                <img src={kiltIconWhite} alt="KILT" className="w-6 h-6 rounded-full" />
+                KILT
               </div>
               
               {totalClaimableAmount > 0 ? (
@@ -344,12 +351,12 @@ export function RewardsTracking() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-white/60">Total Allocation</span>
-                <span className="text-white font-bold tabular-nums">2,905,600 KILT</span>
+                <span className="text-white font-bold tabular-nums flex items-center gap-1">2,905,600 <img src={kiltIconWhite} alt="KILT" className="w-4 h-4 rounded-full" />KILT</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Remaining</span>
                 <span className="text-white font-bold tabular-nums">
-                  {top100Analytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} KILT
+                  {top100Analytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} <img src={kiltIconWhite} alt="KILT" className="w-4 h-4 rounded-full inline-block" />KILT
                 </span>
               </div>
               <div className="flex justify-between">
@@ -395,7 +402,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
-                  <span>Automatic KILT token distribution</span>
+                  <span className="flex items-center gap-1">Automatic <img src={kiltIconWhite} alt="KILT" className="w-3 h-3 rounded-full" />KILT token distribution</span>
                 </div>
               </div>
             </div>

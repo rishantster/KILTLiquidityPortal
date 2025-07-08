@@ -16,7 +16,8 @@ import {
   Plus,
   Loader2,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Users
 } from 'lucide-react';
 
 // Import critical components
@@ -329,41 +330,79 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Program Information Welcome Section */}
+            {/* Advanced Program Information Section */}
             <Card className="bg-gradient-to-r from-blue-500/10 to-emerald-500/10 border-blue-500/20 rounded-2xl">
               <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                    <Award className="h-7 w-7 text-white" />
+                <div className="flex items-start space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-emerald-600 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <Award className="h-8 w-8 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-white font-semibold text-xl mb-1">
-                      KILT Liquidity Incentive Program
+                    <h3 className="text-white font-semibold text-xl mb-2">
+                      Advanced KILT Liquidity Management Platform
                     </h3>
-                    <p className="text-white/70 text-sm mb-2">
-                      Earn up to 47.2% APR by providing liquidity to KILT/ETH pools on Base network
+                    <p className="text-white/70 text-sm mb-3">
+                      Professional-grade DeFi platform with real-time analytics, gas optimization, and intelligent position management
                     </p>
-                    <div className="flex flex-wrap gap-4 text-xs">
-                      <div className="flex items-center gap-1">
+                    
+                    {/* Key Features Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                      <div className="flex items-center gap-2 text-xs">
                         <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                        <span className="text-white/60">2.9M KILT treasury allocation</span>
+                        <span className="text-white/60">Real-time gas estimation & cost optimization</span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2 text-xs">
                         <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                        <span className="text-white/60">Top 100 participants earn rewards</span>
+                        <span className="text-white/60">Intelligent wallet balance-based liquidity</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <span className="text-white/60">Top 100 ranking system with 66% max APR</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                        <span className="text-white/60">Comprehensive position analytics & tracking</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                        <span className="text-white/60">One-click optimal range deployment</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                        <span className="text-white/60">Panoptic-style position visualizations</span>
+                      </div>
+                    </div>
+                    
+                    {/* Program Stats */}
+                    <div className="flex flex-wrap gap-4 text-xs bg-white/5 rounded-lg p-3">
+                      <div className="flex items-center gap-1">
+                        <Coins className="h-3 w-3 text-emerald-400" />
+                        <span className="text-white/60">2.9M KILT Treasury</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                        <span className="text-white/60">Time & size multipliers up to 2.0x</span>
+                        <Users className="h-3 w-3 text-blue-400" />
+                        <span className="text-white/60">Top 100 Participants</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <TrendingUp className="h-3 w-3 text-purple-400" />
+                        <span className="text-white/60">Duration + Size Multipliers</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Zap className="h-3 w-3 text-yellow-400" />
+                        <span className="text-white/60">Base Network Optimized</span>
                       </div>
                     </div>
                   </div>
-                  <div className="hidden md:block">
+                  <div className="hidden lg:block">
                     <div className="text-right">
                       <p className="text-white/60 text-xs">Connected Wallet</p>
                       <p className="text-white font-mono text-sm">
                         {address?.slice(0, 6)}...{address?.slice(-4)}
                       </p>
+                      <div className="mt-2 text-xs text-white/50">
+                        <p>Base Network</p>
+                        <p>Real-time Sync</p>
+                      </div>
                     </div>
                   </div>
                 </div>

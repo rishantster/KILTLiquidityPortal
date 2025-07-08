@@ -289,7 +289,7 @@ export function MainDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
-              <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+              <img src={kiltLogo} alt="KILT" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
             </div>
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-white truncate">KILT Liquidity Portal</h1>
@@ -357,7 +357,7 @@ export function MainDashboard() {
                 {/* KILT Price */}
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <img src={kiltLogo} alt="KILT" className="w-8 h-8 rounded-full" />
+                    <img src={kiltLogo} alt="KILT" className="w-6 h-6 align-middle" />
                   </div>
                   <p className="text-white/70 text-sm mb-1 text-label">KILT Price</p>
                   <p className="text-white font-bold text-xl text-numbers">
@@ -481,7 +481,7 @@ export function MainDashboard() {
                           </div>
                           <div className="flex items-center justify-center space-x-4 text-white/60 text-xs text-body">
                             <div className="flex items-center space-x-1">
-                              <img src={kiltLogo} alt="KILT" className="w-3 h-3 rounded-full" />
+                              <img src={kiltLogo} alt="KILT" className="w-3 h-3 align-middle" />
                               <span>{amounts.kiltAmount} KILT</span>
                             </div>
                             <span>+</span>

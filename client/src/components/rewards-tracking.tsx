@@ -198,7 +198,7 @@ export function RewardsTracking() {
             </div>
             <div className="text-2xl font-bold tabular-nums text-white flex items-center gap-2">
               {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} 
-              <img src={kiltLogo} alt="KILT" className="w-5 h-5 rounded-full" />
+              <img src={kiltLogo} alt="KILT" className="w-4 h-4 align-middle" />
               KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
@@ -215,7 +215,7 @@ export function RewardsTracking() {
             </div>
             <div className="text-2xl font-bold tabular-nums text-white flex items-center gap-2">
               {rewardStats?.totalClaimed.toFixed(2) || '0.00'} 
-              <img src={kiltLogo} alt="KILT" className="w-5 h-5 rounded-full" />
+              <img src={kiltLogo} alt="KILT" className="w-4 h-4 align-middle" />
               KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
@@ -240,7 +240,7 @@ export function RewardsTracking() {
               <div className="text-white/60 text-sm mb-2 font-medium">Available to Claim</div>
               <div className="text-white text-3xl font-bold tabular-nums mb-4 flex items-center justify-center gap-2">
                 {totalClaimableAmount.toFixed(2)} 
-                <img src={kiltLogo} alt="KILT" className="w-6 h-6 rounded-full" />
+                <img src={kiltLogo} alt="KILT" className="w-4 h-4 align-middle" />
                 KILT
               </div>
               
@@ -351,12 +351,12 @@ export function RewardsTracking() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-white/60">Total Allocation</span>
-                <span className="text-white font-bold tabular-nums flex items-center gap-1">2,905,600 <img src={kiltLogo} alt="KILT" className="w-4 h-4 rounded-full" />KILT</span>
+                <span className="text-white font-bold tabular-nums flex items-center gap-1">2,905,600 <img src={kiltLogo} alt="KILT" className="w-3 h-3 align-middle" />KILT</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Remaining</span>
                 <span className="text-white font-bold tabular-nums">
-                  {top100Analytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} <img src={kiltLogo} alt="KILT" className="w-4 h-4 rounded-full inline-block" />KILT
+                  {top100Analytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} <img src={kiltLogo} alt="KILT" className="w-3 h-3 align-middle inline-block" />KILT
                 </span>
               </div>
               <div className="flex justify-between">
@@ -402,7 +402,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
-                  <span className="flex items-center gap-1">Automatic <img src={kiltLogo} alt="KILT" className="w-3 h-3 rounded-full" />KILT token distribution</span>
+                  <span className="flex items-center gap-1">Automatic <img src={kiltLogo} alt="KILT" className="w-3 h-3 align-middle" />KILT token distribution</span>
                 </div>
               </div>
             </div>

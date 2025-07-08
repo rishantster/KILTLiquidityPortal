@@ -1,54 +1,76 @@
-# KILT LP Portal
+# KILT Liquidity Incentive Portal
 
 ## Overview
 
-This is a decentralized finance (DeFi) liquidity provisioning portal built for the KILT token on the Base network. The application enables users to create and manage liquidity positions, track rewards, and participate in an incentivized liquidity mining program. The system is designed as a full-stack TypeScript application with a React frontend and Express.js backend.
+This is a comprehensive decentralized finance (DeFi) liquidity provisioning portal built specifically for the KILT token on the Base network. The application enables users to connect their wallets, create and manage concentrated liquidity positions in the existing KILT/ETH Uniswap V3 pool, and earn rewards from the KILT treasury allocation. The system is designed as a full-stack TypeScript application with a React frontend and Express.js backend, featuring real-time data integration, advanced analytics, and mobile-first responsive design.
 
-## System Architecture
+## Key Features
 
-### Frontend Architecture
-- **Framework**: React with TypeScript
-- **Build Tool**: Vite for development and production builds
+### Core Functionality
+- **Wallet Integration**: MetaMask and mobile wallet support with deep link integration
+- **Liquidity Management**: Full Uniswap V3 NFT position management (mint, increase, decrease, collect, burn)
+- **Reward System**: KILT treasury rewards with time and size multipliers (47.2% base APR)
+- **Real-time Analytics**: Live KILT token data integration via CoinGecko API
+- **Mobile Optimization**: Responsive design with mobile wallet compatibility
+
+### Advanced Features
+- **Historical Analytics**: Position snapshots, performance metrics, and fee tracking
+- **Pool Metrics**: Real-time TVL, volume, and price data
+- **User Analytics**: Portfolio-wide performance dashboards
+- **Reward Calculator**: Comprehensive reward calculation with multipliers
+- **Position Tracking**: Complete LP position lifecycle management
+
+## Technical Architecture
+
+### Frontend Stack
+- **Framework**: React 18 with TypeScript for type safety
+- **Build Tool**: Vite for fast development and optimized production builds
 - **UI Framework**: Shadcn/ui components built on Radix UI primitives
-- **Styling**: Tailwind CSS with custom KILT brand colors and dark theme
-- **State Management**: TanStack Query for server state management
-- **Routing**: Wouter for client-side routing
-- **Web3 Integration**: Viem for Ethereum interactions on Base network
+- **Styling**: Tailwind CSS with custom KILT brand colors and glassmorphism dark theme
+- **State Management**: TanStack Query v5 for server state with optimistic updates
+- **Routing**: Wouter for lightweight client-side routing
+- **Web3 Integration**: Viem for type-safe Ethereum interactions on Base network
+- **Mobile Support**: Responsive design with mobile wallet deep link integration
 
-### Backend Architecture
-- **Framework**: Express.js with TypeScript
-- **Runtime**: Node.js with ESM modules
-- **Database**: PostgreSQL with Drizzle ORM
+### Backend Stack
+- **Framework**: Express.js with TypeScript and ESM modules
+- **Runtime**: Node.js with hot reloading via Vite middleware
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
 - **Database Provider**: Neon Database (serverless PostgreSQL)
-- **API Style**: RESTful endpoints with JSON responses
-- **Development**: Hot reloading with Vite middleware integration
+- **API Design**: RESTful endpoints with Zod validation and JSON responses
+- **Real-time Data**: CoinGecko API integration for live KILT token data
 
 ### Database Schema
-- **Users**: Stores wallet addresses and creation timestamps
-- **LP Positions**: Manages NFT-based liquidity positions with price ranges
-- **Rewards**: Tracks earned and claimed rewards per user/position
-- **Pool Stats**: Maintains pool metrics (TVL, volume, APR, current price)
+- **Users**: Wallet addresses, creation timestamps, and user preferences
+- **LP Positions**: Uniswap V3 NFT positions with token amounts, price ranges, and metadata
+- **Rewards**: KILT treasury reward tracking with time/size multipliers and claim status
+- **Pool Stats**: Real-time pool metrics (TVL, volume, APR, current price)
+- **Analytics Tables**: Position snapshots, performance metrics, fee events, and user analytics
 
-## Key Components
+## Component Architecture
+
+### Core Components
+- **MainDashboard**: Central hub with 6-tab interface (Overview, Add Liquidity, Positions, Rewards, Analytics, Integration)
+- **WalletConnect**: Multi-wallet support with mobile deep links (MetaMask, Trust Wallet, Coinbase Wallet, Rainbow)
+- **LiquidityMint**: Comprehensive Uniswap V3 position creation with sliders and presets
+- **UserPositions**: Complete LP position management with real-time data and actions
+- **RewardsTracking**: KILT treasury reward calculation, tracking, and claiming
+- **AnalyticsDashboard**: Advanced analytics with historical data and performance metrics
+- **IntegrationDashboard**: Technical Uniswap V3 features and smart contract interactions
 
 ### Data Models
-- **User**: Wallet address identification system
-- **LP Position**: Uniswap V3 style concentrated liquidity positions
-- **Reward System**: Token-based incentive tracking with claim functionality
-- **Pool Statistics**: Real-time pool metrics for user interface
-
-### Frontend Components
-- **Wallet Connection**: MetaMask integration for Base network
-- **Liquidity Provision**: Form for creating new LP positions
-- **Position Management**: Dashboard for viewing and managing positions
-- **Rewards Tracking**: Real-time reward calculation and claiming
-- **Pool Overview**: Statistics dashboard with TVL, volume, and APR metrics
+- **User**: Wallet address identification with creation timestamps
+- **LP Position**: Uniswap V3 NFT positions with token amounts, price ranges, fee tiers
+- **Reward System**: KILT treasury rewards with time/size multipliers and 90-day lock
+- **Pool Statistics**: Real-time TVL, volume, price, and APR metrics
+- **Analytics**: Position snapshots, performance metrics, fee events, user analytics
 
 ### Backend Services
-- **Storage Layer**: Abstract interface with in-memory implementation
-- **API Routes**: RESTful endpoints for CRUD operations
-- **Validation**: Zod schema validation for all data inputs
-- **Error Handling**: Centralized error handling with proper HTTP status codes
+- **Storage Layer**: Abstract interface with in-memory implementation (configurable for PostgreSQL)
+- **API Routes**: RESTful endpoints with Zod validation and error handling
+- **Reward Service**: Complex reward calculation with multipliers and claim management
+- **Analytics Service**: Historical data tracking and performance calculations
+- **KILT Data Service**: Real-time token data integration with CoinGecko API
 
 ## Data Flow
 

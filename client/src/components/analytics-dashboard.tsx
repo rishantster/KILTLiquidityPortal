@@ -379,6 +379,81 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
                       </div>
                     </CardContent>
                   </Card>
+                  
+                  {/* Position Range Visualization */}
+                  <Card className="cluely-card bg-white/3 rounded-xl col-span-1 md:col-span-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-white font-heading text-lg flex items-center gap-2">
+                        <Target className="h-5 w-5 text-emerald-400" />
+                        Position Range Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* Current Position Range */}
+                        <div className="p-4 bg-white/5 rounded-lg">
+                          <h4 className="text-white font-medium mb-3">Current Position Range</h4>
+                          <div className="relative h-16 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-lg overflow-hidden border border-white/5">
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-emerald-900/20"></div>
+                            
+                            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 64">
+                              {/* Background curve */}
+                              <path
+                                d="M 20 50 Q 100 20 180 50"
+                                stroke="rgba(255, 255, 255, 0.1)"
+                                strokeWidth="1"
+                                fill="none"
+                                strokeDasharray="2,2"
+                              />
+                              
+                              {/* Active position curve */}
+                              <path
+                                d="M 40 45 Q 100 15 160 45"
+                                stroke={parseFloat(latestPerformance?.timeInRange || '0') > 0.5 ? '#10b981' : '#ef4444'}
+                                strokeWidth="3"
+                                fill="none"
+                                className="drop-shadow-sm"
+                              />
+                              
+                              {/* Range markers */}
+                              <circle cx="40" cy="45" r="4" fill={parseFloat(latestPerformance?.timeInRange || '0') > 0.5 ? '#10b981' : '#ef4444'} />
+                              <circle cx="160" cy="45" r="4" fill={parseFloat(latestPerformance?.timeInRange || '0') > 0.5 ? '#10b981' : '#ef4444'} />
+                              
+                              {/* Current price indicator */}
+                              <line x1="100" y1="10" x2="100" y2="54" stroke="white" strokeWidth="2" />
+                              <circle cx="100" cy="30" r="3" fill="white" />
+                              
+                              {/* Range status text */}
+                              <text x="100" y="40" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">
+                                {parseFloat(latestPerformance?.timeInRange || '0') > 0.5 ? 'Active Range' : 'Out of Range'}
+                              </text>
+                            </svg>
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
+                            <div>
+                              <div className="text-white/60">Time in Range</div>
+                              <div className="text-white font-medium">
+                                {(parseFloat(latestPerformance?.timeInRange || '0') * 100).toFixed(1)}%
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-white/60">Fee Efficiency</div>
+                              <div className="text-white font-medium">
+                                {parseFloat(latestPerformance?.feesVsHolding || '0').toFixed(2)}%
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-white/60">IL Impact</div>
+                              <div className={`font-medium ${parseFloat(latestPerformance?.impermanentLoss || '0') >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                {parseFloat(latestPerformance?.impermanentLoss || '0').toFixed(2)}%
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               ) : (
                 <div className="text-center text-white/60 py-8">

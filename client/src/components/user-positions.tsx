@@ -349,6 +349,85 @@ export function UserPositions() {
                             {position.fee / 10000}%
                           </span>
                         </div>
+                        
+                        {/* Panoptic-style Price Range Visualization */}
+                        <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-white/60 text-xs">Range (ETH/KILT)</span>
+                            <span className="text-white/60 text-xs">Current: {(kiltData?.price || 0.0160).toFixed(4)}</span>
+                          </div>
+                          
+                          {/* Curved Range Visualization */}
+                          <div className="relative h-16 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-lg overflow-hidden border border-white/5">
+                            {/* Price range background */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-emerald-900/20"></div>
+                            
+                            {/* Position range visualization */}
+                            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 64">
+                              {/* Background curve */}
+                              <path
+                                d="M 20 50 Q 100 20 180 50"
+                                stroke="rgba(255, 255, 255, 0.1)"
+                                strokeWidth="1"
+                                fill="none"
+                                strokeDasharray="2,2"
+                              />
+                              
+                              {/* Active position curve */}
+                              <path
+                                d="M 40 45 Q 100 15 160 45"
+                                stroke={position.liquidity > 0 ? '#10b981' : '#ef4444'}
+                                strokeWidth="3"
+                                fill="none"
+                                className="drop-shadow-sm"
+                              />
+                              
+                              {/* Min price marker */}
+                              <circle
+                                cx="40"
+                                cy="45"
+                                r="4"
+                                fill={position.liquidity > 0 ? '#10b981' : '#ef4444'}
+                                className="drop-shadow-sm"
+                              />
+                              
+                              {/* Max price marker */}
+                              <circle
+                                cx="160"
+                                cy="45"
+                                r="4"
+                                fill={position.liquidity > 0 ? '#10b981' : '#ef4444'}
+                                className="drop-shadow-sm"
+                              />
+                              
+                              {/* Current price indicator */}
+                              <line
+                                x1="100"
+                                y1="10"
+                                x2="100"
+                                y2="54"
+                                stroke="white"
+                                strokeWidth="2"
+                                className="drop-shadow-sm"
+                              />
+                              <circle
+                                cx="100"
+                                cy="30"
+                                r="3"
+                                fill="white"
+                                className="drop-shadow-sm"
+                              />
+                            </svg>
+                            
+                            {/* Price labels */}
+                            <div className="absolute bottom-1 left-2 text-xs text-white/60">
+                              Min: {((kiltData?.price || 0.0160) * 0.8).toFixed(4)}
+                            </div>
+                            <div className="absolute bottom-1 right-2 text-xs text-white/60">
+                              Max: {((kiltData?.price || 0.0160) * 1.2).toFixed(4)}
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Position Management Actions */}

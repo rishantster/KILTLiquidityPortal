@@ -433,7 +433,104 @@ export function LiquidityMint() {
               <span className="text-white font-medium">Selected Range</span>
             </div>
             <p className="text-white/80 text-sm mb-1">{getSelectedStrategy().description}</p>
-            <p className="text-white/60 text-xs">{getSelectedStrategy().risk}</p>
+            <p className="text-white/60 text-xs mb-4">{getSelectedStrategy().risk}</p>
+            
+            {/* Panoptic-style Range Preview */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/60">Preview (ETH/KILT)</span>
+                <span className="text-white/60">Current: {(kiltData?.price || 0.0160).toFixed(4)}</span>
+              </div>
+              
+              <div className="relative h-12 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-md overflow-hidden border border-white/5">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-emerald-900/20"></div>
+                
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 48">
+                  {/* Full range background */}
+                  <path
+                    d="M 10 35 Q 80 10 150 35"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="1"
+                    fill="none"
+                    strokeDasharray="1,1"
+                  />
+                  
+                  {/* Selected range curve */}
+                  <path
+                    d={(() => {
+                      const strategy = getSelectedStrategy();
+                      if (strategy.id === 'full') {
+                        return "M 10 35 Q 80 10 150 35";
+                      } else if (strategy.id === 'wide') {
+                        return "M 30 32 Q 80 12 130 32";
+                      } else if (strategy.id === 'narrow') {
+                        return "M 60 28 Q 80 18 100 28";
+                      } else {
+                        return "M 50 30 Q 80 15 110 30";
+                      }
+                    })()}
+                    stroke="#10b981"
+                    strokeWidth="2"
+                    fill="none"
+                    className="drop-shadow-sm"
+                  />
+                  
+                  {/* Range markers */}
+                  <circle cx={(() => {
+                    const strategy = getSelectedStrategy();
+                    if (strategy.id === 'full') return 10;
+                    if (strategy.id === 'wide') return 30;
+                    if (strategy.id === 'narrow') return 60;
+                    return 50;
+                  })()} cy={(() => {
+                    const strategy = getSelectedStrategy();
+                    if (strategy.id === 'full') return 35;
+                    if (strategy.id === 'wide') return 32;
+                    if (strategy.id === 'narrow') return 28;
+                    return 30;
+                  })()} r="3" fill="#10b981" />
+                  
+                  <circle cx={(() => {
+                    const strategy = getSelectedStrategy();
+                    if (strategy.id === 'full') return 150;
+                    if (strategy.id === 'wide') return 130;
+                    if (strategy.id === 'narrow') return 100;
+                    return 110;
+                  })()} cy={(() => {
+                    const strategy = getSelectedStrategy();
+                    if (strategy.id === 'full') return 35;
+                    if (strategy.id === 'wide') return 32;
+                    if (strategy.id === 'narrow') return 28;
+                    return 30;
+                  })()} r="3" fill="#10b981" />
+                  
+                  {/* Current price indicator */}
+                  <line x1="80" y1="5" x2="80" y2="43" stroke="white" strokeWidth="1.5" />
+                  <circle cx="80" cy="20" r="2" fill="white" />
+                </svg>
+                
+                <div className="absolute bottom-0 left-1 text-xs text-white/50">
+                  {(() => {
+                    const strategy = getSelectedStrategy();
+                    const currentPrice = kiltData?.price || 0.0160;
+                    if (strategy.id === 'full') return `${(currentPrice * 0.1).toFixed(4)}`;
+                    if (strategy.id === 'wide') return `${(currentPrice * 0.7).toFixed(4)}`;
+                    if (strategy.id === 'narrow') return `${(currentPrice * 0.9).toFixed(4)}`;
+                    return `${(currentPrice * 0.8).toFixed(4)}`;
+                  })()}
+                </div>
+                <div className="absolute bottom-0 right-1 text-xs text-white/50">
+                  {(() => {
+                    const strategy = getSelectedStrategy();
+                    const currentPrice = kiltData?.price || 0.0160;
+                    if (strategy.id === 'full') return `${(currentPrice * 10).toFixed(4)}`;
+                    if (strategy.id === 'wide') return `${(currentPrice * 1.3).toFixed(4)}`;
+                    if (strategy.id === 'narrow') return `${(currentPrice * 1.1).toFixed(4)}`;
+                    return `${(currentPrice * 1.2).toFixed(4)}`;
+                  })()}
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

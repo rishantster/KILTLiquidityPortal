@@ -28,6 +28,7 @@ import { UserPositions } from './user-positions';
 import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
 import kiltLogo from '@assets/KILT_logo_converted.png';
@@ -37,6 +38,7 @@ import kiltLogo from '@assets/KILT_logo_converted.png';
 export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
+  const { kiltBalance, wethBalance } = useUniswapV3();
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
   const { toast } = useToast();
@@ -48,6 +50,46 @@ export function MainDashboard() {
   useEffect(() => {
     console.log('MainDashboard - Wallet state changed:', { address, isConnected, initialized });
   }, [address, isConnected, initialized]);
+
+  // Calculate optimal amounts based on wallet balances
+  const calculateOptimalAmounts = () => {
+    if (!kiltBalance || !wethBalance || !kiltData?.price) {
+      return { kiltAmount: '0', wethAmount: '0', totalValue: '0' };
+    }
+
+    const currentPrice = kiltData.price;
+    const availableKilt = parseFloat(kiltBalance);
+    const availableWeth = parseFloat(wethBalance);
+    
+    // Calculate balanced amounts using 80% of available balances for safety
+    const safetyBuffer = 0.8;
+    const maxKiltForBalance = availableKilt * safetyBuffer;
+    const maxWethForBalance = availableWeth * safetyBuffer;
+    
+    // Calculate equivalent amounts for balanced liquidity
+    const kiltValueInWeth = maxKiltForBalance * currentPrice;
+    const wethValueInKilt = maxWethForBalance / currentPrice;
+    
+    let optimalKilt, optimalWeth;
+    
+    if (kiltValueInWeth <= maxWethForBalance) {
+      // KILT is the limiting factor
+      optimalKilt = maxKiltForBalance;
+      optimalWeth = kiltValueInWeth;
+    } else {
+      // WETH is the limiting factor
+      optimalKilt = wethValueInKilt;
+      optimalWeth = maxWethForBalance;
+    }
+    
+    const totalValue = (optimalKilt * currentPrice + optimalWeth) * 2500; // Assuming ETH ~$2500
+    
+    return {
+      kiltAmount: Math.floor(optimalKilt).toString(),
+      wethAmount: optimalWeth.toFixed(6),
+      totalValue: totalValue.toFixed(2)
+    };
+  };
 
   // One-click liquidity addition with optimal settings
   const handleQuickAddLiquidity = async () => {
@@ -66,13 +108,12 @@ export function MainDashboard() {
       const currentPrice = kiltData?.price || 0.0160;
       const balancedRange = 0.5; // 50% range
       
-      // Default amounts for demo (users can adjust in full interface)
-      const defaultKiltAmount = '1000'; // 1000 KILT
-      const defaultWethAmount = (parseFloat(defaultKiltAmount) * currentPrice).toFixed(6);
+      // Calculate optimal amounts based on actual wallet balances
+      const { kiltAmount, wethAmount } = calculateOptimalAmounts();
       
       toast({
         title: "Starting One-Click Liquidity Addition",
-        description: `Adding ${defaultKiltAmount} KILT + ${defaultWethAmount} WETH with balanced range strategy`,
+        description: `Adding ${kiltAmount} KILT + ${wethAmount} WETH with balanced range strategy`,
       });
       
       // Step 1: Approve tokens
@@ -92,7 +133,7 @@ export function MainDashboard() {
       
       toast({
         title: "Liquidity Added Successfully!",
-        description: `Position created with ${defaultKiltAmount} KILT + ${defaultWethAmount} WETH`,
+        description: `Position created with ${kiltAmount} KILT + ${wethAmount} WETH`,
       });
       
       // Switch to positions tab to show the new position
@@ -374,23 +415,57 @@ export function MainDashboard() {
                       <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                       <span>Automatic liquidity deployment</span>
                     </div>
+                    
+                    {/* Wallet Balance Display */}
+                    <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                      <div className="text-xs text-white/60 mb-2">Your Wallet Balance</div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/70 text-sm">KILT:</span>
+                          <span className="text-white font-medium tabular-nums">
+                            {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/70 text-sm">WETH:</span>
+                          <span className="text-white font-medium tabular-nums">
+                            {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="space-y-3">
                     <div className="p-3 bg-white/5 rounded-lg">
-                      <div className="text-xs text-white/60 mb-1">Default Amount</div>
+                      <div className="text-xs text-white/60 mb-1">Optimal Amount (80% of balance)</div>
                       <div className="text-white font-bold tabular-nums">
-                        1,000 KILT + {((1000 * (kiltData?.price || 0.0160)).toFixed(4))} WETH
+                        {(() => {
+                          const amounts = calculateOptimalAmounts();
+                          if (amounts.kiltAmount === '0' || amounts.wethAmount === '0') {
+                            return 'Insufficient balance - Fund your wallet first';
+                          }
+                          return `${amounts.kiltAmount} KILT + ${amounts.wethAmount} WETH`;
+                        })()}
                       </div>
                       <div className="text-xs text-white/50 mt-1">
-                        ≈ ${((1000 * (kiltData?.price || 0.0160)) * 2).toFixed(2)} total value
+                        {(() => {
+                          const amounts = calculateOptimalAmounts();
+                          if (amounts.totalValue === '0') {
+                            return 'Add KILT and WETH to your wallet to continue';
+                          }
+                          return `≈ $${amounts.totalValue} total value`;
+                        })()}
                       </div>
                     </div>
                     
                     <Button
                       onClick={handleQuickAddLiquidity}
-                      disabled={isQuickAdding || !address}
-                      className="w-full h-12 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-semibold"
+                      disabled={isQuickAdding || !address || (() => {
+                        const amounts = calculateOptimalAmounts();
+                        return amounts.kiltAmount === '0' || amounts.wethAmount === '0';
+                      })()}
+                      className="w-full h-12 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-semibold disabled:opacity-50"
                     >
                       {isQuickAdding ? (
                         <>

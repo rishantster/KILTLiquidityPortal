@@ -28,7 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
-import kiltIconWhite from '@assets/KILT-icon-white_1752017513214.png';
+import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum logo component
 const EthereumLogo = ({ className = "w-5 h-5" }) => (
@@ -368,7 +368,7 @@ export function UserPositions() {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <img src={kiltIconWhite} alt="KILT" className="w-3 h-3 rounded-full" />
+                            <img src={kiltLogo} alt="KILT" className="w-3 h-3 rounded-full" />
                             KILT Amount
                           </span>
                           <span className="text-white font-bold tabular-nums">

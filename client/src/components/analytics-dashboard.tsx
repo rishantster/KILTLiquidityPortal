@@ -36,7 +36,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { PoolPerformanceChart } from './pool-performance-chart';
-import kiltIconWhite from '@assets/KILT-icon-white_1752017513214.png';
+import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum logo component
 const EthereumLogo = ({ className = "w-5 h-5" }) => (

@@ -22,7 +22,7 @@ import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
-import kiltIconWhite from '@assets/KILT-icon-white_1752017513214.png';
+import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum logo component
 const EthereumLogo = ({ className = "w-5 h-5" }) => (
@@ -358,7 +358,7 @@ export function LiquidityMint() {
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-white text-lg flex items-center gap-2">
-              <img src={kiltIconWhite} alt="KILT" className="w-6 h-6 rounded-full" />
+              <img src={kiltLogo} alt="KILT" className="w-6 h-6 rounded-full" />
               KILT Amount
             </CardTitle>
           </CardHeader>
@@ -373,7 +373,7 @@ export function LiquidityMint() {
             />
             <div className="flex justify-between text-sm">
               <span className="text-white/60">
-                Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img src={kiltIconWhite} alt="KILT" className="w-3 h-3 rounded-full" />KILT</span>
+                Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img src={kiltLogo} alt="KILT" className="w-3 h-3 rounded-full" />KILT</span>
               </span>
               <Button
                 variant="ghost"

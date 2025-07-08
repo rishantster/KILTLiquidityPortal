@@ -7,6 +7,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useUserPositions, useUserRewards } from '@/hooks/use-pool-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { Skeleton } from '@/components/ui/skeleton';
+import { KILT_TOKEN_ADDRESS, KILT_ETH_POOL_ADDRESS } from '@/lib/constants';
 import { 
   Layers, 
   Gift, 
@@ -74,14 +75,33 @@ export function UserPositions() {
   // Use real positions from connected wallet only
   const allKiltEthPositions = realKiltEthPositions || [];
   
+  // Also find any other positions containing KILT token (not just KILT/ETH pool)
+  const otherKiltPositions = (userPositions || []).filter(pos => {
+    // Check if position contains KILT token but is not from the main KILT/ETH pool
+    const hasKilt = pos.token0?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase() || 
+                   pos.token1?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase();
+    const isMainPool = pos.poolAddress?.toLowerCase() === KILT_ETH_POOL_ADDRESS.toLowerCase();
+    return hasKilt && !isMainPool;
+  });
+  
+  // Combine all KILT-related positions
+  const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions];
+  
   // Filter positions based on toggle state
-  const kiltEthPositions = showClosedPositions 
-    ? allKiltEthPositions 
-    : allKiltEthPositions.filter(pos => pos.liquidity > 0n);
+  const kiltPositions = showClosedPositions 
+    ? allKiltPositions 
+    : allKiltPositions.filter(pos => pos.liquidity > 0n);
   
   // Count open and closed positions
-  const openPositions = allKiltEthPositions.filter(pos => pos.liquidity > 0n);
-  const closedPositions = allKiltEthPositions.filter(pos => pos.liquidity === 0n);
+  const openPositions = allKiltPositions.filter(pos => pos.liquidity > 0n);
+  const closedPositions = allKiltPositions.filter(pos => pos.liquidity === 0n);
+  
+  // Count non-KILT positions
+  const nonKiltPositions = (userPositions || []).filter(pos => {
+    const hasKilt = pos.token0?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase() || 
+                   pos.token1?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase();
+    return !hasKilt;
+  });
   
 
 
@@ -218,7 +238,7 @@ export function UserPositions() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2 text-white font-heading">
               <Layers className="h-5 w-5 text-blue-400" />
-              <span>Your LP Positions</span>
+              <span>Your KILT LP Positions</span>
             </CardTitle>
             <div className="flex items-center space-x-4">
               <Button
@@ -234,7 +254,7 @@ export function UserPositions() {
               {/* Position counts and toggle */}
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-sm text-white/60">
-                  <span>{allKiltEthPositions.length} positions ({openPositions.length} open)</span>
+                  <span>{allKiltPositions.length} KILT positions ({openPositions.length} open)</span>
                 </div>
                 
                 {closedPositions.length > 0 && (
@@ -261,22 +281,33 @@ export function UserPositions() {
           </div>
         </CardHeader>
         <CardContent>
-          {!kiltEthPositions || kiltEthPositions.length === 0 ? (
+          {!kiltPositions || kiltPositions.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-white/60">No KILT/ETH positions found</p>
-              <p className="text-white/40 text-sm">Add liquidity to the KILT/ETH pool to get started</p>
-              {userPositions && userPositions.length > 0 && (
+              <p className="text-white/60">No KILT positions found</p>
+              <p className="text-white/40 text-sm">Add liquidity to pools containing KILT token to get started</p>
+              {allKiltEthPositions.length > 0 && (
                 <p className="text-white/40 text-xs mt-2">
-                  Found {userPositions.length} other Uniswap V3 position(s) in wallet
+                  Found {allKiltEthPositions.length} KILT/ETH position(s) in main pool
+                </p>
+              )}
+              {otherKiltPositions.length > 0 && (
+                <p className="text-white/40 text-xs mt-2">
+                  Found {otherKiltPositions.length} other KILT position(s) in different pools
+                </p>
+              )}
+              {nonKiltPositions.length > 0 && (
+                <p className="text-white/40 text-xs mt-2">
+                  Found {nonKiltPositions.length} non-KILT Uniswap V3 position(s) in wallet
                 </p>
               )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {kiltEthPositions && kiltEthPositions.map((position) => {
+              {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
                 const isClosed = position.liquidity === 0n;
+                const isMainPool = position.poolAddress?.toLowerCase() === KILT_ETH_POOL_ADDRESS.toLowerCase();
                 
                 return (
                   <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-xl hover:bg-white/10 transition-all`}>
@@ -295,12 +326,20 @@ export function UserPositions() {
                                 </Badge>
                               )}
                             </div>
-                            <Badge 
-                              variant={inRange ? "default" : "secondary"}
-                              className={inRange ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}
-                            >
-                              {inRange ? 'In Range' : 'Out of Range'}
-                            </Badge>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Badge 
+                                variant={inRange ? "default" : "secondary"}
+                                className={inRange ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}
+                              >
+                                {inRange ? 'In Range' : 'Out of Range'}
+                              </Badge>
+                              <Badge 
+                                variant="outline" 
+                                className={isMainPool ? "bg-blue-500/20 text-blue-400 border-blue-500/30" : "bg-purple-500/20 text-purple-400 border-purple-500/30"}
+                              >
+                                {isMainPool ? 'KILT/ETH' : 'Other Pool'}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                         <div className="text-right">

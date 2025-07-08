@@ -29,6 +29,7 @@ import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useToast } from '@/hooks/use-toast';
+import { GasEstimationCard } from './gas-estimation-card';
 import kiltLogo from '@assets/KILT_logo_converted.png';
 
 
@@ -415,6 +416,9 @@ export function MainDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Gas Estimation */}
+            <GasEstimationCard compact={true} />
           </TabsContent>
 
           {/* Add Liquidity Tab */}

@@ -21,6 +21,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
+import { GasEstimationCard } from './gas-estimation-card';
 
 export function LiquidityMint() {
   const { address, isConnected } = useWallet();
@@ -533,6 +534,9 @@ export function LiquidityMint() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Gas Estimation */}
+      <GasEstimationCard />
 
       {/* Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

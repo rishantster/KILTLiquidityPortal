@@ -33,7 +33,19 @@ import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
-import kiltLogo from '@assets/KILT_logo_converted.png';
+import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
+
+// Ethereum logo component
+const EthereumLogo = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#343434"/>
+    <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
+    <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
+    <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
+    <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141414"/>
+    <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
+  </svg>
+);
 
 
 
@@ -344,7 +356,7 @@ export function MainDashboard() {
                 {/* KILT Price */}
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <TrendingUp className="h-8 w-8 text-white" />
+                    <img src={kiltLogo} alt="KILT" className="w-8 h-8 rounded-full" />
                   </div>
                   <p className="text-white/70 text-sm mb-1 text-label">KILT Price</p>
                   <p className="text-white font-bold text-xl text-numbers">
@@ -422,13 +434,19 @@ export function MainDashboard() {
                     <h4 className="text-white font-medium text-sm mb-3 text-label">Wallet Balance</h4>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-white/70 text-sm text-body">KILT:</span>
+                        <div className="flex items-center space-x-2">
+                          <img src={kiltLogo} alt="KILT" className="w-5 h-5 rounded-full" />
+                          <span className="text-white/70 text-sm text-body">KILT:</span>
+                        </div>
                         <span className="text-white font-bold text-numbers">
                           {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white/70 text-sm text-body">WETH:</span>
+                        <div className="flex items-center space-x-2">
+                          <EthereumLogo className="w-5 h-5" />
+                          <span className="text-white/70 text-sm text-body">WETH:</span>
+                        </div>
                         <span className="text-white font-bold text-numbers">
                           {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                         </span>
@@ -460,9 +478,17 @@ export function MainDashboard() {
                           <div className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers">
                             ~${amounts.totalValue}
                           </div>
-                          <p className="text-white/60 text-xs text-body">
-                            {amounts.kiltAmount} KILT + {amounts.wethAmount} WETH
-                          </p>
+                          <div className="flex items-center justify-center space-x-4 text-white/60 text-xs text-body">
+                            <div className="flex items-center space-x-1">
+                              <img src={kiltLogo} alt="KILT" className="w-3 h-3 rounded-full" />
+                              <span>{amounts.kiltAmount} KILT</span>
+                            </div>
+                            <span>+</span>
+                            <div className="flex items-center space-x-1">
+                              <EthereumLogo className="w-3 h-3" />
+                              <span>{amounts.wethAmount} WETH</span>
+                            </div>
+                          </div>
                         </div>
                       );
                     })()}

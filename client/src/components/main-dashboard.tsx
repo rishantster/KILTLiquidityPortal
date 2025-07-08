@@ -329,6 +329,47 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Program Information Welcome Section */}
+            <Card className="bg-gradient-to-r from-blue-500/10 to-emerald-500/10 border-blue-500/20 rounded-2xl">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                    <Award className="h-7 w-7 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold text-xl mb-1">
+                      KILT Liquidity Incentive Program
+                    </h3>
+                    <p className="text-white/70 text-sm mb-2">
+                      Earn up to 47.2% APR by providing liquidity to KILT/ETH pools on Base network
+                    </p>
+                    <div className="flex flex-wrap gap-4 text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                        <span className="text-white/60">2.9M KILT treasury allocation</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                        <span className="text-white/60">Top 100 participants earn rewards</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <span className="text-white/60">Time & size multipliers up to 2.0x</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="hidden md:block">
+                    <div className="text-right">
+                      <p className="text-white/60 text-xs">Connected Wallet</p>
+                      <p className="text-white font-mono text-sm">
+                        {address?.slice(0, 6)}...{address?.slice(-4)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* KILT Price Card */}
               <Card className="bg-white/5 border-white/10 rounded-2xl">
@@ -384,27 +425,7 @@ export function MainDashboard() {
               </Card>
             </div>
 
-            {/* Welcome Section */}
-            <Card className="bg-white/5 border-white/10 rounded-2xl">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                    <Wallet className="h-7 w-7 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold text-xl mb-1">
-                      Welcome to KILT Liquidity Portal
-                    </h3>
-                    <p className="text-white/70 font-mono text-sm">
-                      Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
-                    </p>
-                    <p className="text-white/50 text-sm mt-2">
-                      Manage your liquidity positions, earn rewards, and track performance with advanced analytics
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
 
             {/* One-Click Liquidity Addition */}
             <Card className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border-emerald-500/20 rounded-2xl">

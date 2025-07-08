@@ -51,6 +51,19 @@ export function MainDashboard() {
     console.log('MainDashboard - Wallet state changed:', { address, isConnected, initialized });
   }, [address, isConnected, initialized]);
 
+  // Helper function to convert wei to human-readable amounts
+  const formatTokenBalance = (balance: bigint | undefined): string => {
+    if (!balance) return '0';
+    // Convert wei to ether (both KILT and WETH use 18 decimals)
+    const divisor = BigInt(10 ** 18);
+    const wholePart = balance / divisor;
+    const fractionalPart = balance % divisor;
+    const fractionalString = fractionalPart.toString().padStart(18, '0');
+    // Remove trailing zeros for cleaner display
+    const cleanFractional = fractionalString.replace(/0+$/, '');
+    return cleanFractional ? `${wholePart.toString()}.${cleanFractional}` : wholePart.toString();
+  };
+
   // Calculate optimal amounts based on wallet balances
   const calculateOptimalAmounts = () => {
     if (!kiltBalance || !wethBalance || !kiltData?.price) {
@@ -58,8 +71,9 @@ export function MainDashboard() {
     }
 
     const currentPrice = kiltData.price;
-    const availableKilt = parseFloat(kiltBalance);
-    const availableWeth = parseFloat(wethBalance);
+    // Convert bigint balances to numbers (divide by 10^18)
+    const availableKilt = parseFloat(formatTokenBalance(kiltBalance));
+    const availableWeth = parseFloat(formatTokenBalance(wethBalance));
     
     // Calculate balanced amounts using 80% of available balances for safety
     const safetyBuffer = 0.8;
@@ -423,13 +437,13 @@ export function MainDashboard() {
                         <div className="flex justify-between items-center">
                           <span className="text-white/70 text-sm">KILT:</span>
                           <span className="text-white font-medium tabular-nums">
-                            {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
+                            {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-white/70 text-sm">WETH:</span>
                           <span className="text-white font-medium tabular-nums">
-                            {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
+                            {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                           </span>
                         </div>
                       </div>

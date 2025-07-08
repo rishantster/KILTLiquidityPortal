@@ -491,52 +491,73 @@ export function MainDashboard() {
                       <span className="text-xs text-white/50">Calculated</span>
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-2">
-                    {(() => {
-                      const amounts = calculateOptimalAmounts();
-                      if (amounts.kiltAmount === '0' || amounts.wethAmount === '0') {
-                        return <span className="text-red-400">Insufficient balance</span>;
-                      }
+                  {(() => {
+                    const amounts = calculateOptimalAmounts();
+                    const hasInsufficientBalance = amounts.kiltAmount === '0' || amounts.wethAmount === '0';
+                    
+                    if (hasInsufficientBalance) {
                       return (
-                        <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
-                          ~${amounts.totalValue}
-                        </span>
+                        <div className="text-center py-4">
+                          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <Wallet className="h-8 w-8 text-red-400" />
+                          </div>
+                          <div className="text-lg font-semibold text-red-400 mb-1">Insufficient Balance</div>
+                          <p className="text-white/60 text-sm">Add KILT and WETH to your wallet to continue</p>
+                        </div>
                       );
-                    })()}
-                  </div>
-                  <p className="text-white/60 text-sm">
-                    {(() => {
-                      const amounts = calculateOptimalAmounts();
-                      if (amounts.kiltAmount === '0' || amounts.wethAmount === '0') {
-                        return 'Fund your wallet first to continue';
-                      }
-                      return `${amounts.kiltAmount} KILT + ${amounts.wethAmount} WETH`;
-                    })()}
-                  </p>
+                    }
+                    
+                    return (
+                      <>
+                        <div className="text-2xl font-bold mb-2">
+                          <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                            ~${amounts.totalValue}
+                          </span>
+                        </div>
+                        <p className="text-white/60 text-sm">
+                          {amounts.kiltAmount} KILT + {amounts.wethAmount} WETH
+                        </p>
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Action Button */}
-                <Button 
-                  onClick={handleQuickAddLiquidity}
-                  disabled={isQuickAdding || !address || (() => {
-                    const amounts = calculateOptimalAmounts();
-                    return amounts.kiltAmount === '0' || amounts.wethAmount === '0';
-                  })()}
-                  className="w-full bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white font-semibold py-4 h-14 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  {isQuickAdding ? (
-                    <>
-                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                      Processing Transaction...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="h-5 w-5 mr-3" />
-                      Quick Add Liquidity
-                      <ArrowRight className="h-5 w-5 ml-3" />
-                    </>
-                  )}
-                </Button>
+                {(() => {
+                  const amounts = calculateOptimalAmounts();
+                  const hasInsufficientBalance = amounts.kiltAmount === '0' || amounts.wethAmount === '0';
+                  const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
+                  
+                  return (
+                    <Button 
+                      onClick={handleQuickAddLiquidity}
+                      disabled={isDisabled}
+                      className={`w-full font-semibold py-4 h-14 rounded-2xl transition-all duration-300 shadow-lg ${
+                        hasInsufficientBalance 
+                          ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
+                          : 'bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
+                      }`}
+                    >
+                      {isQuickAdding ? (
+                        <>
+                          <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                          Processing Transaction...
+                        </>
+                      ) : hasInsufficientBalance ? (
+                        <>
+                          <Wallet className="h-5 w-5 mr-3" />
+                          Fund Wallet to Continue
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="h-5 w-5 mr-3" />
+                          Quick Add Liquidity
+                          <ArrowRight className="h-5 w-5 ml-3" />
+                        </>
+                      )}
+                    </Button>
+                  );
+                })()}
 
                 {/* Help Text */}
                 <div className="mt-6 flex items-center justify-center space-x-2 text-xs text-white/40">

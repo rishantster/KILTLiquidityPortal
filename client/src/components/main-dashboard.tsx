@@ -394,132 +394,76 @@ export function MainDashboard() {
 
 
 
-            {/* Modernized One-Click Liquidity Addition */}
-            <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-3xl overflow-hidden">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Zap className="h-7 w-7 text-white" />
+            {/* Compact Quick Add Liquidity */}
+            <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-2xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-xl flex items-center justify-center">
+                      <Zap className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white">Quick Add Liquidity</h3>
-                      <p className="text-white/60 text-sm">Deploy liquidity in seconds with optimal settings</p>
+                      <h3 className="text-lg font-bold text-white">Quick Add Liquidity</h3>
+                      <p className="text-white/60 text-xs">Deploy optimal liquidity instantly</p>
                     </div>
                   </div>
-                  <div className="hidden md:flex items-center space-x-2">
+                  <div className="hidden sm:flex items-center space-x-1">
                     <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                     <span className="text-xs text-white/50">Live</span>
                   </div>
                 </div>
 
-                {/* Feature Highlights */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center mt-0.5">
-                      <Target className="h-5 w-5 text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Optimal Range</p>
-                      <p className="text-white/60 text-xs">Balanced ±50% strategy</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center mt-0.5">
-                      <CheckCircle2 className="h-5 w-5 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Auto-Approve</p>
-                      <p className="text-white/60 text-xs">KILT & WETH tokens</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mt-0.5">
-                      <Zap className="h-5 w-5 text-purple-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Instant Deploy</p>
-                      <p className="text-white/60 text-xs">Automatic execution</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Balance Information */}
-                <div className="bg-white/5 rounded-2xl p-6 mb-6 border border-white/10">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-white font-semibold">Your Wallet Balance</h4>
-                    <div className="text-xs text-white/50">Base Network</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Balance Display */}
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <h4 className="text-white font-medium text-sm mb-3">Wallet Balance</h4>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-white/70 text-sm">KILT:</span>
-                        <span className="text-white font-bold text-lg tabular-nums">
+                        <span className="text-white font-bold tabular-nums">
                           {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                         </span>
                       </div>
-                      <div className="w-full bg-white/10 rounded-full h-1.5">
-                        <div 
-                          className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-1.5 rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min((parseFloat(formatTokenBalance(kiltBalance || '0')) / 1000000) * 100, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-white/70 text-sm">WETH:</span>
-                        <span className="text-white font-bold text-lg tabular-nums">
+                        <span className="text-white font-bold tabular-nums">
                           {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                         </span>
                       </div>
-                      <div className="w-full bg-white/10 rounded-full h-1.5">
-                        <div 
-                          className="bg-gradient-to-r from-blue-400 to-blue-500 h-1.5 rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min((parseFloat(formatTokenBalance(wethBalance || '0')) / 1) * 100, 100)}%` }}
-                        />
-                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Optimal Amount Display */}
-                <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-2xl p-6 mb-6 border border-white/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-white/70 text-sm">Optimal Amount (80% of balance)</span>
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-white/50">Calculated</span>
+                  {/* Optimal Amount */}
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white/70 text-sm">Optimal Amount</span>
+                      <span className="text-xs text-white/50">80% balance</span>
                     </div>
-                  </div>
-                  {(() => {
-                    const amounts = calculateOptimalAmounts();
-                    const hasInsufficientBalance = amounts.kiltAmount === '0' || amounts.wethAmount === '0';
-                    
-                    if (hasInsufficientBalance) {
-                      return (
-                        <div className="text-center py-4">
-                          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <Wallet className="h-8 w-8 text-red-400" />
+                    {(() => {
+                      const amounts = calculateOptimalAmounts();
+                      const hasInsufficientBalance = amounts.kiltAmount === '0' || amounts.wethAmount === '0';
+                      
+                      if (hasInsufficientBalance) {
+                        return (
+                          <div className="text-center py-2">
+                            <div className="text-sm font-medium text-red-400 mb-1">Insufficient Balance</div>
+                            <p className="text-white/60 text-xs">Fund wallet to continue</p>
                           </div>
-                          <div className="text-lg font-semibold text-red-400 mb-1">Insufficient Balance</div>
-                          <p className="text-white/60 text-sm">Add KILT and WETH to your wallet to continue</p>
+                        );
+                      }
+                      
+                      return (
+                        <div>
+                          <div className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                            ~${amounts.totalValue}
+                          </div>
+                          <p className="text-white/60 text-xs">
+                            {amounts.kiltAmount} KILT + {amounts.wethAmount} WETH
+                          </p>
                         </div>
                       );
-                    }
-                    
-                    return (
-                      <>
-                        <div className="text-2xl font-bold mb-2">
-                          <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
-                            ~${amounts.totalValue}
-                          </span>
-                        </div>
-                        <p className="text-white/60 text-sm">
-                          {amounts.kiltAmount} KILT + {amounts.wethAmount} WETH
-                        </p>
-                      </>
-                    );
-                  })()}
+                    })()}
+                  </div>
                 </div>
 
                 {/* Action Button */}
@@ -532,27 +476,27 @@ export function MainDashboard() {
                     <Button 
                       onClick={handleQuickAddLiquidity}
                       disabled={isDisabled}
-                      className={`w-full font-semibold py-4 h-14 rounded-2xl transition-all duration-300 shadow-lg ${
+                      className={`w-full font-semibold py-3 h-12 rounded-xl transition-all duration-300 ${
                         hasInsufficientBalance 
                           ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
-                          : 'bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
+                          : 'bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
                       }`}
                     >
                       {isQuickAdding ? (
                         <>
-                          <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                          Processing Transaction...
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
                         </>
                       ) : hasInsufficientBalance ? (
                         <>
-                          <Wallet className="h-5 w-5 mr-3" />
+                          <Wallet className="h-4 w-4 mr-2" />
                           Fund Wallet to Continue
                         </>
                       ) : (
                         <>
-                          <Zap className="h-5 w-5 mr-3" />
+                          <Zap className="h-4 w-4 mr-2" />
                           Quick Add Liquidity
-                          <ArrowRight className="h-5 w-5 ml-3" />
+                          <ArrowRight className="h-4 w-4 ml-2" />
                         </>
                       )}
                     </Button>
@@ -560,9 +504,10 @@ export function MainDashboard() {
                 })()}
 
                 {/* Help Text */}
-                <div className="mt-6 flex items-center justify-center space-x-2 text-xs text-white/40">
-                  <Target className="h-3 w-3" />
-                  <span>For custom amounts and advanced settings, use the "Add Liquidity" tab above</span>
+                <div className="mt-4 text-center">
+                  <p className="text-xs text-white/40">
+                    For custom amounts, use the "Add Liquidity" tab above
+                  </p>
                 </div>
               </CardContent>
             </Card>

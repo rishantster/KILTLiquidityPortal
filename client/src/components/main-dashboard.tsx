@@ -337,85 +337,7 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Advanced Program Information Section */}
-            <Card className="bg-gradient-to-r from-blue-500/10 to-emerald-500/10 border-blue-500/20 rounded-2xl">
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-emerald-600 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <Award className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-white font-semibold text-xl mb-2">
-                      Advanced KILT Liquidity Management Platform
-                    </h3>
-                    <p className="text-white/70 text-sm mb-3">
-                      Professional-grade DeFi platform with real-time analytics, gas optimization, and intelligent position management
-                    </p>
-                    
-                    {/* Key Features Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                        <span className="text-white/60">Real-time gas estimation & cost optimization</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                        <span className="text-white/60">Intelligent wallet balance-based liquidity</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                        <span className="text-white/60">Top 100 ranking system with 66% max APR</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                        <span className="text-white/60">Comprehensive position analytics & tracking</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                        <span className="text-white/60">One-click optimal range deployment</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                        <span className="text-white/60">Panoptic-style position visualizations</span>
-                      </div>
-                    </div>
-                    
-                    {/* Program Stats */}
-                    <div className="flex flex-wrap gap-4 text-xs bg-white/5 rounded-lg p-3">
-                      <div className="flex items-center gap-1">
-                        <Coins className="h-3 w-3 text-emerald-400" />
-                        <span className="text-white/60">2.9M KILT Treasury</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3 text-blue-400" />
-                        <span className="text-white/60">Top 100 Participants</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="h-3 w-3 text-purple-400" />
-                        <span className="text-white/60">Duration + Size Multipliers</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Zap className="h-3 w-3 text-yellow-400" />
-                        <span className="text-white/60">Base Network Optimized</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="hidden lg:block">
-                    <div className="text-right">
-                      <p className="text-white/60 text-xs">Connected Wallet</p>
-                      <p className="text-white font-mono text-sm">
-                        {address?.slice(0, 6)}...{address?.slice(-4)}
-                      </p>
-                      <div className="mt-2 text-xs text-white/50">
-                        <p>Base Network</p>
-                        <p>Real-time Sync</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
+            {/* Streamlined Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* KILT Price Card */}
               <Card className="bg-white/5 border-white/10 rounded-2xl">
@@ -445,7 +367,6 @@ export function MainDashboard() {
                         ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                       </p>
                       <p className="text-blue-300 text-xs mt-1">276.97M circulating</p>
-                      <p className="text-white/50 text-xs">290.56M total supply</p>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
                       <Coins className="h-6 w-6 text-blue-300" />
@@ -473,102 +394,154 @@ export function MainDashboard() {
 
 
 
-            {/* One-Click Liquidity Addition */}
-            <Card className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border-emerald-500/20 rounded-2xl">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-white text-lg flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-emerald-400" />
-                  Quick Add Liquidity
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-white/80">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      <span>Optimal balanced range strategy (±50%)</span>
+            {/* Modernized One-Click Liquidity Addition */}
+            <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-3xl overflow-hidden">
+              <CardContent className="p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
+                      <Zap className="h-7 w-7 text-white" />
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-white/80">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      <span>Auto-approve KILT & WETH tokens</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-white/80">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      <span>Automatic liquidity deployment</span>
-                    </div>
-                    
-                    {/* Wallet Balance Display */}
-                    <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                      <div className="text-xs text-white/60 mb-2">Your Wallet Balance</div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="text-white/70 text-sm">KILT:</span>
-                          <span className="text-white font-medium tabular-nums">
-                            {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-white/70 text-sm">WETH:</span>
-                          <span className="text-white font-medium tabular-nums">
-                            {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
-                          </span>
-                        </div>
-                      </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Quick Add Liquidity</h3>
+                      <p className="text-white/60 text-sm">Deploy liquidity in seconds with optimal settings</p>
                     </div>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <div className="p-3 bg-white/5 rounded-lg">
-                      <div className="text-xs text-white/60 mb-1">Optimal Amount (80% of balance)</div>
-                      <div className="text-white font-bold tabular-nums">
-                        {(() => {
-                          const amounts = calculateOptimalAmounts();
-                          if (amounts.kiltAmount === '0' || amounts.wethAmount === '0') {
-                            return 'Insufficient balance - Fund your wallet first';
-                          }
-                          return `${amounts.kiltAmount} KILT + ${amounts.wethAmount} WETH`;
-                        })()}
-                      </div>
-                      <div className="text-xs text-white/50 mt-1">
-                        {(() => {
-                          const amounts = calculateOptimalAmounts();
-                          if (amounts.totalValue === '0') {
-                            return 'Add KILT and WETH to your wallet to continue';
-                          }
-                          return `≈ $${amounts.totalValue} total value`;
-                        })()}
-                      </div>
-                    </div>
-                    
-                    <Button
-                      onClick={handleQuickAddLiquidity}
-                      disabled={isQuickAdding || !address || (() => {
-                        const amounts = calculateOptimalAmounts();
-                        return amounts.kiltAmount === '0' || amounts.wethAmount === '0';
-                      })()}
-                      className="w-full h-12 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-semibold disabled:opacity-50"
-                    >
-                      {isQuickAdding ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Adding Liquidity...
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="h-4 w-4 mr-2" />
-                          Quick Add Liquidity
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </>
-                      )}
-                    </Button>
+                  <div className="hidden md:flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-white/50">Live</span>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-2 text-xs text-white/50 bg-white/5 p-3 rounded-lg">
-                  <Target className="h-4 w-4" />
-                  <span>
-                    For custom amounts and advanced settings, use the "Add Liquidity" tab above
-                  </span>
+
+                {/* Feature Highlights */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center mt-0.5">
+                      <Target className="h-5 w-5 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Optimal Range</p>
+                      <p className="text-white/60 text-xs">Balanced ±50% strategy</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center mt-0.5">
+                      <CheckCircle2 className="h-5 w-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Auto-Approve</p>
+                      <p className="text-white/60 text-xs">KILT & WETH tokens</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mt-0.5">
+                      <Zap className="h-5 w-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Instant Deploy</p>
+                      <p className="text-white/60 text-xs">Automatic execution</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Balance Information */}
+                <div className="bg-white/5 rounded-2xl p-6 mb-6 border border-white/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-white font-semibold">Your Wallet Balance</h4>
+                    <div className="text-xs text-white/50">Base Network</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70 text-sm">KILT:</span>
+                        <span className="text-white font-bold text-lg tabular-nums">
+                          {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-1.5">
+                        <div 
+                          className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-1.5 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min((parseFloat(formatTokenBalance(kiltBalance || '0')) / 1000000) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70 text-sm">WETH:</span>
+                        <span className="text-white font-bold text-lg tabular-nums">
+                          {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-1.5">
+                        <div 
+                          className="bg-gradient-to-r from-blue-400 to-blue-500 h-1.5 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min((parseFloat(formatTokenBalance(wethBalance || '0')) / 1) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Optimal Amount Display */}
+                <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-2xl p-6 mb-6 border border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-white/70 text-sm">Optimal Amount (80% of balance)</span>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-white/50">Calculated</span>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-white mb-2">
+                    {(() => {
+                      const amounts = calculateOptimalAmounts();
+                      if (amounts.kiltAmount === '0' || amounts.wethAmount === '0') {
+                        return <span className="text-red-400">Insufficient balance</span>;
+                      }
+                      return (
+                        <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                          ~${amounts.totalValue}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <p className="text-white/60 text-sm">
+                    {(() => {
+                      const amounts = calculateOptimalAmounts();
+                      if (amounts.kiltAmount === '0' || amounts.wethAmount === '0') {
+                        return 'Fund your wallet first to continue';
+                      }
+                      return `${amounts.kiltAmount} KILT + ${amounts.wethAmount} WETH`;
+                    })()}
+                  </p>
+                </div>
+
+                {/* Action Button */}
+                <Button 
+                  onClick={handleQuickAddLiquidity}
+                  disabled={isQuickAdding || !address || (() => {
+                    const amounts = calculateOptimalAmounts();
+                    return amounts.kiltAmount === '0' || amounts.wethAmount === '0';
+                  })()}
+                  className="w-full bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white font-semibold py-4 h-14 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  {isQuickAdding ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                      Processing Transaction...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-5 w-5 mr-3" />
+                      Quick Add Liquidity
+                      <ArrowRight className="h-5 w-5 ml-3" />
+                    </>
+                  )}
+                </Button>
+
+                {/* Help Text */}
+                <div className="mt-6 flex items-center justify-center space-x-2 text-xs text-white/40">
+                  <Target className="h-3 w-3" />
+                  <span>For custom amounts and advanced settings, use the "Add Liquidity" tab above</span>
                 </div>
               </CardContent>
             </Card>

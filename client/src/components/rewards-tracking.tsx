@@ -26,6 +26,17 @@ interface UserRewardStats {
   avgDailyRewards: number;
 }
 
+interface BondingCurveAnalytics {
+  totalLiquidity: number;
+  activeUsers: number;
+  bondingCurveFactor: number;
+  dailyBudget: number;
+  estimatedAPR: number;
+  treasuryRemaining: number;
+  daysRemaining: number;
+  bondingCurveK: number;
+}
+
 interface ClaimResult {
   success: boolean;
   claimedAmount: number;
@@ -67,6 +78,16 @@ export function RewardsTracking() {
       return response.json();
     },
     enabled: !!user?.id,
+    refetchInterval: 30000
+  });
+
+  // Get bonding curve analytics
+  const { data: bondingCurveData } = useQuery<BondingCurveAnalytics>({
+    queryKey: ['bonding-curve-analytics'],
+    queryFn: async () => {
+      const response = await fetch('/api/rewards/bonding-curve-analytics');
+      return response.json();
+    },
     refetchInterval: 30000
   });
 
@@ -253,39 +274,103 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        {/* Treasury Information */}
+        {/* Bonding Curve Analytics */}
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center space-x-2 text-white font-heading">
-              <Building2 className="h-5 w-5 text-purple-400" />
-              <span>Treasury Information</span>
+              <TrendingUp className="h-5 w-5 text-purple-400" />
+              <span>Bonding Curve Analytics</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-white/60">Total Allocation</span>
-                  <span className="text-white font-bold tabular-nums">2,905,600 KILT</span>
+                  <span className="text-white/60">Total Liquidity</span>
+                  <span className="text-white font-bold tabular-nums">
+                    ${bondingCurveData?.totalLiquidity.toLocaleString() || '0'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Distribution Rate</span>
-                  <span className="text-white font-bold tabular-nums">47.2% APR</span>
+                  <span className="text-white/60">Active Users</span>
+                  <span className="text-white font-bold tabular-nums">
+                    {bondingCurveData?.activeUsers || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Lock Period</span>
-                  <span className="text-white font-bold tabular-nums">90 days</span>
+                  <span className="text-white/60">Estimated APR</span>
+                  <span className="text-white font-bold tabular-nums">
+                    {bondingCurveData?.estimatedAPR.toFixed(1) || '0.0'}%
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">KILT Price</span>
-                  <span className="text-white font-bold tabular-nums">${kiltData?.price.toFixed(4) || '0.0289'}</span>
+                  <span className="text-white/60">Bonding Factor</span>
+                  <span className="text-white font-bold tabular-nums">
+                    {bondingCurveData?.bondingCurveFactor.toFixed(3) || '0.000'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Daily Budget</span>
+                  <span className="text-white font-bold tabular-nums">
+                    {bondingCurveData?.dailyBudget.toLocaleString() || '0'} KILT
+                  </span>
                 </div>
               </div>
 
-              <Progress value={30} className="h-2" />
-              <div className="text-xs text-white/60 text-center">
-                30% of treasury allocated
+              <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                <div className="flex items-start gap-2">
+                  <TrendingUp className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-white/70">
+                    <strong>Bonding Curve:</strong> As more users join, the bonding factor decreases, maintaining sustainable rewards. 
+                    Currently at {bondingCurveData?.bondingCurveFactor.toFixed(1) || '0.0'}x with {bondingCurveData?.activeUsers || 0} active participants.
+                  </div>
+                </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Treasury Status */}
+      <Card className="cluely-card rounded-2xl">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center space-x-2 text-white font-heading">
+            <Building2 className="h-5 w-5 text-purple-400" />
+            <span>Treasury Status</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-white/60">Total Allocation</span>
+                <span className="text-white font-bold tabular-nums">2,905,600 KILT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/60">Remaining</span>
+                <span className="text-white font-bold tabular-nums">
+                  {bondingCurveData?.treasuryRemaining.toLocaleString() || '2,905,600'} KILT
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/60">Days Remaining</span>
+                <span className="text-white font-bold tabular-nums">
+                  {bondingCurveData?.daysRemaining || 365} days
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/60">Lock Period</span>
+                <span className="text-white font-bold tabular-nums">90 days</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/60">KILT Price</span>
+                <span className="text-white font-bold tabular-nums">${kiltData?.price.toFixed(4) || '0.0289'}</span>
+              </div>
+            </div>
+
+            <Progress value={30} className="h-2" />
+            <div className="text-xs text-white/60 text-center">
+              30% of treasury allocated
             </div>
 
             {/* Reward Features */}
@@ -302,11 +387,11 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-                  <span>Position size multipliers (1.0x - 1.8x)</span>
+                  <span>Bonding curve formula with liquidity/time weights</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                  <span>Time-based multipliers (1.0x - 2.0x)</span>
+                  <span>Sustainable rewards for 365 days</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
@@ -314,9 +399,9 @@ export function RewardsTracking() {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

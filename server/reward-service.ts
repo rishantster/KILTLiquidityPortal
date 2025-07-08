@@ -41,38 +41,68 @@ export interface ClaimRewardResult {
 export class RewardService {
   constructor(private db: any) {}
 
-  // Base reward parameters
-  private readonly BASE_APR = 47.2; // 47.2% base APR
+  // Bonding curve reward parameters
   private readonly TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
+  private readonly PROGRAM_DURATION_DAYS = 365; // 365 days program duration
+  private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
   private readonly LOCK_PERIOD_DAYS = 90; // 90 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
+  
+  // Bonding curve parameters
+  private readonly LIQUIDITY_WEIGHT = 0.6; // w1 - weight for liquidity provided
+  private readonly TIME_WEIGHT = 0.4; // w2 - weight for days active
+  private readonly BONDING_CURVE_K = 50; // k - bonding curve constant (adjustable)
 
   /**
-   * Calculate time-based multiplier (increases over time)
+   * Calculate bonding curve factor based on number of active users
+   * Formula: k / (N + k) where N = number of active users
    */
-  private calculateTimeMultiplier(daysStaked: number): number {
-    if (daysStaked < 30) return 1.0;
-    if (daysStaked < 90) return 1.2;
-    if (daysStaked < 180) return 1.5;
-    if (daysStaked < 365) return 1.8;
-    return 2.0; // Max 2x after 1 year
+  private calculateBondingCurveFactor(activeUsers: number): number {
+    return this.BONDING_CURVE_K / (activeUsers + this.BONDING_CURVE_K);
   }
 
   /**
-   * Calculate size-based multiplier (larger positions get better rates)
+   * Calculate user's share of total liquidity
    */
-  private calculateSizeMultiplier(positionValueUSD: number): number {
-    if (positionValueUSD < 500) return 1.0;
-    if (positionValueUSD < 1000) return 1.1;
-    if (positionValueUSD < 5000) return 1.2;
-    if (positionValueUSD < 10000) return 1.3;
-    if (positionValueUSD < 50000) return 1.5;
-    return 1.8; // Max 1.8x for positions over $50k
+  private calculateLiquidityShare(userLiquidity: number, totalLiquidity: number): number {
+    if (totalLiquidity === 0) return 0;
+    return userLiquidity / totalLiquidity;
   }
 
   /**
-   * Calculate rewards for a specific position and time period
-   * Uses both liquidity addition date and NFT staking date for accurate calculations
+   * Calculate time factor based on days active (normalized to 0-1)
+   */
+  private calculateTimeFactor(daysActive: number): number {
+    return Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1.0);
+  }
+
+  /**
+   * Get total liquidity across all active positions
+   */
+  private async getTotalLiquidity(): Promise<number> {
+    const result = await this.db.select({
+      totalLiquidity: sum(lpPositions.currentValueUSD)
+    }).from(lpPositions)
+    .where(eq(lpPositions.isActive, true));
+    
+    return Number(result[0]?.totalLiquidity || 0);
+  }
+
+  /**
+   * Get number of active users in the program
+   */
+  private async getActiveUserCount(): Promise<number> {
+    const result = await this.db.select({
+      count: sql<number>`count(distinct ${lpPositions.userId})`
+    }).from(lpPositions)
+    .where(eq(lpPositions.isActive, true));
+    
+    return Number(result[0]?.count || 0);
+  }
+
+  /**
+   * Calculate rewards using bonding curve formula
+   * Formula: R_u = (w1 * L_u/T + w2 * D_u/365) * R/365 * k/(N+k)
    */
   async calculatePositionRewards(
     userId: number,
@@ -97,27 +127,37 @@ export class RewardService {
     // Calculate days since NFT staking started (for reward accumulation)
     const daysStaked = Math.floor((Date.now() - stakingDate.getTime()) / (24 * 60 * 60 * 1000));
     
-    // Calculate multipliers based on staking duration
-    const timeMultiplier = this.calculateTimeMultiplier(daysStaked);
-    const sizeMultiplier = this.calculateSizeMultiplier(positionValueUSD);
+    // Get pool-wide metrics for bonding curve calculation
+    const totalLiquidity = await this.getTotalLiquidity();
+    const activeUsers = await this.getActiveUserCount();
     
-    // Calculate effective APR
-    const effectiveAPR = this.BASE_APR * timeMultiplier * sizeMultiplier;
+    // Calculate bonding curve components
+    const liquidityShare = this.calculateLiquidityShare(positionValueUSD, totalLiquidity);
+    const timeFactor = this.calculateTimeFactor(daysStaked);
+    const bondingCurveFactor = this.calculateBondingCurveFactor(activeUsers);
     
-    // Calculate daily rewards in KILT tokens
-    const dailyRewards = (positionValueUSD * (effectiveAPR / 100)) / 365;
+    // Calculate base component: w1 * L_u/T + w2 * D_u/365
+    const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
+    
+    // Calculate daily rewards using bonding curve formula
+    // R_u = base_component * (R/365) * k/(N+k)
+    const dailyRewards = baseComponent * this.DAILY_BUDGET * bondingCurveFactor;
+    
+    // Calculate effective APR based on daily rewards
+    const annualRewards = dailyRewards * 365;
+    const effectiveAPR = positionValueUSD > 0 ? (annualRewards / positionValueUSD) * 100 : 0;
     
     // Get accumulated rewards
     const accumulatedRewards = existingReward ? Number(existingReward.accumulatedAmount) : 0;
     
-    // Check if eligible for claiming (30 day lock from liquidity addition)
+    // Check if eligible for claiming (90 day lock from liquidity addition)
     const canClaim = daysSinceLiquidity >= this.LOCK_PERIOD_DAYS;
     const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity);
 
     return {
-      baseAPR: this.BASE_APR,
-      timeMultiplier,
-      sizeMultiplier,
+      baseAPR: effectiveAPR, // Now calculated from bonding curve
+      timeMultiplier: timeFactor, // Now 0-1 normalized time factor
+      sizeMultiplier: bondingCurveFactor, // Now bonding curve factor
       effectiveAPR,
       dailyRewards,
       liquidityAmount: positionValueUSD,
@@ -440,6 +480,48 @@ export class RewardService {
       totalClaimable,
       activePositions,
       avgDailyRewards
+    };
+  }
+
+  /**
+   * Get bonding curve analytics for the entire program
+   */
+  async getBondingCurveAnalytics(): Promise<{
+    totalLiquidity: number;
+    activeUsers: number;
+    bondingCurveFactor: number;
+    dailyBudget: number;
+    estimatedAPR: number;
+    treasuryRemaining: number;
+    daysRemaining: number;
+    bondingCurveK: number;
+  }> {
+    const totalLiquidity = await this.getTotalLiquidity();
+    const activeUsers = await this.getActiveUserCount();
+    const bondingCurveFactor = this.calculateBondingCurveFactor(activeUsers);
+    
+    // Calculate estimated APR for average position
+    const avgPositionValue = activeUsers > 0 ? totalLiquidity / activeUsers : 0;
+    const avgLiquidityShare = activeUsers > 0 ? 1 / activeUsers : 0;
+    const avgTimeFactor = 0.5; // Assume average 6 months staking
+    const avgBaseComponent = (this.LIQUIDITY_WEIGHT * avgLiquidityShare) + (this.TIME_WEIGHT * avgTimeFactor);
+    const avgDailyRewards = avgBaseComponent * this.DAILY_BUDGET * bondingCurveFactor;
+    const estimatedAPR = avgPositionValue > 0 ? (avgDailyRewards * 365 / avgPositionValue) * 100 : 0;
+    
+    // Calculate treasury status
+    const dailyDistribution = this.DAILY_BUDGET * bondingCurveFactor;
+    const treasuryRemaining = this.TREASURY_ALLOCATION - (dailyDistribution * 30); // Rough estimate
+    const daysRemaining = dailyDistribution > 0 ? Math.floor(treasuryRemaining / dailyDistribution) : this.PROGRAM_DURATION_DAYS;
+    
+    return {
+      totalLiquidity,
+      activeUsers,
+      bondingCurveFactor,
+      dailyBudget: this.DAILY_BUDGET,
+      estimatedAPR,
+      treasuryRemaining,
+      daysRemaining,
+      bondingCurveK: this.BONDING_CURVE_K
     };
   }
 }

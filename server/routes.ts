@@ -473,6 +473,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get bonding curve analytics
+  app.get("/api/rewards/bonding-curve-analytics", async (req, res) => {
+    try {
+      const analytics = await rewardService.getBondingCurveAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch bonding curve analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

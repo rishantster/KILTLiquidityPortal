@@ -483,6 +483,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user personal APR based on their wallet address
+  app.get("/api/rewards/user-apr/:address", async (req, res) => {
+    try {
+      const userAddress = req.params.address;
+      
+      // Get user from database
+      const user = await storage.getUserByAddress(userAddress);
+      if (!user) {
+        // User not found, return 0% APR
+        res.json({ effectiveAPR: 0 });
+        return;
+      }
+      
+      // Get user's positions
+      const positions = await storage.getLpPositionsByUserId(user.id);
+      
+      if (positions.length === 0) {
+        // No positions, return 0% APR
+        res.json({ effectiveAPR: 0 });
+        return;
+      }
+      
+      // Calculate average APR across all positions
+      let totalAPR = 0;
+      let totalValueUSD = 0;
+      
+      for (const position of positions) {
+        const positionValueUSD = position.amount0 * 0.01602203 + position.amount1 * 2500; // Rough calculation
+        
+        const rewardCalc = await rewardService.calculatePositionRewards(
+          user.id,
+          position.nftTokenId,
+          positionValueUSD,
+          new Date(position.createdAt),
+          new Date(position.createdAt)
+        );
+        
+        totalAPR += rewardCalc.effectiveAPR * positionValueUSD;
+        totalValueUSD += positionValueUSD;
+      }
+      
+      const weightedAPR = totalValueUSD > 0 ? totalAPR / totalValueUSD : 0;
+      
+      res.json({ effectiveAPR: weightedAPR });
+    } catch (error) {
+      console.error('Error calculating user APR:', error);
+      res.status(500).json({ error: "Failed to calculate user APR" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

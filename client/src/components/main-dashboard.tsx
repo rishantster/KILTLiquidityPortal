@@ -25,6 +25,7 @@ import { LiquidityMint } from './liquidity-mint';
 import { RewardsTracking } from './rewards-tracking';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { UserPositions } from './user-positions';
+import { UserPersonalAPR } from './user-personal-apr';
 
 import { WalletConnect } from './wallet-connect';
 import { useWallet } from '@/contexts/wallet-context';
@@ -337,59 +338,61 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Streamlined Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* KILT Price Card */}
-              <Card className="bg-white/5 border-white/10 rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white/70 text-sm">KILT Price</p>
-                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">
-                        ${kiltData?.price?.toFixed(4) || '0.0289'}
-                      </p>
-                      <p className="text-emerald-300 text-xs mt-1">+0.50%</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                      <TrendingUp className="h-6 w-6 text-emerald-300" />
-                    </div>
+            {/* Unified Metrics Display */}
+            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-3xl p-6 border border-white/10">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* KILT Price */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="h-8 w-8 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-white/70 text-sm mb-1">KILT Price</p>
+                  <p className="text-white font-bold text-xl tabular-nums">
+                    ${kiltData?.price?.toFixed(4) || '0.0289'}
+                  </p>
+                  <p className="text-emerald-300 text-xs mt-1">+0.50%</p>
+                </div>
 
-              {/* Market Cap Card */}
-              <Card className="bg-white/5 border-white/10 rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white/70 text-sm">Market Cap</p>
-                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">
-                        ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
-                      </p>
-                      <p className="text-blue-300 text-xs mt-1">276.97M circulating</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                      <Coins className="h-6 w-6 text-blue-300" />
-                    </div>
+                {/* Market Cap */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <Coins className="h-8 w-8 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-white/70 text-sm mb-1">Market Cap</p>
+                  <p className="text-white font-bold text-xl tabular-nums">
+                    ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
+                  </p>
+                  <p className="text-blue-300 text-xs mt-1">276.97M circulating</p>
+                </div>
 
-              {/* Treasury APR Card */}
-              <Card className="bg-white/5 border-white/10 rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white/70 text-sm">Treasury APR</p>
-                      <p className="text-white font-bold text-2xl mt-1 tabular-nums">47.2%</p>
-                      <p className="text-purple-300 text-xs mt-1">Base reward rate</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                      <Award className="h-6 w-6 text-purple-300" />
-                    </div>
+                {/* Your Reward APR */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <Award className="h-8 w-8 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-white/70 text-sm mb-1">Your Reward APR</p>
+                  <p className="text-white font-bold text-xl tabular-nums">
+                    {address ? (
+                      <UserPersonalAPR address={address} />
+                    ) : (
+                      <span className="text-white/50">--</span>
+                    )}
+                  </p>
+                  <p className="text-purple-300 text-xs mt-1">Based on ranking</p>
+                </div>
+
+                {/* Treasury Status */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <Coins className="h-8 w-8 text-white" />
+                  </div>
+                  <p className="text-white/70 text-sm mb-1">Treasury Pool</p>
+                  <p className="text-white font-bold text-xl tabular-nums">
+                    {kiltData?.treasuryRemaining ? (kiltData.treasuryRemaining / 1000000).toFixed(1) : '2.9'}M
+                  </p>
+                  <p className="text-amber-300 text-xs mt-1">KILT remaining</p>
+                </div>
+              </div>
             </div>
 
 

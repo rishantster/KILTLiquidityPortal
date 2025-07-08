@@ -27,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
+import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
 export function UserPositions() {
   const { address, isConnected } = useWallet();
@@ -37,6 +38,9 @@ export function UserPositions() {
   const [liquidityAmount, setLiquidityAmount] = useState('');
   const [amount0, setAmount0] = useState('');
   const [amount1, setAmount1] = useState('');
+  
+  // KILT data hook
+  const { data: kiltData } = useKiltTokenData();
 
   // Uniswap V3 Integration
   const {

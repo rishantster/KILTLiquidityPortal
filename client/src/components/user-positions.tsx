@@ -84,27 +84,8 @@ export function UserPositions() {
     return hasKilt && !isMainPool;
   });
   
-  // Demo mode: Add sample closed positions for testing toggle functionality
-  const sampleClosedPosition = {
-    tokenId: 999999n,
-    poolAddress: KILT_ETH_POOL_ADDRESS,
-    token0: KILT_TOKEN_ADDRESS,
-    token1: "0x4200000000000000000000000000000000000006", // WETH on Base
-    liquidity: 0n,
-    amount0: 0n,
-    amount1: 0n,
-    tickLower: -887272,
-    tickUpper: 887272,
-    fee: 3000
-  };
-  
-  // Add sample closed position only for demo purposes
-  const demoClosedPositions = allKiltEthPositions.length === 0 && otherKiltPositions.length === 0 
-    ? [sampleClosedPosition] 
-    : [];
-  
   // Combine all KILT-related positions
-  const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions, ...demoClosedPositions];
+  const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions];
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
@@ -549,7 +530,7 @@ export function UserPositions() {
                     className="bg-white/5 border-white/20 text-white"
                   />
                   <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount((kiltBalance || mockKiltBalance), 18) || '0'} KILT
+                    Balance: {formatTokenAmount(kiltBalance, 18) || '0'} KILT
                   </div>
                 </div>
                 <div>
@@ -562,7 +543,7 @@ export function UserPositions() {
                     className="bg-white/5 border-white/20 text-white"
                   />
                   <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount((wethBalance || mockWethBalance), 18) || '0'} ETH
+                    Balance: {formatTokenAmount(wethBalance, 18) || '0'} ETH
                   </div>
                 </div>
               </div>

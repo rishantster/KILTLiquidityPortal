@@ -281,8 +281,8 @@ export function useUniswapV3() {
     return uniswapV3Service.isPositionInRange(position, poolData.tick);
   };
 
-  // Check if pool exists - temporarily allow for testing
-  const poolExists = true; // Always allow token approval for testing
+  // Check if pool exists based on actual pool data
+  const poolExists = !!poolData;
 
   return {
     // Data

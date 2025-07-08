@@ -196,10 +196,8 @@ export function RewardsTracking() {
               <h3 className="text-white font-semibold text-lg">Daily Rate</h3>
               <TrendingUp className="h-5 w-5 text-blue-400" />
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white flex items-center gap-1">
-              {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} 
-              <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
-              <span>KILT</span>
+            <div className="text-2xl font-bold tabular-nums text-white">
+              {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
               Average per day
@@ -213,10 +211,8 @@ export function RewardsTracking() {
               <h3 className="text-white font-semibold text-lg">Claimed</h3>
               <CheckCircle className="h-5 w-5 text-purple-400" />
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white flex items-center gap-1">
-              {rewardStats?.totalClaimed.toFixed(2) || '0.00'} 
-              <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
-              <span>KILT</span>
+            <div className="text-2xl font-bold tabular-nums text-white">
+              {rewardStats?.totalClaimed.toFixed(2) || '0.00'} KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
               Total claimed
@@ -238,9 +234,9 @@ export function RewardsTracking() {
             {/* Claimable Amount */}
             <div className="text-center p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
               <div className="text-white/60 text-sm mb-2 font-medium">Available to Claim</div>
-              <div className="text-white text-3xl font-bold tabular-nums mb-4 flex items-center justify-center gap-1">
+              <div className="text-white text-3xl font-bold tabular-nums mb-4 flex items-center justify-center gap-2">
                 {totalClaimableAmount.toFixed(2)} 
-                <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
                 <span>KILT</span>
               </div>
               

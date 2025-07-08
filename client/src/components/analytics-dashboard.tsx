@@ -35,6 +35,7 @@ import {
 import { useWallet } from '@/contexts/wallet-context';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { PoolPerformanceChart } from './pool-performance-chart';
 
 interface AnalyticsDashboardProps {
   selectedPositionId?: number | null;
@@ -199,7 +200,7 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="border-b border-white/10 px-6 pt-6">
-              <TabsList className="grid w-full grid-cols-4 bg-white/5">
+              <TabsList className="grid w-full grid-cols-5 bg-white/5">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
                   <LineChart className="h-4 w-4 mr-2" />
                   Overview
@@ -215,6 +216,10 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
                 <TabsTrigger value="pool" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400">
                   <Activity className="h-4 w-4 mr-2" />
                   Pool Data
+                </TabsTrigger>
+                <TabsTrigger value="charts" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
+                  <PieChart className="h-4 w-4 mr-2" />
+                  Live Charts
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -599,6 +604,14 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
                   No pool data available
                 </div>
               )}
+            </TabsContent>
+
+            {/* Interactive Charts Tab */}
+            <TabsContent value="charts" className="p-6 space-y-6">
+              <PoolPerformanceChart 
+                poolAddress={kiltEthPoolAddress} 
+                timeRange={timeRange as any} 
+              />
             </TabsContent>
           </Tabs>
         </CardContent>

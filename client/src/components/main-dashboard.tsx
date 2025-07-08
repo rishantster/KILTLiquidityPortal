@@ -297,7 +297,7 @@ export function MainDashboard() {
 
         {/* Clean Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12">
+          <TabsList className="grid w-full grid-cols-5 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12">
             <TabsTrigger 
               value="overview" 
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
@@ -325,6 +325,13 @@ export function MainDashboard() {
             >
               <Wallet className="h-4 w-4 mr-1.5" />
               Positions
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analytics" 
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
+            >
+              <BarChart3 className="h-4 w-4 mr-1.5" />
+              Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -583,6 +590,11 @@ export function MainDashboard() {
           {/* Positions Tab */}
           <TabsContent value="positions">
             <UserPositions />
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <AnalyticsDashboard />
           </TabsContent>
         </Tabs>
       </div>

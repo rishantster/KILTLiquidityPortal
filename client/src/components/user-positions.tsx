@@ -38,6 +38,7 @@ export function UserPositions() {
   const [liquidityAmount, setLiquidityAmount] = useState('');
   const [amount0, setAmount0] = useState('');
   const [amount1, setAmount1] = useState('');
+  const [showClosedPositions, setShowClosedPositions] = useState(false);
   
   // KILT data hook
   const { data: kiltData } = useKiltTokenData();
@@ -71,7 +72,16 @@ export function UserPositions() {
   };
 
   // Use real positions from connected wallet only
-  const kiltEthPositions = realKiltEthPositions || [];
+  const allKiltEthPositions = realKiltEthPositions || [];
+  
+  // Filter positions based on toggle state
+  const kiltEthPositions = showClosedPositions 
+    ? allKiltEthPositions 
+    : allKiltEthPositions.filter(pos => pos.liquidity > 0n);
+  
+  // Count open and closed positions
+  const openPositions = allKiltEthPositions.filter(pos => pos.liquidity > 0n);
+  const closedPositions = allKiltEthPositions.filter(pos => pos.liquidity === 0n);
   
 
 
@@ -220,9 +230,32 @@ export function UserPositions() {
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
-              <div className="flex items-center space-x-2 text-sm text-white/60">
-                <span>Total Positions:</span>
-                <span className="text-white font-bold tabular-nums">{kiltEthPositions?.length || 0}</span>
+              
+              {/* Position counts and toggle */}
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm text-white/60">
+                  <span>{allKiltEthPositions.length} positions ({openPositions.length} open)</span>
+                </div>
+                
+                {closedPositions.length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-white/60">Display Closed Positions</span>
+                    <button
+                      onClick={() => setShowClosedPositions(!showClosedPositions)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                        showClosedPositions 
+                          ? 'bg-blue-600' 
+                          : 'bg-white/20'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
+                          showClosedPositions ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -243,17 +276,25 @@ export function UserPositions() {
               {kiltEthPositions && kiltEthPositions.map((position) => {
                 const positionValue = calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
+                const isClosed = position.liquidity === 0n;
                 
                 return (
-                  <Card key={position.tokenId.toString()} className="bg-white/5 border-white/10 rounded-xl hover:bg-white/10 transition-all">
+                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-xl hover:bg-white/10 transition-all`}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                          <div className={`w-8 h-8 bg-gradient-to-br ${isClosed ? 'from-gray-500 to-gray-600' : 'from-blue-500 to-emerald-500'} rounded-lg flex items-center justify-center`}>
                             <Award className="h-4 w-4 text-white" />
                           </div>
                           <div>
-                            <div className="text-white font-bold tabular-nums">NFT #{position.tokenId.toString()}</div>
+                            <div className="flex items-center space-x-2">
+                              <div className="text-white font-bold tabular-nums">NFT #{position.tokenId.toString()}</div>
+                              {isClosed && (
+                                <Badge variant="secondary" className="bg-gray-500/20 text-gray-400 text-xs">
+                                  CLOSED
+                                </Badge>
+                              )}
+                            </div>
                             <Badge 
                               variant={inRange ? "default" : "secondary"}
                               className={inRange ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}
@@ -374,42 +415,50 @@ export function UserPositions() {
 
                       {/* Position Management Actions */}
                       <div className="flex gap-1 mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedPosition(position.tokenId);
-                            setManagementMode('increase');
-                          }}
-                          className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedPosition(position.tokenId);
-                            setManagementMode('decrease');
-                          }}
-                          className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300"
-                        >
-                          <Minus className="h-3 w-3 mr-1" />
-                          Remove
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedPosition(position.tokenId);
-                            setManagementMode('collect');
-                          }}
-                          className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300"
-                        >
-                          <DollarSign className="h-3 w-3 mr-1" />
-                          Collect
-                        </Button>
+                        {!isClosed ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPosition(position.tokenId);
+                                setManagementMode('increase');
+                              }}
+                              className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300"
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPosition(position.tokenId);
+                                setManagementMode('decrease');
+                              }}
+                              className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300"
+                            >
+                              <Minus className="h-3 w-3 mr-1" />
+                              Remove
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPosition(position.tokenId);
+                                setManagementMode('collect');
+                              }}
+                              className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300"
+                            >
+                              <DollarSign className="h-3 w-3 mr-1" />
+                              Collect
+                            </Button>
+                          </>
+                        ) : (
+                          <div className="flex-1 text-center py-2 text-white/40 text-xs">
+                            Position closed - no actions available
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

@@ -473,13 +473,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get bonding curve analytics
-  app.get("/api/rewards/bonding-curve-analytics", async (req, res) => {
+  // Get Top 100 ranking analytics
+  app.get("/api/rewards/top100-analytics", async (req, res) => {
     try {
-      const analytics = await rewardService.getBondingCurveAnalytics();
+      const analytics = await rewardService.getTop100RankingAnalytics();
       res.json(analytics);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch bonding curve analytics" });
+      res.status(500).json({ error: "Failed to fetch Top 100 ranking analytics" });
     }
   });
 

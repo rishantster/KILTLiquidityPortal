@@ -26,15 +26,14 @@ interface UserRewardStats {
   avgDailyRewards: number;
 }
 
-interface BondingCurveAnalytics {
+interface Top100Analytics {
   totalLiquidity: number;
-  activeUsers: number;
-  bondingCurveFactor: number;
-  dailyBudget: number;
-  estimatedAPR: number;
+  activeParticipants: number;
+  top100Participants: number;
+  estimatedAPR: { rank1: number; rank50: number; rank100: number };
   treasuryRemaining: number;
   daysRemaining: number;
-  bondingCurveK: number;
+  dailyDistribution: number;
 }
 
 interface ClaimResult {
@@ -81,11 +80,12 @@ export function RewardsTracking() {
     refetchInterval: 30000
   });
 
-  // Get bonding curve analytics
-  const { data: bondingCurveData } = useQuery<BondingCurveAnalytics>({
-    queryKey: ['bonding-curve-analytics'],
+  // Get Top 100 ranking analytics
+  const { data: top100Analytics } = useQuery({
+    queryKey: ['top100-analytics'],
     queryFn: async () => {
-      const response = await fetch('/api/rewards/bonding-curve-analytics');
+      const response = await fetch('/api/rewards/top100-analytics');
+      if (!response.ok) throw new Error('Failed to fetch Top 100 analytics');
       return response.json();
     },
     refetchInterval: 30000
@@ -288,31 +288,31 @@ export function RewardsTracking() {
                 <div className="flex justify-between">
                   <span className="text-white/60">Total Liquidity</span>
                   <span className="text-white font-bold tabular-nums">
-                    ${bondingCurveData?.totalLiquidity.toLocaleString() || '0'}
+                    ${top100Analytics?.totalLiquidity?.toLocaleString() || '0'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Active Users</span>
                   <span className="text-white font-bold tabular-nums">
-                    {bondingCurveData?.activeUsers || 0}
+                    {top100Analytics?.activeParticipants || 0}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Estimated APR</span>
+                  <span className="text-white/60">Max APR (Rank 1)</span>
                   <span className="text-white font-bold tabular-nums">
-                    {bondingCurveData?.estimatedAPR.toFixed(1) || '0.0'}%
+                    {top100Analytics?.estimatedAPR?.rank1?.toFixed(1) || '0.0'}%
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Bonding Factor</span>
+                  <span className="text-white/60">Slots Filled</span>
                   <span className="text-white font-bold tabular-nums">
-                    {bondingCurveData?.bondingCurveFactor.toFixed(3) || '0.000'}
+                    {top100Analytics?.top100Participants || 0}/100
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Daily Budget</span>
                   <span className="text-white font-bold tabular-nums">
-                    {bondingCurveData?.dailyBudget.toLocaleString() || '0'} KILT
+                    {top100Analytics?.dailyDistribution?.toLocaleString() || '7,960'} KILT
                   </span>
                 </div>
               </div>
@@ -321,8 +321,8 @@ export function RewardsTracking() {
                 <div className="flex items-start gap-2">
                   <TrendingUp className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-white/70">
-                    <strong>Bonding Curve:</strong> As more users join, the bonding factor decreases, maintaining sustainable rewards. 
-                    Currently at {bondingCurveData?.bondingCurveFactor.toFixed(1) || '0.0'}x with {bondingCurveData?.activeUsers || 0} active participants.
+                    <strong>Top 100 Ranking:</strong> Only the top 100 participants by liquidity value earn rewards, with APR decreasing by rank (1-100). 
+                    Currently {top100Analytics?.top100Participants || 0} out of 100 slots filled with {top100Analytics?.activeParticipants || 0} total active participants.
                   </div>
                 </div>
               </div>
@@ -349,13 +349,13 @@ export function RewardsTracking() {
               <div className="flex justify-between">
                 <span className="text-white/60">Remaining</span>
                 <span className="text-white font-bold tabular-nums">
-                  {bondingCurveData?.treasuryRemaining.toLocaleString() || '2,905,600'} KILT
+                  {top100Analytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} KILT
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Days Remaining</span>
                 <span className="text-white font-bold tabular-nums">
-                  {bondingCurveData?.daysRemaining || 365} days
+                  {top100Analytics?.daysRemaining || 365} days
                 </span>
               </div>
               <div className="flex justify-between">
@@ -387,7 +387,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-                  <span>Bonding curve formula with liquidity/time weights</span>
+                  <span>Top 100 ranking system with tier-based APR</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>

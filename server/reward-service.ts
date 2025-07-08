@@ -41,68 +41,81 @@ export interface ClaimRewardResult {
 export class RewardService {
   constructor(private db: any) {}
 
-  // Bonding curve reward parameters
+  // Top 100 ranking system parameters
   private readonly TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
   private readonly PROGRAM_DURATION_DAYS = 365; // 365 days program duration
   private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
   private readonly LOCK_PERIOD_DAYS = 90; // 90 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
+  private readonly MAX_PARTICIPANTS = 100; // Top 100 participants
+  private readonly DAILY_BUDGET_PER_USER = this.DAILY_BUDGET / this.MAX_PARTICIPANTS; // ~79.6 KILT per user
   
-  // Bonding curve parameters
+  // Liquidity + Duration Weighted Rule parameters
   private readonly LIQUIDITY_WEIGHT = 0.6; // w1 - weight for liquidity provided
   private readonly TIME_WEIGHT = 0.4; // w2 - weight for days active
-  private readonly BONDING_CURVE_K = 50; // k - bonding curve constant (adjustable)
 
   /**
-   * Calculate bonding curve factor based on number of active users
-   * Formula: k / (N + k) where N = number of active users
+   * Calculate rank multiplier based on position in top 100
+   * Formula: 1 - (rank - 1) / 99
    */
-  private calculateBondingCurveFactor(activeUsers: number): number {
-    return this.BONDING_CURVE_K / (activeUsers + this.BONDING_CURVE_K);
+  private calculateRankMultiplier(rank: number): number {
+    if (rank < 1 || rank > 100) return 0;
+    return 1 - ((rank - 1) / 99);
   }
 
   /**
-   * Calculate user's share of total liquidity
+   * Calculate user's liquidity score for replacement mechanism
+   * Formula: L_u * D_u (liquidity × days active)
    */
-  private calculateLiquidityShare(userLiquidity: number, totalLiquidity: number): number {
-    if (totalLiquidity === 0) return 0;
-    return userLiquidity / totalLiquidity;
+  private calculateLiquidityScore(liquidity: number, daysActive: number): number {
+    return liquidity * daysActive;
   }
 
   /**
-   * Calculate time factor based on days active (normalized to 0-1)
+   * Get top 100 participants ranked by liquidity
    */
-  private calculateTimeFactor(daysActive: number): number {
-    return Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1.0);
-  }
-
-  /**
-   * Get total liquidity across all active positions
-   */
-  private async getTotalLiquidity(): Promise<number> {
-    const result = await this.db.select({
-      totalLiquidity: sum(lpPositions.currentValueUSD)
-    }).from(lpPositions)
-    .where(eq(lpPositions.isActive, true));
+  private async getTop100Participants(): Promise<any[]> {
+    const positions = await this.db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
     
-    return Number(result[0]?.totalLiquidity || 0);
+    // Sort by liquidity value (descending) and take top 100
+    const sortedPositions = positions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
+    return sortedPositions.slice(0, this.MAX_PARTICIPANTS);
   }
 
   /**
-   * Get number of active users in the program
+   * Get total liquidity of top 100 participants
    */
-  private async getActiveUserCount(): Promise<number> {
-    const result = await this.db.select({
-      count: sql<number>`count(distinct ${lpPositions.userId})`
-    }).from(lpPositions)
-    .where(eq(lpPositions.isActive, true));
-    
-    return Number(result[0]?.count || 0);
+  private async getTotalTop100Liquidity(): Promise<number> {
+    const top100 = await this.getTop100Participants();
+    return top100.reduce((sum, position) => sum + position.currentValueUSD, 0);
   }
 
   /**
-   * Calculate rewards using bonding curve formula
-   * Formula: R_u = (w1 * L_u/T + w2 * D_u/365) * R/365 * k/(N+k)
+   * Check if user qualifies for top 100 based on replacement rule
+   */
+  private async checkReplacementEligibility(liquidity: number, daysActive: number): Promise<{ eligible: boolean, rank?: number }> {
+    const top100 = await this.getTop100Participants();
+    
+    if (top100.length < this.MAX_PARTICIPANTS) {
+      return { eligible: true, rank: top100.length + 1 };
+    }
+    
+    // Check if user's L_u * D_u > L_100 * D_100
+    const userScore = this.calculateLiquidityScore(liquidity, daysActive);
+    const rank100Position = top100[99];
+    const rank100DaysActive = Math.floor((Date.now() - new Date(rank100Position.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+    const rank100Score = this.calculateLiquidityScore(rank100Position.currentValueUSD, rank100DaysActive);
+    
+    if (userScore > rank100Score) {
+      return { eligible: true, rank: 100 };
+    }
+    
+    return { eligible: false };
+  }
+
+  /**
+   * Calculate rewards using Top 100 ranking system
+   * Formula: R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99)
    */
   async calculatePositionRewards(
     userId: number,
@@ -127,21 +140,44 @@ export class RewardService {
     // Calculate days since NFT staking started (for reward accumulation)
     const daysStaked = Math.floor((Date.now() - stakingDate.getTime()) / (24 * 60 * 60 * 1000));
     
-    // Get pool-wide metrics for bonding curve calculation
-    const totalLiquidity = await this.getTotalLiquidity();
-    const activeUsers = await this.getActiveUserCount();
+    // Get top 100 participants and check user's rank
+    const top100 = await this.getTop100Participants();
+    const totalTop100Liquidity = await this.getTotalTop100Liquidity();
     
-    // Calculate bonding curve components
-    const liquidityShare = this.calculateLiquidityShare(positionValueUSD, totalLiquidity);
-    const timeFactor = this.calculateTimeFactor(daysStaked);
-    const bondingCurveFactor = this.calculateBondingCurveFactor(activeUsers);
+    // Find user's position in top 100 (rank 1-100)
+    const userRank = top100.findIndex(pos => pos.userId === userId && pos.nftTokenId === nftTokenId) + 1;
     
-    // Calculate base component: w1 * L_u/T + w2 * D_u/365
+    // If user is not in top 100, check replacement eligibility
+    if (userRank === 0) {
+      const eligibility = await this.checkReplacementEligibility(positionValueUSD, daysStaked);
+      if (!eligibility.eligible) {
+        return {
+          baseAPR: 0,
+          timeMultiplier: 0,
+          sizeMultiplier: 0,
+          effectiveAPR: 0,
+          dailyRewards: 0,
+          liquidityAmount: positionValueUSD,
+          daysStaked,
+          accumulatedRewards: 0,
+          canClaim: false,
+          daysUntilClaim: Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity)
+        };
+      }
+    }
+    
+    // Calculate Top 100 ranking reward formula
+    // R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99)
+    const liquidityShare = positionValueUSD / totalTop100Liquidity;
+    const timeFactor = Math.min(daysStaked / this.PROGRAM_DURATION_DAYS, 1);
+    const rankMultiplier = this.calculateRankMultiplier(userRank || 100);
+    
+    // Calculate base component: w1 * L_u/T_top100 + w2 * D_u/365
     const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
     
-    // Calculate daily rewards using bonding curve formula
-    // R_u = base_component * (R/365) * k/(N+k)
-    const dailyRewards = baseComponent * this.DAILY_BUDGET * bondingCurveFactor;
+    // Calculate daily rewards using Top 100 ranking formula
+    // R_u = base_component * (R/365/100) * rank_multiplier
+    const dailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rankMultiplier;
     
     // Calculate effective APR based on daily rewards
     const annualRewards = dailyRewards * 365;
@@ -486,42 +522,56 @@ export class RewardService {
   /**
    * Get bonding curve analytics for the entire program
    */
-  async getBondingCurveAnalytics(): Promise<{
+  async getTop100RankingAnalytics(): Promise<{
     totalLiquidity: number;
-    activeUsers: number;
-    bondingCurveFactor: number;
-    dailyBudget: number;
-    estimatedAPR: number;
+    activeParticipants: number;
+    top100Participants: number;
+    estimatedAPR: { rank1: number; rank50: number; rank100: number };
     treasuryRemaining: number;
     daysRemaining: number;
-    bondingCurveK: number;
+    dailyDistribution: number;
   }> {
-    const totalLiquidity = await this.getTotalLiquidity();
-    const activeUsers = await this.getActiveUserCount();
-    const bondingCurveFactor = this.calculateBondingCurveFactor(activeUsers);
+    const top100 = await this.getTop100Participants();
+    const totalTop100Liquidity = await this.getTotalTop100Liquidity();
     
-    // Calculate estimated APR for average position
-    const avgPositionValue = activeUsers > 0 ? totalLiquidity / activeUsers : 0;
-    const avgLiquidityShare = activeUsers > 0 ? 1 / activeUsers : 0;
-    const avgTimeFactor = 0.5; // Assume average 6 months staking
-    const avgBaseComponent = (this.LIQUIDITY_WEIGHT * avgLiquidityShare) + (this.TIME_WEIGHT * avgTimeFactor);
-    const avgDailyRewards = avgBaseComponent * this.DAILY_BUDGET * bondingCurveFactor;
-    const estimatedAPR = avgPositionValue > 0 ? (avgDailyRewards * 365 / avgPositionValue) * 100 : 0;
+    // Calculate estimated APR for different ranks
+    const typicalPositionValue = 10000; // $10,000 position
+    const typicalDaysStaked = 180; // 6 months
+    const liquidityShare = typicalPositionValue / (totalTop100Liquidity || 1);
+    const timeFactor = Math.min(typicalDaysStaked / this.PROGRAM_DURATION_DAYS, 1);
+    const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
     
-    // Calculate treasury status
-    const dailyDistribution = this.DAILY_BUDGET * bondingCurveFactor;
-    const treasuryRemaining = this.TREASURY_ALLOCATION - (dailyDistribution * 30); // Rough estimate
-    const daysRemaining = dailyDistribution > 0 ? Math.floor(treasuryRemaining / dailyDistribution) : this.PROGRAM_DURATION_DAYS;
+    // Calculate APR for different ranks
+    const rank1Multiplier = this.calculateRankMultiplier(1);
+    const rank50Multiplier = this.calculateRankMultiplier(50);
+    const rank100Multiplier = this.calculateRankMultiplier(100);
+    
+    const rank1DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank1Multiplier;
+    const rank50DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank50Multiplier;
+    const rank100DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank100Multiplier;
+    
+    const estimatedAPR = {
+      rank1: typicalPositionValue > 0 ? (rank1DailyRewards * 365 / typicalPositionValue) * 100 : 0,
+      rank50: typicalPositionValue > 0 ? (rank50DailyRewards * 365 / typicalPositionValue) * 100 : 0,
+      rank100: typicalPositionValue > 0 ? (rank100DailyRewards * 365 / typicalPositionValue) * 100 : 0
+    };
+    
+    // Calculate treasury metrics
+    const currentDate = new Date();
+    const programStartDate = new Date('2025-07-09'); // Program start date from new specification
+    const daysSinceStart = Math.max(0, Math.floor((currentDate.getTime() - programStartDate.getTime()) / (24 * 60 * 60 * 1000)));
+    const distributedAmount = daysSinceStart * this.DAILY_BUDGET;
+    const treasuryRemaining = Math.max(0, this.TREASURY_ALLOCATION - distributedAmount);
+    const daysRemaining = Math.floor(treasuryRemaining / this.DAILY_BUDGET);
     
     return {
-      totalLiquidity,
-      activeUsers,
-      bondingCurveFactor,
-      dailyBudget: this.DAILY_BUDGET,
+      totalLiquidity: totalTop100Liquidity,
+      activeParticipants: top100.length,
+      top100Participants: Math.min(top100.length, this.MAX_PARTICIPANTS),
       estimatedAPR,
       treasuryRemaining,
       daysRemaining,
-      bondingCurveK: this.BONDING_CURVE_K
+      dailyDistribution: this.DAILY_BUDGET
     };
   }
 }

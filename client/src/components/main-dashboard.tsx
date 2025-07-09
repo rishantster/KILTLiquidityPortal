@@ -30,7 +30,6 @@ import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnect } from './wallet-connect';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityRebalancing } from './liquidity-rebalancing';
-import { ReplacementNotification } from './replacement-notification';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
@@ -602,44 +601,8 @@ export function MainDashboard() {
                       </p>
                     </div>
                   </div>
-
-                  {/* Ranking Progress Bar */}
-                  <div className="mt-4 bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-white/70 text-sm text-label">Ranking Progress</span>
-                      <span className="text-xs text-white/50 text-body">
-                        {unifiedData.userAPR?.rank ? `${((100 - unifiedData.userAPR.rank) / 100 * 100).toFixed(0)}%` : '0%'}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                        style={{ 
-                          width: unifiedData.userAPR?.rank ? `${(100 - unifiedData.userAPR.rank) / 100 * 100}%` : '0%'
-                        }}
-                      ></div>
-                    </div>
-                    <div className="flex justify-between mt-2 text-xs text-white/50">
-                      <span>Rank #100</span>
-                      <span>Rank #50</span>
-                      <span>Rank #1</span>
-                    </div>
-                  </div>
-
-                  {/* Ranking Explanation */}
-                  <div className="mt-4 bg-blue-500/10 rounded-xl p-3 border border-blue-500/20">
-                    <p className="text-blue-300 text-xs text-body">
-                      <strong>Top 100 System:</strong> Your ranking is determined by liquidity amount × days staked. 
-                      Rank #1 earns 66% APR, Rank #50 earns 33% APR, Rank #100 earns 0.66% APR.
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
-            )}
-
-            {/* Replacement Requirements for New Users */}
-            {address && (
-              <ReplacementNotification />
             )}
 
 

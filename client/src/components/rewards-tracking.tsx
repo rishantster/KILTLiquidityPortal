@@ -274,8 +274,11 @@ export function RewardsTracking() {
                   )}
                 </Button>
               ) : (
-                <div className="text-white/60 text-sm">
-                  No rewards available to claim yet
+                <div className="text-white/60 text-sm text-center">
+                  <p className="mb-2">Add liquidity to start earning rewards</p>
+                  <p className="text-xs text-white/40">
+                    Rewards accumulate daily based on your ranking in the Top 100 system
+                  </p>
                 </div>
               )}
             </div>

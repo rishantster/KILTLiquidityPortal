@@ -234,7 +234,7 @@ export function RewardsTracking() {
             {/* Claimable Amount */}
             <div className="text-center p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
               <div className="text-white/60 text-sm mb-2 font-medium">Available to Claim</div>
-              <div className="text-white text-3xl font-bold tabular-nums mb-4 flex items-center justify-center gap-2">
+              <div className="text-white text-3xl font-bold tabular-nums mb-4 flex items-center justify-center gap-1">
                 {totalClaimableAmount.toFixed(2)} 
                 <img src={kiltLogo} alt="KILT" className="h-[1.5em] w-auto inline-block" />
                 <span>KILT</span>

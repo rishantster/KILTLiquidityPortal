@@ -314,7 +314,7 @@ export function MainDashboard() {
                 <SiTelegram className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
               </a>
               <a 
-                href="https://medium.com/kilt-protocol" 
+                href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"

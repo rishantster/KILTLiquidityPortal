@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/contexts/wallet-context';
 import { useUserPositions, useUserRewards } from '@/hooks/use-pool-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
+import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { KILT_TOKEN_ADDRESS, KILT_ETH_POOL_ADDRESS } from '@/lib/constants';
 import { 
@@ -47,6 +48,7 @@ export function UserPositions() {
   const { address, isConnected } = useWallet();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const unifiedData = useUnifiedDashboard();
   const [selectedPosition, setSelectedPosition] = useState<bigint | null>(null);
   const [managementMode, setManagementMode] = useState<'increase' | 'decrease' | 'collect' | null>(null);
   const [liquidityAmount, setLiquidityAmount] = useState('');

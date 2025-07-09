@@ -35,6 +35,7 @@ import {
 import { useWallet } from '@/contexts/wallet-context';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { PoolPerformanceChart } from './pool-performance-chart';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
@@ -59,6 +60,7 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
   const { address } = useWallet();
   const { kiltEthPositions, poolData, kiltEthPoolAddress } = useUniswapV3();
   const { data: kiltData } = useKiltTokenData();
+  const unifiedData = useUnifiedDashboard();
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | '90d'>('30d');
   const [activeTab, setActiveTab] = useState('overview');
 

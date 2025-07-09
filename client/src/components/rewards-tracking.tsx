@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -54,6 +55,7 @@ interface ClaimResult {
 export function RewardsTracking() {
   const { address, isConnected } = useWallet();
   const { data: kiltData } = useKiltTokenData();
+  const unifiedData = useUnifiedDashboard();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);

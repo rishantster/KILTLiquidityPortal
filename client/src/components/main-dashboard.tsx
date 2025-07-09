@@ -34,6 +34,7 @@ import { GasEstimationCard } from './gas-estimation-card';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
+import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useToast } from '@/hooks/use-toast';
 
 // Assets and icons
@@ -56,6 +57,7 @@ export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
   const { kiltBalance, wethBalance } = useUniswapV3();
+  const unifiedData = useUnifiedDashboard();
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);

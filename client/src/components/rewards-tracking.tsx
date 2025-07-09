@@ -258,7 +258,7 @@ export function RewardsTracking() {
               <Button 
                 onClick={() => claimMutation.mutate()}
                 disabled={claimMutation.isPending || totalClaimableAmount === 0}
-                className={`w-full font-semibold py-3 rounded-lg transition-all duration-200 ${
+                className={`w-full font-semibold py-2 px-4 rounded-lg transition-all duration-200 ${
                   totalClaimableAmount > 0 
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'

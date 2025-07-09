@@ -63,6 +63,7 @@ export function LiquidityRebalancing() {
 
   const [selectedStrategy, setSelectedStrategy] = useState<RebalancingStrategy>('balanced');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [customRange, setCustomRange] = useState<number[]>([20]); // ±20% default
 
   // Strategy configurations
   const strategies = {

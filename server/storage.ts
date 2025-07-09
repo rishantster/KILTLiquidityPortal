@@ -22,6 +22,7 @@ export interface IStorage {
   // LP Position methods
   getLpPosition(id: number): Promise<LpPosition | undefined>;
   getLpPositionsByUserId(userId: number): Promise<LpPosition[]>;
+  getAllLpPositions(): Promise<LpPosition[]>;
   createLpPosition(position: InsertLpPosition): Promise<LpPosition>;
   updateLpPosition(id: number, updates: Partial<LpPosition>): Promise<LpPosition | undefined>;
   
@@ -48,9 +49,50 @@ export class MemStorage implements IStorage {
   private statsIdCounter = 1;
 
   constructor() {
-    // Note: Pool will be initialized once Uniswap V3 KILT/ETH pool is deployed
-    // For now, we don't initialize any pool data as the pool doesn't exist yet
-    // The application will show appropriate messages for the pending pool deployment
+    // Initialize with some sample positions for testing replacement notification
+    this.initializeSamplePositions();
+  }
+
+  private initializeSamplePositions() {
+    // Create sample users
+    const users = [
+      { id: 1, address: "0x1234567890123456789012345678901234567890", createdAt: new Date("2025-01-01") },
+      { id: 2, address: "0x2345678901234567890123456789012345678901", createdAt: new Date("2025-01-02") },
+      { id: 3, address: "0x3456789012345678901234567890123456789012", createdAt: new Date("2025-01-03") },
+    ];
+
+    users.forEach(user => {
+      this.users.set(user.id, user);
+    });
+
+    // Create sample positions with different values to test Top 100 system
+    const positions = [
+      {
+        id: 1, userId: 1, nftId: 1001, poolAddress: "0xkilt-eth-pool", tokenIds: "{}",
+        minPrice: "0.001", maxPrice: "0.01", liquidity: "1000000", currentValueUSD: "50000",
+        isActive: true, createdViaApp: true, appTransactionHash: "0xabc123", appSessionId: "session1",
+        verificationStatus: "verified", rewardEligible: true, createdAt: new Date("2025-01-01")
+      },
+      {
+        id: 2, userId: 2, nftId: 1002, poolAddress: "0xkilt-eth-pool", tokenIds: "{}",
+        minPrice: "0.001", maxPrice: "0.01", liquidity: "800000", currentValueUSD: "25000",
+        isActive: true, createdViaApp: true, appTransactionHash: "0xdef456", appSessionId: "session2",
+        verificationStatus: "verified", rewardEligible: true, createdAt: new Date("2025-01-05")
+      },
+      {
+        id: 3, userId: 3, nftId: 1003, poolAddress: "0xkilt-eth-pool", tokenIds: "{}",
+        minPrice: "0.001", maxPrice: "0.01", liquidity: "500000", currentValueUSD: "10000",
+        isActive: true, createdViaApp: true, appTransactionHash: "0xghi789", appSessionId: "session3",
+        verificationStatus: "verified", rewardEligible: true, createdAt: new Date("2025-01-10")
+      },
+    ];
+
+    positions.forEach(pos => {
+      this.lpPositions.set(pos.id, pos as any);
+    });
+
+    this.userIdCounter = 4;
+    this.positionIdCounter = 4;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -77,6 +119,10 @@ export class MemStorage implements IStorage {
 
   async getLpPositionsByUserId(userId: number): Promise<LpPosition[]> {
     return Array.from(this.lpPositions.values()).filter(pos => pos.userId === userId);
+  }
+
+  async getAllLpPositions(): Promise<LpPosition[]> {
+    return Array.from(this.lpPositions.values());
   }
 
   async createLpPosition(insertPosition: InsertLpPosition): Promise<LpPosition> {

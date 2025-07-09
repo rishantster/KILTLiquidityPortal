@@ -30,6 +30,7 @@ import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnect } from './wallet-connect';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityRebalancing } from './liquidity-rebalancing';
+import { ReplacementNotification } from './replacement-notification';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
@@ -634,6 +635,11 @@ export function MainDashboard() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Replacement Requirements for New Users */}
+            {address && (
+              <ReplacementNotification />
             )}
 
 

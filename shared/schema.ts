@@ -19,6 +19,7 @@ export const lpPositions = pgTable("lp_positions", {
   minPrice: decimal("min_price", { precision: 18, scale: 8 }).notNull(),
   maxPrice: decimal("max_price", { precision: 18, scale: 8 }).notNull(),
   liquidity: decimal("liquidity", { precision: 18, scale: 8 }).notNull(),
+  currentValueUSD: decimal("current_value_usd", { precision: 20, scale: 8 }).notNull(),
   isActive: boolean("is_active").default(true),
   // App-specific tracking fields
   createdViaApp: boolean("created_via_app").default(true).notNull(), // Only true for positions created through our app

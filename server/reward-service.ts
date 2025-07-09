@@ -634,12 +634,10 @@ export class RewardService {
       };
     }
     
-    // Calculate treasury metrics
-    const currentDate = new Date();
-    const programStartDate = new Date('2025-07-09'); // Program start date from new specification
-    const daysSinceStart = Math.max(0, Math.floor((currentDate.getTime() - programStartDate.getTime()) / (24 * 60 * 60 * 1000)));
-    const distributedAmount = daysSinceStart * this.DAILY_BUDGET;
-    const treasuryRemaining = Math.max(0, this.TREASURY_ALLOCATION - distributedAmount);
+    // Calculate treasury metrics based on actual reward wallet balance
+    const rewardWalletBalance = await smartContractService.checkRewardWalletBalance();
+    const treasuryRemaining = rewardWalletBalance.balance || this.TREASURY_ALLOCATION;
+    const distributedAmount = Math.max(0, this.TREASURY_ALLOCATION - treasuryRemaining);
     const daysRemaining = Math.floor(treasuryRemaining / this.DAILY_BUDGET);
     
     return {

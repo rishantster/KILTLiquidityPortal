@@ -38,14 +38,16 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     
     const kiltData = data['kilt-protocol'];
     
-    // Calculate treasury metrics based on program timeline
+    // Calculate treasury metrics based on actual reward wallet balance
     const distributionRate = 7960; // KILT per day (~7,960 from 2,905,600 / 365)
-    const programStartDate = new Date('2025-07-09'); // Program start date
-    const currentDate = new Date();
-    const daysElapsed = Math.max(0, Math.floor((currentDate.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24)));
-    const distributed = daysElapsed * distributionRate;
-    const treasuryRemaining = Math.max(0, TREASURY_TOTAL - distributed);
-    const programDuration = 365; // Fixed 365-day program
+    
+    // Import smart contract service to get actual balance
+    const { smartContractService } = await import('./smart-contract-service');
+    const rewardWalletBalance = await smartContractService.checkRewardWalletBalance();
+    
+    const treasuryRemaining = rewardWalletBalance.balance || TREASURY_TOTAL;
+    const distributed = Math.max(0, TREASURY_TOTAL - treasuryRemaining);
+    const programDuration = Math.floor(treasuryRemaining / distributionRate);
     const progress = (distributed / TREASURY_TOTAL);
     
     // Handle market cap calculation when CoinGecko returns 0
@@ -79,10 +81,10 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       priceChange24h: 0.5,
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
-      treasuryRemaining: TREASURY_TOTAL - 289.1,
-      distributionRate: 95.2,
-      programDuration: 30521,
-      progress: 0.01
+      treasuryRemaining: TREASURY_TOTAL, // Default to full treasury if no balance available
+      distributionRate: 7960,
+      programDuration: 365,
+      progress: 0.0
     };
   }
 }

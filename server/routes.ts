@@ -11,6 +11,7 @@ import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 import { AnalyticsService } from "./analytics";
 import { rewardService } from "./reward-service";
+import { smartContractService } from "./smart-contract-service";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -339,6 +340,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(metrics);
     } catch (error) {
       res.status(500).json({ error: "Failed to calculate performance metrics" });
+    }
+  });
+
+  // Smart contract routes
+  app.get('/api/contract/reward-wallet-balance', async (req, res) => {
+    try {
+      const balanceInfo = await smartContractService.checkRewardWalletBalance();
+      res.json(balanceInfo);
+    } catch (error) {
+      console.error('Error checking reward wallet balance:', error);
+      res.status(500).json({ error: 'Failed to check reward wallet balance' });
+    }
+  });
+
+  app.get('/api/contract/program-info', async (req, res) => {
+    try {
+      const programInfo = await smartContractService.getProgramInfo();
+      res.json(programInfo);
+    } catch (error) {
+      console.error('Error fetching program info:', error);
+      res.status(500).json({ error: 'Failed to fetch program info' });
     }
   });
 

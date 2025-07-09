@@ -255,28 +255,37 @@ export function RewardsTracking() {
                 <span>KILT</span>
               </div>
               
-              {totalClaimableAmount > 0 ? (
-                <Button 
-                  onClick={() => claimMutation.mutate()}
-                  disabled={claimMutation.isPending}
-                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-3 rounded-lg transition-all duration-200"
-                >
-                  {claimMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Claiming...
-                    </>
-                  ) : (
-                    <>
-                      <Award className="h-4 w-4 mr-2" />
-                      Claim Rewards
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <div className="text-white/60 text-sm text-center">
-                  <p className="mb-2">Add liquidity to start earning rewards</p>
-                  <p className="text-xs text-white/40">
+              <Button 
+                onClick={() => claimMutation.mutate()}
+                disabled={claimMutation.isPending || totalClaimableAmount === 0}
+                className={`w-full font-semibold py-3 rounded-lg transition-all duration-200 ${
+                  totalClaimableAmount > 0 
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white' 
+                    : 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                }`}
+              >
+                {claimMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Claiming...
+                  </>
+                ) : totalClaimableAmount > 0 ? (
+                  <>
+                    <Award className="h-4 w-4 mr-2" />
+                    Claim Rewards
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4 mr-2" />
+                    No Rewards Available
+                  </>
+                )}
+              </Button>
+              
+              {totalClaimableAmount === 0 && (
+                <div className="text-white/60 text-xs text-center mt-2">
+                  <p className="mb-1">Add liquidity to start earning rewards</p>
+                  <p className="text-white/40">
                     Rewards accumulate daily based on your ranking in the Top 100 system
                   </p>
                 </div>

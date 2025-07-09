@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +14,9 @@ import {
   AlertTriangle, 
   CheckCircle,
   Settings,
-  Info
+  Info,
+  Zap,
+  BarChart3
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -63,7 +65,10 @@ export function LiquidityRebalancing() {
 
   const [selectedStrategy, setSelectedStrategy] = useState<RebalancingStrategy>('balanced');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isRebalancing, setIsRebalancing] = useState(false);
   const [customRange, setCustomRange] = useState<number[]>([20]); // ±20% default
+  const [rebalancingPlan, setRebalancingPlan] = useState<RebalancingPlan | null>(null);
+  const [selectedPositions, setSelectedPositions] = useState<Set<bigint>>(new Set());
 
   // Strategy configurations
   const strategies = {
@@ -176,7 +181,7 @@ export function LiquidityRebalancing() {
       });
 
     } catch (error) {
-      console.error('Analysis failed:', error);
+      // Analysis failed
       toast({
         title: "Analysis Failed",
         description: "Unable to analyze positions. Please try again.",
@@ -222,7 +227,7 @@ export function LiquidityRebalancing() {
       await analyzePositions();
 
     } catch (error) {
-      console.error('Rebalancing failed:', error);
+      // Rebalancing failed
       toast({
         title: "Rebalancing Failed",
         description: "Some positions may not have been rebalanced. Please try again.",

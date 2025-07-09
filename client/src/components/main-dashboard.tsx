@@ -356,8 +356,8 @@ export function MainDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* KILT Price */}
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
                   </div>
                   <p className="text-white/70 text-sm mb-1 text-label">KILT Price</p>
                   <p className="text-white font-bold text-xl text-numbers">

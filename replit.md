@@ -123,10 +123,10 @@ This is a comprehensive decentralized finance (DeFi) liquidity provisioning port
 - **MainDashboard**: Central hub with 6-tab interface organizing all features
 - **Overview Tab**: Key metrics, KILT price, market data, welcome interface
 - **Liquidity Tab**: LiquidityProvision component for pool management
-- **Positions Tab**: UserPositions component for LP tracking
 - **Rewards Tab**: RewardsTracking component for incentive management
+- **Positions Tab**: UserPositions component for LP tracking
 - **Analytics Tab**: AnalyticsDashboard with comprehensive performance data
-- **Integration Tab**: IntegrationDashboard for technical Uniswap V3 features
+- **Rebalance Tab**: LiquidityRebalancing component for automated position optimization
 
 ### Advanced Analytics Features
 - **Position Snapshots**: Historical liquidity position tracking
@@ -234,3 +234,4 @@ Changelog:
 - July 09, 2025. Enhanced logo animations with sophisticated reveal effects featuring blur, brightness, and rotation transitions, improved hover effects with pink glow drops shadows, refined timing with spring-like easing curves, added continuous floating animation with subtle scaling, implemented sophisticated glow effects for prominent displays, and applied enhanced animations across all KILT logo instances throughout the application
 - July 09, 2025. Implemented unified dashboard data flow system by creating useUnifiedDashboard hook that interconnects all dashboard components (Overview, Analytics, Rewards, Positions) with shared data sources, consistent position value calculations, automatic user creation/retrieval, synchronized reward statistics, and centralized loading states for improved data consistency and user experience across all tabs
 - July 09, 2025. Implemented Base network indicator in header with official Base logo, real-time network detection (chain ID 0x2105), dynamic status display (blue when connected, gray when not), green pulse animation for connection status, and automatic network change listener for seamless user experience
+- July 09, 2025. Implemented comprehensive one-click liquidity rebalancing assistant with new 6th tab (Rebalance), featuring four rebalancing strategies (Conservative, Balanced, Aggressive, Custom), position efficiency analysis, automated rebalancing recommendations, custom range slider controls, gas cost estimation, and batch position rebalancing execution for optimal liquidity position management

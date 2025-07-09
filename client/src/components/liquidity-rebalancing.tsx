@@ -66,7 +66,7 @@ export function LiquidityRebalancing() {
   } = useUniswapV3();
 
   const [selectedStrategy, setSelectedStrategy] = useState<RebalancingStrategy>('balanced');
-  const [customRange, setCustomRange] = useState<number[]>([20, 20]); // ±20% default
+  const [customRange, setCustomRange] = useState<number[]>([20]); // ±20% default
   const [rebalancingPlan, setRebalancingPlan] = useState<RebalancingPlan | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRebalancing, setIsRebalancing] = useState(false);
@@ -81,16 +81,16 @@ export function LiquidityRebalancing() {
   };
 
   // Get current KILT price
-  const currentPrice = kiltData?.price || 0;
+  const currentPrice = kiltData?.price || 0.016; // Fallback to recent price
 
-  // Calculate tick from price
+  // Calculate tick from price (simplified for KILT/ETH)
   const priceToTick = (price: number): number => {
-    return Math.log(price / (10 ** 18)) / Math.log(1.0001);
+    return Math.log(price) / Math.log(1.0001);
   };
 
   // Calculate price from tick
   const tickToPrice = (tick: number): number => {
-    return (1.0001 ** tick) * (10 ** 18);
+    return 1.0001 ** tick;
   };
 
   // Get optimal range based on strategy
@@ -107,7 +107,14 @@ export function LiquidityRebalancing() {
 
   // Analyze positions for rebalancing opportunities
   const analyzePositions = async () => {
-    if (!kiltEthPositions || !poolData || !currentPrice) return;
+    if (!kiltEthPositions || !poolData || !currentPrice) {
+      toast({
+        title: "Analysis Not Available",
+        description: "No positions found or missing price data.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsAnalyzing(true);
     
@@ -235,10 +242,10 @@ export function LiquidityRebalancing() {
 
   // Auto-analyze when strategy changes
   useEffect(() => {
-    if (isConnected && kiltEthPositions && poolData) {
+    if (isConnected && kiltEthPositions && poolData && currentPrice > 0) {
       analyzePositions();
     }
-  }, [selectedStrategy, customRange, kiltEthPositions, poolData, isConnected]);
+  }, [selectedStrategy, customRange, kiltEthPositions, poolData, isConnected, currentPrice]);
 
   // Toggle position selection
   const togglePositionSelection = (positionId: bigint) => {

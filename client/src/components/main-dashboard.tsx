@@ -41,6 +41,13 @@ import { useToast } from '@/hooks/use-toast';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
 
+// Base logo component
+const BaseLogo = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 21.3467 0.309448 48.8335H72.8914V61.2005H0.309448C2.35281 88.6873 26.0432 110.034 54.921 110.034Z" fill="#0052FF"/>
+  </svg>
+);
+
 // Ethereum logo component
 const EthereumLogo = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -61,6 +68,7 @@ export function MainDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
+  const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const { toast } = useToast();
 
   // Logo animation timing
@@ -70,6 +78,39 @@ export function MainDashboard() {
     }, 800); // Match the animation duration
     return () => clearTimeout(timer);
   }, []);
+
+  // Check Base network connection
+  useEffect(() => {
+    const checkBaseNetwork = async () => {
+      if (window.ethereum && isConnected) {
+        try {
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          // Base mainnet chain ID is 0x2105 (8453 in decimal)
+          const isBase = chainId === '0x2105';
+          setIsBaseNetworkConnected(isBase);
+        } catch (error) {
+          console.error('Error checking network:', error);
+          setIsBaseNetworkConnected(false);
+        }
+      } else {
+        setIsBaseNetworkConnected(false);
+      }
+    };
+
+    checkBaseNetwork();
+    
+    // Listen for network changes
+    if (window.ethereum) {
+      const handleChainChanged = () => {
+        checkBaseNetwork();
+      };
+      
+      window.ethereum.on('chainChanged', handleChainChanged);
+      return () => {
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      };
+    }
+  }, [isConnected]);
 
   // Debug wallet state
   console.log('MainDashboard - Wallet State:', { address, isConnected, initialized });
@@ -354,11 +395,18 @@ export function MainDashboard() {
           </div>
           
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <Badge className="hidden sm:flex bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-1 text-xs">
+            <Badge 
+              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-lg transition-all duration-200 ${
+                isBaseNetworkConnected 
+                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' 
+                  : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+              }`}
+            >
+              <BaseLogo className="w-4 h-4 mr-1.5" />
               Base Network
-            </Badge>
-            <Badge className="hidden sm:flex bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-1 text-xs">
-              ${kiltData?.price?.toFixed(4) || '0.0289'}
+              {isBaseNetworkConnected && (
+                <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
+              )}
             </Badge>
 
             <div className="flex-shrink-0">

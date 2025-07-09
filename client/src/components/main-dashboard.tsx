@@ -282,7 +282,7 @@ export function MainDashboard() {
             {/* Social Media Links */}
             <div className="flex justify-center items-center gap-6 animate-fade-in animate-delay-700">
               <a 
-                href="https://twitter.com/kilt_protocol" 
+                href="https://x.com/kilt_protocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"

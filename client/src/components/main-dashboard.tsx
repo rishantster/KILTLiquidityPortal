@@ -28,7 +28,6 @@ import { AnalyticsDashboard } from './analytics-dashboard';
 import { UserPositions } from './user-positions';
 import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnect } from './wallet-connect';
-import { AnimatedWalletConnect } from './animated-wallet-connect';
 import { GasEstimationCard } from './gas-estimation-card';
 
 // Hooks and contexts
@@ -62,7 +61,6 @@ export function MainDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
-  const [showAnimatedWalletConnect, setShowAnimatedWalletConnect] = useState(false);
   const { toast } = useToast();
 
   // Logo animation timing
@@ -239,13 +237,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 animate-scale-in animate-delay-300 flex flex-col items-center">
               <div className="mb-4">
-                <Button
-                  onClick={() => setShowAnimatedWalletConnect(true)}
-                  className="bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  <Wallet className="w-5 h-5 mr-2" />
-                  Connect Wallet
-                </Button>
+                <WalletConnect />
               </div>
               <p className="text-white/50 text-sm font-body text-center">
                 No signup required. Connect and start earning in seconds.
@@ -368,15 +360,7 @@ export function MainDashboard() {
             <Badge className="hidden sm:flex bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-1 text-xs">
               ${kiltData?.price?.toFixed(4) || '0.0289'}
             </Badge>
-            <Button
-              onClick={() => setShowAnimatedWalletConnect(true)}
-              variant="outline"
-              size="sm"
-              className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/50"
-            >
-              <Wallet className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Wallet</span>
-            </Button>
+
             <div className="flex-shrink-0">
               <WalletConnect />
             </div>
@@ -655,12 +639,6 @@ export function MainDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-      
-      {/* Animated Wallet Connect Modal */}
-      <AnimatedWalletConnect 
-        isOpen={showAnimatedWalletConnect} 
-        onClose={() => setShowAnimatedWalletConnect(false)} 
-      />
     </div>
   );
 }

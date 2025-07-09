@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface WalletContextType {
   address: string | null;
@@ -19,6 +20,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false);
   const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Switch to Base network
   const switchToBase = async () => {
@@ -93,9 +95,24 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    const handleChainChanged = () => {
-      // Reload the page when chain changes to avoid state issues
-      window.location.reload();
+    const handleChainChanged = (chainId: string) => {
+      console.log('Network changed to:', chainId);
+      // Clear all wallet-related cache when network changes
+      queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+      queryClient.removeQueries({ queryKey: ['weth-balance'] });
+      queryClient.removeQueries({ queryKey: ['uniswap-positions'] });
+      queryClient.removeQueries({ queryKey: ['kilt-eth-positions'] });
+      queryClient.removeQueries({ queryKey: ['pool-data'] });
+      queryClient.removeQueries({ queryKey: ['user-positions'] });
+      queryClient.removeQueries({ queryKey: ['position-details'] });
+      
+      toast({
+        title: "Network Changed",
+        description: `Switched to network ${chainId}. Refreshing data...`,
+      });
+      
+      // Trigger re-fetch of all queries
+      queryClient.invalidateQueries();
     };
 
     if ((window as any).ethereum) {

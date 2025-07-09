@@ -68,40 +68,8 @@ export function RewardsTracking() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Get user from address
-  const { data: user } = useQuery({
-    queryKey: ['user', address],
-    queryFn: async () => {
-      if (!address) return null;
-      const response = await fetch(`/api/users/${address}`);
-      if (!response.ok) return null;
-      return response.json();
-    },
-    enabled: !!address && isConnected
-  });
-
-  // Get user reward statistics
-  const { data: rewardStats } = useQuery<UserRewardStats>({
-    queryKey: ['reward-stats', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const response = await fetch(`/api/rewards/user/${user.id}/stats`);
-      return response.json();
-    },
-    enabled: !!user?.id,
-    refetchInterval: 30000
-  });
-
-  // Get Top 100 ranking analytics
-  const { data: top100Analytics } = useQuery({
-    queryKey: ['top100-analytics'],
-    queryFn: async () => {
-      const response = await fetch('/api/rewards/top100-analytics');
-      if (!response.ok) throw new Error('Failed to fetch Top 100 analytics');
-      return response.json();
-    },
-    refetchInterval: 30000
-  });
+  // Use unified dashboard data
+  const { user, rewardStats, top100Analytics } = unifiedData;
 
   // Get claimable rewards
   const { data: claimableRewards } = useQuery({
@@ -178,7 +146,7 @@ export function RewardsTracking() {
               <Award className="h-5 w-5 text-yellow-400" />
             </div>
             <div className="text-2xl font-bold tabular-nums text-white">
-              {rewardStats?.totalAccumulated.toFixed(2) || '0.00'} KILT
+              {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'} KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
               From {rewardStats?.activePositions || 0} positions
@@ -208,7 +176,7 @@ export function RewardsTracking() {
               <TrendingUp className="h-5 w-5 text-blue-400" />
             </div>
             <div className="text-2xl font-bold tabular-nums text-white">
-              {rewardStats?.avgDailyRewards.toFixed(3) || '0.000'} KILT
+              {rewardStats?.avgDailyRewards?.toFixed(3) || '0.000'} KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
               Average per day
@@ -223,7 +191,7 @@ export function RewardsTracking() {
               <CheckCircle className="h-5 w-5 text-purple-400" />
             </div>
             <div className="text-2xl font-bold tabular-nums text-white">
-              {rewardStats?.totalClaimed.toFixed(2) || '0.00'} KILT
+              {rewardStats?.totalClaimed?.toFixed(2) || '0.00'} KILT
             </div>
             <div className="text-sm text-white/60 mt-1 font-medium">
               Total claimed

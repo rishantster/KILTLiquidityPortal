@@ -190,20 +190,25 @@ export class RewardService {
     
     // Calculate Top 100 ranking reward formula
     // R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99)
-    const liquidityShare = positionValueUSD / totalTop100Liquidity;
-    const timeFactor = Math.min(daysStaked / this.PROGRAM_DURATION_DAYS, 1);
-    const rankMultiplier = this.calculateRankMultiplier(userRank || 100);
+    let dailyRewards = 0;
+    let effectiveAPR = 0;
     
-    // Calculate base component: w1 * L_u/T_top100 + w2 * D_u/365
-    const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
-    
-    // Calculate daily rewards using Top 100 ranking formula
-    // R_u = base_component * (R/365/100) * rank_multiplier
-    const dailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rankMultiplier;
-    
-    // Calculate effective APR based on daily rewards
-    const annualRewards = dailyRewards * 365;
-    const effectiveAPR = positionValueUSD > 0 ? (annualRewards / positionValueUSD) * 100 : 0;
+    if (totalTop100Liquidity > 0 && positionValueUSD > 0) {
+      const liquidityShare = positionValueUSD / totalTop100Liquidity;
+      const timeFactor = Math.min(daysStaked / this.PROGRAM_DURATION_DAYS, 1);
+      const rankMultiplier = this.calculateRankMultiplier(userRank || 100);
+      
+      // Calculate base component: w1 * L_u/T_top100 + w2 * D_u/365
+      const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
+      
+      // Calculate daily rewards using Top 100 ranking formula
+      // R_u = base_component * (R/365/100) * rank_multiplier
+      dailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rankMultiplier;
+      
+      // Calculate effective APR based on daily rewards with reasonable caps
+      const annualRewards = dailyRewards * 365;
+      effectiveAPR = Math.min(100, (annualRewards / positionValueUSD) * 100); // Cap at 100% APR
+    }
     
     // Get accumulated rewards
     const accumulatedRewards = existingReward ? Number(existingReward.accumulatedAmount) : 0;
@@ -561,24 +566,41 @@ export class RewardService {
     // Calculate estimated APR for different ranks
     const typicalPositionValue = 10000; // $10,000 position
     const typicalDaysStaked = 180; // 6 months
-    const liquidityShare = typicalPositionValue / (totalTop100Liquidity || 1);
-    const timeFactor = Math.min(typicalDaysStaked / this.PROGRAM_DURATION_DAYS, 1);
-    const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
     
-    // Calculate APR for different ranks
-    const rank1Multiplier = this.calculateRankMultiplier(1);
-    const rank50Multiplier = this.calculateRankMultiplier(50);
-    const rank100Multiplier = this.calculateRankMultiplier(100);
-    
-    const rank1DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank1Multiplier;
-    const rank50DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank50Multiplier;
-    const rank100DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank100Multiplier;
-    
-    const estimatedAPR = {
-      rank1: typicalPositionValue > 0 ? (rank1DailyRewards * 365 / typicalPositionValue) * 100 : 0,
-      rank50: typicalPositionValue > 0 ? (rank50DailyRewards * 365 / typicalPositionValue) * 100 : 0,
-      rank100: typicalPositionValue > 0 ? (rank100DailyRewards * 365 / typicalPositionValue) * 100 : 0
+    // If no liquidity exists, use conservative baseline estimates
+    let estimatedAPR = {
+      rank1: 0,
+      rank50: 0,
+      rank100: 0
     };
+    
+    if (totalTop100Liquidity > 0) {
+      const liquidityShare = typicalPositionValue / totalTop100Liquidity;
+      const timeFactor = Math.min(typicalDaysStaked / this.PROGRAM_DURATION_DAYS, 1);
+      const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
+      
+      // Calculate APR for different ranks
+      const rank1Multiplier = this.calculateRankMultiplier(1);
+      const rank50Multiplier = this.calculateRankMultiplier(50);
+      const rank100Multiplier = this.calculateRankMultiplier(100);
+      
+      const rank1DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank1Multiplier;
+      const rank50DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank50Multiplier;
+      const rank100DailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rank100Multiplier;
+      
+      estimatedAPR = {
+        rank1: Math.min(66, (rank1DailyRewards * 365 / typicalPositionValue) * 100),
+        rank50: Math.min(33, (rank50DailyRewards * 365 / typicalPositionValue) * 100),
+        rank100: Math.min(0.66, (rank100DailyRewards * 365 / typicalPositionValue) * 100)
+      };
+    } else {
+      // Use theoretical maximum APR based on full treasury allocation
+      estimatedAPR = {
+        rank1: 66.0,  // Maximum 66% APR for rank 1
+        rank50: 33.0, // Maximum 33% APR for rank 50
+        rank100: 0.66 // Maximum 0.66% APR for rank 100
+      };
+    }
     
     // Calculate treasury metrics
     const currentDate = new Date();

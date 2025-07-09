@@ -28,6 +28,7 @@ import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnect } from './wallet-connect';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityRebalancing } from './liquidity-rebalancing';
+import { TutorialTrigger } from './tutorial-mascot';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
@@ -267,8 +268,9 @@ export function MainDashboard() {
 
             {/* Connection Section */}
             <div className="mb-16 animate-scale-in animate-delay-300 flex flex-col items-center">
-              <div className="mb-4">
+              <div className="mb-4 flex flex-col items-center gap-3">
                 <WalletConnect />
+                <TutorialTrigger />
               </div>
               <p className="text-white/50 text-sm font-body text-center">
                 No signup required. Connect and start earning in seconds.
@@ -398,6 +400,8 @@ export function MainDashboard() {
                 <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
               )}
             </Badge>
+
+            <TutorialTrigger />
 
             <div className="flex-shrink-0">
               <WalletConnect />

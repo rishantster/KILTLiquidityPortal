@@ -533,77 +533,7 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* User Position Ranking Display */}
-            {address && (
-              <Card className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border-blue-500/20 rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <Users className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-white text-heading">Your Top 100 Position</h3>
-                        <p className="text-white/60 text-xs text-body">Ranking determines your reward APR</p>
-                      </div>
-                    </div>
-                    <div className="hidden sm:flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-white/50">Live</span>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Current Ranking */}
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
-                      <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <div className="text-white font-bold text-lg">#</div>
-                      </div>
-                      <p className="text-white/70 text-sm mb-1 text-label">Current Rank</p>
-                      <div className="text-white font-bold text-2xl text-numbers">
-                        {unifiedData.userAPR?.rank || '--'}
-                      </div>
-                      <p className="text-white/50 text-xs mt-1 text-body">
-                        of {unifiedData.userAPR?.totalParticipants || 100}
-                      </p>
-                    </div>
-
-                    {/* Reward APR */}
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <div className="text-white font-bold text-lg">%</div>
-                      </div>
-                      <p className="text-white/70 text-sm mb-1 text-label">Your APR</p>
-                      <div className="text-white font-bold text-2xl text-numbers">
-                        {unifiedData.userAPR?.effectiveAPR ? `${unifiedData.userAPR.effectiveAPR.toFixed(1)}%` : '--'}
-                      </div>
-                      <p className="text-white/50 text-xs mt-1 text-body">
-                        {unifiedData.userAPR?.rank && unifiedData.userAPR.rank <= 50 ? 'Above average' : 'Below average'}
-                      </p>
-                    </div>
-
-                    {/* Ranking Status */}
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <TrendingUp className="h-6 w-6 text-white" />
-                      </div>
-                      <p className="text-white/70 text-sm mb-1 text-label">Status</p>
-                      <div className="text-white font-bold text-lg text-numbers">
-                        {unifiedData.userAPR?.rank ? (
-                          unifiedData.userAPR.rank <= 10 ? 'Elite' :
-                          unifiedData.userAPR.rank <= 25 ? 'High' :
-                          unifiedData.userAPR.rank <= 50 ? 'Mid' :
-                          unifiedData.userAPR.rank <= 75 ? 'Low' : 'Entry'
-                        ) : 'Unranked'}
-                      </div>
-                      <p className="text-white/50 text-xs mt-1 text-body">
-                        {unifiedData.userAPR?.rank ? 'Earning rewards' : 'Add liquidity to rank'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
 
 

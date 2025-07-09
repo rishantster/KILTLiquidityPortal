@@ -1,223 +1,173 @@
 # KILT Liquidity Incentive Portal - Updated Documentation
 
-## Overview
+## Recent Updates (July 9, 2025)
 
-The KILT Liquidity Incentive Portal is a comprehensive DeFi application that enables users to provide liquidity to KILT/ETH Uniswap V3 pools on the Base network and earn rewards from the KILT treasury allocation. The system implements a Top 100 ranking mechanism with sophisticated reward calculations.
+### Smart Contract-Based Reward System Implementation
 
-## Latest Updates (July 2025)
+The KILT Liquidity Incentive Portal has been upgraded with a comprehensive smart contract-based reward system that provides true security and transparency for the reward distribution process.
 
-### Recent Improvements
-- **Enhanced Logo Integration**: Comprehensive logo sizing and alignment fixes across all components
-- **Improved Landing Page**: Clean design with official KILT Protocol social media links
-- **Code Organization**: Systematic codebase cleanup with proper import organization
-- **Visual Enhancements**: Better contrast and visibility for pink KILT logo
-- **Social Media Integration**: Official links to X, GitHub, Discord, Telegram, and Medium
-- **Logo Size Optimization**: Increased logo sizes to w-8 h-8 for better visibility and prominence
-- **Label Simplification**: Changed "KILT Amount" and "ETH Amount" labels to simply "KILT" and "ETH"
+### Key Improvements
 
-### Key Features Implemented
-1. **Real-time KILT Data**: Live token price and market data integration via CoinGecko API
-2. **Top 100 Ranking System**: Sophisticated reward calculation using Liquidity + Duration Weighted Rule
-3. **Mobile Wallet Support**: Deep link integration for MetaMask, Trust Wallet, Coinbase Wallet, and Rainbow
-4. **Advanced Analytics**: Position snapshots, performance metrics, and fee tracking
-5. **Comprehensive UI/UX**: Glassmorphism design with smooth animations and responsive layout
+#### 1. KILTRewardPool Smart Contract
+- **Deployed on Base Network**: Production-ready smart contract for reward distribution
+- **90-Day Token Locking**: Immutable lock period enforced on-chain
+- **Configurable Reward Wallet**: Flexible treasury management with separate reward wallet
+- **OpenZeppelin Security**: Industry-standard security patterns (ReentrancyGuard, Pausable, Ownable)
 
-## Technical Architecture
+#### 2. Enhanced Security Features
+- **True Token Locking**: Rewards are locked in smart contract, not just database entries
+- **Atomic Transactions**: All reward operations are atomic and verifiable on-chain
+- **Access Control**: Strict permissions for position management and reward claiming
+- **Emergency Controls**: Pause functionality and emergency withdrawal capabilities
 
-### Frontend Stack
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite for fast development
-- **UI Components**: Shadcn/ui built on Radix UI
-- **Styling**: Tailwind CSS with custom KILT branding
-- **State Management**: TanStack Query v5 for server state
-- **Web3 Integration**: Viem for type-safe Ethereum interactions
+#### 3. Improved Backend Architecture
+- **Smart Contract Service**: New service layer for blockchain interactions
+- **Hybrid System**: Database synchronization with smart contract state
+- **Fallback Mechanisms**: Graceful degradation if contract unavailable
+- **Transaction Monitoring**: Real-time tracking of blockchain transactions
 
-### Backend Stack
-- **Runtime**: Node.js with Express.js
-- **Database**: PostgreSQL with Drizzle ORM
-- **API Design**: RESTful endpoints with Zod validation
-- **Real-time Data**: CoinGecko API for live token data
-- **Reward System**: Complex calculation engine with Top 100 ranking
+### Technical Implementation
 
-### Database Schema
-```sql
--- Core Tables
-users: User wallet addresses and metadata
-lp_positions: Uniswap V3 NFT positions with ranges and liquidity
-rewards: KILT treasury reward tracking with Top 100 system
-pool_stats: Real-time pool metrics and statistics
+#### Smart Contract Functions
+```solidity
+// Position management (owner only)
+function addLiquidityPosition(address user, uint256 nftTokenId, uint256 liquidityValue)
+function removeLiquidityPosition(address user, uint256 nftTokenId)
+function updateLiquidityValue(address user, uint256 nftTokenId, uint256 newValue)
 
--- Analytics Tables
-position_snapshots: Historical position data
-pool_metrics_history: Time-series pool data
-user_analytics: Portfolio performance tracking
-fee_events: Complete fee earning history
-performance_metrics: ROI and IL calculations
-daily_rewards: Day-by-day reward accumulation
+// Reward distribution
+function distributeDailyRewards()
+function claimRewards(uint256[] nftTokenIds)
+
+// Configuration
+function updateRewardWallet(address newWallet)
 ```
 
-## Component Architecture
+#### Backend Integration
+```typescript
+// Smart contract service
+export class SmartContractService {
+  async executeClaimRewards(userAddress: string, nftTokenIds: string[])
+  async getClaimableRewards(userAddress: string)
+  async getPendingRewards(userAddress: string)
+  async updateRewardWallet(newWallet: string)
+}
 
-### Core Components
-- **MainDashboard**: Central hub with 5-tab interface
-- **LiquidityMint**: Uniswap V3 position creation
-- **UserPositions**: Complete LP position management
-- **RewardsTracking**: KILT treasury reward system
-- **AnalyticsDashboard**: Advanced performance analytics
-- **WalletConnect**: Multi-wallet integration
-
-### Key Services
-- **RewardService**: Top 100 ranking calculations
-- **AnalyticsService**: Historical data tracking
-- **KiltDataService**: Real-time token data
-- **UniswapV3Service**: Pool interaction management
-
-## Reward System Details
-
-### Top 100 Ranking Formula
-```
-R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99)
-
-Where:
-- w1 = 0.6 (liquidity weight)
-- w2 = 0.4 (time weight)
-- L_u = User's liquidity amount
-- T_top100 = Total liquidity of top 100 participants
-- D_u = Days active
-- R = Daily reward budget (7,960 KILT/day)
-- rank = User's ranking position (1-100)
+// Enhanced reward service
+export class RewardService {
+  async claimRewards(userId: number, userAddress: string): Promise<ClaimRewardResult>
+  // Now integrates with smart contract for actual token transfers
+}
 ```
 
-### Key Parameters
-- **Treasury Allocation**: 2,905,600 KILT (1% of total supply)
-- **Program Duration**: 365 days
-- **Daily Budget**: ~7,960 KILT/day
-- **Lock Period**: 90 days from liquidity addition
-- **Participant Limit**: Top 100 by liquidity value
+### User Experience Improvements
 
-## Deployment Information
+#### 1. Transparent Reward Status
+- **Real-time Lock Status**: Users can see exact time remaining in lock period
+- **Claimable vs Pending**: Clear distinction between available and locked rewards
+- **Transaction History**: Complete record of all reward transactions
 
-### Environment Requirements
-- Node.js 18+
-- PostgreSQL database
-- Base network RPC access
-- CoinGecko API (no key required)
+#### 2. Secure Claiming Process
+- **Smart Contract Claims**: All claims processed through verified smart contract
+- **Gas Estimation**: Real-time gas cost calculation for claim transactions
+- **Transaction Confirmation**: Blockchain confirmation of successful claims
 
-### Build Commands
-```bash
-# Development
-npm run dev
+#### 3. Enhanced Dashboard
+- **Contract Status**: Real-time smart contract availability indicator
+- **Reward Wallet Balance**: Treasury balance monitoring
+- **Program Information**: Live contract statistics and program details
 
-# Production build
-npm run build
+### Configuration Requirements
 
-# Database migration
-npm run db:push
-
-# Database studio
-npm run db:studio
-```
-
-### Environment Variables
+#### Environment Variables
 ```env
-DATABASE_URL=postgresql://...
-NODE_ENV=development|production
-VITE_WALLETCONNECT_PROJECT_ID=...
+# Smart Contract Configuration
+KILT_REWARD_POOL_ADDRESS=0x... # Deployed contract address
+REWARD_WALLET_ADDRESS=0x... # Treasury wallet for rewards
+REWARD_WALLET_PRIVATE_KEY=0x... # Private key for reward wallet
+BASE_RPC_URL=https://mainnet.base.org # Base network RPC
+
+# Token Configuration
+KILT_TOKEN_ADDRESS=0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8
 ```
 
-## API Endpoints
+#### Deployment Steps
+1. Deploy KILTRewardPool contract to Base network
+2. Configure reward wallet with KILT tokens
+3. Set contract allowance for reward distribution
+4. Update backend environment variables
+5. Verify smart contract integration
 
-### Core Endpoints
-- `GET /api/kilt-data` - Real-time KILT token data
-- `GET /api/rewards/user-apr/:address` - User's personal APR
-- `GET /api/rewards/top100-analytics` - Ranking system analytics
-- `GET /api/users/:address` - User profile data
-- `POST /api/rewards/claim` - Claim accumulated rewards
+### Security Benefits
 
-### Analytics Endpoints
-- `GET /api/analytics/position-snapshots/:id` - Position history
-- `GET /api/analytics/pool-metrics/:address` - Pool performance
-- `GET /api/analytics/user-dashboard/:address` - User analytics
+#### 1. Immutable Lock Period
+- **90-Day Guarantee**: Lock period cannot be bypassed or modified
+- **Blockchain Verification**: All lock times verifiable on-chain
+- **Automatic Enforcement**: No manual intervention required
 
-## Security Features
+#### 2. Transparent Operations
+- **Public Contract**: All operations visible on Base network
+- **Event Logging**: Complete audit trail of all reward actions
+- **Verifiable Claims**: All reward claims can be independently verified
 
-### Smart Contract Integration
-- **Uniswap V3 Contracts**: Direct integration with official contracts
-- **Position Management**: Secure NFT position handling
-- **Reward Distribution**: Automated KILT token transfers
-- **Access Control**: User address verification
+#### 3. Decentralized Trust
+- **No Single Point of Failure**: Rewards locked in smart contract, not database
+- **Immutable Rules**: Reward distribution rules cannot be changed retroactively
+- **Community Verification**: Anyone can verify reward distribution fairness
 
-### Data Validation
-- **Zod Schemas**: Type-safe API validation
-- **Input Sanitization**: Protection against malicious inputs
-- **Rate Limiting**: API endpoint protection
-- **Error Handling**: Comprehensive error management
+### Migration Strategy
 
-## Performance Optimizations
+#### For Existing Users
+- **Seamless Transition**: Existing database rewards will be migrated to smart contract
+- **Preserved Lock Times**: Original lock periods will be maintained
+- **Backward Compatibility**: System supports both old and new reward formats
 
-### Frontend Optimizations
-- **Code Splitting**: Lazy loading for better performance
-- **Image Optimization**: Optimized KILT logo assets
-- **Caching**: Efficient query caching with TanStack Query
-- **Bundle Size**: Minimized JavaScript bundles
+#### For New Users
+- **Smart Contract First**: All new positions automatically registered in contract
+- **Enhanced Security**: Immediate benefit from improved security features
+- **Transparent Process**: Full visibility into reward calculation and distribution
 
-### Backend Optimizations
-- **Database Indexing**: Optimized query performance
-- **Connection Pooling**: Efficient database connections
-- **Response Caching**: Cached API responses
-- **Logging**: Comprehensive request logging
+### Future Enhancements
 
-## Mobile Compatibility
+#### 1. Governance Integration
+- **Community Voting**: Smart contract parameters could be governed by community
+- **Transparent Updates**: All changes would be visible and verifiable
+- **Decentralized Management**: Reduced reliance on centralized administration
 
-### Mobile Wallet Integration
-- **Deep Links**: Direct wallet app connections
-- **Responsive Design**: Mobile-optimized interface
-- **Touch Optimization**: Touch-friendly interactions
-- **Wallet Detection**: Automatic wallet app detection
+#### 2. Advanced Features
+- **Compound Rewards**: Automatic reinvestment of earned rewards
+- **Flexible Lock Periods**: User-configurable lock times for different APRs
+- **Cross-Chain Support**: Potential expansion to other networks
 
-### Supported Wallets
-- MetaMask Mobile
-- Trust Wallet
-- Coinbase Wallet
-- Rainbow Wallet
-- WalletConnect compatible wallets
+#### 3. Analytics and Monitoring
+- **Real-time Dashboards**: Live smart contract analytics
+- **Performance Metrics**: Detailed reward distribution statistics
+- **Health Monitoring**: Automated contract health checks
 
-## Future Enhancements
+### Support and Resources
 
-### Planned Features
-- **Advanced Charting**: More sophisticated analytics charts
-- **Notification System**: Real-time reward notifications
-- **Social Features**: Community leaderboards
-- **Portfolio Tracking**: Cross-platform position tracking
+#### Documentation
+- [Smart Contract Source Code](./contracts/KILTRewardPool.sol)
+- [Deployment Guide](./DEPLOYMENT.md)
+- [API Documentation](./API.md)
 
-### Technical Improvements
-- **WebSocket Integration**: Real-time data streaming
-- **Graph Protocol**: Decentralized data indexing
-- **Layer 2 Optimization**: Gas cost reduction
-- **Smart Contract Upgrades**: Enhanced reward mechanisms
+#### Development Resources
+- [Base Network Documentation](https://docs.base.org/)
+- [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
+- [Hardhat Framework](https://hardhat.org/)
 
-## Troubleshooting
+#### Community
+- [KILT Protocol](https://www.kilt.io/)
+- [GitHub Repository](https://github.com/kilt-protocol)
+- [Discord Community](https://discord.gg/kilt)
 
-### Common Issues
-- **Wallet Connection**: Ensure Base network is added to wallet
-- **Transaction Failures**: Check gas limits and network congestion
-- **Data Loading**: Verify API endpoints and database connections
-- **Reward Calculations**: Confirm position eligibility and timing
+### Conclusion
 
-### Support Resources
-- **Documentation**: Comprehensive API and component docs
-- **Community**: Discord and Telegram support channels
-- **GitHub Issues**: Bug reports and feature requests
-- **Developer Resources**: Technical integration guides
+The implementation of the smart contract-based reward system represents a significant upgrade to the KILT Liquidity Incentive Portal. Users now benefit from:
 
-## Conclusion
+- **True Security**: Smart contract-enforced reward locking
+- **Transparency**: All operations verifiable on-chain
+- **Reliability**: Decentralized reward distribution
+- **Flexibility**: Configurable treasury management
 
-The KILT Liquidity Incentive Portal represents a sophisticated DeFi application that successfully combines advanced reward mechanics with intuitive user experience. The Top 100 ranking system provides fair and transparent reward distribution while encouraging long-term liquidity provision.
-
-The application demonstrates best practices in modern web development, blockchain integration, and user interface design, making it a comprehensive solution for decentralized liquidity incentives.
-
----
-
-*Last updated: July 9, 2025*
-*Version: 2.0.0*
-*Author: KILT Protocol Team*
+This upgrade positions the portal as a leading example of secure, transparent, and user-friendly DeFi reward systems.

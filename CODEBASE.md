@@ -1,325 +1,219 @@
-# Codebase Documentation
+# KILT Liquidity Incentive Portal - Codebase Overview
 
-## 📁 Project Structure
+## Architecture Summary
 
-```
-kilt-liquidity-portal/
-├── client/                          # Frontend React application
-│   ├── src/
-│   │   ├── components/             # React components
-│   │   │   ├── ui/                # Shadcn/ui components (auto-generated)
-│   │   │   ├── analytics-dashboard.tsx
-│   │   │   ├── integration-dashboard.tsx
-│   │   │   ├── liquidity-mint.tsx
-│   │   │   ├── main-dashboard.tsx
-│   │   │   ├── rewards-tracking.tsx
-│   │   │   ├── uniswap-v3-manager.tsx
-│   │   │   ├── user-positions.tsx
-│   │   │   └── wallet-connect.tsx
-│   │   ├── contexts/              # React contexts
-│   │   │   └── wallet-context.tsx
-│   │   ├── hooks/                 # Custom React hooks
-│   │   │   ├── use-analytics.ts
-│   │   │   ├── use-kilt-data.ts
-│   │   │   ├── use-mobile.tsx
-│   │   │   ├── use-pool-data.ts
-│   │   │   ├── use-toast.ts
-│   │   │   └── use-uniswap-v3.ts
-│   │   ├── lib/                   # Utility functions
-│   │   │   ├── constants.ts
-│   │   │   ├── queryClient.ts
-│   │   │   ├── smart-contracts.ts
-│   │   │   ├── uniswap-v3.ts
-│   │   │   ├── utils.ts
-│   │   │   └── web3.ts
-│   │   ├── pages/                 # Page components
-│   │   │   ├── home.tsx
-│   │   │   └── not-found.tsx
-│   │   ├── App.tsx               # Main App component
-│   │   ├── index.css             # Global styles
-│   │   └── main.tsx              # React entry point
-│   ├── index.html                # HTML template
-│   └── public/                   # Static assets
-├── server/                       # Backend Express application
-│   ├── analytics.ts              # Analytics service
-│   ├── db.ts                     # Database connection
-│   ├── index.ts                  # Express server entry
-│   ├── kilt-data.ts              # KILT token data service
-│   ├── reward-service.ts         # Reward calculation service
-│   ├── routes.ts                 # API routes
-│   ├── storage.ts                # Storage abstraction
-│   └── vite.ts                   # Vite middleware
-├── shared/                       # Shared types and schemas
-│   └── schema.ts                 # Database schema
-├── contracts/                    # Smart contract data
-│   └── uniswap-v3-addresses.ts   # Contract addresses
-├── attached_assets/              # User-uploaded assets
-├── package.json                  # Dependencies
-├── tsconfig.json                 # TypeScript config
-├── tailwind.config.ts            # Tailwind CSS config
-├── vite.config.ts                # Vite configuration
-├── drizzle.config.ts             # Drizzle ORM config
-├── README.md                     # Main documentation
-├── DEPLOYMENT.md                 # Deployment guide
-└── replit.md                     # Project history
-```
+### Frontend (React + TypeScript)
+- **Framework**: React 18 with TypeScript, Vite build system
+- **UI Components**: Shadcn/ui with Radix UI primitives
+- **Styling**: Tailwind CSS with glassmorphism dark theme
+- **State Management**: TanStack Query for server state
+- **Web3 Integration**: Viem for Ethereum interactions
+- **Routing**: Wouter for client-side routing
 
-## 🔧 Core Components
+### Backend (Express.js + TypeScript)
+- **Framework**: Express.js with TypeScript and ESM modules
+- **Database**: PostgreSQL with Drizzle ORM (fallback to in-memory)
+- **Smart Contract**: Ethers.js integration for reward distribution
+- **API Design**: RESTful endpoints with Zod validation
+- **Real-time Data**: CoinGecko API for KILT token data
 
-### MainDashboard (`client/src/components/main-dashboard.tsx`)
-Central hub component with tabbed interface:
-- **Overview**: KILT token data and program information
-- **Add Liquidity**: Liquidity provision interface
-- **Positions**: LP position management
-- **Rewards**: Reward tracking and claiming
-- **Analytics**: Performance metrics and charts
-- **Integration**: Technical Uniswap V3 features
+### Smart Contract System
+- **KILTRewardPool**: Solidity contract with 90-day token locking
+- **Security**: OpenZeppelin patterns (ReentrancyGuard, Pausable, Ownable)
+- **Reward Wallet**: Configurable treasury wallet for token distribution
+- **Network**: Deployed on Base (Ethereum L2)
 
-**Key Features**:
-- Responsive design with mobile optimization
-- Real-time KILT token data integration
-- Wallet connection state management
-- Clean glassmorphism UI with dark theme
+## Key Components
 
-### WalletConnect (`client/src/components/wallet-connect.tsx`)
-Wallet connection component with multi-wallet support:
-- **Desktop**: MetaMask integration
-- **Mobile**: Deep link support for Trust Wallet, Coinbase Wallet, Rainbow
-- **State Management**: Connection status and address tracking
-- **Error Handling**: Connection failures and network issues
+### Dashboard Structure (6 Tabs)
+1. **Overview**: Key metrics, KILT price, quick actions
+2. **Liquidity**: Add/manage Uniswap V3 positions
+3. **Positions**: View/manage existing LP positions
+4. **Rewards**: Track and claim KILT rewards
+5. **Analytics**: Historical performance data
+6. **Rebalance**: Automated position optimization
 
-### LiquidityMint (`client/src/components/liquidity-mint.tsx`)
-Comprehensive liquidity provision interface:
-- **Token Selection**: KILT and ETH token inputs
-- **Price Range**: Full range and custom range options
-- **Position Sizing**: Slider controls for liquidity amounts
-- **Fee Tiers**: 0.05%, 0.3%, 1% fee tier selection
-- **Uniswap V3**: Real mint integration with NFT creation
+### Core Services
 
-### UserPositions (`client/src/components/user-positions.tsx`)
-LP position management dashboard:
-- **Position Display**: NFT-based position cards
-- **Real-time Data**: Live position values and status
-- **Actions**: Increase, decrease, collect fees, burn positions
-- **Analytics**: Position performance and fee earnings
-- **Mock Data**: Demonstration positions for testing
+#### Frontend Services
+- **WalletContext**: Web3 wallet connection management
+- **useUnifiedDashboard**: Centralized data flow hook
+- **Position Management**: Uniswap V3 NFT position handling
+- **Gas Estimation**: Real-time transaction cost calculation
 
-### RewardsTracking (`client/src/components/rewards-tracking.tsx`)
-KILT treasury reward system:
-- **Reward Calculation**: Time and size multipliers
-- **Claim Management**: 90-day lock period enforcement
-- **Treasury Info**: Program allocation and remaining funds
-- **Calculator**: Interactive reward estimation tool
-- **Statistics**: User reward analytics and history
+#### Backend Services
+- **RewardService**: Complex reward calculation with Top 100 ranking
+- **SmartContractService**: Blockchain interaction for secure rewards
+- **AnalyticsService**: Historical data tracking and metrics
+- **KiltDataService**: Real-time token data integration
 
-## 🎨 UI System
+### Database Schema
+- **users**: Wallet addresses and user preferences
+- **lpPositions**: Uniswap V3 NFT positions with metadata
+- **rewards**: KILT treasury reward tracking (synced with smart contract)
+- **dailyRewards**: Daily reward distribution history
+- **Analytics tables**: Position snapshots, performance metrics, fee events
 
-### Shadcn/ui Components (`client/src/components/ui/`)
-Pre-built accessible components:
-- **Used**: Badge, Button, Card, Dialog, Input, Label, Progress, Separator, Skeleton, Slider, Tabs, Toggle
-- **Unused**: AlertDialog, Accordion, Calendar, Carousel, etc. (kept for future use)
+## Reward System Architecture
 
-### Styling System
-- **Tailwind CSS**: Utility-first CSS framework
-- **Custom Theme**: KILT brand colors and glassmorphism effects
-- **Dark Mode**: Primary dark theme with blue-to-emerald gradients
-- **Responsive**: Mobile-first design with breakpoints
-- **Typography**: Inter font with tabular numbers for consistency
+### Top 100 Ranking System
+- **Eligibility**: Only top 100 participants by liquidity value
+- **Formula**: `R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99)`
+- **Weights**: 60% liquidity, 40% time
+- **APR Range**: 66% (rank 1) to 0.66% (rank 100)
 
-## 🔌 Hooks and Utilities
+### Smart Contract Integration
+- **90-Day Lock**: Immutable token locking period
+- **Reward Wallet**: Separate treasury wallet for distribution
+- **Claim Process**: On-chain verification and token transfer
+- **Security**: OpenZeppelin security patterns
 
-### Custom Hooks
-- **`use-kilt-data.ts`**: Real-time KILT token data fetching
-- **`use-pool-data.ts`**: Pool metrics and statistics
-- **`use-uniswap-v3.ts`**: Uniswap V3 contract interactions
-- **`use-analytics.ts`**: Analytics data management
-- **`use-mobile.tsx`**: Mobile device detection
-- **`use-toast.ts`**: Toast notification system
+### Treasury Management
+- **Allocation**: 2,905,600 KILT tokens (1% of total supply)
+- **Duration**: 365-day program
+- **Daily Budget**: ~7,960 KILT tokens per day
+- **Distribution**: Automated daily reward calculation
 
-### Utility Functions
-- **`lib/utils.ts`**: Common utility functions and class name merging
-- **`lib/constants.ts`**: Application constants and configuration
-- **`lib/web3.ts`**: Web3 connection and wallet utilities
-- **`lib/smart-contracts.ts`**: Smart contract ABI and interaction helpers
-- **`lib/uniswap-v3.ts`**: Uniswap V3 specific functions and calculations
+## Key Features
 
-## 🗄️ Backend Architecture
+### Wallet Integration
+- **Multi-Wallet Support**: MetaMask, Trust Wallet, Coinbase Wallet, Rainbow
+- **Mobile Compatibility**: Deep link support for mobile wallets
+- **Network Detection**: Automatic Base network detection
+- **Connection State**: Persistent wallet connection management
 
-### Services
-- **`analytics.ts`**: Position snapshots, performance metrics, fee tracking
-- **`reward-service.ts`**: Complex reward calculations with multipliers
-- **`kilt-data.ts`**: CoinGecko API integration for live token data
-- **`storage.ts`**: Abstract storage interface with in-memory implementation
+### Liquidity Management
+- **Uniswap V3 Integration**: Full NFT position lifecycle
+- **Position Types**: Support for all KILT-containing pools
+- **Range Visualization**: Panoptic-style curved range displays
+- **One-Click Actions**: Simplified liquidity addition
 
-### Database Schema (`shared/schema.ts`)
-Comprehensive schema with Drizzle ORM:
-- **Users**: Wallet addresses and metadata
-- **LP Positions**: Uniswap V3 NFT positions
-- **Rewards**: Treasury reward tracking
-- **Analytics**: Historical data tables
-- **Pool Stats**: Real-time pool metrics
+### Analytics System
+- **Position Tracking**: Historical position performance
+- **Fee Analysis**: Complete fee earning history
+- **Performance Metrics**: Impermanent loss and ROI calculations
+- **Pool Metrics**: Real-time TVL, volume, and price data
 
-### API Routes (`server/routes.ts`)
-RESTful API with Zod validation:
-- **User Management**: CRUD operations for users
-- **Position Management**: LP position lifecycle
-- **Reward System**: Calculation and claiming
-- **Analytics**: Historical data and metrics
-- **Real-time Data**: KILT token and pool data
+### Rebalancing Assistant
+- **Strategies**: Conservative, Balanced, Aggressive, Custom
+- **Efficiency Analysis**: Position health scoring
+- **Automation**: Batch rebalancing execution
+- **Gas Optimization**: Cost-effective rebalancing
 
-## 🔗 External Integrations
+## Security Features
 
-### Blockchain Integration
-- **Viem**: Type-safe Ethereum library
-- **Base Network**: Ethereum L2 (Chain ID: 8453)
-- **Uniswap V3**: Concentrated liquidity protocol
-- **MetaMask**: Primary wallet provider
-
-### Data Sources
-- **CoinGecko API**: Live KILT token data
-- **Uniswap V3 Subgraph**: Pool and position data
-- **Base Network RPC**: Blockchain interactions
-
-## 🚀 Build and Development
-
-### Development Workflow
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run db:push      # Push database schema
-npm run db:studio    # Open database studio
-```
-
-### Build Process
-- **Vite**: Fast build tool with HMR
-- **TypeScript**: Type checking and compilation
-- **ESBuild**: Fast JavaScript bundling
-- **Tailwind**: CSS compilation and purging
-
-### Code Quality
-- **TypeScript**: Strict type checking
-- **ESLint**: Code linting (minimal configuration)
-- **Prettier**: Code formatting (via editor)
-- **Husky**: Git hooks (not configured)
-
-## 📊 Performance Optimizations
-
-### Frontend Optimizations
-- **Code Splitting**: Route-based and component-based
-- **Tree Shaking**: Unused code elimination
-- **Bundle Analysis**: Vite bundle analyzer
-- **Lazy Loading**: Component lazy loading
-- **Caching**: TanStack Query caching
-
-### Backend Optimizations
-- **Connection Pooling**: Database connection management
-- **Query Optimization**: Efficient database queries
-- **Caching**: Response caching headers
-- **Compression**: Gzip compression middleware
-
-## 🔒 Security Measures
+### Smart Contract Security
+- **Immutable Logic**: On-chain reward distribution rules
+- **Access Control**: Owner-only position management
+- **Emergency Controls**: Pause and emergency withdrawal
+- **Token Safety**: SafeERC20 for secure transfers
 
 ### Frontend Security
 - **Input Validation**: Zod schema validation
-- **XSS Prevention**: React built-in protections
-- **CSRF Protection**: SameSite cookie attributes
-- **Type Safety**: TypeScript throughout
+- **Transaction Verification**: Gas estimation and confirmation
+- **Error Handling**: Comprehensive error states
+- **User Feedback**: Clear transaction status
 
 ### Backend Security
-- **Input Validation**: Zod schema validation
-- **SQL Injection**: Drizzle ORM parameterized queries
-- **Error Handling**: Centralized error responses
-- **CORS**: Configured for development
+- **Database Validation**: Drizzle ORM with TypeScript
+- **API Security**: Request validation and rate limiting
+- **Environment Variables**: Secure configuration management
+- **Error Logging**: Comprehensive error tracking
 
-## 📱 Mobile Compatibility
+## Technical Implementation
 
-### Responsive Design
-- **Mobile-First**: Tailwind mobile-first approach
-- **Breakpoints**: sm, md, lg, xl responsive breakpoints
-- **Touch Optimization**: Touch-friendly button sizes
-- **Viewport**: Proper viewport meta tag
+### Data Flow
+1. **User Authentication**: Wallet connection via MetaMask
+2. **Position Creation**: Uniswap V3 NFT minting
+3. **Smart Contract Registration**: Position registered in KILTRewardPool
+4. **Reward Calculation**: Daily reward distribution
+5. **Token Locking**: 90-day lock period enforcement
+6. **Claim Process**: On-chain reward claiming
 
-### Mobile Wallet Support
-- **Deep Links**: Direct wallet app integration
-- **Detection**: Mobile device and wallet detection
-- **Fallbacks**: Installation prompts and alternatives
+### Performance Optimizations
+- **Query Optimization**: TanStack Query caching
+- **Bundle Optimization**: Vite code splitting
+- **Database Indexing**: Optimized queries
+- **Smart Contract Efficiency**: Gas-optimized operations
 
-## 🧪 Testing Strategy
+### Mobile Optimization
+- **Responsive Design**: Tailwind CSS breakpoints
+- **Touch Interactions**: Mobile-friendly controls
+- **Wallet Deep Links**: Direct wallet app integration
+- **Compact Interface**: Space-efficient layouts
 
-### Current Testing
-- **TypeScript**: Compile-time type checking
-- **Manual Testing**: User interface testing
-- **Integration Testing**: API endpoint testing
+## Development Workflow
 
-### Recommended Testing
-- **Unit Tests**: Jest for utility functions
-- **Component Tests**: React Testing Library
-- **E2E Tests**: Playwright for user flows
-- **API Tests**: Supertest for backend
+### Build Process
+- **Frontend**: Vite builds to `dist/public`
+- **Backend**: TSX compilation with hot reloading
+- **Smart Contract**: Hardhat compilation and deployment
+- **Database**: Drizzle migrations
 
-## 🔄 State Management
+### Testing Strategy
+- **Unit Tests**: Component and service testing
+- **Integration Tests**: API endpoint testing
+- **Smart Contract Tests**: Hardhat testing framework
+- **E2E Tests**: Full user flow testing
 
-### Client State
-- **React Context**: Wallet connection state
-- **TanStack Query**: Server state management
-- **Local State**: Component-level React state
+### Deployment
+- **Frontend**: Static asset serving
+- **Backend**: Express.js server
+- **Database**: PostgreSQL with connection pooling
+- **Smart Contract**: Base network deployment
 
-### Server State
-- **In-Memory**: Default storage implementation
-- **PostgreSQL**: Production database option
-- **Caching**: Query result caching
+## Configuration
 
-## 📦 Dependencies
+### Environment Variables
+```env
+# Database
+DATABASE_URL=postgresql://...
 
-### Production Dependencies
-- **React Ecosystem**: React, React DOM, React Router (Wouter)
-- **UI Components**: Radix UI, Shadcn/ui, Tailwind CSS
-- **State Management**: TanStack Query, React Context
-- **Web3**: Viem, Ethereum interactions
-- **Backend**: Express, Drizzle ORM, Zod validation
-- **Build Tools**: Vite, TypeScript, ESBuild
+# Smart Contract
+KILT_REWARD_POOL_ADDRESS=0x...
+REWARD_WALLET_ADDRESS=0x...
+REWARD_WALLET_PRIVATE_KEY=0x...
+BASE_RPC_URL=https://mainnet.base.org
 
-### Development Dependencies
-- **TypeScript**: Type definitions and compiler
-- **Tailwind CSS**: Utility-first CSS framework
-- **ESLint**: Code linting (basic configuration)
-- **Vite Plugins**: Development enhancements
+# Application
+NODE_ENV=production
+PORT=5000
+```
 
-## 🏗️ Architecture Decisions
+### API Endpoints
+- **Users**: `/api/users/:address`
+- **Positions**: `/api/positions`
+- **Rewards**: `/api/rewards`
+- **Analytics**: `/api/analytics`
+- **KILT Data**: `/api/kilt-data`
 
-### Frontend Architecture
-- **Component-Based**: Reusable React components
-- **Hooks Pattern**: Custom hooks for logic reuse
-- **Context API**: Global state management
-- **Server State**: TanStack Query for API integration
+## Future Enhancements
 
-### Backend Architecture
-- **Microservices**: Modular service architecture
-- **Abstract Storage**: Pluggable storage interface
-- **RESTful API**: Standard HTTP API patterns
-- **Type Safety**: End-to-end TypeScript
+### Governance Integration
+- **Community Voting**: Parameter governance
+- **Transparent Updates**: On-chain proposals
+- **Decentralized Management**: Community control
 
-### Database Architecture
-- **Relational Model**: PostgreSQL with foreign keys
-- **Type Safety**: Drizzle ORM with TypeScript
-- **Migrations**: Schema evolution management
-- **Indexing**: Optimized query performance
+### Advanced Features
+- **Compound Rewards**: Automatic reinvestment
+- **Flexible Lock Periods**: User-configurable locks
+- **Cross-Chain Support**: Multi-network expansion
 
-## 🎯 Future Enhancements
+### Analytics Improvements
+- **Real-time Dashboards**: Live contract analytics
+- **Performance Metrics**: Detailed statistics
+- **Health Monitoring**: Automated checks
 
-### Planned Features
-- **Real Pool Creation**: Actual Uniswap V3 pool deployment
-- **Advanced Analytics**: More detailed performance metrics
-- **Notification System**: Real-time alerts and updates
-- **Multi-Chain**: Support for additional networks
+## Maintenance
 
-### Technical Improvements
-- **Testing Suite**: Comprehensive test coverage
-- **Performance Monitoring**: Real-time performance tracking
-- **Error Tracking**: Centralized error monitoring
-- **Documentation**: API documentation generation
+### Daily Operations
+- **Reward Distribution**: Automated daily calculations
+- **Wallet Balance**: Treasury monitoring
+- **System Health**: Performance monitoring
 
----
+### Regular Tasks
+- **Database Maintenance**: Query optimization
+- **Smart Contract Monitoring**: Event tracking
+- **Security Updates**: Dependency updates
 
-This codebase represents a production-ready DeFi application with comprehensive features, clean architecture, and extensive documentation. The modular design allows for easy maintenance, testing, and future enhancements.
+This codebase represents a comprehensive, production-ready DeFi liquidity incentive platform with advanced features, robust security, and excellent user experience.

@@ -6,7 +6,7 @@ A comprehensive DeFi liquidity provisioning portal for the KILT token on Base ne
 
 - **🔗 Multi-Wallet Support**: MetaMask, Trust Wallet, Coinbase Wallet, Rainbow with mobile deep links
 - **💧 Liquidity Management**: Full Uniswap V3 NFT position lifecycle (mint, increase, decrease, collect, burn)
-- **🎁 KILT Treasury Rewards**: 47.2% base APR with time (up to 2.0x) and size (up to 1.8x) multipliers
+- **🎁 Smart Contract Rewards**: 47.2% base APR with 90-day token locking and secure treasury distribution
 - **📊 Advanced Analytics**: Historical position tracking, performance metrics, and fee analysis
 - **📱 Mobile Optimized**: Responsive design with mobile wallet compatibility
 - **⚡ Real-time Data**: Live KILT token data via CoinGecko API integration
@@ -53,6 +53,7 @@ The application will be available at `http://localhost:5000`
 - **Drizzle ORM** for database operations
 - **Zod** for validation
 - **PostgreSQL** (optional, defaults to in-memory)
+- **Smart Contract Integration** for secure reward distribution
 
 ## 📁 Project Structure
 
@@ -66,11 +67,14 @@ The application will be available at `http://localhost:5000`
 ├── server/                # Backend Express application
 │   ├── analytics.ts       # Analytics service
 │   ├── reward-service.ts  # Reward calculation and management
+│   ├── smart-contract-service.ts # Smart contract integration
 │   ├── routes.ts          # API routes
 │   └── storage.ts         # Data storage abstraction
 ├── shared/                # Shared types and schemas
 │   └── schema.ts          # Database schema and types
-└── contracts/             # Smart contract ABIs and addresses
+└── contracts/             # Smart contracts for reward distribution
+    ├── KILTRewardPool.sol # Main reward contract
+    └── deploy.js          # Deployment scripts
 ```
 
 ## 🔧 Configuration
@@ -80,6 +84,12 @@ The application will be available at `http://localhost:5000`
 ```env
 # Database (optional - uses in-memory storage if not provided)
 DATABASE_URL=postgresql://username:password@localhost:5432/kilt_lp
+
+# Smart Contract Configuration
+KILT_REWARD_POOL_ADDRESS=0x... # Deployed reward pool contract address
+REWARD_WALLET_ADDRESS=0x... # Treasury wallet address for rewards
+REWARD_WALLET_PRIVATE_KEY=0x... # Private key for reward wallet
+BASE_RPC_URL=https://mainnet.base.org # Base network RPC endpoint
 
 # Development
 NODE_ENV=development

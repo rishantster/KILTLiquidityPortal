@@ -1,4 +1,5 @@
 import { db } from './db';
+import { smartContractService } from './smart-contract-service';
 import { 
   rewards, 
   dailyRewards, 
@@ -450,13 +451,44 @@ export class RewardService {
           .where(eq(rewards.id, reward.id));
       }
 
-      // Return transaction data for frontend to handle the actual token transfer
-      // Frontend will use this data to prepare the transaction for user signing
-      return {
-        success: true,
-        claimedAmount: totalClaimable,
-        transactionData: transferData
-      };
+      // Get NFT token IDs for smart contract claim
+      const nftTokenIds = claimableRewards.map(reward => reward.nftTokenId);
+      
+      // If smart contract is available, use it for claiming
+      if (smartContractService.isContractAvailable()) {
+        const claimResult = await smartContractService.executeClaimRewards(
+          userAddress,
+          nftTokenIds
+        );
+        
+        if (claimResult.success) {
+          return {
+            success: true,
+            claimedAmount: claimResult.claimedAmount || 0,
+            transactionHash: claimResult.txHash,
+            transactionData: {
+              to: userAddress,
+              amount: claimResult.claimedAmount || 0,
+              tokenContract: "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8",
+              networkId: 8453,
+              timestamp: new Date().toISOString()
+            }
+          };
+        } else {
+          return {
+            success: false,
+            claimedAmount: 0,
+            error: claimResult.error || "Smart contract claim failed"
+          };
+        }
+      } else {
+        // Fallback to database-only implementation
+        return {
+          success: true,
+          claimedAmount: totalClaimable,
+          transactionData: transferData
+        };
+      }
 
     } catch (error) {
       return {

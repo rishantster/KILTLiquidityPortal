@@ -352,9 +352,9 @@ export function RewardsTracking() {
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Remaining</span>
-                <span className="text-white font-bold tabular-nums">
+                <span className="text-white font-bold tabular-nums flex items-center gap-1">
                   {top100Analytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} 
-                  <img src={kiltLogo} alt="KILT" className="w-3 h-3 inline-block mx-1" />
+                  <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
                   <span>KILT</span>
                 </span>
               </div>
@@ -374,9 +374,9 @@ export function RewardsTracking() {
               </div>
             </div>
 
-            <Progress value={30} className="h-2" />
+            <Progress value={((2905600 - (top100Analytics?.treasuryRemaining || 2905600)) / 2905600) * 100} className="h-2" />
             <div className="text-xs text-white/60 text-center">
-              30% of treasury allocated
+              {(((2905600 - (top100Analytics?.treasuryRemaining || 2905600)) / 2905600) * 100).toFixed(1)}% of treasury allocated
             </div>
 
             {/* Reward Features */}

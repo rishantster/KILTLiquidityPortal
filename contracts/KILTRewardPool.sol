@@ -18,6 +18,9 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     // KILT token contract
     IERC20 public immutable kiltToken;
     
+    // Reward wallet address (separate from contract funding)
+    address public rewardWallet;
+    
     // Program parameters
     uint256 public constant TREASURY_ALLOCATION = 2905600 * 1e18; // 2.9M KILT tokens
     uint256 public constant PROGRAM_DURATION = 365 days; // 1 year program
@@ -67,6 +70,7 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     event RewardsClaimed(address indexed user, uint256 amount);
     event RewardsEarned(address indexed user, uint256 indexed nftTokenId, uint256 amount);
     event Top100Updated(address[] newTop100);
+    event RewardWalletUpdated(address indexed oldWallet, address indexed newWallet);
     
     modifier onlyDuringProgram() {
         require(block.timestamp >= programStartTime && block.timestamp <= programEndTime, "Program not active");
@@ -80,12 +84,15 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     
     constructor(
         address _kiltToken,
+        address _rewardWallet,
         uint256 _programStartTime
     ) {
         require(_kiltToken != address(0), "Invalid KILT token address");
+        require(_rewardWallet != address(0), "Invalid reward wallet address");
         require(_programStartTime > block.timestamp, "Start time must be in future");
         
         kiltToken = IERC20(_kiltToken);
+        rewardWallet = _rewardWallet;
         programStartTime = _programStartTime;
         programEndTime = _programStartTime + PROGRAM_DURATION;
         dailyRewardBudget = TREASURY_ALLOCATION / (PROGRAM_DURATION / 1 days);
@@ -263,9 +270,10 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         }
         
         require(totalClaimable > 0, "No rewards to claim");
-        require(kiltToken.balanceOf(address(this)) >= totalClaimable, "Insufficient contract balance");
+        require(kiltToken.balanceOf(rewardWallet) >= totalClaimable, "Insufficient reward wallet balance");
         
-        kiltToken.safeTransfer(msg.sender, totalClaimable);
+        // Transfer tokens from reward wallet to user
+        kiltToken.safeTransferFrom(rewardWallet, msg.sender, totalClaimable);
         
         emit RewardsClaimed(msg.sender, totalClaimable);
     }
@@ -348,22 +356,28 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     }
     
     /**
+     * @dev Update reward wallet address
+     * @param _newRewardWallet New reward wallet address
+     */
+    function updateRewardWallet(address _newRewardWallet) external onlyOwner {
+        require(_newRewardWallet != address(0), "Invalid reward wallet address");
+        require(_newRewardWallet != rewardWallet, "Same reward wallet address");
+        
+        address oldWallet = rewardWallet;
+        rewardWallet = _newRewardWallet;
+        
+        emit RewardWalletUpdated(oldWallet, _newRewardWallet);
+    }
+    
+    /**
      * @dev Emergency withdraw function for contract owner
+     * Only withdraws tokens that were accidentally sent to the contract
      */
     function emergencyWithdraw() external onlyOwner {
         uint256 balance = kiltToken.balanceOf(address(this));
         require(balance > 0, "No tokens to withdraw");
         
         kiltToken.safeTransfer(owner(), balance);
-    }
-    
-    /**
-     * @dev Fund the contract with KILT tokens
-     * @param amount Amount of KILT tokens to fund
-     */
-    function fundContract(uint256 amount) external onlyOwner {
-        require(amount > 0, "Amount must be greater than 0");
-        kiltToken.safeTransferFrom(msg.sender, address(this), amount);
     }
     
     /**
@@ -387,18 +401,24 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
      * @return totalAllocated Total KILT tokens allocated
      * @return totalDistributed Total KILT tokens distributed
      * @return remainingBudget Remaining KILT tokens to distribute
+     * @return currentRewardWallet Current reward wallet address
+     * @return rewardWalletBalance Current balance of reward wallet
      */
     function getProgramInfo() external view returns (
         uint256 startTime,
         uint256 endTime,
         uint256 totalAllocated,
         uint256 totalDistributed,
-        uint256 remainingBudget
+        uint256 remainingBudget,
+        address currentRewardWallet,
+        uint256 rewardWalletBalance
     ) {
         startTime = programStartTime;
         endTime = programEndTime;
         totalAllocated = TREASURY_ALLOCATION;
         totalDistributed = totalRewardsDistributed;
         remainingBudget = TREASURY_ALLOCATION - totalRewardsDistributed;
+        currentRewardWallet = rewardWallet;
+        rewardWalletBalance = kiltToken.balanceOf(rewardWallet);
     }
 }

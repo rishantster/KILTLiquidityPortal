@@ -38,12 +38,15 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     
     const kiltData = data['kilt-protocol'];
     
-    // Calculate treasury metrics
-    const distributionRate = 95.2; // KILT per day
-    const distributed = 289.1; // Currently distributed
-    const treasuryRemaining = TREASURY_TOTAL - distributed;
-    const programDuration = Math.floor(treasuryRemaining / distributionRate);
-    const progress = (distributed / TREASURY_TOTAL) * 100;
+    // Calculate treasury metrics based on program timeline
+    const distributionRate = 7960; // KILT per day (~7,960 from 2,905,600 / 365)
+    const programStartDate = new Date('2025-07-09'); // Program start date
+    const currentDate = new Date();
+    const daysElapsed = Math.max(0, Math.floor((currentDate.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24)));
+    const distributed = daysElapsed * distributionRate;
+    const treasuryRemaining = Math.max(0, TREASURY_TOTAL - distributed);
+    const programDuration = 365; // Fixed 365-day program
+    const progress = (distributed / TREASURY_TOTAL);
     
     // Handle market cap calculation when CoinGecko returns 0
     // Use circulating supply (276.97M) instead of total supply (290.56M) for accurate market cap

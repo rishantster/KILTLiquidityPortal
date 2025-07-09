@@ -1,406 +1,256 @@
-# Deployment Guide
+# KILT Liquidity Incentive Portal - Deployment Guide
 
-This guide covers deploying the KILT Liquidity Incentive Portal to various hosting platforms.
+## Overview
 
-## 📋 Pre-Deployment Checklist
+This guide covers the deployment of the KILT Liquidity Incentive Portal with smart contract integration for secure reward distribution.
 
-### Required Environment Variables
-```env
-# Database (Required for production)
-DATABASE_URL=postgresql://username:password@host:5432/database
+## Prerequisites
 
-# Node Environment
-NODE_ENV=production
-
-# Optional: Custom Configuration
-VITE_APP_NAME=KILT Liquidity Portal
-VITE_NETWORK_ID=8453
-```
-
-### Build Requirements
 - Node.js 18+
-- npm or yarn
-- PostgreSQL database
-- 512MB+ RAM
-- 100MB+ storage
+- PostgreSQL database (production)
+- Base network wallet with ETH for gas fees
+- KILT tokens for reward distribution
 
-## 🚀 Deployment Options
+## Smart Contract Deployment
 
-### 1. Vercel (Recommended)
+### 1. Deploy KILTRewardPool Contract
 
-#### Prerequisites
-- GitHub repository
-- Vercel account
-- PostgreSQL database (Neon recommended)
-
-#### Steps
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# Install Hardhat dependencies
+npm install --save-dev hardhat @openzeppelin/contracts ethers
 
-# Login to Vercel
-vercel login
+# Configure Hardhat for Base network
+# Edit hardhat.config.js with Base network settings
 
-# Deploy
-vercel --prod
+# Deploy contract
+npx hardhat run contracts/deploy.js --network base
 ```
 
-#### Configuration
-Create `vercel.json`:
-```json
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "server/index.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "client/dist/$1"
-    }
-  ]
-}
+### 2. Contract Configuration
+
+The deployment script will output:
+- Contract address
+- Required environment variables
+- Setup instructions
+
+### 3. Environment Variables
+
+Set up the following environment variables:
+
+```env
+# Database
+DATABASE_URL=postgresql://username:password@host:5432/kilt_lp
+
+# Smart Contract
+KILT_REWARD_POOL_ADDRESS=0x... # From deployment output
+REWARD_WALLET_ADDRESS=0x... # Treasury wallet for rewards
+REWARD_WALLET_PRIVATE_KEY=0x... # Private key for reward wallet
+BASE_RPC_URL=https://mainnet.base.org
+
+# KILT Token
+KILT_TOKEN_ADDRESS=0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8
+
+# Application
+NODE_ENV=production
+PORT=5000
 ```
 
-### 2. Netlify
+## Application Deployment
 
-#### Build Settings
+### 1. Database Setup
+
 ```bash
-# Build command
-npm run build
+# Run database migrations
+npm run db:push
 
-# Publish directory
-dist/public
-
-# Functions directory
-netlify/functions
+# Verify database connection
+npm run db:check
 ```
 
-#### netlify.toml
-```toml
-[build]
-  command = "npm run build"
-  publish = "dist/public"
+### 2. Build Application
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-```
-
-### 3. Railway
-
-#### Steps
 ```bash
-# Install Railway CLI
-npm i -g @railway/cli
-
-# Login
-railway login
-
-# Deploy
-railway up
-```
-
-#### railway.json
-```json
-{
-  "deploy": {
-    "restartPolicyType": "ON_FAILURE",
-    "sleepApplication": false,
-    "numReplicas": 1
-  }
-}
-```
-
-### 4. Docker Deployment
-
-#### Dockerfile
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-COPY client/package*.json ./client/
-COPY server/package*.json ./server/
-
 # Install dependencies
-RUN npm ci --only=production
+npm install
 
-# Copy source code
-COPY . .
-
-# Build application
-RUN npm run build
-
-# Expose port
-EXPOSE 5000
-
-# Start application
-CMD ["npm", "start"]
-```
-
-#### docker-compose.yml
-```yaml
-version: '3.8'
-
-services:
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:password@db:5432/kilt_lp
-    depends_on:
-      - db
-    
-  db:
-    image: postgres:14
-    environment:
-      - POSTGRES_DB=kilt_lp
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-volumes:
-  postgres_data:
-```
-
-## 🗄️ Database Setup
-
-### Neon Database (Recommended)
-```bash
-# Create account at neon.tech
-# Create new project
-# Copy connection string
-
-# Set environment variable
-DATABASE_URL=postgresql://username:password@host/database?sslmode=require
-
-# Run migrations
-npm run db:push
-```
-
-### Self-Hosted PostgreSQL
-```bash
-# Install PostgreSQL
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-
-# Create database
-sudo -u postgres createdb kilt_lp
-
-# Create user
-sudo -u postgres createuser --interactive
-
-# Set password
-sudo -u postgres psql -c "ALTER USER username PASSWORD 'password';"
-
-# Run migrations
-npm run db:push
-```
-
-## 🔧 Configuration
-
-### Environment Variables by Platform
-
-#### Vercel
-```bash
-# Add via Vercel dashboard or CLI
-vercel env add DATABASE_URL
-vercel env add NODE_ENV
-```
-
-#### Netlify
-```bash
-# Add via Netlify dashboard
-# Site settings > Environment variables
-```
-
-#### Railway
-```bash
-# Add via Railway dashboard
-# Variables section
-```
-
-### Build Commands
-```bash
-# Development
-npm run dev
-
-# Production build
+# Build frontend and backend
 npm run build
 
-# Production start
+# Start production server
 npm start
-
-# Database operations
-npm run db:push
-npm run db:studio
 ```
 
-## 🚨 Troubleshooting
+### 3. Smart Contract Setup
+
+After deployment, complete the following setup:
+
+1. **Fund Reward Wallet**: Transfer KILT tokens to the reward wallet address
+2. **Set Allowance**: Approve the contract to spend KILT tokens
+3. **Update Reward Wallet**: If needed, update the contract with the correct reward wallet
+
+```bash
+# Example: Update reward wallet in contract
+npx hardhat run scripts/update-reward-wallet.js --network base
+```
+
+## Smart Contract Functions
+
+### Owner Functions (Contract Management)
+
+- `addLiquidityPosition(user, nftTokenId, liquidityValue)` - Add LP position
+- `removeLiquidityPosition(user, nftTokenId)` - Remove LP position
+- `updateLiquidityValue(user, nftTokenId, newValue)` - Update position value
+- `distributeDailyRewards()` - Distribute daily rewards
+- `updateRewardWallet(newWallet)` - Update reward wallet address
+
+### User Functions
+
+- `claimRewards(nftTokenIds[])` - Claim accumulated rewards
+- `getClaimableRewards(user)` - View claimable rewards
+- `getPendingRewards(user)` - View pending rewards (still locked)
+
+### View Functions
+
+- `getProgramInfo()` - Get program details and statistics
+- `calculateDailyRewards(user, nftTokenId)` - Calculate daily rewards
+- `rewardWallet()` - Get current reward wallet address
+
+## Security Considerations
+
+### 1. Private Key Management
+
+- Store private keys securely (use environment variables)
+- Never commit private keys to version control
+- Use hardware wallets for production reward wallet
+
+### 2. Contract Security
+
+- The contract implements OpenZeppelin security patterns
+- ReentrancyGuard prevents reentrancy attacks
+- Pausable allows emergency stops
+- Ownable restricts admin functions
+
+### 3. Access Control
+
+- Only contract owner can add/remove positions
+- Only users can claim their own rewards
+- Reward wallet must approve token spending
+
+## Monitoring and Maintenance
+
+### 1. Daily Operations
+
+```bash
+# Check reward wallet balance
+curl -X GET "https://your-api.com/api/rewards/wallet-balance"
+
+# Distribute daily rewards (automated)
+curl -X POST "https://your-api.com/api/rewards/distribute-daily"
+```
+
+### 2. Health Checks
+
+- Monitor contract balance
+- Check reward wallet allowance
+- Verify database synchronization
+- Monitor application logs
+
+### 3. Emergency Procedures
+
+If issues occur:
+
+1. **Pause Contract**: Call `pause()` to stop all operations
+2. **Emergency Withdraw**: Use `emergencyWithdraw()` if needed
+3. **Update Reward Wallet**: Change reward wallet if compromised
+
+## API Endpoints
+
+### Smart Contract Integration
+
+- `POST /api/rewards/claim` - Claim rewards via smart contract
+- `GET /api/rewards/claimable/:address` - Get claimable rewards
+- `GET /api/rewards/pending/:address` - Get pending rewards
+- `GET /api/contract/program-info` - Get contract program info
+- `GET /api/contract/reward-wallet` - Get current reward wallet
+
+### Position Management
+
+- `POST /api/positions` - Add liquidity position
+- `PUT /api/positions/:id` - Update position value
+- `DELETE /api/positions/:id` - Remove position
+
+## Troubleshooting
 
 ### Common Issues
 
-#### Build Failures
+1. **Contract Not Available**
+   - Check `KILT_REWARD_POOL_ADDRESS` environment variable
+   - Verify contract is deployed on Base network
+   - Check private key permissions
+
+2. **Insufficient Reward Wallet Balance**
+   - Transfer more KILT tokens to reward wallet
+   - Check token allowance for contract
+
+3. **Transaction Failures**
+   - Verify gas price settings
+   - Check Base network connectivity
+   - Ensure wallet has sufficient ETH for gas
+
+### Logs and Debugging
+
 ```bash
-# Clear cache
-npm run clean
-rm -rf node_modules package-lock.json
-npm install
+# View application logs
+tail -f logs/application.log
 
-# Check Node version
-node --version  # Should be 18+
-
-# Check TypeScript
-npx tsc --version
+# Check smart contract events
+npx hardhat run scripts/check-events.js --network base
 ```
 
-#### Database Connection Issues
+## Backup and Recovery
+
+### 1. Database Backup
+
 ```bash
-# Test connection
-npm run db:studio
+# Create database backup
+pg_dump $DATABASE_URL > backup.sql
 
-# Check environment variable
-echo $DATABASE_URL
-
-# Verify SSL settings
-# Add ?sslmode=require for production
+# Restore database
+psql $DATABASE_URL < backup.sql
 ```
 
-#### Memory Issues
-```bash
-# Increase Node memory
-NODE_OPTIONS="--max-old-space-size=4096"
+### 2. Smart Contract Recovery
 
-# Check build output size
-du -sh dist/
-```
+If contract needs to be replaced:
 
-### Performance Optimization
+1. Deploy new contract
+2. Update environment variables
+3. Migrate position data
+4. Update reward wallet approval
 
-#### Frontend
-- Enable gzip compression
-- Configure CDN caching
-- Optimize images
-- Enable tree shaking
+## Performance Optimization
 
-#### Backend
-- Connection pooling
-- Query optimization
-- Caching headers
-- Error monitoring
+### 1. Database Optimization
 
-## 📊 Monitoring
+- Use connection pooling
+- Implement query caching
+- Regular database maintenance
 
-### Recommended Tools
-- **Vercel Analytics**: Built-in monitoring
-- **Sentry**: Error tracking
-- **Datadog**: Application monitoring
-- **New Relic**: Performance monitoring
+### 2. Smart Contract Optimization
 
-### Health Checks
-```bash
-# API health
-curl https://your-domain.com/api/health
+- Batch operations when possible
+- Monitor gas usage
+- Optimize reward calculations
 
-# Database health
-curl https://your-domain.com/api/db-health
+## Support and Resources
 
-# Frontend health
-curl https://your-domain.com/
-```
+- [Base Network Documentation](https://docs.base.org/)
+- [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
+- [Hardhat Documentation](https://hardhat.org/docs/)
+- [KILT Protocol](https://www.kilt.io/)
 
-## 🔒 Security
-
-### SSL/TLS
-- Enable HTTPS
-- Configure security headers
-- Set up Content Security Policy
-- Enable HSTS
-
-### Environment Security
-- Use environment variables for secrets
-- Enable database SSL
-- Configure CORS properly
-- Set up rate limiting
-
-## 📈 Scaling
-
-### Horizontal Scaling
-- Load balancer configuration
-- Database read replicas
-- CDN setup
-- Caching layer
-
-### Vertical Scaling
-- Memory optimization
-- CPU optimization
-- Database optimization
-- Bundle size reduction
-
-## 🔄 CI/CD
-
-### GitHub Actions
-```yaml
-name: Deploy
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test
-      - uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.ORG_ID }}
-          vercel-project-id: ${{ secrets.PROJECT_ID }}
-```
-
-## 📞 Support
-
-For deployment issues:
-1. Check the troubleshooting section
-2. Review platform-specific documentation
-3. Contact platform support
-4. File an issue in the repository
-
----
-
-Happy deploying! 🚀
+For technical support, contact the development team with:
+- Error logs
+- Transaction hashes
+- Contract addresses
+- Environment details

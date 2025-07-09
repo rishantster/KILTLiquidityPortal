@@ -43,9 +43,16 @@ This is a comprehensive decentralized finance (DeFi) liquidity provisioning port
 ### Database Schema
 - **Users**: Wallet addresses, creation timestamps, and user preferences
 - **LP Positions**: Uniswap V3 NFT positions with token amounts, price ranges, and metadata
-- **Rewards**: KILT treasury reward tracking with time/size multipliers and claim status
+- **Rewards**: KILT treasury reward tracking with time/size multipliers and claim status (synced with smart contract)
 - **Pool Stats**: Real-time pool metrics (TVL, volume, APR, current price)
 - **Analytics Tables**: Position snapshots, performance metrics, fee events, and user analytics
+
+### Smart Contract Architecture
+- **KILTRewardPool**: Main reward distribution contract with 90-day token locking
+- **KILT Token**: 0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8 on Base network
+- **Reward Wallet**: Configurable treasury wallet address for token distribution
+- **Security Features**: ReentrancyGuard, Pausable, Ownable, SafeERC20 protections
+- **Lock Mechanism**: Immutable 90-day lock period enforced on-chain
 
 ## Component Architecture
 
@@ -68,7 +75,8 @@ This is a comprehensive decentralized finance (DeFi) liquidity provisioning port
 ### Backend Services
 - **Storage Layer**: Abstract interface with in-memory implementation (configurable for PostgreSQL)
 - **API Routes**: RESTful endpoints with Zod validation and error handling
-- **Reward Service**: Complex reward calculation with multipliers and claim management
+- **Reward Service**: Complex reward calculation with multipliers and smart contract integration
+- **Smart Contract Service**: Ethereum contract interaction for secure token locking and distribution
 - **Analytics Service**: Historical data tracking and performance calculations
 - **KILT Data Service**: Real-time token data integration with CoinGecko API
 
@@ -77,9 +85,11 @@ This is a comprehensive decentralized finance (DeFi) liquidity provisioning port
 1. **User Authentication**: Wallet connection via MetaMask on Base network
 2. **Position Creation**: User submits liquidity with token amounts and price ranges
 3. **Data Persistence**: Position data stored in PostgreSQL via Drizzle ORM
-4. **Reward Calculation**: Backend calculates rewards based on position size, duration, and multipliers
-5. **Real-time Updates**: Frontend polls for position and reward updates
-6. **Reward Distribution**: Users can claim accumulated rewards through the interface
+4. **Smart Contract Registration**: LP positions registered in KILTRewardPool contract
+5. **Reward Calculation**: Backend calculates rewards based on position size, duration, and multipliers
+6. **Token Locking**: Smart contract enforces 90-day lock period for reward eligibility
+7. **Real-time Updates**: Frontend polls for position and reward updates
+8. **Reward Claiming**: Users claim accumulated rewards through smart contract with actual KILT token transfers
 
 ## External Dependencies
 
@@ -110,6 +120,7 @@ This is a comprehensive decentralized finance (DeFi) liquidity provisioning port
 - **Frontend**: Vite builds static assets to `dist/public`
 - **Backend**: ESBuild bundles server code to `dist/index.js`
 - **Database**: Drizzle migrations for schema updates
+- **Smart Contract**: Deployed KILTRewardPool contract on Base network
 - **Static Serving**: Express serves built frontend assets
 
 ### Database Management
@@ -235,3 +246,4 @@ Changelog:
 - July 09, 2025. Implemented unified dashboard data flow system by creating useUnifiedDashboard hook that interconnects all dashboard components (Overview, Analytics, Rewards, Positions) with shared data sources, consistent position value calculations, automatic user creation/retrieval, synchronized reward statistics, and centralized loading states for improved data consistency and user experience across all tabs
 - July 09, 2025. Implemented Base network indicator in header with official Base logo, real-time network detection (chain ID 0x2105), dynamic status display (blue when connected, gray when not), green pulse animation for connection status, and automatic network change listener for seamless user experience
 - July 09, 2025. Implemented comprehensive one-click liquidity rebalancing assistant with new 6th tab (Rebalance), featuring four rebalancing strategies (Conservative, Balanced, Aggressive, Custom), position efficiency analysis, automated rebalancing recommendations, custom range slider controls, gas cost estimation, and batch position rebalancing execution for optimal liquidity position management
+- July 09, 2025. Implemented smart contract-based reward system with KILTRewardPool contract featuring true 90-day token locking mechanism, configurable reward wallet address for treasury management, secure claim functionality with actual KILT token transfers, comprehensive access controls using OpenZeppelin security patterns, and integrated backend services for seamless smart contract interaction replacing database-only reward tracking

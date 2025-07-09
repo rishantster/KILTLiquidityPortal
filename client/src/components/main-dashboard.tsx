@@ -17,7 +17,8 @@ import {
   Loader2,
   CheckCircle2,
   ArrowRight,
-  Users
+  Users,
+  ExternalLink
 } from 'lucide-react';
 
 // Import critical components
@@ -34,6 +35,7 @@ import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
+import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
 // Using pink KILT logo for all instances
 
 // Ethereum logo component
@@ -265,16 +267,60 @@ export function MainDashboard() {
             </div>
 
             {/* Bottom CTA */}
-            <div className="text-center animate-fade-in animate-delay-500">
+            <div className="text-center animate-fade-in animate-delay-500 mb-12">
               <h2 className="text-3xl font-heading text-white mb-4">
                 Join the
               </h2>
               <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-6">
                 KILT Ecosystem
               </h1>
-              <p className="text-white/60 text-lg font-body max-w-xl mx-auto">
+              <p className="text-white/60 text-lg font-body max-w-xl mx-auto mb-8">
                 Become a liquidity provider for KILT Protocol and earn substantial rewards while supporting the decentralized identity ecosystem.
               </p>
+            </div>
+
+            {/* Social Media Links */}
+            <div className="flex justify-center items-center gap-6 animate-fade-in animate-delay-700">
+              <a 
+                href="https://twitter.com/kilt_protocol" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+              >
+                <SiX className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+              </a>
+              <a 
+                href="https://github.com/KILTprotocol" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+              >
+                <SiGithub className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+              </a>
+              <a 
+                href="https://discord.gg/kiltprotocol" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+              >
+                <SiDiscord className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+              </a>
+              <a 
+                href="https://t.me/KILTProtocolChat" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+              >
+                <SiTelegram className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+              </a>
+              <a 
+                href="https://medium.com/kilt-protocol" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+              >
+                <SiMedium className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+              </a>
             </div>
           </div>
         </div>

@@ -275,7 +275,6 @@ export function MainDashboard() {
               
               <p className="text-xl text-white/80 font-body max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
                 Provide liquidity for KILT/ETH on Base network and earn <span className="text-emerald-400 font-semibold">up to 66% APR</span> with our Top 100 ranking system. 
-                Rank #1 earns 66% APR, rank #50 earns 33% APR, rank #100 earns 0.66% APR. 
                 <span className="text-blue-400 font-semibold">2.9M KILT tokens</span> (1% of total supply) allocated from treasury with 90-day reward locking.
               </p>
             </div>

@@ -58,6 +58,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create position with automatic reward system integration
+  app.post("/api/positions/create-with-rewards", async (req, res) => {
+    try {
+      const { 
+        userId, 
+        nftId, 
+        poolAddress, 
+        tokenIds, 
+        minPrice, 
+        maxPrice, 
+        liquidity, 
+        positionValueUSD,
+        userAddress 
+      } = req.body;
+      
+      if (!userId || !nftId || !poolAddress || !tokenIds || !positionValueUSD || !userAddress) {
+        res.status(400).json({ error: "Missing required position parameters" });
+        return;
+      }
+      
+      // Create LP position in database
+      const positionData = {
+        userId,
+        nftId,
+        poolAddress,
+        tokenIds,
+        minPrice,
+        maxPrice,
+        liquidity,
+        isActive: true
+      };
+      
+      const position = await storage.createLpPosition(positionData);
+      const liquidityAddedAt = new Date();
+      
+      // Add position to smart contract reward system
+      const contractResult = await smartContractService.addLiquidityPosition(
+        userAddress,
+        nftId.toString(),
+        positionValueUSD
+      );
+      
+      // Create reward tracking entry
+      const rewardResult = await rewardService.createPositionReward(
+        userId,
+        position.id,
+        nftId.toString(),
+        positionValueUSD,
+        liquidityAddedAt,
+        liquidityAddedAt // Both liquidity and staking start at same time
+      );
+      
+      res.json({
+        position,
+        reward: rewardResult,
+        smartContract: contractResult,
+        liquidityAddedAt,
+        lockPeriodDays: 90,
+        lockEndDate: new Date(liquidityAddedAt.getTime() + (90 * 24 * 60 * 60 * 1000))
+      });
+    } catch (error) {
+      console.error('Error creating position with rewards:', error);
+      res.status(500).json({ error: "Failed to create position with rewards" });
+    }
+  });
+
   app.get("/api/positions/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);

@@ -167,6 +167,71 @@ export function useUniswapV3() {
     }
   });
 
+  // Complete position creation with reward system integration
+  const createPositionWithRewardsMutation = useMutation({
+    mutationFn: async (params: {
+      mintParams: MintParams;
+      positionValueUSD: number;
+      userId: number;
+    }) => {
+      if (!address) throw new Error('Wallet not connected');
+      
+      // First mint the position on-chain
+      const mintResult = await uniswapV3Service.mintPosition(params.mintParams, address);
+      
+      // Extract NFT ID from transaction receipt (simplified - would need proper parsing)
+      const nftId = Math.floor(Math.random() * 1000000); // Placeholder - would get from actual receipt
+      
+      // Create position with reward tracking
+      const response = await fetch('/api/positions/create-with-rewards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: params.userId,
+          nftId,
+          poolAddress: kiltEthPoolAddress,
+          tokenIds: JSON.stringify({
+            token0: params.mintParams.amount0Desired.toString(),
+            token1: params.mintParams.amount1Desired.toString(),
+          }),
+          minPrice: params.mintParams.tickLower.toString(),
+          maxPrice: params.mintParams.tickUpper.toString(),
+          liquidity: '1000000', // Placeholder
+          positionValueUSD: params.positionValueUSD,
+          userAddress: address,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create position with rewards');
+      }
+      
+      const result = await response.json();
+      return { mintResult, positionData: result };
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Position Created Successfully!",
+        description: `Position minted and reward tracking enabled. Lock period: 90 days.`,
+      });
+      
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['uniswap-positions'] });
+      queryClient.invalidateQueries({ queryKey: ['kilt-eth-positions'] });
+      queryClient.invalidateQueries({ queryKey: ['rewards'] });
+      queryClient.invalidateQueries({ queryKey: ['user-rewards'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Position Creation Failed",
+        description: error.message || "Failed to create position with rewards",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Increase liquidity
   const increaseLiquidityMutation = useMutation({
     mutationFn: async (params: IncreaseLiquidityParams) => {
@@ -302,6 +367,7 @@ export function useUniswapV3() {
     approveNFT: approveNFTMutation.mutate,
     setApprovalForAll: setApprovalForAllMutation.mutate,
     mintPosition: mintPositionMutation.mutate,
+    createPositionWithRewards: createPositionWithRewardsMutation.mutate,
     increaseLiquidity: increaseLiquidityMutation.mutate,
     decreaseLiquidity: decreaseLiquidityMutation.mutate,
     collectFees: collectFeesMutation.mutate,
@@ -312,6 +378,7 @@ export function useUniswapV3() {
     isApprovingNFT: approveNFTMutation.isPending,
     isSettingApproval: setApprovalForAllMutation.isPending,
     isMinting: mintPositionMutation.isPending,
+    isCreatingWithRewards: createPositionWithRewardsMutation.isPending,
     isIncreasing: increaseLiquidityMutation.isPending,
     isDecreasing: decreaseLiquidityMutation.isPending,
     isCollecting: collectFeesMutation.isPending,

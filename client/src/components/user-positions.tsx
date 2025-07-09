@@ -368,8 +368,8 @@ export function UserPositions() {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
-                            KILT Amount
+                            <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                            KILT
                           </span>
                           <span className="text-white font-bold tabular-nums">
                             {formatTokenAmount(position.tokensOwed0, 18) || '0'}
@@ -377,8 +377,8 @@ export function UserPositions() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <EthereumLogo className="w-3 h-3" />
-                            ETH Amount
+                            <EthereumLogo className="w-5 h-5" />
+                            ETH
                           </span>
                           <span className="text-white font-bold tabular-nums">
                             {formatTokenAmount(position.tokensOwed1, 18) || '0'}
@@ -540,7 +540,10 @@ export function UserPositions() {
             {managementMode === 'increase' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-white/60">KILT Amount</Label>
+                  <Label className="text-white/60 flex items-center gap-1">
+                    <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
+                    KILT
+                  </Label>
                   <Input
                     type="number"
                     value={amount0}
@@ -553,7 +556,10 @@ export function UserPositions() {
                   </div>
                 </div>
                 <div>
-                  <Label className="text-white/60">ETH Amount</Label>
+                  <Label className="text-white/60 flex items-center gap-1">
+                    <EthereumLogo className="w-4 h-4" />
+                    ETH
+                  </Label>
                   <Input
                     type="number"
                     value={amount1}

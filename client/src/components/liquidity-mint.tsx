@@ -358,8 +358,8 @@ export function LiquidityMint() {
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-white text-lg flex items-center gap-2">
-              <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-              KILT Amount
+              <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
+              KILT
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -390,8 +390,8 @@ export function LiquidityMint() {
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-white text-lg flex items-center gap-2">
-              <EthereumLogo className="w-6 h-6" />
-              WETH Amount
+              <EthereumLogo className="w-8 h-8" />
+              ETH
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">

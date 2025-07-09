@@ -12,6 +12,8 @@ The KILT Liquidity Incentive Portal is a comprehensive DeFi application that ena
 - **Code Organization**: Systematic codebase cleanup with proper import organization
 - **Visual Enhancements**: Better contrast and visibility for pink KILT logo
 - **Social Media Integration**: Official links to X, GitHub, Discord, Telegram, and Medium
+- **Logo Size Optimization**: Increased logo sizes to w-8 h-8 for better visibility and prominence
+- **Label Simplification**: Changed "KILT Amount" and "ETH Amount" labels to simply "KILT" and "ETH"
 
 ### Key Features Implemented
 1. **Real-time KILT Data**: Live token price and market data integration via CoinGecko API

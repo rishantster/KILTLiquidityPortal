@@ -9,7 +9,7 @@ This is a comprehensive decentralized finance (DeFi) liquidity provisioning port
 ### Core Functionality
 - **Wallet Integration**: MetaMask and mobile wallet support with deep link integration
 - **Liquidity Management**: Full Uniswap V3 NFT position management (mint, increase, decrease, collect, burn)
-- **Reward System**: KILT treasury rewards with time and size multipliers (47.2% base APR)
+- **Reward System**: KILT treasury rewards with Top 100 ranking system (up to 66% APR for rank #1)
 - **Real-time Analytics**: Live KILT token data integration via CoinGecko API
 - **Mobile Optimization**: Responsive design with mobile wallet compatibility
 

@@ -51,7 +51,7 @@ npm install @openzeppelin/contracts
 **Program Parameters:**
 - Total KILT Supply: 290,560,000 tokens
 - Treasury Allocation: 1% (2,905,600 KILT)
-- Base APR: 47.2%
+- Base APR: 66%
 - Program Duration: Configurable (suggested 30-90 days)
 
 ## Deployment Steps

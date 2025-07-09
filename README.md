@@ -6,7 +6,7 @@ A comprehensive DeFi liquidity provisioning portal for the KILT token on Base ne
 
 - **🔗 Multi-Wallet Support**: MetaMask, Trust Wallet, Coinbase Wallet, Rainbow with mobile deep links
 - **💧 Liquidity Management**: Full Uniswap V3 NFT position lifecycle (mint, increase, decrease, collect, burn)
-- **🎁 Smart Contract Rewards**: 47.2% base APR with 90-day token locking and secure treasury distribution
+- **🎁 Smart Contract Rewards**: Up to 66% APR with Top 100 ranking system (rank #1: 66%, rank #50: 33%, rank #100: 0.66%) and 90-day token locking
 - **📊 Advanced Analytics**: Historical position tracking, performance metrics, and fee analysis
 - **📱 Mobile Optimized**: Responsive design with mobile wallet compatibility
 - **⚡ Real-time Data**: Live KILT token data via CoinGecko API integration

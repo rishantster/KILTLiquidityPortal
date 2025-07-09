@@ -101,28 +101,39 @@ export function WalletConnect() {
 
       {/* Mobile Wallet Selection Modal */}
       <Dialog open={showMobileModal} onOpenChange={setShowMobileModal}>
-        <DialogContent className="cluely-card border-white/10 w-[90vw] max-w-md mx-auto my-auto transform-gpu">
-          <DialogHeader>
-            <DialogTitle className="text-white font-semibold">Connect Mobile Wallet</DialogTitle>
+        <DialogContent className="cluely-card border-white/10 w-[90vw] max-w-md mx-auto p-6 rounded-2xl shadow-2xl">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-white font-semibold text-lg text-center">Connect Mobile Wallet</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-gray-400">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-400 text-center mb-4">
               Choose your preferred wallet to connect:
             </p>
-            {mobileWallets.map((wallet, index) => (
-              <Button
-                key={wallet.name}
-                onClick={() => {
-                  openInWallet(wallet);
-                  setTimeout(() => setShowMobileModal(false), 150);
-                }}
-                variant="outline"
-                className="w-full justify-start mobile-wallet-button text-white touch-manipulation"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <span className="font-medium">{wallet.name}</span>
-              </Button>
-            ))}
+            <div className="space-y-3">
+              {mobileWallets.map((wallet, index) => (
+                <Button
+                  key={wallet.name}
+                  onClick={() => {
+                    openInWallet(wallet);
+                    setTimeout(() => setShowMobileModal(false), 200);
+                  }}
+                  variant="outline"
+                  className="w-full justify-start text-white border-white/10 hover:bg-white/10 hover:border-white/20 mobile-wallet-button py-4 text-base font-medium rounded-xl bg-white/5 backdrop-blur-sm"
+                  style={{ 
+                    animationDelay: `${index * 100}ms`,
+                    animation: showMobileModal ? 'slideInUp 0.4s ease-out forwards' : 'none'
+                  }}
+                >
+                  <Wallet className="mr-3 h-5 w-5 text-white/70" />
+                  <span className="font-medium">{wallet.name}</span>
+                </Button>
+              ))}
+            </div>
+            <div className="pt-4 border-t border-white/10">
+              <p className="text-xs text-gray-500 text-center">
+                Don't have a wallet? Download one from the App Store or Google Play.
+              </p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

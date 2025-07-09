@@ -307,7 +307,7 @@ export function MainDashboard() {
                 </div>
                 <h3 className="text-white font-semibold text-lg mb-2">Treasury Rewards</h3>
                 <p className="text-white/60 text-sm font-body">
-                  Earn KILT tokens from treasury allocation with up to 47.2% APR plus time and size multipliers.
+                  Earn up to 66% APR with Top 100 ranking system from 2.9M KILT treasury allocation with 90-day reward locking.
                 </p>
               </Card>
 

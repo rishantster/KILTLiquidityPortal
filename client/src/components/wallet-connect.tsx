@@ -56,7 +56,7 @@ export function WalletConnect() {
     const targetUrl = wallet.needsEncoding ? encodeURIComponent(currentUrl) : currentUrl;
     const walletUrl = wallet.deepLink + targetUrl;
     
-    console.log('Opening wallet deeplink:', walletUrl);
+    // Open wallet deeplink
     window.open(walletUrl, '_blank');
   };
 

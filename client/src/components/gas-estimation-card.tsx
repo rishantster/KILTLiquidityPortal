@@ -190,18 +190,10 @@ export function GasEstimationCard({
           </div>
         </div>
 
-        {/* Additional Operations */}
+        {/* Essential Operations Only */}
         <div className="pt-2 border-t border-white/10">
-          <div className="text-white/60 text-xs mb-2">Other Operations</div>
+          <div className="text-white/60 text-xs mb-2">Common Operations</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-white/50">Increase Liquidity</span>
-              <span className="text-white/70 tabular-nums">${costs.increaseLiquidity.estimatedCostUSD}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/50">Decrease Liquidity</span>
-              <span className="text-white/70 tabular-nums">${costs.decreaseLiquidity.estimatedCostUSD}</span>
-            </div>
             <div className="flex justify-between">
               <span className="text-white/50">Collect Fees</span>
               <span className="text-white/70 tabular-nums">${costs.collect.estimatedCostUSD}</span>

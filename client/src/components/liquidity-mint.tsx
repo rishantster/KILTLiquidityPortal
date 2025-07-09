@@ -134,7 +134,7 @@ export function LiquidityMint() {
           }
         }
       } catch (error) {
-        console.error('Error calculating amounts:', error);
+        // Error calculating amounts
       }
     }
   }, [positionSizePercent, wethBalance, formatTokenAmount, kiltData?.price]);
@@ -166,7 +166,7 @@ export function LiquidityMint() {
             setPositionSizePercent([Math.round(percentageUsed)]);
           }
         } catch (error) {
-          console.error('Error updating slider:', error);
+          // Error updating slider
         }
       }
     }
@@ -198,7 +198,7 @@ export function LiquidityMint() {
               setPositionSizePercent([Math.round(percentageUsed)]);
             }
           } catch (error) {
-            console.error('Error updating slider from WETH:', error);
+            // Error updating slider from WETH
           }
         }
       }

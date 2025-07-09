@@ -186,7 +186,7 @@ export function PoolPerformanceChart({
                       ? 'bg-gradient-to-r from-blue-500/20 to-emerald-500/20 border-blue-500/30' 
                       : 'bg-white/5 border-white/10 hover:bg-white/10'
                   }`}
-                  onClick={() => setActiveChart(key as any)}
+                  onClick={() => setActiveChart(key as keyof typeof chartTypes)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">

@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Slider } from '@/components/ui/slider';
 import { useWallet } from '@/contexts/wallet-context';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
@@ -11,12 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   RefreshCw, 
   TrendingUp, 
-  TrendingDown, 
   Target, 
   AlertTriangle, 
   CheckCircle,
-  Zap,
-  BarChart3,
   Settings,
   Info
 } from 'lucide-react';
@@ -66,11 +62,7 @@ export function LiquidityRebalancing() {
   } = useUniswapV3();
 
   const [selectedStrategy, setSelectedStrategy] = useState<RebalancingStrategy>('balanced');
-  const [customRange, setCustomRange] = useState<number[]>([20]); // ±20% default
-  const [rebalancingPlan, setRebalancingPlan] = useState<RebalancingPlan | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isRebalancing, setIsRebalancing] = useState(false);
-  const [selectedPositions, setSelectedPositions] = useState<Set<bigint>>(new Set());
 
   // Strategy configurations
   const strategies = {

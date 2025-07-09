@@ -5,13 +5,16 @@ import {
   insertUserSchema, 
   insertLpPositionSchema, 
   insertRewardSchema, 
-  insertPoolStatsSchema 
+  insertPoolStatsSchema,
+  insertAppTransactionSchema,
+  insertPositionEligibilitySchema
 } from "@shared/schema";
 import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 import { AnalyticsService } from "./analytics";
 import { rewardService } from "./reward-service";
 import { smartContractService } from "./smart-contract-service";
+import { appTransactionService } from "./app-transaction-service";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -58,7 +61,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create position with automatic reward system integration
+  // App Session Management - Create secure session for transaction tracking
+  app.post("/api/app-sessions/create", async (req, res) => {
+    try {
+      const { userId, userAddress } = req.body;
+      
+      if (!userId || !userAddress) {
+        res.status(400).json({ error: "Missing userId or userAddress" });
+        return;
+      }
+      
+      const userAgent = req.headers['user-agent'] || '';
+      const sessionId = await appTransactionService.createAppSession(userId, userAddress, userAgent);
+      
+      res.json({ 
+        sessionId, 
+        message: "App session created successfully",
+        expiresIn: "24 hours"
+      });
+      
+    } catch (error) {
+      console.error("Failed to create app session:", error);
+      res.status(500).json({ error: "Failed to create app session" });
+    }
+  });
+
+  // Record App Transaction - ONLY way to make positions reward-eligible
+  app.post("/api/app-transactions/record", async (req, res) => {
+    try {
+      const { sessionId, transactionData } = req.body;
+      
+      if (!sessionId || !transactionData) {
+        res.status(400).json({ error: "Missing sessionId or transactionData" });
+        return;
+      }
+      
+      const ipAddress = req.ip || req.connection.remoteAddress;
+      const result = await appTransactionService.recordAppTransaction(
+        sessionId,
+        {
+          ...transactionData,
+          appVersion: "1.0.0",
+          userAgent: req.headers['user-agent'],
+        },
+        ipAddress
+      );
+      
+      if (!result.success) {
+        res.status(400).json({ error: result.error });
+        return;
+      }
+      
+      res.json({ 
+        success: true,
+        transactionId: result.transactionId,
+        message: "Transaction recorded successfully",
+        status: "pending_verification"
+      });
+      
+    } catch (error) {
+      console.error("Failed to record app transaction:", error);
+      res.status(500).json({ error: "Failed to record app transaction" });
+    }
+  });
+
+  // Create position with automatic reward system integration - SECURED VERSION
   app.post("/api/positions/create-with-rewards", async (req, res) => {
     try {
       const { 
@@ -70,15 +137,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxPrice, 
         liquidity, 
         positionValueUSD,
-        userAddress 
+        userAddress,
+        appTransactionId, // Required: Must be from recorded app transaction
+        sessionId // Required: Must be from valid app session
       } = req.body;
       
-      if (!userId || !nftId || !poolAddress || !tokenIds || !positionValueUSD || !userAddress) {
-        res.status(400).json({ error: "Missing required position parameters" });
+      if (!userId || !nftId || !poolAddress || !tokenIds || !positionValueUSD || !userAddress || !appTransactionId || !sessionId) {
+        res.status(400).json({ error: "Missing required position parameters including app verification data" });
         return;
       }
       
-      // Create LP position in database
+      // Validate session
+      const session = appTransactionService.validateSession(sessionId);
+      if (!session) {
+        res.status(403).json({ error: "Invalid or expired session - position not eligible for rewards" });
+        return;
+      }
+      
+      // Create LP position in database with app tracking
       const positionData = {
         userId,
         nftId,
@@ -87,11 +163,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minPrice,
         maxPrice,
         liquidity,
-        isActive: true
+        isActive: true,
+        createdViaApp: true, // Mark as app-created
+        appTransactionHash: "pending", // Will be updated after blockchain verification
+        appSessionId: sessionId,
+        verificationStatus: "pending",
+        rewardEligible: true // Only true for app-created positions
       };
       
       const position = await storage.createLpPosition(positionData);
       const liquidityAddedAt = new Date();
+      
+      // Create position eligibility record
+      const eligibilityCreated = await appTransactionService.createPositionEligibility(
+        position.id,
+        nftId.toString(),
+        appTransactionId,
+        "app_created"
+      );
+      
+      if (!eligibilityCreated) {
+        res.status(400).json({ error: "Failed to create position eligibility - transaction not verified" });
+        return;
+      }
       
       // Add position to smart contract reward system
       const contractResult = await smartContractService.addLiquidityPosition(
@@ -148,6 +242,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(position);
     } catch (error) {
       res.status(500).json({ error: "Failed to update position" });
+    }
+  });
+
+  // App Transaction Security Routes
+  app.get("/api/app-transactions/user/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const transactions = await appTransactionService.getUserAppTransactions(userId);
+      res.json(transactions);
+    } catch (error) {
+      console.error("Failed to get user app transactions:", error);
+      res.status(500).json({ error: "Failed to get user app transactions" });
+    }
+  });
+
+  app.get("/api/positions/eligible/user/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const positions = await appTransactionService.getUserEligiblePositions(userId);
+      res.json(positions);
+    } catch (error) {
+      console.error("Failed to get user eligible positions:", error);
+      res.status(500).json({ error: "Failed to get user eligible positions" });
+    }
+  });
+
+  app.get("/api/positions/:positionId/eligibility/:nftTokenId", async (req, res) => {
+    try {
+      const positionId = parseInt(req.params.positionId);
+      const nftTokenId = req.params.nftTokenId;
+      
+      const isEligible = await appTransactionService.isPositionEligibleForRewards(positionId, nftTokenId);
+      
+      res.json({ 
+        positionId,
+        nftTokenId,
+        isEligible,
+        message: isEligible ? "Position is eligible for rewards" : "Position is NOT eligible for rewards - not created via app"
+      });
+      
+    } catch (error) {
+      console.error("Failed to check position eligibility:", error);
+      res.status(500).json({ error: "Failed to check position eligibility" });
+    }
+  });
+
+  app.get("/api/app-sessions/stats", async (req, res) => {
+    try {
+      const stats = appTransactionService.getSessionStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Failed to get session stats:", error);
+      res.status(500).json({ error: "Failed to get session stats" });
     }
   });
 

@@ -9,7 +9,7 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Uniswap V3 LP positions (NFT-based)
+// Uniswap V3 LP positions (NFT-based) - App-tracked only
 export const lpPositions = pgTable("lp_positions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
@@ -20,6 +20,12 @@ export const lpPositions = pgTable("lp_positions", {
   maxPrice: decimal("max_price", { precision: 18, scale: 8 }).notNull(),
   liquidity: decimal("liquidity", { precision: 18, scale: 8 }).notNull(),
   isActive: boolean("is_active").default(true),
+  // App-specific tracking fields
+  createdViaApp: boolean("created_via_app").default(true).notNull(), // Only true for positions created through our app
+  appTransactionHash: text("app_transaction_hash").notNull(), // Transaction hash from our app
+  appSessionId: text("app_session_id").notNull(), // Unique session ID for validation
+  verificationStatus: text("verification_status").default("pending").notNull(), // pending, verified, rejected
+  rewardEligible: boolean("reward_eligible").default(true).notNull(), // Only true for app-created positions
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -139,6 +145,47 @@ export const performanceMetrics = pgTable("performance_metrics", {
   uniqueConstraint: unique().on(table.positionId, table.date),
 }));
 
+// App-specific transaction tracking for reward eligibility
+export const appTransactions = pgTable("app_transactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  sessionId: text("session_id").notNull(), // Unique session identifier
+  userAddress: text("user_address").notNull(),
+  transactionHash: text("transaction_hash").notNull().unique(),
+  transactionType: text("transaction_type").notNull(), // 'mint', 'increase', 'decrease', 'collect', 'burn'
+  nftTokenId: text("nft_token_id"), // Uniswap V3 NFT token ID (if applicable)
+  poolAddress: text("pool_address").notNull(),
+  amount0: numeric("amount_0", { precision: 20, scale: 8 }),
+  amount1: numeric("amount_1", { precision: 20, scale: 8 }),
+  liquidityAmount: numeric("liquidity_amount", { precision: 30, scale: 0 }),
+  gasUsed: integer("gas_used"),
+  gasPrice: numeric("gas_price", { precision: 20, scale: 0 }),
+  blockNumber: integer("block_number"),
+  verificationStatus: text("verification_status").default("pending").notNull(), // pending, verified, failed
+  appVersion: text("app_version").notNull(), // Version of the app used
+  userAgent: text("user_agent"), // Browser/device info for fraud detection
+  ipAddress: text("ip_address"), // IP address for fraud detection
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  verifiedAt: timestamp("verified_at"),
+}, (table) => ({
+  uniqueSessionTransaction: unique().on(table.sessionId, table.transactionHash),
+}));
+
+// Position reward eligibility tracking
+export const positionEligibility = pgTable("position_eligibility", {
+  id: serial("id").primaryKey(),
+  positionId: integer("position_id").references(() => lpPositions.id).notNull(),
+  nftTokenId: text("nft_token_id").notNull(),
+  appTransactionId: integer("app_transaction_id").references(() => appTransactions.id).notNull(),
+  eligibilityReason: text("eligibility_reason").notNull(), // 'app_created', 'app_increased', 'verified_transaction'
+  isEligible: boolean("is_eligible").default(true).notNull(),
+  eligibilityCheckedAt: timestamp("eligibility_checked_at").defaultNow().notNull(),
+  lastValidationAt: timestamp("last_validation_at").defaultNow().notNull(),
+  notes: text("notes"), // Additional verification notes
+}, (table) => ({
+  uniquePositionEligibility: unique().on(table.positionId, table.nftTokenId),
+}));
+
 export const insertUserSchema = createInsertSchema(users).pick({
   address: true,
 });
@@ -151,6 +198,41 @@ export const insertLpPositionSchema = createInsertSchema(lpPositions).pick({
   minPrice: true,
   maxPrice: true,
   liquidity: true,
+  isActive: true,
+  createdViaApp: true,
+  appTransactionHash: true,
+  appSessionId: true,
+  verificationStatus: true,
+  rewardEligible: true,
+});
+
+export const insertAppTransactionSchema = createInsertSchema(appTransactions).pick({
+  userId: true,
+  sessionId: true,
+  userAddress: true,
+  transactionHash: true,
+  transactionType: true,
+  nftTokenId: true,
+  poolAddress: true,
+  amount0: true,
+  amount1: true,
+  liquidityAmount: true,
+  gasUsed: true,
+  gasPrice: true,
+  blockNumber: true,
+  verificationStatus: true,
+  appVersion: true,
+  userAgent: true,
+  ipAddress: true,
+});
+
+export const insertPositionEligibilitySchema = createInsertSchema(positionEligibility).pick({
+  positionId: true,
+  nftTokenId: true,
+  appTransactionId: true,
+  eligibilityReason: true,
+  isEligible: true,
+  notes: true,
 });
 
 export const insertRewardSchema = createInsertSchema(rewards).pick({

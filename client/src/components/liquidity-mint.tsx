@@ -19,6 +19,7 @@ import {
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useAppSession } from '@/hooks/use-app-session';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
@@ -50,6 +51,7 @@ export function LiquidityMint() {
     parseTokenAmount 
   } = useUniswapV3();
   const { data: kiltData } = useKiltTokenData();
+  const { sessionId, createAppSession, recordAppTransaction, isCreatingSession } = useAppSession();
   const { toast } = useToast();
 
   const [kiltAmount, setKiltAmount] = useState('');

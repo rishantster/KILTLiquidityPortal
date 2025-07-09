@@ -698,7 +698,10 @@ export function MainDashboard() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <AnalyticsDashboard />
+            <AnalyticsDashboard 
+              userId={unifiedData.user?.id || null}
+              selectedPositionId={unifiedData.positions?.[0]?.id || null}
+            />
           </TabsContent>
 
           {/* Rebalancing Tab */}

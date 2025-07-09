@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Wallet } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWallet } from '@/contexts/wallet-context';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -13,9 +13,34 @@ const mobileWallets = [
 ];
 
 export function WalletConnect() {
-  const { address, isConnected, isConnecting, connect, disconnect } = useWallet();
+  const { address, isConnected, isConnecting, connect, disconnect, switchToBase, validateBaseNetwork } = useWallet();
   const [showMobileModal, setShowMobileModal] = useState(false);
+  const [isOnBaseNetwork, setIsOnBaseNetwork] = useState(true);
   const userIsMobile = useIsMobile();
+
+  // Check Base network status
+  useEffect(() => {
+    const checkNetwork = async () => {
+      if (isConnected) {
+        const isOnBase = await validateBaseNetwork();
+        setIsOnBaseNetwork(isOnBase);
+      }
+    };
+    
+    checkNetwork();
+    
+    // Listen for network changes
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
+      const handleChainChanged = () => {
+        checkNetwork();
+      };
+      
+      (window as any).ethereum.on('chainChanged', handleChainChanged);
+      return () => {
+        (window as any).ethereum.removeListener('chainChanged', handleChainChanged);
+      };
+    }
+  }, [isConnected, validateBaseNetwork]);
 
   const handleConnect = () => {
     if (userIsMobile && !(window as any).ethereum) {
@@ -41,6 +66,16 @@ export function WalletConnect() {
         <div className="text-sm text-gray-400">
           {address.slice(0, 6)}...{address.slice(-4)}
         </div>
+        {!isOnBaseNetwork && (
+          <Button 
+            onClick={switchToBase}
+            variant="outline"
+            size="sm"
+            className="border-orange-500/50 text-orange-400 hover:bg-orange-500/10"
+          >
+            Switch to Base
+          </Button>
+        )}
         <Button 
           onClick={disconnect}
           variant="outline"

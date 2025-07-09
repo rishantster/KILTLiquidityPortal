@@ -9,6 +9,8 @@ interface WalletContextType {
   initialized: boolean;
   connect: () => Promise<void>;
   disconnect: () => void;
+  switchToBase: () => Promise<void>;
+  validateBaseNetwork: () => Promise<boolean>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -22,21 +24,21 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Switch to Base network
+  // Switch to Base mainnet network
   const switchToBase = async () => {
     try {
       await (window as any).ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x2105' }], // Base network
+        params: [{ chainId: '0x2105' }], // Base mainnet network (8453)
       });
     } catch (error: any) {
       if (error.code === 4902) {
-        // Chain not added, add it
+        // Chain not added, add Base mainnet
         await (window as any).ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [{
             chainId: '0x2105',
-            chainName: 'Base',
+            chainName: 'Base Mainnet',
             nativeCurrency: {
               name: 'Ethereum',
               symbol: 'ETH',
@@ -46,7 +48,30 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             blockExplorerUrls: ['https://basescan.org'],
           }],
         });
+      } else {
+        throw error;
       }
+    }
+  };
+
+  // Validate that user is on Base mainnet
+  const validateBaseNetwork = async () => {
+    if (!(window as any).ethereum) return false;
+    
+    try {
+      const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+      return chainId === '0x2105';
+    } catch (error) {
+      console.error('Error checking network:', error);
+      return false;
+    }
+  };
+
+  // Force switch to Base mainnet for all operations
+  const ensureBaseNetwork = async () => {
+    const isOnBase = await validateBaseNetwork();
+    if (!isOnBase && isConnected) {
+      await switchToBase();
     }
   };
 
@@ -66,6 +91,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         if (accounts && accounts.length > 0 && !manuallyDisconnected) {
           setAddress(accounts[0]);
           setIsConnected(true);
+          
+          // Check if we're on Base mainnet and switch if needed
+          const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+          if (chainId !== '0x2105') {
+            try {
+              await switchToBase();
+            } catch (error) {
+              console.error('Failed to auto-switch to Base mainnet:', error);
+            }
+          }
         }
       } catch (error) {
         console.error('Error checking wallet connection:', error);
@@ -95,8 +130,27 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    const handleChainChanged = (chainId: string) => {
+    const handleChainChanged = async (chainId: string) => {
       console.log('Network changed to:', chainId);
+      
+      // Force switch to Base mainnet if not already on it
+      if (chainId !== '0x2105' && isConnected) {
+        try {
+          await switchToBase();
+          toast({
+            title: "Switched to Base Mainnet",
+            description: "Automatically switched to Base mainnet for KILT operations.",
+          });
+        } catch (error) {
+          console.error('Failed to switch to Base mainnet:', error);
+          toast({
+            title: "Network Error",
+            description: "Please manually switch to Base mainnet in your wallet.",
+            variant: "destructive",
+          });
+        }
+      }
+      
       // Clear all wallet-related cache when network changes
       queryClient.removeQueries({ queryKey: ['kilt-balance'] });
       queryClient.removeQueries({ queryKey: ['weth-balance'] });
@@ -105,11 +159,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       queryClient.removeQueries({ queryKey: ['pool-data'] });
       queryClient.removeQueries({ queryKey: ['user-positions'] });
       queryClient.removeQueries({ queryKey: ['position-details'] });
-      
-      toast({
-        title: "Network Changed",
-        description: `Switched to network ${chainId}. Refreshing data...`,
-      });
       
       // Trigger re-fetch of all queries
       queryClient.invalidateQueries();
@@ -137,8 +186,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const connect = async () => {
     if (!(window as any).ethereum) {
       toast({
-        title: "MetaMask not found",
-        description: "Please install MetaMask to connect your wallet.",
+        title: "Wallet not found",
+        description: "Please install MetaMask or another Web3 wallet to connect.",
         variant: "destructive",
       });
       return;
@@ -156,12 +205,23 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setIsConnected(true);
         setManuallyDisconnected(false); // Reset flag when manually connecting
         
+        // Force switch to Base mainnet
         await switchToBase();
         
-        toast({
-          title: "Wallet connected",
-          description: "Successfully connected to Base network.",
-        });
+        // Verify we're on Base mainnet
+        const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== '0x2105') {
+          toast({
+            title: "Network Warning",
+            description: "Please switch to Base mainnet in your wallet for full functionality.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Wallet connected",
+            description: "Successfully connected to Base mainnet.",
+          });
+        }
       }
     } catch (error: any) {
       console.error('Error connecting wallet:', error);
@@ -205,6 +265,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         initialized,
         connect,
         disconnect,
+        switchToBase,
+        validateBaseNetwork,
       }}
     >
       {children}

@@ -92,10 +92,10 @@ export function useUniswapV3() {
       queryClient.invalidateQueries({ queryKey: ['kilt-balance'] });
       queryClient.invalidateQueries({ queryKey: ['weth-balance'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Approval Failed",
-        description: error.message || "Failed to approve token",
+        description: error instanceof Error ? error.message : "Failed to approve token",
         variant: "destructive",
       });
     }
@@ -113,10 +113,10 @@ export function useUniswapV3() {
         description: `Transaction submitted: ${hash.slice(0, 8)}...${hash.slice(-6)}`,
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "NFT Approval Failed",
-        description: error.message || "Failed to approve NFT",
+        description: error instanceof Error ? error.message : "Failed to approve NFT",
         variant: "destructive",
       });
     }
@@ -134,10 +134,10 @@ export function useUniswapV3() {
         description: `Transaction submitted: ${hash.slice(0, 8)}...${hash.slice(-6)}`,
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Approval Failed",
-        description: error.message || "Failed to update approval",
+        description: error instanceof Error ? error.message : "Failed to update approval",
         variant: "destructive",
       });
     }
@@ -158,10 +158,10 @@ export function useUniswapV3() {
       queryClient.invalidateQueries({ queryKey: ['uniswap-positions'] });
       queryClient.invalidateQueries({ queryKey: ['kilt-eth-positions'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Mint Failed",
-        description: error.message || "Failed to mint position",
+        description: error instanceof Error ? error.message : "Failed to mint position",
         variant: "destructive",
       });
     }
@@ -223,10 +223,10 @@ export function useUniswapV3() {
       queryClient.invalidateQueries({ queryKey: ['rewards'] });
       queryClient.invalidateQueries({ queryKey: ['user-rewards'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Position Creation Failed",
-        description: error.message || "Failed to create position with rewards",
+        description: error instanceof Error ? error.message : "Failed to create position with rewards",
         variant: "destructive",
       });
     }
@@ -245,10 +245,10 @@ export function useUniswapV3() {
       });
       queryClient.invalidateQueries({ queryKey: ['kilt-eth-positions'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Increase Failed",
-        description: error.message || "Failed to increase liquidity",
+        description: error instanceof Error ? error.message : "Failed to increase liquidity",
         variant: "destructive",
       });
     }
@@ -267,10 +267,10 @@ export function useUniswapV3() {
       });
       queryClient.invalidateQueries({ queryKey: ['kilt-eth-positions'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Decrease Failed",
-        description: error.message || "Failed to decrease liquidity",
+        description: error instanceof Error ? error.message : "Failed to decrease liquidity",
         variant: "destructive",
       });
     }
@@ -291,10 +291,10 @@ export function useUniswapV3() {
       queryClient.invalidateQueries({ queryKey: ['kilt-balance'] });
       queryClient.invalidateQueries({ queryKey: ['weth-balance'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Collection Failed",
-        description: error.message || "Failed to collect fees",
+        description: error instanceof Error ? error.message : "Failed to collect fees",
         variant: "destructive",
       });
     }
@@ -314,10 +314,10 @@ export function useUniswapV3() {
       queryClient.invalidateQueries({ queryKey: ['uniswap-positions'] });
       queryClient.invalidateQueries({ queryKey: ['kilt-eth-positions'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Burn Failed",
-        description: error.message || "Failed to burn position",
+        description: error instanceof Error ? error.message : "Failed to burn position",
         variant: "destructive",
       });
     }

@@ -224,7 +224,11 @@ export function LiquidityRebalancing() {
       });
 
       // Refresh analysis after rebalancing
-      await analyzePositions();
+      try {
+        await analyzePositions();
+      } catch {
+        // Silently handle analysis errors
+      }
 
     } catch (error) {
       // Rebalancing failed
@@ -241,7 +245,9 @@ export function LiquidityRebalancing() {
   // Auto-analyze when strategy changes
   useEffect(() => {
     if (isConnected && kiltEthPositions && poolData && currentPrice > 0) {
-      analyzePositions();
+      analyzePositions().catch(() => {
+        // Silently handle analysis errors
+      });
     }
   }, [selectedStrategy, customRange, kiltEthPositions, poolData, isConnected, currentPrice]);
 

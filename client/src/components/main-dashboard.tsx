@@ -423,48 +423,48 @@ export function MainDashboard() {
 
         {/* Clean Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-14 gap-1">
+          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12 sm:h-14 gap-1">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-3 py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm text-label truncate">Over</span>
+              <span className="text-xs sm:text-sm text-label truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-3 py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm text-label truncate">Add</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-3 py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm text-label truncate">Rwd</span>
+              <span className="text-xs sm:text-sm text-label truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-3 py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm text-label truncate">Pos</span>
+              <span className="text-xs sm:text-sm text-label truncate">Positions</span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-3 py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm text-label truncate">Ana</span>
+              <span className="text-xs sm:text-sm text-label truncate">Analytics</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rebalancing" 
-              className="data-[state=active]:bg-orange-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-3 py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-orange-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm text-label truncate">Bal</span>
+              <span className="text-xs sm:text-sm text-label truncate">Rebalance</span>
             </TabsTrigger>
           </TabsList>
 

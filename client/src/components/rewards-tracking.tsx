@@ -117,11 +117,11 @@ export function RewardsTracking() {
     }
   });
 
-  const totalClaimableAmount = claimableRewards?.reduce((total: number, reward: any) => {
+  const totalClaimableAmount = Array.isArray(claimableRewards) ? claimableRewards.reduce((total: number, reward: any) => {
     const accumulated = Number(reward.accumulatedAmount);
     const claimed = Number(reward.claimedAmount || 0);
     return total + (accumulated - claimed);
-  }, 0) || 0;
+  }, 0) : 0;
 
   if (!isConnected) {
     return (

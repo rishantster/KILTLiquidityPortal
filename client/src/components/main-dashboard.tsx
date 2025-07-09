@@ -29,6 +29,7 @@ import { UserPositions } from './user-positions';
 import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnect } from './wallet-connect';
 import { GasEstimationCard } from './gas-estimation-card';
+import { LiquidityRebalancing } from './liquidity-rebalancing';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
@@ -420,7 +421,7 @@ export function MainDashboard() {
 
         {/* Clean Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12">
+          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12">
             <TabsTrigger 
               value="overview" 
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
@@ -455,6 +456,13 @@ export function MainDashboard() {
             >
               <BarChart3 className="h-4 w-4 mr-1.5" />
               <span className="text-label">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rebalancing" 
+              className="data-[state=active]:bg-orange-600 data-[state=active]:text-white text-gray-400 rounded-lg text-sm font-medium transition-all"
+            >
+              <Target className="h-4 w-4 mr-1.5" />
+              <span className="text-label">Rebalance</span>
             </TabsTrigger>
           </TabsList>
 
@@ -687,6 +695,11 @@ export function MainDashboard() {
           {/* Analytics Tab */}
           <TabsContent value="analytics">
             <AnalyticsDashboard />
+          </TabsContent>
+
+          {/* Rebalancing Tab */}
+          <TabsContent value="rebalancing">
+            <LiquidityRebalancing />
           </TabsContent>
         </Tabs>
       </div>

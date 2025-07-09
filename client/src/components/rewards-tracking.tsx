@@ -278,8 +278,8 @@ export function RewardsTracking() {
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center space-x-2 text-white font-heading">
-              <TrendingUp className="h-5 w-5 text-purple-400" />
-              <span>Bonding Curve Analytics</span>
+              <TrendingUp className="h-5 w-5 text-emerald-400" />
+              <span>Top 100 Analytics</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -317,9 +317,9 @@ export function RewardsTracking() {
                 </div>
               </div>
 
-              <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+              <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                 <div className="flex items-start gap-2">
-                  <TrendingUp className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <TrendingUp className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-white/70">
                     <strong>Top 100 Ranking:</strong> Only the top 100 participants by liquidity value earn rewards, with APR decreasing by rank (1-100). 
                     Currently {top100Analytics?.top100Participants || 0} out of 100 slots filled with {top100Analytics?.activeParticipants || 0} total active participants.

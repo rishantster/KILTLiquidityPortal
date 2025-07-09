@@ -10,15 +10,13 @@ import {
   BarChart3, 
   Coins, 
   Award,
-  Activity,
-  Target,
   Wallet,
   Plus,
   Loader2,
   CheckCircle2,
   ArrowRight,
-  Users,
-  ExternalLink
+  ExternalLink,
+  Target
 } from 'lucide-react';
 
 // Components
@@ -74,27 +72,21 @@ export function MainDashboard() {
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const { toast } = useToast();
 
-  // Logo animation timing
+  // Optimize effects - combine network check and animation
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Logo animation timing
+    const logoTimer = setTimeout(() => {
       setLogoAnimationComplete(true);
-    }, 800); // Match the animation duration
-    return () => clearTimeout(timer);
-  }, []);
+    }, 800);
 
-  // Check Base network connection
-  useEffect(() => {
+    // Check Base network connection
     const checkBaseNetwork = async () => {
       if (window.ethereum && isConnected) {
         try {
           const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-          console.log('Current chain ID:', chainId);
-          // Base mainnet chain ID is 0x2105 (8453 in decimal)
           const isBase = chainId === '0x2105';
-          console.log('Is Base network:', isBase);
           setIsBaseNetworkConnected(isBase);
         } catch (error) {
-          console.error('Error checking network:', error);
           setIsBaseNetworkConnected(false);
         }
       } else {
@@ -106,25 +98,17 @@ export function MainDashboard() {
     
     // Listen for network changes
     if (window.ethereum) {
-      const handleChainChanged = (chainId: string) => {
-        console.log('Network changed to:', chainId);
-        checkBaseNetwork();
-      };
-      
+      const handleChainChanged = () => checkBaseNetwork();
       window.ethereum.on('chainChanged', handleChainChanged);
+      
       return () => {
+        clearTimeout(logoTimer);
         window.ethereum.removeListener('chainChanged', handleChainChanged);
       };
     }
+    
+    return () => clearTimeout(logoTimer);
   }, [isConnected]);
-
-  // Debug wallet state
-  console.log('MainDashboard - Wallet State:', { address, isConnected, initialized });
-
-  // Force component re-render when wallet state changes
-  useEffect(() => {
-    console.log('MainDashboard - Wallet state changed:', { address, isConnected, initialized });
-  }, [address, isConnected, initialized]);
 
   // Helper function to convert wei to human-readable amounts
   const formatTokenBalance = (balance: bigint | undefined): string => {

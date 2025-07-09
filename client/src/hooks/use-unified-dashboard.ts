@@ -101,10 +101,9 @@ export function useUnifiedDashboard() {
             totalLiquidity: 0,
             activeParticipants: 0,
             top100Participants: 0,
-            estimatedAPR: { rank1: 66, rank50: 33, rank100: 0.66 },
+            estimatedAPR: { rank1: 0, rank50: 0, rank100: 0 },
             treasuryRemaining: 2905600,
-            daysRemaining: 365,
-            dailyDistribution: 7960
+            avgUserLiquidity: 0
           };
         }
         return response.json();
@@ -113,14 +112,15 @@ export function useUnifiedDashboard() {
           totalLiquidity: 0,
           activeParticipants: 0,
           top100Participants: 0,
-          estimatedAPR: { rank1: 66, rank50: 33, rank100: 0.66 },
+          estimatedAPR: { rank1: 0, rank50: 0, rank100: 0 },
           treasuryRemaining: 2905600,
-          daysRemaining: 365,
-          dailyDistribution: 7960
+          avgUserLiquidity: 0
         };
       }
     },
-    refetchInterval: 30000 // Refresh every 30 seconds
+    enabled: !!address && isConnected,
+    refetchInterval: 60000, // Reduce frequency to improve performance
+    staleTime: 30000 // Cache for 30 seconds
   });
 
   // Get user analytics dashboard

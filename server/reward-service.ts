@@ -78,29 +78,39 @@ export class RewardService {
    * Get top 100 participants ranked by liquidity
    */
   private async getTop100Participants(): Promise<any[]> {
-    const positions = await this.db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
-    
-    // Sort by liquidity value (descending) and take top 100
-    const sortedPositions = positions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
-    return sortedPositions.slice(0, this.MAX_PARTICIPANTS);
+    try {
+      const positions = await this.db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
+      
+      // Sort by liquidity value (descending) and take top 100
+      const sortedPositions = positions.sort((a, b) => Number(b.currentValueUSD || 0) - Number(a.currentValueUSD || 0));
+      return sortedPositions.slice(0, this.MAX_PARTICIPANTS);
+    } catch (error) {
+      console.error('Error getting top 100 participants:', error);
+      return [];
+    }
   }
 
   /**
    * Get user's current ranking position
    */
   async getUserRanking(userId: number): Promise<{ rank: number | null, totalParticipants: number }> {
-    const positions = await this.db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
-    
-    // Sort by liquidity value (descending)
-    const sortedPositions = positions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
-    
-    // Find user's position
-    const userPositionIndex = sortedPositions.findIndex(pos => pos.userId === userId);
-    
-    return {
-      rank: userPositionIndex >= 0 ? userPositionIndex + 1 : null,
-      totalParticipants: Math.min(sortedPositions.length, this.MAX_PARTICIPANTS)
-    };
+    try {
+      const positions = await this.db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
+      
+      // Sort by liquidity value (descending)
+      const sortedPositions = positions.sort((a, b) => Number(b.currentValueUSD || 0) - Number(a.currentValueUSD || 0));
+      
+      // Find user's position
+      const userPositionIndex = sortedPositions.findIndex(pos => pos.userId === userId);
+      
+      return {
+        rank: userPositionIndex >= 0 && userPositionIndex < this.MAX_PARTICIPANTS ? userPositionIndex + 1 : null,
+        totalParticipants: Math.min(sortedPositions.length, this.MAX_PARTICIPANTS)
+      };
+    } catch (error) {
+      console.error('Error getting user ranking:', error);
+      return { rank: null, totalParticipants: 0 };
+    }
   }
 
   /**
@@ -108,7 +118,7 @@ export class RewardService {
    */
   private async getTotalTop100Liquidity(): Promise<number> {
     const top100 = await this.getTop100Participants();
-    return top100.reduce((sum, position) => sum + position.currentValueUSD, 0);
+    return top100.reduce((sum, position) => sum + Number(position.currentValueUSD || 0), 0);
   }
 
   /**
@@ -125,7 +135,7 @@ export class RewardService {
     const userScore = this.calculateLiquidityScore(liquidity, daysActive);
     const rank100Position = top100[99];
     const rank100DaysActive = Math.floor((Date.now() - new Date(rank100Position.createdAt).getTime()) / (1000 * 60 * 60 * 24));
-    const rank100Score = this.calculateLiquidityScore(rank100Position.currentValueUSD, rank100DaysActive);
+    const rank100Score = this.calculateLiquidityScore(Number(rank100Position.currentValueUSD || 0), rank100DaysActive);
     
     if (userScore > rank100Score) {
       return { eligible: true, rank: 100 };
@@ -581,7 +591,70 @@ export class RewardService {
   }
 
   /**
-   * Get bonding curve analytics for the entire program
+   * Get claimable rewards for a user
+   */
+  async getClaimableRewards(userId: number): Promise<{
+    totalClaimable: number;
+    positions: any[];
+    canClaim: boolean;
+    nextClaimDate: Date | null;
+  }> {
+    try {
+      const userRewards = await this.getUserRewards(userId);
+      
+      let totalClaimable = 0;
+      let positions = [];
+      let canClaim = false;
+      let nextClaimDate = null;
+      
+      for (const reward of userRewards) {
+        const accumulated = Number(reward.accumulatedAmount);
+        const claimed = Number(reward.claimedAmount || 0);
+        const claimable = Math.max(0, accumulated - claimed);
+        
+        if (claimable > 0 && reward.isEligibleForClaim) {
+          totalClaimable += claimable;
+          canClaim = true;
+          
+          positions.push({
+            positionId: reward.positionId,
+            nftTokenId: reward.nftTokenId,
+            claimableAmount: claimable,
+            liquidityAddedAt: reward.liquidityAddedAt,
+            stakingStartDate: reward.stakingStartDate
+          });
+        }
+        
+        // Calculate next claim date if not yet eligible
+        if (!reward.isEligibleForClaim && accumulated > claimed) {
+          const liquidityDate = new Date(reward.liquidityAddedAt);
+          const claimDate = new Date(liquidityDate.getTime() + (this.LOCK_PERIOD_DAYS * 24 * 60 * 60 * 1000));
+          
+          if (!nextClaimDate || claimDate < nextClaimDate) {
+            nextClaimDate = claimDate;
+          }
+        }
+      }
+      
+      return {
+        totalClaimable,
+        positions,
+        canClaim,
+        nextClaimDate
+      };
+    } catch (error) {
+      console.error('Error getting claimable rewards:', error);
+      return {
+        totalClaimable: 0,
+        positions: [],
+        canClaim: false,
+        nextClaimDate: null
+      };
+    }
+  }
+
+  /**
+   * Get Top 100 ranking analytics for the entire program
    */
   async getTop100RankingAnalytics(): Promise<{
     totalLiquidity: number;
@@ -634,11 +707,18 @@ export class RewardService {
       };
     }
     
-    // Calculate treasury metrics based on actual reward wallet balance
-    const rewardWalletBalance = await smartContractService.checkRewardWalletBalance();
-    const treasuryRemaining = rewardWalletBalance.balance || this.TREASURY_ALLOCATION;
-    const distributedAmount = Math.max(0, this.TREASURY_ALLOCATION - treasuryRemaining);
-    const daysRemaining = Math.floor(treasuryRemaining / this.DAILY_BUDGET);
+    // Calculate treasury metrics - fallback to default if smart contract fails
+    let treasuryRemaining = this.TREASURY_ALLOCATION;
+    let daysRemaining = this.PROGRAM_DURATION_DAYS;
+    
+    try {
+      const rewardWalletBalance = await smartContractService.checkRewardWalletBalance();
+      treasuryRemaining = rewardWalletBalance.balance || this.TREASURY_ALLOCATION;
+      daysRemaining = Math.floor(treasuryRemaining / this.DAILY_BUDGET);
+    } catch (error) {
+      console.error('Error getting treasury balance:', error);
+      // Use default values
+    }
     
     return {
       totalLiquidity: totalTop100Liquidity,

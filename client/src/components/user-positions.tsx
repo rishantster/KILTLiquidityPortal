@@ -57,11 +57,9 @@ export function UserPositions() {
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
 
-  // Logo animation timing
+  // Logo animation timing - optimize with single effect
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLogoAnimationComplete(true);
-    }, 800); // Match the animation duration
+    const timer = setTimeout(() => setLogoAnimationComplete(true), 800);
     return () => clearTimeout(timer);
   }, []);
   
@@ -90,11 +88,9 @@ export function UserPositions() {
     isPositionInRange
   } = useUniswapV3();
 
-  // Safe BigInt renderer to prevent React errors
-  const safeBigIntRender = (value: bigint | number | string) => {
-    if (typeof value === 'bigint') return value.toString();
-    return value?.toString() || '0';
-  };
+  // Optimized BigInt renderer
+  const safeBigIntRender = (value: bigint | number | string) => 
+    typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
   // Use real positions from connected wallet only
   const allKiltEthPositions = realKiltEthPositions || [];

@@ -49,7 +49,7 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
       <Card className="cluely-card rounded-2xl">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center space-x-2 text-white font-heading">
-            <BarChart3 className="h-6 w-6 text-purple-400" />
+            <BarChart3 className="h-6 w-6 text-emerald-400" />
             <span>Position Analytics</span>
           </CardTitle>
         </CardHeader>
@@ -95,7 +95,7 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-white/60">Time in Range</span>
-                      <span className="font-bold tabular-nums text-purple-400">
+                      <span className="font-bold tabular-nums text-emerald-400">
                         {(parseFloat(latestPerformance.timeInRange) * 100).toFixed(1)}%
                       </span>
                     </div>

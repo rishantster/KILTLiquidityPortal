@@ -174,7 +174,7 @@ export function MainDashboard() {
     const totalValue = (optimalKilt * currentPrice + optimalWeth) * 2500; // Assuming ETH ~$2500
     
     return {
-      kiltAmount: Math.floor(optimalKilt).toString(),
+      kiltAmount: optimalKilt.toFixed(2),
       wethAmount: optimalWeth.toFixed(6),
       totalValue: totalValue.toFixed(2)
     };
@@ -594,7 +594,7 @@ export function MainDashboard() {
                     </div>
                     {(() => {
                       const amounts = calculateOptimalAmounts();
-                      const hasInsufficientBalance = amounts.kiltAmount === '0' || amounts.wethAmount === '0';
+                      const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
                       
                       if (hasInsufficientBalance) {
                         return (
@@ -634,7 +634,7 @@ export function MainDashboard() {
                 {/* Action Button */}
                 {(() => {
                   const amounts = calculateOptimalAmounts();
-                  const hasInsufficientBalance = amounts.kiltAmount === '0' || amounts.wethAmount === '0';
+                  const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
                   const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
                   
                   return (

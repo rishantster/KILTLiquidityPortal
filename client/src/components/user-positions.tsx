@@ -26,7 +26,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
@@ -53,6 +53,15 @@ export function UserPositions() {
   const [amount0, setAmount0] = useState('');
   const [amount1, setAmount1] = useState('');
   const [showClosedPositions, setShowClosedPositions] = useState(false);
+  const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
+
+  // Logo animation timing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLogoAnimationComplete(true);
+    }, 800); // Match the animation duration
+    return () => clearTimeout(timer);
+  }, []);
   
   // KILT data hook
   const { data: kiltData } = useKiltTokenData();

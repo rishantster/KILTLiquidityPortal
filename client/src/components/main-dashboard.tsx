@@ -58,7 +58,16 @@ export function MainDashboard() {
   const { kiltBalance, wethBalance } = useUniswapV3();
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
+  const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const { toast } = useToast();
+
+  // Logo animation timing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLogoAnimationComplete(true);
+    }, 800); // Match the animation duration
+    return () => clearTimeout(timer);
+  }, []);
 
   // Debug wallet state
   console.log('MainDashboard - Wallet State:', { address, isConnected, initialized });
@@ -402,8 +411,12 @@ export function MainDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* KILT Price */}
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <img src={kiltLogo} alt="KILT" className="w-12 h-12" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3 logo-container logo-shimmer">
+                    <img 
+                      src={kiltLogo} 
+                      alt="KILT" 
+                      className={`w-12 h-12 logo-hover ${!logoAnimationComplete ? 'logo-reveal' : 'logo-pulse'}`}
+                    />
                   </div>
                   <p className="text-white/70 text-sm mb-1 text-label">KILT Price</p>
                   <p className="text-white font-bold text-xl text-numbers">
@@ -484,7 +497,11 @@ export function MainDashboard() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                          <img 
+                            src={kiltLogo} 
+                            alt="KILT" 
+                            className={`w-5 h-5 logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-1' : 'logo-pulse'}`}
+                          />
                           <span className="text-white/70 text-sm text-body">KILT:</span>
                         </div>
                         <span className="text-white font-bold text-numbers">
@@ -529,7 +546,11 @@ export function MainDashboard() {
                           </div>
                           <div className="flex items-center justify-center space-x-4 text-white/60 text-xs text-body">
                             <div className="flex items-center space-x-1">
-                              <img src={kiltLogo} alt="KILT" className="w-3 h-3 align-middle" />
+                              <img 
+                                src={kiltLogo} 
+                                alt="KILT" 
+                                className={`w-3 h-3 align-middle logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-2' : 'logo-pulse'}`}
+                              />
                               <span>{amounts.kiltAmount} KILT</span>
                             </div>
                             <span>+</span>

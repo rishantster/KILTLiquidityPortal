@@ -56,6 +56,15 @@ export function LiquidityMint() {
   const [wethAmount, setWethAmount] = useState('');
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
   const [selectedStrategy, setSelectedStrategy] = useState('narrow');
+  const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
+
+  // Logo animation timing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLogoAnimationComplete(true);
+    }, 800); // Match the animation duration
+    return () => clearTimeout(timer);
+  }, []);
 
   // Price range strategies
   const priceStrategies = [
@@ -358,7 +367,11 @@ export function LiquidityMint() {
         <Card className="cluely-card rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-white text-lg flex items-center gap-2">
-              <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
+              <img 
+                src={kiltLogo} 
+                alt="KILT" 
+                className={`w-8 h-8 logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-1' : 'logo-pulse'}`}
+              />
               KILT
             </CardTitle>
           </CardHeader>
@@ -373,7 +386,11 @@ export function LiquidityMint() {
             />
             <div className="flex justify-between text-sm">
               <span className="text-white/60">
-                Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img src={kiltLogo} alt="KILT" className="w-3 h-3" />KILT</span>
+                Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img 
+                  src={kiltLogo} 
+                  alt="KILT" 
+                  className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-2' : 'logo-pulse'}`}
+                />KILT</span>
               </span>
               <Button
                 variant="ghost"

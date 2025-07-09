@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -56,6 +56,15 @@ export function RewardsTracking() {
   const { data: kiltData } = useKiltTokenData();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
+
+  // Logo animation timing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLogoAnimationComplete(true);
+    }, 1200); // Match the large logo animation duration
+    return () => clearTimeout(timer);
+  }, []);
 
   // Get user from address
   const { data: user } = useQuery({
@@ -236,7 +245,13 @@ export function RewardsTracking() {
               <div className="text-white/60 text-sm mb-2 font-medium">Available to Claim</div>
               <div className="text-white text-3xl font-bold tabular-nums mb-4 flex items-center justify-center gap-1">
                 {totalClaimableAmount.toFixed(2)} 
-                <img src={kiltLogo} alt="KILT" className="h-[3em] w-auto inline-block" />
+                <div className="logo-container">
+                  <img 
+                    src={kiltLogo} 
+                    alt="KILT" 
+                    className={`h-[3em] w-auto inline-block logo-hover ${!logoAnimationComplete ? 'logo-reveal-large' : 'logo-float'}`}
+                  />
+                </div>
                 <span>KILT</span>
               </div>
               

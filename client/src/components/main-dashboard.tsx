@@ -288,8 +288,8 @@ export function MainDashboard() {
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
-              <img src={kiltLogo} alt="KILT" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
+              <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
             </div>
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-white truncate">KILT Liquidity Portal</h1>

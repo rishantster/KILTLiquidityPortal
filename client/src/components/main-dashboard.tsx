@@ -21,22 +21,24 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-// Import critical components
+// Components
 import { LiquidityMint } from './liquidity-mint';
 import { RewardsTracking } from './rewards-tracking';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { UserPositions } from './user-positions';
 import { UserPersonalAPR } from './user-personal-apr';
-
 import { WalletConnect } from './wallet-connect';
+import { GasEstimationCard } from './gas-estimation-card';
+
+// Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
-import { GasEstimationCard } from './gas-estimation-card';
+
+// Assets and icons
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
-// Using pink KILT logo for all instances
 
 // Ethereum logo component
 const EthereumLogo = ({ className = "w-5 h-5" }) => (
@@ -49,8 +51,6 @@ const EthereumLogo = ({ className = "w-5 h-5" }) => (
     <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
   </svg>
 );
-
-
 
 export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();

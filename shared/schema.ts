@@ -2,12 +2,14 @@ import { pgTable, text, serial, decimal, timestamp, integer, boolean, date, nume
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Core user table - EVM wallet addresses
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   address: text("address").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Uniswap V3 LP positions (NFT-based)
 export const lpPositions = pgTable("lp_positions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
@@ -21,6 +23,7 @@ export const lpPositions = pgTable("lp_positions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// KILT treasury reward system with Top 100 ranking
 export const rewards = pgTable("rewards", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
@@ -39,6 +42,7 @@ export const rewards = pgTable("rewards", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Real-time pool statistics
 export const poolStats = pgTable("pool_stats", {
   id: serial("id").primaryKey(),
   poolAddress: text("pool_address").notNull(),

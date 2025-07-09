@@ -85,8 +85,10 @@ export function MainDashboard() {
       if (window.ethereum && isConnected) {
         try {
           const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          console.log('Current chain ID:', chainId);
           // Base mainnet chain ID is 0x2105 (8453 in decimal)
           const isBase = chainId === '0x2105';
+          console.log('Is Base network:', isBase);
           setIsBaseNetworkConnected(isBase);
         } catch (error) {
           console.error('Error checking network:', error);
@@ -101,7 +103,8 @@ export function MainDashboard() {
     
     // Listen for network changes
     if (window.ethereum) {
-      const handleChainChanged = () => {
+      const handleChainChanged = (chainId: string) => {
+        console.log('Network changed to:', chainId);
         checkBaseNetwork();
       };
       
@@ -396,15 +399,15 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <Badge 
-              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-lg transition-all duration-200 ${
-                isBaseNetworkConnected 
+              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 ${
+                isConnected && isBaseNetworkConnected 
                   ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' 
                   : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
               }`}
             >
               <BaseLogo className="w-4 h-4 mr-1.5" />
               Base Network
-              {isBaseNetworkConnected && (
+              {isConnected && isBaseNetworkConnected && (
                 <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
               )}
             </Badge>

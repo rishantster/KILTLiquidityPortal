@@ -436,7 +436,7 @@ export function MainDashboard() {
               className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm text-label truncate">Add</span>
+              <span className="text-xs sm:text-sm text-label truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 

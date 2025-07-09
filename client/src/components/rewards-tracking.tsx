@@ -249,7 +249,7 @@ export function RewardsTracking() {
                   <img 
                     src={kiltLogo} 
                     alt="KILT" 
-                    className={`h-[3em] w-auto inline-block logo-hover ${!logoAnimationComplete ? 'logo-reveal-large' : 'logo-float'}`}
+                    className={`h-[3em] w-auto inline-block logo-hover ${!logoAnimationComplete ? 'logo-reveal-large-enhanced' : 'logo-float logo-glow'}`}
                   />
                 </div>
                 <span>KILT</span>

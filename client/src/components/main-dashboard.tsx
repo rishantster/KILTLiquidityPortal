@@ -500,7 +500,7 @@ export function MainDashboard() {
                           <img 
                             src={kiltLogo} 
                             alt="KILT" 
-                            className={`w-5 h-5 logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-1' : 'logo-pulse'}`}
+                            className={`w-5 h-5 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
                           />
                           <span className="text-white/70 text-sm text-body">KILT:</span>
                         </div>
@@ -549,7 +549,7 @@ export function MainDashboard() {
                               <img 
                                 src={kiltLogo} 
                                 alt="KILT" 
-                                className={`w-3 h-3 align-middle logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-2' : 'logo-pulse'}`}
+                                className={`w-3 h-3 align-middle logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
                               />
                               <span>{amounts.kiltAmount} KILT</span>
                             </div>

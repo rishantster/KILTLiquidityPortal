@@ -370,7 +370,7 @@ export function LiquidityMint() {
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className={`w-8 h-8 logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-1' : 'logo-pulse'}`}
+                className={`w-8 h-8 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
               />
               KILT
             </CardTitle>
@@ -389,7 +389,7 @@ export function LiquidityMint() {
                 Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img 
                   src={kiltLogo} 
                   alt="KILT" 
-                  className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal logo-reveal-delay-2' : 'logo-pulse'}`}
+                  className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
                 />KILT</span>
               </span>
               <Button

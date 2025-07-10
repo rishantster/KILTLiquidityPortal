@@ -535,21 +535,23 @@ export function MainDashboard() {
             {/* Two Column Layout - Balanced */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
-              <div>
+              <div className="h-full">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
                   <Plus className="h-4 w-4 text-emerald-400" />
                   Register Existing Positions
                 </h2>
-                <PositionRegistration />
+                <div className="h-[440px]">
+                  <PositionRegistration />
+                </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div>
+              <div className="h-full">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
                   <Zap className="h-4 w-4 text-emerald-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl min-h-[400px] flex flex-col">
+                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl h-[440px] flex flex-col">
                   <CardContent className="p-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-8 flex-1">
                       {/* Balance Display */}

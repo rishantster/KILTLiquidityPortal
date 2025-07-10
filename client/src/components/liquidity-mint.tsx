@@ -458,10 +458,10 @@ export function LiquidityMint() {
       {/* Side-by-Side Layout for Price Range Strategy and Transaction Cost */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Ultra Compact Price Range Strategy */}
-        <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
+        <Card className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border-pink-500/20 rounded-lg">
           <CardHeader className="pb-1">
             <CardTitle className="text-white text-sm flex items-center gap-1">
-              <Zap className="h-3 w-3 text-yellow-400" />
+              <Zap className="h-3 w-3 text-pink-400" />
               Price Range Strategy
             </CardTitle>
           </CardHeader>
@@ -472,10 +472,10 @@ export function LiquidityMint() {
                 <Button
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className={`h-16 p-1.5 flex-col items-start w-full relative transition-all duration-300 ${
+                  className={`h-16 p-1.5 flex-col items-start w-full relative transition-all duration-300 rounded-lg overflow-hidden ${
                     selectedStrategy === strategy.id 
-                      ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg' 
-                      : 'hover:bg-yellow-500/10 hover:border-yellow-500/50'
+                      ? 'bg-pink-500 hover:bg-pink-600 shadow-lg border-pink-500' 
+                      : 'hover:bg-pink-500/10 hover:border-pink-500/50'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-0.5">
@@ -498,9 +498,9 @@ export function LiquidityMint() {
           </div>
           
           {/* Ultra Compact Selected Range Display */}
-          <div className="p-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+          <div className="p-2 bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-lg border border-pink-500/20">
             <div className="flex items-center gap-1 mb-2">
-              <Info className="h-3 w-3 text-yellow-400" />
+              <Info className="h-3 w-3 text-pink-400" />
               <span className="text-white font-bold text-xs">Selected Range</span>
             </div>
             

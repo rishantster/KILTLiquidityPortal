@@ -452,20 +452,15 @@ export function LiquidityMint() {
                   onClick={() => setSelectedStrategy(strategy.id)}
                   className="h-auto p-3 flex-col items-start w-full relative"
                 >
-                  <span className="font-semibold">{strategy.label}</span>
-                  {strategy.recommended && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-2 h-2 text-white" />
-                    </div>
-                  )}
-                </Button>
-                {strategy.recommended && (
-                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full">
-                    <div className="bg-emerald-500 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap">
-                      Recommended
-                    </div>
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-semibold">{strategy.label}</span>
+                    {strategy.recommended && (
+                      <div className="ml-2 px-1.5 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-medium">
+                        ✓
+                      </div>
+                    )}
                   </div>
-                )}
+                </Button>
               </div>
             ))}
           </div>

@@ -19,6 +19,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Slider } from '@/components/ui/slider';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Rebalancing strategy types

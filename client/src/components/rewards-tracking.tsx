@@ -311,7 +311,7 @@ export function RewardsTracking() {
                 <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                   <div className="text-emerald-400 text-xs mb-1 font-medium">Your Current APR</div>
                   <div className="text-2xl font-bold tabular-nums text-emerald-100">
-                    {unifiedData?.personalAPR?.toFixed(1) || '15.0'}%
+                    {(unifiedData?.personalAPR && typeof unifiedData.personalAPR === 'number') ? unifiedData.personalAPR.toFixed(1) : '15.0'}%
                   </div>
                   <div className="text-emerald-300 text-xs mt-1">
                     {unifiedData?.userRank ? `Rank #${unifiedData.userRank} of ${unifiedData.totalParticipants}` : 'Based on liquidity share'}

@@ -455,71 +455,71 @@ export function LiquidityMint() {
         </Card>
       </div>
 
-      {/* Compact Price Range Strategy */}
+      {/* Ultra Compact Price Range Strategy */}
       <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Zap className="h-5 w-5 text-yellow-400" />
+        <CardHeader className="pb-1">
+          <CardTitle className="text-white text-sm flex items-center gap-1">
+            <Zap className="h-3 w-3 text-yellow-400" />
             Price Range Strategy
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 p-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <CardContent className="space-y-2 p-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-1">
             {priceStrategies.map((strategy) => (
               <div key={strategy.id} className="relative">
                 <Button
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className={`h-auto p-3 flex-col items-start w-full relative transition-all duration-300 ${
+                  className={`h-auto p-2 flex-col items-start w-full relative transition-all duration-300 ${
                     selectedStrategy === strategy.id 
                       ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg' 
                       : 'hover:bg-yellow-500/10 hover:border-yellow-500/50'
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full mb-1">
-                    <span className="font-bold text-sm">{strategy.label}</span>
+                  <div className="flex items-center justify-between w-full mb-0.5">
+                    <span className="font-bold text-xs">{strategy.label}</span>
                     {strategy.recommended && (
-                      <div className="ml-1 px-1 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold">
+                      <div className="ml-1 px-0.5 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold">
                         ✓
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-left opacity-80">{strategy.description}</p>
+                  <p className="text-xs text-left opacity-80">{strategy.description.substring(0, 20)}...</p>
                 </Button>
               </div>
             ))}
           </div>
           
-          {/* Compact Selected Range Display */}
-          <div className="p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
-            <div className="flex items-center gap-2 mb-4">
-              <Info className="h-4 w-4 text-yellow-400" />
-              <span className="text-white font-bold text-sm">Selected Range</span>
+          {/* Ultra Compact Selected Range Display */}
+          <div className="p-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+            <div className="flex items-center gap-1 mb-2">
+              <Info className="h-3 w-3 text-yellow-400" />
+              <span className="text-white font-bold text-xs">Selected Range</span>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-1">
               <div>
-                <p className="text-white/80 text-sm mb-1">{getSelectedStrategy().description}</p>
+                <p className="text-white/80 text-xs mb-0.5">{getSelectedStrategy().description}</p>
                 <p className="text-white/60 text-xs">{getSelectedStrategy().risk}</p>
               </div>
               
               {getSelectedStrategy().recommended && (
-                <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                <div className="flex items-center gap-1 p-1 bg-emerald-500/10 rounded border border-emerald-500/20">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
                   <span className="text-emerald-300 text-xs font-medium">
-                    Recommended for liquidity programs - optimal balance of rewards and stability
+                    Optimal for programs
                   </span>
                 </div>
               )}
               
-              {/* Compact Range Preview */}
-              <div className="space-y-3">
+              {/* Ultra Compact Range Preview */}
+              <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-white/60">Price Range Preview (KILT/USD)</span>
-                  <span className="text-white/60">Current: ${(kiltData?.price || 0.0160).toFixed(4)}</span>
+                  <span className="text-white/60">Range Preview</span>
+                  <span className="text-white/60">${(kiltData?.price || 0.0160).toFixed(4)}</span>
                 </div>
                 
-                <div className="h-16 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-lg border border-white/10 p-3">
+                <div className="h-8 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded border border-white/10 p-1">
                   <div className="relative h-full w-full">
                     <svg className="w-full h-full" viewBox="0 0 200 40" preserveAspectRatio="xMidYMid meet">
                       {/* Background reference curve */}
@@ -654,53 +654,53 @@ export function LiquidityMint() {
         </Button>
       </div>
 
-      {/* Compact Information Section */}
+      {/* Ultra Compact Earning Opportunities */}
       <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 rounded-lg">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-emerald-400" />
+        <CardHeader className="pb-1">
+          <CardTitle className="text-white text-sm flex items-center gap-1">
+            <TrendingUp className="h-3 w-3 text-emerald-400" />
             Earning Opportunities
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
-          <p className="text-white/80 text-sm mb-4">
+        <CardContent className="p-3">
+          <p className="text-white/80 text-xs mb-2">
             Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-                <span className="text-emerald-400 font-bold text-sm">KILT Rewards</span>
+          <div className="grid grid-cols-2 gap-1">
+            <div className="p-2 bg-emerald-500/10 rounded border border-emerald-500/20">
+              <div className="flex items-center gap-1 mb-1">
+                <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
+                <span className="text-emerald-400 font-bold text-xs">KILT Rewards</span>
               </div>
               <p className="text-emerald-100 text-xs">
                 Earn proportional rewards from 2.9M KILT treasury allocation
               </p>
             </div>
             
-            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Coins className="w-5 h-5 text-blue-400" />
-                <span className="text-blue-400 font-bold text-sm">Trading Fees</span>
+            <div className="p-2 bg-blue-500/10 rounded border border-blue-500/20">
+              <div className="flex items-center gap-1 mb-1">
+                <Coins className="w-3 h-3 text-blue-400" />
+                <span className="text-blue-400 font-bold text-xs">Trading Fees</span>
               </div>
               <p className="text-blue-100 text-xs">
                 Earn 0.3% of all trades within your price range
               </p>
             </div>
             
-            <div className="p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Target className="w-5 h-5 text-yellow-400" />
-                <span className="text-yellow-400 font-bold text-sm">Proportional System</span>
+            <div className="p-2 bg-yellow-500/10 rounded border border-yellow-500/20">
+              <div className="flex items-center gap-1 mb-1">
+                <Target className="w-3 h-3 text-yellow-400" />
+                <span className="text-yellow-400 font-bold text-xs">Proportional System</span>
               </div>
               <p className="text-yellow-100 text-xs">
                 Higher liquidity amounts earn higher reward shares
               </p>
             </div>
             
-            <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-5 h-5 text-purple-400" />
-                <span className="text-purple-400 font-bold text-sm">Time Rewards</span>
+            <div className="p-2 bg-purple-500/10 rounded border border-purple-500/20">
+              <div className="flex items-center gap-1 mb-1">
+                <Clock className="w-3 h-3 text-purple-400" />
+                <span className="text-purple-400 font-bold text-xs">Time Rewards</span>
               </div>
               <p className="text-purple-100 text-xs">
                 90-day reward lock ensures long-term value alignment

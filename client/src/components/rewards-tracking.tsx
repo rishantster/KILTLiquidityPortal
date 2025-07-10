@@ -138,110 +138,121 @@ export function RewardsTracking() {
   }
 
   return (
-    <div className="space-y-2">
-      {/* Ultra Compact Reward Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+    <div className="space-y-4">
+      {/* Detailed Reward Overview */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="bg-yellow-500/5 border-yellow-500/20 rounded-lg">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-0.5">
-              <h3 className="text-white font-medium text-xs">Total Earned</h3>
-              <Award className="h-3 w-3 text-yellow-400" />
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Total Earned</h3>
+              <Award className="h-4 w-4 text-yellow-400" />
             </div>
-            <div className="text-sm font-bold tabular-nums text-white flex items-center gap-1">
+            <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
               {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className="h-3 w-3"
+                className="h-4 w-4"
               />
             </div>
-            <div className="text-xs text-white/60">
+            <div className="text-xs text-white/60 mb-1">
               {rewardStats?.activePositions || 0} positions
+            </div>
+            <div className="text-xs text-yellow-400 font-medium">
+              ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-emerald-500/5 border-emerald-500/20 rounded-lg">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-0.5">
-              <h3 className="text-white font-medium text-xs">Claimable</h3>
-              <Unlock className="h-3 w-3 text-emerald-400" />
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Claimable</h3>
+              <Unlock className="h-4 w-4 text-emerald-400" />
             </div>
-            <div className="text-sm font-bold tabular-nums text-white flex items-center gap-1">
+            <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
               {totalClaimableAmount.toFixed(2)}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className="h-3 w-3"
+                className="h-4 w-4"
               />
             </div>
-            <div className="text-xs text-white/60">
+            <div className="text-xs text-white/60 mb-1">
               Ready to claim
+            </div>
+            <div className="text-xs text-emerald-400 font-medium">
+              ≈ ${(totalClaimableAmount * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-blue-500/5 border-blue-500/20 rounded-lg">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-0.5">
-              <h3 className="text-white font-medium text-xs">Daily Rate</h3>
-              <TrendingUp className="h-3 w-3 text-blue-400" />
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Daily Rate</h3>
+              <TrendingUp className="h-4 w-4 text-blue-400" />
             </div>
-            <div className="text-sm font-bold tabular-nums text-white">
+            <div className="text-lg font-bold tabular-nums text-white mb-1">
               {rewardStats?.avgDailyRewards?.toFixed(3) || '0.000'}
             </div>
-            <div className="text-xs text-white/60">
+            <div className="text-xs text-white/60 mb-1">
               Per day avg
+            </div>
+            <div className="text-xs text-blue-400 font-medium">
+              {((rewardStats?.avgDailyRewards || 0) * 30).toFixed(1)} KILT/month
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-purple-500/5 border-purple-500/20 rounded-lg">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-0.5">
-              <h3 className="text-white font-medium text-xs">Claimed</h3>
-              <CheckCircle className="h-3 w-3 text-purple-400" />
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Claimed</h3>
+              <CheckCircle className="h-4 w-4 text-purple-400" />
             </div>
-            <div className="text-sm font-bold tabular-nums text-white">
+            <div className="text-lg font-bold tabular-nums text-white mb-1">
               {rewardStats?.totalClaimed?.toFixed(2) || '0.00'}
             </div>
-            <div className="text-xs text-white/60">
+            <div className="text-xs text-white/60 mb-1">
               Total claimed
+            </div>
+            <div className="text-xs text-purple-400 font-medium">
+              {rewardStats?.totalClaimed ? `${(((rewardStats.totalClaimed || 0) / (rewardStats.totalAccumulated || 1)) * 100).toFixed(1)}% of earned` : '0% of earned'}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Ultra Compact Action Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-        {/* Ultra Compact Claim Rewards */}
+      {/* Enhanced Action Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Enhanced Claim Rewards */}
         <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
-          <CardHeader className="pb-1">
-            <CardTitle className="flex items-center space-x-1 text-white font-heading text-xs">
-              <Award className="h-3 w-3 text-yellow-400" />
-              <span>Claim</span>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+              <Award className="h-4 w-4 text-yellow-400" />
+              <span>Claim Rewards</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 p-2">
-            {/* Ultra Compact Claimable Amount */}
-            <div className="text-center py-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
-              <div className="text-white/60 text-xs mb-0.5 font-medium">Available</div>
-              <div className="text-white text-sm font-bold tabular-nums mb-0.5 flex items-center justify-center gap-1">
+          <CardContent className="space-y-3 p-3">
+            <div className="text-center py-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+              <div className="text-white/60 text-xs mb-1 font-medium">Available Now</div>
+              <div className="text-white text-xl font-bold tabular-nums mb-2 flex items-center justify-center gap-2">
                 {totalClaimableAmount.toFixed(2)} 
                 <img 
                   src={kiltLogo} 
                   alt="KILT" 
-                  className="h-3 w-3"
+                  className="h-5 w-5"
                 />
               </div>
-              <div className="text-white/50 text-xs mb-1">
-                ≈ ${(totalClaimableAmount * kiltData.price).toFixed(2)} USD
+              <div className="text-white/50 text-sm mb-3">
+                ≈ ${(totalClaimableAmount * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
               
               <Button 
                 onClick={() => claimMutation.mutate()}
                 disabled={claimMutation.isPending || totalClaimableAmount === 0}
-                className={`w-full font-semibold py-2 px-3 rounded-lg text-xs transition-all duration-300 ${
+                className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
                   totalClaimableAmount > 0 
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
@@ -249,7 +260,7 @@ export function RewardsTracking() {
               >
                 {claimMutation.isPending ? (
                   <>
-                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Claiming...
                   </>
                 ) : totalClaimableAmount > 0 ? (
@@ -264,60 +275,119 @@ export function RewardsTracking() {
                   </>
                 )}
               </Button>
-              
-              {totalClaimableAmount === 0 && (
-                <div className="text-white/60 text-xs text-center mt-1 p-1 bg-white/5 rounded">
-                  <p className="font-medium">Add liquidity to earn rewards</p>
-                </div>
-              )}
             </div>
+            
+            {/* Reward Details */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Lock Period:</span>
+                <span className="text-white">90 days</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Network:</span>
+                <span className="text-white">Base</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Gas Fee:</span>
+                <span className="text-white">~$0.02</span>
+              </div>
+            </div>
+            
+            {totalClaimableAmount === 0 && (
+              <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
+                <p className="font-medium">Add liquidity to earn rewards</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Ultra Compact Program Analytics */}
+        {/* Enhanced Program Analytics */}
         <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 rounded-lg">
-          <CardHeader className="pb-1">
-            <CardTitle className="flex items-center space-x-1 text-white font-heading text-xs">
-              <BarChart3 className="h-3 w-3 text-blue-400" />
-              <span>Analytics</span>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+              <BarChart3 className="h-4 w-4 text-blue-400" />
+              <span>Program Analytics</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2">
-            <div className="grid grid-cols-2 gap-1 mb-2">
-              <div className="text-center p-1 bg-blue-500/10 rounded border border-blue-500/20">
-                <div className="text-blue-400 text-xs">TVL</div>
-                <div className="text-xs font-bold text-white">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
+          <CardContent className="p-3">
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="text-center p-2 bg-blue-500/10 rounded border border-blue-500/20">
+                  <div className="text-blue-400 text-xs mb-1">Total Liquidity</div>
+                  <div className="text-sm font-bold text-white">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
+                </div>
+                <div className="text-center p-2 bg-purple-500/10 rounded border border-purple-500/20">
+                  <div className="text-purple-400 text-xs mb-1">Active Users</div>
+                  <div className="text-sm font-bold text-white">{programAnalytics?.activeParticipants || 0}</div>
+                </div>
               </div>
-              <div className="text-center p-1 bg-purple-500/10 rounded border border-purple-500/20">
-                <div className="text-purple-400 text-xs">Users</div>
-                <div className="text-xs font-bold text-white">{programAnalytics?.activeParticipants || 0}</div>
+              
+              <div className="text-center p-2 bg-emerald-500/10 rounded border border-emerald-500/20">
+                <div className="text-emerald-400 text-xs mb-1">APR Range</div>
+                <div className="text-sm font-bold text-emerald-100">{programAnalytics?.estimatedAPR?.low || 5}% - {programAnalytics?.estimatedAPR?.high || 66}%</div>
               </div>
-            </div>
-            <div className="text-center p-1 bg-emerald-500/10 rounded border border-emerald-500/20">
-              <div className="text-emerald-400 text-xs">APR Range</div>
-              <div className="text-xs font-bold text-emerald-100">{programAnalytics?.estimatedAPR?.low || 5}% - {programAnalytics?.estimatedAPR?.high || 50}%</div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Avg User Liquidity:</span>
+                  <span className="text-white">${programAnalytics?.avgUserLiquidity?.toLocaleString() || '0'}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Distribution Rate:</span>
+                  <span className="text-white">7,960 KILT/day</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Reward Formula:</span>
+                  <span className="text-white">Proportional + Time</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Ultra Compact Treasury Status */}
+        {/* Enhanced Treasury Status */}
         <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20 rounded-lg">
-          <CardHeader className="pb-1">
-            <CardTitle className="flex items-center space-x-1 text-white font-heading text-xs">
-              <Building2 className="h-3 w-3 text-purple-400" />
-              <span>Treasury</span>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+              <Building2 className="h-4 w-4 text-purple-400" />
+              <span>Treasury Status</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2">
-            <div className="text-center p-1 bg-purple-500/10 rounded border border-purple-500/20 mb-1">
-              <div className="text-purple-400 text-xs">Allocation</div>
-              <div className="text-xs font-bold text-white flex items-center justify-center gap-1">
-                2.9M <img src={kiltLogo} alt="KILT" className="h-3 w-3" />
+          <CardContent className="p-3">
+            <div className="space-y-3">
+              <div className="text-center p-2 bg-purple-500/10 rounded border border-purple-500/20">
+                <div className="text-purple-400 text-xs mb-1">Total Allocation</div>
+                <div className="text-sm font-bold text-white flex items-center justify-center gap-2">
+                  2.9M <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
+                </div>
               </div>
-            </div>
-            <Progress value={((2905600 - (programAnalytics?.treasuryRemaining || 2905600)) / 2905600) * 100} className="h-1 rounded-full mb-1" />
-            <div className="text-center text-xs text-white/60">
-              {programAnalytics?.daysRemaining || 365} days remaining
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Remaining:</span>
+                  <span className="text-white">{(programAnalytics?.treasuryRemaining || 2905600).toLocaleString()} KILT</span>
+                </div>
+                <Progress value={((2905600 - (programAnalytics?.treasuryRemaining || 2905600)) / 2905600) * 100} className="h-2 rounded-full" />
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Distributed:</span>
+                  <span className="text-white">{(2905600 - (programAnalytics?.treasuryRemaining || 2905600)).toLocaleString()} KILT</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Program Duration:</span>
+                  <span className="text-white">365 days</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Days Remaining:</span>
+                  <span className="text-white">{programAnalytics?.daysRemaining || 365} days</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Treasury Value:</span>
+                  <span className="text-white">${((programAnalytics?.treasuryRemaining || 2905600) * (kiltData?.price || 0)).toFixed(0)}</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

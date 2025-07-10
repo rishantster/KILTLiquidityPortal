@@ -263,11 +263,22 @@ export function RewardsTracking() {
             </div>
 
             {/* Important Notes */}
-            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-              <div className="flex items-start gap-2">
-                <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="text-xs text-white/70">
-                  <strong>90-Day Lock:</strong> Rewards can only be claimed after 90 days from the date you added liquidity to the pool. However, you earn rewards daily as long as your position remains active.
+            <div className="space-y-3">
+              <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                <div className="flex items-start gap-2">
+                  <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-white/70">
+                    <strong>90-Day Lock:</strong> Rewards can only be claimed after 90 days from the date you added liquidity to the pool. However, you earn rewards daily as long as your position remains active.
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                <div className="flex items-start gap-2">
+                  <TrendingUp className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-white/70">
+                    <strong>In-Range Requirement:</strong> Only positions that are actively in-range earn full rewards. Out-of-range positions earn 0% rewards since they don't provide liquidity to traders.
+                  </div>
                 </div>
               </div>
             </div>

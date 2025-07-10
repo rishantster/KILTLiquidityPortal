@@ -5,6 +5,8 @@ import {
   dailyRewards, 
   lpPositions, 
   users,
+  positionSnapshots,
+  performanceMetrics,
   type InsertReward,
   type InsertDailyReward,
   type Reward,
@@ -64,6 +66,57 @@ export class RewardService {
   private calculateRankMultiplier(rank: number): number {
     if (rank < 1 || rank > 100) return 0;
     return 1 - ((rank - 1) / 99);
+  }
+
+  /**
+   * Get in-range multiplier for position
+   * In-range positions: 100% of rewards
+   * Out-of-range positions: 0% of rewards  
+   * Partially in-range: Proportional based on timeInRange
+   */
+  private async getInRangeMultiplier(nftTokenId: string): Promise<number> {
+    try {
+      // Get the most recent position snapshot to check in-range status
+      const [latestSnapshot] = await this.db
+        .select()
+        .from(positionSnapshots)
+        .where(eq(positionSnapshots.positionId, parseInt(nftTokenId)))
+        .orderBy(desc(positionSnapshots.snapshotAt))
+        .limit(1);
+
+      if (!latestSnapshot) {
+        // If no snapshot exists, assume position is in-range initially
+        // This will be corrected when the first snapshot is taken
+        return 1.0;
+      }
+
+      // Check if position is currently in range
+      if (latestSnapshot.inRange) {
+        return 1.0; // Full rewards for in-range positions
+      }
+
+      // For out-of-range positions, check historical time in range
+      const [performanceMetrics] = await this.db
+        .select()
+        .from(performanceMetrics)
+        .where(eq(performanceMetrics.positionId, parseInt(nftTokenId)))
+        .orderBy(desc(performanceMetrics.date))
+        .limit(1);
+
+      if (performanceMetrics && performanceMetrics.timeInRange) {
+        // Use historical time in range percentage as multiplier
+        // If position was in range 70% of time, give 70% of rewards
+        const timeInRangePercentage = Number(performanceMetrics.timeInRange);
+        return Math.max(0, Math.min(1, timeInRangePercentage));
+      }
+
+      // If no performance data available and position is out of range, give minimal rewards
+      return 0.1; // 10% of rewards for out-of-range positions without historical data
+    } catch (error) {
+      console.error('Error calculating in-range multiplier:', error);
+      // Default to 50% if we can't determine range status
+      return 0.5;
+    }
   }
 
   /**
@@ -199,8 +252,8 @@ export class RewardService {
       }
     }
     
-    // Calculate Top 100 ranking reward formula
-    // R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99)
+    // Calculate Top 100 ranking reward formula with in-range adjustment
+    // R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99) * inRangeMultiplier
     let dailyRewards = 0;
     let effectiveAPR = 0;
     
@@ -209,12 +262,15 @@ export class RewardService {
       const timeFactor = Math.min(daysStaked / this.PROGRAM_DURATION_DAYS, 1);
       const rankMultiplier = this.calculateRankMultiplier(userRank || 100);
       
+      // Get in-range multiplier based on position's current range status
+      const inRangeMultiplier = await this.getInRangeMultiplier(nftTokenId);
+      
       // Calculate base component: w1 * L_u/T_top100 + w2 * D_u/365
       const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
       
-      // Calculate daily rewards using Top 100 ranking formula
-      // R_u = base_component * (R/365/100) * rank_multiplier
-      dailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rankMultiplier;
+      // Calculate daily rewards using Top 100 ranking formula with in-range adjustment
+      // R_u = base_component * (R/365/100) * rank_multiplier * inRangeMultiplier
+      dailyRewards = baseComponent * this.DAILY_BUDGET_PER_USER * rankMultiplier * inRangeMultiplier;
       
       // Calculate effective APR based on daily rewards with reasonable caps
       const annualRewards = dailyRewards * 365;

@@ -262,8 +262,33 @@ export function MainDashboard() {
           <div className="text-center pt-16 pb-8">
             {/* Hero Section */}
             <div className="mb-12 animate-fade-in">
-              <div className="w-32 h-32 bg-white rounded-full mx-auto mb-8 flex items-center justify-center animate-floating shadow-2xl p-6">
-                <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+              <div className="relative w-32 h-32 mx-auto mb-8 group">
+                {/* Outer Ring with Rotation */}
+                <div className="absolute inset-0 rounded-full border-4 border-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 opacity-30 animate-spin-slow"></div>
+                
+                {/* Middle Ring with Pulse */}
+                <div className="absolute inset-2 rounded-full border-2 border-white/20 animate-pulse-glow"></div>
+                
+                {/* Inner Circle with Logo */}
+                <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500 animate-floating">
+                  {/* Gradient Background Effect */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* KILT Logo */}
+                  <img 
+                    src={kiltLogo} 
+                    alt="KILT" 
+                    className="w-12 h-12 object-contain relative z-10 group-hover:rotate-12 transition-transform duration-500" 
+                  />
+                </div>
+                
+                {/* Floating Particles */}
+                <div className="absolute -inset-8 pointer-events-none">
+                  <div className="absolute top-0 left-1/2 w-2 h-2 bg-blue-400 rounded-full opacity-60 animate-orbit-1"></div>
+                  <div className="absolute top-1/2 right-0 w-1.5 h-1.5 bg-emerald-400 rounded-full opacity-60 animate-orbit-2"></div>
+                  <div className="absolute bottom-0 left-1/2 w-2 h-2 bg-cyan-400 rounded-full opacity-60 animate-orbit-3"></div>
+                  <div className="absolute top-1/2 left-0 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-60 animate-orbit-4"></div>
+                </div>
               </div>
               
               {/* Main Headline - Enhanced */}

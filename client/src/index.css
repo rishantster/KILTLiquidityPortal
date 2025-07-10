@@ -269,6 +269,67 @@
     padding-bottom: 0.125rem;
   }
 
+  /* KILT Logo Advanced Animations */
+  @keyframes spin-slow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes orbit-1 {
+    0% { transform: translateX(-50%) rotate(0deg) translateY(-50px) rotate(0deg); }
+    100% { transform: translateX(-50%) rotate(360deg) translateY(-50px) rotate(-360deg); }
+  }
+
+  @keyframes orbit-2 {
+    0% { transform: translateY(-50%) rotate(90deg) translateY(-45px) rotate(-90deg); }
+    100% { transform: translateY(-50%) rotate(450deg) translateY(-45px) rotate(-450deg); }
+  }
+
+  @keyframes orbit-3 {
+    0% { transform: translateX(-50%) rotate(180deg) translateY(-50px) rotate(-180deg); }
+    100% { transform: translateX(-50%) rotate(540deg) translateY(-50px) rotate(-540deg); }
+  }
+
+  @keyframes orbit-4 {
+    0% { transform: translateY(-50%) rotate(270deg) translateY(-45px) rotate(-270deg); }
+    100% { transform: translateY(-50%) rotate(630deg) translateY(-45px) rotate(-630deg); }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .animate-orbit-1 {
+    animation: orbit-1 6s linear infinite;
+  }
+
+  .animate-orbit-2 {
+    animation: orbit-2 8s linear infinite;
+  }
+
+  .animate-orbit-3 {
+    animation: orbit-3 7s linear infinite;
+  }
+
+  .animate-orbit-4 {
+    animation: orbit-4 9s linear infinite;
+  }
+
   /* Mobile-First Responsive Enhancements */
   @media (max-width: 768px) {
     .mobile-modal {

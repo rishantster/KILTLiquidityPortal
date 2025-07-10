@@ -455,15 +455,17 @@ export function LiquidityMint() {
         </Card>
       </div>
 
-      {/* Ultra Compact Price Range Strategy */}
-      <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
-        <CardHeader className="pb-1">
-          <CardTitle className="text-white text-sm flex items-center gap-1">
-            <Zap className="h-3 w-3 text-yellow-400" />
-            Price Range Strategy
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 p-3">
+      {/* Side-by-Side Layout for Price Range Strategy and Transaction Cost */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {/* Ultra Compact Price Range Strategy */}
+        <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-white text-sm flex items-center gap-1">
+              <Zap className="h-3 w-3 text-yellow-400" />
+              Price Range Strategy
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 p-3">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-1">
             {priceStrategies.map((strategy) => (
               <div key={strategy.id} className="relative">
@@ -609,11 +611,14 @@ export function LiquidityMint() {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Gas Estimation */}
-      <GasEstimationCard />
+        {/* Ultra Compact Transaction Cost Estimation */}
+        <div className="space-y-3">
+          <GasEstimationCard />
+        </div>
+      </div>
 
       {/* Compact Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

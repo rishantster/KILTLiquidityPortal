@@ -15,6 +15,7 @@ import { AnalyticsService } from "./analytics";
 import { rewardService } from "./reward-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
+import { positionRegistrationService } from "./position-registration-service";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1066,6 +1067,166 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error calculating range strategy APR:', error);
       res.status(500).json({ error: 'Failed to calculate range strategy APR' });
+    }
+  });
+
+  // Position Registration Routes - Allow external Uniswap positions to join reward program
+  app.post("/api/positions/register", async (req, res) => {
+    try {
+      const { 
+        userId, 
+        userAddress,
+        nftTokenId,
+        poolAddress,
+        token0Address,
+        token1Address,
+        amount0,
+        amount1,
+        minPrice,
+        maxPrice,
+        liquidity,
+        currentValueUSD,
+        feeTier,
+        originalCreationDate,
+        verificationProof
+      } = req.body;
+
+      if (!userId || !userAddress || !nftTokenId || !poolAddress) {
+        res.status(400).json({ error: "Missing required registration parameters" });
+        return;
+      }
+
+      // Validate user exists
+      const user = await storage.getUserById(userId);
+      if (!user || user.address !== userAddress) {
+        res.status(403).json({ error: "Invalid user credentials" });
+        return;
+      }
+
+      const positionData = {
+        nftTokenId,
+        poolAddress,
+        token0Address,
+        token1Address,
+        amount0,
+        amount1,
+        minPrice,
+        maxPrice,
+        liquidity,
+        currentValueUSD: Number(currentValueUSD),
+        feeTier: Number(feeTier),
+        createdAt: originalCreationDate ? new Date(originalCreationDate) : new Date()
+      };
+
+      const result = await positionRegistrationService.registerExternalPosition(
+        userId,
+        userAddress,
+        positionData,
+        verificationProof
+      );
+
+      if (result.success) {
+        res.json({
+          success: true,
+          message: result.message,
+          positionId: result.positionId,
+          eligibilityStatus: result.eligibilityStatus,
+          rewardInfo: result.rewardInfo,
+          registrationDate: new Date().toISOString()
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: result.message,
+          alreadyRegistered: result.alreadyRegistered,
+          eligibilityStatus: result.eligibilityStatus
+        });
+      }
+
+    } catch (error) {
+      console.error("Error registering position:", error);
+      res.status(500).json({ error: "Failed to register position" });
+    }
+  });
+
+  // Check if a position is already registered
+  app.get("/api/positions/:nftTokenId/registration-status", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      
+      const status = await positionRegistrationService.getPositionRegistrationStatus(nftTokenId);
+      
+      res.json({
+        nftTokenId,
+        isRegistered: status.isRegistered,
+        isEligible: status.isEligible,
+        registrationDate: status.registrationDate?.toISOString(),
+        eligibilityStartDate: status.eligibilityStartDate?.toISOString()
+      });
+
+    } catch (error) {
+      console.error("Error checking registration status:", error);
+      res.status(500).json({ error: "Failed to check registration status" });
+    }
+  });
+
+  // Get unregistered KILT positions for a user
+  app.get("/api/positions/unregistered/:userAddress", async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      
+      const result = await positionRegistrationService.getUnregisteredKiltPositions(userAddress);
+      
+      res.json({
+        userAddress,
+        eligiblePositions: result.eligiblePositions,
+        registrationRequired: result.registrationRequired,
+        message: result.eligiblePositions.length > 0 
+          ? `Found ${result.eligiblePositions.length} unregistered KILT positions` 
+          : 'No unregistered KILT positions found'
+      });
+
+    } catch (error) {
+      console.error("Error fetching unregistered positions:", error);
+      res.status(500).json({ error: "Failed to fetch unregistered positions" });
+    }
+  });
+
+  // Bulk register multiple positions
+  app.post("/api/positions/bulk-register", async (req, res) => {
+    try {
+      const { userId, userAddress, positions } = req.body;
+
+      if (!userId || !userAddress || !Array.isArray(positions)) {
+        res.status(400).json({ error: "Missing required bulk registration parameters" });
+        return;
+      }
+
+      // Validate user exists
+      const user = await storage.getUserById(userId);
+      if (!user || user.address !== userAddress) {
+        res.status(403).json({ error: "Invalid user credentials" });
+        return;
+      }
+
+      const result = await positionRegistrationService.bulkRegisterPositions(
+        userId,
+        userAddress,
+        positions
+      );
+
+      res.json({
+        success: result.successCount > 0,
+        successCount: result.successCount,
+        failureCount: result.failureCount,
+        totalPositions: positions.length,
+        results: result.results,
+        message: `Successfully registered ${result.successCount} of ${positions.length} positions`
+      });
+
+    } catch (error) {
+      console.error("Error bulk registering positions:", error);
+      res.status(500).json({ error: "Failed to bulk register positions" });
     }
   });
 

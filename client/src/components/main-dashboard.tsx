@@ -28,6 +28,7 @@ import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnect } from './wallet-connect';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityRebalancing } from './liquidity-rebalancing';
+import { PositionRegistration } from './position-registration';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
@@ -407,7 +408,7 @@ export function MainDashboard() {
 
         {/* Clean Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12 sm:h-14 gap-1">
+          <TabsList className="grid w-full grid-cols-7 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12 sm:h-14 gap-1">
             <TabsTrigger 
               value="overview" 
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
@@ -449,6 +450,13 @@ export function MainDashboard() {
             >
               <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm text-label truncate">Rebalance</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="register" 
+              className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+            >
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-label truncate">Register</span>
             </TabsTrigger>
           </TabsList>
 
@@ -691,6 +699,11 @@ export function MainDashboard() {
           {/* Rebalancing Tab */}
           <TabsContent value="rebalancing">
             <LiquidityRebalancing />
+          </TabsContent>
+
+          {/* Register Tab */}
+          <TabsContent value="register">
+            <PositionRegistration />
           </TabsContent>
         </Tabs>
       </div>

@@ -469,44 +469,44 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
-            {/* Unified Metrics Display */}
-            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-2xl p-4 border border-white/10">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Sleek Metrics Display */}
+            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 {/* KILT Price */}
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3 logo-container logo-shimmer">
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center mx-auto mb-2 logo-container logo-shimmer">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
-                      className={`w-12 h-12 logo-hover ${!logoAnimationComplete ? 'logo-reveal' : 'logo-pulse'}`}
+                      className={`w-6 h-6 logo-hover ${!logoAnimationComplete ? 'logo-reveal' : 'logo-pulse'}`}
                     />
                   </div>
-                  <p className="text-white/70 text-sm mb-1 text-label">KILT Price</p>
-                  <p className="text-white font-bold text-xl text-numbers">
+                  <p className="text-white/70 text-xs mb-1 text-label">KILT Price</p>
+                  <p className="text-white font-bold text-lg text-numbers">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
-                  <p className="text-emerald-300 text-xs mt-1 text-body">+0.50%</p>
+                  <p className="text-emerald-300 text-xs text-body">+0.50%</p>
                 </div>
 
                 {/* Market Cap */}
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <Coins className="h-8 w-8 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Coins className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-sm mb-1 text-label">Market Cap</p>
-                  <p className="text-white font-bold text-xl text-numbers">
+                  <p className="text-white/70 text-xs mb-1 text-label">Market Cap</p>
+                  <p className="text-white font-bold text-lg text-numbers">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
-                  <p className="text-blue-300 text-xs mt-1 text-body">276.97M circulating</p>
+                  <p className="text-blue-300 text-xs text-body">276.97M circulating</p>
                 </div>
 
                 {/* Your Reward APR */}
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <Award className="h-8 w-8 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Award className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-sm mb-1 text-label">Your Reward APR</p>
-                  <div className="text-white font-bold text-xl text-numbers">
+                  <p className="text-white/70 text-xs mb-1 text-label">Your Reward APR</p>
+                  <div className="text-white font-bold text-lg text-numbers">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
@@ -520,63 +520,63 @@ export function MainDashboard() {
 
                 {/* Treasury Status */}
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <Coins className="h-8 w-8 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Coins className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-sm mb-1 text-label">Treasury Pool</p>
-                  <p className="text-white font-bold text-xl text-numbers">
+                  <p className="text-white/70 text-xs mb-1 text-label">Treasury Pool</p>
+                  <p className="text-white font-bold text-lg text-numbers">
                     {kiltData?.treasuryRemaining ? (kiltData.treasuryRemaining / 1000000).toFixed(1) : '2.9'}M
                   </p>
-                  <p className="text-amber-300 text-xs mt-1 text-body">KILT remaining</p>
+                  <p className="text-amber-300 text-xs text-body">KILT remaining</p>
                 </div>
               </div>
             </div>
 
-            {/* Two Column Layout - Balanced */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Two Column Layout - Compact */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Left Column - Position Registration */}
               <div className="h-full">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                  <Plus className="h-4 w-4 text-emerald-400" />
+                <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
+                  <Plus className="h-3 w-3 text-emerald-400" />
                   Register Existing Positions
                 </h2>
-                <div className="h-[440px] flex flex-col">
+                <div className="h-[360px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
               <div className="h-full">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                  <Zap className="h-4 w-4 text-emerald-400" />
+                <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
+                  <Zap className="h-3 w-3 text-emerald-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl h-[440px] flex flex-col">
-                  <CardContent className="p-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-8 flex-1">
+                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[360px] flex flex-col">
+                  <CardContent className="p-3 flex-1 flex flex-col justify-between">
+                    <div className="space-y-4 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <h4 className="text-white font-medium text-sm mb-2 text-label">Wallet Balance</h4>
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <h4 className="text-white font-medium text-xs mb-2 text-label">Wallet Balance</h4>
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <img 
                                 src={kiltLogo} 
                                 alt="KILT" 
-                                className={`w-4 h-4 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
+                                className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
                               />
-                              <span className="text-white/70 text-sm text-body">KILT:</span>
+                              <span className="text-white/70 text-xs text-body">KILT:</span>
                             </div>
-                            <span className="text-white font-bold text-sm text-numbers">
+                            <span className="text-white font-bold text-xs text-numbers">
                               {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              <EthereumLogo className="w-4 h-4" />
-                              <span className="text-white/70 text-sm text-body">WETH:</span>
+                              <EthereumLogo className="w-3 h-3" />
+                              <span className="text-white/70 text-xs text-body">WETH:</span>
                             </div>
-                            <span className="text-white font-bold text-sm text-numbers">
+                            <span className="text-white font-bold text-xs text-numbers">
                               {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                             </span>
                           </div>
@@ -584,9 +584,9 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-white/70 text-sm text-label">Optimal Amount</span>
+                          <span className="text-white/70 text-xs text-label">Optimal Amount</span>
                           <span className="text-xs text-white/50 text-body">80% balance</span>
                         </div>
                         {(() => {
@@ -595,8 +595,8 @@ export function MainDashboard() {
                           
                           if (hasInsufficientBalance) {
                             return (
-                              <div className="text-center py-2">
-                                <div className="text-sm font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
+                              <div className="text-center py-1">
+                                <div className="text-xs font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
                                 <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
                               </div>
                             );
@@ -631,7 +631,7 @@ export function MainDashboard() {
                     </div>
                     
                     {/* Action Button and Help Text - Bottom of Card */}
-                    <div className="space-y-4 mt-4">
+                    <div className="space-y-2 mt-3">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();
@@ -642,7 +642,7 @@ export function MainDashboard() {
                           <Button 
                             onClick={handleQuickAddLiquidity}
                             disabled={isDisabled}
-                            className={`w-full font-semibold py-2 h-10 rounded-lg transition-all duration-300 ${
+                            className={`w-full font-semibold py-1.5 h-8 rounded-lg transition-all duration-300 text-sm ${
                               hasInsufficientBalance 
                                 ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
                                 : 'bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
@@ -650,19 +650,19 @@ export function MainDashboard() {
                           >
                             {isQuickAdding ? (
                               <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
                                 Processing...
                               </>
                             ) : hasInsufficientBalance ? (
                               <>
-                                <Wallet className="h-4 w-4 mr-2" />
+                                <Wallet className="h-3 w-3 mr-1.5" />
                                 Fund Wallet
                               </>
                             ) : (
                               <>
-                                <Zap className="h-4 w-4 mr-2" />
+                                <Zap className="h-3 w-3 mr-1.5" />
                                 Quick Add Liquidity
-                                <ArrowRight className="h-4 w-4 ml-2" />
+                                <ArrowRight className="h-3 w-3 ml-1.5" />
                               </>
                             )}
                           </Button>
@@ -672,7 +672,7 @@ export function MainDashboard() {
                       {/* Help Text */}
                       <div className="text-center">
                         <p className="text-xs text-white/40 text-body">
-                          For custom amounts, use the "Add Liquidity" tab above
+                          For custom amounts, use "Add Liquidity" tab
                         </p>
                       </div>
                     </div>

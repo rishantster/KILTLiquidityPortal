@@ -57,7 +57,7 @@ export function LiquidityMint() {
   const [kiltAmount, setKiltAmount] = useState('');
   const [wethAmount, setWethAmount] = useState('');
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
-  const [selectedStrategy, setSelectedStrategy] = useState('narrow');
+  const [selectedStrategy, setSelectedStrategy] = useState('balanced');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
 
   // Logo animation timing
@@ -68,21 +68,15 @@ export function LiquidityMint() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Price range strategies
+  // Price range strategies - ordered by recommendation
   const priceStrategies = [
-    { 
-      id: 'narrow', 
-      label: 'Narrow (±25%)', 
-      range: 0.25,
-      description: '75% to 125% of current price',
-      risk: 'Higher fees, higher impermanent loss risk'
-    },
     { 
       id: 'balanced', 
       label: 'Balanced (±50%)', 
       range: 0.50,
       description: '50% to 150% of current price',
-      risk: 'Balanced fees and impermanent loss'
+      risk: 'Optimal balance of fees and stability',
+      recommended: true
     },
     { 
       id: 'wide', 
@@ -90,6 +84,13 @@ export function LiquidityMint() {
       range: 1.00,
       description: '0% to 200% of current price',
       risk: 'Lower fees, lower impermanent loss risk'
+    },
+    { 
+      id: 'narrow', 
+      label: 'Narrow (±25%)', 
+      range: 0.25,
+      description: '75% to 125% of current price',
+      risk: 'Higher fees, higher impermanent loss risk'
     },
     { 
       id: 'full', 
@@ -445,14 +446,27 @@ export function LiquidityMint() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {priceStrategies.map((strategy) => (
-              <Button
-                key={strategy.id}
-                variant={selectedStrategy === strategy.id ? "default" : "outline"}
-                onClick={() => setSelectedStrategy(strategy.id)}
-                className="h-auto p-3 flex-col items-start"
-              >
-                <span className="font-semibold">{strategy.label}</span>
-              </Button>
+              <div key={strategy.id} className="relative">
+                <Button
+                  variant={selectedStrategy === strategy.id ? "default" : "outline"}
+                  onClick={() => setSelectedStrategy(strategy.id)}
+                  className="h-auto p-3 flex-col items-start w-full relative"
+                >
+                  <span className="font-semibold">{strategy.label}</span>
+                  {strategy.recommended && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-2 h-2 text-white" />
+                    </div>
+                  )}
+                </Button>
+                {strategy.recommended && (
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full">
+                    <div className="bg-emerald-500 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap">
+                      Recommended
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
           
@@ -463,6 +477,14 @@ export function LiquidityMint() {
             </div>
             <p className="text-white/80 text-sm mb-1">{getSelectedStrategy().description}</p>
             <p className="text-white/60 text-xs mb-4">{getSelectedStrategy().risk}</p>
+            {getSelectedStrategy().recommended && (
+              <div className="flex items-center gap-2 mb-4 p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                <span className="text-emerald-300 text-xs font-medium">
+                  Recommended for liquidity programs - optimal balance of rewards and stability
+                </span>
+              </div>
+            )}
             
             {/* Range Preview */}
             <div className="space-y-3">

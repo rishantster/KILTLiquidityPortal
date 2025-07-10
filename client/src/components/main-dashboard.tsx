@@ -551,9 +551,9 @@ export function MainDashboard() {
                 </h2>
                 <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl min-h-[400px] flex flex-col">
                   <CardContent className="p-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-4 flex-1">
+                    <div className="space-y-8 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                         <h4 className="text-white font-medium text-sm mb-2 text-label">Wallet Balance</h4>
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
@@ -582,7 +582,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm text-label">Optimal Amount</span>
                           <span className="text-xs text-white/50 text-body">80% balance</span>

@@ -383,7 +383,7 @@ export function LiquidityMint() {
               type="number"
               value={kiltAmount}
               onChange={(e) => handleKiltAmountChange(e.target.value)}
-              placeholder="0.0"
+              placeholder="Enter KILT amount"
               min="0"
               className="bg-white/5 border-white/10 text-white text-xl h-12"
             />
@@ -419,7 +419,7 @@ export function LiquidityMint() {
               type="number"
               value={wethAmount}
               onChange={(e) => handleWethAmountChange(e.target.value)}
-              placeholder="0.0"
+              placeholder="Enter ETH amount"
               min="0"
               className="bg-white/5 border-white/10 text-white text-xl h-12"
             />

@@ -62,6 +62,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get unregistered positions for a user address
+  app.get("/api/positions/unregistered/:address", async (req, res) => {
+    try {
+      const userAddress = req.params.address;
+      
+      // Get all positions for this user address from Uniswap V3
+      const userPositions = await storage.getUserPositions(userAddress);
+      
+      // Get already registered positions
+      const registeredPositions = await storage.getRegisteredPositions(userAddress);
+      const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId));
+      
+      // Filter out already registered positions
+      const unregisteredPositions = userPositions.filter(pos => 
+        !registeredNftIds.has(pos.nftTokenId) && pos.isKiltPosition
+      );
+      
+      res.json(unregisteredPositions);
+    } catch (error) {
+      console.error("Failed to fetch unregistered positions:", error);
+      res.status(500).json({ error: "Failed to fetch unregistered positions" });
+    }
+  });
+
   // App Session Management - Create secure session for transaction tracking
   app.post("/api/app-sessions/create", async (req, res) => {
     try {
@@ -392,6 +416,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(networkStats);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch network stats" });
+    }
+  });
+
+  // Get pool performance data (real data only)
+  app.get("/api/pool-performance", async (req, res) => {
+    try {
+      const { poolAddress, timeRange } = req.query;
+      
+      if (!poolAddress) {
+        res.status(400).json({ error: "Pool address required" });
+        return;
+      }
+
+      // In real implementation, this would fetch actual pool performance data
+      // from The Graph, Moralis, or direct contract queries
+      // For now, return empty array to show proper empty states
+      const performanceData: any[] = [];
+      
+      res.json(performanceData);
+    } catch (error) {
+      console.error("Failed to fetch pool performance:", error);
+      res.status(500).json({ error: "Failed to fetch pool performance data" });
     }
   });
 

@@ -45,7 +45,7 @@ interface PoolPerformanceChartProps {
 }
 
 export function PoolPerformanceChart({ 
-  poolAddress = '0x...', 
+  poolAddress, 
   timeRange = '24h' 
 }: PoolPerformanceChartProps) {
   const [activeChart, setActiveChart] = useState<'price' | 'volume' | 'tvl' | 'apr'>('price');
@@ -58,37 +58,9 @@ export function PoolPerformanceChart({
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  // Generate mock data for demonstration
-  const generateMockData = (points: number): PoolMetrics[] => {
-    const now = Date.now();
-    const interval = timeRange === '1h' ? 60000 : 
-                    timeRange === '24h' ? 3600000 : 
-                    timeRange === '7d' ? 86400000 : 
-                    2592000000; // 30d
-    
-    return Array.from({ length: points }, (_, i) => {
-      const timestamp = new Date(now - (points - i) * interval).toISOString();
-      const basePrice = 0.016;
-      const priceVariation = Math.sin(i * 0.1) * 0.002 + Math.random() * 0.001;
-      const price = basePrice + priceVariation;
-      
-      return {
-        timestamp,
-        price: price,
-        volume24h: 400 + Math.random() * 200,
-        tvl: 125000 + Math.random() * 25000,
-        fees24h: 50 + Math.random() * 30,
-        apr: 45 + Math.random() * 10,
-        liquidity: 98000 + Math.random() * 20000,
-        priceChange: ((price - basePrice) / basePrice) * 100
-      };
-    });
-  };
-
   const chartData = useMemo(() => {
-    if (poolData) return poolData;
-    return generateMockData(timeRange === '1h' ? 60 : timeRange === '24h' ? 48 : timeRange === '7d' ? 168 : 720);
-  }, [poolData, timeRange]);
+    return poolData || [];
+  }, [poolData]);
 
   const latestMetrics = chartData[chartData.length - 1];
 
@@ -146,6 +118,35 @@ export function PoolPerformanceChart({
         <CardContent className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!chartData || chartData.length === 0) {
+    return (
+      <Card className="bg-white/5 border-white/10 rounded-2xl">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-white font-semibold">
+              Pool Performance Analytics
+            </CardTitle>
+            <Badge className="bg-gray-500/20 text-gray-300 border-gray-500/30">
+              No Data
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <Activity className="h-16 w-16 text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-white mb-2">No Performance Data Available</h3>
+            <p className="text-white/60 mb-4">
+              Pool performance data will appear here when positions are created and historical data is collected.
+            </p>
+            <div className="text-sm text-white/40">
+              Performance metrics are gathered from real Uniswap V3 pool interactions.
+            </div>
           </div>
         </CardContent>
       </Card>

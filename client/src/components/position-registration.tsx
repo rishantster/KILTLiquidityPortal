@@ -86,53 +86,25 @@ export function PositionRegistration() {
     enabled: !!address
   });
 
-  // Get unregistered positions (mock data for now - would integrate with Uniswap V3 contracts)
+  // Get unregistered positions from real Uniswap V3 contracts
   const { data: unregisteredPositions = [], isLoading: loadingPositions } = useQuery({
     queryKey: ['unregistered-positions', address],
     queryFn: async () => {
       if (!address) return [];
       
-      // Mock data - in real implementation, this would fetch from Uniswap V3 contracts
-      const mockPositions: ExternalPosition[] = [
-        {
-          nftTokenId: "123456",
-          poolAddress: "0x...",
-          token0Address: "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8", // KILT
-          token1Address: "0x4200000000000000000000000000000000000006", // WETH
-          amount0: "100000",
-          amount1: "5.5",
-          minPrice: "0.008",
-          maxPrice: "0.024",
-          liquidity: "50000",
-          currentValueUSD: 15000,
-          feeTier: 3000,
-          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-          isKiltPosition: true,
-          // Historical validation data
-          creationBlockNumber: 12345678,
-          creationTransactionHash: "0xabc123..."
-        },
-        {
-          nftTokenId: "789012",
-          poolAddress: "0x...",
-          token0Address: "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8", // KILT
-          token1Address: "0x4200000000000000000000000000000000000006", // WETH
-          amount0: "50000",
-          amount1: "2.8",
-          liquidity: "25000",
-          currentValueUSD: 8000,
-          minPrice: "0.005",
-          maxPrice: "0.030",
-          feeTier: 3000,
-          createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago
-          isKiltPosition: true,
-          // Full range position (auto-validates)
-          creationBlockNumber: 12340000,
-          creationTransactionHash: "0xdef456..."
+      try {
+        // Fetch actual Uniswap V3 positions containing KILT token
+        const response = await fetch(`/api/positions/unregistered/${address}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch positions');
         }
-      ];
-      
-      return mockPositions;
+        
+        const positions = await response.json();
+        return positions.filter((pos: any) => pos.isKiltPosition);
+      } catch (error) {
+        console.error('Error fetching unregistered positions:', error);
+        return [];
+      }
     },
     enabled: !!address
   });

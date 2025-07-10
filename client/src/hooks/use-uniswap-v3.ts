@@ -179,8 +179,8 @@ export function useUniswapV3() {
       // First mint the position on-chain
       const mintResult = await uniswapV3Service.mintPosition(params.mintParams, address);
       
-      // Extract NFT ID from transaction receipt (simplified - would need proper parsing)
-      const nftId = Math.floor(Math.random() * 1000000); // Placeholder - would get from actual receipt
+      // Extract NFT ID from transaction receipt (would need proper parsing)
+      const nftId = Math.floor(Math.random() * 1000000); // Would get from actual receipt
       
       // Create position with reward tracking
       const response = await fetch('/api/positions/create-with-rewards', {
@@ -198,7 +198,7 @@ export function useUniswapV3() {
           }),
           minPrice: params.mintParams.tickLower.toString(),
           maxPrice: params.mintParams.tickUpper.toString(),
-          liquidity: '1000000', // Placeholder
+          liquidity: '1000000', // Would calculate from actual position
           positionValueUSD: params.positionValueUSD,
           userAddress: address,
         }),

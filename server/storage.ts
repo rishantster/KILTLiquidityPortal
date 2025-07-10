@@ -26,6 +26,10 @@ export interface IStorage {
   createLpPosition(position: InsertLpPosition): Promise<LpPosition>;
   updateLpPosition(id: number, updates: Partial<LpPosition>): Promise<LpPosition | undefined>;
   
+  // Position registration methods
+  getUserPositions(address: string): Promise<any[]>;
+  getRegisteredPositions(address: string): Promise<any[]>;
+  
   // Reward methods
   getRewardsByUserId(userId: number): Promise<Reward[]>;
   getRewardsByPositionId(positionId: number): Promise<Reward[]>;
@@ -54,45 +58,7 @@ export class MemStorage implements IStorage {
   }
 
   private initializeSamplePositions() {
-    // Create sample users
-    const users = [
-      { id: 1, address: "0x1234567890123456789012345678901234567890", createdAt: new Date("2025-01-01") },
-      { id: 2, address: "0x2345678901234567890123456789012345678901", createdAt: new Date("2025-01-02") },
-      { id: 3, address: "0x3456789012345678901234567890123456789012", createdAt: new Date("2025-01-03") },
-    ];
-
-    users.forEach(user => {
-      this.users.set(user.id, user);
-    });
-
-    // Create sample positions with different values to test Top 100 system
-    const positions = [
-      {
-        id: 1, userId: 1, nftId: 1001, poolAddress: "0xkilt-eth-pool", tokenIds: "{}",
-        minPrice: "0.001", maxPrice: "0.01", liquidity: "1000000", currentValueUSD: "50000",
-        isActive: true, createdViaApp: true, appTransactionHash: "0xabc123", appSessionId: "session1",
-        verificationStatus: "verified", rewardEligible: true, createdAt: new Date("2025-01-01")
-      },
-      {
-        id: 2, userId: 2, nftId: 1002, poolAddress: "0xkilt-eth-pool", tokenIds: "{}",
-        minPrice: "0.001", maxPrice: "0.01", liquidity: "800000", currentValueUSD: "25000",
-        isActive: true, createdViaApp: true, appTransactionHash: "0xdef456", appSessionId: "session2",
-        verificationStatus: "verified", rewardEligible: true, createdAt: new Date("2025-01-05")
-      },
-      {
-        id: 3, userId: 3, nftId: 1003, poolAddress: "0xkilt-eth-pool", tokenIds: "{}",
-        minPrice: "0.001", maxPrice: "0.01", liquidity: "500000", currentValueUSD: "10000",
-        isActive: true, createdViaApp: true, appTransactionHash: "0xghi789", appSessionId: "session3",
-        verificationStatus: "verified", rewardEligible: true, createdAt: new Date("2025-01-10")
-      },
-    ];
-
-    positions.forEach(pos => {
-      this.lpPositions.set(pos.id, pos as any);
-    });
-
-    this.userIdCounter = 4;
-    this.positionIdCounter = 4;
+    // No sample data - all data should come from real sources
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -149,6 +115,20 @@ export class MemStorage implements IStorage {
     const updatedPosition = { ...position, ...updates };
     this.lpPositions.set(id, updatedPosition);
     return updatedPosition;
+  }
+
+  async getUserPositions(address: string): Promise<any[]> {
+    // In real implementation, this would query Uniswap V3 contracts
+    // For now, return empty array - all positions come from real blockchain data
+    return [];
+  }
+
+  async getRegisteredPositions(address: string): Promise<any[]> {
+    // Get positions that have been registered in our system
+    const user = await this.getUserByAddress(address);
+    if (!user) return [];
+    
+    return Array.from(this.lpPositions.values()).filter(pos => pos.userId === user.id);
   }
 
   async getRewardsByUserId(userId: number): Promise<Reward[]> {

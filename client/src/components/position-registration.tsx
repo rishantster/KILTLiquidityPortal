@@ -31,6 +31,9 @@ interface ExternalPosition {
   feeTier: number;
   createdAt: string;
   isKiltPosition: boolean;
+  // Historical validation data
+  creationBlockNumber?: number;
+  creationTransactionHash?: string;
 }
 
 interface RegistrationResult {
@@ -38,6 +41,18 @@ interface RegistrationResult {
   message: string;
   positionId?: number;
   eligibilityStatus: string;
+  validationResult?: {
+    isValid: boolean;
+    reason: string;
+    confidence: 'high' | 'medium' | 'low';
+    details: {
+      isFullRange: boolean;
+      priceAtCreation: number;
+      balanceRatio: number;
+      expectedRatio: number;
+      tolerance: number;
+    };
+  };
   rewardInfo?: {
     dailyRewards: number;
     estimatedAPR: number;
@@ -92,7 +107,10 @@ export function PositionRegistration() {
           currentValueUSD: 15000,
           feeTier: 3000,
           createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-          isKiltPosition: true
+          isKiltPosition: true,
+          // Historical validation data
+          creationBlockNumber: 12345678,
+          creationTransactionHash: "0xabc123..."
         },
         {
           nftTokenId: "789012",
@@ -107,7 +125,10 @@ export function PositionRegistration() {
           maxPrice: "0.030",
           feeTier: 3000,
           createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago
-          isKiltPosition: true
+          isKiltPosition: true,
+          // Full range position (auto-validates)
+          creationBlockNumber: 12340000,
+          creationTransactionHash: "0xdef456..."
         }
       ];
       
@@ -138,7 +159,10 @@ export function PositionRegistration() {
           liquidity: position.liquidity,
           currentValueUSD: position.currentValueUSD,
           feeTier: position.feeTier,
-          originalCreationDate: position.createdAt
+          originalCreationDate: position.createdAt,
+          // Historical validation data
+          creationBlockNumber: position.creationBlockNumber,
+          creationTransactionHash: position.creationTransactionHash
         })
       });
 
@@ -331,6 +355,11 @@ export function PositionRegistration() {
                         <div className="text-xs text-emerald-400">
                           ~25% Est. APR
                         </div>
+                        {position.minPrice === "0.005" && position.maxPrice === "0.030" && (
+                          <div className="text-xs text-blue-400 mt-1">
+                            ⚡ Full Range - Auto-validates
+                          </div>
+                        )}
                       </div>
                       
                       <Button
@@ -381,8 +410,20 @@ export function PositionRegistration() {
           <div className="flex items-start space-x-3">
             <AlertTriangle className="h-4 w-4 text-orange-400 mt-0.5" />
             <div>
-              <div className="text-white font-medium">Position Requirements</div>
-              <div className="text-white/60">Must contain KILT token and have minimum $100 value</div>
+              <div className="text-white font-medium">Validation Requirements</div>
+              <div className="text-white/60">
+                Must contain KILT token, have minimum $100 value, and pass historical 50/50 balance validation
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+            <div>
+              <div className="text-white font-medium">Auto-Validation</div>
+              <div className="text-white/60">
+                Full range positions automatically pass validation. Concentrated positions require historical price verification.
+              </div>
             </div>
           </div>
         </CardContent>

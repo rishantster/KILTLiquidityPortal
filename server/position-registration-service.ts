@@ -10,6 +10,7 @@ import {
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import { rewardService } from './reward-service';
+import { historicalValidationService, type HistoricalValidationResult } from './historical-validation-service';
 
 export interface PositionRegistrationResult {
   success: boolean;
@@ -17,6 +18,7 @@ export interface PositionRegistrationResult {
   message: string;
   alreadyRegistered?: boolean;
   eligibilityStatus: 'eligible' | 'ineligible' | 'pending';
+  validationResult?: HistoricalValidationResult;
   rewardInfo?: {
     dailyRewards: number;
     estimatedAPR: number;
@@ -37,6 +39,9 @@ export interface ExternalPositionData {
   currentValueUSD: number;
   feeTier: number;
   createdAt: Date;
+  // Historical validation data
+  creationBlockNumber?: number;
+  creationTransactionHash?: string;
 }
 
 export class PositionRegistrationService {
@@ -88,6 +93,39 @@ export class PositionRegistrationService {
           success: false,
           message: 'Position must contain KILT token to be eligible for rewards',
           eligibilityStatus: 'ineligible'
+        };
+      }
+
+      // Historical validation for 50/50 balance at creation
+      let validationResult: HistoricalValidationResult | undefined;
+      
+      if (positionData.creationBlockNumber && positionData.creationTransactionHash) {
+        validationResult = await historicalValidationService.validateHistoricalPosition(
+          positionData.nftTokenId,
+          positionData.creationBlockNumber,
+          positionData.creationTransactionHash,
+          positionData.amount0,
+          positionData.amount1,
+          parseFloat(positionData.minPrice),
+          parseFloat(positionData.maxPrice),
+          positionData.poolAddress
+        );
+
+        // If validation fails, reject the position
+        if (!validationResult.isValid) {
+          return {
+            success: false,
+            message: `Position rejected: ${validationResult.reason}`,
+            eligibilityStatus: 'ineligible',
+            validationResult
+          };
+        }
+      } else {
+        // No historical data provided - require manual verification
+        return {
+          success: false,
+          message: 'Position requires historical validation data (block number and transaction hash)',
+          eligibilityStatus: 'pending'
         };
       }
 
@@ -150,7 +188,13 @@ export class PositionRegistrationService {
         metadata: JSON.stringify({
           originalCreationDate: positionData.createdAt.toISOString(),
           registrationDate: new Date().toISOString(),
-          externalPosition: true
+          externalPosition: true,
+          historicalValidation: validationResult ? {
+            isValid: validationResult.isValid,
+            reason: validationResult.reason,
+            confidence: validationResult.confidence,
+            validationDate: new Date().toISOString()
+          } : null
         })
       };
 
@@ -180,8 +224,11 @@ export class PositionRegistrationService {
       return {
         success: true,
         positionId: createdPosition.id,
-        message: 'Position successfully registered for rewards! Rewards will accrue from today.',
+        message: validationResult?.details.isFullRange 
+          ? 'Full range position registered successfully! Rewards will accrue from today.'
+          : `Position validated and registered! ${validationResult?.reason || 'Balanced position confirmed.'}`,
         eligibilityStatus: 'eligible',
+        validationResult,
         rewardInfo: {
           dailyRewards: rewardCalc.dailyRewards,
           estimatedAPR: rewardCalc.totalAPR,

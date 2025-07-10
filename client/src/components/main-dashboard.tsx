@@ -425,9 +425,9 @@ export function MainDashboard() {
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
+                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10 overflow-hidden"
               >
-                <SiMedium className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
+                <SiMedium className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300 flex-shrink-0" />
               </a>
             </div>
           </div>

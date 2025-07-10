@@ -18,10 +18,10 @@ import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
 import { db } from "./db";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
   // User routes
-  app.post("/api/users", async (req, res) => {
+  app.post("/api/users", security.validateUserCreation, async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
       const existingUser = await storage.getUserByAddress(userData.address);
@@ -38,7 +38,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/:address", async (req, res) => {
+  app.get("/api/users/:address", security.validateEthereumAddress, async (req, res) => {
     try {
       const user = await storage.getUserByAddress(req.params.address);
       if (!user) {
@@ -52,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // LP Position routes
-  app.post("/api/positions", async (req, res) => {
+  app.post("/api/positions", security.validatePositionData, async (req, res) => {
     try {
       const positionData = insertLpPositionSchema.parse(req.body);
       const position = await storage.createLpPosition(positionData);
@@ -63,7 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get unregistered positions for a user address
-  app.get("/api/positions/unregistered/:address", async (req, res) => {
+  app.get("/api/positions/unregistered/:address", security.validateEthereumAddress, async (req, res) => {
     try {
       const userAddress = req.params.address;
       
@@ -87,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get total position count for a user address
-  app.get("/api/positions/user-total/:address", async (req, res) => {
+  app.get("/api/positions/user-total/:address", security.validateEthereumAddress, async (req, res) => {
     try {
       const userAddress = req.params.address;
       
@@ -109,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // App Session Management - Create secure session for transaction tracking
-  app.post("/api/app-sessions/create", async (req, res) => {
+  app.post("/api/app-sessions/create", security.strictRateLimit, security.validateSessionData, async (req, res) => {
     try {
       const { userId, userAddress } = req.body;
       
@@ -134,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Record App Transaction - ONLY way to make positions reward-eligible
-  app.post("/api/app-transactions/record", async (req, res) => {
+  app.post("/api/app-transactions/record", security.strictRateLimit, async (req, res) => {
     try {
       const { sessionId, transactionData } = req.body;
       

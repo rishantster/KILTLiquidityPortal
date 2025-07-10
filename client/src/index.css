@@ -622,6 +622,88 @@
   }
 }
 
+/* Enhanced Mobile CSS */
+@media (max-width: 768px) {
+  .mobile-tabs {
+    padding: 0.5rem;
+    gap: 0.25rem;
+    display: flex;
+    justify-content: space-between;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .mobile-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .mobile-tab {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    min-width: fit-content;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+  }
+  
+  .mobile-tab.active {
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: white;
+    transform: scale(1.05);
+  }
+}
+
+/* Enhanced Mobile Wallet Modal */
+.mobile-wallet-modal {
+  animation: slideInFromBottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.mobile-wallet-modal .dialog-content {
+  border-radius: 1rem 1rem 0 0;
+  background: rgba(15, 15, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+}
+
+.mobile-wallet-button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-wallet-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(236, 72, 153, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.2);
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Inter font family consistency */
+body, html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
 @layer utilities {
   .kilt-gradient {
     background: linear-gradient(135deg, rgba(120, 119, 198, 0.9) 0%, rgba(120, 119, 198, 1) 100%);

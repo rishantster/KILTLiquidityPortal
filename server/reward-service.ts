@@ -112,7 +112,6 @@ export class RewardService {
       
       if (isFullRange) {
         // Full range positions always earn full rewards
-        console.log(`Full range position ${nftTokenId} - 100% rewards`);
         return 1.0;
       }
 
@@ -131,10 +130,8 @@ export class RewardService {
         const isCurrentlyInRange = currentPoolPrice >= minPrice && currentPoolPrice <= maxPrice;
         
         if (isCurrentlyInRange) {
-          console.log(`New concentrated position ${nftTokenId} currently in range - 100% rewards`);
           return 1.0;
         } else {
-          console.log(`New concentrated position ${nftTokenId} currently out of range - 0% rewards`);
           return 0.0;
         }
       }
@@ -156,7 +153,6 @@ export class RewardService {
         multiplier = 0.0;
       }
       
-      console.log(`Concentrated position ${nftTokenId} - ${(timeInRangeRatio * 100).toFixed(1)}% time in range - ${(multiplier * 100).toFixed(1)}% rewards`);
       return multiplier;
 
     } catch (error) {

@@ -1,12 +1,22 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
+
+// Validate environment variables first
+validateEnvironment();
 
 const app = express();
 
-// Middleware setup
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Trust proxy for rate limiting (must be before security setup)
+app.set('trust proxy', 1);
+
+// Security middleware setup (must be first)
+const securityMiddleware = setupSecurity(app);
+
+// Body parsing middleware with size limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -41,16 +51,10 @@ app.use((req, res, next) => {
 
 // Application startup
 (async () => {
-  const server = await registerRoutes(app);
+  const server = await registerRoutes(app, securityMiddleware);
 
-  // Global error handler
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
-  });
+  // Global error handler (must be last)
+  app.use(errorHandler);
 
   // Setup Vite in development, serve static files in production
   if (app.get("env") === "development") {

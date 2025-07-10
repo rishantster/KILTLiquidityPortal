@@ -30,20 +30,22 @@ export function WalletConnect() {
     checkNetwork();
     
     // Listen for network changes
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
+    const ethereum = (window as unknown as { ethereum?: { on: (event: string, handler: () => void) => void; removeListener: (event: string, handler: () => void) => void } }).ethereum;
+    if (typeof window !== 'undefined' && ethereum) {
       const handleChainChanged = () => {
         checkNetwork();
       };
       
-      (window as any).ethereum.on('chainChanged', handleChainChanged);
+      ethereum.on('chainChanged', handleChainChanged);
       return () => {
-        (window as any).ethereum.removeListener('chainChanged', handleChainChanged);
+        ethereum.removeListener('chainChanged', handleChainChanged);
       };
     }
   }, [isConnected, validateBaseNetwork]);
 
   const handleConnect = () => {
-    if (userIsMobile && !(window as any).ethereum) {
+    const ethereum = (window as unknown as { ethereum?: unknown }).ethereum;
+    if (userIsMobile && !ethereum) {
       setShowMobileModal(true);
     } else {
       connect();

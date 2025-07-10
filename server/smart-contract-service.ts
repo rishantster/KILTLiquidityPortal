@@ -9,12 +9,25 @@ import {
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 
-// Smart contract configuration
+import { isValidEthereumAddress } from './crypto-utils';
+
+// Smart contract configuration with validation
 const KILT_REWARD_POOL_ADDRESS = process.env.KILT_REWARD_POOL_ADDRESS || '';
 const REWARD_WALLET_ADDRESS = process.env.REWARD_WALLET_ADDRESS || '';
 const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 const PRIVATE_KEY = process.env.REWARD_WALLET_PRIVATE_KEY || '';
+
+// Validate contract addresses at startup
+if (KILT_REWARD_POOL_ADDRESS && !isValidEthereumAddress(KILT_REWARD_POOL_ADDRESS)) {
+  throw new Error('Invalid KILT_REWARD_POOL_ADDRESS format');
+}
+if (REWARD_WALLET_ADDRESS && !isValidEthereumAddress(REWARD_WALLET_ADDRESS)) {
+  throw new Error('Invalid REWARD_WALLET_ADDRESS format');
+}
+if (!isValidEthereumAddress(KILT_TOKEN_ADDRESS)) {
+  throw new Error('Invalid KILT_TOKEN_ADDRESS format');
+}
 
 // Contract ABI (minimal interface)
 const REWARD_POOL_ABI = [

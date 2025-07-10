@@ -26,15 +26,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   // Switch to Base mainnet network
   const switchToBase = async () => {
+    const ethereum = (window as unknown as { ethereum?: { request: (params: unknown) => Promise<unknown> } }).ethereum;
     try {
-      await (window as any).ethereum.request({
+      await ethereum?.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x2105' }], // Base mainnet network (8453)
       });
-    } catch (error: any) {
-      if (error.code === 4902) {
+    } catch (error: unknown) {
+      const walletError = error as { code?: number };
+      if (walletError.code === 4902) {
         // Chain not added, add Base mainnet
-        await (window as any).ethereum.request({
+        const ethereum = (window as unknown as { ethereum?: { request: (params: unknown) => Promise<unknown> } }).ethereum;
+        await ethereum?.request({
           method: 'wallet_addEthereumChain',
           params: [{
             chainId: '0x2105',
@@ -56,13 +59,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   // Validate that user is on Base mainnet
   const validateBaseNetwork = async () => {
-    if (!(window as any).ethereum) return false;
+    const ethereum = (window as unknown as { ethereum?: { request: (params: { method: string }) => Promise<string> } }).ethereum;
+    if (!ethereum) return false;
     
     try {
-      const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+      const chainId = await ethereum.request({ method: 'eth_chainId' });
       return chainId === '0x2105';
-    } catch (error) {
-      console.error('Error checking network:', error);
+    } catch (error: unknown) {
       return false;
     }
   };
@@ -98,12 +101,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             try {
               await switchToBase();
             } catch (error) {
-              console.error('Failed to auto-switch to Base mainnet:', error);
+              
             }
           }
         }
       } catch (error) {
-        console.error('Error checking wallet connection:', error);
+        
       } finally {
         setInitialized(true);
       }
@@ -142,7 +145,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             description: "Automatically switched to Base mainnet for KILT operations.",
           });
         } catch (error) {
-          console.error('Failed to switch to Base mainnet:', error);
+          
           toast({
             title: "Network Error",
             description: "Please manually switch to Base mainnet in your wallet.",
@@ -223,9 +226,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           });
         }
       }
-    } catch (error: any) {
-      console.error('Error connecting wallet:', error);
-      if (error.code === 4001) {
+    } catch (error: unknown) {
+      const walletError = error as { code?: number; message?: string };
+      if (walletError.code === 4001) {
         toast({
           title: "Connection rejected",
           description: "Please approve the connection request in your wallet.",
@@ -234,7 +237,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       } else {
         toast({
           title: "Connection failed",
-          description: error.message || "Failed to connect wallet.",
+          description: walletError.message || "Failed to connect wallet.",
           variant: "destructive",
         });
       }

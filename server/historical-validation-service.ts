@@ -187,7 +187,6 @@ export class HistoricalValidationService {
       // 3. Extract sqrtPriceX96 from the logs
       // 4. Convert to human-readable price
       
-      console.log(`Parsing transaction logs for ${transactionHash}`);
       return null; // Would return actual price from transaction logs
     } catch (error) {
       console.error('Error parsing transaction logs:', error);
@@ -203,7 +202,6 @@ export class HistoricalValidationService {
       // This would query the Uniswap V3 pool contract at the specific block
       // For now, we'll simulate the logic
       
-      console.log(`Querying pool ${poolAddress} at block ${blockNumber}`);
       return null; // Would return actual price from pool state
     } catch (error) {
       console.error('Error querying pool state:', error);
@@ -219,7 +217,6 @@ export class HistoricalValidationService {
       // This would use services like The Graph, Moralis, or similar
       // to get historical KILT price data
       
-      console.log(`Querying external API for block ${blockNumber}`);
       return null; // Would return actual price from external API
     } catch (error) {
       console.error('Error querying external API:', error);

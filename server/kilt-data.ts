@@ -34,7 +34,6 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true');
     const data = await response.json();
     
-    console.log('CoinGecko API Response:', JSON.stringify(data, null, 2));
     
     const kiltData = data['kilt-protocol'];
     
@@ -69,7 +68,6 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       progress
     };
     
-    console.log('Processed KILT data:', result);
     return result;
   } catch (error) {
     console.error('Error fetching KILT token data:', error);

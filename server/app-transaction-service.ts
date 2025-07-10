@@ -55,7 +55,6 @@ export class AppTransactionService {
     
     this.sessions.set(sessionId, sessionData);
     
-    console.log(`Created app session ${sessionId} for user ${userAddress}`);
     return sessionId;
   }
 
@@ -65,18 +64,15 @@ export class AppTransactionService {
   validateSession(sessionId: string): SessionData | null {
     const session = this.sessions.get(sessionId);
     if (!session) {
-      console.log(`Session ${sessionId} not found`);
       return null;
     }
     
     if (new Date() > session.expiresAt) {
-      console.log(`Session ${sessionId} expired`);
       this.sessions.delete(sessionId);
       return null;
     }
     
     if (!session.isActive) {
-      console.log(`Session ${sessionId} is inactive`);
       return null;
     }
     
@@ -140,7 +136,6 @@ export class AppTransactionService {
         })
         .returning();
       
-      console.log(`Recorded app transaction ${transactionData.transactionHash} for user ${transactionData.userAddress}`);
       
       return { success: true, transactionId: appTransaction.id };
       
@@ -177,7 +172,6 @@ export class AppTransactionService {
         })
         .where(eq(appTransactions.id, transactionId));
       
-      console.log(`Verified transaction ${transaction.transactionHash}`);
       return true;
       
     } catch (error: any) {
@@ -205,7 +199,6 @@ export class AppTransactionService {
         .limit(1);
       
       if (!appTransaction || appTransaction.verificationStatus !== "verified") {
-        console.log(`App transaction ${appTransactionId} not verified, position not eligible`);
         return false;
       }
       
@@ -221,7 +214,6 @@ export class AppTransactionService {
           notes: `Position created via app transaction ${appTransaction.transactionHash}`,
         });
       
-      console.log(`Created position eligibility for position ${positionId} with NFT ${nftTokenId}`);
       return true;
       
     } catch (error: any) {

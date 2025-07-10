@@ -80,9 +80,9 @@ export function MainDashboard() {
 
   // Expose navigation function globally for position registration component
   useEffect(() => {
-    (window as any).navigateToTab = navigateToTab;
+    (window as unknown as { navigateToTab?: (tab: string) => void }).navigateToTab = navigateToTab;
     return () => {
-      delete (window as any).navigateToTab;
+      delete (window as unknown as { navigateToTab?: (tab: string) => void }).navigateToTab;
     };
   }, []);
 
@@ -95,12 +95,13 @@ export function MainDashboard() {
 
     // Check Base network connection
     const checkBaseNetwork = async () => {
-      if (window.ethereum && isConnected) {
+      const ethereum = (window as unknown as { ethereum?: { request: (params: { method: string }) => Promise<string> } }).ethereum;
+      if (ethereum && isConnected) {
         try {
-          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          const chainId = await ethereum.request({ method: 'eth_chainId' });
           const isBase = chainId === '0x2105';
           setIsBaseNetworkConnected(isBase);
-        } catch (error) {
+        } catch (error: unknown) {
           setIsBaseNetworkConnected(false);
         }
       } else {
@@ -111,13 +112,14 @@ export function MainDashboard() {
     checkBaseNetwork();
     
     // Listen for network changes
-    if (window.ethereum) {
+    const ethereum = (window as unknown as { ethereum?: { on: (event: string, handler: () => void) => void; removeListener: (event: string, handler: () => void) => void } }).ethereum;
+    if (ethereum) {
       const handleChainChanged = () => checkBaseNetwork();
-      window.ethereum.on('chainChanged', handleChainChanged);
+      ethereum.on('chainChanged', handleChainChanged);
       
       return () => {
         clearTimeout(logoTimer);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        ethereum.removeListener('chainChanged', handleChainChanged);
       };
     }
     

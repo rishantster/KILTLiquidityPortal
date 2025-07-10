@@ -86,6 +86,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get total position count for a user address
+  app.get("/api/positions/user-total/:address", async (req, res) => {
+    try {
+      const userAddress = req.params.address;
+      
+      // Get all positions for this user address from Uniswap V3
+      const userPositions = await storage.getUserPositions(userAddress);
+      
+      // Count only KILT positions
+      const kiltPositions = userPositions.filter(pos => pos.isKiltPosition);
+      
+      res.json({ 
+        count: kiltPositions.length,
+        total: userPositions.length,
+        kiltPositions: kiltPositions.length
+      });
+    } catch (error) {
+      console.error("Failed to fetch user position count:", error);
+      res.status(500).json({ error: "Failed to fetch user position count" });
+    }
+  });
+
   // App Session Management - Create secure session for transaction tracking
   app.post("/api/app-sessions/create", async (req, res) => {
     try {

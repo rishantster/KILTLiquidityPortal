@@ -87,10 +87,10 @@ export function PositionRegistration() {
   });
 
   // Get unregistered positions from real Uniswap V3 contracts
-  const { data: unregisteredPositions = [], isLoading: loadingPositions } = useQuery({
+  const { data: unregisteredPositionsData, isLoading: loadingPositions } = useQuery({
     queryKey: ['unregistered-positions', address],
     queryFn: async () => {
-      if (!address) return [];
+      if (!address) return { eligiblePositions: [], totalPositions: 0, message: '' };
       
       try {
         // Fetch actual Uniswap V3 positions containing KILT token
@@ -99,15 +99,27 @@ export function PositionRegistration() {
           throw new Error('Failed to fetch positions');
         }
         
-        const positions = await response.json();
-        return positions.filter((pos: any) => pos.isKiltPosition);
+        const data = await response.json();
+        
+        // Also get total positions to differentiate between "no positions" and "no unregistered positions"
+        const totalPositionsResponse = await fetch(`/api/positions/user-total/${address}`);
+        const totalPositions = totalPositionsResponse.ok ? (await totalPositionsResponse.json()).count : 0;
+        
+        return {
+          eligiblePositions: data.eligiblePositions || [],
+          totalPositions,
+          message: data.message || ''
+        };
       } catch (error) {
         console.error('Error fetching unregistered positions:', error);
-        return [];
+        return { eligiblePositions: [], totalPositions: 0, message: '' };
       }
     },
     enabled: !!address
   });
+
+  const unregisteredPositions = unregisteredPositionsData?.eligiblePositions || [];
+  const totalPositions = unregisteredPositionsData?.totalPositions || 0;
 
   // Register position mutation
   const registerMutation = useMutation({
@@ -282,11 +294,44 @@ export function PositionRegistration() {
             </div>
           ) : unregisteredPositions.length === 0 ? (
             <div className="text-center py-8">
-              <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
-              <h3 className="text-white font-semibold mb-2">All Set!</h3>
-              <p className="text-white/60">
-                No unregistered KILT positions found. All your positions are already earning rewards.
-              </p>
+              {totalPositions === 0 ? (
+                <>
+                  <Plus className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                  <h3 className="text-white font-semibold mb-2">No KILT Positions Found</h3>
+                  <p className="text-white/60 mb-4">
+                    You don't have any KILT liquidity positions yet. Create your first position to start earning treasury rewards!
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <Button 
+                      onClick={() => {
+                        // Navigate to liquidity tab
+                        const liquidityTabButton = document.querySelector('[data-tab="liquidity"]') as HTMLElement;
+                        liquidityTabButton?.click();
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Liquidity
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => window.open('https://app.uniswap.org/', '_blank')}
+                      className="border-white/20 hover:bg-white/5"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Visit Uniswap
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
+                  <h3 className="text-white font-semibold mb-2">All Set!</h3>
+                  <p className="text-white/60">
+                    All your KILT positions are already registered and earning rewards.
+                  </p>
+                </>
+              )}
             </div>
           ) : (
             <div className="space-y-4">

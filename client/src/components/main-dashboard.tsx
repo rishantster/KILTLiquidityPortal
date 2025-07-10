@@ -549,9 +549,9 @@ export function MainDashboard() {
                   <Zap className="h-4 w-4 text-emerald-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl h-fit">
-                  <CardContent className="p-4">
-                    <div className="space-y-4">
+                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl min-h-[400px] flex flex-col">
+                  <CardContent className="p-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-4 flex-1">
                       {/* Balance Display */}
                       <div className="bg-white/5 rounded-lg p-3 border border-white/10">
                         <h4 className="text-white font-medium text-sm mb-2 text-label">Wallet Balance</h4>
@@ -625,6 +625,11 @@ export function MainDashboard() {
                         })()}
                       </div>
 
+
+                    </div>
+                    
+                    {/* Action Button and Help Text - Bottom of Card */}
+                    <div className="space-y-4 mt-4">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();

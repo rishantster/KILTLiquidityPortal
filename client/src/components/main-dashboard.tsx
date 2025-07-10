@@ -540,7 +540,7 @@ export function MainDashboard() {
                   <Plus className="h-4 w-4 text-emerald-400" />
                   Register Existing Positions
                 </h2>
-                <div className="h-[440px]">
+                <div className="h-[440px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>

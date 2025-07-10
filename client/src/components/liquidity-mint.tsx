@@ -669,57 +669,42 @@ export function LiquidityMint() {
           )}
         </Button>
       </div>
-      {/* Ultra Compact Earning Opportunities */}
+      {/* Compact Earning Opportunities */}
       <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 rounded-lg">
         <CardHeader className="pb-1">
-          <CardTitle className="text-white text-sm flex items-center gap-1">
+          <CardTitle className="text-white text-xs flex items-center gap-1">
             <TrendingUp className="h-3 w-3 text-emerald-400" />
             Earning Opportunities
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-3">
-          <p className="text-white/80 text-xs mb-2">
-            Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
-          </p>
-          <div className="space-y-1">
-            <div className="p-2 bg-emerald-500/10 rounded border border-emerald-500/20">
-              <div className="flex items-center gap-1 mb-1">
+        <CardContent className="p-2">
+          <div className="grid grid-cols-2 gap-1">
+            <div className="p-1 bg-emerald-500/10 rounded border border-emerald-500/20">
+              <div className="flex items-center gap-1">
                 <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
                 <span className="text-emerald-400 font-bold text-xs">KILT Rewards</span>
               </div>
-              <p className="text-emerald-100 text-xs">
-                Earn proportional rewards from 2.9M KILT treasury allocation
-              </p>
             </div>
             
-            <div className="p-2 bg-blue-500/10 rounded border border-blue-500/20">
-              <div className="flex items-center gap-1 mb-1">
+            <div className="p-1 bg-blue-500/10 rounded border border-blue-500/20">
+              <div className="flex items-center gap-1">
                 <Coins className="w-3 h-3 text-blue-400" />
                 <span className="text-blue-400 font-bold text-xs">Trading Fees</span>
               </div>
-              <p className="text-blue-100 text-xs">
-                Earn 0.3% of all trades within your price range
-              </p>
             </div>
             
-            <div className="p-2 bg-yellow-500/10 rounded border border-yellow-500/20">
-              <div className="flex items-center gap-1 mb-1">
+            <div className="p-1 bg-yellow-500/10 rounded border border-yellow-500/20">
+              <div className="flex items-center gap-1">
                 <Target className="w-3 h-3 text-yellow-400" />
-                <span className="text-yellow-400 font-bold text-xs">Proportional System</span>
+                <span className="text-yellow-400 font-bold text-xs">Proportional</span>
               </div>
-              <p className="text-yellow-100 text-xs">
-                Higher liquidity amounts earn higher reward shares
-              </p>
             </div>
             
-            <div className="p-2 bg-purple-500/10 rounded border border-purple-500/20">
-              <div className="flex items-center gap-1 mb-1">
+            <div className="p-1 bg-purple-500/10 rounded border border-purple-500/20">
+              <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3 text-purple-400" />
-                <span className="text-purple-400 font-bold text-xs">Time Rewards</span>
+                <span className="text-purple-400 font-bold text-xs">90-day Lock</span>
               </div>
-              <p className="text-purple-100 text-xs">
-                90-day reward lock ensures long-term value alignment
-              </p>
             </div>
           </div>
         </CardContent>

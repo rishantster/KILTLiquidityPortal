@@ -307,7 +307,28 @@ export function RewardsTracking() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <UserPersonalAPR />
+              <div className="space-y-3">
+                <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                  <div className="text-emerald-400 text-xs mb-1 font-medium">Your Current APR</div>
+                  <div className="text-2xl font-bold tabular-nums text-emerald-100">
+                    {unifiedData?.personalAPR?.toFixed(1) || '15.0'}%
+                  </div>
+                  <div className="text-emerald-300 text-xs mt-1">
+                    {unifiedData?.userRank ? `Rank #${unifiedData.userRank} of ${unifiedData.totalParticipants}` : 'Based on liquidity share'}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                    <div className="text-blue-400 text-xs font-medium">Time Weight</div>
+                    <div className="text-sm font-bold tabular-nums text-white">40%</div>
+                  </div>
+                  <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    <div className="text-purple-400 text-xs font-medium">Liquidity Weight</div>
+                    <div className="text-sm font-bold tabular-nums text-white">60%</div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 

@@ -463,6 +463,11 @@ export function LiquidityMint() {
             <CardTitle className="text-white text-sm flex items-center gap-1">
               <Zap className="h-3 w-3 text-pink-400" />
               Price Range Strategy
+              {getSelectedStrategy().recommended && (
+                <div className="ml-2 px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full font-medium border border-emerald-500/30">
+                  Optimal for programs
+                </div>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 p-3">
@@ -510,14 +515,7 @@ export function LiquidityMint() {
                 <p className="text-white/60 text-xs">{getSelectedStrategy().risk}</p>
               </div>
               
-              {getSelectedStrategy().recommended && (
-                <div className="flex items-center gap-1 p-1 bg-emerald-500/10 rounded border border-emerald-500/20">
-                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-                  <span className="text-emerald-300 text-xs font-medium">
-                    Optimal for programs
-                  </span>
-                </div>
-              )}
+
               
               {/* Ultra Compact Range Preview */}
               <div className="space-y-1">

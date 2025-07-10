@@ -83,52 +83,86 @@ export class RewardService {
 
   /**
    * Get in-range multiplier for position
-   * In-range positions: 100% of rewards
-   * Out-of-range positions: 0% of rewards  
-   * Partially in-range: Proportional based on timeInRange
+   * Full range positions: Always 100% of rewards (they're always providing liquidity)
+   * Concentrated positions: Based on time-in-range performance
+   * Out-of-range positions: 0% of rewards
    */
   private async getInRangeMultiplier(nftTokenId: string): Promise<number> {
     try {
-      // Get the most recent position snapshot to check in-range status
-      const [latestSnapshot] = await this.db
+      // First, get the position details to check if it's full range
+      const [position] = await this.db
         .select()
-        .from(positionSnapshots)
-        .where(eq(positionSnapshots.positionId, parseInt(nftTokenId)))
-        .orderBy(desc(positionSnapshots.snapshotAt))
+        .from(lpPositions)
+        .where(eq(lpPositions.nftTokenId, nftTokenId))
         .limit(1);
 
-      if (!latestSnapshot) {
-        // If no snapshot exists, assume position is in-range initially
-        // This will be corrected when the first snapshot is taken
+      if (!position) {
+        console.error(`Position not found for NFT ${nftTokenId}`);
+        return 0.0;
+      }
+
+      const minPrice = parseFloat(position.minPrice);
+      const maxPrice = parseFloat(position.maxPrice);
+      
+      // Check if this is a full range position (essentially infinite range)
+      const FULL_RANGE_MIN = 0.0001; // Effectively 0
+      const FULL_RANGE_MAX = 1000000; // Effectively infinite
+      
+      const isFullRange = minPrice <= FULL_RANGE_MIN && maxPrice >= FULL_RANGE_MAX;
+      
+      if (isFullRange) {
+        // Full range positions always earn full rewards
+        console.log(`Full range position ${nftTokenId} - 100% rewards`);
         return 1.0;
       }
 
-      // Check if position is currently in range
-      if (latestSnapshot.inRange) {
-        return 1.0; // Full rewards for in-range positions
-      }
-
-      // For out-of-range positions, check historical time in range
+      // For concentrated positions, check actual in-range performance
       const [performanceMetrics] = await this.db
         .select()
         .from(performanceMetrics)
-        .where(eq(performanceMetrics.positionId, parseInt(nftTokenId)))
+        .where(eq(performanceMetrics.positionId, position.id))
         .orderBy(desc(performanceMetrics.date))
         .limit(1);
 
-      if (performanceMetrics && performanceMetrics.timeInRange) {
-        // Use historical time in range percentage as multiplier
-        // If position was in range 70% of time, give 70% of rewards
-        const timeInRangePercentage = Number(performanceMetrics.timeInRange);
-        return Math.max(0, Math.min(1, timeInRangePercentage));
+      if (!performanceMetrics) {
+        // No performance data yet - check current price against range
+        const currentPoolPrice = 0.0160; // Current KILT price in ETH (would get from live data)
+        
+        const isCurrentlyInRange = currentPoolPrice >= minPrice && currentPoolPrice <= maxPrice;
+        
+        if (isCurrentlyInRange) {
+          console.log(`New concentrated position ${nftTokenId} currently in range - 100% rewards`);
+          return 1.0;
+        } else {
+          console.log(`New concentrated position ${nftTokenId} currently out of range - 0% rewards`);
+          return 0.0;
+        }
       }
 
-      // If no performance data available and position is out of range, give minimal rewards
-      return 0.1; // 10% of rewards for out-of-range positions without historical data
+      // Use time-in-range ratio from performance metrics
+      const timeInRangeRatio = parseFloat(performanceMetrics.timeInRangeRatio) / 100; // Convert percentage to decimal
+      
+      // Proportional rewards based on time in range
+      // >90% time in range = full rewards
+      // 10-90% time in range = proportional rewards
+      // <10% time in range = no rewards
+      let multiplier = 0.0;
+      
+      if (timeInRangeRatio >= 0.9) {
+        multiplier = 1.0;
+      } else if (timeInRangeRatio >= 0.1) {
+        multiplier = timeInRangeRatio;
+      } else {
+        multiplier = 0.0;
+      }
+      
+      console.log(`Concentrated position ${nftTokenId} - ${(timeInRangeRatio * 100).toFixed(1)}% time in range - ${(multiplier * 100).toFixed(1)}% rewards`);
+      return multiplier;
+
     } catch (error) {
       console.error('Error calculating in-range multiplier:', error);
-      // Default to 50% if we can't determine range status
-      return 0.5;
+      // Default to full rewards on error to avoid penalizing legitimate positions
+      return 1.0;
     }
   }
 

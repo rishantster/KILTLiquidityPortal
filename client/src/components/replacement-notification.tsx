@@ -118,7 +118,7 @@ export function ReplacementNotification() {
               <AlertCircle className="h-4 w-4 text-yellow-400" />
             </div>
             <div>
-              <p className="text-white font-medium text-sm">Loading Top 100 status...</p>
+              <p className="text-white font-medium text-sm">Loading program status...</p>
             </div>
           </div>
         </CardContent>
@@ -144,10 +144,10 @@ export function ReplacementNotification() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-white text-heading">
-                {requirements.slotsAvailable ? 'Slots Available' : 'Top 100 Full'}
+                {requirements.slotsAvailable ? 'Program Open' : 'Program Active'}
               </h3>
               <p className="text-white/60 text-xs text-body">
-                {requirements.slotsAvailable ? 'Join the Top 100 now!' : 'Replacement mechanism active'}
+                {requirements.slotsAvailable ? 'Join the program now!' : 'Proportional rewards active'}
               </p>
             </div>
           </div>
@@ -182,13 +182,13 @@ export function ReplacementNotification() {
               </h4>
             </div>
             <p className="text-green-200 text-sm">
-              You can join the Top 100 with a minimum liquidity of ${requirements.minimumLiquidity || 100}. 
+              You can join the program with a minimum liquidity of ${requirements.minimumLiquidity || 100}. 
               Add liquidity now to secure your spot!
             </p>
           </div>
         )}
 
-        {/* Replacement Strategies (if Top 100 is full) */}
+        {/* Participation Strategies */}
         {!requirements.slotsAvailable && requirements.replacementStrategies && isExpanded && (
           <div className="mb-4 space-y-3">
             <h4 className="text-white font-semibold text-sm mb-3">Replacement Strategies</h4>

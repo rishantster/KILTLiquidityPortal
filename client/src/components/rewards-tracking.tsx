@@ -28,14 +28,12 @@ interface UserRewardStats {
   avgDailyRewards: number;
 }
 
-interface Top100Analytics {
+interface ProgramAnalytics {
   totalLiquidity: number;
   activeParticipants: number;
-  top100Participants: number;
-  estimatedAPR: { rank1: number; rank50: number; rank100: number };
+  estimatedAPR: { low: number; average: number; high: number };
   treasuryRemaining: number;
-  daysRemaining: number;
-  dailyDistribution: number;
+  avgUserLiquidity: number;
 }
 
 interface ClaimResult {
@@ -69,7 +67,7 @@ export function RewardsTracking() {
   }, []);
 
   // Use unified dashboard data
-  const { user, rewardStats, top100Analytics } = unifiedData;
+  const { user, rewardStats, programAnalytics } = unifiedData;
 
   // Get claimable rewards
   const { data: claimableRewards } = useQuery({
@@ -256,7 +254,7 @@ export function RewardsTracking() {
                 <div className="text-white/60 text-xs text-center mt-2">
                   <p className="mb-1">Add liquidity to start earning rewards</p>
                   <p className="text-white/40">
-                    Rewards accumulate daily based on your ranking in the Top 100 system
+                    Rewards accumulate daily based on your liquidity contribution
                   </p>
                 </div>
               )}
@@ -290,7 +288,7 @@ export function RewardsTracking() {
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center space-x-2 text-white font-heading">
               <TrendingUp className="h-5 w-5 text-emerald-400" />
-              <span>Top 100 Analytics</span>
+              <span>Program Analytics</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -299,31 +297,31 @@ export function RewardsTracking() {
                 <div className="flex justify-between">
                   <span className="text-white/60">Total Liquidity</span>
                   <span className="text-white font-bold tabular-nums">
-                    ${top100Analytics?.totalLiquidity?.toLocaleString() || '0'}
+                    ${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Active Users</span>
                   <span className="text-white font-bold tabular-nums">
-                    {top100Analytics?.activeParticipants || 0}
+                    {programAnalytics?.activeParticipants || 0}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Max APR (Rank 1)</span>
+                  <span className="text-white/60">Average APR</span>
                   <span className="text-white font-bold tabular-nums">
-                    {top100Analytics?.estimatedAPR?.rank1?.toFixed(1) || '0.0'}%
+                    {programAnalytics?.estimatedAPR?.average?.toFixed(1) || '15.0'}%
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Slots Filled</span>
+                  <span className="text-white/60">APR Range</span>
                   <span className="text-white font-bold tabular-nums">
-                    {top100Analytics?.top100Participants || 0}/100
+                    {programAnalytics?.estimatedAPR?.low || 5}% - {programAnalytics?.estimatedAPR?.high || 50}%
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Daily Budget</span>
                   <span className="text-white font-bold tabular-nums">
-                    {top100Analytics?.dailyDistribution?.toLocaleString() || '7,960'} KILT
+                    7,960 KILT
                   </span>
                 </div>
               </div>
@@ -332,8 +330,8 @@ export function RewardsTracking() {
                 <div className="flex items-start gap-2">
                   <TrendingUp className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-white/70">
-                    <strong>Top 100 Ranking:</strong> Only the top 100 participants by liquidity value earn rewards, with APR decreasing by rank (1-100). 
-                    Currently {top100Analytics?.top100Participants || 0} out of 100 slots filled with {top100Analytics?.activeParticipants || 0} total active participants.
+                    <strong>Proportional Rewards:</strong> All participants earn rewards proportional to their liquidity contribution and time-in-range performance. 
+                    Currently {programAnalytics?.activeParticipants || 0} total active participants.
                   </div>
                 </div>
               </div>
@@ -364,7 +362,7 @@ export function RewardsTracking() {
               <div className="flex justify-between">
                 <span className="text-white/60">Remaining</span>
                 <span className="text-white font-bold tabular-nums flex items-center gap-1">
-                  {top100Analytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} 
+                  {programAnalytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} 
                   <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
                   <span>KILT</span>
                 </span>
@@ -404,7 +402,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-                  <span>Top 100 ranking system with tier-based APR</span>
+                  <span>Proportional rewards for all participants</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>

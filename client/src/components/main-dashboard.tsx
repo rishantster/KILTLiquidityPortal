@@ -260,7 +260,7 @@ export function MainDashboard() {
               </h1>
               
               <p className="text-xl text-white/80 font-body max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
-                Provide liquidity for KILT/ETH on Base network and earn <span className="text-emerald-400 font-semibold">up to 66% APR</span> with our Top 100 ranking system. 
+                Provide liquidity for KILT/ETH on Base network and earn <span className="text-emerald-400 font-semibold">proportional rewards</span> based on your liquidity contribution. 
                 <span className="text-blue-400 font-semibold">2.9M KILT tokens</span> (1% of total supply) allocated from treasury with 90-day reward locking.
               </p>
             </div>
@@ -293,7 +293,7 @@ export function MainDashboard() {
                 </div>
                 <h3 className="text-white font-semibold text-lg mb-2">Treasury Rewards</h3>
                 <p className="text-white/60 text-sm font-body">
-                  Earn up to 66% APR with Top 100 ranking system from 2.9M KILT treasury allocation with 90-day reward locking.
+                  Earn proportional rewards from 2.9M KILT treasury allocation with 90-day reward locking.
                 </p>
               </Card>
 

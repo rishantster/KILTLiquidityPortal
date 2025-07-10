@@ -615,9 +615,9 @@ export function LiquidityMint() {
                 Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
               </p>
               <ul className="text-white/60 text-xs space-y-1">
-                <li>• <strong className="text-emerald-400">KILT Rewards:</strong> Earn up to 66% APR with Top 100 ranking system (2.9M tokens from treasury)</li>
+                <li>• <strong className="text-emerald-400">KILT Rewards:</strong> Earn proportional rewards from 2.9M KILT treasury allocation</li>
                 <li>• <strong className="text-blue-400">Trading Fees:</strong> Earn 0.3% of all trades within your price range</li>
-                <li>• <strong className="text-yellow-400">Ranking System:</strong> Higher liquidity amounts earn better ranking positions</li>
+                <li>• <strong className="text-yellow-400">Proportional System:</strong> Higher liquidity amounts earn higher reward shares</li>
                 <li>• <strong className="text-purple-400">Time Rewards:</strong> 90-day reward lock ensures long-term value alignment</li>
               </ul>
             </div>

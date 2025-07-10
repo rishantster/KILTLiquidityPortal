@@ -243,21 +243,14 @@ export function PositionRegistration() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-3">
+      {/* Compact Header */}
       <Card className="cluely-card">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-3 text-white font-heading">
-            <Gift className="h-6 w-6 text-emerald-400" />
-            <span>Register Existing Positions</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-4">
           <Alert className="bg-emerald-900/20 border-emerald-400/30">
             <Gift className="h-4 w-4 text-emerald-400" />
-            <AlertDescription className="text-emerald-100">
+            <AlertDescription className="text-emerald-100 text-sm">
               Already have KILT liquidity positions on Uniswap? Register them here to start earning treasury rewards!
-              Rewards will begin accumulating from your registration date.
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -265,40 +258,40 @@ export function PositionRegistration() {
 
       {/* Unregistered Positions */}
       <Card className="cluely-card">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-white font-heading">
+            <CardTitle className="text-white font-heading text-base">
               Eligible Positions
             </CardTitle>
             {selectedPositions.length > 0 && (
               <Button 
                 onClick={handleBulkRegister}
                 disabled={bulkRegisterMutation.isPending}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-emerald-600 hover:bg-emerald-700 text-sm py-1 px-2 h-8"
               >
                 {bulkRegisterMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
                 ) : (
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-3 w-3 mr-1" />
                 )}
-                Register Selected ({selectedPositions.length})
+                Register ({selectedPositions.length})
               </Button>
             )}
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {loadingPositions ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
-              <span className="ml-2 text-white/60">Scanning for positions...</span>
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin text-emerald-400" />
+              <span className="ml-2 text-white/60 text-sm">Scanning for positions...</span>
             </div>
           ) : unregisteredPositions.length === 0 ? (
-            <div className="text-center py-8">
+            <div className="text-center py-4">
               {totalPositions === 0 ? (
                 <>
-                  <Plus className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <h3 className="text-white font-semibold mb-2">No KILT Positions Found</h3>
-                  <p className="text-white/60 mb-4">
+                  <Plus className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <h3 className="text-white font-semibold mb-2 text-sm">No KILT Positions Found</h3>
+                  <p className="text-white/60 mb-3 text-sm">
                     You don't have any KILT liquidity positions yet. Create your first position to start earning treasury rewards!
                   </p>
                   <div className="flex gap-2 justify-center">
@@ -313,26 +306,26 @@ export function PositionRegistration() {
                           liquidityTabButton?.click();
                         }
                       }}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-sm py-1 px-3 h-8"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="h-3 w-3 mr-1" />
                       Add Liquidity
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => window.open('https://app.uniswap.org/', '_blank')}
-                      className="border-white/20 hover:bg-white/5"
+                      className="border-white/20 hover:bg-white/5 text-sm py-1 px-3 h-8"
                     >
-                      <ExternalLink className="h-4 w-4 mr-2" />
+                      <ExternalLink className="h-3 w-3 mr-1" />
                       Visit Uniswap
                     </Button>
                   </div>
                 </>
               ) : (
                 <>
-                  <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
-                  <h3 className="text-white font-semibold mb-2">All Set!</h3>
-                  <p className="text-white/60">
+                  <CheckCircle className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
+                  <h3 className="text-white font-semibold mb-2 text-sm">All Set!</h3>
+                  <p className="text-white/60 text-sm">
                     All your KILT positions are already registered and earning rewards.
                   </p>
                 </>

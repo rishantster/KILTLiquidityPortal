@@ -666,7 +666,7 @@ export function LiquidityMint() {
           <p className="text-white/80 text-xs mb-2">
             Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
           </p>
-          <div className="grid grid-cols-2 gap-1">
+          <div className="space-y-1">
             <div className="p-2 bg-emerald-500/10 rounded border border-emerald-500/20">
               <div className="flex items-center gap-1 mb-1">
                 <img src={kiltLogo} alt="KILT" className="w-3 h-3" />

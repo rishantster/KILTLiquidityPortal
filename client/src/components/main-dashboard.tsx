@@ -248,153 +248,134 @@ export function MainDashboard() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 relative overflow-hidden">
-        {/* Modern Clean Background */}
+      <div className="min-h-screen p-6 relative overflow-hidden">
+        {/* Background Elements */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-floating"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-slate-500/8 rounded-full blur-3xl animate-floating" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-floating" style={{animationDelay: '2s'}}></div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="text-center pt-20 pb-12">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center pt-16 pb-8">
             {/* Hero Section */}
-            <div className="mb-16">
-              <div className="w-24 h-24 bg-white rounded-2xl mx-auto mb-8 flex items-center justify-center shadow-lg border border-gray-200 p-4">
+            <div className="mb-12 animate-fade-in">
+              <div className="w-32 h-32 bg-white rounded-full mx-auto mb-8 flex items-center justify-center animate-floating shadow-2xl p-6">
                 <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
               </div>
               
-              {/* Investment Psychology Headline */}
-              <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
+              {/* Main Headline - KILT focused */}
+              <h1 className="text-5xl sm:text-6xl font-display text-white mb-6 leading-tight animate-slide-up">
                 KILT Liquidity
                 <br />
-                <span className="text-blue-900">
+                <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
                   Incentive Program
                 </span>
               </h1>
               
-              <p className="text-xl text-slate-700 max-w-3xl mx-auto mb-12 leading-relaxed font-medium">
-                Provide liquidity for KILT/ETH on Base network and earn <span className="text-green-700 font-bold">proportional rewards</span> based on your liquidity contribution. 
-                <span className="text-blue-900 font-bold">2.9M KILT tokens</span> allocated from treasury with 90-day reward locking.
+              <p className="text-xl text-white/80 font-body max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
+                Provide liquidity for KILT/ETH on Base network and earn <span className="text-emerald-400 font-semibold">proportional rewards</span> based on your liquidity contribution. 
+                <span className="text-blue-400 font-semibold">2.9M KILT tokens</span> (1% of total supply) allocated from treasury with 90-day reward locking.
               </p>
             </div>
 
-            {/* High-Conversion Connection Section */}
-            <div className="mb-16 flex flex-col items-center">
-              <div className="mb-6">
+            {/* Connection Section */}
+            <div className="mb-16 animate-scale-in animate-delay-300 flex flex-col items-center">
+              <div className="mb-4">
                 <WalletConnect />
               </div>
-              <p className="text-slate-600 text-base font-medium text-center">
-                No signup required. Connect and start earning rewards in seconds.
+              <p className="text-white/50 text-sm font-body text-center">
+                No signup required. Connect and start earning in seconds.
               </p>
             </div>
 
-            {/* Investment-Focused Feature Grid */}
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              <Card className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all">
-                <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-6">
-                  <TrendingUp className="h-8 w-8 text-blue-900" />
+            {/* Feature Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-16">
+              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-100">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-6 w-6 text-blue-300" />
                 </div>
-                <h3 className="text-slate-900 font-bold text-xl mb-3 text-center">KILT/ETH Pool</h3>
-                <p className="text-slate-600 text-base text-center leading-relaxed">
-                  Provide liquidity to the official KILT/ETH Uniswap V3 pool on Base network with concentrated positions for maximum returns.
+                <h3 className="text-white font-semibold text-lg mb-2">KILT/ETH Pool</h3>
+                <p className="text-white/60 text-sm font-body">
+                  Provide liquidity to the official KILT/ETH Uniswap V3 pool on Base network with concentrated positions.
                 </p>
               </Card>
 
-              <Card className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all">
-                <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mx-auto mb-6">
-                  <Award className="h-8 w-8 text-green-800" />
+              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-200">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Award className="h-6 w-6 text-emerald-300" />
                 </div>
-                <h3 className="text-slate-900 font-bold text-xl mb-3 text-center">Treasury Rewards</h3>
-                <p className="text-slate-600 text-base text-center leading-relaxed">
-                  Earn proportional rewards from 2.9M KILT treasury allocation with secure 90-day reward locking for guaranteed returns.
+                <h3 className="text-white font-semibold text-lg mb-2">Treasury Rewards</h3>
+                <p className="text-white/60 text-sm font-body">
+                  Earn proportional rewards from 2.9M KILT treasury allocation with 90-day reward locking.
                 </p>
               </Card>
 
-              <Card className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all">
-                <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-6">
-                  <BarChart3 className="h-8 w-8 text-blue-900" />
+              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-300">
+                <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="h-6 w-6 text-purple-300" />
                 </div>
-                <h3 className="text-slate-900 font-bold text-xl mb-3 text-center">Advanced Analytics</h3>
-                <p className="text-slate-600 text-base text-center leading-relaxed">
-                  Track your position performance, rewards earned, and program progress with institutional-grade analytics.
+                <h3 className="text-white font-semibold text-lg mb-2">Program Analytics</h3>
+                <p className="text-white/60 text-sm font-body">
+                  Track your position performance, rewards earned, and program progress with detailed analytics.
                 </p>
               </Card>
             </div>
 
-            {/* Investment-Focused CTA */}
-            <div className="text-center mb-16">
-              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-12 max-w-4xl mx-auto">
-                <h2 className="text-4xl font-bold text-slate-900 mb-4">
-                  Start Earning Returns
-                </h2>
-                <h3 className="text-2xl font-semibold text-green-800 mb-6">
-                  with KILT Treasury Rewards
-                </h3>
-                <p className="text-slate-700 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-                  Join institutional-grade liquidity providers earning <span className="font-bold text-green-800">proportional rewards</span> from 
-                  our <span className="font-bold text-blue-900">2.9M KILT treasury allocation</span>. Secure, transparent, and profitable.
-                </p>
-                
-                {/* Trust Indicators */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-800 mb-1">2.9M</div>
-                    <div className="text-sm text-slate-600">KILT Treasury</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-900 mb-1">90-Day</div>
-                    <div className="text-sm text-slate-600">Reward Locking</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-slate-900 mb-1">Base</div>
-                    <div className="text-sm text-slate-600">Network Security</div>
-                  </div>
-                </div>
-              </div>
+            {/* Bottom CTA */}
+            <div className="text-center animate-fade-in animate-delay-500 mb-12">
+              <h2 className="text-3xl font-heading text-white mb-4">
+                Join the
+              </h2>
+              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-6">
+                KILT Ecosystem
+              </h1>
+              <p className="text-white/60 text-lg font-body max-w-xl mx-auto mb-8">
+                Become a liquidity provider for KILT Protocol and earn substantial rewards while supporting the decentralized identity ecosystem.
+              </p>
             </div>
 
-            {/* Professional Social Links */}
-            <div className="flex justify-center items-center gap-4">
+            {/* Social Media Links */}
+            <div className="flex justify-center items-center gap-6 animate-fade-in animate-delay-700">
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-300 group border border-slate-200"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
               >
-                <SiX className="h-5 w-5 text-slate-600 group-hover:text-slate-900 transition-colors" />
+                <SiX className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
               </a>
               <a 
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-300 group border border-slate-200"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
               >
-                <SiGithub className="h-5 w-5 text-slate-600 group-hover:text-slate-900 transition-colors" />
+                <SiGithub className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
               </a>
               <a 
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-300 group border border-slate-200"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
               >
-                <SiDiscord className="h-5 w-5 text-slate-600 group-hover:text-slate-900 transition-colors" />
+                <SiDiscord className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
               </a>
               <a 
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-300 group border border-slate-200"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
               >
-                <SiTelegram className="h-5 w-5 text-slate-600 group-hover:text-slate-900 transition-colors" />
+                <SiTelegram className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
               </a>
               <a 
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-300 group border border-slate-200"
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
               >
-                <SiMedium className="h-5 w-5 text-slate-600 group-hover:text-slate-900 transition-colors" />
+                <SiMedium className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
               </a>
             </div>
           </div>
@@ -404,200 +385,302 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="h-screen glass-bg-black overflow-hidden">
-      <div className="h-full flex flex-col">
-        {/* Glassmorphism Header */}
-        <div className="glass-header p-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center glass-gradient-pink shadow-lg">
-                <img src={kiltLogo} alt="KILT" className="w-6 h-6 object-contain" />
-              </div>
-              <div>
-                <h1 className="glass-title text-lg">KILT Liquidity Incentive Program</h1>
-                <p className="glass-caption">Earn proportional rewards • 2.9M KILT treasury • 90-day locking</p>
-              </div>
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        {/* Clean Professional Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
+              <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
             </div>
-            
-            <div className="flex items-center space-x-3">
-              <div className={`glass-badge ${isConnected && isBaseNetworkConnected ? 'blue' : ''}`}>
-                <BaseLogo className="w-3 h-3 mr-1" />
-                Base Network
-                {isConnected && isBaseNetworkConnected && (
-                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full ml-2 animate-pulse" />
-                )}
-              </div>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">KILT Liquidity Portal</h1>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <Badge 
+              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 ${
+                isConnected && isBaseNetworkConnected 
+                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' 
+                  : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+              }`}
+            >
+              <BaseLogo className="w-4 h-4 mr-1.5" />
+              Base Network
+              {isConnected && isBaseNetworkConnected && (
+                <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
+              )}
+            </Badge>
+
+            <div className="flex-shrink-0">
               <WalletConnect />
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 max-w-7xl mx-auto w-full p-6">
-          <div className="h-full grid grid-cols-12 gap-6">
-            {/* Left Column - Main Info */}
-            <div className="col-span-8 space-y-6">
-              {/* Key Metrics */}
-              <div className="grid grid-cols-4 gap-4">
-                <div className="glass-metric-card text-center">
-                  <div className="w-12 h-12 glass-gradient-pink rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
+        {/* Clean Navigation Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12 sm:h-14 gap-1">
+            <TabsTrigger 
+              value="overview" 
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+            >
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-label truncate">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="liquidity" 
+              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+            >
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-label truncate">Add Liquidity</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rewards" 
+              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+            >
+              <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-label truncate">Rewards</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="positions" 
+              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+            >
+              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-label truncate">Positions</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analytics" 
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+            >
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-label truncate">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rebalancing" 
+              className="data-[state=active]:bg-orange-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-2 py-1.5 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+            >
+              <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-label truncate">Rebalance</span>
+            </TabsTrigger>
+
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-4">
+            {/* Unified Metrics Display */}
+            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-2xl p-4 border border-white/10">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* KILT Price */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3 logo-container logo-shimmer">
+                    <img 
+                      src={kiltLogo} 
+                      alt="KILT" 
+                      className={`w-12 h-12 logo-hover ${!logoAnimationComplete ? 'logo-reveal' : 'logo-pulse'}`}
+                    />
                   </div>
-                  <div className="glass-metric-label">KILT Price</div>
-                  <div className="glass-metric-value text-xl">
-                    ${kiltData?.price?.toFixed(6) || '0.000000'}
-                  </div>
+                  <p className="text-white/70 text-sm mb-1 text-label">KILT Price</p>
+                  <p className="text-white font-bold text-xl text-numbers">
+                    ${kiltData?.price?.toFixed(4) || '0.0289'}
+                  </p>
+                  <p className="text-emerald-300 text-xs mt-1 text-body">+0.50%</p>
                 </div>
 
-                <div className="glass-metric-card text-center">
-                  <div className="w-12 h-12 glass-gradient-blue rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <TrendingUp className="h-8 w-8 text-white" />
+                {/* Market Cap */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <Coins className="h-8 w-8 text-white" />
                   </div>
-                  <div className="glass-metric-label">Market Cap</div>
-                  <div className="glass-metric-value text-xl">
+                  <p className="text-white/70 text-sm mb-1 text-label">Market Cap</p>
+                  <p className="text-white font-bold text-xl text-numbers">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
-                  </div>
+                  </p>
+                  <p className="text-blue-300 text-xs mt-1 text-body">276.97M circulating</p>
                 </div>
 
-                <div className="glass-metric-card text-center">
-                  <div className="w-12 h-12 glass-gradient-green rounded-xl flex items-center justify-center mx-auto mb-3">
+                {/* Your Reward APR */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
                     <Award className="h-8 w-8 text-white" />
                   </div>
-                  <div className="glass-metric-label">Your APR</div>
-                  <div className="glass-metric-value text-xl glass-text-green">
+                  <p className="text-white/70 text-sm mb-1 text-label">Your Reward APR</p>
+                  <div className="text-white font-bold text-xl text-numbers">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
-                      <span className="glass-text-gray-400">--</span>
+                      <div className="text-center">
+                        <span className="text-white/50">--</span>
+                        <div className="text-white/40 text-xs mt-1">Connect wallet</div>
+                      </div>
                     )}
                   </div>
                 </div>
 
-                <div className="glass-metric-card text-center">
-                  <div className="w-12 h-12 glass-gradient-purple rounded-xl flex items-center justify-center mx-auto mb-3">
+                {/* Treasury Status */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
                     <Coins className="h-8 w-8 text-white" />
                   </div>
-                  <div className="glass-metric-label">Treasury Pool</div>
-                  <div className="glass-metric-value text-xl">
+                  <p className="text-white/70 text-sm mb-1 text-label">Treasury Pool</p>
+                  <p className="text-white font-bold text-xl text-numbers">
                     {kiltData?.treasuryRemaining ? (kiltData.treasuryRemaining / 1000000).toFixed(1) : '2.9'}M
-                  </div>
-                </div>
-              </div>
-
-              {/* Three Feature Columns */}
-              <div className="grid grid-cols-3 gap-6 flex-1">
-                {/* KILT/ETH Pool */}
-                <div className="glass-card p-6 text-center">
-                  <div className="w-16 h-16 glass-gradient-blue rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <TrendingUp className="h-10 w-10 text-white" />
-                  </div>
-                  <h3 className="glass-subtitle mb-3">KILT/ETH Pool</h3>
-                  <p className="glass-caption mb-4">
-                    Provide liquidity to the official KILT/ETH Uniswap V3 pool on Base network with concentrated positions for maximum returns.
                   </p>
-                  <button 
-                    onClick={() => setActiveTab('liquidity')}
-                    className="glass-btn-primary w-full"
-                  >
-                    Add Liquidity
-                  </button>
-                </div>
-
-                {/* Treasury Rewards */}
-                <div className="glass-card p-6 text-center">
-                  <div className="w-16 h-16 glass-gradient-green rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Award className="h-10 w-10 text-white" />
-                  </div>
-                  <h3 className="glass-subtitle mb-3">Treasury Rewards</h3>
-                  <p className="glass-caption mb-4">
-                    Earn proportional rewards from 2.9M KILT treasury allocation with secure 90-day reward locking for guaranteed returns.
-                  </p>
-                  <button 
-                    onClick={() => setActiveTab('rewards')}
-                    className="glass-btn-primary w-full"
-                  >
-                    View Rewards
-                  </button>
-                </div>
-
-                {/* Advanced Analytics */}
-                <div className="glass-card p-6 text-center">
-                  <div className="w-16 h-16 glass-gradient-purple rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <BarChart3 className="h-10 w-10 text-white" />
-                  </div>
-                  <h3 className="glass-subtitle mb-3">Advanced Analytics</h3>
-                  <p className="glass-caption mb-4">
-                    Track your position performance, rewards earned, and program progress with institutional-grade analytics.
-                  </p>
-                  <button 
-                    onClick={() => setActiveTab('analytics')}
-                    className="glass-btn-primary w-full"
-                  >
-                    View Analytics
-                  </button>
+                  <p className="text-amber-300 text-xs mt-1 text-body">KILT remaining</p>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Wallet & Actions */}
-            <div className="col-span-4 space-y-6">
-              {!address ? (
-                /* Connect Wallet CTA */
-                <div className="glass-card p-8 text-center h-full flex flex-col justify-center">
-                  <div className="w-20 h-20 glass-gradient-pink rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <Wallet className="h-12 w-12 text-white" />
-                  </div>
-                  <h2 className="glass-title text-2xl mb-4">Connect Wallet & Start Earning</h2>
-                  <p className="glass-caption mb-6">
-                    No signup required. Connect and start earning rewards in seconds.
-                  </p>
-                  <WalletConnect />
+            {/* Two Column Layout - Balanced */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column - Position Registration */}
+              <div className="h-full">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+                  <Plus className="h-4 w-4 text-emerald-400" />
+                  Register Existing Positions
+                </h2>
+                <div className="h-[440px] flex flex-col">
+                  <PositionRegistration />
                 </div>
-              ) : (
-                <div className="space-y-6 h-full">
-                  {/* Position Registration */}
-                  <div className="glass-card p-6">
-                    <PositionRegistration />
-                  </div>
+              </div>
 
-                  {/* Quick Actions */}
-                  <div className="glass-card p-6 flex-1">
-                    <h3 className="glass-subtitle mb-4">Quick Actions</h3>
-                    <div className="space-y-3">
-                      <button 
-                        onClick={() => setActiveTab('liquidity')}
-                        className="glass-btn-secondary w-full flex items-center justify-center"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Liquidity
-                      </button>
-                      <button 
-                        onClick={() => setActiveTab('positions')}
-                        className="glass-btn-secondary w-full flex items-center justify-center"
-                      >
-                        <Wallet className="h-4 w-4 mr-2" />
-                        My Positions
-                      </button>
-                      <button 
-                        onClick={() => setActiveTab('rewards')}
-                        className="glass-btn-secondary w-full flex items-center justify-center"
-                      >
-                        <Award className="h-4 w-4 mr-2" />
-                        Claim Rewards
-                      </button>
+              {/* Right Column - Quick Add Liquidity */}
+              <div className="h-full">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+                  <Zap className="h-4 w-4 text-emerald-400" />
+                  Quick Add Liquidity
+                </h2>
+                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl h-[440px] flex flex-col">
+                  <CardContent className="p-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-8 flex-1">
+                      {/* Balance Display */}
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <h4 className="text-white font-medium text-sm mb-2 text-label">Wallet Balance</h4>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <img 
+                                src={kiltLogo} 
+                                alt="KILT" 
+                                className={`w-4 h-4 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
+                              />
+                              <span className="text-white/70 text-sm text-body">KILT:</span>
+                            </div>
+                            <span className="text-white font-bold text-sm text-numbers">
+                              {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <EthereumLogo className="w-4 h-4" />
+                              <span className="text-white/70 text-sm text-body">WETH:</span>
+                            </div>
+                            <span className="text-white font-bold text-sm text-numbers">
+                              {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Optimal Amount */}
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/70 text-sm text-label">Optimal Amount</span>
+                          <span className="text-xs text-white/50 text-body">80% balance</span>
+                        </div>
+                        {(() => {
+                          const amounts = calculateOptimalAmounts();
+                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                          
+                          if (hasInsufficientBalance) {
+                            return (
+                              <div className="text-center py-2">
+                                <div className="text-sm font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
+                                <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
+                              </div>
+                            );
+                          }
+                          
+                          return (
+                            <div>
+                              <div className="text-sm font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers">
+                                ~${amounts.totalValue}
+                              </div>
+                              <div className="flex items-center justify-center space-x-2 text-white/60 text-xs text-body">
+                                <div className="flex items-center space-x-1">
+                                  <img 
+                                    src={kiltLogo} 
+                                    alt="KILT" 
+                                    className={`w-3 h-3 align-middle logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
+                                  />
+                                  <span>{amounts.kiltAmount} KILT</span>
+                                </div>
+                                <span>+</span>
+                                <div className="flex items-center space-x-1">
+                                  <EthereumLogo className="w-3 h-3" />
+                                  <span>{amounts.wethAmount} WETH</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+
                     </div>
-                  </div>
-                </div>
-              )}
+                    
+                    {/* Action Button and Help Text - Bottom of Card */}
+                    <div className="space-y-4 mt-4">
+                      {/* Action Button */}
+                      {(() => {
+                        const amounts = calculateOptimalAmounts();
+                        const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                        const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
+                        
+                        return (
+                          <Button 
+                            onClick={handleQuickAddLiquidity}
+                            disabled={isDisabled}
+                            className={`w-full font-semibold py-2 h-10 rounded-lg transition-all duration-300 ${
+                              hasInsufficientBalance 
+                                ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
+                                : 'bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                            }`}
+                          >
+                            {isQuickAdding ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Processing...
+                              </>
+                            ) : hasInsufficientBalance ? (
+                              <>
+                                <Wallet className="h-4 w-4 mr-2" />
+                                Fund Wallet
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="h-4 w-4 mr-2" />
+                                Quick Add Liquidity
+                                <ArrowRight className="h-4 w-4 ml-2" />
+                              </>
+                            )}
+                          </Button>
+                        );
+                      })()}
+
+                      {/* Help Text */}
+                      <div className="text-center">
+                        <p className="text-xs text-white/40 text-body">
+                          For custom amounts, use the "Add Liquidity" tab above
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Hidden Tabs Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden">
-          <TabsList className="hidden"></TabsList>
-
-          <TabsContent value="overview"></TabsContent>
+          </TabsContent>
 
           {/* Add Liquidity Tab */}
           <TabsContent value="liquidity">

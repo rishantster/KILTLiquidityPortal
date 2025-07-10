@@ -131,7 +131,7 @@ export function GasEstimationCard({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 p-3">
+      <CardContent className="space-y-2 p-3 mt-[9px] mb-[9px]">
         {/* Current Gas Price */}
         <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
           <div className="flex items-center gap-1">

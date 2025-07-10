@@ -1,5 +1,6 @@
 import { db } from './db';
 import { smartContractService } from './smart-contract-service';
+import { uniswapV3APRService } from './uniswap-v3-apr-service';
 import { 
   rewards, 
   dailyRewards, 
@@ -19,6 +20,9 @@ export interface RewardCalculationResult {
   timeMultiplier: number;
   sizeMultiplier: number;
   effectiveAPR: number;
+  tradingFeeAPR: number;
+  incentiveAPR: number;
+  totalAPR: number;
   dailyRewards: number;
   liquidityAmount: number;
   daysStaked: number;
@@ -27,6 +31,17 @@ export interface RewardCalculationResult {
   daysUntilClaim: number;
   rank: number | null;
   totalParticipants: number;
+  aprBreakdown: {
+    poolVolume24h: number;
+    poolTVL: number;
+    feeRate: number;
+    liquidityShare: number;
+    timeInRangeRatio: number;
+    concentrationFactor: number;
+    dailyFeeEarnings: number;
+    dailyIncentiveRewards: number;
+    isInRange: boolean;
+  };
 }
 
 export interface ClaimRewardResult {
@@ -219,6 +234,9 @@ export class RewardService {
         timeMultiplier: 0,
         sizeMultiplier: 0,
         effectiveAPR: 0,
+        tradingFeeAPR: 0,
+        incentiveAPR: 0,
+        totalAPR: 0,
         dailyRewards: 0,
         liquidityAmount: positionValueUSD,
         daysStaked,
@@ -226,7 +244,18 @@ export class RewardService {
         canClaim: false,
         daysUntilClaim: Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity),
         rank: null,
-        totalParticipants: 0
+        totalParticipants: 0,
+        aprBreakdown: {
+          poolVolume24h: 0,
+          poolTVL: 0,
+          feeRate: 0,
+          liquidityShare: 0,
+          timeInRangeRatio: 0,
+          concentrationFactor: 1,
+          dailyFeeEarnings: 0,
+          dailyIncentiveRewards: 0,
+          isInRange: false
+        }
       };
     }
     
@@ -241,6 +270,20 @@ export class RewardService {
     // R_u = (w1 * L_u/T_total + w2 * D_u/365) * R/365 * inRangeMultiplier
     let dailyRewards = 0;
     let effectiveAPR = 0;
+    let tradingFeeAPR = 0;
+    let incentiveAPR = 0;
+    let totalAPR = 0;
+    let aprBreakdown = {
+      poolVolume24h: 0,
+      poolTVL: 0,
+      feeRate: 0.003,
+      liquidityShare: 0,
+      timeInRangeRatio: 0,
+      concentrationFactor: 1,
+      dailyFeeEarnings: 0,
+      dailyIncentiveRewards: 0,
+      isInRange: false
+    };
     
     if (totalActiveLiquidity > 0 && positionValueUSD > 0) {
       const liquidityShare = positionValueUSD / totalActiveLiquidity;
@@ -256,9 +299,53 @@ export class RewardService {
       // R_u = base_component * R/365 * inRangeMultiplier
       dailyRewards = baseComponent * this.DAILY_BUDGET * inRangeMultiplier;
       
-      // Calculate effective APR based on daily rewards with reasonable caps
+      // Calculate incentive APR based on daily rewards with reasonable caps
       const annualRewards = dailyRewards * 365;
-      effectiveAPR = Math.min(200, (annualRewards / positionValueUSD) * 100); // Cap at 200% APR
+      incentiveAPR = Math.min(200, (annualRewards / positionValueUSD) * 100); // Cap at 200% APR
+      
+      // Get position details for full APR calculation
+      const [position] = await this.db.select().from(lpPositions).where(eq(lpPositions.nftTokenId, nftTokenId)).limit(1);
+      
+      if (position) {
+        try {
+          // Calculate full Uniswap V3 APR (Trading Fees + Incentives)
+          const fullAPR = await uniswapV3APRService.calculateFullUniswapV3APR(
+            position.id,
+            userId,
+            nftTokenId,
+            positionValueUSD,
+            Number(position.minPrice),
+            Number(position.maxPrice),
+            0.003, // 0.3% fee tier for KILT/ETH
+            incentiveAPR,
+            dailyRewards
+          );
+          
+          tradingFeeAPR = fullAPR.tradingFeeAPR;
+          totalAPR = fullAPR.totalAPR;
+          aprBreakdown = {
+            poolVolume24h: fullAPR.breakdown.poolVolume24h,
+            poolTVL: fullAPR.breakdown.poolTVL,
+            feeRate: fullAPR.breakdown.feeRate,
+            liquidityShare: fullAPR.breakdown.liquidityShare,
+            timeInRangeRatio: fullAPR.breakdown.timeInRangeRatio,
+            concentrationFactor: fullAPR.breakdown.concentrationFactor,
+            dailyFeeEarnings: fullAPR.breakdown.dailyFeeEarnings,
+            dailyIncentiveRewards: fullAPR.breakdown.dailyIncentiveRewards,
+            isInRange: fullAPR.breakdown.isInRange
+          };
+        } catch (error) {
+          console.error('Error calculating full APR:', error);
+          // Fall back to incentive APR only
+          tradingFeeAPR = 0;
+          totalAPR = incentiveAPR;
+        }
+      } else {
+        // If no position found, use incentive APR only
+        totalAPR = incentiveAPR;
+      }
+      
+      effectiveAPR = totalAPR;
     }
     
     // Get accumulated rewards
@@ -273,6 +360,9 @@ export class RewardService {
       timeMultiplier: timeFactor, // Now 0-1 normalized time factor
       sizeMultiplier: liquidityShare, // Now liquidity share multiplier
       effectiveAPR,
+      tradingFeeAPR,
+      incentiveAPR,
+      totalAPR,
       dailyRewards,
       liquidityAmount: positionValueUSD,
       daysStaked,
@@ -280,7 +370,8 @@ export class RewardService {
       canClaim,
       daysUntilClaim,
       rank: userRank || null,
-      totalParticipants: allParticipants.length
+      totalParticipants: allParticipants.length,
+      aprBreakdown
     };
   }
 

@@ -36,10 +36,17 @@ export function UserPersonalAPR({ address }: UserPersonalAPRProps) {
   return (
     <div className="text-center">
       <span className="text-numbers">
-        {userAPR.effectiveAPR.toFixed(1)}%
+        {userAPR.totalAPR?.toFixed(1) || userAPR.effectiveAPR.toFixed(1)}%
       </span>
       <div className="text-white/60 text-xs mt-1">
-        {userAPR.rank ? `Active participant` : 'Not active'}
+        {userAPR.tradingFeeAPR && userAPR.incentiveAPR ? (
+          <div className="space-y-1">
+            <div>{userAPR.tradingFeeAPR.toFixed(1)}% Trading + {userAPR.incentiveAPR.toFixed(1)}% Incentive</div>
+            <div>{userAPR.rank ? `Active participant` : 'Not active'}</div>
+          </div>
+        ) : (
+          <div>{userAPR.rank ? `Active participant` : 'Not active'}</div>
+        )}
       </div>
     </div>
   );

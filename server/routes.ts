@@ -857,7 +857,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUserByAddress(userAddress);
       if (!user) {
         // User not found, return 0% APR with no ranking
-        res.json({ effectiveAPR: 0, rank: null, totalParticipants: 100 });
+        res.json({ effectiveAPR: 0, tradingFeeAPR: 0, incentiveAPR: 0, totalAPR: 0, rank: null, totalParticipants: 100 });
         return;
       }
       
@@ -866,12 +866,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (positions.length === 0) {
         // No positions, return 0% APR with no ranking
-        res.json({ effectiveAPR: 0, rank: null, totalParticipants: 100 });
+        res.json({ effectiveAPR: 0, tradingFeeAPR: 0, incentiveAPR: 0, totalAPR: 0, rank: null, totalParticipants: 100 });
         return;
       }
       
       // Calculate average APR across all positions
       let totalAPR = 0;
+      let totalTradingFeeAPR = 0;
+      let totalIncentiveAPR = 0;
       let totalValueUSD = 0;
       let bestRank = null;
       let totalParticipants = 100;
@@ -887,7 +889,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           new Date(position.createdAt)
         );
         
-        totalAPR += rewardCalc.effectiveAPR * positionValueUSD;
+        totalAPR += rewardCalc.totalAPR * positionValueUSD;
+        totalTradingFeeAPR += rewardCalc.tradingFeeAPR * positionValueUSD;
+        totalIncentiveAPR += rewardCalc.incentiveAPR * positionValueUSD;
         totalValueUSD += positionValueUSD;
         
         // Track the best (lowest) rank across all positions
@@ -898,16 +902,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalParticipants = rewardCalc.totalParticipants;
       }
       
-      const weightedAPR = totalValueUSD > 0 ? totalAPR / totalValueUSD : 0;
+      const weightedTotalAPR = totalValueUSD > 0 ? totalAPR / totalValueUSD : 0;
+      const weightedTradingFeeAPR = totalValueUSD > 0 ? totalTradingFeeAPR / totalValueUSD : 0;
+      const weightedIncentiveAPR = totalValueUSD > 0 ? totalIncentiveAPR / totalValueUSD : 0;
       
       res.json({ 
-        effectiveAPR: weightedAPR, 
+        effectiveAPR: weightedTotalAPR,
+        tradingFeeAPR: weightedTradingFeeAPR,
+        incentiveAPR: weightedIncentiveAPR,
+        totalAPR: weightedTotalAPR,
         rank: bestRank, 
         totalParticipants 
       });
     } catch (error) {
       console.error('Error calculating user APR:', error);
       res.status(500).json({ error: "Failed to calculate user APR" });
+    }
+  });
+
+  // APR Analysis Routes
+  app.get("/api/positions/:positionId/apr-breakdown", async (req, res) => {
+    try {
+      const positionId = parseInt(req.params.positionId);
+      
+      if (!positionId || isNaN(positionId)) {
+        res.status(400).json({ error: 'Invalid position ID' });
+        return;
+      }
+
+      // Get position details
+      const position = await storage.getLpPositionById(positionId);
+      if (!position) {
+        res.status(404).json({ error: 'Position not found' });
+        return;
+      }
+
+      // Calculate rewards (includes both trading fees and incentives)
+      const rewardResult = await rewardService.calculatePositionRewards(
+        position.userId,
+        position.nftTokenId,
+        Number(position.currentValueUSD),
+        new Date(position.createdAt)
+      );
+
+      res.json({
+        positionId: positionId,
+        nftTokenId: position.nftTokenId,
+        positionValue: Number(position.currentValueUSD),
+        apr: {
+          tradingFee: rewardResult.tradingFeeAPR,
+          incentive: rewardResult.incentiveAPR,
+          total: rewardResult.totalAPR
+        },
+        breakdown: rewardResult.aprBreakdown,
+        dailyEarnings: {
+          tradingFees: rewardResult.aprBreakdown.dailyFeeEarnings,
+          incentives: rewardResult.aprBreakdown.dailyIncentiveRewards,
+          total: rewardResult.aprBreakdown.dailyFeeEarnings + rewardResult.aprBreakdown.dailyIncentiveRewards
+        },
+        position: {
+          minPrice: Number(position.minPrice),
+          maxPrice: Number(position.maxPrice),
+          isInRange: rewardResult.aprBreakdown.isInRange,
+          timeInRangeRatio: rewardResult.aprBreakdown.timeInRangeRatio,
+          concentrationFactor: rewardResult.aprBreakdown.concentrationFactor,
+          daysActive: rewardResult.daysStaked
+        }
+      });
+    } catch (error) {
+      console.error('Error getting position APR breakdown:', error);
+      res.status(500).json({ error: 'Failed to get APR breakdown' });
+    }
+  });
+
+  // Get pool metrics for APR calculation
+  app.get("/api/pool-metrics/:poolAddress", async (req, res) => {
+    try {
+      const { poolAddress } = req.params;
+      
+      // This would integrate with actual pool data
+      // For now, return mock data structure
+      res.json({
+        poolAddress,
+        volume24h: 50000,
+        tvl: 500000,
+        currentPrice: 0.016,
+        feeRate: 0.003,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error getting pool metrics:', error);
+      res.status(500).json({ error: 'Failed to get pool metrics' });
+    }
+  });
+
+  // Calculate APR for different range strategies
+  app.post("/api/apr/range-strategies", async (req, res) => {
+    try {
+      const { positionValue, currentPrice } = req.body;
+      
+      if (!positionValue || !currentPrice) {
+        res.status(400).json({ error: 'Missing required parameters' });
+        return;
+      }
+
+      const strategies = [
+        {
+          name: 'Narrow (±25%)',
+          minPrice: currentPrice * 0.75,
+          maxPrice: currentPrice * 1.25,
+          range: 0.25
+        },
+        {
+          name: 'Balanced (±50%)',
+          minPrice: currentPrice * 0.5,
+          maxPrice: currentPrice * 1.5,
+          range: 0.5
+        },
+        {
+          name: 'Wide (±100%)',
+          minPrice: currentPrice * 0.01,
+          maxPrice: currentPrice * 2,
+          range: 1.0
+        },
+        {
+          name: 'Full Range',
+          minPrice: 0,
+          maxPrice: Infinity,
+          range: Infinity
+        }
+      ];
+
+      const results = await Promise.all(
+        strategies.map(async (strategy) => {
+          // This would calculate APR for each strategy
+          // For now, return estimated values
+          const concentrationFactor = strategy.range === Infinity ? 1 : Math.min(4, 2 / strategy.range);
+          const estimatedTradingFeeAPR = 15 * concentrationFactor * 0.7; // Assumes 70% time in range
+          const estimatedIncentiveAPR = 20; // Base incentive APR
+          
+          return {
+            strategy: strategy.name,
+            range: strategy.range,
+            minPrice: strategy.minPrice,
+            maxPrice: strategy.maxPrice,
+            concentrationFactor,
+            estimatedAPR: {
+              tradingFee: estimatedTradingFeeAPR,
+              incentive: estimatedIncentiveAPR,
+              total: estimatedTradingFeeAPR + estimatedIncentiveAPR
+            },
+            riskLevel: strategy.range < 0.5 ? 'High' : strategy.range < 1 ? 'Medium' : 'Low'
+          };
+        })
+      );
+
+      res.json({
+        positionValue,
+        currentPrice,
+        strategies: results,
+        recommendation: results.find(r => r.strategy.includes('Balanced'))?.strategy || 'Balanced (±50%)'
+      });
+    } catch (error) {
+      console.error('Error calculating range strategy APR:', error);
+      res.status(500).json({ error: 'Failed to calculate range strategy APR' });
     }
   });
 

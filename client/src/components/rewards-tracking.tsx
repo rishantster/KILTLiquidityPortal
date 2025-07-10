@@ -370,7 +370,7 @@ export function RewardsTracking() {
               <div className="flex justify-between">
                 <span className="text-white/60">Days Remaining</span>
                 <span className="text-white font-bold tabular-nums">
-                  {top100Analytics?.daysRemaining || 365} days
+                  {programAnalytics?.daysRemaining || 365} days
                 </span>
               </div>
               <div className="flex justify-between">
@@ -383,9 +383,9 @@ export function RewardsTracking() {
               </div>
             </div>
 
-            <Progress value={((2905600 - (top100Analytics?.treasuryRemaining || 2905600)) / 2905600) * 100} className="h-2" />
+            <Progress value={((2905600 - (programAnalytics?.treasuryRemaining || 2905600)) / 2905600) * 100} className="h-2" />
             <div className="text-xs text-white/60 text-center">
-              {(((2905600 - (top100Analytics?.treasuryRemaining || 2905600)) / 2905600) * 100).toFixed(1)}% of treasury allocated
+              {(((2905600 - (programAnalytics?.treasuryRemaining || 2905600)) / 2905600) * 100).toFixed(1)}% of treasury allocated
             </div>
 
             {/* Reward Features */}

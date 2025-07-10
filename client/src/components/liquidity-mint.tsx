@@ -669,46 +669,7 @@ export function LiquidityMint() {
           )}
         </Button>
       </div>
-      {/* Compact Earning Opportunities */}
-      <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 rounded-lg">
-        <CardHeader className="pb-1">
-          <CardTitle className="text-white text-xs flex items-center gap-1">
-            <TrendingUp className="h-3 w-3 text-emerald-400" />
-            Earning Opportunities
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-2">
-          <div className="grid grid-cols-2 gap-1">
-            <div className="p-1 bg-emerald-500/10 rounded border border-emerald-500/20">
-              <div className="flex items-center gap-1">
-                <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
-                <span className="text-emerald-400 font-bold text-xs">KILT Rewards</span>
-              </div>
-            </div>
-            
-            <div className="p-1 bg-blue-500/10 rounded border border-blue-500/20">
-              <div className="flex items-center gap-1">
-                <Coins className="w-3 h-3 text-blue-400" />
-                <span className="text-blue-400 font-bold text-xs">Trading Fees</span>
-              </div>
-            </div>
-            
-            <div className="p-1 bg-yellow-500/10 rounded border border-yellow-500/20">
-              <div className="flex items-center gap-1">
-                <Target className="w-3 h-3 text-yellow-400" />
-                <span className="text-yellow-400 font-bold text-xs">Proportional</span>
-              </div>
-            </div>
-            
-            <div className="p-1 bg-purple-500/10 rounded border border-purple-500/20">
-              <div className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-purple-400" />
-                <span className="text-purple-400 font-bold text-xs">90-day Lock</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }

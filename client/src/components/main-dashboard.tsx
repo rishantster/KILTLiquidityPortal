@@ -404,154 +404,156 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
-        {/* Investment Psychology Header */}
-        <div className="flex items-center justify-between mb-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center p-3 border border-blue-100">
-              <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+    <div className="min-h-screen apple-bg-black">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Apple-style Header */}
+        <div className="apple-header mb-8 rounded-2xl p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-pink-500 to-pink-600 shadow-lg">
+                <img src={kiltLogo} alt="KILT" className="w-8 h-8 object-contain" />
+              </div>
+              <div>
+                <h1 className="apple-title text-xl">KILT Liquidity Portal</h1>
+                <p className="apple-caption">Professional DeFi Management</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900">KILT Liquidity Portal</h1>
-              <p className="text-slate-800 text-sm font-bold">Professional Liquidity Management</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <Badge 
-              className={`hidden sm:flex px-4 py-2 text-sm font-medium border rounded-full transition-all duration-200 ${
-                isConnected && isBaseNetworkConnected 
-                  ? 'bg-blue-50 text-blue-900 border-blue-200' 
-                  : 'bg-slate-50 text-slate-600 border-slate-200'
-              }`}
-            >
-              <BaseLogo className="w-4 h-4 mr-2" />
-              Base Network
-              {isConnected && isBaseNetworkConnected && (
-                <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
-              )}
-            </Badge>
+            
+            <div className="flex items-center space-x-4">
+              <Badge 
+                className={`hidden sm:flex px-3 py-2 text-sm font-medium apple-badge ${
+                  isConnected && isBaseNetworkConnected 
+                    ? 'blue' 
+                    : ''
+                }`}
+              >
+                <BaseLogo className="w-4 h-4 mr-2" />
+                Base Network
+                {isConnected && isBaseNetworkConnected && (
+                  <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
+                )}
+              </Badge>
 
-            <div className="flex-shrink-0">
-              <WalletConnect />
+              <div className="flex-shrink-0">
+                <WalletConnect />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Investment Psychology Navigation */}
+        {/* Apple-style Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-white border border-slate-200 p-1 rounded-xl mb-8 h-14 gap-1 shadow-sm">
+          <TabsList className="grid w-full grid-cols-6 apple-nav p-1 rounded-xl mb-8 h-14 gap-1">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
+              className={`apple-tab ${activeTab === 'overview' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
             >
               <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate font-bold">Overview</span>
+              <span className="text-sm truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-green-800 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-green-50"
+              className={`apple-tab ${activeTab === 'liquidity' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
             >
               <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate font-bold">Add Liquidity</span>
+              <span className="text-sm truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
+              className={`apple-tab ${activeTab === 'rewards' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
             >
               <Award className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate font-bold">Rewards</span>
+              <span className="text-sm truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-slate-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-slate-50"
+              className={`apple-tab ${activeTab === 'positions' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
             >
               <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate font-bold">Positions</span>
+              <span className="text-sm truncate">Positions</span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="data-[state=active]:bg-slate-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-slate-50"
+              className={`apple-tab ${activeTab === 'analytics' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
             >
               <BarChart3 className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate font-bold">Analytics</span>
+              <span className="text-sm truncate">Analytics</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rebalancing" 
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
+              className={`apple-tab ${activeTab === 'rebalancing' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
             >
               <Target className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate font-bold">Rebalance</span>
+              <span className="text-sm truncate">Rebalance</span>
             </TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab - Investment Psychology Design */}
-          <TabsContent value="overview" className="space-y-8">
-            {/* Premium Key Metrics */}
-            <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Overview Tab - Apple Dark Design */}
+          <TabsContent value="overview" className="space-y-6 apple-animate-in">
+            {/* Apple-style Key Metrics */}
+            <div className="apple-card p-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* KILT Price */}
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-200">
+                <div className="apple-metric-card text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
-                      className="w-12 h-12"
+                      className="w-10 h-10"
                     />
                   </div>
-                  <p className="text-slate-800 text-sm mb-2 font-bold">KILT Price</p>
-                  <p className="text-slate-900 font-black text-2xl">
-                    ${kiltData?.price?.toFixed(4) || '0.0289'}
-                  </p>
-                  <p className="text-green-800 text-sm mt-1 font-bold">+0.50%</p>
+                  <div className="apple-metric-label">KILT Price</div>
+                  <div className="apple-metric-value">
+                    ${kiltData?.price?.toFixed(6) || '0.000000'}
+                  </div>
+                  <div className="apple-caption">Real-time Market Price</div>
                 </div>
 
                 {/* Market Cap */}
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-green-200">
-                    <Coins className="h-10 w-10 text-green-800" />
+                <div className="apple-metric-card text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Coins className="h-10 w-10 text-white" />
                   </div>
-                  <p className="text-slate-800 text-sm mb-2 font-bold">Market Cap</p>
-                  <p className="text-slate-900 font-black text-2xl">
+                  <div className="apple-metric-label">Market Cap</div>
+                  <div className="apple-metric-value">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
-                  </p>
-                  <p className="text-blue-800 text-sm mt-1 font-bold">276.97M circulating</p>
+                  </div>
+                  <div className="apple-caption">276.97M circulating</div>
                 </div>
 
                 {/* Your Reward APR */}
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-200">
-                    <Award className="h-10 w-10 text-blue-800" />
+                <div className="apple-metric-card text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Award className="h-10 w-10 text-white" />
                   </div>
-                  <p className="text-slate-800 text-sm mb-2 font-bold">Your Reward APR</p>
-                  <div className="text-slate-900 font-black text-2xl">
+                  <div className="apple-metric-label">Your Reward APR</div>
+                  <div className="apple-metric-value apple-text-green">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
                       <div className="text-center">
-                        <span className="text-slate-600">--</span>
-                        <div className="text-slate-700 text-sm mt-1 font-semibold">Connect wallet</div>
+                        <span className="apple-text-gray-400">--</span>
+                        <div className="apple-caption mt-1">Connect wallet</div>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Treasury Status */}
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-green-200">
-                    <Coins className="h-10 w-10 text-green-800" />
+                <div className="apple-metric-card text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Coins className="h-10 w-10 text-white" />
                   </div>
-                  <p className="text-slate-800 text-sm mb-2 font-bold">Treasury Pool</p>
-                  <p className="text-slate-900 font-black text-2xl">
+                  <div className="apple-metric-label">Treasury Pool</div>
+                  <div className="apple-metric-value">
                     {kiltData?.treasuryRemaining ? (kiltData.treasuryRemaining / 1000000).toFixed(1) : '2.9'}M
-                  </p>
-                  <p className="text-green-800 text-sm mt-1 font-bold">KILT remaining</p>
+                  </div>
+                  <div className="apple-caption">KILT remaining</div>
                 </div>
               </div>
             </div>
 
-            {/* Two Column Layout - Balanced */}
+            {/* Apple-style Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
               <div className="h-full">
@@ -560,48 +562,47 @@ export function MainDashboard() {
 
               {/* Right Column - Quick Add Liquidity */}
               <div className="h-full">
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3 mb-4">
-                  <Zap className="h-5 w-5 text-green-700" />
+                <h2 className="apple-subtitle flex items-center gap-3 mb-4">
+                  <Zap className="h-5 w-5 apple-text-blue" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-white border border-slate-200 rounded-2xl h-[440px] flex flex-col shadow-sm">
-                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
-                    <div className="space-y-6 flex-1">
-                      {/* Balance Display */}
-                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                        <h4 className="text-slate-900 font-bold text-base mb-3">Wallet Balance</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <img 
-                                src={kiltLogo} 
-                                alt="KILT" 
-                                className="w-5 h-5"
-                              />
-                              <span className="text-slate-700 text-sm font-semibold">KILT:</span>
-                            </div>
-                            <span className="text-slate-900 font-bold text-sm">
-                              {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
-                            </span>
+                <div className="apple-card h-[440px] flex flex-col p-6">
+                  <div className="space-y-4 flex-1">
+                    {/* Balance Display */}
+                    <div className="apple-metric-card p-4">
+                      <div className="apple-metric-label mb-3">Wallet Balance</div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <img 
+                              src={kiltLogo} 
+                              alt="KILT" 
+                              className="w-5 h-5"
+                            />
+                            <span className="apple-body">KILT:</span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <EthereumLogo className="w-5 h-5" />
-                              <span className="text-slate-700 text-sm font-semibold">WETH:</span>
-                            </div>
-                            <span className="text-slate-900 font-bold text-sm">
-                              {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
-                            </span>
+                          <span className="apple-metric-value text-base">
+                            {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <EthereumLogo className="w-5 h-5" />
+                            <span className="apple-body">WETH:</span>
                           </div>
+                          <span className="apple-metric-value text-base">
+                            {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
+                          </span>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Optimal Amount */}
-                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-slate-900 text-base font-bold">Optimal Amount</span>
-                          <span className="text-sm text-slate-600 font-medium">80% balance</span>
-                        </div>
+                    {/* Optimal Amount */}
+                    <div className="apple-metric-card p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="apple-metric-label">Optimal Amount</span>
+                        <span className="apple-caption">80% balance</span>
+                      </div>
                         {(() => {
                           const amounts = calculateOptimalAmounts();
                           const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
@@ -609,23 +610,23 @@ export function MainDashboard() {
                           if (hasInsufficientBalance) {
                             return (
                               <div className="text-center py-2">
-                                <div className="text-sm font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
-                                <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
+                                <div className="apple-caption apple-text-red">Insufficient Balance</div>
+                                <p className="apple-caption">Fund wallet to continue</p>
                               </div>
                             );
                           }
                           
                           return (
                             <div>
-                              <div className="text-sm font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers">
+                              <div className="apple-metric-value apple-text-blue">
                                 ~${amounts.totalValue}
                               </div>
-                              <div className="flex items-center justify-center space-x-2 text-white/60 text-xs text-body">
+                              <div className="flex items-center justify-center space-x-2 apple-caption">
                                 <div className="flex items-center space-x-1">
                                   <img 
                                     src={kiltLogo} 
                                     alt="KILT" 
-                                    className={`w-3 h-3 align-middle logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
+                                    className="w-3 h-3"
                                   />
                                   <span>{amounts.kiltAmount} KILT</span>
                                 </div>
@@ -638,59 +639,55 @@ export function MainDashboard() {
                             </div>
                           );
                         })()}
-                      </div>
-
-
                     </div>
-                    
-                    {/* Action Button and Help Text - Bottom of Card */}
-                    <div className="space-y-4 mt-4">
-                      {/* Action Button */}
-                      {(() => {
-                        const amounts = calculateOptimalAmounts();
-                        const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
-                        const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
-                        
-                        return (
-                          <Button 
-                            onClick={handleQuickAddLiquidity}
-                            disabled={isDisabled}
-                            className={`w-full font-semibold py-2 h-10 rounded-lg transition-all duration-300 ${
-                              hasInsufficientBalance 
-                                ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
-                                : 'bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                            }`}
-                          >
-                            {isQuickAdding ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Processing...
-                              </>
-                            ) : hasInsufficientBalance ? (
-                              <>
-                                <Wallet className="h-4 w-4 mr-2" />
-                                Fund Wallet
-                              </>
-                            ) : (
-                              <>
-                                <Zap className="h-4 w-4 mr-2" />
-                                Quick Add Liquidity
-                                <ArrowRight className="h-4 w-4 ml-2" />
-                              </>
-                            )}
-                          </Button>
-                        );
-                      })()}
+                  </div>
+                  
+                  {/* Action Button - Bottom of Card */}
+                  <div className="space-y-4 mt-4">
+                    {(() => {
+                      const amounts = calculateOptimalAmounts();
+                      const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                      const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
+                      
+                      return (
+                        <button 
+                          onClick={handleQuickAddLiquidity}
+                          disabled={isDisabled}
+                          className={`apple-button-primary w-full ${
+                            hasInsufficientBalance 
+                              ? 'opacity-50 cursor-not-allowed' 
+                              : ''
+                          }`}
+                        >
+                          {isQuickAdding ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Processing...
+                            </>
+                          ) : hasInsufficientBalance ? (
+                            <>
+                              <Wallet className="h-4 w-4 mr-2" />
+                              Fund Wallet
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="h-4 w-4 mr-2" />
+                              Quick Add Liquidity
+                              <ArrowRight className="h-4 w-4 ml-2" />
+                            </>
+                          )}
+                        </button>
+                      );
+                    })()}
 
-                      {/* Help Text */}
-                      <div className="text-center">
-                        <p className="text-xs text-white/40 text-body">
-                          For custom amounts, use the "Add Liquidity" tab above
-                        </p>
-                      </div>
+                    {/* Help Text */}
+                    <div className="text-center">
+                      <p className="apple-caption">
+                        For custom amounts, use the "Add Liquidity" tab above
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </div>
           </TabsContent>

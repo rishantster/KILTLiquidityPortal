@@ -1,115 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global typography standardization */
-* {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Standard typography classes */
-.text-heading {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-.text-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-}
-
-.text-numbers {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-}
-
-.text-label {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-}
-
+/* Apple-inspired Dark Theme */
 :root {
-  /* Investment Psychology Color Scheme */
-  --background: 0 0% 100%;
-  --foreground: 210 24% 16%;
-  --card: 0 0% 100%;
-  --card-foreground: 210 24% 16%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 210 24% 16%;
-  --primary: 210 100% 20%; /* Deep Trust Blue #003366 */
-  --primary-foreground: 0 0% 100%;
-  --secondary: 210 16% 96%;
-  --secondary-foreground: 210 24% 16%;
-  --muted: 210 16% 98%;
-  --muted-foreground: 210 6% 46%;
-  --accent: 142 69% 58%; /* Investment Green #4ade80 */
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 210 16% 90%;
-  --input: 210 16% 96%;
-  --ring: 210 100% 20%;
-  --radius: 0.75rem;
+  /* Core Apple Colors - Dark Mode */
+  --apple-black: #000000;
+  --apple-gray-900: #0a0a0a;
+  --apple-gray-800: #1c1c1e;
+  --apple-gray-700: #2c2c2e;
+  --apple-gray-600: #3a3a3c;
+  --apple-gray-500: #48484a;
+  --apple-gray-400: #636366;
+  --apple-gray-300: #8e8e93;
+  --apple-gray-200: #aeaeb2;
+  --apple-gray-100: #c7c7cc;
+  --apple-white: #ffffff;
   
-  /* Investment-specific colors */
-  --trust-blue: 210 100% 20%; /* #003366 */
-  --growth-green: 142 69% 26%; /* #007a33 */
-  --action-red: 0 84% 50%; /* For high-conversion CTAs */
-  --wealth-gold: 45 93% 47%; /* Optional accent for premium features */
-}
-
-.dark {
-  --background: hsl(210, 40%, 1%);
-  --foreground: hsl(210, 40%, 98%);
-  --muted: hsl(210, 40%, 8%);
-  --muted-foreground: hsl(215, 20%, 65%);
-  --popover: hsl(210, 40%, 2%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --card: hsl(210, 40%, 2%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --border: hsl(215, 27%, 15%);
-  --input: hsl(215, 27%, 12%);
-  --primary: hsl(210, 100%, 50%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(215, 27%, 32%);
-  --secondary-foreground: hsl(210, 40%, 98%);
-  --accent: hsl(215, 27%, 32%);
-  --accent-foreground: hsl(210, 40%, 98%);
-  --destructive: hsl(0, 62%, 30%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(263, 70%, 50%);
+  /* Apple Blue */
+  --apple-blue: #007aff;
+  --apple-blue-dark: #0051d5;
+  
+  /* Apple Green */
+  --apple-green: #30d158;
+  --apple-green-dark: #248a3d;
+  
+  /* Apple Red */
+  --apple-red: #ff3b30;
+  --apple-red-dark: #d70015;
+  
+  /* Apple Orange */
+  --apple-orange: #ff9500;
+  --apple-orange-dark: #c7750a;
+  
+  /* Apple Purple */
+  --apple-purple: #af52de;
+  --apple-purple-dark: #8944ab;
+  
+  /* Apple Pink */
+  --apple-pink: #ff2d92;
+  --apple-pink-dark: #d70570;
 }
 
 @layer base {
   * {
     @apply border-border;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   }
 
   body {
-    @apply antialiased bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
-    min-height: 100vh;
-    letter-spacing: -0.01em;
+    @apply antialiased;
+    background: var(--apple-black);
+    color: var(--apple-white);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     font-weight: 400;
-    overflow-x: hidden;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    font-variant-numeric: tabular-nums;
+    overflow-x: hidden;
   }
 
+  /* Apple-style subtle background gradient */
   body::before {
     content: '';
     position: fixed;
@@ -118,400 +72,291 @@
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 60% 70%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(48, 209, 88, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 60%, rgba(175, 82, 222, 0.02) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
   }
 }
 
 @layer components {
-  .cluely-card {
-    background: rgba(255, 255, 255, 0.9);
+  /* Apple Card Component */
+  .apple-card {
+    background: rgba(28, 28, 30, 0.6);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 
-      0 1px 3px rgba(0, 0, 0, 0.1),
-      0 1px 2px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    transform: translateZ(0);
-    will-change: transform, background, border-color, box-shadow;
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
-  .cluely-card:hover {
-    background: rgba(255, 255, 255, 1);
-    border-color: rgba(203, 213, 225, 1);
-    transform: translateY(-2px) translateZ(0);
-    box-shadow: 
-      0 10px 25px rgba(0, 0, 0, 0.15),
-      0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .cluely-header {
-    background: rgba(15, 15, 35, 0.95);
-    backdrop-filter: blur(24px);
-  }
-
-  /* Enhanced Logo Animation Keyframes */
-  @keyframes logo-reveal {
-    0% {
-      opacity: 0;
-      transform: scale(0.3) translateY(30px) rotate(-15deg);
-      filter: blur(4px) brightness(0.5);
-    }
-    40% {
-      opacity: 0.7;
-      transform: scale(1.15) translateY(-8px) rotate(5deg);
-      filter: blur(2px) brightness(0.8);
-    }
-    70% {
-      opacity: 0.95;
-      transform: scale(0.95) translateY(3px) rotate(-2deg);
-      filter: blur(1px) brightness(1.1);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0px) rotate(0deg);
-      filter: blur(0px) brightness(1);
-    }
-  }
-
-  @keyframes logo-pulse {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 1;
-      filter: brightness(1);
-    }
-    50% {
-      transform: scale(1.03);
-      opacity: 0.95;
-      filter: brightness(1.05);
-    }
-  }
-
-  @keyframes logo-shimmer {
-    0% {
-      box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 0 10px rgba(236, 72, 153, 0.1);
-    }
-    100% {
-      box-shadow: 0 0 0 20px rgba(236, 72, 153, 0);
-    }
-  }
-
-  /* Enhanced Logo Animation Classes */
-  .logo-reveal {
-    animation: logo-reveal 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-  }
-
-  .logo-pulse {
-    animation: logo-pulse 3s ease-in-out infinite;
-  }
-
-  .logo-shimmer {
-    animation: logo-shimmer 3s ease-in-out infinite;
-  }
-
-  .logo-container {
-    position: relative;
-    display: inline-block;
-  }
-
-  .logo-container::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120%;
-    height: 120%;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    opacity: 0;
-    animation: logo-shimmer 3s ease-in-out infinite;
-    z-index: -1;
-  }
-
-  .logo-hover {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-origin: center;
-    will-change: transform, filter;
-  }
-
-  .logo-hover:hover {
-    transform: scale(1.08) rotate(3deg) translateY(-2px);
-    filter: brightness(1.2) saturate(1.3) drop-shadow(0 4px 12px rgba(232, 121, 249, 0.3));
-  }
-
-  /* Staggered Animation Delays for Multiple Logos */
-  .logo-reveal-delay-1 {
-    animation-delay: 0.1s;
-  }
-
-  .logo-reveal-delay-2 {
-    animation-delay: 0.2s;
-  }
-
-  .logo-reveal-delay-3 {
-    animation-delay: 0.3s;
-  }
-
-  .logo-reveal-delay-4 {
-    animation-delay: 0.4s;
-  }
-
-  /* Large Logo Animations for prominent displays */
-  @keyframes logo-reveal-large {
-    0% {
-      opacity: 0;
-      transform: scale(0.2) translateY(40px) rotate(-20deg);
-      filter: blur(6px) brightness(0.3);
-    }
-    30% {
-      opacity: 0.4;
-      transform: scale(1.3) translateY(-10px) rotate(10deg);
-      filter: blur(3px) brightness(0.6);
-    }
-    60% {
-      opacity: 0.8;
-      transform: scale(0.9) translateY(5px) rotate(-5deg);
-      filter: blur(1px) brightness(1.2);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0px) rotate(0deg);
-      filter: blur(0px) brightness(1);
-    }
-  }
-
-  .logo-reveal-large {
-    animation: logo-reveal-large 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-  }
-
-  /* Combined animations for enhanced effects */
-  .logo-reveal-enhanced {
-    animation: logo-reveal 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) both,
-               logo-glow 2s ease-in-out infinite 1.5s;
-  }
-
-  .logo-reveal-large-enhanced {
-    animation: logo-reveal-large 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both,
-               logo-glow 2s ease-in-out infinite 2s;
-  }
-
-  /* Floating animation for continuous movement */
-  @keyframes logo-float {
-    0%, 100% {
-      transform: translateY(0px) scale(1);
-      filter: brightness(1);
-    }
-    50% {
-      transform: translateY(-3px) scale(1.01);
-      filter: brightness(1.05);
-    }
-  }
-
-  .logo-float {
-    animation: logo-float 4s ease-in-out infinite;
-  }
-
-  /* Sophisticated glow effect */
-  @keyframes logo-glow {
-    0%, 100% {
-      box-shadow: 0 0 5px rgba(232, 121, 249, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(232, 121, 249, 0.6), 0 0 30px rgba(232, 121, 249, 0.4);
-    }
-  }
-
-  .logo-glow {
-    animation: logo-glow 2s ease-in-out infinite;
-    border-radius: 50%;
-  }
-
-  .cluely-button {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
-    transform: translateZ(0);
-    will-change: transform, background, border-color, box-shadow;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cluely-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .cluely-button:hover::before {
-    left: 100%;
-  }
-
-  .cluely-button:hover {
-    background: rgba(255, 255, 255, 0.08);
+  .apple-card:hover {
+    background: rgba(44, 44, 46, 0.7);
     border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px) translateZ(0) scale(1.02);
-    color: white;
-    box-shadow: 
-      0 8px 20px rgba(0, 0, 0, 0.15),
-      0 2px 8px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Apple Header */
+  .apple-header {
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .cluely-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: 1px solid rgba(102, 126, 234, 0.2);
+  /* Apple Navigation */
+  .apple-nav {
+    background: rgba(28, 28, 30, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+  }
+
+  /* Apple Button Primary */
+  .apple-button-primary {
+    background: var(--apple-blue);
     color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 12px 24px;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+  }
+
+  .apple-button-primary:hover {
+    background: var(--apple-blue-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+  }
+
+  /* Apple Button Secondary */
+  .apple-button-secondary {
+    background: rgba(58, 58, 60, 0.6);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 12px 24px;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+  }
+
+  .apple-button-secondary:hover {
+    background: rgba(72, 72, 74, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  /* Apple Text Styles */
+  .apple-title {
     font-weight: 600;
-    box-shadow: 
-      0 4px 16px rgba(102, 126, 234, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    transform: translateZ(0);
-    will-change: transform, background, box-shadow;
-    position: relative;
-    overflow: hidden;
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--apple-white);
   }
 
-  .cluely-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  .apple-subtitle {
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.6);
   }
 
-  .cluely-primary:hover::before {
-    left: 100%;
+  .apple-body {
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
   }
 
-  .cluely-primary:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-    border-color: rgba(102, 126, 234, 0.4);
-    transform: translateY(-3px) translateZ(0) scale(1.05);
-    box-shadow: 
-      0 12px 32px rgba(102, 126, 234, 0.4),
-      0 4px 16px rgba(102, 126, 234, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  .apple-caption {
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.6);
   }
 
-  .nav-glass {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 
-      0 4px 24px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  /* Apple Input */
+  .apple-input {
+    background: rgba(44, 44, 46, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    padding: 12px 16px;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
-  .tab-glass {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    transform: translateZ(0);
-    will-change: transform, background, border-color;
-    position: relative;
-    overflow: hidden;
+  .apple-input:focus {
+    outline: none;
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
   }
 
-  .tab-glass::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-    transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Apple Tab */
+  .apple-tab {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 16px;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
   }
 
-  .tab-glass:hover::before {
-    left: 100%;
+  .apple-tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
   }
 
-  .tab-glass:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-1px) translateZ(0);
-    backdrop-filter: blur(16px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  .apple-tab-active {
+    background: rgba(58, 58, 60, 0.8);
+    color: white;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
-  .status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    position: relative;
+  /* Apple Metrics Card */
+  .apple-metric-card {
+    background: rgba(28, 28, 30, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
-  .status-online {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  .apple-metric-card:hover {
+    background: rgba(44, 44, 46, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   }
 
-  .status-warning {
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-    box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+  .apple-metric-value {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.2;
+    color: white;
+    font-variant-numeric: tabular-nums;
   }
 
-  .status-offline {
-    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+  .apple-metric-label {
+    font-weight: 400;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 4px;
   }
 
-  .minimal-border {
-    border: 1px solid rgba(255, 255, 255, 0.06);
+  .apple-metric-change {
+    font-weight: 500;
+    font-size: 12px;
+    margin-top: 4px;
   }
 
-  .subtle-glow {
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.15);
+  .apple-metric-change.positive {
+    color: var(--apple-green);
   }
 
-  /* Scrollbar Styling */
-  ::-webkit-scrollbar {
-    width: 6px;
+  .apple-metric-change.negative {
+    color: var(--apple-red);
+  }
+
+  /* Apple Modal */
+  .apple-modal {
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Apple Badge */
+  .apple-badge {
+    background: rgba(58, 58, 60, 0.8);
+    color: white;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 12px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .apple-badge.blue {
+    background: rgba(0, 122, 255, 0.2);
+    color: var(--apple-blue);
+  }
+
+  .apple-badge.green {
+    background: rgba(48, 209, 88, 0.2);
+    color: var(--apple-green);
+  }
+
+  .apple-badge.red {
+    background: rgba(255, 59, 48, 0.2);
+    color: var(--apple-red);
+  }
+
+  /* Apple Progress */
+  .apple-progress {
+    background: rgba(72, 72, 74, 0.6);
+    border-radius: 4px;
     height: 6px;
+    overflow: hidden;
   }
 
-  ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 3px;
+  .apple-progress-bar {
+    background: linear-gradient(90deg, var(--apple-blue), var(--apple-purple));
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    transition: background 0.2s ease;
+  /* Apple Alert */
+  .apple-alert {
+    background: rgba(28, 28, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+  .apple-alert.success {
+    border-color: rgba(48, 209, 88, 0.3);
+    background: rgba(48, 209, 88, 0.1);
   }
 
-  /* Mobile Wallet Modal Animations */
-  @keyframes slideInUp {
+  .apple-alert.warning {
+    border-color: rgba(255, 149, 0, 0.3);
+    background: rgba(255, 149, 0, 0.1);
+  }
+
+  .apple-alert.error {
+    border-color: rgba(255, 59, 48, 0.3);
+    background: rgba(255, 59, 48, 0.1);
+  }
+
+  /* Apple Animations */
+  @keyframes apple-fade-in {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(10px);
     }
     to {
       opacity: 1;
@@ -519,412 +364,105 @@
     }
   }
 
-  .modal-backdrop {
-    backdrop-filter: blur(8px);
-    background: rgba(0, 0, 0, 0.5);
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
+  @keyframes apple-scale-in {
     from {
       opacity: 0;
+      transform: scale(0.95);
     }
     to {
       opacity: 1;
+      transform: scale(1);
     }
   }
 
-  /* Mobile wallet button improvements */
-  .mobile-wallet-button {
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    transform: translateZ(0);
-    will-change: transform, background, box-shadow;
+  .apple-animate-in {
+    animation: apple-fade-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
-  .mobile-wallet-button:hover {
-    transform: translateY(-2px) translateZ(0);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  .apple-animate-scale {
+    animation: apple-scale-in 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
-  .mobile-wallet-button:active {
-    transform: translateY(0) translateZ(0);
-    transition: all 0.1s ease;
+  /* Apple Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 }
 
 @layer utilities {
-  .kilt-gradient {
-    background: linear-gradient(135deg, rgba(120, 119, 198, 0.9) 0%, rgba(120, 119, 198, 1) 100%);
-  }
-  
-  .kilt-text {
-    color: rgb(120, 119, 198);
+  .apple-text-white {
+    color: var(--apple-white);
   }
 
-  .font-display {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+  .apple-text-gray-100 {
+    color: var(--apple-gray-100);
   }
 
-  .font-heading {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+  .apple-text-gray-200 {
+    color: var(--apple-gray-200);
   }
 
-  .font-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  .apple-text-gray-300 {
+    color: var(--apple-gray-300);
   }
 
-  .font-light {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 300;
-    letter-spacing: -0.01em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  .apple-text-gray-400 {
+    color: var(--apple-gray-400);
   }
 
-  .font-medium {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  .apple-text-blue {
+    color: var(--apple-blue);
   }
 
-  .font-semibold {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  .apple-text-green {
+    color: var(--apple-green);
   }
 
-  /* Enhanced number rendering for crypto amounts */
-  .font-mono-numbers {
-    font-family: 'Inter', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    font-variant-numeric: tabular-nums slashed-zero;
-    font-feature-settings: "tnum", "zero";
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  .apple-text-red {
+    color: var(--apple-red);
   }
 
-  .text-balance {
-    text-wrap: balance;
+  .apple-bg-black {
+    background-color: var(--apple-black);
   }
 
-  /* Advanced Animation Utilities */
-  .animate-fade-in {
-    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .apple-bg-gray-900 {
+    background-color: var(--apple-gray-900);
   }
 
-  .animate-slide-up {
-    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .apple-bg-gray-800 {
+    background-color: var(--apple-gray-800);
   }
 
-  .animate-slide-in-left {
-    animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .apple-bg-gray-700 {
+    background-color: var(--apple-gray-700);
   }
 
-  .animate-scale-in {
-    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .apple-blur {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
-  .animate-glass-shimmer {
-    animation: glassShimmer 2s ease-in-out infinite;
+  .apple-shadow {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   }
 
-  .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
-  }
-
-  .animate-floating {
-    animation: floating 3s ease-in-out infinite;
-  }
-
-  /* Staggered Animation Delays */
-  .animate-delay-100 { animation-delay: 100ms; }
-  .animate-delay-200 { animation-delay: 200ms; }
-  .animate-delay-300 { animation-delay: 300ms; }
-  .animate-delay-400 { animation-delay: 400ms; }
-  .animate-delay-500 { animation-delay: 500ms; }
-}
-
-/* Keyframe Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes glassShimmer {
-  0%, 100% {
-    background-position: -200% 0;
-  }
-  50% {
-    background-position: 200% 0;
-  }
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(102, 126, 234, 0.3);
-  }
-}
-
-@keyframes floating {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-/* Mobile Dialog Positioning Fix */
-@media (max-width: 768px) {
-  [data-radix-dialog-content] {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 90vw !important;
-    max-width: 400px !important;
-    margin: 0 !important;
-    z-index: 9999 !important;
-    max-height: 90vh !important;
-    overflow-y: auto !important;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    will-change: transform, opacity !important;
-  }
-  
-  [data-radix-dialog-overlay] {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 9998 !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    backdrop-filter: blur(12px) !important;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    will-change: backdrop-filter, background-color !important;
-  }
-
-  /* Prevent viewport jumping - more compatible approach */
-  body[data-scroll-locked] {
-    position: fixed !important;
-    width: 100% !important;
-    height: 100% !important;
-    overflow: hidden !important;
-    top: 0 !important;
-    left: 0 !important;
-  }
-  
-  /* Mobile-specific button improvements */
-  .mobile-wallet-button {
-    min-height: 48px !important;
-    padding: 12px 16px !important;
-    font-size: 16px !important;
-    border-radius: 12px !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(12px) !important;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-  
-  .mobile-wallet-button:active {
-    transform: scale(0.98) !important;
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-  }
-
-  /* Remove purple focus rings on mobile */
-  button:focus,
-  button:focus-visible,
-  input:focus,
-  input:focus-visible,
-  select:focus,
-  select:focus-visible,
-  textarea:focus,
-  textarea:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Replace with subtle glow for accessibility */
-  button:focus-visible {
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
-  }
-
-  /* Remove tap highlight on mobile */
-  * {
-    -webkit-tap-highlight-color: transparent !important;
-  }
-
-  /* Specific button focus fixes */
-  .cluely-button:focus,
-  .cluely-button:focus-visible,
-  .cluely-button:active {
-    outline: none !important;
-    box-shadow: none !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-  }
-
-  /* Remove all default button outlines */
-  button[class*="outline"]:focus,
-  button[class*="outline"]:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-  }
-
-  /* Fix specific button variants */
-  .inline-flex:focus,
-  .inline-flex:focus-visible,
-  [role="button"]:focus,
-  [role="button"]:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Override any purple/blue focus states */
-  *:focus {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Re-add accessible focus only for keyboard navigation */
-  *:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.3) !important;
-    outline-offset: 2px !important;
-  }
-
-  /* Prevent horizontal overflow on mobile */
-  html, body {
-    overflow-x: hidden !important;
-    max-width: 100vw !important;
-  }
-  
-  /* Fix any elements that might cause overflow */
-  * {
-    box-sizing: border-box !important;
-  }
-
-  /* Improve mobile touch targets */
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Smooth modal entrance */
-  [data-radix-dialog-content][data-state="open"] {
-    animation: mobileModalEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-
-  [data-radix-dialog-content][data-state="closed"] {
-    animation: mobileModalExit 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-
-  [data-radix-dialog-overlay][data-state="open"] {
-    animation: overlayEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-
-  [data-radix-dialog-overlay][data-state="closed"] {
-    animation: overlayExit 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-}
-
-@keyframes mobileModalEnter {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes mobileModalExit {
-  from {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-}
-
-@keyframes overlayEnter {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(12px);
-  }
-}
-
-@keyframes overlayExit {
-  from {
-    opacity: 1;
-    backdrop-filter: blur(12px);
-  }
-  to {
-    opacity: 0;
-    backdrop-filter: blur(0px);
+  .apple-shadow-lg {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   }
 }

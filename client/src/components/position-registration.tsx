@@ -251,6 +251,10 @@ export function PositionRegistration() {
             <Gift className="h-4 w-4 text-emerald-400" />
             <AlertDescription className="text-emerald-100 text-sm">
               Already have KILT liquidity positions on Uniswap? Register them here to start earning treasury rewards!
+              <div className="mt-2 text-xs text-emerald-200/80 space-y-1">
+                <div>• 90-day lock period • Immediate reward accrual • $100 minimum value</div>
+                <div>• Auto-validation for full range positions • Historical verification for concentrated positions</div>
+              </div>
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -398,51 +402,7 @@ export function PositionRegistration() {
         </CardContent>
       </Card>
 
-      {/* Information */}
-      <Card className="cluely-card">
-        <CardHeader>
-          <CardTitle className="text-white font-heading text-sm">
-            Registration Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div className="flex items-start space-x-3">
-            <Clock className="h-4 w-4 text-yellow-400 mt-0.5" />
-            <div>
-              <div className="text-white font-medium">90-Day Lock Period</div>
-              <div className="text-white/60">Rewards can be claimed 90 days after registration</div>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3">
-            <Gift className="h-4 w-4 text-emerald-400 mt-0.5" />
-            <div>
-              <div className="text-white font-medium">Immediate Reward Accrual</div>
-              <div className="text-white/60">Start earning KILT rewards from registration date</div>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3">
-            <AlertTriangle className="h-4 w-4 text-orange-400 mt-0.5" />
-            <div>
-              <div className="text-white font-medium">Validation Requirements</div>
-              <div className="text-white/60">
-                Must contain KILT token, have minimum $100 value, and pass historical 50/50 balance validation
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3">
-            <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
-            <div>
-              <div className="text-white font-medium">Auto-Validation</div>
-              <div className="text-white/60">
-                Full range positions automatically pass validation. Concentrated positions require historical price verification.
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }

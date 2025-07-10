@@ -14,7 +14,8 @@ import {
   Info,
   Target,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Clock
 } from 'lucide-react';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useWallet } from '@/contexts/wallet-context';
@@ -315,264 +316,295 @@ export function LiquidityMint() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-white font-heading text-2xl flex items-center gap-2">
-            <Plus className="h-6 w-6" />
-            Add Liquidity to KILT/ETH Pool
-          </h2>
-          <p className="text-white/70 text-sm mt-1">
-            Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + trading fees
-          </p>
+    <div className="space-y-8">
+      {/* Enhanced Header */}
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-3">
+          <Plus className="h-8 w-8 text-emerald-400" />
+          <h2 className="text-white font-heading text-3xl">Add Liquidity to KILT/ETH Pool</h2>
         </div>
-        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+        <p className="text-white/70 text-lg max-w-2xl mx-auto">
+          Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + trading fees
+        </p>
+        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-4 py-2 text-base">
           {poolExists ? 'Pool Active' : 'Pool Not Found'}
         </Badge>
       </div>
 
-      {/* Token Amounts with Integrated Position Size */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Target className="h-5 w-5 text-emerald-400" />
+      {/* Enhanced Position Size */}
+      <Card className="bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-teal-500/10 border-emerald-500/20 rounded-2xl overflow-hidden">
+        <CardHeader className="pb-6 bg-gradient-to-r from-emerald-500/5 to-green-500/5">
+          <CardTitle className="text-white text-2xl flex items-center gap-3">
+            <Target className="h-7 w-7 text-emerald-400" />
             Position Size
           </CardTitle>
-          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
+          <p className="text-white/60 text-lg">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Slider
-            value={positionSizePercent}
-            onValueChange={handleSliderChange}
-            max={100}
-            min={0}
-            step={1}
-            className="w-full"
-          />
-          <div className="flex gap-2">
-            {[25, 50, 75, 100].map((percent) => (
-              <Button
-                key={percent}
-                variant={positionSizePercent[0] === percent ? "default" : "outline"}
-                size="sm"
-                onClick={() => handlePercentageSelect(percent)}
-                className="flex-1"
-              >
-                {percent}%
-              </Button>
-            ))}
+        <CardContent className="space-y-8 p-8">
+          <div className="space-y-6">
+            <Slider
+              value={positionSizePercent}
+              onValueChange={handleSliderChange}
+              max={100}
+              min={0}
+              step={1}
+              className="w-full h-3"
+            />
+            <div className="grid grid-cols-4 gap-4">
+              {[25, 50, 75, 100].map((percent) => (
+                <Button
+                  key={percent}
+                  variant={positionSizePercent[0] === percent ? "default" : "outline"}
+                  size="lg"
+                  onClick={() => handlePercentageSelect(percent)}
+                  className={`h-14 text-lg font-semibold transition-all duration-300 ${
+                    positionSizePercent[0] === percent 
+                      ? 'bg-emerald-500 hover:bg-emerald-600 shadow-lg transform scale-105' 
+                      : 'hover:bg-emerald-500/10 hover:border-emerald-500/50'
+                  }`}
+                >
+                  {percent}%
+                </Button>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="cluely-card rounded-2xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
+      {/* Enhanced Token Input Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Enhanced KILT Input */}
+        <Card className="bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 border-pink-500/20 rounded-2xl overflow-hidden">
+          <CardHeader className="pb-6 bg-gradient-to-r from-pink-500/5 to-purple-500/5">
+            <CardTitle className="text-white text-2xl flex items-center gap-3">
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className={`w-8 h-8 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
+                className={`w-10 h-10 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
               />
               KILT
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <Input
-              type="number"
-              value={kiltAmount}
-              onChange={(e) => handleKiltAmountChange(e.target.value)}
-              placeholder="Enter KILT amount"
-              min="0"
-              className="bg-white/5 border-white/10 text-white text-xl h-12"
-            />
-            <div className="flex justify-between text-sm">
-              <span className="text-white/60">
-                Balance: {kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><img 
-                  src={kiltLogo} 
-                  alt="KILT" 
-                  className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
-                />KILT</span>
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handlePercentageSelect(100)}
-                className="text-emerald-400 hover:text-emerald-300 p-0 h-auto"
-              >
-                MAX
-              </Button>
+          <CardContent className="space-y-6 p-8">
+            <div className="space-y-4">
+              <Input
+                type="number"
+                value={kiltAmount}
+                onChange={(e) => handleKiltAmountChange(e.target.value)}
+                placeholder="Enter KILT amount"
+                min="0"
+                className="bg-white/5 border-white/10 text-white text-2xl h-16 text-center font-bold rounded-xl"
+              />
+              <div className="flex justify-between items-center">
+                <span className="text-white/60 text-base">
+                  Balance: <span className="font-bold text-white">{kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'}</span> 
+                  <span className="inline-flex items-center gap-2 ml-2">
+                    <img 
+                      src={kiltLogo} 
+                      alt="KILT" 
+                      className={`w-5 h-5 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
+                    />
+                    KILT
+                  </span>
+                </span>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => handlePercentageSelect(100)}
+                  className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-6 py-2 font-semibold"
+                >
+                  MAX
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="cluely-card rounded-2xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <EthereumLogo className="w-8 h-8" />
+        {/* Enhanced ETH Input */}
+        <Card className="bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-teal-500/10 border-blue-500/20 rounded-2xl overflow-hidden">
+          <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
+            <CardTitle className="text-white text-2xl flex items-center gap-3">
+              <EthereumLogo className="w-10 h-10" />
               ETH
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <Input
-              type="number"
-              value={wethAmount}
-              onChange={(e) => handleWethAmountChange(e.target.value)}
-              placeholder="Enter ETH amount"
-              min="0"
-              className="bg-white/5 border-white/10 text-white text-xl h-12"
-            />
-            <div className="flex justify-between text-sm">
-              <span className="text-white/60">
-                Balance: {wethBalance ? formatTokenAmount(wethBalance) : '0.0000'} <span className="inline-flex items-center gap-1"><EthereumLogo className="w-3 h-3" />WETH</span>
-              </span>
-              <span className="text-white/40">
-                Auto-calculated
-              </span>
+          <CardContent className="space-y-6 p-8">
+            <div className="space-y-4">
+              <Input
+                type="number"
+                value={wethAmount}
+                onChange={(e) => handleWethAmountChange(e.target.value)}
+                placeholder="Enter ETH amount"
+                min="0"
+                className="bg-white/5 border-white/10 text-white text-2xl h-16 text-center font-bold rounded-xl"
+              />
+              <div className="flex justify-between items-center">
+                <span className="text-white/60 text-base">
+                  Balance: <span className="font-bold text-white">{wethBalance ? formatTokenAmount(wethBalance) : '0.0000'}</span> 
+                  <span className="inline-flex items-center gap-2 ml-2">
+                    <EthereumLogo className="w-5 h-5" />
+                    WETH
+                  </span>
+                </span>
+                <span className="text-blue-400 font-semibold text-base px-4 py-2 bg-blue-500/10 rounded-lg">
+                  Auto-calculated
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Price Range Strategy */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Zap className="h-5 w-5 text-yellow-400" />
+      {/* Enhanced Price Range Strategy */}
+      <Card className="bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 border-yellow-500/20 rounded-2xl overflow-hidden">
+        <CardHeader className="pb-6 bg-gradient-to-r from-yellow-500/5 to-orange-500/5">
+          <CardTitle className="text-white text-2xl flex items-center gap-3">
+            <Zap className="h-7 w-7 text-yellow-400" />
             Price Range Strategy
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <CardContent className="space-y-8 p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {priceStrategies.map((strategy) => (
               <div key={strategy.id} className="relative">
                 <Button
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className="h-auto p-3 flex-col items-start w-full relative"
+                  className={`h-auto p-6 flex-col items-start w-full relative transition-all duration-300 ${
+                    selectedStrategy === strategy.id 
+                      ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg transform scale-105' 
+                      : 'hover:bg-yellow-500/10 hover:border-yellow-500/50'
+                  }`}
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-semibold">{strategy.label}</span>
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="font-bold text-lg">{strategy.label}</span>
                     {strategy.recommended && (
-                      <div className="ml-2 px-1.5 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-medium">
+                      <div className="ml-2 px-2 py-1 bg-emerald-400 text-white text-sm rounded-full font-bold">
                         ✓
                       </div>
                     )}
                   </div>
+                  <p className="text-sm text-left opacity-80">{strategy.description}</p>
                 </Button>
               </div>
             ))}
           </div>
           
-          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-            <div className="flex items-center gap-2 mb-2">
-              <Info className="h-4 w-4 text-blue-400" />
-              <span className="text-white font-medium">Selected Range</span>
+          {/* Enhanced Selected Range Display */}
+          <div className="p-8 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-2xl border border-yellow-500/20">
+            <div className="flex items-center gap-3 mb-6">
+              <Info className="h-6 w-6 text-yellow-400" />
+              <span className="text-white font-bold text-xl">Selected Range</span>
             </div>
-            <p className="text-white/80 text-sm mb-1">{getSelectedStrategy().description}</p>
-            <p className="text-white/60 text-xs mb-4">{getSelectedStrategy().risk}</p>
-            {getSelectedStrategy().recommended && (
-              <div className="flex items-center gap-2 mb-4 p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                <span className="text-emerald-300 text-xs font-medium">
-                  Recommended for liquidity programs - optimal balance of rewards and stability
-                </span>
-              </div>
-            )}
             
-            {/* Range Preview */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-white/60">Preview (ETH/KILT)</span>
-                <span className="text-white/60">Current: {(kiltData?.price || 0.0160).toFixed(4)}</span>
+            <div className="space-y-6">
+              <div>
+                <p className="text-white/80 text-lg mb-2">{getSelectedStrategy().description}</p>
+                <p className="text-white/60 text-base">{getSelectedStrategy().risk}</p>
               </div>
               
-              <div className="h-16 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-lg border border-white/5 p-3">
-                <div className="relative h-full w-full">
-                  <svg className="w-full h-full" viewBox="0 0 200 40" preserveAspectRatio="xMidYMid meet">
-                    {/* Background reference curve */}
-                    <path
-                      d="M 20 30 Q 100 10 180 30"
-                      stroke="rgba(255, 255, 255, 0.1)"
-                      strokeWidth="1"
-                      fill="none"
-                      strokeDasharray="2,2"
-                    />
-                    
-                    {/* Selected range curve */}
-                    <path
-                      d={(() => {
-                        const strategy = getSelectedStrategy();
-                        if (strategy.id === 'full') {
-                          return "M 20 30 Q 100 10 180 30";
-                        } else if (strategy.id === 'wide') {
-                          return "M 40 28 Q 100 12 160 28";
-                        } else if (strategy.id === 'narrow') {
-                          return "M 80 25 Q 100 18 120 25";
-                        } else {
-                          return "M 60 26 Q 100 15 140 26";
-                        }
-                      })()}
-                      stroke="#10b981"
-                      strokeWidth="2"
-                      fill="none"
-                      className="drop-shadow-sm"
-                    />
-                    
-                    {/* Range markers */}
-                    {(() => {
-                      const strategy = getSelectedStrategy();
-                      let minX = 20, maxX = 180, minY = 30, maxY = 30;
-                      if (strategy.id === 'wide') { minX = 40; maxX = 160; minY = 28; maxY = 28; }
-                      else if (strategy.id === 'narrow') { minX = 80; maxX = 120; minY = 25; maxY = 25; }
-                      else if (strategy.id === 'balanced') { minX = 60; maxX = 140; minY = 26; maxY = 26; }
+              {getSelectedStrategy().recommended && (
+                <div className="flex items-center gap-3 p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                  <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                  <span className="text-emerald-300 text-base font-medium">
+                    Recommended for liquidity programs - optimal balance of rewards and stability
+                  </span>
+                </div>
+              )}
+              
+              {/* Enhanced Range Preview */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between text-base">
+                  <span className="text-white/60">Price Range Preview (KILT/USD)</span>
+                  <span className="text-white/60">Current: ${(kiltData?.price || 0.0160).toFixed(4)}</span>
+                </div>
+                
+                <div className="h-24 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-2xl border border-white/10 p-6">
+                  <div className="relative h-full w-full">
+                    <svg className="w-full h-full" viewBox="0 0 200 40" preserveAspectRatio="xMidYMid meet">
+                      {/* Background reference curve */}
+                      <path
+                        d="M 20 30 Q 100 10 180 30"
+                        stroke="rgba(255, 255, 255, 0.15)"
+                        strokeWidth="2"
+                        fill="none"
+                        strokeDasharray="4,4"
+                      />
                       
-                      return (
-                        <>
-                          <circle cx={minX} cy={minY} r="3" fill="#10b981" />
-                          <circle cx={maxX} cy={maxY} r="3" fill="#10b981" />
-                        </>
-                      );
-                    })()}
-                    
-                    {/* Current price indicator */}
-                    <line x1="100" y1="5" x2="100" y2="35" stroke="white" strokeWidth="1.5" />
-                    <circle cx="100" cy="20" r="2" fill="white" />
-                  </svg>
+                      {/* Selected range curve */}
+                      <path
+                        d={(() => {
+                          const strategy = getSelectedStrategy();
+                          if (strategy.id === 'full') {
+                            return "M 20 30 Q 100 10 180 30";
+                          } else if (strategy.id === 'wide') {
+                            return "M 40 28 Q 100 12 160 28";
+                          } else if (strategy.id === 'narrow') {
+                            return "M 80 25 Q 100 18 120 25";
+                          } else {
+                            return "M 60 26 Q 100 15 140 26";
+                          }
+                        })()}
+                        stroke="#10b981"
+                        strokeWidth="3"
+                        fill="none"
+                        className="drop-shadow-lg"
+                      />
+                      
+                      {/* Range markers */}
+                      {(() => {
+                        const strategy = getSelectedStrategy();
+                        let minX = 20, maxX = 180, minY = 30, maxY = 30;
+                        if (strategy.id === 'wide') { minX = 40; maxX = 160; minY = 28; maxY = 28; }
+                        else if (strategy.id === 'narrow') { minX = 80; maxX = 120; minY = 25; maxY = 25; }
+                        else if (strategy.id === 'balanced') { minX = 60; maxX = 140; minY = 26; maxY = 26; }
+                        
+                        return (
+                          <>
+                            <circle cx={minX} cy={minY} r="4" fill="#10b981" stroke="white" strokeWidth="2" />
+                            <circle cx={maxX} cy={maxY} r="4" fill="#10b981" stroke="white" strokeWidth="2" />
+                          </>
+                        );
+                      })()}
+                      
+                      {/* Current price indicator */}
+                      <line x1="100" y1="5" x2="100" y2="35" stroke="white" strokeWidth="3" />
+                      <circle cx="100" cy="20" r="3" fill="white" stroke="#10b981" strokeWidth="2" />
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex flex-col items-start">
-                  <span className="text-white/40">Min Price</span>
-                  <span className="text-white/80 font-medium">
-                    {(() => {
-                      const strategy = getSelectedStrategy();
-                      const currentPrice = kiltData?.price || 0.0160;
-                      if (strategy.id === 'full') return '0.0001';
-                      if (strategy.id === 'wide') return (currentPrice * 0.5).toFixed(4);
-                      if (strategy.id === 'narrow') return (currentPrice * 0.75).toFixed(4);
-                      return (currentPrice * 0.6).toFixed(4);
-                    })()}
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-white/40">Current</span>
-                  <span className="text-white font-medium">{(kiltData?.price || 0.0160).toFixed(4)}</span>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-white/40">Max Price</span>
-                  <span className="text-white/80 font-medium">
-                    {(() => {
-                      const strategy = getSelectedStrategy();
-                      const currentPrice = kiltData?.price || 0.0160;
-                      if (strategy.id === 'full') return '∞';
-                      if (strategy.id === 'wide') return (currentPrice * 2.0).toFixed(4);
-                      if (strategy.id === 'narrow') return (currentPrice * 1.25).toFixed(4);
-                      return (currentPrice * 1.5).toFixed(4);
-                    })()}
-                  </span>
+                
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <span className="text-white/60 text-sm block mb-2">Min Price</span>
+                    <span className="text-white font-bold text-lg">
+                      ${(() => {
+                        const strategy = getSelectedStrategy();
+                        const currentPrice = kiltData?.price || 0.0160;
+                        if (strategy.id === 'full') return '0.0001';
+                        if (strategy.id === 'wide') return (currentPrice * 0.5).toFixed(4);
+                        if (strategy.id === 'narrow') return (currentPrice * 0.75).toFixed(4);
+                        return (currentPrice * 0.6).toFixed(4);
+                      })()}
+                    </span>
+                  </div>
+                  <div className="text-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                    <span className="text-emerald-400 text-sm block mb-2">Current</span>
+                    <span className="text-emerald-100 font-bold text-lg">${(kiltData?.price || 0.0160).toFixed(4)}</span>
+                  </div>
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <span className="text-white/60 text-sm block mb-2">Max Price</span>
+                    <span className="text-white font-bold text-lg">
+                      ${(() => {
+                        const strategy = getSelectedStrategy();
+                        const currentPrice = kiltData?.price || 0.0160;
+                        if (strategy.id === 'full') return '∞';
+                        if (strategy.id === 'wide') return (currentPrice * 2.0).toFixed(4);
+                        if (strategy.id === 'narrow') return (currentPrice * 1.25).toFixed(4);
+                        return (currentPrice * 1.5).toFixed(4);
+                      })()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -583,21 +615,21 @@ export function LiquidityMint() {
       {/* Gas Estimation */}
       <GasEstimationCard />
 
-      {/* Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Enhanced Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Button
           onClick={handleApproveTokens}
           disabled={isApproving || !poolExists}
-          className="h-12 bg-blue-600 hover:bg-blue-700"
+          className="h-16 bg-blue-600 hover:bg-blue-700 text-xl font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
         >
           {isApproving ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-6 w-6 mr-3 animate-spin" />
               Approving...
             </>
           ) : (
             <>
-              <CheckCircle2 className="h-4 w-4 mr-2" />
+              <CheckCircle2 className="h-6 w-6 mr-3" />
               Approve Tokens
             </>
           )}
@@ -606,37 +638,73 @@ export function LiquidityMint() {
         <Button
           onClick={handleMintPosition}
           disabled={isMinting || !kiltAmount || !wethAmount || !poolExists}
-          className="h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
+          className="h-16 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-xl font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
         >
           {isMinting ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-6 w-6 mr-3 animate-spin" />
               Adding Liquidity...
             </>
           ) : (
             <>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-6 w-6 mr-3" />
               Add Liquidity
             </>
           )}
         </Button>
       </div>
 
-      {/* Important Info */}
-      <Card className="cluely-card rounded-2xl border-blue-500/20">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <TrendingUp className="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0" />
-            <div className="space-y-2">
-              <p className="text-white/70 text-sm">
-                Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
+      {/* Enhanced Information Section */}
+      <Card className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-green-500/10 border-blue-500/20 rounded-2xl overflow-hidden">
+        <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/5 to-purple-500/5">
+          <CardTitle className="text-white text-2xl flex items-center gap-3">
+            <TrendingUp className="h-7 w-7 text-emerald-400" />
+            Earning Opportunities
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-8">
+          <p className="text-white/80 text-lg mb-6">
+            Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+              <div className="flex items-center gap-3 mb-4">
+                <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
+                <span className="text-emerald-400 font-bold text-lg">KILT Rewards</span>
+              </div>
+              <p className="text-emerald-100 text-base">
+                Earn proportional rewards from 2.9M KILT treasury allocation
               </p>
-              <ul className="text-white/60 text-xs space-y-1">
-                <li>• <strong className="text-emerald-400">KILT Rewards:</strong> Earn proportional rewards from 2.9M KILT treasury allocation</li>
-                <li>• <strong className="text-blue-400">Trading Fees:</strong> Earn 0.3% of all trades within your price range</li>
-                <li>• <strong className="text-yellow-400">Proportional System:</strong> Higher liquidity amounts earn higher reward shares</li>
-                <li>• <strong className="text-purple-400">Time Rewards:</strong> 90-day reward lock ensures long-term value alignment</li>
-              </ul>
+            </div>
+            
+            <div className="p-6 bg-blue-500/10 rounded-2xl border border-blue-500/20">
+              <div className="flex items-center gap-3 mb-4">
+                <Coins className="w-8 h-8 text-blue-400" />
+                <span className="text-blue-400 font-bold text-lg">Trading Fees</span>
+              </div>
+              <p className="text-blue-100 text-base">
+                Earn 0.3% of all trades within your price range
+              </p>
+            </div>
+            
+            <div className="p-6 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
+              <div className="flex items-center gap-3 mb-4">
+                <Target className="w-8 h-8 text-yellow-400" />
+                <span className="text-yellow-400 font-bold text-lg">Proportional System</span>
+              </div>
+              <p className="text-yellow-100 text-base">
+                Higher liquidity amounts earn higher reward shares
+              </p>
+            </div>
+            
+            <div className="p-6 bg-purple-500/10 rounded-2xl border border-purple-500/20">
+              <div className="flex items-center gap-3 mb-4">
+                <Clock className="w-8 h-8 text-purple-400" />
+                <span className="text-purple-400 font-bold text-lg">Time Rewards</span>
+              </div>
+              <p className="text-purple-100 text-base">
+                90-day reward lock ensures long-term value alignment
+              </p>
             </div>
           </div>
         </CardContent>

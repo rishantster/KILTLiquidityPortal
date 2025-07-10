@@ -262,6 +262,11 @@
   .animate-gradient-shift {
     background-size: 200% 100%;
     animation: gradient-shift 4s ease-in-out infinite;
+    /* Fix for gradient text clipping */
+    -webkit-background-clip: text;
+    background-clip: text;
+    line-height: 1.2;
+    padding-bottom: 0.125rem;
   }
 
   /* Mobile-First Responsive Enhancements */

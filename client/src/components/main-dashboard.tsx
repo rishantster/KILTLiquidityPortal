@@ -267,9 +267,9 @@ export function MainDashboard() {
               </div>
               
               {/* Main Headline - Enhanced */}
-              <h1 className="text-6xl sm:text-7xl font-display text-white mb-6 leading-tight animate-slide-up">
+              <h1 className="text-6xl sm:text-7xl font-display text-white mb-6 leading-relaxed animate-slide-up">
                 <span className="block text-white/90">KILT Liquidity</span>
-                <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-shift">
+                <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-shift pb-2">
                   Incentive Program
                 </span>
               </h1>
@@ -354,7 +354,7 @@ export function MainDashboard() {
               <h2 className="text-3xl font-heading text-white/90 mb-3">
                 Join the
               </h2>
-              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-6 bg-[length:200%_100%] animate-gradient-shift">
+              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-6 bg-[length:200%_100%] animate-gradient-shift leading-relaxed pb-2">
                 KILT Ecosystem
               </h1>
               <p className="text-white/70 text-lg font-body max-w-xl mx-auto mb-6 leading-relaxed">

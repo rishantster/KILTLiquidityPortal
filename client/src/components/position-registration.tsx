@@ -304,9 +304,14 @@ export function PositionRegistration() {
                   <div className="flex gap-2 justify-center">
                     <Button 
                       onClick={() => {
-                        // Navigate to liquidity tab
-                        const liquidityTabButton = document.querySelector('[data-tab="liquidity"]') as HTMLElement;
-                        liquidityTabButton?.click();
+                        // Navigate to liquidity tab using proper callback
+                        if (window.navigateToTab) {
+                          window.navigateToTab('liquidity');
+                        } else {
+                          // Fallback to querySelector
+                          const liquidityTabButton = document.querySelector('[data-value="liquidity"]') as HTMLElement;
+                          liquidityTabButton?.click();
+                        }
                       }}
                       className="bg-emerald-600 hover:bg-emerald-700"
                     >

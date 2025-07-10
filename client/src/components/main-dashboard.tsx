@@ -266,18 +266,16 @@ export function MainDashboard() {
                 <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
               </div>
               
-              {/* Main Headline - KILT focused */}
-              <h1 className="text-5xl sm:text-6xl font-display text-white mb-6 leading-tight animate-slide-up">
-                KILT Liquidity
-                <br />
-                <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+              {/* Main Headline - Enhanced */}
+              <h1 className="text-6xl sm:text-7xl font-display text-white mb-6 leading-tight animate-slide-up">
+                <span className="block text-white/90">KILT Liquidity</span>
+                <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-shift">
                   Incentive Program
                 </span>
               </h1>
               
-              <p className="text-xl text-white/80 font-body max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
-                Provide liquidity for KILT/ETH on Base network and earn <span className="text-emerald-400 font-semibold">proportional rewards</span> based on your liquidity contribution. 
-                <span className="text-blue-400 font-semibold">2.9M KILT tokens</span> (1% of total supply) allocated from treasury with 90-day reward locking.
+              <p className="text-xl sm:text-2xl text-white/70 font-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
+                Earn <span className="text-emerald-400 font-semibold">proportional rewards</span> from the <span className="text-blue-400 font-semibold">2.9M KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
 
@@ -291,93 +289,102 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Feature Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mb-16">
-              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-100">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-6 w-6 text-blue-300" />
+            {/* Enhanced Feature Grid */}
+            <div className="grid md:grid-cols-3 gap-8 mb-20">
+              <Card className="group relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border border-blue-500/20 hover:border-blue-400/40 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 animate-fade-in animate-delay-100">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUp className="h-8 w-8 text-blue-300" />
+                  </div>
+                  <h3 className="text-white font-bold text-xl mb-3 text-center">KILT/ETH Pool</h3>
+                  <p className="text-white/70 text-base font-body text-center leading-relaxed">
+                    Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
+                  </p>
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">KILT/ETH Pool</h3>
-                <p className="text-white/60 text-sm font-body">
-                  Provide liquidity to the official KILT/ETH Uniswap V3 pool on Base network with concentrated positions.
-                </p>
               </Card>
 
-              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-200">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-                  <Award className="h-6 w-6 text-emerald-300" />
+              <Card className="group relative overflow-hidden bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20 hover:border-emerald-400/40 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/20 animate-fade-in animate-delay-200">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Award className="h-8 w-8 text-emerald-300" />
+                  </div>
+                  <h3 className="text-white font-bold text-xl mb-3 text-center">Treasury Rewards</h3>
+                  <p className="text-white/70 text-base font-body text-center leading-relaxed">
+                    Receive rewards from 1% of total KILT supply with secure 90-day token locking mechanism.
+                  </p>
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">Treasury Rewards</h3>
-                <p className="text-white/60 text-sm font-body">
-                  Earn proportional rewards from 2.9M KILT treasury allocation with 90-day reward locking.
-                </p>
               </Card>
 
-              <Card className="cluely-card rounded-2xl p-6 animate-fade-in animate-delay-300">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 className="h-6 w-6 text-purple-300" />
+              <Card className="group relative overflow-hidden bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border border-purple-500/20 hover:border-purple-400/40 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-fade-in animate-delay-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/30 to-purple-600/30 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <BarChart3 className="h-8 w-8 text-purple-300" />
+                  </div>
+                  <h3 className="text-white font-bold text-xl mb-3 text-center">Program Analytics</h3>
+                  <p className="text-white/70 text-base font-body text-center leading-relaxed">
+                    Track your position performance, rewards earned, and program progress with detailed analytics.
+                  </p>
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">Program Analytics</h3>
-                <p className="text-white/60 text-sm font-body">
-                  Track your position performance, rewards earned, and program progress with detailed analytics.
-                </p>
               </Card>
             </div>
 
-            {/* Bottom CTA */}
-            <div className="text-center animate-fade-in animate-delay-500 mb-12">
-              <h2 className="text-3xl font-heading text-white mb-4">
+            {/* Enhanced Bottom CTA */}
+            <div className="text-center animate-fade-in animate-delay-500 mb-16">
+              <h2 className="text-4xl font-heading text-white/90 mb-4">
                 Join the
               </h2>
-              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-6">
+              <h1 className="text-6xl font-display bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-8 bg-[length:200%_100%] animate-gradient-shift">
                 KILT Ecosystem
               </h1>
-              <p className="text-white/60 text-lg font-body max-w-xl mx-auto mb-8">
+              <p className="text-white/70 text-xl font-body max-w-2xl mx-auto mb-8 leading-relaxed">
                 Become a liquidity provider for KILT Protocol and earn substantial rewards while supporting the decentralized identity ecosystem.
               </p>
             </div>
 
-            {/* Social Media Links */}
-            <div className="flex justify-center items-center gap-6 animate-fade-in animate-delay-700">
+            {/* Enhanced Social Media Links */}
+            <div className="flex justify-center items-center gap-4 animate-fade-in animate-delay-700">
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
               >
-                <SiX className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+                <SiX className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
               >
-                <SiGithub className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+                <SiGithub className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
               >
-                <SiDiscord className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+                <SiDiscord className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
               >
-                <SiTelegram className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+                <SiTelegram className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
               >
-                <SiMedium className="h-6 w-6 text-white/70 group-hover:text-white transition-colors" />
+                <SiMedium className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
               </a>
             </div>
           </div>

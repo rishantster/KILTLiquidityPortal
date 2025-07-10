@@ -249,6 +249,21 @@
     animation-delay: 0.1s;
   }
 
+  /* Enhanced Gradient Animation */
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 100%;
+    animation: gradient-shift 4s ease-in-out infinite;
+  }
+
   /* Mobile-First Responsive Enhancements */
   @media (max-width: 768px) {
     .mobile-modal {

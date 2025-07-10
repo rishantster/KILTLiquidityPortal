@@ -472,7 +472,7 @@ export function LiquidityMint() {
                 <Button
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className={`h-auto p-1.5 flex-col items-start w-full relative transition-all duration-300 ${
+                  className={`h-16 p-1.5 flex-col items-start w-full relative transition-all duration-300 ${
                     selectedStrategy === strategy.id 
                       ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg' 
                       : 'hover:bg-yellow-500/10 hover:border-yellow-500/50'

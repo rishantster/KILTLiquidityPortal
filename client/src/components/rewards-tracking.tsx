@@ -136,138 +136,136 @@ export function RewardsTracking() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Enhanced Reward Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold text-lg">Total Earned</h3>
-              <Award className="h-6 w-6 text-yellow-400" />
+    <div className="space-y-6">
+      {/* Compact Reward Overview */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-yellow-500/5 border-yellow-500/20 rounded-lg">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Total Earned</h3>
+              <Award className="h-4 w-4 text-yellow-400" />
             </div>
-            <div className="text-3xl font-bold tabular-nums text-white flex items-center gap-2">
+            <div className="text-xl font-bold tabular-nums text-white flex items-center gap-2">
               {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className="h-8 w-8"
+                className="h-5 w-5"
               />
             </div>
-            <div className="text-sm text-white/60 mt-2 font-medium">
-              From {rewardStats?.activePositions || 0} positions
+            <div className="text-xs text-white/60 mt-1">
+              {rewardStats?.activePositions || 0} positions
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border-emerald-500/20 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold text-lg">Claimable</h3>
-              <Unlock className="h-6 w-6 text-emerald-400" />
+        <Card className="bg-emerald-500/5 border-emerald-500/20 rounded-lg">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Claimable</h3>
+              <Unlock className="h-4 w-4 text-emerald-400" />
             </div>
-            <div className="text-3xl font-bold tabular-nums text-white flex items-center gap-2">
+            <div className="text-xl font-bold tabular-nums text-white flex items-center gap-2">
               {totalClaimableAmount.toFixed(2)}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className="h-8 w-8"
+                className="h-5 w-5"
               />
             </div>
-            <div className="text-sm text-white/60 mt-2 font-medium">
+            <div className="text-xs text-white/60 mt-1">
               Ready to claim
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold text-lg">Daily Rate</h3>
-              <TrendingUp className="h-6 w-6 text-blue-400" />
+        <Card className="bg-blue-500/5 border-blue-500/20 rounded-lg">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Daily Rate</h3>
+              <TrendingUp className="h-4 w-4 text-blue-400" />
             </div>
-            <div className="text-3xl font-bold tabular-nums text-white">
+            <div className="text-xl font-bold tabular-nums text-white">
               {rewardStats?.avgDailyRewards?.toFixed(3) || '0.000'}
             </div>
-            <div className="text-sm text-white/60 mt-2 font-medium">
-              Average per day
+            <div className="text-xs text-white/60 mt-1">
+              Per day avg
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold text-lg">Claimed</h3>
-              <CheckCircle className="h-6 w-6 text-purple-400" />
+        <Card className="bg-purple-500/5 border-purple-500/20 rounded-lg">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Claimed</h3>
+              <CheckCircle className="h-4 w-4 text-purple-400" />
             </div>
-            <div className="text-3xl font-bold tabular-nums text-white">
+            <div className="text-xl font-bold tabular-nums text-white">
               {rewardStats?.totalClaimed?.toFixed(2) || '0.00'}
             </div>
-            <div className="text-sm text-white/60 mt-2 font-medium">
+            <div className="text-xs text-white/60 mt-1">
               Total claimed
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Action Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Enhanced Claim Rewards */}
-        <Card className="bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 border-yellow-500/20 rounded-2xl overflow-hidden">
-          <CardHeader className="pb-4 bg-gradient-to-r from-yellow-500/5 to-orange-500/5">
-            <CardTitle className="flex items-center space-x-3 text-white font-heading text-2xl">
-              <Award className="h-7 w-7 text-yellow-400" />
+      {/* Compact Action Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Streamlined Claim Rewards */}
+        <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading text-lg">
+              <Award className="h-5 w-5 text-yellow-400" />
               <span>Claim Rewards</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-8 p-8">
+          <CardContent className="space-y-4 p-4">
             {/* Claimable Amount Display */}
-            <div className="text-center py-8 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-2xl border border-yellow-500/20">
-              <div className="text-white/60 text-base mb-4 font-medium">Available to Claim</div>
-              <div className="text-white text-5xl font-bold tabular-nums mb-4 flex items-center justify-center gap-4">
+            <div className="text-center py-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+              <div className="text-white/60 text-sm mb-2 font-medium">Available to Claim</div>
+              <div className="text-white text-3xl font-bold tabular-nums mb-2 flex items-center justify-center gap-3">
                 {totalClaimableAmount.toFixed(2)} 
-                <div className="logo-container flex items-center">
-                  <img 
-                    src={kiltLogo} 
-                    alt="KILT" 
-                    className={`h-16 w-16 logo-hover ${!logoAnimationComplete ? 'logo-reveal-large-enhanced' : 'logo-float logo-glow'}`}
-                  />
-                </div>
+                <img 
+                  src={kiltLogo} 
+                  alt="KILT" 
+                  className={`h-8 w-8 logo-hover ${!logoAnimationComplete ? 'logo-reveal-large-enhanced' : 'logo-float logo-glow'}`}
+                />
               </div>
-              <div className="text-white/50 text-sm mb-6">
+              <div className="text-white/50 text-xs mb-4">
                 ≈ ${(totalClaimableAmount * kiltData.price).toFixed(2)} USD
               </div>
               
               <Button 
                 onClick={() => claimMutation.mutate()}
                 disabled={claimMutation.isPending || totalClaimableAmount === 0}
-                className={`w-full font-semibold py-4 px-6 rounded-xl text-lg transition-all duration-300 ${
+                className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
                   totalClaimableAmount > 0 
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5' 
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
               >
                 {claimMutation.isPending ? (
                   <>
-                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Claiming...
                   </>
                 ) : totalClaimableAmount > 0 ? (
                   <>
-                    <Award className="h-5 w-5 mr-3" />
+                    <Award className="h-4 w-4 mr-2" />
                     Claim Rewards
                   </>
                 ) : (
                   <>
-                    <Lock className="h-5 w-5 mr-3" />
+                    <Lock className="h-4 w-4 mr-2" />
                     No Rewards Available
                   </>
                 )}
               </Button>
               
               {totalClaimableAmount === 0 && (
-                <div className="text-white/60 text-sm text-center mt-4 p-4 bg-white/5 rounded-lg">
-                  <p className="mb-2 font-medium">Add liquidity to start earning rewards</p>
+                <div className="text-white/60 text-xs text-center mt-3 p-3 bg-white/5 rounded-lg">
+                  <p className="mb-1 font-medium">Add liquidity to start earning rewards</p>
                   <p className="text-white/40 text-xs">
                     Rewards accumulate daily based on your liquidity contribution
                   </p>
@@ -275,22 +273,22 @@ export function RewardsTracking() {
               )}
             </div>
 
-            {/* Important Notes */}
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-white/70">
-                    <strong className="text-blue-300">90-Day Lock:</strong> Rewards can only be claimed after 90 days from the date you added liquidity to the pool. However, you earn rewards daily as long as your position remains active.
+            {/* Compact Important Notes */}
+            <div className="space-y-3">
+              <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                <div className="flex items-start gap-2">
+                  <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-white/70">
+                    <strong className="text-blue-300">90-Day Lock:</strong> Rewards claimable after 90 days from liquidity addition.
                   </div>
                 </div>
               </div>
               
-              <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
-                <div className="flex items-start gap-3">
-                  <TrendingUp className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-white/70">
-                    <strong className="text-green-300">In-Range Requirement:</strong> Only positions that are actively in-range earn full rewards. Out-of-range positions earn 0% rewards since they don't provide liquidity to traders.
+              <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                <div className="flex items-start gap-2">
+                  <TrendingUp className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-white/70">
+                    <strong className="text-green-300">In-Range Requirement:</strong> Only in-range positions earn full rewards.
                   </div>
                 </div>
               </div>

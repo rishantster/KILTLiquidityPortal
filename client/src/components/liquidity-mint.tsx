@@ -316,50 +316,50 @@ export function LiquidityMint() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Enhanced Header */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3">
-          <Plus className="h-8 w-8 text-emerald-400" />
-          <h2 className="text-white font-heading text-3xl">Add Liquidity to KILT/ETH Pool</h2>
+    <div className="space-y-6">
+      {/* Compact Header */}
+      <div className="text-center space-y-3">
+        <div className="flex items-center justify-center gap-2">
+          <Plus className="h-6 w-6 text-emerald-400" />
+          <h2 className="text-white font-heading text-2xl">Add Liquidity to KILT/ETH Pool</h2>
         </div>
-        <p className="text-white/70 text-lg max-w-2xl mx-auto">
+        <p className="text-white/70 text-sm max-w-xl mx-auto">
           Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + trading fees
         </p>
-        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-4 py-2 text-base">
+        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-3 py-1 text-sm">
           {poolExists ? 'Pool Active' : 'Pool Not Found'}
         </Badge>
       </div>
 
-      {/* Enhanced Position Size */}
-      <Card className="bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-teal-500/10 border-emerald-500/20 rounded-2xl overflow-hidden">
-        <CardHeader className="pb-6 bg-gradient-to-r from-emerald-500/5 to-green-500/5">
-          <CardTitle className="text-white text-2xl flex items-center gap-3">
-            <Target className="h-7 w-7 text-emerald-400" />
+      {/* Compact Position Size */}
+      <Card className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-emerald-500/20 rounded-lg">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            <Target className="h-5 w-5 text-emerald-400" />
             Position Size
           </CardTitle>
-          <p className="text-white/60 text-lg">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
+          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
         </CardHeader>
-        <CardContent className="space-y-8 p-8">
-          <div className="space-y-6">
+        <CardContent className="space-y-4 p-4">
+          <div className="space-y-4">
             <Slider
               value={positionSizePercent}
               onValueChange={handleSliderChange}
               max={100}
               min={0}
               step={1}
-              className="w-full h-3"
+              className="w-full h-2"
             />
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-3">
               {[25, 50, 75, 100].map((percent) => (
                 <Button
                   key={percent}
                   variant={positionSizePercent[0] === percent ? "default" : "outline"}
-                  size="lg"
+                  size="sm"
                   onClick={() => handlePercentageSelect(percent)}
-                  className={`h-14 text-lg font-semibold transition-all duration-300 ${
+                  className={`h-10 text-sm font-semibold transition-all duration-300 ${
                     positionSizePercent[0] === percent 
-                      ? 'bg-emerald-500 hover:bg-emerald-600 shadow-lg transform scale-105' 
+                      ? 'bg-emerald-500 hover:bg-emerald-600 shadow-lg' 
                       : 'hover:bg-emerald-500/10 hover:border-emerald-500/50'
                   }`}
                 >
@@ -371,47 +371,47 @@ export function LiquidityMint() {
         </CardContent>
       </Card>
 
-      {/* Enhanced Token Input Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Enhanced KILT Input */}
-        <Card className="bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 border-pink-500/20 rounded-2xl overflow-hidden">
-          <CardHeader className="pb-6 bg-gradient-to-r from-pink-500/5 to-purple-500/5">
-            <CardTitle className="text-white text-2xl flex items-center gap-3">
+      {/* Compact Token Input Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Compact KILT Input */}
+        <Card className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border-pink-500/20 rounded-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white text-lg flex items-center gap-2">
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className={`w-10 h-10 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
+                className={`w-6 h-6 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
               />
               KILT
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6 p-8">
-            <div className="space-y-4">
+          <CardContent className="space-y-4 p-4">
+            <div className="space-y-3">
               <Input
                 type="number"
                 value={kiltAmount}
                 onChange={(e) => handleKiltAmountChange(e.target.value)}
                 placeholder="Enter KILT amount"
                 min="0"
-                className="bg-white/5 border-white/10 text-white text-2xl h-16 text-center font-bold rounded-xl"
+                className="bg-white/5 border-white/10 text-white text-lg h-12 text-center font-bold rounded-lg"
               />
               <div className="flex justify-between items-center">
-                <span className="text-white/60 text-base">
+                <span className="text-white/60 text-sm">
                   Balance: <span className="font-bold text-white">{kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'}</span> 
-                  <span className="inline-flex items-center gap-2 ml-2">
+                  <span className="inline-flex items-center gap-1 ml-1">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
-                      className={`w-5 h-5 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
+                      className={`w-4 h-4 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
                     />
                     KILT
                   </span>
                 </span>
                 <Button
                   variant="ghost"
-                  size="lg"
+                  size="sm"
                   onClick={() => handlePercentageSelect(100)}
-                  className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-6 py-2 font-semibold"
+                  className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-3 py-1 font-semibold text-xs"
                 >
                   MAX
                 </Button>
@@ -420,33 +420,33 @@ export function LiquidityMint() {
           </CardContent>
         </Card>
 
-        {/* Enhanced ETH Input */}
-        <Card className="bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-teal-500/10 border-blue-500/20 rounded-2xl overflow-hidden">
-          <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
-            <CardTitle className="text-white text-2xl flex items-center gap-3">
-              <EthereumLogo className="w-10 h-10" />
+        {/* Compact ETH Input */}
+        <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-500/20 rounded-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white text-lg flex items-center gap-2">
+              <EthereumLogo className="w-6 h-6" />
               ETH
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6 p-8">
-            <div className="space-y-4">
+          <CardContent className="space-y-4 p-4">
+            <div className="space-y-3">
               <Input
                 type="number"
                 value={wethAmount}
                 onChange={(e) => handleWethAmountChange(e.target.value)}
                 placeholder="Enter ETH amount"
                 min="0"
-                className="bg-white/5 border-white/10 text-white text-2xl h-16 text-center font-bold rounded-xl"
+                className="bg-white/5 border-white/10 text-white text-lg h-12 text-center font-bold rounded-lg"
               />
               <div className="flex justify-between items-center">
-                <span className="text-white/60 text-base">
+                <span className="text-white/60 text-sm">
                   Balance: <span className="font-bold text-white">{wethBalance ? formatTokenAmount(wethBalance) : '0.0000'}</span> 
-                  <span className="inline-flex items-center gap-2 ml-2">
-                    <EthereumLogo className="w-5 h-5" />
+                  <span className="inline-flex items-center gap-1 ml-1">
+                    <EthereumLogo className="w-4 h-4" />
                     WETH
                   </span>
                 </span>
-                <span className="text-blue-400 font-semibold text-base px-4 py-2 bg-blue-500/10 rounded-lg">
+                <span className="text-blue-400 font-semibold text-xs px-2 py-1 bg-blue-500/10 rounded">
                   Auto-calculated
                 </span>
               </div>
@@ -455,80 +455,80 @@ export function LiquidityMint() {
         </Card>
       </div>
 
-      {/* Enhanced Price Range Strategy */}
-      <Card className="bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 border-yellow-500/20 rounded-2xl overflow-hidden">
-        <CardHeader className="pb-6 bg-gradient-to-r from-yellow-500/5 to-orange-500/5">
-          <CardTitle className="text-white text-2xl flex items-center gap-3">
-            <Zap className="h-7 w-7 text-yellow-400" />
+      {/* Compact Price Range Strategy */}
+      <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            <Zap className="h-5 w-5 text-yellow-400" />
             Price Range Strategy
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-8 p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <CardContent className="space-y-4 p-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {priceStrategies.map((strategy) => (
               <div key={strategy.id} className="relative">
                 <Button
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className={`h-auto p-6 flex-col items-start w-full relative transition-all duration-300 ${
+                  className={`h-auto p-3 flex-col items-start w-full relative transition-all duration-300 ${
                     selectedStrategy === strategy.id 
-                      ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg transform scale-105' 
+                      ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg' 
                       : 'hover:bg-yellow-500/10 hover:border-yellow-500/50'
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full mb-2">
-                    <span className="font-bold text-lg">{strategy.label}</span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="font-bold text-sm">{strategy.label}</span>
                     {strategy.recommended && (
-                      <div className="ml-2 px-2 py-1 bg-emerald-400 text-white text-sm rounded-full font-bold">
+                      <div className="ml-1 px-1 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold">
                         ✓
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-left opacity-80">{strategy.description}</p>
+                  <p className="text-xs text-left opacity-80">{strategy.description}</p>
                 </Button>
               </div>
             ))}
           </div>
           
-          {/* Enhanced Selected Range Display */}
-          <div className="p-8 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-2xl border border-yellow-500/20">
-            <div className="flex items-center gap-3 mb-6">
-              <Info className="h-6 w-6 text-yellow-400" />
-              <span className="text-white font-bold text-xl">Selected Range</span>
+          {/* Compact Selected Range Display */}
+          <div className="p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+            <div className="flex items-center gap-2 mb-4">
+              <Info className="h-4 w-4 text-yellow-400" />
+              <span className="text-white font-bold text-sm">Selected Range</span>
             </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <p className="text-white/80 text-lg mb-2">{getSelectedStrategy().description}</p>
-                <p className="text-white/60 text-base">{getSelectedStrategy().risk}</p>
+                <p className="text-white/80 text-sm mb-1">{getSelectedStrategy().description}</p>
+                <p className="text-white/60 text-xs">{getSelectedStrategy().risk}</p>
               </div>
               
               {getSelectedStrategy().recommended && (
-                <div className="flex items-center gap-3 p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-400" />
-                  <span className="text-emerald-300 text-base font-medium">
+                <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                  <span className="text-emerald-300 text-xs font-medium">
                     Recommended for liquidity programs - optimal balance of rewards and stability
                   </span>
                 </div>
               )}
               
-              {/* Enhanced Range Preview */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between text-base">
+              {/* Compact Range Preview */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-white/60">Price Range Preview (KILT/USD)</span>
                   <span className="text-white/60">Current: ${(kiltData?.price || 0.0160).toFixed(4)}</span>
                 </div>
                 
-                <div className="h-24 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-2xl border border-white/10 p-6">
+                <div className="h-16 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-lg border border-white/10 p-3">
                   <div className="relative h-full w-full">
                     <svg className="w-full h-full" viewBox="0 0 200 40" preserveAspectRatio="xMidYMid meet">
                       {/* Background reference curve */}
                       <path
                         d="M 20 30 Q 100 10 180 30"
                         stroke="rgba(255, 255, 255, 0.15)"
-                        strokeWidth="2"
+                        strokeWidth="1"
                         fill="none"
-                        strokeDasharray="4,4"
+                        strokeDasharray="2,2"
                       />
                       
                       {/* Selected range curve */}
@@ -546,7 +546,7 @@ export function LiquidityMint() {
                           }
                         })()}
                         stroke="#10b981"
-                        strokeWidth="3"
+                        strokeWidth="2"
                         fill="none"
                         className="drop-shadow-lg"
                       />
@@ -561,23 +561,23 @@ export function LiquidityMint() {
                         
                         return (
                           <>
-                            <circle cx={minX} cy={minY} r="4" fill="#10b981" stroke="white" strokeWidth="2" />
-                            <circle cx={maxX} cy={maxY} r="4" fill="#10b981" stroke="white" strokeWidth="2" />
+                            <circle cx={minX} cy={minY} r="3" fill="#10b981" stroke="white" strokeWidth="1" />
+                            <circle cx={maxX} cy={maxY} r="3" fill="#10b981" stroke="white" strokeWidth="1" />
                           </>
                         );
                       })()}
                       
                       {/* Current price indicator */}
-                      <line x1="100" y1="5" x2="100" y2="35" stroke="white" strokeWidth="3" />
-                      <circle cx="100" cy="20" r="3" fill="white" stroke="#10b981" strokeWidth="2" />
+                      <line x1="100" y1="5" x2="100" y2="35" stroke="white" strokeWidth="2" />
+                      <circle cx="100" cy="20" r="2" fill="white" stroke="#10b981" strokeWidth="1" />
                     </svg>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-6">
-                  <div className="text-center p-4 bg-white/5 rounded-xl">
-                    <span className="text-white/60 text-sm block mb-2">Min Price</span>
-                    <span className="text-white font-bold text-lg">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center p-2 bg-white/5 rounded-lg">
+                    <span className="text-white/60 text-xs block mb-1">Min Price</span>
+                    <span className="text-white font-bold text-sm">
                       ${(() => {
                         const strategy = getSelectedStrategy();
                         const currentPrice = kiltData?.price || 0.0160;
@@ -588,13 +588,13 @@ export function LiquidityMint() {
                       })()}
                     </span>
                   </div>
-                  <div className="text-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                    <span className="text-emerald-400 text-sm block mb-2">Current</span>
-                    <span className="text-emerald-100 font-bold text-lg">${(kiltData?.price || 0.0160).toFixed(4)}</span>
+                  <div className="text-center p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                    <span className="text-emerald-400 text-xs block mb-1">Current</span>
+                    <span className="text-emerald-100 font-bold text-sm">${(kiltData?.price || 0.0160).toFixed(4)}</span>
                   </div>
-                  <div className="text-center p-4 bg-white/5 rounded-xl">
-                    <span className="text-white/60 text-sm block mb-2">Max Price</span>
-                    <span className="text-white font-bold text-lg">
+                  <div className="text-center p-2 bg-white/5 rounded-lg">
+                    <span className="text-white/60 text-xs block mb-1">Max Price</span>
+                    <span className="text-white font-bold text-sm">
                       ${(() => {
                         const strategy = getSelectedStrategy();
                         const currentPrice = kiltData?.price || 0.0160;
@@ -615,21 +615,21 @@ export function LiquidityMint() {
       {/* Gas Estimation */}
       <GasEstimationCard />
 
-      {/* Enhanced Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Compact Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button
           onClick={handleApproveTokens}
           disabled={isApproving || !poolExists}
-          className="h-16 bg-blue-600 hover:bg-blue-700 text-xl font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+          className="h-12 bg-blue-600 hover:bg-blue-700 text-sm font-semibold rounded-lg transition-all duration-300"
         >
           {isApproving ? (
             <>
-              <Loader2 className="h-6 w-6 mr-3 animate-spin" />
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Approving...
             </>
           ) : (
             <>
-              <CheckCircle2 className="h-6 w-6 mr-3" />
+              <CheckCircle2 className="h-4 w-4 mr-2" />
               Approve Tokens
             </>
           )}
@@ -638,71 +638,71 @@ export function LiquidityMint() {
         <Button
           onClick={handleMintPosition}
           disabled={isMinting || !kiltAmount || !wethAmount || !poolExists}
-          className="h-16 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-xl font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+          className="h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-sm font-semibold rounded-lg transition-all duration-300"
         >
           {isMinting ? (
             <>
-              <Loader2 className="h-6 w-6 mr-3 animate-spin" />
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Adding Liquidity...
             </>
           ) : (
             <>
-              <Plus className="h-6 w-6 mr-3" />
+              <Plus className="h-4 w-4 mr-2" />
               Add Liquidity
             </>
           )}
         </Button>
       </div>
 
-      {/* Enhanced Information Section */}
-      <Card className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-green-500/10 border-blue-500/20 rounded-2xl overflow-hidden">
-        <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/5 to-purple-500/5">
-          <CardTitle className="text-white text-2xl flex items-center gap-3">
-            <TrendingUp className="h-7 w-7 text-emerald-400" />
+      {/* Compact Information Section */}
+      <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 rounded-lg">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-emerald-400" />
             Earning Opportunities
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-8">
-          <p className="text-white/80 text-lg mb-6">
+        <CardContent className="p-4">
+          <p className="text-white/80 text-sm mb-4">
             Adding liquidity to the KILT/ETH pool provides dual earning opportunities:
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-              <div className="flex items-center gap-3 mb-4">
-                <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
-                <span className="text-emerald-400 font-bold text-lg">KILT Rewards</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                <span className="text-emerald-400 font-bold text-sm">KILT Rewards</span>
               </div>
-              <p className="text-emerald-100 text-base">
+              <p className="text-emerald-100 text-xs">
                 Earn proportional rewards from 2.9M KILT treasury allocation
               </p>
             </div>
             
-            <div className="p-6 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-              <div className="flex items-center gap-3 mb-4">
-                <Coins className="w-8 h-8 text-blue-400" />
-                <span className="text-blue-400 font-bold text-lg">Trading Fees</span>
+            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Coins className="w-5 h-5 text-blue-400" />
+                <span className="text-blue-400 font-bold text-sm">Trading Fees</span>
               </div>
-              <p className="text-blue-100 text-base">
+              <p className="text-blue-100 text-xs">
                 Earn 0.3% of all trades within your price range
               </p>
             </div>
             
-            <div className="p-6 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
-              <div className="flex items-center gap-3 mb-4">
-                <Target className="w-8 h-8 text-yellow-400" />
-                <span className="text-yellow-400 font-bold text-lg">Proportional System</span>
+            <div className="p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-5 h-5 text-yellow-400" />
+                <span className="text-yellow-400 font-bold text-sm">Proportional System</span>
               </div>
-              <p className="text-yellow-100 text-base">
+              <p className="text-yellow-100 text-xs">
                 Higher liquidity amounts earn higher reward shares
               </p>
             </div>
             
-            <div className="p-6 bg-purple-500/10 rounded-2xl border border-purple-500/20">
-              <div className="flex items-center gap-3 mb-4">
-                <Clock className="w-8 h-8 text-purple-400" />
-                <span className="text-purple-400 font-bold text-lg">Time Rewards</span>
+            <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-5 h-5 text-purple-400" />
+                <span className="text-purple-400 font-bold text-sm">Time Rewards</span>
               </div>
-              <p className="text-purple-100 text-base">
+              <p className="text-purple-100 text-xs">
                 90-day reward lock ensures long-term value alignment
               </p>
             </div>

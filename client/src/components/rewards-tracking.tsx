@@ -222,17 +222,17 @@ export function RewardsTracking() {
           </CardHeader>
           <CardContent className="space-y-3 p-3">
             {/* Claimable Amount Display */}
-            <div className="text-center py-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+            <div className="text-center py-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
               <div className="text-white/60 text-xs mb-1 font-medium">Available to Claim</div>
-              <div className="text-white text-xl font-bold tabular-nums mb-1 flex items-center justify-center gap-2">
+              <div className="text-white text-lg font-bold tabular-nums mb-1 flex items-center justify-center gap-2">
                 {totalClaimableAmount.toFixed(2)} 
                 <img 
                   src={kiltLogo} 
                   alt="KILT" 
-                  className={`h-6 w-6 logo-hover ${!logoAnimationComplete ? 'logo-reveal-large-enhanced' : 'logo-float logo-glow'}`}
+                  className={`h-5 w-5 logo-hover ${!logoAnimationComplete ? 'logo-reveal-large-enhanced' : 'logo-float logo-glow'}`}
                 />
               </div>
-              <div className="text-white/50 text-xs mb-3">
+              <div className="text-white/50 text-xs mb-2">
                 ≈ ${(totalClaimableAmount * kiltData.price).toFixed(2)} USD
               </div>
               
@@ -264,7 +264,7 @@ export function RewardsTracking() {
               </Button>
               
               {totalClaimableAmount === 0 && (
-                <div className="text-white/60 text-xs text-center mt-3 p-3 bg-white/5 rounded-lg">
+                <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded-lg">
                   <p className="mb-1 font-medium">Add liquidity to start earning rewards</p>
                   <p className="text-white/40 text-xs">
                     Rewards accumulate daily based on your liquidity contribution
@@ -274,19 +274,19 @@ export function RewardsTracking() {
             </div>
 
             {/* Compact Important Notes */}
-            <div className="space-y-3">
-              <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+            <div className="space-y-2">
+              <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
                 <div className="flex items-start gap-2">
-                  <Clock className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Clock className="h-3 w-3 text-blue-400 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-white/70">
                     <strong className="text-blue-300">90-Day Lock:</strong> Rewards claimable after 90 days from liquidity addition.
                   </div>
                 </div>
               </div>
               
-              <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+              <div className="p-2 bg-green-500/10 rounded-lg border border-green-500/20">
                 <div className="flex items-start gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <TrendingUp className="h-3 w-3 text-green-400 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-white/70">
                     <strong className="text-green-300">In-Range Requirement:</strong> Only in-range positions earn full rewards.
                   </div>
@@ -296,73 +296,73 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        {/* Enhanced Program Analytics */}
-        <Card className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border-blue-500/20 rounded-2xl overflow-hidden">
-          <CardHeader className="pb-4 bg-gradient-to-r from-blue-500/5 to-purple-500/5">
-            <CardTitle className="flex items-center space-x-3 text-white font-heading text-2xl">
-              <TrendingUp className="h-7 w-7 text-blue-400" />
+        {/* Sleek Program Analytics */}
+        <Card className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border-blue-500/20 rounded-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+              <TrendingUp className="h-3 w-3 text-blue-400" />
               <span>Program Analytics</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-8 p-8">
-            {/* Main Metrics Grid */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="text-center p-6 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-                <div className="text-blue-400 text-base mb-3 font-medium">Total Liquidity</div>
-                <div className="text-3xl font-bold tabular-nums text-white">
+          <CardContent className="space-y-3 p-3">
+            {/* Compact Metrics Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                <div className="text-blue-400 text-xs mb-1 font-medium">Total Liquidity</div>
+                <div className="text-lg font-bold tabular-nums text-white">
                   ${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}
                 </div>
               </div>
-              <div className="text-center p-6 bg-purple-500/10 rounded-2xl border border-purple-500/20">
-                <div className="text-purple-400 text-base mb-3 font-medium">Active Users</div>
-                <div className="text-3xl font-bold tabular-nums text-white">
+              <div className="text-center p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                <div className="text-purple-400 text-xs mb-1 font-medium">Active Users</div>
+                <div className="text-lg font-bold tabular-nums text-white">
                   {programAnalytics?.activeParticipants || 0}
                 </div>
               </div>
             </div>
             
-            {/* APR Information */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="text-center p-6 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-                <div className="text-emerald-400 text-base mb-3 font-medium">Average APR</div>
-                <div className="text-3xl font-bold tabular-nums text-emerald-100">
+            {/* Compact APR Information */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                <div className="text-emerald-400 text-xs mb-1 font-medium">Average APR</div>
+                <div className="text-lg font-bold tabular-nums text-emerald-100">
                   {programAnalytics?.estimatedAPR?.average?.toFixed(1) || '15.0'}%
                 </div>
               </div>
-              <div className="text-center p-6 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-                <div className="text-emerald-400 text-base mb-3 font-medium">APR Range</div>
-                <div className="text-xl font-bold tabular-nums text-emerald-100">
+              <div className="text-center p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                <div className="text-emerald-400 text-xs mb-1 font-medium">APR Range</div>
+                <div className="text-sm font-bold tabular-nums text-emerald-100">
                   {programAnalytics?.estimatedAPR?.low || 5}% - {programAnalytics?.estimatedAPR?.high || 50}%
                 </div>
               </div>
             </div>
             
-            {/* Daily Budget */}
-            <div className="p-6 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
-              <div className="flex items-center gap-3 mb-4">
-                <Coins className="h-6 w-6 text-yellow-400" />
-                <span className="text-yellow-400 font-semibold text-lg">Daily Budget</span>
+            {/* Compact Daily Budget */}
+            <div className="p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Coins className="h-3 w-3 text-yellow-400" />
+                <span className="text-yellow-400 font-semibold text-xs">Daily Budget</span>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-4xl font-bold tabular-nums text-yellow-100">7,960</div>
+              <div className="flex items-center gap-2">
+                <div className="text-lg font-bold tabular-nums text-yellow-100">7,960</div>
                 <img 
                   src={kiltLogo} 
                   alt="KILT" 
-                  className="h-10 w-10"
+                  className="h-4 w-4"
                 />
-                <div className="text-yellow-200/70 text-base">
+                <div className="text-yellow-200/70 text-xs">
                   ≈ ${(7960 * kiltData.price).toFixed(0)} USD daily
                 </div>
               </div>
             </div>
             
-            {/* Proportional Rewards Info */}
-            <div className="p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl border border-blue-500/20">
-              <div className="flex items-center gap-3 mb-4">
-                <TrendingUp className="h-6 w-6 text-blue-400" />
-                <span className="text-blue-400 font-semibold text-lg">Proportional Rewards</span>
+            {/* Compact Proportional Rewards Info */}
+            <div className="p-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-3 w-3 text-blue-400" />
+                <span className="text-blue-400 font-semibold text-xs">Proportional Rewards</span>
               </div>
-              <div className="text-blue-100 text-base">
+              <div className="text-blue-100 text-xs">
                 All participants earn rewards proportional to their liquidity contribution and time-in-range performance. 
                 Currently <span className="font-bold text-blue-200">{programAnalytics?.activeParticipants || 0}</span> total active participants.
               </div>
@@ -371,78 +371,78 @@ export function RewardsTracking() {
         </Card>
       </div>
 
-      {/* Enhanced Treasury Status */}
-      <Card className="bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-red-500/10 border-purple-500/20 rounded-2xl overflow-hidden">
-        <CardHeader className="pb-4 bg-gradient-to-r from-purple-500/5 to-pink-500/5">
-          <CardTitle className="flex items-center space-x-3 text-white font-heading text-2xl">
-            <Building2 className="h-7 w-7 text-purple-400" />
+      {/* Sleek Treasury Status */}
+      <Card className="bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-red-500/10 border-purple-500/20 rounded-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+            <Building2 className="h-3 w-3 text-purple-400" />
             <span>Treasury Status</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-8 p-8">
-          {/* Main Treasury Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="text-center p-6 bg-purple-500/10 rounded-2xl border border-purple-500/20">
-              <div className="text-purple-400 text-base mb-3 font-medium">Total Allocation</div>
-              <div className="text-3xl font-bold tabular-nums text-white flex items-center justify-center gap-3">
+        <CardContent className="space-y-3 p-3">
+          {/* Compact Treasury Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="text-center p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+              <div className="text-purple-400 text-xs mb-1 font-medium">Total Allocation</div>
+              <div className="text-lg font-bold tabular-nums text-white flex items-center justify-center gap-2">
                 2,905,600 
-                <img src={kiltLogo} alt="KILT" className="h-8 w-8" />
+                <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
               </div>
-              <div className="text-purple-200/70 text-sm mt-2">
+              <div className="text-purple-200/70 text-xs mt-1">
                 ≈ ${(2905600 * kiltData.price).toFixed(0)} USD
               </div>
             </div>
             
-            <div className="text-center p-6 bg-pink-500/10 rounded-2xl border border-pink-500/20">
-              <div className="text-pink-400 text-base mb-3 font-medium">Remaining</div>
-              <div className="text-3xl font-bold tabular-nums text-white flex items-center justify-center gap-3">
+            <div className="text-center p-3 bg-pink-500/10 rounded-lg border border-pink-500/20">
+              <div className="text-pink-400 text-xs mb-1 font-medium">Remaining</div>
+              <div className="text-lg font-bold tabular-nums text-white flex items-center justify-center gap-2">
                 {programAnalytics?.treasuryRemaining?.toLocaleString() || '2,905,600'} 
-                <img src={kiltLogo} alt="KILT" className="h-8 w-8" />
+                <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
               </div>
-              <div className="text-pink-200/70 text-sm mt-2">
+              <div className="text-pink-200/70 text-xs mt-1">
                 {programAnalytics?.daysRemaining || 365} days remaining
               </div>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-4">
-            <Progress value={((2905600 - (programAnalytics?.treasuryRemaining || 2905600)) / 2905600) * 100} className="h-4 rounded-full" />
+          {/* Compact Progress Bar */}
+          <div className="space-y-2">
+            <Progress value={((2905600 - (programAnalytics?.treasuryRemaining || 2905600)) / 2905600) * 100} className="h-2 rounded-full" />
             <div className="text-center">
-              <div className="text-white font-bold text-lg">
+              <div className="text-white font-bold text-sm">
                 {(((2905600 - (programAnalytics?.treasuryRemaining || 2905600)) / 2905600) * 100).toFixed(1)}% allocated
               </div>
-              <div className="text-white/60 text-sm">
+              <div className="text-white/60 text-xs">
                 90-day lock period • ${kiltData?.price.toFixed(4) || '0.0289'} per KILT
               </div>
             </div>
           </div>
 
-          {/* Enhanced Reward Features */}
-          <div className="p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20">
-            <div className="flex items-center gap-3 mb-6">
-              <TrendingUp className="h-6 w-6 text-purple-400" />
-              <span className="text-purple-400 font-semibold text-lg">Reward Features</span>
+          {/* Compact Reward Features */}
+          <div className="p-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-3 w-3 text-purple-400" />
+              <span className="text-purple-400 font-semibold text-xs">Reward Features</span>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                <span className="text-white/80 text-sm">Daily reward accumulation</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                <span className="text-white/80 text-xs">Daily reward accumulation</span>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                <span className="text-white/80 text-sm">Proportional rewards for all participants</span>
+              <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                <span className="text-white/80 text-xs">Proportional rewards for all participants</span>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-                <span className="text-white/80 text-sm">Sustainable rewards for 365 days</span>
+              <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                <span className="text-white/80 text-xs">Sustainable rewards for 365 days</span>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                <div className="w-3 h-3 rounded-full bg-purple-400"></div>
-                <span className="flex items-center gap-2 text-white/80 text-sm">
+              <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                <span className="flex items-center gap-1 text-white/80 text-xs">
                   Automatic 
-                  <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
+                  <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
                   KILT distribution
                 </span>
               </div>

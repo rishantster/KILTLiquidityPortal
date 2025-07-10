@@ -101,12 +101,14 @@ export function WalletConnect() {
 
       {/* Mobile Wallet Selection Modal */}
       <Dialog open={showMobileModal} onOpenChange={setShowMobileModal}>
-        <DialogContent className="cluely-card border-white/10 w-[90vw] max-w-md mx-auto p-6 rounded-2xl shadow-2xl">
+        <DialogContent className="cluely-card border-white/10 mobile-modal p-6 rounded-2xl shadow-2xl">
           <DialogHeader className="pb-4">
-            <DialogTitle className="text-white font-semibold text-lg text-center">Connect Mobile Wallet</DialogTitle>
+            <DialogTitle className="text-white font-semibold text-lg text-center font-heading">
+              Connect Mobile Wallet
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-gray-400 text-center mb-4">
+            <p className="text-sm text-gray-400 text-center mb-4 font-body">
               Choose your preferred wallet to connect:
             </p>
             <div className="space-y-3">
@@ -118,7 +120,7 @@ export function WalletConnect() {
                     setTimeout(() => setShowMobileModal(false), 200);
                   }}
                   variant="outline"
-                  className="w-full justify-start text-white border-white/10 hover:bg-white/10 hover:border-white/20 mobile-wallet-button py-4 text-base font-medium rounded-xl bg-white/5 backdrop-blur-sm"
+                  className="w-full justify-start text-white border-white/10 hover:bg-white/10 hover:border-white/20 mobile-wallet-button py-4 text-base font-medium rounded-xl bg-white/5 backdrop-blur-sm font-body"
                   style={{ 
                     animationDelay: `${index * 100}ms`,
                     animation: showMobileModal ? 'slideInUp 0.4s ease-out forwards' : 'none'
@@ -130,7 +132,7 @@ export function WalletConnect() {
               ))}
             </div>
             <div className="pt-4 border-t border-white/10">
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-gray-500 text-center font-body">
                 Don't have a wallet? Download one from the App Store or Google Play.
               </p>
             </div>

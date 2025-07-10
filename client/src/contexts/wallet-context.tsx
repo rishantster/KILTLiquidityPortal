@@ -110,7 +110,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     };
 
     const handleAccountsChanged = (accounts: string[]) => {
-      console.log('Accounts changed:', accounts);
+      // Accounts changed event
       if (accounts.length === 0) {
         // User disconnected their wallet
         setAddress(null);
@@ -131,7 +131,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     };
 
     const handleChainChanged = async (chainId: string) => {
-      console.log('Network changed to:', chainId);
+      // Network changed event
       
       // Force switch to Base mainnet if not already on it
       if (chainId !== '0x2105' && isConnected) {
@@ -253,7 +253,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       description: "Successfully disconnected from your wallet.",
     });
     
-    console.log('Wallet disconnected - Context state updated:', { address: null, isConnected: false });
+    // Wallet disconnected - Context state updated
   };
 
   return (

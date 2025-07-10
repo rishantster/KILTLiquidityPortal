@@ -132,6 +132,7 @@
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     transform: translateZ(0);
     will-change: transform, background, border-color, box-shadow;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
   .cluely-card:hover {
@@ -246,6 +247,79 @@
   /* Staggered Animation Delays for Multiple Logos */
   .logo-reveal-delay-1 {
     animation-delay: 0.1s;
+  }
+
+  /* Mobile-First Responsive Enhancements */
+  @media (max-width: 768px) {
+    .mobile-modal {
+      width: calc(100vw - 2rem) !important;
+      max-width: calc(100vw - 2rem) !important;
+      margin: 1rem !important;
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      max-height: calc(100vh - 4rem) !important;
+      overflow-y: auto !important;
+    }
+    
+    .mobile-safe-padding {
+      padding: 1rem !important;
+      margin: 0.5rem !important;
+    }
+    
+    .mobile-text-small {
+      font-size: 0.875rem !important;
+      line-height: 1.25rem !important;
+    }
+    
+    .mobile-full-width {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    
+    .mobile-wallet-button {
+      animation: slideInUp 0.4s ease-out forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    
+    .mobile-tab-compact {
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.75rem !important;
+      min-width: auto !important;
+    }
+  }
+
+  /* Smooth Mobile Animations */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Enhanced Cluely Primary for Better Consistency */
+  .cluely-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    transition: all 0.3s ease;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .cluely-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
   }
 
   .logo-reveal-delay-2 {

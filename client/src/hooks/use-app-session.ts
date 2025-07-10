@@ -53,7 +53,7 @@ export function useAppSession() {
         const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
         setSessionExpiry(expiry);
         
-        console.log('App session created successfully:', response.sessionId);
+        // App session created successfully
         return response.sessionId;
       }
 
@@ -106,7 +106,7 @@ export function useAppSession() {
       });
 
       if (response.success) {
-        console.log('Transaction recorded successfully:', response.transactionId);
+        // Transaction recorded successfully
         return response;
       }
 

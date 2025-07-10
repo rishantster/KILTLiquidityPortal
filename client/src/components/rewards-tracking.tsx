@@ -119,7 +119,7 @@ export function RewardsTracking() {
     }
   });
 
-  const totalClaimableAmount = Array.isArray(claimableRewards) ? claimableRewards.reduce((total: number, reward: any) => {
+  const totalClaimableAmount = Array.isArray(claimableRewards) ? claimableRewards.reduce((total: number, reward: { amount: string | number }) => {
     const accumulated = Number(reward.accumulatedAmount);
     const claimed = Number(reward.claimedAmount || 0);
     return total + (accumulated - claimed);

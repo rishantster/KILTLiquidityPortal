@@ -97,7 +97,7 @@ export class RewardService {
         .limit(1);
 
       if (!position) {
-        console.error(`Position not found for NFT ${nftTokenId}`);
+        // Position not found for NFT
         return 0.0;
       }
 

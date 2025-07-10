@@ -151,7 +151,7 @@ export function UserPositions() {
         queryClient.invalidateQueries({ queryKey: [`/api/rewards/user/${typedUserData.id}`] });
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to claim rewards",
@@ -204,10 +204,10 @@ export function UserPositions() {
         title: "Success",
         description: `Position ${managementMode} completed successfully`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || `Failed to ${managementMode} position`,
+        description: (error as Error)?.message || `Failed to ${managementMode} position`,
         variant: "destructive",
       });
     }
@@ -247,8 +247,8 @@ export function UserPositions() {
     );
   }
 
-  const unclaimedRewards = Array.isArray(rewards) ? rewards.filter((r: any) => !r.claimedAt) : [];
-  const totalUnclaimed = unclaimedRewards.reduce((sum: number, r: any) => sum + parseFloat(r.amount), 0);
+  const unclaimedRewards = Array.isArray(rewards) ? rewards.filter((r: { claimedAt?: Date | null }) => !r.claimedAt) : [];
+  const totalUnclaimed = unclaimedRewards.reduce((sum: number, r: { amount: string | number }) => sum + parseFloat(r.amount.toString()), 0);
 
   return (
     <div className="space-y-4 h-full overflow-y-auto">

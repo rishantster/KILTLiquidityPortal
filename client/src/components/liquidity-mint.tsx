@@ -249,10 +249,10 @@ export function LiquidityMint() {
         title: "Tokens Approved",
         description: "KILT and WETH have been approved for the Position Manager",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Approval Failed",
-        description: error.message || "Failed to approve tokens",
+        description: (error as Error)?.message || "Failed to approve tokens",
         variant: "destructive",
       });
     }
@@ -306,10 +306,10 @@ export function LiquidityMint() {
       setKiltAmount('');
       setWethAmount('');
       setPositionSizePercent([25]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Position Creation Failed",
-        description: error.message || "Failed to create liquidity position",
+        description: (error as Error)?.message || "Failed to create liquidity position",
         variant: "destructive",
       });
     }

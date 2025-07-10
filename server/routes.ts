@@ -706,18 +706,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get Top 100 ranking analytics
-  app.get("/api/rewards/top100-analytics", async (req, res) => {
+  // Get program analytics (open participation)
+  app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
-      const analytics = await rewardService.getTop100RankingAnalytics();
+      const analytics = await rewardService.getProgramAnalytics();
       res.json(analytics);
     } catch (error) {
       // Return fallback analytics to prevent frontend errors
       res.json({
         totalLiquidity: 0,
         activeParticipants: 0,
-        top100Participants: 0,
-        estimatedAPR: { rank1: 66, rank50: 33, rank100: 0.66 },
+        estimatedAPR: { low: 5, average: 15, high: 50 },
         treasuryRemaining: 2905600,
         avgUserLiquidity: 0
       });
@@ -741,73 +740,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Top 100 Replacement System Routes
+  // Open Participation System Routes
   
-  // Get replacement requirements for new users
+  // Get participation requirements for new users
   app.get("/api/replacement/requirements", async (req, res) => {
     try {
-      // Get current Top 100 participants
+      // Get all active participants
       const positions = await storage.getAllLpPositions();
       const activePositions = positions.filter(p => p.isActive);
       
-      // Sort by liquidity value (descending) and take top 100
+      // Sort by liquidity value (descending)
       const sortedPositions = activePositions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
-      const top100 = sortedPositions.slice(0, 100);
-      
-      if (top100.length < 100) {
-        // Slots available - no replacement needed
-        res.json({
-          slotsAvailable: true,
-          availableSlots: 100 - top100.length,
-          minimumLiquidity: 100, // Minimum $100 position
-          message: `${100 - top100.length} slots available! Add liquidity to join the Top 100.`
-        });
-        return;
-      }
-      
-      // Calculate rank 100 replacement requirements
-      const rank100Position = top100[99];
-      const rank100DaysActive = Math.floor(
-        (Date.now() - new Date(rank100Position.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-      );
-      const rank100Score = rank100Position.currentValueUSD * rank100DaysActive;
-      
-      // Calculate minimum liquidity needed for different time strategies
-      const strategies = {
-        immediate: {
-          minimumLiquidity: Math.ceil(rank100Score / 1),
-          days: 1,
-          description: "Add this amount to immediately replace rank #100"
-        },
-        monthly: {
-          minimumLiquidity: Math.ceil(rank100Score / 30),
-          days: 30,
-          description: "Add this amount and wait 30 days to replace rank #100"
-        },
-        quarterly: {
-          minimumLiquidity: Math.ceil(rank100Score / 90),
-          days: 90,
-          description: "Add this amount and wait 90 days to replace rank #100"
-        }
-      };
       
       res.json({
-        slotsAvailable: false,
-        availableSlots: 0,
-        rank100Requirements: {
-          currentLiquidity: rank100Position.currentValueUSD,
-          daysActive: rank100DaysActive,
-          liquidityScore: rank100Score
-        },
-        replacementStrategies: strategies,
-        message: `Top 100 full. You need Liquidity × Days > ${rank100Score.toFixed(0)} to replace rank #100.`
+        openParticipation: true,
+        totalParticipants: sortedPositions.length,
+        minimumLiquidity: 100, // Minimum $100 position
+        message: `Open participation! Add minimum $100 liquidity to join ${sortedPositions.length} other participants.`,
+        requirements: {
+          minimumPositionValue: 100,
+          lockPeriod: 90,
+          description: "Add at least $100 liquidity and wait 90 days to claim rewards"
+        }
       });
       
     } catch (error) {
-      console.error('Error fetching replacement requirements:', error);
+      console.error('Error fetching participation requirements:', error);
       res.status(500).json({ 
-        error: 'Failed to fetch replacement requirements',
-        slotsAvailable: false,
+        error: 'Failed to fetch participation requirements',
+        openParticipation: true,
         availableSlots: 0,
         message: 'Unable to calculate replacement requirements at this time.'
       });

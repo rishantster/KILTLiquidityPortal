@@ -90,18 +90,17 @@ export function useUnifiedDashboard() {
     enabled: !!address && isConnected
   });
 
-  // Get Top 100 analytics with proper error handling
-  const { data: top100Analytics } = useQuery({
-    queryKey: ['top100Analytics'],
+  // Get program analytics with proper error handling
+  const { data: programAnalytics } = useQuery({
+    queryKey: ['programAnalytics'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/rewards/top100-analytics');
+        const response = await fetch('/api/rewards/program-analytics');
         if (!response.ok) {
           return {
             totalLiquidity: 0,
             activeParticipants: 0,
-            top100Participants: 0,
-            estimatedAPR: { rank1: 0, rank50: 0, rank100: 0 },
+            estimatedAPR: { low: 5, average: 15, high: 50 },
             treasuryRemaining: 2905600,
             avgUserLiquidity: 0
           };
@@ -111,8 +110,7 @@ export function useUnifiedDashboard() {
         return {
           totalLiquidity: 0,
           activeParticipants: 0,
-          top100Participants: 0,
-          estimatedAPR: { rank1: 0, rank50: 0, rank100: 0 },
+          estimatedAPR: { low: 5, average: 15, high: 50 },
           treasuryRemaining: 2905600,
           avgUserLiquidity: 0
         };
@@ -184,7 +182,7 @@ export function useUnifiedDashboard() {
     // Reward data
     rewardStats,
     personalAPR,
-    top100Analytics,
+    programAnalytics,
     
     // Analytics data
     userAnalytics,

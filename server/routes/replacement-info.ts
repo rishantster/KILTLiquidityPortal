@@ -7,77 +7,35 @@ import { eq } from 'drizzle-orm';
 const router = Router();
 
 /**
- * Get replacement requirement information for new users
- * Shows what liquidity + time is needed to join Top 100
+ * Get participation information for new users
+ * Shows minimum requirements to join the program
  */
 router.get('/replacement-requirements', async (req, res) => {
   try {
-    // Get current Top 100 participants
+    // Get all active participants
     const positions = await db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
     
-    // Sort by liquidity value (descending) and take top 100
+    // Sort by liquidity value (descending)
     const sortedPositions = positions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
-    const top100 = sortedPositions.slice(0, 100);
     
-    if (top100.length < 100) {
-      // Slots available - no replacement needed
-      return res.json({
-        slotsAvailable: true,
-        availableSlots: 100 - top100.length,
-        minimumLiquidity: 100, // Minimum $100 position
-        message: `${100 - top100.length} slots available! Add liquidity to join the Top 100.`
-      });
-    }
-    
-    // Calculate rank 100 replacement requirements
-    const rank100Position = top100[99];
-    const rank100DaysActive = Math.floor(
-      (Date.now() - new Date(rank100Position.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    const rank100Score = rank100Position.currentValueUSD * rank100DaysActive;
-    
-    // Calculate minimum liquidity needed for immediate entry (assuming 1 day)
-    const minimumLiquidityFor1Day = Math.ceil(rank100Score / 1);
-    
-    // Calculate minimum liquidity needed for 30-day strategy
-    const minimumLiquidityFor30Days = Math.ceil(rank100Score / 30);
-    
-    // Calculate minimum liquidity needed for 90-day strategy
-    const minimumLiquidityFor90Days = Math.ceil(rank100Score / 90);
-    
+    // Open participation - anyone can join with minimum position
     return res.json({
-      slotsAvailable: false,
-      availableSlots: 0,
-      rank100Requirements: {
-        currentLiquidity: rank100Position.currentValueUSD,
-        daysActive: rank100DaysActive,
-        liquidityScore: rank100Score
-      },
-      replacementStrategies: {
-        immediate: {
-          minimumLiquidity: minimumLiquidityFor1Day,
-          days: 1,
-          description: "Add this amount to immediately replace rank #100"
-        },
-        monthly: {
-          minimumLiquidity: minimumLiquidityFor30Days,
-          days: 30,
-          description: "Add this amount and wait 30 days to replace rank #100"
-        },
-        quarterly: {
-          minimumLiquidity: minimumLiquidityFor90Days,
-          days: 90,
-          description: "Add this amount and wait 90 days to replace rank #100"
-        }
-      },
-      message: `Top 100 full. You need Liquidity × Days > ${rank100Score.toFixed(0)} to replace rank #100.`
+      openParticipation: true,
+      totalParticipants: sortedPositions.length,
+      minimumLiquidity: 100, // Minimum $100 position
+      message: `Open participation! Add minimum $100 liquidity to join ${sortedPositions.length} other participants.`,
+      requirements: {
+        minimumPositionValue: 100,
+        lockPeriod: 90,
+        description: "Add at least $100 liquidity and wait 90 days to claim rewards"
+      }
     });
     
   } catch (error) {
-    console.error('Error fetching replacement requirements:', error);
+    console.error('Error fetching participation requirements:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch replacement requirements',
-      slotsAvailable: false,
+      error: 'Failed to fetch participation requirements',
+      openParticipation: true,
       availableSlots: 0,
       message: 'Unable to calculate replacement requirements at this time.'
     });

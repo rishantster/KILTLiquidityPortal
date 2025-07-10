@@ -25,7 +25,7 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     uint256 public constant TREASURY_ALLOCATION = 2905600 * 1e18; // 2.9M KILT tokens
     uint256 public constant PROGRAM_DURATION = 365 days; // 1 year program
     uint256 public constant LOCK_PERIOD = 90 days; // 90 days lock period
-    uint256 public constant MAX_PARTICIPANTS = 100; // Top 100 participants
+    // No participant limit - open to all eligible positions
     uint256 public constant MIN_POSITION_VALUE = 100 * 1e18; // $100 minimum (in USD with 18 decimals)
     
     // Program timing
@@ -60,16 +60,16 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     mapping(address => mapping(uint256 => RewardInfo)) public rewardInfo;
     mapping(address => uint256[]) public userPositions;
     
-    // Top 100 tracking
-    address[] public top100Participants;
-    mapping(address => uint256) public userRanking;
+    // All participants tracking
+    address[] public allParticipants;
+    mapping(address => bool) public isParticipant;
     
     // Events
     event LiquidityAdded(address indexed user, uint256 indexed nftTokenId, uint256 liquidityValue);
     event LiquidityRemoved(address indexed user, uint256 indexed nftTokenId);
     event RewardsClaimed(address indexed user, uint256 amount);
     event RewardsEarned(address indexed user, uint256 indexed nftTokenId, uint256 amount);
-    event Top100Updated(address[] newTop100);
+    event ParticipantAdded(address indexed participant);
     event RewardWalletUpdated(address indexed oldWallet, address indexed newWallet);
     
     modifier onlyDuringProgram() {

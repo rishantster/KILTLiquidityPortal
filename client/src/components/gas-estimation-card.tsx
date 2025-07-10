@@ -119,42 +119,47 @@ export function GasEstimationCard({
   }
 
   return (
-    <Card className={`bg-white/5 border-white/10 ${className}`}>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-white text-lg flex items-center gap-2">
-          <Fuel className="h-5 w-5 text-blue-400" />
-          Transaction Cost Estimation
-        </CardTitle>
+    <Card className={`bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-500/20 ${className}`}>
+      <CardHeader className="pb-1">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-white text-sm flex items-center gap-1">
+            <Fuel className="h-3 w-3 text-purple-400" />
+            Transaction Cost Estimation
+          </CardTitle>
+          <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs px-1 py-0">
+            Base
+          </Badge>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2 p-3">
         {/* Current Gas Price */}
-        <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-yellow-400" />
-            <span className="text-white/70">Current Gas Price</span>
+        <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+          <div className="flex items-center gap-1">
+            <Zap className="h-3 w-3 text-yellow-400" />
+            <span className="text-white/70 text-xs">Current Gas Price</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-white font-medium tabular-nums">
+          <div className="flex items-center gap-1">
+            <span className="text-white font-medium tabular-nums text-xs">
               {gasPriceGwei.toFixed(4)} gwei
             </span>
             {isLowGas ? (
-              <TrendingDown className="h-4 w-4 text-green-400" />
+              <TrendingDown className="h-3 w-3 text-green-400" />
             ) : isHighGas ? (
-              <TrendingUp className="h-4 w-4 text-red-400" />
+              <TrendingUp className="h-3 w-3 text-red-400" />
             ) : (
-              <div className="w-4 h-4 rounded-full bg-yellow-400/20 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-400/20 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
               </div>
             )}
           </div>
         </div>
 
         {/* Operation Costs */}
-        <div className="space-y-3">
+        <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-white/70 text-sm">Token Approval</span>
+            <span className="text-white/70 text-xs">Token Approval</span>
             <div className="text-right">
-              <div className="text-white font-medium tabular-nums">
+              <div className="text-white font-medium tabular-nums text-xs">
                 {costs.approve.estimatedCost} ETH
               </div>
               <div className="text-white/50 text-xs tabular-nums">
@@ -164,9 +169,9 @@ export function GasEstimationCard({
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-white/70 text-sm">Add Liquidity</span>
+            <span className="text-white/70 text-xs">Add Liquidity</span>
             <div className="text-right">
-              <div className="text-white font-medium tabular-nums">
+              <div className="text-white font-medium tabular-nums text-xs">
                 {costs.mint.estimatedCost} ETH
               </div>
               <div className="text-white/50 text-xs tabular-nums">
@@ -178,12 +183,12 @@ export function GasEstimationCard({
           <Separator className="bg-white/10" />
           
           <div className="flex items-center justify-between font-semibold">
-            <span className="text-white">Total Cost</span>
+            <span className="text-white text-xs">Total Cost</span>
             <div className="text-right">
-              <div className="text-white font-bold tabular-nums">
+              <div className="text-white font-bold tabular-nums text-xs">
                 {costs.total.estimatedCost} ETH
               </div>
-              <div className="text-emerald-400 text-sm tabular-nums">
+              <div className="text-emerald-400 text-xs tabular-nums">
                 ≈ ${costs.total.estimatedCostUSD}
               </div>
             </div>
@@ -191,9 +196,9 @@ export function GasEstimationCard({
         </div>
 
         {/* Essential Operations Only */}
-        <div className="pt-2 border-t border-white/10">
-          <div className="text-white/60 text-xs mb-2">Common Operations</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="pt-1 border-t border-white/10">
+          <div className="text-white/60 text-xs mb-1">Common Operations</div>
+          <div className="grid grid-cols-2 gap-1 text-xs">
             <div className="flex justify-between">
               <span className="text-white/50">Collect Fees</span>
               <span className="text-white/70 tabular-nums">${costs.collect.estimatedCostUSD}</span>
@@ -206,7 +211,7 @@ export function GasEstimationCard({
         </div>
 
         {/* Gas Price Indicator */}
-        <div className="flex items-center gap-2 text-xs text-white/50 bg-white/5 p-2 rounded">
+        <div className="flex items-center gap-1 text-xs text-white/50 bg-white/5 p-1 rounded">
           <Info className="h-3 w-3" />
           <span>
             {isLowGas ? 'Low gas prices - Good time to transact!' :

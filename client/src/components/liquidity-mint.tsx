@@ -60,6 +60,7 @@ export function LiquidityMint() {
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
   const [selectedStrategy, setSelectedStrategy] = useState('balanced');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
+  const [isManualInput, setIsManualInput] = useState(false);
 
   // Logo animation timing
   useEffect(() => {
@@ -104,6 +105,9 @@ export function LiquidityMint() {
 
   // Auto-calculate amounts based on slider percentage - limited by WETH balance
   useEffect(() => {
+    // Don't auto-calculate if user is manually entering values
+    if (isManualInput) return;
+    
     const percent = positionSizePercent[0];
     
     // Handle 0% case - clear amounts
@@ -139,13 +143,14 @@ export function LiquidityMint() {
         // Error calculating amounts
       }
     }
-  }, [positionSizePercent, wethBalance, formatTokenAmount, kiltData?.price]);
+  }, [positionSizePercent, wethBalance, formatTokenAmount, kiltData?.price, isManualInput]);
 
   const handleKiltAmountChange = (value: string) => {
     // Prevent negative values
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
+    setIsManualInput(true);
     setKiltAmount(value);
     
     // Auto-calculate WETH amount
@@ -171,6 +176,9 @@ export function LiquidityMint() {
           // Error updating slider
         }
       }
+    } else if (value === '') {
+      setWethAmount('');
+      setPositionSizePercent([0]);
     }
   };
 
@@ -179,6 +187,7 @@ export function LiquidityMint() {
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
+    setIsManualInput(true);
     setWethAmount(value);
     
     // Auto-calculate KILT amount
@@ -204,14 +213,19 @@ export function LiquidityMint() {
           }
         }
       }
+    } else if (value === '') {
+      setKiltAmount('');
+      setPositionSizePercent([0]);
     }
   };
 
   const handlePercentageSelect = (percent: number) => {
+    setIsManualInput(false); // Reset to auto-calculation when using slider/buttons
     setPositionSizePercent([percent]);
   };
 
   const handleSliderChange = (value: number[]) => {
+    setIsManualInput(false); // Reset to auto-calculation when using slider
     setPositionSizePercent(value);
   };
 

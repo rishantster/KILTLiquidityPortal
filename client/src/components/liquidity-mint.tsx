@@ -475,7 +475,7 @@ export function LiquidityMint() {
               <Zap className="h-3 w-3 text-pink-400" />
               Price Range Strategy
               {getSelectedStrategy().recommended && (
-                <div className="ml-2 px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full font-medium border border-emerald-500/30">Recommended</div>
+                <div className="ml-2 px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full font-medium border border-emerald-500/30 pt-[0px] pb-[0px]">Recommended</div>
               )}
             </CardTitle>
           </CardHeader>

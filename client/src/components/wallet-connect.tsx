@@ -63,7 +63,7 @@ export function WalletConnect() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-4">
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-slate-600 bg-slate-100 px-3 py-2 rounded-lg font-mono">
           {address.slice(0, 6)}...{address.slice(-4)}
         </div>
         {!isOnBaseNetwork && (
@@ -71,7 +71,7 @@ export function WalletConnect() {
             onClick={switchToBase}
             variant="outline"
             size="sm"
-            className="border-orange-500/50 text-orange-400 hover:bg-orange-500/10"
+            className="border-red-500 text-red-700 hover:bg-red-50 font-medium"
           >
             Switch to Base
           </Button>
@@ -80,7 +80,7 @@ export function WalletConnect() {
           onClick={disconnect}
           variant="outline"
           size="sm"
-          className="border-white/20 hover:bg-white/10"
+          className="border-slate-300 text-slate-600 hover:bg-slate-50 font-medium"
         >
           Disconnect
         </Button>
@@ -93,23 +93,23 @@ export function WalletConnect() {
       <Button 
         onClick={handleConnect} 
         disabled={isConnecting}
-        className="cluely-primary rounded-lg px-4 py-2 font-medium"
+        className="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-0 text-lg"
       >
-        <Wallet className="mr-2 h-4 w-4" />
-        {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        <Wallet className="mr-3 h-6 w-6" />
+        {isConnecting ? 'Connecting...' : 'Connect Wallet & Start Earning'}
       </Button>
 
-      {/* Mobile Wallet Selection Modal */}
+      {/* Investment Psychology Mobile Wallet Modal */}
       <Dialog open={showMobileModal} onOpenChange={setShowMobileModal}>
-        <DialogContent className="cluely-card border-white/10 w-[90vw] max-w-md mx-auto p-6 rounded-2xl shadow-2xl">
-          <DialogHeader className="pb-4">
-            <DialogTitle className="text-white font-semibold text-lg text-center">Connect Mobile Wallet</DialogTitle>
+        <DialogContent className="bg-white border border-slate-200 w-[90vw] max-w-md mx-auto p-8 rounded-2xl shadow-2xl">
+          <DialogHeader className="pb-6">
+            <DialogTitle className="text-slate-900 font-bold text-xl text-center">Connect Mobile Wallet</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-gray-400 text-center mb-4">
-              Choose your preferred wallet to connect:
+          <div className="space-y-6">
+            <p className="text-base text-slate-600 text-center mb-6 font-medium">
+              Choose your preferred wallet to start earning:
             </p>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {mobileWallets.map((wallet, index) => (
                 <Button
                   key={wallet.name}
@@ -118,19 +118,19 @@ export function WalletConnect() {
                     setTimeout(() => setShowMobileModal(false), 200);
                   }}
                   variant="outline"
-                  className="w-full justify-start text-white border-white/10 hover:bg-white/10 hover:border-white/20 mobile-wallet-button py-4 text-base font-medium rounded-xl bg-white/5 backdrop-blur-sm"
+                  className="w-full justify-start text-slate-900 border-slate-200 hover:bg-blue-50 hover:border-blue-300 py-4 text-base font-semibold rounded-xl bg-slate-50 transition-all"
                   style={{ 
                     animationDelay: `${index * 100}ms`,
                     animation: showMobileModal ? 'slideInUp 0.4s ease-out forwards' : 'none'
                   }}
                 >
-                  <Wallet className="mr-3 h-5 w-5 text-white/70" />
-                  <span className="font-medium">{wallet.name}</span>
+                  <Wallet className="mr-4 h-6 w-6 text-blue-600" />
+                  <span className="font-semibold">{wallet.name}</span>
                 </Button>
               ))}
             </div>
-            <div className="pt-4 border-t border-white/10">
-              <p className="text-xs text-gray-500 text-center">
+            <div className="pt-6 border-t border-slate-200">
+              <p className="text-sm text-slate-500 text-center font-medium">
                 Don't have a wallet? Download one from the App Store or Google Play.
               </p>
             </div>

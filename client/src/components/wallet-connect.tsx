@@ -63,7 +63,7 @@ export function WalletConnect() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-4">
-        <div className="text-sm text-slate-600 bg-slate-100 px-3 py-2 rounded-lg font-mono">
+        <div className="text-sm text-slate-900 bg-slate-200 px-3 py-2 rounded-lg font-mono font-bold border border-slate-300">
           {address.slice(0, 6)}...{address.slice(-4)}
         </div>
         {!isOnBaseNetwork && (
@@ -71,7 +71,7 @@ export function WalletConnect() {
             onClick={switchToBase}
             variant="outline"
             size="sm"
-            className="border-red-500 text-red-700 hover:bg-red-50 font-medium"
+            className="border-red-600 text-red-800 hover:bg-red-50 font-bold bg-red-50"
           >
             Switch to Base
           </Button>
@@ -80,7 +80,7 @@ export function WalletConnect() {
           onClick={disconnect}
           variant="outline"
           size="sm"
-          className="border-slate-300 text-slate-600 hover:bg-slate-50 font-medium"
+          className="border-slate-400 text-slate-800 hover:bg-slate-100 font-bold bg-slate-50"
         >
           Disconnect
         </Button>

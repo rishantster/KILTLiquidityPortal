@@ -413,8 +413,8 @@ export function MainDashboard() {
               <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">KILT Liquidity Portal</h1>
-              <p className="text-slate-600 text-sm font-medium">Professional Liquidity Management</p>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900">KILT Liquidity Portal</h1>
+              <p className="text-slate-800 text-sm font-bold">Professional Liquidity Management</p>
             </div>
           </div>
           
@@ -444,45 +444,45 @@ export function MainDashboard() {
           <TabsList className="grid w-full grid-cols-6 bg-white border border-slate-200 p-1 rounded-xl mb-8 h-14 gap-1 shadow-sm">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-600 rounded-lg text-sm font-semibold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
+              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
             >
               <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Overview</span>
+              <span className="text-sm truncate font-bold">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-green-800 data-[state=active]:text-white text-slate-600 rounded-lg text-sm font-semibold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-green-50"
+              className="data-[state=active]:bg-green-800 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-green-50"
             >
               <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Add Liquidity</span>
+              <span className="text-sm truncate font-bold">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-600 rounded-lg text-sm font-semibold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
+              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
             >
               <Award className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Rewards</span>
+              <span className="text-sm truncate font-bold">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-slate-900 data-[state=active]:text-white text-slate-600 rounded-lg text-sm font-semibold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-slate-50"
+              className="data-[state=active]:bg-slate-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-slate-50"
             >
               <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Positions</span>
+              <span className="text-sm truncate font-bold">Positions</span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="data-[state=active]:bg-slate-900 data-[state=active]:text-white text-slate-600 rounded-lg text-sm font-semibold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-slate-50"
+              className="data-[state=active]:bg-slate-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-slate-50"
             >
               <BarChart3 className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Analytics</span>
+              <span className="text-sm truncate font-bold">Analytics</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rebalancing" 
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-600 rounded-lg text-sm font-semibold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
+              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white text-slate-900 rounded-lg text-sm font-bold transition-all px-4 py-2 flex items-center justify-center min-w-0 hover:bg-blue-50"
             >
               <Target className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Rebalance</span>
+              <span className="text-sm truncate font-bold">Rebalance</span>
             </TabsTrigger>
           </TabsList>
 
@@ -500,11 +500,11 @@ export function MainDashboard() {
                       className="w-12 h-12"
                     />
                   </div>
-                  <p className="text-slate-600 text-sm mb-2 font-medium">KILT Price</p>
-                  <p className="text-slate-900 font-bold text-2xl">
+                  <p className="text-slate-800 text-sm mb-2 font-bold">KILT Price</p>
+                  <p className="text-slate-900 font-black text-2xl">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
-                  <p className="text-green-700 text-sm mt-1 font-medium">+0.50%</p>
+                  <p className="text-green-800 text-sm mt-1 font-bold">+0.50%</p>
                 </div>
 
                 {/* Market Cap */}
@@ -512,11 +512,11 @@ export function MainDashboard() {
                   <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-green-200">
                     <Coins className="h-10 w-10 text-green-800" />
                   </div>
-                  <p className="text-slate-600 text-sm mb-2 font-medium">Market Cap</p>
-                  <p className="text-slate-900 font-bold text-2xl">
+                  <p className="text-slate-800 text-sm mb-2 font-bold">Market Cap</p>
+                  <p className="text-slate-900 font-black text-2xl">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
-                  <p className="text-blue-700 text-sm mt-1 font-medium">276.97M circulating</p>
+                  <p className="text-blue-800 text-sm mt-1 font-bold">276.97M circulating</p>
                 </div>
 
                 {/* Your Reward APR */}
@@ -524,14 +524,14 @@ export function MainDashboard() {
                   <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-200">
                     <Award className="h-10 w-10 text-blue-800" />
                   </div>
-                  <p className="text-slate-600 text-sm mb-2 font-medium">Your Reward APR</p>
-                  <div className="text-slate-900 font-bold text-2xl">
+                  <p className="text-slate-800 text-sm mb-2 font-bold">Your Reward APR</p>
+                  <div className="text-slate-900 font-black text-2xl">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
                       <div className="text-center">
-                        <span className="text-slate-400">--</span>
-                        <div className="text-slate-500 text-sm mt-1">Connect wallet</div>
+                        <span className="text-slate-600">--</span>
+                        <div className="text-slate-700 text-sm mt-1 font-semibold">Connect wallet</div>
                       </div>
                     )}
                   </div>
@@ -542,11 +542,11 @@ export function MainDashboard() {
                   <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-green-200">
                     <Coins className="h-10 w-10 text-green-800" />
                   </div>
-                  <p className="text-slate-600 text-sm mb-2 font-medium">Treasury Pool</p>
-                  <p className="text-slate-900 font-bold text-2xl">
+                  <p className="text-slate-800 text-sm mb-2 font-bold">Treasury Pool</p>
+                  <p className="text-slate-900 font-black text-2xl">
                     {kiltData?.treasuryRemaining ? (kiltData.treasuryRemaining / 1000000).toFixed(1) : '2.9'}M
                   </p>
-                  <p className="text-green-700 text-sm mt-1 font-medium">KILT remaining</p>
+                  <p className="text-green-800 text-sm mt-1 font-bold">KILT remaining</p>
                 </div>
               </div>
             </div>
@@ -555,47 +555,41 @@ export function MainDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
               <div className="h-full">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                  <Plus className="h-4 w-4 text-emerald-400" />
-                  Register Existing Positions
-                </h2>
-                <div className="h-[440px] flex flex-col">
-                  <PositionRegistration />
-                </div>
+                <PositionRegistration />
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
               <div className="h-full">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                  <Zap className="h-4 w-4 text-emerald-400" />
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3 mb-4">
+                  <Zap className="h-5 w-5 text-green-700" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-xl h-[440px] flex flex-col">
-                  <CardContent className="p-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-8 flex-1">
+                <Card className="bg-white border border-slate-200 rounded-2xl h-[440px] flex flex-col shadow-sm">
+                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                    <div className="space-y-6 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <h4 className="text-white font-medium text-sm mb-2 text-label">Wallet Balance</h4>
-                        <div className="space-y-1">
+                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                        <h4 className="text-slate-900 font-bold text-base mb-3">Wallet Balance</h4>
+                        <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <img 
                                 src={kiltLogo} 
                                 alt="KILT" 
-                                className={`w-4 h-4 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
+                                className="w-5 h-5"
                               />
-                              <span className="text-white/70 text-sm text-body">KILT:</span>
+                              <span className="text-slate-700 text-sm font-semibold">KILT:</span>
                             </div>
-                            <span className="text-white font-bold text-sm text-numbers">
+                            <span className="text-slate-900 font-bold text-sm">
                               {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              <EthereumLogo className="w-4 h-4" />
-                              <span className="text-white/70 text-sm text-body">WETH:</span>
+                              <EthereumLogo className="w-5 h-5" />
+                              <span className="text-slate-700 text-sm font-semibold">WETH:</span>
                             </div>
-                            <span className="text-white font-bold text-sm text-numbers">
+                            <span className="text-slate-900 font-bold text-sm">
                               {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                             </span>
                           </div>
@@ -603,10 +597,10 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-white/70 text-sm text-label">Optimal Amount</span>
-                          <span className="text-xs text-white/50 text-body">80% balance</span>
+                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-slate-900 text-base font-bold">Optimal Amount</span>
+                          <span className="text-sm text-slate-600 font-medium">80% balance</span>
                         </div>
                         {(() => {
                           const amounts = calculateOptimalAmounts();

@@ -472,21 +472,26 @@ export function LiquidityMint() {
                 <Button
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className={`h-auto p-2 flex-col items-start w-full relative transition-all duration-300 ${
+                  className={`h-auto p-1.5 flex-col items-start w-full relative transition-all duration-300 ${
                     selectedStrategy === strategy.id 
                       ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg' 
                       : 'hover:bg-yellow-500/10 hover:border-yellow-500/50'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-0.5">
-                    <span className="font-bold text-xs">{strategy.label}</span>
+                    <span className="font-bold text-xs truncate">{strategy.label}</span>
                     {strategy.recommended && (
-                      <div className="ml-1 px-0.5 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold">
+                      <div className="ml-1 px-1 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold flex-shrink-0">
                         ✓
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-left opacity-80">{strategy.description.substring(0, 20)}...</p>
+                  <p className="text-xs text-left opacity-80 truncate w-full">
+                    {strategy.id === 'balanced' ? '50% to 150%' :
+                     strategy.id === 'wide' ? '0% to 200%' :
+                     strategy.id === 'narrow' ? '75% to 125%' :
+                     'Full range (0 ...)'}
+                  </p>
                 </Button>
               </div>
             ))}

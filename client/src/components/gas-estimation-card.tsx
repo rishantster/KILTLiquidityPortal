@@ -198,7 +198,7 @@ export function GasEstimationCard({
         {/* Essential Operations Only */}
         <div className="pt-1 border-t border-white/10">
           <div className="text-white/60 text-xs mb-1">Common Operations</div>
-          <div className="grid grid-cols-2 gap-1 text-xs">
+          <div className="space-y-1 text-xs">
             <div className="flex justify-between">
               <span className="text-white/50">Collect Fees</span>
               <span className="text-white/70 tabular-nums">${costs.collect.estimatedCostUSD}</span>
@@ -211,9 +211,9 @@ export function GasEstimationCard({
         </div>
 
         {/* Gas Price Indicator */}
-        <div className="flex items-center gap-1 text-xs text-white/50 bg-white/5 p-1 rounded">
-          <Info className="h-3 w-3" />
-          <span>
+        <div className="flex items-start gap-1 text-xs text-white/50 bg-white/5 p-1.5 rounded">
+          <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+          <span className="leading-tight">
             {isLowGas ? 'Low gas prices - Good time to transact!' :
              isHighGas ? 'High gas prices - Consider waiting' :
              'Moderate gas prices - Normal network activity'}

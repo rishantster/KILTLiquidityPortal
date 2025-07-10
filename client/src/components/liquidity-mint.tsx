@@ -344,7 +344,6 @@ export function LiquidityMint() {
           {poolExists ? 'Pool Active' : 'Pool Not Found'}
         </Badge>
       </div>
-
       {/* Sleek Position Size */}
       <Card className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-emerald-500/20 rounded-lg">
         <CardHeader className="pb-2">
@@ -384,7 +383,6 @@ export function LiquidityMint() {
           </div>
         </CardContent>
       </Card>
-
       {/* Sleek Token Input Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Sleek KILT Input */}
@@ -468,7 +466,6 @@ export function LiquidityMint() {
           </CardContent>
         </Card>
       </div>
-
       {/* Side-by-Side Layout for Price Range Strategy and Transaction Cost */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Ultra Compact Price Range Strategy */}
@@ -478,9 +475,7 @@ export function LiquidityMint() {
               <Zap className="h-3 w-3 text-pink-400" />
               Price Range Strategy
               {getSelectedStrategy().recommended && (
-                <div className="ml-2 px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full font-medium border border-emerald-500/30">
-                  Optimal for programs
-                </div>
+                <div className="ml-2 px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full font-medium border border-emerald-500/30">Recommended</div>
               )}
             </CardTitle>
           </CardHeader>
@@ -636,7 +631,6 @@ export function LiquidityMint() {
           <GasEstimationCard />
         </div>
       </div>
-
       {/* Compact Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button
@@ -675,7 +669,6 @@ export function LiquidityMint() {
           )}
         </Button>
       </div>
-
       {/* Ultra Compact Earning Opportunities */}
       <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 rounded-lg">
         <CardHeader className="pb-1">

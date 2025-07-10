@@ -289,57 +289,75 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Enhanced Feature Grid */}
-            <div className="grid md:grid-cols-3 gap-8 mb-20">
-              <Card className="group relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border border-blue-500/20 hover:border-blue-400/40 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 animate-fade-in animate-delay-100">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <TrendingUp className="h-8 w-8 text-blue-300" />
+            {/* Modern Hexagonal Feature Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-16">
+              {/* KILT/ETH Pool - Hexagon Style */}
+              <div className="group relative animate-fade-in animate-delay-100">
+                <div className="relative bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-transparent backdrop-blur-md border border-blue-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 hover:border-blue-300/50">
+                  {/* Floating Icon */}
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl rotate-45 flex items-center justify-center shadow-lg group-hover:rotate-90 transition-transform duration-500">
+                      <TrendingUp className="h-8 w-8 text-white -rotate-45 group-hover:-rotate-90 transition-transform duration-500" />
+                    </div>
                   </div>
-                  <h3 className="text-white font-bold text-xl mb-3 text-center">KILT/ETH Pool</h3>
-                  <p className="text-white/70 text-base font-body text-center leading-relaxed">
-                    Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
-                  </p>
+                  
+                  <div className="pt-8 text-center">
+                    <h3 className="text-white font-bold text-xl mb-3">KILT/ETH Pool</h3>
+                    <p className="text-blue-200/80 text-sm leading-relaxed">
+                      Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
+                    </p>
+                  </div>
                 </div>
-              </Card>
+              </div>
 
-              <Card className="group relative overflow-hidden bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20 hover:border-emerald-400/40 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/20 animate-fade-in animate-delay-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Award className="h-8 w-8 text-emerald-300" />
+              {/* Treasury Rewards - Diamond Style */}
+              <div className="group relative animate-fade-in animate-delay-200">
+                <div className="relative bg-gradient-to-br from-emerald-500/20 via-emerald-600/10 to-transparent backdrop-blur-md border border-emerald-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/30 hover:border-emerald-300/50">
+                  {/* Floating Icon */}
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
+                      <Award className="h-8 w-8 text-white group-hover:rotate-12 transition-transform duration-500" />
+                    </div>
                   </div>
-                  <h3 className="text-white font-bold text-xl mb-3 text-center">Treasury Rewards</h3>
-                  <p className="text-white/70 text-base font-body text-center leading-relaxed">
-                    Receive rewards from 1% of total KILT supply with secure 90-day token locking mechanism.
-                  </p>
+                  
+                  <div className="pt-8 text-center">
+                    <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
+                    <p className="text-emerald-200/80 text-sm leading-relaxed">
+                      Receive rewards from 1% of total KILT supply with secure 90-day token locking mechanism.
+                    </p>
+                  </div>
                 </div>
-              </Card>
+              </div>
 
-              <Card className="group relative overflow-hidden bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border border-purple-500/20 hover:border-purple-400/40 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-fade-in animate-delay-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/30 to-purple-600/30 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <BarChart3 className="h-8 w-8 text-purple-300" />
+              {/* Program Analytics - Octagon Style */}
+              <div className="group relative animate-fade-in animate-delay-300">
+                <div className="relative bg-gradient-to-br from-purple-500/20 via-purple-600/10 to-transparent backdrop-blur-md border border-purple-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 hover:border-purple-300/50">
+                  {/* Floating Icon */}
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl transform rotate-12 flex items-center justify-center shadow-lg group-hover:rotate-45 transition-transform duration-500">
+                      <BarChart3 className="h-8 w-8 text-white -rotate-12 group-hover:-rotate-45 transition-transform duration-500" />
+                    </div>
                   </div>
-                  <h3 className="text-white font-bold text-xl mb-3 text-center">Program Analytics</h3>
-                  <p className="text-white/70 text-base font-body text-center leading-relaxed">
-                    Track your position performance, rewards earned, and program progress with detailed analytics.
-                  </p>
+                  
+                  <div className="pt-8 text-center">
+                    <h3 className="text-white font-bold text-xl mb-3">Program Analytics</h3>
+                    <p className="text-purple-200/80 text-sm leading-relaxed">
+                      Track your position performance, rewards earned, and program progress with detailed analytics.
+                    </p>
+                  </div>
                 </div>
-              </Card>
+              </div>
             </div>
 
-            {/* Enhanced Bottom CTA */}
-            <div className="text-center animate-fade-in animate-delay-500 mb-16">
-              <h2 className="text-4xl font-heading text-white/90 mb-4">
+            {/* Streamlined Bottom CTA */}
+            <div className="text-center animate-fade-in animate-delay-500 mb-12">
+              <h2 className="text-3xl font-heading text-white/90 mb-3">
                 Join the
               </h2>
-              <h1 className="text-6xl font-display bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-8 bg-[length:200%_100%] animate-gradient-shift">
+              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-6 bg-[length:200%_100%] animate-gradient-shift">
                 KILT Ecosystem
               </h1>
-              <p className="text-white/70 text-xl font-body max-w-2xl mx-auto mb-8 leading-relaxed">
+              <p className="text-white/70 text-lg font-body max-w-xl mx-auto mb-6 leading-relaxed">
                 Become a liquidity provider for KILT Protocol and earn substantial rewards while supporting the decentralized identity ecosystem.
               </p>
             </div>

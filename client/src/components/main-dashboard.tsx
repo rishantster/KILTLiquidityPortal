@@ -404,293 +404,200 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen apple-bg-black">
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Apple-style Header */}
-        <div className="apple-header mb-8 rounded-2xl p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-pink-500 to-pink-600 shadow-lg">
-                <img src={kiltLogo} alt="KILT" className="w-8 h-8 object-contain" />
+    <div className="h-screen glass-bg-black overflow-hidden">
+      <div className="h-full flex flex-col">
+        {/* Glassmorphism Header */}
+        <div className="glass-header p-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center glass-gradient-pink shadow-lg">
+                <img src={kiltLogo} alt="KILT" className="w-6 h-6 object-contain" />
               </div>
               <div>
-                <h1 className="apple-title text-xl">KILT Liquidity Portal</h1>
-                <p className="apple-caption">Professional DeFi Management</p>
+                <h1 className="glass-title text-lg">KILT Liquidity Incentive Program</h1>
+                <p className="glass-caption">Earn proportional rewards • 2.9M KILT treasury • 90-day locking</p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <Badge 
-                className={`hidden sm:flex px-3 py-2 text-sm font-medium apple-badge ${
-                  isConnected && isBaseNetworkConnected 
-                    ? 'blue' 
-                    : ''
-                }`}
-              >
-                <BaseLogo className="w-4 h-4 mr-2" />
+            <div className="flex items-center space-x-3">
+              <div className={`glass-badge ${isConnected && isBaseNetworkConnected ? 'blue' : ''}`}>
+                <BaseLogo className="w-3 h-3 mr-1" />
                 Base Network
                 {isConnected && isBaseNetworkConnected && (
-                  <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full ml-2 animate-pulse" />
                 )}
-              </Badge>
-
-              <div className="flex-shrink-0">
-                <WalletConnect />
               </div>
+              <WalletConnect />
             </div>
           </div>
         </div>
 
-        {/* Apple-style Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 apple-nav p-1 rounded-xl mb-8 h-14 gap-1">
-            <TabsTrigger 
-              value="overview" 
-              className={`apple-tab ${activeTab === 'overview' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
-            >
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="liquidity" 
-              className={`apple-tab ${activeTab === 'liquidity' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
-            >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Add Liquidity</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="rewards" 
-              className={`apple-tab ${activeTab === 'rewards' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
-            >
-              <Award className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Rewards</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="positions" 
-              className={`apple-tab ${activeTab === 'positions' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
-            >
-              <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Positions</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="analytics" 
-              className={`apple-tab ${activeTab === 'analytics' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
-            >
-              <BarChart3 className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="rebalancing" 
-              className={`apple-tab ${activeTab === 'rebalancing' ? 'apple-tab-active' : ''} flex items-center justify-center min-w-0`}
-            >
-              <Target className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm truncate">Rebalance</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab - Apple Dark Design */}
-          <TabsContent value="overview" className="space-y-6 apple-animate-in">
-            {/* Apple-style Key Metrics */}
-            <div className="apple-card p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* KILT Price */}
-                <div className="apple-metric-card text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <img 
-                      src={kiltLogo} 
-                      alt="KILT" 
-                      className="w-10 h-10"
-                    />
+        {/* Main Content */}
+        <div className="flex-1 max-w-7xl mx-auto w-full p-6">
+          <div className="h-full grid grid-cols-12 gap-6">
+            {/* Left Column - Main Info */}
+            <div className="col-span-8 space-y-6">
+              {/* Key Metrics */}
+              <div className="grid grid-cols-4 gap-4">
+                <div className="glass-metric-card text-center">
+                  <div className="w-12 h-12 glass-gradient-pink rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
                   </div>
-                  <div className="apple-metric-label">KILT Price</div>
-                  <div className="apple-metric-value">
+                  <div className="glass-metric-label">KILT Price</div>
+                  <div className="glass-metric-value text-xl">
                     ${kiltData?.price?.toFixed(6) || '0.000000'}
                   </div>
-                  <div className="apple-caption">Real-time Market Price</div>
                 </div>
 
-                {/* Market Cap */}
-                <div className="apple-metric-card text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Coins className="h-10 w-10 text-white" />
+                <div className="glass-metric-card text-center">
+                  <div className="w-12 h-12 glass-gradient-blue rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="h-8 w-8 text-white" />
                   </div>
-                  <div className="apple-metric-label">Market Cap</div>
-                  <div className="apple-metric-value">
+                  <div className="glass-metric-label">Market Cap</div>
+                  <div className="glass-metric-value text-xl">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </div>
-                  <div className="apple-caption">276.97M circulating</div>
                 </div>
 
-                {/* Your Reward APR */}
-                <div className="apple-metric-card text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Award className="h-10 w-10 text-white" />
+                <div className="glass-metric-card text-center">
+                  <div className="w-12 h-12 glass-gradient-green rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <Award className="h-8 w-8 text-white" />
                   </div>
-                  <div className="apple-metric-label">Your Reward APR</div>
-                  <div className="apple-metric-value apple-text-green">
+                  <div className="glass-metric-label">Your APR</div>
+                  <div className="glass-metric-value text-xl glass-text-green">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
-                      <div className="text-center">
-                        <span className="apple-text-gray-400">--</span>
-                        <div className="apple-caption mt-1">Connect wallet</div>
-                      </div>
+                      <span className="glass-text-gray-400">--</span>
                     )}
                   </div>
                 </div>
 
-                {/* Treasury Status */}
-                <div className="apple-metric-card text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Coins className="h-10 w-10 text-white" />
+                <div className="glass-metric-card text-center">
+                  <div className="w-12 h-12 glass-gradient-purple rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <Coins className="h-8 w-8 text-white" />
                   </div>
-                  <div className="apple-metric-label">Treasury Pool</div>
-                  <div className="apple-metric-value">
+                  <div className="glass-metric-label">Treasury Pool</div>
+                  <div className="glass-metric-value text-xl">
                     {kiltData?.treasuryRemaining ? (kiltData.treasuryRemaining / 1000000).toFixed(1) : '2.9'}M
                   </div>
-                  <div className="apple-caption">KILT remaining</div>
+                </div>
+              </div>
+
+              {/* Three Feature Columns */}
+              <div className="grid grid-cols-3 gap-6 flex-1">
+                {/* KILT/ETH Pool */}
+                <div className="glass-card p-6 text-center">
+                  <div className="w-16 h-16 glass-gradient-blue rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="h-10 w-10 text-white" />
+                  </div>
+                  <h3 className="glass-subtitle mb-3">KILT/ETH Pool</h3>
+                  <p className="glass-caption mb-4">
+                    Provide liquidity to the official KILT/ETH Uniswap V3 pool on Base network with concentrated positions for maximum returns.
+                  </p>
+                  <button 
+                    onClick={() => setActiveTab('liquidity')}
+                    className="glass-btn-primary w-full"
+                  >
+                    Add Liquidity
+                  </button>
+                </div>
+
+                {/* Treasury Rewards */}
+                <div className="glass-card p-6 text-center">
+                  <div className="w-16 h-16 glass-gradient-green rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Award className="h-10 w-10 text-white" />
+                  </div>
+                  <h3 className="glass-subtitle mb-3">Treasury Rewards</h3>
+                  <p className="glass-caption mb-4">
+                    Earn proportional rewards from 2.9M KILT treasury allocation with secure 90-day reward locking for guaranteed returns.
+                  </p>
+                  <button 
+                    onClick={() => setActiveTab('rewards')}
+                    className="glass-btn-primary w-full"
+                  >
+                    View Rewards
+                  </button>
+                </div>
+
+                {/* Advanced Analytics */}
+                <div className="glass-card p-6 text-center">
+                  <div className="w-16 h-16 glass-gradient-purple rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <BarChart3 className="h-10 w-10 text-white" />
+                  </div>
+                  <h3 className="glass-subtitle mb-3">Advanced Analytics</h3>
+                  <p className="glass-caption mb-4">
+                    Track your position performance, rewards earned, and program progress with institutional-grade analytics.
+                  </p>
+                  <button 
+                    onClick={() => setActiveTab('analytics')}
+                    className="glass-btn-primary w-full"
+                  >
+                    View Analytics
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Apple-style Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column - Position Registration */}
-              <div className="h-full">
-                <PositionRegistration />
-              </div>
-
-              {/* Right Column - Quick Add Liquidity */}
-              <div className="h-full">
-                <h2 className="apple-subtitle flex items-center gap-3 mb-4">
-                  <Zap className="h-5 w-5 apple-text-blue" />
-                  Quick Add Liquidity
-                </h2>
-                <div className="apple-card h-[440px] flex flex-col p-6">
-                  <div className="space-y-4 flex-1">
-                    {/* Balance Display */}
-                    <div className="apple-metric-card p-4">
-                      <div className="apple-metric-label mb-3">Wallet Balance</div>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <img 
-                              src={kiltLogo} 
-                              alt="KILT" 
-                              className="w-5 h-5"
-                            />
-                            <span className="apple-body">KILT:</span>
-                          </div>
-                          <span className="apple-metric-value text-base">
-                            {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <EthereumLogo className="w-5 h-5" />
-                            <span className="apple-body">WETH:</span>
-                          </div>
-                          <span className="apple-metric-value text-base">
-                            {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Optimal Amount */}
-                    <div className="apple-metric-card p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="apple-metric-label">Optimal Amount</span>
-                        <span className="apple-caption">80% balance</span>
-                      </div>
-                        {(() => {
-                          const amounts = calculateOptimalAmounts();
-                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
-                          
-                          if (hasInsufficientBalance) {
-                            return (
-                              <div className="text-center py-2">
-                                <div className="apple-caption apple-text-red">Insufficient Balance</div>
-                                <p className="apple-caption">Fund wallet to continue</p>
-                              </div>
-                            );
-                          }
-                          
-                          return (
-                            <div>
-                              <div className="apple-metric-value apple-text-blue">
-                                ~${amounts.totalValue}
-                              </div>
-                              <div className="flex items-center justify-center space-x-2 apple-caption">
-                                <div className="flex items-center space-x-1">
-                                  <img 
-                                    src={kiltLogo} 
-                                    alt="KILT" 
-                                    className="w-3 h-3"
-                                  />
-                                  <span>{amounts.kiltAmount} KILT</span>
-                                </div>
-                                <span>+</span>
-                                <div className="flex items-center space-x-1">
-                                  <EthereumLogo className="w-3 h-3" />
-                                  <span>{amounts.wethAmount} WETH</span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })()}
-                    </div>
+            {/* Right Column - Wallet & Actions */}
+            <div className="col-span-4 space-y-6">
+              {!address ? (
+                /* Connect Wallet CTA */
+                <div className="glass-card p-8 text-center h-full flex flex-col justify-center">
+                  <div className="w-20 h-20 glass-gradient-pink rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <Wallet className="h-12 w-12 text-white" />
                   </div>
-                  
-                  {/* Action Button - Bottom of Card */}
-                  <div className="space-y-4 mt-4">
-                    {(() => {
-                      const amounts = calculateOptimalAmounts();
-                      const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
-                      const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
-                      
-                      return (
-                        <button 
-                          onClick={handleQuickAddLiquidity}
-                          disabled={isDisabled}
-                          className={`apple-button-primary w-full ${
-                            hasInsufficientBalance 
-                              ? 'opacity-50 cursor-not-allowed' 
-                              : ''
-                          }`}
-                        >
-                          {isQuickAdding ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Processing...
-                            </>
-                          ) : hasInsufficientBalance ? (
-                            <>
-                              <Wallet className="h-4 w-4 mr-2" />
-                              Fund Wallet
-                            </>
-                          ) : (
-                            <>
-                              <Zap className="h-4 w-4 mr-2" />
-                              Quick Add Liquidity
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </>
-                          )}
-                        </button>
-                      );
-                    })()}
+                  <h2 className="glass-title text-2xl mb-4">Connect Wallet & Start Earning</h2>
+                  <p className="glass-caption mb-6">
+                    No signup required. Connect and start earning rewards in seconds.
+                  </p>
+                  <WalletConnect />
+                </div>
+              ) : (
+                <div className="space-y-6 h-full">
+                  {/* Position Registration */}
+                  <div className="glass-card p-6">
+                    <PositionRegistration />
+                  </div>
 
-                    {/* Help Text */}
-                    <div className="text-center">
-                      <p className="apple-caption">
-                        For custom amounts, use the "Add Liquidity" tab above
-                      </p>
+                  {/* Quick Actions */}
+                  <div className="glass-card p-6 flex-1">
+                    <h3 className="glass-subtitle mb-4">Quick Actions</h3>
+                    <div className="space-y-3">
+                      <button 
+                        onClick={() => setActiveTab('liquidity')}
+                        className="glass-btn-secondary w-full flex items-center justify-center"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Liquidity
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab('positions')}
+                        className="glass-btn-secondary w-full flex items-center justify-center"
+                      >
+                        <Wallet className="h-4 w-4 mr-2" />
+                        My Positions
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab('rewards')}
+                        className="glass-btn-secondary w-full flex items-center justify-center"
+                      >
+                        <Award className="h-4 w-4 mr-2" />
+                        Claim Rewards
+                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
-          </TabsContent>
+          </div>
+        </div>
+
+        {/* Hidden Tabs Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden">
+          <TabsList className="hidden"></TabsList>
+
+          <TabsContent value="overview"></TabsContent>
 
           {/* Add Liquidity Tab */}
           <TabsContent value="liquidity">

@@ -215,9 +215,9 @@ export function UserPositions() {
 
   if (!isConnected) {
     return (
-      <Card className="cluely-card rounded-2xl">
-        <CardContent className="p-8 text-center">
-          <p className="text-white/60">Connect your wallet to view your positions</p>
+      <Card className="cluely-card rounded-lg">
+        <CardContent className="p-4 text-center">
+          <p className="text-white/60 text-xs">Connect your wallet to view your positions</p>
         </CardContent>
       </Card>
     );
@@ -225,20 +225,20 @@ export function UserPositions() {
 
   if (uniswapLoading) {
     return (
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-white font-heading">
-            <Layers className="h-5 w-5 text-blue-400" />
+      <Card className="cluely-card rounded-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+            <Layers className="h-3 w-3 text-blue-400" />
             <span>Your LP Positions</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="p-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white/5 rounded-xl p-4">
-                <Skeleton className="h-8 w-24 mb-2" />
-                <Skeleton className="h-4 w-32 mb-2" />
-                <Skeleton className="h-4 w-28" />
+              <div key={i} className="bg-white/5 rounded-lg p-3">
+                <Skeleton className="h-6 w-20 mb-2" />
+                <Skeleton className="h-3 w-28 mb-2" />
+                <Skeleton className="h-3 w-24" />
               </div>
             ))}
           </div>
@@ -251,46 +251,46 @@ export function UserPositions() {
   const totalUnclaimed = unclaimedRewards.reduce((sum: number, r: any) => sum + parseFloat(r.amount), 0);
 
   return (
-    <div className="space-y-6 h-full overflow-y-auto">
+    <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
-      <Card className="cluely-card rounded-2xl min-h-0">
-        <CardHeader>
+      <Card className="cluely-card rounded-lg min-h-0">
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2 text-white font-heading">
-              <Layers className="h-5 w-5 text-blue-400" />
+            <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+              <Layers className="h-3 w-3 text-blue-400" />
               <span>Your KILT LP Positions</span>
             </CardTitle>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => window.location.reload()}
-                className="border-white/20 hover:border-white/30"
+                className="border-white/20 hover:border-white/30 text-xs h-6 px-2"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-3 w-3 mr-1" />
                 Refresh
               </Button>
               
               {/* Position counts and toggle */}
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-sm text-white/60">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 text-xs text-white/60">
                   <span>{allKiltPositions.length} KILT positions ({openPositions.length} open)</span>
                 </div>
                 
                 {closedPositions.length > 0 && (
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-white/60">Display Closed Positions</span>
+                    <span className="text-xs text-white/60">Display Closed</span>
                     <button
                       onClick={() => setShowClosedPositions(!showClosedPositions)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                         showClosedPositions 
                           ? 'bg-blue-600' 
                           : 'bg-white/20'
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
-                          showClosedPositions ? 'translate-x-6' : 'translate-x-1'
+                        className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
+                          showClosedPositions ? 'translate-x-5' : 'translate-x-1'
                         }`}
                       />
                     </button>
@@ -300,29 +300,29 @@ export function UserPositions() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3">
           {!kiltPositions || kiltPositions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-white/60">No KILT positions found</p>
-              <p className="text-white/40 text-sm">Add liquidity to pools containing KILT token to get started</p>
+            <div className="text-center py-4">
+              <p className="text-white/60 text-xs">No KILT positions found</p>
+              <p className="text-white/40 text-xs">Add liquidity to pools containing KILT token to get started</p>
               {allKiltEthPositions.length > 0 && (
-                <p className="text-white/40 text-xs mt-2">
+                <p className="text-white/40 text-xs mt-1">
                   Found {allKiltEthPositions.length} KILT/ETH position(s) in main pool
                 </p>
               )}
               {otherKiltPositions.length > 0 && (
-                <p className="text-white/40 text-xs mt-2">
+                <p className="text-white/40 text-xs mt-1">
                   Found {otherKiltPositions.length} other KILT position(s) in different pools
                 </p>
               )}
               {nonKiltPositions.length > 0 && (
-                <p className="text-white/40 text-xs mt-2">
+                <p className="text-white/40 text-xs mt-1">
                   Found {nonKiltPositions.length} non-KILT Uniswap V3 position(s) in wallet
                 </p>
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = calculatePositionValue(position);
                 const inRange = isPositionInRange(position);

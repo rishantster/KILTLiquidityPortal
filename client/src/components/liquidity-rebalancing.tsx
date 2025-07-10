@@ -264,39 +264,43 @@ export function LiquidityRebalancing() {
 
   if (!isConnected) {
     return (
-      <div className="p-6 text-center">
-        <p className="text-gray-400">Connect your wallet to access the rebalancing assistant</p>
-      </div>
+      <Card className="cluely-card rounded-lg">
+        <CardContent className="p-4 text-center">
+          <Settings className="h-6 w-6 text-blue-400 mx-auto mb-2" />
+          <h3 className="text-white font-heading text-sm mb-1">Connect Wallet</h3>
+          <p className="text-white/60 text-xs">Connect your wallet to analyze and rebalance positions</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4">
+      {/* Sleek Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-500/20 rounded-lg">
-            <Zap className="h-5 w-5 text-blue-400" />
+        <div className="flex items-center space-x-2">
+          <div className="p-1.5 bg-blue-500/20 rounded-lg">
+            <Zap className="h-3 w-3 text-blue-400" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">Liquidity Rebalancing Assistant</h2>
-            <p className="text-gray-400 text-sm">Optimize your LP positions with AI-powered recommendations</p>
+            <h2 className="text-sm font-semibold text-white">Liquidity Rebalancing Assistant</h2>
+            <p className="text-white/60 text-xs">Optimize your LP positions with AI-powered recommendations</p>
           </div>
         </div>
         
         <Button 
           onClick={analyzePositions}
           disabled={isAnalyzing || !kiltEthPositions?.length}
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-blue-600 hover:bg-blue-700 text-xs h-6 px-2"
         >
           {isAnalyzing ? (
             <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
               Analyzing...
             </>
           ) : (
             <>
-              <BarChart3 className="h-4 w-4 mr-2" />
+              <BarChart3 className="h-3 w-3 mr-1" />
               Analyze Positions
             </>
           )}

@@ -303,11 +303,11 @@ export function LiquidityMint() {
 
   if (!isConnected) {
     return (
-      <Card className="cluely-card rounded-2xl">
-        <CardContent className="p-8 text-center">
-          <AlertCircle className="h-12 w-12 text-amber-400 mx-auto mb-4" />
-          <h3 className="text-white font-heading text-xl mb-2">Wallet Not Connected</h3>
-          <p className="text-white/70 font-body">
+      <Card className="cluely-card rounded-lg">
+        <CardContent className="p-4 text-center">
+          <AlertCircle className="h-6 w-6 text-amber-400 mx-auto mb-2" />
+          <h3 className="text-white font-heading text-sm mb-1">Wallet Not Connected</h3>
+          <p className="text-white/70 font-body text-xs">
             Please connect your wallet to add liquidity to the KILT/ETH pool
           </p>
         </CardContent>
@@ -316,32 +316,32 @@ export function LiquidityMint() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Compact Header */}
-      <div className="text-center space-y-3">
+    <div className="space-y-4">
+      {/* Sleek Header */}
+      <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-2">
-          <Plus className="h-6 w-6 text-emerald-400" />
-          <h2 className="text-white font-heading text-2xl">Add Liquidity to KILT/ETH Pool</h2>
+          <Plus className="h-4 w-4 text-emerald-400" />
+          <h2 className="text-white font-heading text-lg">Add Liquidity to KILT/ETH Pool</h2>
         </div>
-        <p className="text-white/70 text-sm max-w-xl mx-auto">
+        <p className="text-white/70 text-xs max-w-xl mx-auto">
           Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + trading fees
         </p>
-        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-3 py-1 text-sm">
+        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-0.5 text-xs">
           {poolExists ? 'Pool Active' : 'Pool Not Found'}
         </Badge>
       </div>
 
-      {/* Compact Position Size */}
+      {/* Sleek Position Size */}
       <Card className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-emerald-500/20 rounded-lg">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Target className="h-5 w-5 text-emerald-400" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <Target className="h-3 w-3 text-emerald-400" />
             Position Size
           </CardTitle>
-          <p className="text-white/60 text-sm">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
+          <p className="text-white/60 text-xs">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
         </CardHeader>
-        <CardContent className="space-y-4 p-4">
-          <div className="space-y-4">
+        <CardContent className="space-y-3 p-3">
+          <div className="space-y-3">
             <Slider
               value={positionSizePercent}
               onValueChange={handleSliderChange}
@@ -350,14 +350,14 @@ export function LiquidityMint() {
               step={1}
               className="w-full h-2"
             />
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-2">
               {[25, 50, 75, 100].map((percent) => (
                 <Button
                   key={percent}
                   variant={positionSizePercent[0] === percent ? "default" : "outline"}
                   size="sm"
                   onClick={() => handlePercentageSelect(percent)}
-                  className={`h-10 text-sm font-semibold transition-all duration-300 ${
+                  className={`h-8 text-xs font-semibold transition-all duration-300 ${
                     positionSizePercent[0] === percent 
                       ? 'bg-emerald-500 hover:bg-emerald-600 shadow-lg' 
                       : 'hover:bg-emerald-500/10 hover:border-emerald-500/50'
@@ -371,38 +371,38 @@ export function LiquidityMint() {
         </CardContent>
       </Card>
 
-      {/* Compact Token Input Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Compact KILT Input */}
+      {/* Sleek Token Input Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Sleek KILT Input */}
         <Card className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border-pink-500/20 rounded-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm flex items-center gap-2">
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className={`w-6 h-6 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
+                className={`w-4 h-4 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
               />
               KILT
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 p-4">
-            <div className="space-y-3">
+          <CardContent className="space-y-3 p-3">
+            <div className="space-y-2">
               <Input
                 type="number"
                 value={kiltAmount}
                 onChange={(e) => handleKiltAmountChange(e.target.value)}
                 placeholder="Enter KILT amount"
                 min="0"
-                className="bg-white/5 border-white/10 text-white text-lg h-12 text-center font-bold rounded-lg"
+                className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
               />
               <div className="flex justify-between items-center">
-                <span className="text-white/60 text-sm">
+                <span className="text-white/60 text-xs">
                   Balance: <span className="font-bold text-white">{kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'}</span> 
                   <span className="inline-flex items-center gap-1 ml-1">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
-                      className={`w-4 h-4 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
+                      className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
                     />
                     KILT
                   </span>
@@ -411,7 +411,7 @@ export function LiquidityMint() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handlePercentageSelect(100)}
-                  className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-3 py-1 font-semibold text-xs"
+                  className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-2 py-1 font-semibold text-xs h-6"
                 >
                   MAX
                 </Button>
@@ -420,11 +420,11 @@ export function LiquidityMint() {
           </CardContent>
         </Card>
 
-        {/* Compact ETH Input */}
+        {/* Sleek ETH Input */}
         <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-500/20 rounded-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <EthereumLogo className="w-6 h-6" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm flex items-center gap-2">
+              <EthereumLogo className="w-4 h-4" />
               ETH
             </CardTitle>
           </CardHeader>

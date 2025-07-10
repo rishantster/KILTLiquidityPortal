@@ -33,9 +33,9 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
 
   if (!address) {
     return (
-      <Card className="cluely-card rounded-2xl">
-        <CardContent className="p-6">
-          <div className="text-center text-white/60">
+      <Card className="cluely-card rounded-lg">
+        <CardContent className="p-3">
+          <div className="text-center text-white/60 text-xs">
             Connect your wallet to view analytics
           </div>
         </CardContent>
@@ -44,64 +44,64 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
   }
 
   return (
-    <div className="space-y-6">
-      {/* Simplified Header */}
-      <Card className="cluely-card rounded-2xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center space-x-2 text-white font-heading">
-            <BarChart3 className="h-6 w-6 text-emerald-400" />
+    <div className="space-y-4">
+      {/* Sleek Header */}
+      <Card className="cluely-card rounded-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+            <BarChart3 className="h-3 w-3 text-emerald-400" />
             <span>Position Analytics</span>
           </CardTitle>
         </CardHeader>
       </Card>
 
-      {/* Streamlined Analytics Content */}
+      {/* Sleek Analytics Content */}
       {!selectedPositionId ? (
-        <Card className="cluely-card rounded-2xl">
-          <CardContent className="p-6">
-            <div className="text-center text-white/60">
+        <Card className="cluely-card rounded-lg">
+          <CardContent className="p-3">
+            <div className="text-center text-white/60 text-xs">
               Add a liquidity position to view detailed analytics
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Position Performance Metrics */}
           {latestPerformance && (
-            <Card className="cluely-card rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-white font-heading">Position Performance</CardTitle>
+            <Card className="cluely-card rounded-lg">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-white font-heading text-sm">Position Performance</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
+              <CardContent className="p-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-white/60">Impermanent Loss</span>
-                      <span className={`font-bold tabular-nums ${
+                      <span className="text-white/60 text-xs">Impermanent Loss</span>
+                      <span className={`font-bold tabular-nums text-xs ${
                         parseFloat(latestPerformance.impermanentLoss) >= 0 ? 'text-emerald-400' : 'text-red-400'
                       }`}>
                         {parseFloat(latestPerformance.impermanentLoss).toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-white/60">Annualized Return</span>
-                      <span className={`font-bold tabular-nums ${
+                      <span className="text-white/60 text-xs">Annualized Return</span>
+                      <span className={`font-bold tabular-nums text-xs ${
                         parseFloat(latestPerformance.annualizedReturn) >= 0 ? 'text-emerald-400' : 'text-red-400'
                       }`}>
                         {parseFloat(latestPerformance.annualizedReturn).toFixed(1)}%
                       </span>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-white/60">Time in Range</span>
-                      <span className="font-bold tabular-nums text-emerald-400">
+                      <span className="text-white/60 text-xs">Time in Range</span>
+                      <span className="font-bold tabular-nums text-emerald-400 text-xs">
                         {(parseFloat(latestPerformance.timeInRange) * 100).toFixed(1)}%
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-white/60">Fee Yield</span>
-                      <span className="font-bold tabular-nums text-blue-400">
+                      <span className="text-white/60 text-xs">Fee Yield</span>
+                      <span className="font-bold tabular-nums text-blue-400 text-xs">
                         {parseFloat(latestPerformance.feesVsHolding).toFixed(2)}%
                       </span>
                     </div>

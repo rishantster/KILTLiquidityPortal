@@ -270,15 +270,15 @@ export function MainDashboard() {
                 <div className="absolute inset-2 rounded-full border-2 border-white/20 animate-pulse-glow"></div>
                 
                 {/* Inner Circle with Logo */}
-                <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500 animate-floating">
+                <div className="absolute inset-3 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500 animate-floating">
                   {/* Gradient Background Effect */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
-                  {/* KILT Logo */}
+                  {/* KILT Logo - Much Larger */}
                   <img 
                     src={kiltLogo} 
                     alt="KILT" 
-                    className="w-12 h-12 object-contain relative z-10 group-hover:rotate-12 transition-transform duration-500" 
+                    className="w-20 h-20 object-contain relative z-10 group-hover:rotate-12 transition-transform duration-500" 
                   />
                 </div>
                 

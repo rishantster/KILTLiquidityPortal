@@ -1288,6 +1288,215 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // ===== CRITICAL MISSING ENDPOINTS: UNISWAP V3 POSITION MANAGEMENT =====
+  
+  // Increase liquidity in existing position
+  app.post("/api/positions/:nftTokenId/increase", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      const { amount0, amount1, userAddress, sessionId } = req.body;
+      
+      if (!amount0 || !amount1 || !userAddress || !sessionId) {
+        res.status(400).json({ error: "Missing required parameters" });
+        return;
+      }
+      
+      // Validate session
+      const session = appTransactionService.validateSession(sessionId);
+      if (!session) {
+        res.status(403).json({ error: "Invalid session" });
+        return;
+      }
+      
+      const result = await uniswapIntegrationService.increaseLiquidity(
+        nftTokenId,
+        amount0,
+        amount1,
+        userAddress
+      );
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error increasing liquidity:', error);
+      res.status(500).json({ error: "Failed to increase liquidity" });
+    }
+  });
+
+  // Decrease liquidity in existing position
+  app.post("/api/positions/:nftTokenId/decrease", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      const { liquidityAmount, userAddress, sessionId } = req.body;
+      
+      if (!liquidityAmount || !userAddress || !sessionId) {
+        res.status(400).json({ error: "Missing required parameters" });
+        return;
+      }
+      
+      // Validate session
+      const session = appTransactionService.validateSession(sessionId);
+      if (!session) {
+        res.status(403).json({ error: "Invalid session" });
+        return;
+      }
+      
+      const result = await uniswapIntegrationService.decreaseLiquidity(
+        nftTokenId,
+        liquidityAmount,
+        userAddress
+      );
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error decreasing liquidity:', error);
+      res.status(500).json({ error: "Failed to decrease liquidity" });
+    }
+  });
+
+  // Collect fees from position
+  app.post("/api/positions/:nftTokenId/collect", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      const { userAddress, sessionId } = req.body;
+      
+      if (!userAddress || !sessionId) {
+        res.status(400).json({ error: "Missing required parameters" });
+        return;
+      }
+      
+      // Validate session
+      const session = appTransactionService.validateSession(sessionId);
+      if (!session) {
+        res.status(403).json({ error: "Invalid session" });
+        return;
+      }
+      
+      const result = await uniswapIntegrationService.collectFees(
+        nftTokenId,
+        userAddress
+      );
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error collecting fees:', error);
+      res.status(500).json({ error: "Failed to collect fees" });
+    }
+  });
+
+  // Burn position (remove all liquidity)
+  app.post("/api/positions/:nftTokenId/burn", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      const { userAddress, sessionId } = req.body;
+      
+      if (!userAddress || !sessionId) {
+        res.status(400).json({ error: "Missing required parameters" });
+        return;
+      }
+      
+      // Validate session
+      const session = appTransactionService.validateSession(sessionId);
+      if (!session) {
+        res.status(403).json({ error: "Invalid session" });
+        return;
+      }
+      
+      const result = await uniswapIntegrationService.burnPosition(
+        nftTokenId,
+        userAddress
+      );
+      
+      // Update position as inactive in database
+      const position = await storage.getLpPositionByNftTokenId(nftTokenId);
+      if (position) {
+        await storage.updateLpPosition(position.id, { isActive: false });
+      }
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error burning position:', error);
+      res.status(500).json({ error: "Failed to burn position" });
+    }
+  });
+
+  // Get position current status and value
+  app.get("/api/positions/:nftTokenId/status", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      
+      const status = await uniswapIntegrationService.getPositionStatus(nftTokenId);
+      res.json(status);
+    } catch (error) {
+      console.error('Error getting position status:', error);
+      res.status(500).json({ error: "Failed to get position status" });
+    }
+  });
+
+  // Get position fees earned
+  app.get("/api/positions/:nftTokenId/fees", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      
+      const fees = await uniswapIntegrationService.getPositionFees(nftTokenId);
+      res.json(fees);
+    } catch (error) {
+      console.error('Error getting position fees:', error);
+      res.status(500).json({ error: "Failed to get position fees" });
+    }
+  });
+
+  // Get real-time position value
+  app.get("/api/positions/:nftTokenId/value", async (req, res) => {
+    try {
+      const { nftTokenId } = req.params;
+      
+      const value = await uniswapIntegrationService.getPositionValue(nftTokenId);
+      res.json(value);
+    } catch (error) {
+      console.error('Error getting position value:', error);
+      res.status(500).json({ error: "Failed to get position value" });
+    }
+  });
+
+  // Get all positions for a user address
+  app.get("/api/positions/wallet/:userAddress", async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      
+      const positions = await uniswapIntegrationService.getUserPositions(userAddress);
+      res.json(positions);
+    } catch (error) {
+      console.error('Error getting user positions:', error);
+      res.status(500).json({ error: "Failed to get user positions" });
+    }
+  });
+
+  // Get pool information
+  app.get("/api/pools/:poolAddress/info", async (req, res) => {
+    try {
+      const { poolAddress } = req.params;
+      
+      const poolInfo = await uniswapIntegrationService.getPoolInfo(poolAddress);
+      res.json(poolInfo);
+    } catch (error) {
+      console.error('Error getting pool info:', error);
+      res.status(500).json({ error: "Failed to get pool info" });
+    }
+  });
+
+  // Get pool current price
+  app.get("/api/pools/:poolAddress/price", async (req, res) => {
+    try {
+      const { poolAddress } = req.params;
+      
+      const price = await uniswapIntegrationService.getPoolPrice(poolAddress);
+      res.json(price);
+    } catch (error) {
+      console.error('Error getting pool price:', error);
+      res.status(500).json({ error: "Failed to get pool price" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

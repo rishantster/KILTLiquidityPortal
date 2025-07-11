@@ -139,8 +139,11 @@ export function UserPositions() {
   const claimRewardsMutation = useMutation({
     mutationFn: async () => {
       if (!typedUserData?.id) throw new Error('User not found');
-      const response = await apiRequest('POST', `/api/rewards/claim/${typedUserData.id}`, {});
-      return response.json();
+      const response = await apiRequest(`/api/rewards/claim/${typedUserData.id}`, {
+        method: 'POST',
+        data: {}
+      });
+      return response;
     },
     onSuccess: () => {
       toast({

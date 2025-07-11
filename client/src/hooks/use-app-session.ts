@@ -41,10 +41,10 @@ export function useAppSession() {
       
       const response = await apiRequest<AppSessionData>('/api/app-sessions/create', {
         method: 'POST',
-        body: JSON.stringify({
+        data: {
           userId,
           userAddress: address,
-        }),
+        },
       });
 
       if (response.sessionId) {
@@ -99,10 +99,10 @@ export function useAppSession() {
     try {
       const response = await apiRequest<TransactionRecordData>('/api/app-transactions/record', {
         method: 'POST',
-        body: JSON.stringify({
+        data: {
           sessionId,
           transactionData,
-        }),
+        },
       });
 
       if (response.success) {

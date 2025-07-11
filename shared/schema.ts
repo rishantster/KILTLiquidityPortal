@@ -13,20 +13,26 @@ export const users = pgTable("users", {
 export const lpPositions = pgTable("lp_positions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
-  nftId: integer("nft_id").notNull(),
+  nftTokenId: text("nft_token_id").notNull(), // Fixed: Use consistent naming
   poolAddress: text("pool_address").notNull(),
-  tokenIds: text("token_ids").notNull(), // JSON string for token amounts
-  minPrice: decimal("min_price", { precision: 18, scale: 8 }).notNull(),
-  maxPrice: decimal("max_price", { precision: 18, scale: 8 }).notNull(),
-  liquidity: decimal("liquidity", { precision: 18, scale: 8 }).notNull(),
-  currentValueUSD: decimal("current_value_usd", { precision: 20, scale: 8 }).notNull(),
+  token0Address: text("token_0_address").notNull(),
+  token1Address: text("token_1_address").notNull(),
+  token0Amount: numeric("token_0_amount", { precision: 30, scale: 18 }).notNull(),
+  token1Amount: numeric("token_1_amount", { precision: 30, scale: 18 }).notNull(),
+  minPrice: numeric("min_price", { precision: 30, scale: 18 }).notNull(),
+  maxPrice: numeric("max_price", { precision: 30, scale: 18 }).notNull(),
+  tickLower: integer("tick_lower").notNull(),
+  tickUpper: integer("tick_upper").notNull(),
+  liquidity: numeric("liquidity", { precision: 30, scale: 0 }).notNull(),
+  feeTier: integer("fee_tier").notNull(), // 500, 3000, 10000 (0.05%, 0.3%, 1%)
+  currentValueUSD: numeric("current_value_usd", { precision: 30, scale: 18 }).notNull(),
   isActive: boolean("is_active").default(true),
   // App-specific tracking fields
-  createdViaApp: boolean("created_via_app").default(true).notNull(), // Only true for positions created through our app
-  appTransactionHash: text("app_transaction_hash").notNull(), // Transaction hash from our app
-  appSessionId: text("app_session_id").notNull(), // Unique session ID for validation
-  verificationStatus: text("verification_status").default("pending").notNull(), // pending, verified, rejected
-  rewardEligible: boolean("reward_eligible").default(true).notNull(), // Only true for app-created positions
+  createdViaApp: boolean("created_via_app").default(true).notNull(),
+  appTransactionHash: text("app_transaction_hash").notNull(),
+  appSessionId: text("app_session_id").notNull(),
+  verificationStatus: text("verification_status").default("pending").notNull(),
+  rewardEligible: boolean("reward_eligible").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -193,12 +199,19 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export const insertLpPositionSchema = createInsertSchema(lpPositions).pick({
   userId: true,
-  nftId: true,
+  nftTokenId: true,
   poolAddress: true,
-  tokenIds: true,
+  token0Address: true,
+  token1Address: true,
+  token0Amount: true,
+  token1Amount: true,
   minPrice: true,
   maxPrice: true,
+  tickLower: true,
+  tickUpper: true,
   liquidity: true,
+  feeTier: true,
+  currentValueUSD: true,
   isActive: true,
   createdViaApp: true,
   appTransactionHash: true,

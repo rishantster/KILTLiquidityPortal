@@ -13,6 +13,9 @@ import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 import { AnalyticsService } from "./analytics";
 import { rewardService } from "./reward-service";
+import { fixedRewardService } from "./fixed-reward-service";
+import { realTimePriceService } from "./real-time-price-service";
+import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
@@ -651,17 +654,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Calculate rewards for a position
   app.post("/api/rewards/calculate", async (req, res) => {
     try {
-      const { userId, nftTokenId, positionValueUSD, liquidityAddedAt, stakingStartDate } = req.body;
+      const { userId, nftTokenId, liquidityAddedAt, stakingStartDate } = req.body;
       
-      if (!userId || !nftTokenId || !positionValueUSD) {
+      if (!userId || !nftTokenId) {
         res.status(400).json({ error: "Missing required parameters" });
         return;
       }
       
-      const calculation = await rewardService.calculatePositionRewards(
+      const calculation = await fixedRewardService.calculatePositionRewards(
         userId,
         nftTokenId,
-        positionValueUSD,
         liquidityAddedAt ? new Date(liquidityAddedAt) : undefined,
         stakingStartDate ? new Date(stakingStartDate) : undefined
       );
@@ -701,7 +703,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      const rewards = await rewardService.getUserRewards(userId);
+      const rewards = await fixedRewardService.getUserRewards(userId);
       res.json(rewards);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch user rewards" });
@@ -712,17 +714,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/user/:userId/stats", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      const stats = await rewardService.getUserRewardStats(userId);
+      const stats = await fixedRewardService.getUserRewardStats(userId);
       res.json(stats);
     } catch (error) {
-      // Return fallback stats to prevent frontend errors
-      res.json({
-        totalAccumulated: 0,
-        totalClaimed: 0,
-        totalClaimable: 0,
-        activePositions: 0,
-        avgDailyRewards: 0
-      });
+      console.error('Error getting user reward stats:', error);
+      res.status(500).json({ error: "Failed to fetch user reward stats" });
     }
   });
 
@@ -768,7 +764,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Update daily rewards (typically called by a cron job)
   app.post("/api/rewards/update-daily", async (req, res) => {
     try {
-      await rewardService.updateDailyRewards();
+      await fixedRewardService.updateDailyRewards();
       res.json({ success: true, message: "Daily rewards updated successfully" });
     } catch (error) {
       res.status(500).json({ error: "Failed to update daily rewards" });
@@ -778,17 +774,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get program analytics (open participation)
   app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
-      const analytics = await rewardService.getProgramAnalytics();
+      const analytics = await fixedRewardService.getProgramAnalytics();
       res.json(analytics);
     } catch (error) {
-      // Return fallback analytics to prevent frontend errors
-      res.json({
-        totalLiquidity: 0,
-        activeParticipants: 0,
-        estimatedAPR: { low: 5, average: 15, high: 50 },
-        treasuryRemaining: 2905600,
-        avgUserLiquidity: 0
-      });
+      console.error('Error getting program analytics:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

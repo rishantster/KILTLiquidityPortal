@@ -193,6 +193,23 @@ export const positionEligibility = pgTable("position_eligibility", {
   uniquePositionEligibility: unique().on(table.positionId, table.nftTokenId),
 }));
 
+// Liquidity events tracking table
+export const liquidityEvents = pgTable("liquidity_events", {
+  id: serial("id").primaryKey(),
+  positionId: integer("position_id").references(() => lpPositions.id).notNull(),
+  transactionHash: text("transaction_hash").notNull(),
+  blockNumber: integer("block_number").notNull(),
+  eventType: text("event_type").notNull(), // 'mint', 'burn', 'increase', 'decrease', 'collect'
+  amount0: numeric("amount_0", { precision: 30, scale: 18 }),
+  amount1: numeric("amount_1", { precision: 30, scale: 18 }),
+  liquidityDelta: numeric("liquidity_delta", { precision: 30, scale: 0 }),
+  token0Fees: numeric("token_0_fees", { precision: 30, scale: 18 }),
+  token1Fees: numeric("token_1_fees", { precision: 30, scale: 18 }),
+  gasUsed: integer("gas_used"),
+  gasPrice: numeric("gas_price", { precision: 30, scale: 0 }),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   address: true,
 });
@@ -247,6 +264,20 @@ export const insertPositionEligibilitySchema = createInsertSchema(positionEligib
   eligibilityReason: true,
   isEligible: true,
   notes: true,
+});
+
+export const insertLiquidityEventSchema = createInsertSchema(liquidityEvents).pick({
+  positionId: true,
+  transactionHash: true,
+  blockNumber: true,
+  eventType: true,
+  amount0: true,
+  amount1: true,
+  liquidityDelta: true,
+  token0Fees: true,
+  token1Fees: true,
+  gasUsed: true,
+  gasPrice: true,
 });
 
 export const insertRewardSchema = createInsertSchema(rewards).pick({
@@ -359,4 +390,6 @@ export type UserAnalytics = typeof userAnalytics.$inferSelect;
 export type InsertFeeEvent = z.infer<typeof insertFeeEventSchema>;
 export type FeeEvent = typeof feeEvents.$inferSelect;
 export type InsertPerformanceMetrics = z.infer<typeof insertPerformanceMetricsSchema>;
+export type LiquidityEvent = typeof liquidityEvents.$inferSelect;
+export type InsertLiquidityEvent = z.infer<typeof insertLiquidityEventSchema>;
 export type PerformanceMetrics = typeof performanceMetrics.$inferSelect;

@@ -56,10 +56,10 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       : (kiltData?.usd ? kiltData.usd * KILT_CIRCULATING_SUPPLY : 4650000);
     
     const result = {
-      price: kiltData?.usd || 0.016,
-      marketCap,
-      volume24h: kiltData?.usd_24h_vol || 426,
-      priceChange24h: kiltData?.usd_24h_change || 0,
+      price: Math.round((kiltData?.usd || 0.016) * 100000) / 100000, // 5 decimal places for price
+      marketCap: Math.round(marketCap * 100) / 100, // 2 decimal places
+      volume24h: Math.round((kiltData?.usd_24h_vol || 426) * 100) / 100, // 2 decimal places
+      priceChange24h: Math.round((kiltData?.usd_24h_change || 0) * 100) / 100, // 2 decimal places
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
       treasuryRemaining,
@@ -73,13 +73,13 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     console.error('Error fetching KILT token data:', error);
     // Return fallback data if API fails
     return {
-      price: 0.0289,
-      marketCap: 8400000,
-      volume24h: 33120,
-      priceChange24h: 0.5,
+      price: Math.round(0.0289 * 100000) / 100000, // 5 decimal places for price
+      marketCap: Math.round(8400000 * 100) / 100, // 2 decimal places
+      volume24h: Math.round(33120 * 100) / 100, // 2 decimal places
+      priceChange24h: Math.round(0.5 * 100) / 100, // 2 decimal places
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
-      treasuryRemaining: TREASURY_TOTAL, // Default to full treasury if no balance available
+      treasuryRemaining: TREASURY_TOTAL, 
       distributionRate: 7960,
       programDuration: 365,
       progress: 0.0

@@ -245,30 +245,30 @@ export class FixedRewardService {
       const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysActive);
       
       return {
-        baseAPR: effectiveAPR,
-        timeMultiplier: timeWeight,
-        sizeMultiplier: liquidityWeight,
-        effectiveAPR,
-        tradingFeeAPR: 0, // Placeholder - would need pool-specific calculation
-        incentiveAPR: effectiveAPR,
-        totalAPR: effectiveAPR,
-        dailyRewards,
-        liquidityAmount: parseFloat(position.liquidity?.toString() || '0'),
+        baseAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
+        timeMultiplier: Math.round(timeWeight * 10000) / 10000, // 4 decimal places
+        sizeMultiplier: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
+        effectiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
+        tradingFeeAPR: 0,
+        incentiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
+        totalAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
+        dailyRewards: Math.round(dailyRewards * 10000) / 10000, // 4 decimal places
+        liquidityAmount: Math.round(parseFloat(position.liquidity?.toString() || '0') * 100) / 100, // 2 decimal places
         daysStaked: daysActive,
-        accumulatedRewards,
+        accumulatedRewards: Math.round(accumulatedRewards * 10000) / 10000, // 4 decimal places
         canClaim,
         daysUntilClaim,
-        rank: null, // No ranking in open participation system
+        rank: null,
         totalParticipants: activeParticipants.length,
         aprBreakdown: {
           poolVolume24h: 0,
-          poolTVL: totalActiveLiquidity,
+          poolTVL: Math.round(totalActiveLiquidity * 100) / 100, // 2 decimal places
           feeRate: 0,
-          liquidityShare: liquidityWeight,
-          timeInRangeRatio: inRangeMultiplier,
+          liquidityShare: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
+          timeInRangeRatio: Math.round(inRangeMultiplier * 10000) / 10000, // 4 decimal places
           concentrationFactor: 1,
           dailyFeeEarnings: 0,
-          dailyIncentiveRewards: dailyRewards,
+          dailyIncentiveRewards: Math.round(dailyRewards * 10000) / 10000, // 4 decimal places
           isInRange: inRangeMultiplier > 0,
         },
       };
@@ -364,12 +364,12 @@ export class FixedRewardService {
       const programDaysRemaining = Math.max(0, this.PROGRAM_DURATION_DAYS - daysElapsed);
 
       return {
-        totalLiquidity,
+        totalLiquidity: Math.round(totalLiquidity * 100) / 100, // 2 decimal places
         activeParticipants: activeParticipants.length,
-        dailyBudget: this.DAILY_BUDGET,
-        averageAPR,
+        dailyBudget: Math.round(this.DAILY_BUDGET * 100) / 100, // 2 decimal places
+        averageAPR: Math.round(averageAPR * 10000) / 10000, // 4 decimal places for APR
         programDaysRemaining,
-        totalDistributed,
+        totalDistributed: Math.round(totalDistributed * 100) / 100, // 2 decimal places
       };
     } catch (error) {
       console.error('Error getting program analytics:', error);
@@ -504,11 +504,18 @@ export class FixedRewardService {
         .from(rewards)
         .where(eq(rewards.userId, userId));
 
-      return stats[0] || {
+      const rawStats = stats[0] || {
         totalAccumulated: 0,
         totalClaimable: 0,
         totalClaimed: 0,
         activePositions: 0,
+      };
+
+      return {
+        totalAccumulated: Math.round(rawStats.totalAccumulated * 10000) / 10000, // 4 decimal places
+        totalClaimable: Math.round(rawStats.totalClaimable * 10000) / 10000, // 4 decimal places
+        totalClaimed: Math.round(rawStats.totalClaimed * 10000) / 10000, // 4 decimal places
+        activePositions: rawStats.activePositions,
       };
     } catch (error) {
       console.error('Error getting user reward stats:', error);

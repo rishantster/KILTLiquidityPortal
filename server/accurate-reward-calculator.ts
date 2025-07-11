@@ -97,15 +97,15 @@ export class AccurateRewardCalculator {
       return {
         positionId: position.id,
         nftTokenId,
-        currentValueUSD,
-        liquidityWeight,
-        timeWeight,
-        inRangeMultiplier,
-        dailyRewardAmount,
-        effectiveAPR,
-        accumulatedRewards,
+        currentValueUSD: Math.round(currentValueUSD * 100) / 100, // 2 decimal places
+        liquidityWeight: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
+        timeWeight: Math.round(timeWeight * 10000) / 10000, // 4 decimal places
+        inRangeMultiplier: Math.round(inRangeMultiplier * 10000) / 10000, // 4 decimal places
+        dailyRewardAmount: Math.round(dailyRewardAmount * 10000) / 10000, // 4 decimal places
+        effectiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places
+        accumulatedRewards: Math.round(accumulatedRewards * 10000) / 10000, // 4 decimal places
         daysActive,
-        totalLiquidityShare: liquidityWeight,
+        totalLiquidityShare: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
         lastUpdateTimestamp: Date.now(),
       };
     } catch (error) {
@@ -320,12 +320,12 @@ export class AccurateRewardCalculator {
         (dailyDistributed[0]?.total || 0) * 365 / totalActiveLiquidity : 0;
 
       return {
-        totalActiveLiquidity,
+        totalActiveLiquidity: Math.round(totalActiveLiquidity * 100) / 100, // 2 decimal places
         totalActiveParticipants: totalActiveParticipants[0]?.count || 0,
-        dailyBudget: this.DAILY_BUDGET,
-        dailyDistributed: dailyDistributed[0]?.total || 0,
+        dailyBudget: Math.round(this.DAILY_BUDGET * 100) / 100, // 2 decimal places
+        dailyDistributed: Math.round((dailyDistributed[0]?.total || 0) * 10000) / 10000, // 4 decimal places
         programDaysRemaining,
-        averageAPR,
+        averageAPR: Math.round(averageAPR * 10000) / 10000, // 4 decimal places
       };
     } catch (error) {
       console.error('Error getting program metrics:', error);

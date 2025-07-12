@@ -338,12 +338,13 @@ export class FixedRewardService {
   }
 
   /**
-   * Calculate maximum theoretical APR based on current formula
-   * R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
-   * Maximum occurs when: L_u/L_T = 1, D_u = 365, IRM = 1
+   * Calculate APR range showing both practical and theoretical maximums
+   * Shows realistic range users can expect in actual market conditions
    */
   calculateMaximumTheoreticalAPR(): {
     maxAPR: number;
+    minAPR: number;
+    aprRange: string;
     scenario: string;
     formula: string;
     assumptions: string[];
@@ -358,36 +359,47 @@ export class FixedRewardService {
     const timeRatio = Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1); // 1.0
     const maxTimeCoefficient = w1 + (timeRatio * (1 - w1)); // 0.6 + 1.0 * 0.4 = 1.0
     
-    // Calculate maximum daily rewards
-    const maxDailyRewards = liquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
-    // = 1.0 * 1.0 * 7960 * 1.0 = 7,960 KILT/day
+    // Calculate APR using realistic position sizes that users actually have
+    // Realistic scenario: Most positions will be $200-$1000 range
+    const realisticTotalPool = 100000; // $100K total liquidity (more realistic)
+    const minPositionValue = 200; // $200 minimum position
+    const maxPositionValue = 1000; // $1000 typical larger position
     
-    // Calculate APR using realistic scenario instead of theoretical maximum
-    // Realistic scenario: 10% liquidity share in a $500K total pool = $50K position
-    const realisticLiquidityShare = 0.1; // 10% of pool
-    const realisticTotalPool = 500000; // $500K total liquidity
-    const realisticPositionValue = realisticTotalPool * realisticLiquidityShare; // $50K position
-    
-    // Calculate realistic daily rewards
-    const realisticDailyRewards = realisticLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
-    
-    // Calculate realistic APR
-    const annualRewards = realisticDailyRewards * 365;
+    // Calculate APR for minimum position size ($200)
+    const minLiquidityShare = minPositionValue / realisticTotalPool; // 0.2% of pool
+    const minDailyRewards = minLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    const minAnnualRewards = minDailyRewards * 365;
     const kiltPrice = 0.01602; // Current KILT price
-    const annualRewardsUSD = annualRewards * kiltPrice;
-    const maxAPR = (annualRewardsUSD / realisticPositionValue) * 100;
+    const minAnnualRewardsUSD = minAnnualRewards * kiltPrice;
+    const minAPR = (minAnnualRewardsUSD / minPositionValue) * 100;
+    
+    // Calculate APR for maximum typical position size ($1000)
+    const maxLiquidityShare = maxPositionValue / realisticTotalPool; // 1% of pool
+    const maxTypicalDailyRewards = maxLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    const maxAnnualRewards = maxTypicalDailyRewards * 365;
+    const maxAnnualRewardsUSD = maxAnnualRewards * kiltPrice;
+    const maxAPR = (maxAnnualRewardsUSD / maxPositionValue) * 100;
+    
+    // Calculate theoretical maximum for exceptional cases (top 1% of pool)
+    const theoreticalLiquidityShare = 0.01; // 1% of total pool
+    const theoreticalDailyRewards = theoreticalLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    const theoreticalAnnualRewards = theoreticalDailyRewards * 365;
+    const theoreticalAnnualRewardsUSD = theoreticalAnnualRewards * kiltPrice;
+    const theoreticalMaxAPR = (theoreticalAnnualRewardsUSD / maxPositionValue) * 100;
     
     return {
-      maxAPR: Math.round(maxAPR * 100) / 100,
-      scenario: "Top liquidity provider in realistic market conditions",
+      maxAPR: Math.round(theoreticalMaxAPR * 100) / 100,
+      minAPR: Math.round(minAPR * 100) / 100,
+      aprRange: `${Math.round(minAPR)}% - ${Math.round(theoreticalMaxAPR)}%`,
+      scenario: "Typical liquidity provider positions",
       formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
       assumptions: [
-        "10% liquidity share in $500K total pool",
+        "Position range: $200 to $1000 (typical user sizes)",
+        "Total pool: $100K (realistic market size)",
         "Position active for full year (365 days)",
         "Always in-range (IRM = 1.0)",
-        "$50K position value",
         "Current KILT price ($0.01602)",
-        "Realistic market conditions"
+        "Competitive market with multiple participants"
       ]
     };
   }

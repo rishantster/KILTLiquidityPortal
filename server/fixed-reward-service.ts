@@ -67,9 +67,9 @@ export class FixedRewardService {
   private readonly LOCK_PERIOD_DAYS = 90; // 90 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
   
-  // Liquidity + Duration Weighted Rule parameters
-  private readonly LIQUIDITY_WEIGHT = 0.6; // w1 - weight for liquidity provided
-  private readonly TIME_WEIGHT = 0.4; // w2 - weight for days active
+  // Multiplicative Time Coefficient parameters
+  private readonly MIN_TIME_COEFFICIENT = 0.6; // Minimum 60% liquidity recognition on day 1
+  private readonly MAX_TIME_COEFFICIENT = 1.0; // Maximum 100% liquidity recognition on day 365
 
   /**
    * Calculate proportional reward multiplier based on liquidity share
@@ -219,17 +219,23 @@ export class FixedRewardService {
       const now = new Date();
       const daysActive = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      // Calculate weights
+      // Calculate liquidity weight (proportional to total liquidity)
       const liquidityWeight = totalActiveLiquidity > 0 ? currentValueUSD / totalActiveLiquidity : 0;
-      const timeWeight = Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1);
+      
+      // Calculate time coefficient (60% to 100% liquidity recognition based on time)
+      // Time coefficient ranges from 0.6 (day 1) to 1.0 (day 365)
+      const timeCoefficient = this.MIN_TIME_COEFFICIENT + 
+        ((this.MAX_TIME_COEFFICIENT - this.MIN_TIME_COEFFICIENT) * Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1));
       
       // Get in-range multiplier
       const inRangeMultiplier = await this.getInRangeMultiplier(nftTokenId);
       
-      // Calculate daily rewards using the formula:
-      // R_u = (w1 * L_u/T_total + w2 * D_u/365) * R/365 * inRangeMultiplier
+      // Calculate daily rewards using MULTIPLICATIVE time factor:
+      // R_u = (L_u/T_total) * timeCoefficient * R/365 * inRangeMultiplier
+      // This prevents dust positions from dominating rewards
       const dailyRewards = (
-        (this.LIQUIDITY_WEIGHT * liquidityWeight + this.TIME_WEIGHT * timeWeight) * 
+        liquidityWeight * 
+        timeCoefficient * 
         this.DAILY_BUDGET * 
         inRangeMultiplier
       );
@@ -246,7 +252,7 @@ export class FixedRewardService {
       
       return {
         baseAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
-        timeMultiplier: Math.round(timeWeight * 10000) / 10000, // 4 decimal places
+        timeMultiplier: Math.round(timeCoefficient * 10000) / 10000, // 4 decimal places
         sizeMultiplier: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
         effectiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
         tradingFeeAPR: 0,

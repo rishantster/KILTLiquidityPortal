@@ -77,13 +77,16 @@ export class AccurateRewardCalculator {
       // Calculate liquidity weight (proportional to total liquidity)
       const liquidityWeight = currentValueUSD / totalActiveLiquidity;
       
-      // Calculate time weight (proportional to maximum time)
-      const timeWeight = Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1);
+      // Calculate time coefficient (60% to 100% liquidity recognition based on time)
+      // Time coefficient ranges from 0.6 (day 1) to 1.0 (day 365)
+      const timeCoefficient = 0.6 + (0.4 * Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1));
       
-      // Calculate daily reward amount using the formula:
-      // R_u = (w1 * L_u/T_total + w2 * D_u/365) * R/365 * inRangeMultiplier
+      // Calculate daily reward amount using MULTIPLICATIVE time factor:
+      // R_u = (L_u/T_total) * timeCoefficient * R/365 * inRangeMultiplier
+      // This prevents dust positions from dominating rewards
       const dailyRewardAmount = (
-        (this.LIQUIDITY_WEIGHT * liquidityWeight + this.TIME_WEIGHT * timeWeight) * 
+        liquidityWeight * 
+        timeCoefficient * 
         this.DAILY_BUDGET * 
         inRangeMultiplier
       );
@@ -99,7 +102,7 @@ export class AccurateRewardCalculator {
         nftTokenId,
         currentValueUSD: Math.round(currentValueUSD * 100) / 100, // 2 decimal places
         liquidityWeight: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
-        timeWeight: Math.round(timeWeight * 10000) / 10000, // 4 decimal places
+        timeWeight: Math.round(timeCoefficient * 10000) / 10000, // 4 decimal places
         inRangeMultiplier: Math.round(inRangeMultiplier * 10000) / 10000, // 4 decimal places
         dailyRewardAmount: Math.round(dailyRewardAmount * 10000) / 10000, // 4 decimal places
         effectiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places

@@ -338,6 +338,53 @@ export class FixedRewardService {
   }
 
   /**
+   * Calculate maximum theoretical APR based on current formula
+   * R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+   * Maximum occurs when: L_u/L_T = 1, D_u = 365, IRM = 1
+   */
+  calculateMaximumTheoreticalAPR(): {
+    maxAPR: number;
+    scenario: string;
+    formula: string;
+    assumptions: string[];
+  } {
+    // Maximum scenario: 100% liquidity share, 365 days, in-range
+    const liquidityShare = 1.0; // 100% of pool liquidity
+    const daysActive = 365; // Full year
+    const inRangeMultiplier = 1.0; // Always in-range
+    
+    // Calculate maximum time coefficient
+    const w1 = this.MIN_TIME_COEFFICIENT; // 0.6
+    const timeRatio = Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1); // 1.0
+    const maxTimeCoefficient = w1 + (timeRatio * (1 - w1)); // 0.6 + 1.0 * 0.4 = 1.0
+    
+    // Calculate maximum daily rewards
+    const maxDailyRewards = liquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    // = 1.0 * 1.0 * 7960 * 1.0 = 7,960 KILT/day
+    
+    // Calculate APR assuming minimum position value
+    const annualRewards = maxDailyRewards * 365; // 7,960 * 365 = 2,905,400 KILT
+    const positionValue = this.MIN_POSITION_VALUE; // $100 minimum
+    const kiltPrice = 0.01602; // Current KILT price
+    const annualRewardsUSD = annualRewards * kiltPrice;
+    const maxAPR = (annualRewardsUSD / positionValue) * 100;
+    
+    return {
+      maxAPR: Math.round(maxAPR * 100) / 100,
+      scenario: "Single participant with 100% liquidity share, always in-range, after 365 days",
+      formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
+      assumptions: [
+        "User owns 100% of pool liquidity (L_u/L_T = 1)",
+        "Position active for full year (D_u = 365)",
+        "Always in-range (IRM = 1.0)",
+        "Minimum position value ($100)",
+        "Current KILT price ($0.01602)",
+        "Full treasury allocation (2,905,600 KILT)"
+      ]
+    };
+  }
+
+  /**
    * Get program analytics for open participation system
    */
   async getProgramAnalytics(): Promise<{

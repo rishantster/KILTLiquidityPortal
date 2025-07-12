@@ -133,6 +133,33 @@ export function useUnifiedDashboard() {
     enabled: !!user?.id
   });
 
+  // Get maximum theoretical APR calculation
+  const { data: maxAPRData } = useQuery({
+    queryKey: ['maxAPR'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/rewards/maximum-apr');
+        if (!response.ok) {
+          return {
+            maxAPR: 0,
+            scenario: "Unable to calculate",
+            formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
+            assumptions: []
+          };
+        }
+        return response.json();
+      } catch (error) {
+        return {
+          maxAPR: 0,
+          scenario: "Unable to calculate",
+          formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
+          assumptions: []
+        };
+      }
+    },
+    refetchInterval: 300000 // Refresh every 5 minutes
+  });
+
   // Calculate position values using consistent methodology
   const calculatePositionValue = (position: any) => {
     if (!position || !kiltData?.price) return 0;
@@ -183,6 +210,7 @@ export function useUnifiedDashboard() {
     rewardStats,
     personalAPR,
     programAnalytics,
+    maxAPRData,
     
     // Analytics data
     userAnalytics,

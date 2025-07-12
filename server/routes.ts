@@ -783,6 +783,17 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Get maximum theoretical APR calculation
+  app.get("/api/rewards/maximum-apr", async (req, res) => {
+    try {
+      const maxAPR = fixedRewardService.calculateMaximumTheoreticalAPR();
+      res.json(maxAPR);
+    } catch (error) {
+      console.error('Error calculating maximum APR:', error);
+      res.status(500).json({ error: "Failed to calculate maximum APR" });
+    }
+  });
+
   // Get claimable rewards
   app.get("/api/rewards/user/:userId/claimable", async (req, res) => {
     try {

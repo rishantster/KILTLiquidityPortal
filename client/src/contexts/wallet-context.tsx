@@ -118,23 +118,53 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         // User disconnected their wallet
         setAddress(null);
         setIsConnected(false);
+        setManuallyDisconnected(true); // Mark as manually disconnected
+        
+        // Clear all user-specific cache
+        queryClient.removeQueries({ queryKey: ['user-positions'] });
+        queryClient.removeQueries({ queryKey: ['rewards'] });
+        queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+        queryClient.removeQueries({ queryKey: ['user-analytics'] });
+        queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+        queryClient.removeQueries({ queryKey: ['weth-balance'] });
+        
         toast({
           title: "Wallet disconnected",
           description: "Your wallet has been disconnected.",
         });
       } else if (accounts[0] !== address) {
         // User switched accounts
-        setAddress(accounts[0]);
+        const newAddress = accounts[0];
+        const previousAddress = address;
+        
+        setAddress(newAddress);
         setIsConnected(true);
+        setManuallyDisconnected(false); // Reset flag when switching accounts
+        
+        // Clear all user-specific cache for the previous account
+        queryClient.removeQueries({ queryKey: ['user-positions'] });
+        queryClient.removeQueries({ queryKey: ['rewards'] });
+        queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+        queryClient.removeQueries({ queryKey: ['user-analytics'] });
+        queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+        queryClient.removeQueries({ queryKey: ['weth-balance'] });
+        
+        // Trigger immediate re-fetch for new account
+        queryClient.invalidateQueries();
+        
         toast({
           title: "Account switched",
-          description: `Switched to ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
+          description: `Switched to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`,
         });
+        
+        // Log the account switch for debugging
+        console.log(`Account switched from ${previousAddress} to ${newAddress}`);
       }
     };
 
     const handleChainChanged = async (chainId: string) => {
       // Network changed event
+      console.log(`Network changed to chain ID: ${chainId}`);
       
       // Force switch to Base mainnet if not already on it
       if (chainId !== '0x2105' && isConnected) {
@@ -145,7 +175,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             description: "Automatically switched to Base mainnet for KILT operations.",
           });
         } catch (error) {
-          
+          console.error('Failed to switch to Base mainnet:', error);
           toast({
             title: "Network Error",
             description: "Please manually switch to Base mainnet in your wallet.",
@@ -162,6 +192,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       queryClient.removeQueries({ queryKey: ['pool-data'] });
       queryClient.removeQueries({ queryKey: ['user-positions'] });
       queryClient.removeQueries({ queryKey: ['position-details'] });
+      queryClient.removeQueries({ queryKey: ['rewards'] });
+      queryClient.removeQueries({ queryKey: ['user-analytics'] });
+      queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
       
       // Trigger re-fetch of all queries
       queryClient.invalidateQueries();

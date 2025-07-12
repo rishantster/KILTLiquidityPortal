@@ -239,7 +239,7 @@ export function MainDashboard() {
     }
   };
 
-  // Show loading until wallet is initialized
+  // Render loading state or disconnected state after all hooks are called
   if (!initialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -588,16 +588,20 @@ export function MainDashboard() {
                   </div>
                 </div>
 
-                {/* Treasury Status */}
+                {/* Maximum APR */}
                 <div className="text-center">
                   <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Coins className="h-5 w-5 text-white" />
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">Treasury Pool</p>
+                  <p className="text-white/70 text-xs mb-1 text-label">Maximum APR</p>
                   <p className="text-white font-bold text-lg text-numbers">
-                    {kiltData?.treasuryRemaining ? (kiltData.treasuryRemaining / 1000000).toFixed(1) : '2.9'}M
+                    {unifiedData?.maxAPRData?.maxAPR ? (
+                      unifiedData.maxAPRData.maxAPR > 10000 ? 
+                        `${(unifiedData.maxAPRData.maxAPR / 1000).toFixed(0)}k%` :
+                        `${unifiedData.maxAPRData.maxAPR.toFixed(1)}%`
+                    ) : '...'}
                   </p>
-                  <p className="text-amber-300 text-xs text-body">KILT remaining</p>
+                  <p className="text-amber-300 text-xs text-body">Solo participation</p>
                 </div>
               </div>
             </div>

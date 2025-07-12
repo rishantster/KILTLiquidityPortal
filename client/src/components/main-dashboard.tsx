@@ -601,7 +601,7 @@ export function MainDashboard() {
                         `${unifiedData.maxAPRData.maxAPR.toFixed(1)}%`
                     ) : '...'}
                   </p>
-                  <p className="text-amber-300 text-xs text-body">Solo participation</p>
+                  <p className="text-amber-300 text-xs text-body">Top performer</p>
                 </div>
               </div>
             </div>

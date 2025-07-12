@@ -362,24 +362,32 @@ export class FixedRewardService {
     const maxDailyRewards = liquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
     // = 1.0 * 1.0 * 7960 * 1.0 = 7,960 KILT/day
     
-    // Calculate APR assuming minimum position value
-    const annualRewards = maxDailyRewards * 365; // 7,960 * 365 = 2,905,400 KILT
-    const positionValue = this.MIN_POSITION_VALUE; // $100 minimum
+    // Calculate APR using realistic scenario instead of theoretical maximum
+    // Realistic scenario: 10% liquidity share in a $500K total pool = $50K position
+    const realisticLiquidityShare = 0.1; // 10% of pool
+    const realisticTotalPool = 500000; // $500K total liquidity
+    const realisticPositionValue = realisticTotalPool * realisticLiquidityShare; // $50K position
+    
+    // Calculate realistic daily rewards
+    const realisticDailyRewards = realisticLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    
+    // Calculate realistic APR
+    const annualRewards = realisticDailyRewards * 365;
     const kiltPrice = 0.01602; // Current KILT price
     const annualRewardsUSD = annualRewards * kiltPrice;
-    const maxAPR = (annualRewardsUSD / positionValue) * 100;
+    const maxAPR = (annualRewardsUSD / realisticPositionValue) * 100;
     
     return {
       maxAPR: Math.round(maxAPR * 100) / 100,
-      scenario: "Single participant with 100% liquidity share, always in-range, after 365 days",
+      scenario: "Top liquidity provider in realistic market conditions",
       formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
       assumptions: [
-        "User owns 100% of pool liquidity (L_u/L_T = 1)",
-        "Position active for full year (D_u = 365)",
+        "10% liquidity share in $500K total pool",
+        "Position active for full year (365 days)",
         "Always in-range (IRM = 1.0)",
-        "Minimum position value ($100)",
+        "$50K position value",
         "Current KILT price ($0.01602)",
-        "Full treasury allocation (2,905,600 KILT)"
+        "Realistic market conditions"
       ]
     };
   }

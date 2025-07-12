@@ -85,10 +85,10 @@ export class RewardCalculationDemo {
     const oldTotalScore = (this.OLD_LIQUIDITY_WEIGHT * liquidityWeight + this.OLD_TIME_WEIGHT * oldTimeWeight);
     const oldDailyRewards = oldTotalScore * this.DAILY_BUDGET;
     
-    // NEW FORMULA (FIXED): Multiplicative time coefficient
-    // R_u = (L_u/T_total) * timeCoefficient * R/365
-    const newTimeCoefficient = this.MIN_TIME_COEFFICIENT + 
-      ((this.MAX_TIME_COEFFICIENT - this.MIN_TIME_COEFFICIENT) * timeRatio);
+    // NEW FORMULA (FIXED): Time-weighted coefficient
+    // R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+    const w1 = this.MIN_TIME_COEFFICIENT; // 0.6
+    const newTimeCoefficient = w1 + (timeRatio * (1 - w1));
     const newTotalScore = liquidityWeight * newTimeCoefficient;
     const newDailyRewards = newTotalScore * this.DAILY_BUDGET;
     
@@ -155,9 +155,14 @@ SECURITY IMPROVEMENT:
 
 FORMULA CHANGE:
 OLD: R_u = (w1 * L_u/T_total + w2 * D_u/365) * R/365
-NEW: R_u = (L_u/T_total) * timeCoefficient * R/365
+NEW: R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
 
-Where timeCoefficient = 0.6 + (0.4 * min(days/365, 1))
+Where:
+- L_u = User's liquidity contribution
+- L_T = Total pool liquidity
+- w1 = Minimum recognition factor (0.6)
+- D_u = Days active
+- IRM = In-range multiplier
 `;
   }
 

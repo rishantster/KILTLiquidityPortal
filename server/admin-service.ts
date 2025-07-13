@@ -77,8 +77,7 @@ export class AdminService {
           programStartDate: config.programStartDate,
           programEndDate: config.programEndDate,
           programDurationDays: config.programDurationDays,
-          isActive: config.isActive,
-          createdBy: performedBy
+          isActive: config.isActive
         });
       }
 
@@ -263,18 +262,33 @@ export class AdminService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const programSettings = await this.getCurrentProgramSettings();
       
-      // Get program analytics for consistent treasury data
-      const { fixedRewardService } = await import('./fixed-reward-service');
-      const programAnalytics = await fixedRewardService.getProgramAnalytics();
+      // Admin controls the treasury configuration - this is the authoritative source
+      const totalAllocation = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 2905600;
+      const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 7960;
+      
+      // Calculate total distributed directly (avoiding circular dependency)
+      const { db } = await import('./db');
+      const { rewards } = await import('../shared/schema');
+      const { sql } = await import('drizzle-orm');
+      
+      const totalDistributedResult = await db
+        .select({
+          totalDistributed: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
+        })
+        .from(rewards);
+
+      const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;
       
       return {
         treasury: {
           balance: treasuryBalance.balance,
           address: treasuryBalance.address,
-          totalAllocation: programAnalytics.treasuryTotal,
-          dailyRewardsCap: programAnalytics.dailyBudget,
+          totalAllocation,
+          dailyRewardsCap,
           programDuration: treasuryConf ? treasuryConf.programDurationDays : 365,
-          isActive: treasuryConf ? treasuryConf.isActive : true
+          isActive: treasuryConf ? treasuryConf.isActive : true,
+          totalDistributed: Math.round(totalDistributed * 100) / 100,
+          treasuryRemaining: totalAllocation - totalDistributed
         },
         settings: programSettings,
         operationHistory: await this.getOperationHistory(10)
@@ -287,7 +301,9 @@ export class AdminService {
           totalAllocation: 2905600,
           dailyRewardsCap: 7960,
           programDuration: 365,
-          isActive: true
+          isActive: true,
+          totalDistributed: 0,
+          treasuryRemaining: 2905600
         },
         settings: await this.getCurrentProgramSettings(),
         operationHistory: []

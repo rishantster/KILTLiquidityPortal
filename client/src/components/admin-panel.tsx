@@ -63,6 +63,7 @@ export function AdminPanel() {
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
     treasuryWalletAddress: '',
     totalAllocation: 2905600,
+    dailyRewardsCap: 7960,
     programDurationDays: 365,
     programStartDate: new Date().toISOString().split('T')[0],
     programEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -91,6 +92,21 @@ export function AdminPanel() {
       setIsAuthorized(false);
     }
   }, [isConnected, address]);
+
+  // Populate forms with current admin data
+  useEffect(() => {
+    if (adminStats) {
+      setTreasuryConfigForm({
+        treasuryWalletAddress: adminStats.treasury?.address || '',
+        totalAllocation: adminStats.treasury?.totalAllocation || 2905600,
+        dailyRewardsCap: adminStats.treasury?.dailyRewardsCap || 7960,
+        programDurationDays: adminStats.treasury?.programDuration || 365,
+        programStartDate: new Date().toISOString().split('T')[0],
+        programEndDate: new Date(Date.now() + (adminStats.treasury?.programDuration || 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        isActive: adminStats.treasury?.isActive || true
+      });
+    }
+  }, [adminStats]);
 
   // Admin login mutation (supports both methods)
   const loginMutation = useMutation({
@@ -408,59 +424,98 @@ export function AdminPanel() {
         {statsLoading ? (
           <div className="text-center py-8">Loading admin data...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Treasury Balance</p>
-                    <p className="text-xl font-bold text-white">
-                      {adminStats?.treasury?.balance?.toFixed(0) || 0} KILT
-                    </p>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-400">Treasury Balance</p>
+                      <p className="text-xl font-bold text-white">
+                        {adminStats?.treasury?.balance?.toFixed(0) || 0} KILT
+                      </p>
+                    </div>
+                    <Wallet className="w-8 h-8 text-emerald-400" />
                   </div>
-                  <Wallet className="w-8 h-8 text-emerald-400" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Total Allocation</p>
-                    <p className="text-xl font-bold text-white">
-                      {adminStats?.treasury?.totalAllocation?.toFixed(0) || 2905600} KILT
-                    </p>
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-400">Total Allocation</p>
+                      <p className="text-xl font-bold text-white">
+                        {adminStats?.treasury?.totalAllocation?.toFixed(0) || 2905600} KILT
+                      </p>
+                    </div>
+                    <DollarSign className="w-8 h-8 text-blue-400" />
                   </div>
-                  <DollarSign className="w-8 h-8 text-blue-400" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Daily Rewards Cap</p>
-                    <p className="text-xl font-bold text-white">
-                      {adminStats?.treasury?.dailyRewardsCap?.toFixed(0) || 7960} KILT
-                    </p>
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-400">Daily Rewards Cap</p>
+                      <p className="text-xl font-bold text-white">
+                        {adminStats?.treasury?.dailyRewardsCap?.toFixed(0) || 7960} KILT
+                      </p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-purple-400" />
                   </div>
-                  <TrendingUp className="w-8 h-8 text-purple-400" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-400">Program Duration</p>
+                      <p className="text-xl font-bold text-white">
+                        {adminStats?.treasury?.programDuration || 365} days
+                      </p>
+                    </div>
+                    <Users className="w-8 h-8 text-green-400" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Treasury Progress */}
             <Card className="bg-gray-900 border-gray-800">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Program Duration</p>
-                    <p className="text-xl font-bold text-white">
-                      {adminStats?.treasury?.programDuration || 365} days
-                    </p>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-white">Treasury Distribution Progress</h3>
+                    <Badge variant="outline" className="text-emerald-400 border-emerald-400">
+                      {adminStats?.treasury?.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
                   </div>
-                  <Users className="w-8 h-8 text-green-400" />
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Remaining:</span>
+                      <span className="text-white">
+                        {(adminStats?.treasury?.treasuryRemaining || 2905600).toLocaleString()} KILT
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full" 
+                        style={{ 
+                          width: `${((adminStats?.treasury?.totalDistributed || 0) / (adminStats?.treasury?.totalAllocation || 2905600)) * 100}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Distributed:</span>
+                      <span className="text-white">
+                        {(adminStats?.treasury?.totalDistributed || 0).toLocaleString()} KILT
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -654,9 +709,19 @@ export function AdminPanel() {
                   </div>
                   
                   <div>
-                    <Label className="text-white">Auto-Calculated Daily Rewards Cap</Label>
-                    <div className="text-lg font-bold text-emerald-400">
-                      {calculateDailyRewardsCap().toFixed(2)} KILT/day
+                    <Label htmlFor="dailyRewardsCap" className="text-white">Daily Rewards Cap (KILT)</Label>
+                    <Input
+                      id="dailyRewardsCap"
+                      type="number"
+                      step="0.01"
+                      value={treasuryConfigForm.dailyRewardsCap}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: parseFloat(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                    <div className="text-sm text-gray-400 mt-1">
+                      Auto-calculated: {treasuryConfigForm.totalAllocation && treasuryConfigForm.programDurationDays 
+                        ? (treasuryConfigForm.totalAllocation / treasuryConfigForm.programDurationDays).toFixed(2) 
+                        : 7960} KILT/day
                     </div>
                   </div>
                 </div>

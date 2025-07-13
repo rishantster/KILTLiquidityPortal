@@ -442,15 +442,23 @@ export class FixedRewardService {
         aprData = { minAPR: 29.46, maxAPR: 46.55 };
       }
       
+      // Get admin-configured treasury values (admin panel has superior control)
+      const { db } = await import('./db');
+      const { treasuryConfig } = await import('../shared/schema');
+      
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const treasuryTotal = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.TREASURY_ALLOCATION;
+      const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
+      
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100, // 2 decimal places
         activeParticipants: activeParticipants.length,
-        dailyBudget: Math.round(this.DAILY_BUDGET * 100) / 100, // 2 decimal places
+        dailyBudget: Math.round(dailyBudget * 100) / 100, // 2 decimal places
         averageAPR: Math.round(averageAPR * 10000) / 10000, // 4 decimal places for APR
         programDaysRemaining,
         totalDistributed: Math.round(totalDistributed * 100) / 100, // 2 decimal places
-        treasuryTotal: this.TREASURY_ALLOCATION,
-        treasuryRemaining: this.TREASURY_ALLOCATION - totalDistributed,
+        treasuryTotal,
+        treasuryRemaining: treasuryTotal - totalDistributed,
         estimatedAPR: {
           low: Math.round(aprData.minAPR),
           average: Math.round((aprData.minAPR + aprData.maxAPR) / 2),

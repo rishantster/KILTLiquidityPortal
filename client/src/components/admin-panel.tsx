@@ -130,7 +130,7 @@ export function AdminPanel() {
 
   // Fetch admin stats
   const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({
-    queryKey: ['/api/admin/stats'],
+    queryKey: ['/api/admin/dashboard'],
     enabled: !!adminToken,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -149,7 +149,7 @@ export function AdminPanel() {
         title: "Success",
         description: data.message || "Treasury configuration updated",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
     },
     onError: (error: Error) => {
       toast({
@@ -174,7 +174,7 @@ export function AdminPanel() {
         title: "Success",
         description: data.message || "Program settings updated",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
     },
     onError: (error: Error) => {
       toast({

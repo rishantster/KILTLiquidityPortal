@@ -403,6 +403,8 @@ export class FixedRewardService {
     averageAPR: number;
     programDaysRemaining: number;
     totalDistributed: number;
+    treasuryTotal: number;
+    treasuryRemaining: number;
     estimatedAPR: {
       low: number;
       average: number;
@@ -447,6 +449,8 @@ export class FixedRewardService {
         averageAPR: Math.round(averageAPR * 10000) / 10000, // 4 decimal places for APR
         programDaysRemaining,
         totalDistributed: Math.round(totalDistributed * 100) / 100, // 2 decimal places
+        treasuryTotal: this.TREASURY_ALLOCATION,
+        treasuryRemaining: this.TREASURY_ALLOCATION - totalDistributed,
         estimatedAPR: {
           low: Math.round(aprData.minAPR),
           average: Math.round((aprData.minAPR + aprData.maxAPR) / 2),
@@ -462,6 +466,8 @@ export class FixedRewardService {
         averageAPR: 0,
         programDaysRemaining: this.PROGRAM_DURATION_DAYS,
         totalDistributed: 0,
+        treasuryTotal: this.TREASURY_ALLOCATION,
+        treasuryRemaining: this.TREASURY_ALLOCATION,
         estimatedAPR: {
           low: 29,
           average: 38,

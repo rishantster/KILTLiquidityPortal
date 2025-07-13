@@ -263,12 +263,16 @@ export class AdminService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const programSettings = await this.getCurrentProgramSettings();
       
+      // Get program analytics for consistent treasury data
+      const { fixedRewardService } = await import('./fixed-reward-service');
+      const programAnalytics = await fixedRewardService.getProgramAnalytics();
+      
       return {
         treasury: {
           balance: treasuryBalance.balance,
           address: treasuryBalance.address,
-          totalAllocation: treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 2905600,
-          dailyRewardsCap: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 7960,
+          totalAllocation: programAnalytics.treasuryTotal,
+          dailyRewardsCap: programAnalytics.dailyBudget,
           programDuration: treasuryConf ? treasuryConf.programDurationDays : 365,
           isActive: treasuryConf ? treasuryConf.isActive : true
         },
@@ -277,7 +281,14 @@ export class AdminService {
       };
     } catch (error) {
       return {
-        treasury: { balance: 0, address: '0x0000000000000000000000000000000000000000' },
+        treasury: { 
+          balance: 0, 
+          address: '0x0000000000000000000000000000000000000000',
+          totalAllocation: 2905600,
+          dailyRewardsCap: 7960,
+          programDuration: 365,
+          isActive: true
+        },
         settings: await this.getCurrentProgramSettings(),
         operationHistory: []
       };

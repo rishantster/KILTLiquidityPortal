@@ -285,22 +285,27 @@ export function AdminPanel() {
   // Login interface (both wallet and credentials)
   if (!adminToken) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
-        <Card className="w-full max-w-md bg-gradient-to-r from-gray-800/90 to-gray-900/90 border-gray-700">
-          <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2 text-white">
-              <Shield className="h-6 w-6" />
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-black/40 backdrop-blur-xl border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="flex items-center justify-center gap-2 text-white text-xl">
+              <Shield className="h-6 w-6 text-emerald-400" />
               Admin Panel
             </CardTitle>
+            <p className="text-emerald-200/70 text-sm mt-2">Access treasury management and program settings</p>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Login Method Toggle */}
-            <div className="flex rounded-lg bg-black/20 p-1">
+            <div className="flex rounded-lg bg-emerald-500/10 backdrop-blur-sm p-1 border border-emerald-500/20">
               <Button
                 type="button"
                 variant={loginMethod === 'wallet' ? 'default' : 'ghost'}
                 onClick={() => setLoginMethod('wallet')}
-                className="flex-1 h-8 text-xs"
+                className={`flex-1 h-8 text-xs transition-all ${
+                  loginMethod === 'wallet' 
+                    ? 'bg-emerald-500/20 text-emerald-300 shadow-lg' 
+                    : 'text-emerald-200/70 hover:text-emerald-300 hover:bg-emerald-500/10'
+                }`}
               >
                 <Wallet className="h-3 w-3 mr-1" />
                 Wallet
@@ -309,7 +314,11 @@ export function AdminPanel() {
                 type="button"
                 variant={loginMethod === 'credentials' ? 'default' : 'ghost'}
                 onClick={() => setLoginMethod('credentials')}
-                className="flex-1 h-8 text-xs"
+                className={`flex-1 h-8 text-xs transition-all ${
+                  loginMethod === 'credentials' 
+                    ? 'bg-emerald-500/20 text-emerald-300 shadow-lg' 
+                    : 'text-emerald-200/70 hover:text-emerald-300 hover:bg-emerald-500/10'
+                }`}
               >
                 <Shield className="h-3 w-3 mr-1" />
                 Credentials
@@ -321,11 +330,11 @@ export function AdminPanel() {
               <>
                 {!isConnected ? (
                   <div className="text-center space-y-4">
-                    <p className="text-white/70">Connect your wallet to access admin features</p>
+                    <p className="text-emerald-200/70">Connect your wallet to access admin features</p>
                     <Button
                       onClick={handleWalletLogin}
                       disabled={loginMutation.isPending}
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                      className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-emerald-500/25"
                     >
                       <Wallet className="h-4 w-4 mr-2" />
                       Connect Wallet
@@ -333,35 +342,35 @@ export function AdminPanel() {
                   </div>
                 ) : !isAuthorized ? (
                   <div className="text-center space-y-4">
-                    <Alert variant="destructive">
+                    <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-300">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
                         Access Denied: Only authorized wallet addresses can access admin features.
                       </AlertDescription>
                     </Alert>
-                    <p className="text-white/70 text-sm">Connected: {address}</p>
-                    <p className="text-white/70 text-sm">Required: {ADMIN_WALLET_ADDRESS}</p>
+                    <p className="text-emerald-200/70 text-sm">Connected: {address}</p>
+                    <p className="text-emerald-200/70 text-sm">Required: {ADMIN_WALLET_ADDRESS}</p>
                     <Button
                       onClick={handleLogout}
                       variant="outline"
-                      className="w-full border-red-500 text-red-400 hover:bg-red-500 hover:text-white"
+                      className="w-full border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300"
                     >
                       Disconnect
                     </Button>
                   </div>
                 ) : (
                   <div className="text-center space-y-4">
-                    <Alert>
+                    <Alert className="bg-emerald-500/10 border-emerald-500/20 text-emerald-300">
                       <CheckCircle className="h-4 w-4" />
                       <AlertDescription>
                         Authorized wallet connected. Click below to access admin features.
                       </AlertDescription>
                     </Alert>
-                    <p className="text-white/70 text-sm">Connected: {address}</p>
+                    <p className="text-emerald-200/70 text-sm">Connected: {address}</p>
                     <Button
                       onClick={handleWalletLogin}
                       disabled={loginMutation.isPending}
-                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                      className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-emerald-500/25"
                     >
                       {loginMutation.isPending ? "Authenticating..." : "Access Admin Panel"}
                     </Button>
@@ -374,25 +383,25 @@ export function AdminPanel() {
             {loginMethod === 'credentials' && (
               <form onSubmit={handleCredentialsLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="text-white">Username</Label>
+                  <Label htmlFor="username" className="text-emerald-200">Username</Label>
                   <Input
                     id="username"
                     type="text"
                     value={loginForm.username}
                     onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
-                    className="bg-black/20 border-gray-600 text-white"
+                    className="bg-black/20 border-emerald-500/20 text-white placeholder:text-emerald-200/50 focus:border-emerald-400 focus:ring-emerald-400/20"
                     placeholder="admin"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-white">Password</Label>
+                  <Label htmlFor="password" className="text-emerald-200">Password</Label>
                   <Input
                     id="password"
                     type="password"
                     value={loginForm.password}
                     onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                    className="bg-black/20 border-gray-600 text-white"
+                    className="bg-black/20 border-emerald-500/20 text-white placeholder:text-emerald-200/50 focus:border-emerald-400 focus:ring-emerald-400/20"
                     placeholder="admin123"
                     required
                   />
@@ -400,7 +409,7 @@ export function AdminPanel() {
                 <Button
                   type="submit"
                   disabled={loginMutation.isPending}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-emerald-500/25"
                 >
                   {loginMutation.isPending ? "Logging in..." : "Login"}
                 </Button>
@@ -414,84 +423,84 @@ export function AdminPanel() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
-        <div className="text-white">Loading admin dashboard...</div>
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+        <div className="text-emerald-200">Loading admin dashboard...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-            <Shield className="h-8 w-8" />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Shield className="h-6 w-6 text-emerald-400" />
             KILT Admin Panel
           </h1>
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="border-red-500 text-red-400 hover:bg-red-500 hover:text-white"
+            className="border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300"
           >
             Logout
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20">
-            <CardContent className="p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+          <Card className="bg-black/40 backdrop-blur-xl border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Treasury Balance</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-xs text-emerald-200/70">Treasury Balance</p>
+                  <p className="text-lg font-bold text-white tabular-nums">
                     {formatKiltAmount(adminStats?.treasury.balance || 0)}
                   </p>
                 </div>
-                <Wallet className="h-8 w-8 text-blue-400" />
+                <Wallet className="h-5 w-5 text-emerald-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20">
-            <CardContent className="p-4">
+          <Card className="bg-black/40 backdrop-blur-xl border-blue-500/20 shadow-lg shadow-blue-500/5">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Total Allocation</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-xs text-blue-200/70">Total Allocation</p>
+                  <p className="text-lg font-bold text-white tabular-nums">
                     {formatKiltAmount(adminStats?.program.totalAllocation || 0)}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-400" />
+                <DollarSign className="h-5 w-5 text-blue-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20">
-            <CardContent className="p-4">
+          <Card className="bg-black/40 backdrop-blur-xl border-orange-500/20 shadow-lg shadow-orange-500/5">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Daily Budget</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-xs text-orange-200/70">Daily Budget</p>
+                  <p className="text-lg font-bold text-white tabular-nums">
                     {formatKiltAmount(adminStats?.program.dailyBudget || 0)}
                   </p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-orange-400" />
+                <TrendingUp className="h-5 w-5 text-orange-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
-            <CardContent className="p-4">
+          <Card className="bg-black/40 backdrop-blur-xl border-purple-500/20 shadow-lg shadow-purple-500/5">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Program Duration</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-xs text-purple-200/70">Program Duration</p>
+                  <p className="text-lg font-bold text-white tabular-nums">
                     {adminStats?.settings.programDuration || 365} days
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-purple-400" />
+                <Clock className="h-5 w-5 text-purple-400" />
               </div>
             </CardContent>
           </Card>
@@ -499,41 +508,59 @@ export function AdminPanel() {
 
         {/* Main Content */}
         <Tabs defaultValue="treasury" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="treasury">Treasury Management</TabsTrigger>
-            <TabsTrigger value="settings">Program Settings</TabsTrigger>
-            <TabsTrigger value="history">Operation History</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 bg-black/40 backdrop-blur-xl border-emerald-500/20">
+            <TabsTrigger 
+              value="treasury" 
+              className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 text-emerald-200/70"
+            >
+              Treasury Management
+            </TabsTrigger>
+            <TabsTrigger 
+              value="settings"
+              className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 text-emerald-200/70"
+            >
+              Program Settings
+            </TabsTrigger>
+            <TabsTrigger 
+              value="history"
+              className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 text-emerald-200/70"
+            >
+              Operation History
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="treasury" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Treasury Status */}
-              <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Treasury Status</CardTitle>
+              <Card className="bg-black/40 backdrop-blur-xl border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-lg">Treasury Status</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 pt-0">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-white/70">Address:</span>
-                    <span className="text-sm font-mono text-white">
+                    <span className="text-xs text-emerald-200/70">Address:</span>
+                    <span className="text-xs font-mono text-white">
                       {formatAddress(adminStats?.treasury.currentTreasuryAddress || '')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-white/70">Balance:</span>
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-xs text-emerald-200/70">Balance:</span>
+                    <span className="text-xs font-bold text-white tabular-nums">
                       {formatKiltAmount(adminStats?.treasury.balance || 0)} KILT
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-white/70">Allowance:</span>
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-xs text-emerald-200/70">Allowance:</span>
+                    <span className="text-xs font-bold text-white tabular-nums">
                       {formatKiltAmount(adminStats?.treasury.allowance || 0)} KILT
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-white/70">Can Transfer:</span>
-                    <Badge variant={adminStats?.treasury.canTransfer ? "default" : "destructive"}>
+                    <span className="text-xs text-emerald-200/70">Can Transfer:</span>
+                    <Badge 
+                      variant={adminStats?.treasury.canTransfer ? "default" : "destructive"}
+                      className={`text-xs ${adminStats?.treasury.canTransfer ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}
+                    >
                       {adminStats?.treasury.canTransfer ? "Yes" : "No"}
                     </Badge>
                   </div>
@@ -541,52 +568,52 @@ export function AdminPanel() {
               </Card>
 
               {/* Treasury Operations */}
-              <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Treasury Operations</CardTitle>
+              <Card className="bg-black/40 backdrop-blur-xl border-blue-500/20 shadow-lg shadow-blue-500/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-lg">Treasury Operations</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleTreasuryOperation} className="space-y-4">
+                <CardContent className="pt-0">
+                  <form onSubmit={handleTreasuryOperation} className="space-y-3">
                     <div className="space-y-2">
-                      <Label className="text-white">Operation Type</Label>
-                      <div className="flex gap-2">
+                      <Label className="text-emerald-200 text-sm">Operation Type</Label>
+                      <div className="flex gap-1">
                         <Button
                           type="button"
                           variant={treasuryForm.operation === 'add' ? 'default' : 'outline'}
                           onClick={() => setTreasuryForm({ ...treasuryForm, operation: 'add' })}
-                          className="flex-1"
+                          className={`flex-1 h-8 text-xs ${treasuryForm.operation === 'add' ? 'bg-emerald-500/20 text-emerald-300' : 'border-emerald-500/20 text-emerald-200/70'}`}
                         >
-                          <Plus className="h-4 w-4 mr-1" />
+                          <Plus className="h-3 w-3 mr-1" />
                           Add
                         </Button>
                         <Button
                           type="button"
                           variant={treasuryForm.operation === 'remove' ? 'default' : 'outline'}
                           onClick={() => setTreasuryForm({ ...treasuryForm, operation: 'remove' })}
-                          className="flex-1"
+                          className={`flex-1 h-8 text-xs ${treasuryForm.operation === 'remove' ? 'bg-emerald-500/20 text-emerald-300' : 'border-emerald-500/20 text-emerald-200/70'}`}
                         >
-                          <Minus className="h-4 w-4 mr-1" />
+                          <Minus className="h-3 w-3 mr-1" />
                           Remove
                         </Button>
                         <Button
                           type="button"
                           variant={treasuryForm.operation === 'transfer' ? 'default' : 'outline'}
                           onClick={() => setTreasuryForm({ ...treasuryForm, operation: 'transfer' })}
-                          className="flex-1"
+                          className={`flex-1 h-8 text-xs ${treasuryForm.operation === 'transfer' ? 'bg-emerald-500/20 text-emerald-300' : 'border-emerald-500/20 text-emerald-200/70'}`}
                         >
-                          <ArrowLeftRight className="h-4 w-4 mr-1" />
+                          <ArrowLeftRight className="h-3 w-3 mr-1" />
                           Transfer
                         </Button>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white">Amount (KILT)</Label>
+                      <Label className="text-emerald-200 text-sm">Amount (KILT)</Label>
                       <Input
                         type="number"
                         value={treasuryForm.amount}
                         onChange={(e) => setTreasuryForm({ ...treasuryForm, amount: e.target.value })}
-                        className="bg-black/20 border-gray-600 text-white"
+                        className="bg-black/20 border-emerald-500/20 text-white placeholder:text-emerald-200/50 focus:border-emerald-400 focus:ring-emerald-400/20 h-8 text-sm"
                         placeholder="1000"
                         required
                       />

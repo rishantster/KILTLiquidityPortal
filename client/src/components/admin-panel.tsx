@@ -307,6 +307,15 @@ export function AdminPanel() {
 
   // Handle treasury configuration update
   const handleTreasuryConfigUpdate = () => {
+    // Debug form values
+    console.log('Treasury Config Form Values:', {
+      treasuryWalletAddress: treasuryConfigForm.treasuryWalletAddress,
+      totalAllocation: treasuryConfigForm.totalAllocation,
+      programDurationDays: treasuryConfigForm.programDurationDays,
+      annualRewardsBudget: treasuryConfigForm.annualRewardsBudget,
+      programStartDate: treasuryConfigForm.programStartDate
+    });
+    
     // Validate that Total Allocation >= Annual Rewards Budget
     if (treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget) {
       toast({
@@ -317,11 +326,17 @@ export function AdminPanel() {
       return;
     }
     
-    // Validate required fields
-    if (!treasuryConfigForm.treasuryWalletAddress || !treasuryConfigForm.totalAllocation || !treasuryConfigForm.programDurationDays || !treasuryConfigForm.annualRewardsBudget) {
+    // Validate required fields with better debugging
+    const missingFields = [];
+    if (!treasuryConfigForm.treasuryWalletAddress) missingFields.push("Treasury Wallet Address");
+    if (!treasuryConfigForm.totalAllocation || treasuryConfigForm.totalAllocation <= 0) missingFields.push("Total Allocation");
+    if (!treasuryConfigForm.programDurationDays || treasuryConfigForm.programDurationDays <= 0) missingFields.push("Program Duration");
+    if (!treasuryConfigForm.annualRewardsBudget || treasuryConfigForm.annualRewardsBudget <= 0) missingFields.push("Annual Rewards Budget");
+    
+    if (missingFields.length > 0) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields",
+        description: `Please fill in: ${missingFields.join(", ")}`,
         variant: "destructive",
       });
       return;

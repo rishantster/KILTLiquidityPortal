@@ -5,8 +5,11 @@ import { Request, Response, NextFunction } from 'express';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || createHash('sha256').update('admin123').digest('hex');
 
-// Admin wallet address (wallet-based login)
-const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
+// Admin wallet addresses (wallet-based login)
+const ADMIN_WALLET_ADDRESSES = [
+  '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
+  '0x861722f739539CF31d86F1221460Fa96C9baB95C'
+];
 
 // Simple session storage (in memory for development - persistent across server restarts)
 const adminSessions = new Map<string, { identifier: string; type: 'wallet' | 'credentials'; expires: number }>();
@@ -29,7 +32,9 @@ export function validateAdminCredentials(username: string, password: string): bo
 }
 
 export function validateAdminWallet(walletAddress: string): boolean {
-  return walletAddress.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase();
+  return ADMIN_WALLET_ADDRESSES.some(adminAddress => 
+    walletAddress.toLowerCase() === adminAddress.toLowerCase()
+  );
 }
 
 export function createAdminSession(identifier: string, type: 'wallet' | 'credentials'): string {

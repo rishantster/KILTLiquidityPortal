@@ -65,6 +65,7 @@ export function AdminPanel() {
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
     treasuryWalletAddress: '',
     totalAllocation: 2905600,
+    annualRewardsBudget: 2905398.79, // Free entry field
     dailyRewardsCap: 7960,
     programDurationDays: 365,
     programStartDate: new Date().toISOString().split('T')[0],
@@ -124,6 +125,7 @@ export function AdminPanel() {
       setTreasuryConfigForm({
         treasuryWalletAddress: adminStats.treasury.address || '',
         totalAllocation: adminStats.treasury.totalAllocation || 2905600,
+        annualRewardsBudget: (adminStats.treasury.dailyRewardsCap || 7960) * 365,
         dailyRewardsCap: adminStats.treasury.dailyRewardsCap || 7960,
         programDurationDays: adminStats.treasury.programDuration || 365,
         programStartDate: startDate,
@@ -306,19 +308,17 @@ export function AdminPanel() {
   // Handle treasury configuration update
   const handleTreasuryConfigUpdate = () => {
     // Validate that Total Allocation >= Annual Rewards Budget
-    const annualRewardsBudget = treasuryConfigForm.dailyRewardsCap * 365;
-    
-    if (treasuryConfigForm.totalAllocation < annualRewardsBudget) {
+    if (treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget) {
       toast({
         title: "Validation Error",
-        description: `Total Allocation (${treasuryConfigForm.totalAllocation.toLocaleString()} KILT) must be greater than or equal to Annual Rewards Budget (${annualRewardsBudget.toLocaleString()} KILT)`,
+        description: `Total Allocation (${treasuryConfigForm.totalAllocation.toLocaleString()} KILT) must be greater than or equal to Annual Rewards Budget (${treasuryConfigForm.annualRewardsBudget.toLocaleString()} KILT)`,
         variant: "destructive",
       });
       return;
     }
     
     // Validate required fields
-    if (!treasuryConfigForm.treasuryWalletAddress || !treasuryConfigForm.totalAllocation || !treasuryConfigForm.programDurationDays) {
+    if (!treasuryConfigForm.treasuryWalletAddress || !treasuryConfigForm.totalAllocation || !treasuryConfigForm.programDurationDays || !treasuryConfigForm.annualRewardsBudget) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -329,6 +329,7 @@ export function AdminPanel() {
     
     const config = {
       ...treasuryConfigForm,
+      dailyRewardsCap: treasuryConfigForm.annualRewardsBudget / 365, // Calculate daily from annual
       programStartDate: new Date(treasuryConfigForm.programStartDate),
       programEndDate: new Date(treasuryConfigForm.programEndDate)
     };
@@ -781,18 +782,26 @@ export function AdminPanel() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="dailyRewardsCap" className="text-white">Annual Rewards Budget (KILT)</Label>
+                    <Label htmlFor="annualRewardsBudget" className="text-white">Annual Rewards Budget (KILT)</Label>
                     <Input
-                      id="dailyRewardsCap"
+                      id="annualRewardsBudget"
                       type="number"
                       step="0.01"
-                      value={treasuryConfigForm.dailyRewardsCap ? (treasuryConfigForm.dailyRewardsCap * 365).toFixed(2) : ''}
-                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: (parseFloat(e.target.value) || 0) / 365 })}
+                      value={treasuryConfigForm.annualRewardsBudget?.toString() || ''}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0;
+                        setTreasuryConfigForm({ 
+                          ...treasuryConfigForm, 
+                          annualRewardsBudget: value,
+                          dailyRewardsCap: value / 365
+                        });
+                      }}
                       className={`bg-gray-800/30 backdrop-blur-sm text-white placeholder-gray-400 ${
-                        treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) 
+                        treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget 
                           ? 'border-red-500/50' 
                           : 'border-gray-700/30'
                       }`}
+                      placeholder="Enter annual rewards budget"
                     />
                     <div className="text-sm text-gray-400 mt-1">
                       Must be ≤ Total Allocation ({treasuryConfigForm.totalAllocation?.toLocaleString() || '0'} KILT)
@@ -801,14 +810,14 @@ export function AdminPanel() {
                 </div>
                 
                 {/* Validation Warning */}
-                {(treasuryConfigForm.totalAllocation > 0 && treasuryConfigForm.dailyRewardsCap > 0 && treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365)) && (
+                {(treasuryConfigForm.totalAllocation > 0 && treasuryConfigForm.annualRewardsBudget > 0 && treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget) && (
                   <div className="bg-red-900/20 border border-red-500 rounded-lg p-3">
                     <div className="flex items-center gap-2 text-red-400">
                       <AlertCircle className="w-4 h-4" />
                       <span className="font-medium">Validation Error</span>
                     </div>
                     <p className="text-red-300 text-sm mt-1">
-                      Total Allocation ({treasuryConfigForm.totalAllocation?.toLocaleString() || '0'} KILT) must be greater than or equal to Annual Rewards Budget ({((treasuryConfigForm.dailyRewardsCap * 365) || 0).toLocaleString()} KILT)
+                      Total Allocation ({treasuryConfigForm.totalAllocation?.toLocaleString() || '0'} KILT) must be greater than or equal to Annual Rewards Budget ({treasuryConfigForm.annualRewardsBudget?.toLocaleString() || '0'} KILT)
                     </p>
                   </div>
                 )}
@@ -843,7 +852,7 @@ export function AdminPanel() {
 
                 <Button 
                   onClick={handleTreasuryConfigUpdate}
-                  disabled={treasuryConfigMutation.isPending || treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365)}
+                  disabled={treasuryConfigMutation.isPending || treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
                 >
                   {treasuryConfigMutation.isPending ? 'Updating...' : 'Update Treasury Configuration'}

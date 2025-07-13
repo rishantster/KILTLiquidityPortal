@@ -389,6 +389,58 @@ export type InsertUserAnalytics = z.infer<typeof insertUserAnalyticsSchema>;
 export type UserAnalytics = typeof userAnalytics.$inferSelect;
 export type InsertFeeEvent = z.infer<typeof insertFeeEventSchema>;
 export type FeeEvent = typeof feeEvents.$inferSelect;
+
+// Admin operations tracking
+export const adminOperations = pgTable("admin_operations", {
+  id: serial("id").primaryKey(),
+  operation: text("operation").notNull(),
+  amount: numeric("amount", { precision: 20, scale: 8 }),
+  fromAddress: text("from_address"),
+  toAddress: text("to_address"),
+  transactionHash: text("transaction_hash"),
+  reason: text("reason"),
+  settings: text("settings"), // JSON string for program settings
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// Program settings
+export const programSettings = pgTable("program_settings", {
+  id: serial("id").primaryKey(),
+  programDuration: integer("program_duration").default(365).notNull(),
+  minTimeCoefficient: numeric("min_time_coefficient", { precision: 5, scale: 3 }).default('0.600').notNull(),
+  maxTimeCoefficient: numeric("max_time_coefficient", { precision: 5, scale: 3 }).default('1.000').notNull(),
+  liquidityWeight: numeric("liquidity_weight", { precision: 5, scale: 3 }).default('0.600').notNull(),
+  timeWeight: numeric("time_weight", { precision: 5, scale: 3 }).default('0.400').notNull(),
+  minimumPositionValue: numeric("minimum_position_value", { precision: 20, scale: 8 }).default('100').notNull(),
+  lockPeriod: integer("lock_period").default(90).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAdminOperationSchema = createInsertSchema(adminOperations).pick({
+  operation: true,
+  amount: true,
+  fromAddress: true,
+  toAddress: true,
+  transactionHash: true,
+  reason: true,
+  settings: true,
+});
+
+export const insertProgramSettingsSchema = createInsertSchema(programSettings).pick({
+  programDuration: true,
+  minTimeCoefficient: true,
+  maxTimeCoefficient: true,
+  liquidityWeight: true,
+  timeWeight: true,
+  minimumPositionValue: true,
+  lockPeriod: true,
+});
+
+export type InsertAdminOperation = z.infer<typeof insertAdminOperationSchema>;
+export type AdminOperation = typeof adminOperations.$inferSelect;
+
+export type InsertProgramSettings = z.infer<typeof insertProgramSettingsSchema>;
+export type ProgramSettings = typeof programSettings.$inferSelect;
 export type InsertPerformanceMetrics = z.infer<typeof insertPerformanceMetricsSchema>;
 export type LiquidityEvent = typeof liquidityEvents.$inferSelect;
 export type InsertLiquidityEvent = z.infer<typeof insertLiquidityEventSchema>;

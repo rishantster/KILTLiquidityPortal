@@ -21,6 +21,8 @@ import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
 import { rewardCalculationDemo } from "./reward-calculation-demo";
 import { treasuryService } from "./treasury-service";
+import { adminService } from "./admin-service";
+import { validateAdminCredentials, createAdminSession, requireAdminAuth } from "./admin-auth";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
@@ -1665,6 +1667,179 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Error validating treasury setup:', error);
       res.status(500).json({ error: 'Failed to validate treasury setup' });
+    }
+  });
+
+  // ===== ADMIN PANEL ROUTES =====
+  
+  // Admin login
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        res.status(400).json({ error: 'Username and password required' });
+        return;
+      }
+
+      if (validateAdminCredentials(username, password)) {
+        const token = createAdminSession(username);
+        res.json({
+          success: true,
+          token,
+          message: 'Admin login successful'
+        });
+      } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+      }
+    } catch (error) {
+      console.error('Admin login error:', error);
+      res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  // Get admin dashboard data
+  app.get("/api/admin/dashboard", requireAdminAuth, async (req, res) => {
+    try {
+      const stats = await adminService.getAdminTreasuryStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error getting admin dashboard:', error);
+      res.status(500).json({ error: 'Failed to load dashboard' });
+    }
+  });
+
+  // Update treasury address (admin only)
+  app.post("/api/admin/treasury/update-address", requireAdminAuth, async (req, res) => {
+    try {
+      const { newTreasuryAddress, ownerPrivateKey } = req.body;
+      
+      if (!newTreasuryAddress || !ownerPrivateKey) {
+        res.status(400).json({ error: 'Missing required parameters' });
+        return;
+      }
+
+      const result = await treasuryService.updateTreasuryAddress(
+        newTreasuryAddress,
+        ownerPrivateKey
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error updating treasury address:', error);
+      res.status(500).json({ error: 'Failed to update treasury address' });
+    }
+  });
+
+  // Add to treasury wallet
+  app.post("/api/admin/treasury/add", requireAdminAuth, async (req, res) => {
+    try {
+      const { amount, toAddress, privateKey, reason } = req.body;
+      
+      if (!amount || !toAddress || !privateKey) {
+        res.status(400).json({ error: 'Amount, treasury address, and private key required' });
+        return;
+      }
+
+      const result = await adminService.addToTreasury({
+        operation: 'add',
+        amount: parseFloat(amount),
+        toAddress,
+        privateKey,
+        reason: reason || 'Treasury funding'
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error adding to treasury:', error);
+      res.status(500).json({ error: 'Failed to add to treasury' });
+    }
+  });
+
+  // Remove from treasury wallet
+  app.post("/api/admin/treasury/remove", requireAdminAuth, async (req, res) => {
+    try {
+      const { amount, fromAddress, toAddress, privateKey, reason } = req.body;
+      
+      if (!amount || !fromAddress || !toAddress || !privateKey) {
+        res.status(400).json({ error: 'Amount, from address, to address, and private key required' });
+        return;
+      }
+
+      const result = await adminService.removeFromTreasury({
+        operation: 'remove',
+        amount: parseFloat(amount),
+        fromAddress,
+        toAddress,
+        privateKey,
+        reason: reason || 'Treasury withdrawal'
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error removing from treasury:', error);
+      res.status(500).json({ error: 'Failed to remove from treasury' });
+    }
+  });
+
+  // Transfer tokens between addresses
+  app.post("/api/admin/treasury/transfer", requireAdminAuth, async (req, res) => {
+    try {
+      const { amount, fromAddress, toAddress, privateKey, reason } = req.body;
+      
+      if (!amount || !fromAddress || !toAddress || !privateKey) {
+        res.status(400).json({ error: 'Amount, from address, to address, and private key required' });
+        return;
+      }
+
+      const result = await adminService.transferTokens({
+        operation: 'transfer',
+        amount: parseFloat(amount),
+        fromAddress,
+        toAddress,
+        privateKey,
+        reason: reason || 'Admin transfer'
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error transferring tokens:', error);
+      res.status(500).json({ error: 'Failed to transfer tokens' });
+    }
+  });
+
+  // Update program settings
+  app.post("/api/admin/program/settings", requireAdminAuth, async (req, res) => {
+    try {
+      const settings = req.body;
+      const result = await adminService.updateProgramSettings(settings);
+      res.json(result);
+    } catch (error) {
+      console.error('Error updating program settings:', error);
+      res.status(500).json({ error: 'Failed to update program settings' });
+    }
+  });
+
+  // Get program settings
+  app.get("/api/admin/program/settings", requireAdminAuth, async (req, res) => {
+    try {
+      const settings = await adminService.getCurrentProgramSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error('Error getting program settings:', error);
+      res.status(500).json({ error: 'Failed to get program settings' });
+    }
+  });
+
+  // Get operation history
+  app.get("/api/admin/operations", requireAdminAuth, async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const history = await adminService.getOperationHistory(limit);
+      res.json(history);
+    } catch (error) {
+      console.error('Error getting operation history:', error);
+      res.status(500).json({ error: 'Failed to get operation history' });
     }
   });
 

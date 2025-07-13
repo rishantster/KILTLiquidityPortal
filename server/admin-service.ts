@@ -64,8 +64,8 @@ export class AdminService {
             treasuryWalletAddress: treasuryAddress,
             totalAllocation: config.totalAllocation.toString(),
             dailyRewardsCap: dailyRewardsCap.toString(),
-            programStartDate: config.programStartDate,
-            programEndDate: config.programEndDate,
+            programStartDate: new Date(config.programStartDate),
+            programEndDate: new Date(config.programEndDate),
             programDurationDays: config.programDurationDays,
             isActive: config.isActive,
             updatedAt: new Date()
@@ -77,8 +77,8 @@ export class AdminService {
           treasuryWalletAddress: treasuryAddress,
           totalAllocation: config.totalAllocation.toString(),
           dailyRewardsCap: dailyRewardsCap.toString(),
-          programStartDate: config.programStartDate,
-          programEndDate: config.programEndDate,
+          programStartDate: new Date(config.programStartDate),
+          programEndDate: new Date(config.programEndDate),
           programDurationDays: config.programDurationDays,
           isActive: config.isActive,
           createdBy: performedBy
@@ -89,7 +89,7 @@ export class AdminService {
       await this.logAdminOperation({
         operationType: 'treasury_configuration',
         operationDetails: JSON.stringify(config),
-        treasuryAddress: config.treasuryWalletAddress,
+        treasuryAddress: treasuryAddress,
         amount: config.totalAllocation.toString(),
         reason: 'Treasury configuration updated',
         performedBy,

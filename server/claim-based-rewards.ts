@@ -73,12 +73,9 @@ export class ClaimBasedRewards {
         };
       }
 
-      // Calculate claimable rewards based on 7-day lock from first reward
+      // FIXED LOGIC: 7-day initial lock, then daily claims
       const now = new Date();
-      let totalClaimable = 0;
-      let nearestUnlockDate: Date | null = null;
-      let hasAnyUnlockedRewards = false;
-
+      
       // Find the earliest reward (when lock period started)
       const earliestReward = userRewards.reduce((earliest, reward) => {
         return reward.createdAt < earliest.createdAt ? reward : earliest;
@@ -88,34 +85,31 @@ export class ClaimBasedRewards {
       const lockExpiryDate = new Date(earliestReward.createdAt);
       lockExpiryDate.setDate(lockExpiryDate.getDate() + this.LOCK_PERIOD_DAYS);
       
-      // Check if 7-day lock period has expired
+      // Check if initial 7-day lock period has expired
       if (now >= lockExpiryDate) {
-        // All rewards are unlocked - user can claim everything
-        totalClaimable = userRewards.reduce((sum, reward) => {
-          return sum + parseFloat(reward.dailyAmount || '0');
+        // After Day 8: User can claim ALL accumulated rewards (daily claims)
+        const totalClaimable = userRewards.reduce((sum, reward) => {
+          return sum + parseFloat(reward.dailyRewardAmount || '0');
         }, 0);
-        hasAnyUnlockedRewards = true;
+        
+        return {
+          canClaim: totalClaimable > 0,
+          lockExpired: true,
+          daysRemaining: 0,
+          totalClaimable,
+          lockExpiryDate
+        };
       } else {
-        // Still in lock period - track when it expires
-        nearestUnlockDate = lockExpiryDate;
+        // Still in initial 7-day lock period
+        const daysRemaining = Math.ceil((lockExpiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        return {
+          canClaim: false,
+          lockExpired: false,
+          daysRemaining,
+          totalClaimable: 0,
+          lockExpiryDate
+        };
       }
-
-      // Calculate days remaining until next unlock
-      let daysRemaining = 0;
-      let finalLockExpiryDate = new Date();
-      
-      if (nearestUnlockDate) {
-        daysRemaining = Math.ceil((nearestUnlockDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        finalLockExpiryDate = nearestUnlockDate;
-      }
-
-      return {
-        canClaim: hasAnyUnlockedRewards && totalClaimable > 0,
-        lockExpired: hasAnyUnlockedRewards,
-        daysRemaining: hasAnyUnlockedRewards ? 0 : daysRemaining,
-        totalClaimable,
-        lockExpiryDate: finalLockExpiryDate
-      };
     } catch (error) {
       console.error('Error checking claimability:', error);
       return {
@@ -159,7 +153,7 @@ export class ClaimBasedRewards {
         };
       }
 
-      // Get all unclaimed rewards that are 7+ days old (claimable)
+      // Get all unclaimed rewards for this user
       const userRewards = await db.select()
         .from(rewards)
         .where(
@@ -196,7 +190,7 @@ export class ClaimBasedRewards {
         const daysRemaining = Math.ceil((lockExpiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return {
           success: false,
-          error: `Lock period active. ${daysRemaining} days remaining until you can claim all accumulated rewards.`,
+          error: `Lock period active. ${daysRemaining} days remaining until you can claim rewards.`,
           amount: 0,
           recipient: userAddress,
           lockExpired: false,
@@ -204,7 +198,7 @@ export class ClaimBasedRewards {
         };
       }
 
-      // All rewards are claimable after 7-day lock period
+      // After Day 8: All rewards are claimable (daily claim pattern)
       const claimableRewards = userRewards; // All rewards are claimable
 
       // Calculate total amount to claim (all accumulated rewards)
@@ -317,8 +311,8 @@ export class ClaimBasedRewards {
       const claimed = allRewards.filter(r => r.claimed);
       const pending = allRewards.filter(r => !r.claimed);
       
-      const totalClaimed = claimed.reduce((sum, r) => sum + parseFloat(r.dailyAmount || '0'), 0);
-      const lockedRewards = pending.reduce((sum, r) => sum + parseFloat(r.dailyAmount || '0'), 0);
+      const totalClaimed = claimed.reduce((sum, r) => sum + parseFloat(r.dailyRewardAmount || '0'), 0);
+      const lockedRewards = pending.reduce((sum, r) => sum + parseFloat(r.dailyRewardAmount || '0'), 0);
 
       return {
         totalClaimed,

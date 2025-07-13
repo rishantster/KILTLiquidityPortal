@@ -496,6 +496,91 @@ export class SmartContractService {
   }
 
   /**
+   * Check reward wallet balance and sufficiency
+   */
+  async checkRewardWalletBalance(): Promise<{ balance: number; sufficient: boolean }> {
+    if (!REWARD_WALLET_ADDRESS) {
+      return { balance: 0, sufficient: false };
+    }
+
+    try {
+      const balance = await this.getKiltTokenBalance(REWARD_WALLET_ADDRESS);
+      const sufficient = balance >= 100000; // Consider sufficient if >= 100k KILT
+      
+      return { balance, sufficient };
+    } catch (error: any) {
+      console.error('Failed to check reward wallet balance:', error);
+      return { balance: 0, sufficient: false };
+    }
+  }
+
+  /**
+   * Get program info in legacy format for compatibility
+   */
+  async getProgramInfo(): Promise<{
+    startTime: number;
+    endTime: number;
+    totalAllocated: number;
+    totalDistributed: number;
+    remainingBudget: number;
+    currentRewardWallet: string;
+    rewardWalletBalance: number;
+    dailyRewardBudget: number;
+    programDuration: number;
+    lockPeriod: number;
+    isActive: boolean;
+  }> {
+    if (!this.isContractDeployed) {
+      // Return fallback data when contract not deployed
+      return {
+        startTime: Math.floor(Date.now() / 1000),
+        endTime: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+        totalAllocated: 2905600,
+        totalDistributed: 0,
+        remainingBudget: 2905600,
+        currentRewardWallet: REWARD_WALLET_ADDRESS || '0x0000000000000000000000000000000000000000',
+        rewardWalletBalance: 0,
+        dailyRewardBudget: 7960,
+        programDuration: 365,
+        lockPeriod: 7,
+        isActive: true
+      };
+    }
+
+    try {
+      const stats = await this.getSmartContractStats();
+      return {
+        startTime: stats.programInfo.startTime,
+        endTime: stats.programInfo.endTime,
+        totalAllocated: stats.programInfo.totalAllocated,
+        totalDistributed: stats.programInfo.totalDistributed,
+        remainingBudget: stats.programInfo.remainingBudget,
+        currentRewardWallet: stats.programInfo.currentRewardWallet,
+        rewardWalletBalance: stats.programInfo.rewardWalletBalance,
+        dailyRewardBudget: stats.programInfo.totalAllocated / 365,
+        programDuration: 365,
+        lockPeriod: 7,
+        isActive: true
+      };
+    } catch (error: any) {
+      console.error('Failed to get program info:', error);
+      return {
+        startTime: Math.floor(Date.now() / 1000),
+        endTime: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+        totalAllocated: 2905600,
+        totalDistributed: 0,
+        remainingBudget: 2905600,
+        currentRewardWallet: REWARD_WALLET_ADDRESS || '0x0000000000000000000000000000000000000000',
+        rewardWalletBalance: 0,
+        dailyRewardBudget: 7960,
+        programDuration: 365,
+        lockPeriod: 7,
+        isActive: true
+      };
+    }
+  }
+
+  /**
    * Emergency pause contract
    */
   async pauseContract(): Promise<{ success: boolean; transactionHash?: string; error?: string }> {

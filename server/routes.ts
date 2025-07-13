@@ -20,6 +20,7 @@ import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
 import { rewardCalculationDemo } from "./reward-calculation-demo";
+import { treasuryService } from "./treasury-service";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
@@ -1550,6 +1551,120 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         success: false,
         error: 'Failed to generate comparison'
       });
+    }
+  });
+
+  // ===== TREASURY MANAGEMENT ROUTES =====
+  
+  // Get current treasury information
+  app.get("/api/treasury/info", async (req, res) => {
+    try {
+      const treasuryInfo = await treasuryService.getTreasuryInfo();
+      res.json(treasuryInfo);
+    } catch (error) {
+      console.error('Error getting treasury info:', error);
+      res.status(500).json({ error: 'Failed to get treasury information' });
+    }
+  });
+
+  // Get treasury statistics
+  app.get("/api/treasury/stats", async (req, res) => {
+    try {
+      const stats = await treasuryService.getTreasuryStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error getting treasury stats:', error);
+      res.status(500).json({ error: 'Failed to get treasury statistics' });
+    }
+  });
+
+  // Get contract owner address
+  app.get("/api/treasury/owner", async (req, res) => {
+    try {
+      const owner = await treasuryService.getContractOwner();
+      res.json({ owner });
+    } catch (error) {
+      console.error('Error getting contract owner:', error);
+      res.status(500).json({ error: 'Failed to get contract owner' });
+    }
+  });
+
+  // Update treasury wallet address (requires owner private key)
+  app.post("/api/treasury/update-address", async (req, res) => {
+    try {
+      const { newTreasuryAddress, ownerPrivateKey } = req.body;
+      
+      if (!newTreasuryAddress || !ownerPrivateKey) {
+        res.status(400).json({ error: 'Missing required parameters' });
+        return;
+      }
+
+      const result = await treasuryService.updateTreasuryAddress(
+        newTreasuryAddress,
+        ownerPrivateKey
+      );
+
+      if (result.success) {
+        res.json({
+          success: true,
+          message: 'Treasury address updated successfully',
+          transactionHash: result.transactionHash,
+          newAddress: newTreasuryAddress
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+    } catch (error) {
+      console.error('Error updating treasury address:', error);
+      res.status(500).json({ error: 'Failed to update treasury address' });
+    }
+  });
+
+  // Setup treasury allowance (requires treasury private key)
+  app.post("/api/treasury/setup-allowance", async (req, res) => {
+    try {
+      const { treasuryPrivateKey, allowanceAmount = 2905600 } = req.body;
+      
+      if (!treasuryPrivateKey) {
+        res.status(400).json({ error: 'Treasury private key required' });
+        return;
+      }
+
+      const result = await treasuryService.setupTreasuryAllowance(
+        treasuryPrivateKey,
+        allowanceAmount
+      );
+
+      if (result.success) {
+        res.json({
+          success: true,
+          message: 'Treasury allowance setup successfully',
+          transactionHash: result.transactionHash,
+          allowanceAmount
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+    } catch (error) {
+      console.error('Error setting up treasury allowance:', error);
+      res.status(500).json({ error: 'Failed to setup treasury allowance' });
+    }
+  });
+
+  // Validate treasury setup
+  app.get("/api/treasury/validate", async (req, res) => {
+    try {
+      const validation = await treasuryService.validateTreasurySetup();
+      res.json(validation);
+    } catch (error) {
+      console.error('Error validating treasury setup:', error);
+      res.status(500).json({ error: 'Failed to validate treasury setup' });
     }
   });
 

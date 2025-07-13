@@ -252,12 +252,14 @@ export function RewardsTracking() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
               <Award className="h-4 w-4 text-yellow-400" />
-              <span>Claim Rewards</span>
+              <span>{(rewardStats?.totalAccumulated || 0) > 0 ? 'Claim Rewards' : 'Reward Status'}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 p-3">
             <div className="text-center py-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
-              <div className="text-white/60 text-xs mb-1 font-medium">Available Now</div>
+              <div className="text-white/60 text-xs mb-1 font-medium">
+                {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
+              </div>
               <div className="text-white text-xl font-bold tabular-nums mb-2 flex items-center justify-center gap-2">
                 {totalClaimableAmount.toFixed(2)} 
                 <img 
@@ -301,8 +303,8 @@ export function RewardsTracking() {
                   </>
                 ) : (
                   <>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add liquidity to earn rewards
+                    <Clock className="h-4 w-4 mr-2" />
+                    No rewards accumulated yet
                   </>
                 )}
               </Button>

@@ -65,7 +65,13 @@ export function cleanupExpiredSessions(): void {
 export function requireAdminAuth(req: Request, res: Response, next: NextFunction): void {
   const token = req.headers.authorization?.replace('Bearer ', '');
   
-  if (!token || !validateAdminSession(token)) {
+  if (!token) {
+    res.status(401).json({ error: 'Unauthorized: Admin access required' });
+    return;
+  }
+  
+  const isValid = validateAdminSession(token);
+  if (!isValid) {
     res.status(401).json({ error: 'Unauthorized: Admin access required' });
     return;
   }

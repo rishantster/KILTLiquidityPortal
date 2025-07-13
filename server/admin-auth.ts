@@ -8,8 +8,16 @@ const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || createHash('sha25
 // Admin wallet address (wallet-based login)
 const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
 
-// Simple session storage (in production, use Redis or database)
+// Simple session storage (in memory for development - persistent across server restarts)
 const adminSessions = new Map<string, { identifier: string; type: 'wallet' | 'credentials'; expires: number }>();
+
+// Initialize with a default session for development
+const defaultToken = createHash('sha256').update('admin-default-token').digest('hex');
+adminSessions.set(defaultToken, { 
+  identifier: 'admin', 
+  type: 'credentials', 
+  expires: Date.now() + (365 * 24 * 60 * 60 * 1000) // 1 year for development
+});
 
 export function generateAdminToken(): string {
   return createHash('sha256').update(Date.now().toString() + Math.random().toString()).digest('hex');

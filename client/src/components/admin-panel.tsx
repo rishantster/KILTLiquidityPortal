@@ -171,6 +171,7 @@ export function AdminPanel() {
     onSuccess: (data) => {
       setAdminToken(data.token);
       localStorage.setItem('adminToken', data.token);
+      console.log('Admin login successful, token:', data.token);
       toast({
         title: "Success",
         description: data.message || "Admin access granted",
@@ -187,7 +188,11 @@ export function AdminPanel() {
 
   // Auto-login with default credentials if no token exists
   useEffect(() => {
-    if (!adminToken && !loginMutation.isPending && !loginMutation.isError) {
+    const storedToken = localStorage.getItem('adminToken');
+    if (!adminToken && storedToken) {
+      console.log('Using stored token:', storedToken);
+      setAdminToken(storedToken);
+    } else if (!adminToken && !storedToken && !loginMutation.isPending && !loginMutation.isError) {
       console.log('Auto-login attempt with default credentials');
       loginMutation.mutate({ username: 'admin', password: 'admin123' });
     }
@@ -554,11 +559,11 @@ export function AdminPanel() {
                   <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1">Annual Rewards Budget</p>
+                  <p className="text-white/70 text-xs mb-1">Total Rewards Budget</p>
                   <p className="text-white font-bold text-lg">
-                    {((adminStats?.treasury?.dailyRewardsCap || 7960) * 365).toFixed(0)} KILT
+                    {((adminStats?.treasury?.dailyRewardsCap || 7960) * (adminStats?.treasury?.programDuration || 365)).toLocaleString()} KILT
                   </p>
-                  <p className="text-purple-300 text-xs">Yearly Distribution</p>
+                  <p className="text-purple-300 text-xs">Program Distribution</p>
                 </div>
 
                 {/* Program Duration */}

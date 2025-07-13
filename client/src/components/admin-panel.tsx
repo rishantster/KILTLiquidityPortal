@@ -457,6 +457,12 @@ export function AdminPanel() {
             {/* Credentials Login */}
             {loginMethod === 'credentials' && (
               <div className="space-y-4">
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Default credentials:</strong> admin / admin123
+                  </AlertDescription>
+                </Alert>
                 <div>
                   <Label htmlFor="username" className="text-white">Username</Label>
                   <Input
@@ -465,7 +471,7 @@ export function AdminPanel() {
                     value={loginForm.username}
                     onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                     className="bg-gray-800 border-gray-700 text-white"
-                    placeholder="Enter username"
+                    placeholder="Enter username (default: admin)"
                   />
                 </div>
                 <div>
@@ -477,7 +483,7 @@ export function AdminPanel() {
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                       className="bg-gray-800 border-gray-700 text-white pr-10"
-                      placeholder="Enter password"
+                      placeholder="Enter password (default: admin123)"
                     />
                     <button
                       type="button"
@@ -488,6 +494,13 @@ export function AdminPanel() {
                     </button>
                   </div>
                 </div>
+                <Button 
+                  onClick={() => setLoginForm({ username: 'admin', password: 'admin123' })}
+                  variant="outline"
+                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Use Default Credentials
+                </Button>
               </div>
             )}
 

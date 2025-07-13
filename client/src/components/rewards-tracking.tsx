@@ -306,7 +306,11 @@ export function RewardsTracking() {
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-white/60">Lock Period:</span>
-                <span className="text-white">90 days</span>
+                <span className="text-white">90 days per reward</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Claim Type:</span>
+                <span className="text-white">Rolling unlocks</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-white/60">Network:</span>
@@ -318,7 +322,14 @@ export function RewardsTracking() {
               </div>
             </div>
             
-            {totalClaimableAmount === 0 && (
+            {!canClaim && daysRemaining > 0 && (
+              <div className="text-white/60 text-xs text-center mt-2 p-2 bg-blue-500/10 rounded border border-blue-500/20">
+                <p className="font-medium">Next reward unlocks in {daysRemaining} days</p>
+                <p className="text-white/40">Each daily reward has its own 90-day lock period</p>
+              </div>
+            )}
+            
+            {totalClaimableAmount === 0 && lockExpired && (
               <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
                 <p className="font-medium">Add liquidity to earn rewards</p>
               </div>

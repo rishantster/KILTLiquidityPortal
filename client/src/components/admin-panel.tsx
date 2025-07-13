@@ -562,27 +562,41 @@ export function AdminPanel() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Users className="w-5 h-5 text-purple-400" />
-                  How Claim-Based Rewards Work
+                  How Rolling Claims Work
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                    <div className="text-sm font-medium text-white">1. Earn Rewards</div>
-                    <div className="text-xs text-gray-400">Users provide liquidity and earn daily rewards</div>
+                    <div className="text-sm font-medium text-white">1. Daily Rewards</div>
+                    <div className="text-xs text-gray-400">Users earn rewards daily from liquidity provision</div>
                   </div>
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <Shield className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                    <div className="text-sm font-medium text-white">2. 90-Day Lock</div>
-                    <div className="text-xs text-gray-400">Rewards locked for 90 days from first reward</div>
+                    <div className="text-sm font-medium text-white">2. Individual Lock</div>
+                    <div className="text-xs text-gray-400">Each reward locked for 90 days from its creation</div>
                   </div>
                   <div className="text-center p-3 bg-gray-800 rounded">
-                    <CheckCircle className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                    <div className="text-sm font-medium text-white">3. Manual Claim</div>
-                    <div className="text-xs text-gray-400">User clicks "Claim Reward" to receive KILT tokens</div>
+                    <Unlock className="w-6 h-6 text-green-400 mx-auto mb-2" />
+                    <div className="text-sm font-medium text-white">3. Rolling Unlock</div>
+                    <div className="text-xs text-gray-400">Rewards unlock continuously as they age 90+ days</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-800 rounded">
+                    <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
+                    <div className="text-sm font-medium text-white">4. Claim Available</div>
+                    <div className="text-xs text-gray-400">User claims only unlocked rewards anytime</div>
                   </div>
                 </div>
+                
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Key Difference:</strong> Users don't wait 90 days to claim everything. 
+                    Instead, they can claim rewards continuously as each daily reward reaches 90 days old.
+                    This means after initial 90-day period, users can claim rewards regularly.
+                  </AlertDescription>
+                </Alert>
               </CardContent>
             </Card>
           </TabsContent>

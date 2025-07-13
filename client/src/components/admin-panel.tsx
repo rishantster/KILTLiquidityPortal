@@ -500,58 +500,58 @@ export function AdminPanel() {
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
+                <CardContent className="p-4 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex-1">
                       <p className="text-sm text-gray-400">Treasury Balance</p>
                       <p className="text-xl font-bold text-white">
                         {adminStats?.treasury?.balance?.toFixed(0) || 0} KILT
                       </p>
                     </div>
-                    <Wallet className="w-8 h-8 text-emerald-400" />
+                    <Wallet className="w-8 h-8 text-emerald-400 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
+                <CardContent className="p-4 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex-1">
                       <p className="text-sm text-gray-400">Total Allocation</p>
                       <p className="text-xl font-bold text-white">
                         {adminStats?.treasury?.totalAllocation?.toFixed(0) || 2905600} KILT
                       </p>
                     </div>
-                    <DollarSign className="w-8 h-8 text-blue-400" />
+                    <DollarSign className="w-8 h-8 text-blue-400 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
+                <CardContent className="p-4 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex-1">
                       <p className="text-sm text-gray-400">Annual Rewards Budget</p>
                       <p className="text-xl font-bold text-white">
                         {((adminStats?.treasury?.dailyRewardsCap || 7960) * 365).toFixed(0)} KILT
                       </p>
                     </div>
-                    <TrendingUp className="w-8 h-8 text-purple-400" />
+                    <TrendingUp className="w-8 h-8 text-purple-400 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
+                <CardContent className="p-4 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex-1">
                       <p className="text-sm text-gray-400">Program Duration</p>
                       <p className="text-xl font-bold text-white">
                         {adminStats?.treasury?.programDuration || 365} days
                       </p>
                     </div>
-                    <Users className="w-8 h-8 text-green-400" />
+                    <Users className="w-8 h-8 text-green-400 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>

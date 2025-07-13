@@ -469,9 +469,12 @@ export function AdminPanel() {
 
         {/* Main Admin Tabs */}
         <Tabs defaultValue="treasury" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-800">
             <TabsTrigger value="treasury" className="text-gray-300 data-[state=active]:bg-gray-700">
               Treasury Config
+            </TabsTrigger>
+            <TabsTrigger value="distribution" className="text-gray-300 data-[state=active]:bg-gray-700">
+              Token Distribution
             </TabsTrigger>
             <TabsTrigger value="settings" className="text-gray-300 data-[state=active]:bg-gray-700">
               Program Settings
@@ -480,6 +483,204 @@ export function AdminPanel() {
               Operation History
             </TabsTrigger>
           </TabsList>
+
+          {/* Token Distribution Tab */}
+          <TabsContent value="distribution" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Distribution Control */}
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-green-400" />
+                    Automated Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Alert>
+                    <ShieldCheck className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>How it works:</strong> The system automatically scans for claimable rewards 
+                      and transfers KILT tokens from the treasury wallet to users' wallets every hour.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        // Start distribution scheduler
+                        fetch('/api/admin/distribution/start', {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${adminToken}`,
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ intervalMinutes: 60 })
+                        }).then(res => res.json()).then(data => {
+                          toast({
+                            title: "Success",
+                            description: data.message,
+                          });
+                        });
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Start Auto Distribution
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        // Stop distribution scheduler
+                        fetch('/api/admin/distribution/stop', {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${adminToken}`,
+                            'Content-Type': 'application/json'
+                          }
+                        }).then(res => res.json()).then(data => {
+                          toast({
+                            title: "Success",
+                            description: data.message,
+                          });
+                        });
+                      }}
+                      variant="outline"
+                      className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                    >
+                      Stop Auto Distribution
+                    </Button>
+                  </div>
+
+                  <Button
+                    onClick={() => {
+                      // Process rewards immediately
+                      fetch('/api/admin/distribution/process-now', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${adminToken}`,
+                          'Content-Type': 'application/json'
+                        }
+                      }).then(res => res.json()).then(data => {
+                        toast({
+                          title: "Distribution Complete",
+                          description: `Processed ${data.processed} rewards, ${data.successful} successful, ${data.totalAmount} KILT distributed`,
+                        });
+                      });
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    Process Rewards Now
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Manual Distribution */}
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Users className="w-5 h-5 text-purple-400" />
+                    Manual Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="manualRecipient" className="text-white">Recipient Address</Label>
+                    <Input
+                      id="manualRecipient"
+                      placeholder="0x..."
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="manualAmount" className="text-white">Amount (KILT)</Label>
+                    <Input
+                      id="manualAmount"
+                      type="number"
+                      placeholder="1000"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="manualReason" className="text-white">Reason</Label>
+                    <Input
+                      id="manualReason"
+                      placeholder="Manual reward distribution"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => {
+                      const recipient = (document.getElementById('manualRecipient') as HTMLInputElement)?.value;
+                      const amount = (document.getElementById('manualAmount') as HTMLInputElement)?.value;
+                      const reason = (document.getElementById('manualReason') as HTMLInputElement)?.value;
+                      
+                      if (!recipient || !amount) {
+                        toast({
+                          title: "Error",
+                          description: "Recipient address and amount are required",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+
+                      fetch('/api/admin/distribution/manual', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${adminToken}`,
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ recipientAddress: recipient, amount, reason })
+                      }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                          toast({
+                            title: "Success",
+                            description: `${data.amount} KILT distributed to ${data.recipient}`,
+                          });
+                        } else {
+                          toast({
+                            title: "Error",
+                            description: data.error,
+                            variant: "destructive",
+                          });
+                        }
+                      });
+                    }}
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                  >
+                    Execute Manual Distribution
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Distribution Statistics */}
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-blue-400" />
+                  Distribution Statistics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">0</div>
+                    <div className="text-sm text-gray-400">Total Distributed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">0</div>
+                    <div className="text-sm text-gray-400">Total Transactions</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-400">0</div>
+                    <div className="text-sm text-gray-400">Successful</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-400">0</div>
+                    <div className="text-sm text-gray-400">Failed</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Treasury Configuration Tab */}
           <TabsContent value="treasury" className="space-y-4">

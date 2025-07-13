@@ -23,6 +23,8 @@ import { rewardCalculationDemo } from "./reward-calculation-demo";
 import { treasuryService } from "./treasury-service";
 import { adminService } from "./admin-service";
 import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
+import { automatedTokenDistribution } from "./automated-token-distribution";
+import { distributionScheduler } from "./distribution-scheduler";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
@@ -1954,6 +1956,117 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Error during admin wallet login:', error);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // ===== TOKEN DISTRIBUTION ROUTES =====
+
+  // Start automated token distribution
+  app.post("/api/admin/distribution/start", requireAdminAuth, async (req, res) => {
+    try {
+      const { intervalMinutes = 60 } = req.body;
+      distributionScheduler.start(intervalMinutes);
+      res.json({ 
+        success: true, 
+        message: `Automated distribution started with ${intervalMinutes} minute intervals` 
+      });
+    } catch (error) {
+      console.error('Error starting distribution:', error);
+      res.status(500).json({ error: 'Failed to start automated distribution' });
+    }
+  });
+
+  // Stop automated token distribution
+  app.post("/api/admin/distribution/stop", requireAdminAuth, async (req, res) => {
+    try {
+      distributionScheduler.stop();
+      res.json({ 
+        success: true, 
+        message: 'Automated distribution stopped' 
+      });
+    } catch (error) {
+      console.error('Error stopping distribution:', error);
+      res.status(500).json({ error: 'Failed to stop automated distribution' });
+    }
+  });
+
+  // Get distribution scheduler status
+  app.get("/api/admin/distribution/status", requireAdminAuth, async (req, res) => {
+    try {
+      const status = distributionScheduler.getStatus();
+      res.json(status);
+    } catch (error) {
+      console.error('Error getting distribution status:', error);
+      res.status(500).json({ error: 'Failed to get distribution status' });
+    }
+  });
+
+  // Manual token distribution
+  app.post("/api/admin/distribution/manual", requireAdminAuth, async (req, res) => {
+    try {
+      const { recipientAddress, amount, reason } = req.body;
+      const performedBy = req.user?.identifier || 'unknown';
+      
+      if (!recipientAddress || !amount) {
+        res.status(400).json({ error: 'Recipient address and amount required' });
+        return;
+      }
+
+      const result = await automatedTokenDistribution.manualDistribution(
+        recipientAddress,
+        parseFloat(amount),
+        reason || 'Manual distribution',
+        performedBy
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error in manual distribution:', error);
+      res.status(500).json({ error: 'Failed to process manual distribution' });
+    }
+  });
+
+  // Get distribution statistics
+  app.get("/api/admin/distribution/stats", requireAdminAuth, async (req, res) => {
+    try {
+      const stats = await automatedTokenDistribution.getDistributionStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error getting distribution stats:', error);
+      res.status(500).json({ error: 'Failed to get distribution statistics' });
+    }
+  });
+
+  // Process rewards immediately (manual trigger)
+  app.post("/api/admin/distribution/process-now", requireAdminAuth, async (req, res) => {
+    try {
+      const results = await automatedTokenDistribution.processRewardDistributions();
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+      const totalAmount = results.reduce((sum, r) => sum + r.amount, 0);
+
+      res.json({
+        success: true,
+        processed: results.length,
+        successful,
+        failed,
+        totalAmount: totalAmount.toFixed(2),
+        details: results
+      });
+    } catch (error) {
+      console.error('Error processing rewards:', error);
+      res.status(500).json({ error: 'Failed to process rewards' });
+    }
+  });
+
+  // Get treasury balance for distribution
+  app.get("/api/admin/treasury/balance", requireAdminAuth, async (req, res) => {
+    try {
+      const balance = await automatedTokenDistribution.getTreasuryBalance();
+      res.json(balance);
+    } catch (error) {
+      console.error('Error getting treasury balance:', error);
+      res.status(500).json({ error: 'Failed to get treasury balance' });
     }
   });
 

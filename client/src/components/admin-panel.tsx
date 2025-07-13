@@ -575,12 +575,12 @@ export function AdminPanel() {
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <Shield className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
                     <div className="text-sm font-medium text-white">2. Individual Lock</div>
-                    <div className="text-xs text-gray-400">Each reward locked for 90 days from its creation</div>
+                    <div className="text-xs text-gray-400">Each reward locked for 30 days from its creation</div>
                   </div>
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <Unlock className="w-6 h-6 text-green-400 mx-auto mb-2" />
                     <div className="text-sm font-medium text-white">3. Rolling Unlock</div>
-                    <div className="text-xs text-gray-400">Rewards unlock continuously as they age 90+ days</div>
+                    <div className="text-xs text-gray-400">Rewards unlock continuously as they age 30+ days</div>
                   </div>
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
@@ -592,9 +592,9 @@ export function AdminPanel() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Key Difference:</strong> Users don't wait 90 days to claim everything. 
-                    Instead, they can claim rewards continuously as each daily reward reaches 90 days old.
-                    This means after initial 90-day period, users can claim rewards regularly.
+                    <strong>Key Difference:</strong> Users don't wait 30 days to claim everything. 
+                    Instead, they can claim rewards continuously as each daily reward reaches 30 days old.
+                    This means after initial 30-day period, users can claim rewards regularly.
                   </AlertDescription>
                 </Alert>
               </CardContent>

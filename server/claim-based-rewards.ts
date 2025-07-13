@@ -24,7 +24,7 @@ export interface RewardClaimability {
 export class ClaimBasedRewards {
   private provider: ethers.JsonRpcProvider;
   private readonly KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
-  private readonly LOCK_PERIOD_DAYS = 90;
+  private readonly LOCK_PERIOD_DAYS = 30;
   private readonly KILT_TOKEN_ABI = [
     'function transfer(address to, uint256 amount) returns (bool)',
     'function balanceOf(address account) view returns (uint256)',
@@ -37,7 +37,7 @@ export class ClaimBasedRewards {
   }
 
   /**
-   * Check if a user can claim their rewards (rolling 90-day lock per reward)
+   * Check if a user can claim their rewards (rolling 30-day lock per reward)
    */
   async checkClaimability(userAddress: string): Promise<RewardClaimability> {
     try {
@@ -47,7 +47,7 @@ export class ClaimBasedRewards {
         return {
           canClaim: false,
           lockExpired: false,
-          daysRemaining: 90,
+          daysRemaining: 30,
           totalClaimable: 0,
           lockExpiryDate: new Date()
         };
@@ -80,7 +80,7 @@ export class ClaimBasedRewards {
       let hasAnyUnlockedRewards = false;
 
       for (const reward of userRewards) {
-        // Calculate when this specific reward unlocks (90 days from its creation)
+        // Calculate when this specific reward unlocks (30 days from its creation)
         const rewardUnlockDate = new Date(reward.createdAt);
         rewardUnlockDate.setDate(rewardUnlockDate.getDate() + this.LOCK_PERIOD_DAYS);
         
@@ -118,7 +118,7 @@ export class ClaimBasedRewards {
       return {
         canClaim: false,
         lockExpired: false,
-        daysRemaining: 90,
+        daysRemaining: 30,
         totalClaimable: 0,
         lockExpiryDate: new Date()
       };
@@ -176,7 +176,7 @@ export class ClaimBasedRewards {
         };
       }
 
-      // Filter rewards that are 90+ days old (claimable)
+      // Filter rewards that are 30+ days old (claimable)
       const now = new Date();
       const claimableRewards = userRewards.filter(reward => {
         const rewardUnlockDate = new Date(reward.createdAt);
@@ -187,7 +187,7 @@ export class ClaimBasedRewards {
       if (claimableRewards.length === 0) {
         return {
           success: false,
-          error: 'No rewards have reached 90-day unlock period yet',
+          error: 'No rewards have reached 30-day unlock period yet',
           amount: 0,
           recipient: userAddress,
           lockExpired: false

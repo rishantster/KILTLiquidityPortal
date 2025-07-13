@@ -98,6 +98,19 @@ export function AdminPanel() {
   // Fetch admin stats
   const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({
     queryKey: ['/api/admin/dashboard'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch admin data');
+      }
+      
+      return response.json();
+    },
     enabled: !!adminToken,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -156,11 +169,21 @@ export function AdminPanel() {
   // Treasury configuration mutation (SECURE - NO PRIVATE KEYS)
   const treasuryConfigMutation = useMutation({
     mutationFn: async (config: any) => {
-      return await apiRequest('/api/admin/treasury/config', 'POST', config, {
+      const response = await fetch('/api/admin/treasury/config', {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${adminToken}`,
         },
+        body: JSON.stringify(config),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update treasury configuration');
+      }
+      
+      return response.json();
     },
     onSuccess: (data) => {
       toast({
@@ -181,11 +204,21 @@ export function AdminPanel() {
   // Program settings mutation
   const settingsMutation = useMutation({
     mutationFn: async (settings: any) => {
-      return await apiRequest('/api/admin/program/settings', 'POST', settings, {
+      const response = await fetch('/api/admin/program/settings', {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${adminToken}`,
         },
+        body: JSON.stringify(settings),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update program settings');
+      }
+      
+      return response.json();
     },
     onSuccess: (data) => {
       toast({
@@ -693,8 +726,8 @@ export function AdminPanel() {
                     <Input
                       id="totalAllocation"
                       type="number"
-                      value={treasuryConfigForm.totalAllocation}
-                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, totalAllocation: parseInt(e.target.value) })}
+                      value={treasuryConfigForm.totalAllocation || ''}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, totalAllocation: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
@@ -704,8 +737,8 @@ export function AdminPanel() {
                     <Input
                       id="programDuration"
                       type="number"
-                      value={treasuryConfigForm.programDurationDays}
-                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDurationDays: parseInt(e.target.value) })}
+                      value={treasuryConfigForm.programDurationDays || ''}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDurationDays: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
@@ -716,8 +749,8 @@ export function AdminPanel() {
                       id="dailyRewardsCap"
                       type="number"
                       step="0.01"
-                      value={treasuryConfigForm.dailyRewardsCap * 365}
-                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: parseFloat(e.target.value) / 365 })}
+                      value={treasuryConfigForm.dailyRewardsCap ? (treasuryConfigForm.dailyRewardsCap * 365).toFixed(2) : ''}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: (parseFloat(e.target.value) || 0) / 365 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                     <div className="text-sm text-gray-400 mt-1">

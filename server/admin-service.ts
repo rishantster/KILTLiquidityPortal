@@ -51,8 +51,8 @@ export class AdminService {
     try {
       console.log('Received config:', JSON.stringify(config, null, 2));
       
-      // Calculate daily rewards cap based on total allocation and program duration
-      const dailyRewardsCap = config.totalAllocation / config.programDurationDays;
+      // Calculate daily rewards cap from annual budget (if provided) or from total allocation
+      const dailyRewardsCap = config.dailyRewardsCap || (config.totalAllocation / config.programDurationDays);
       
       // Use default treasury address if none provided
       const treasuryAddress = config.treasuryWalletAddress || '0x1234567890123456789012345678901234567890';

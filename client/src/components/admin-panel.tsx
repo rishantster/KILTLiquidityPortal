@@ -125,7 +125,7 @@ export function AdminPanel() {
       setTreasuryConfigForm({
         treasuryWalletAddress: adminStats.treasury.address || '',
         totalAllocation: adminStats.treasury.totalAllocation || 2905600,
-        annualRewardsBudget: (adminStats.treasury.dailyRewardsCap || 7960) * 365,
+        annualRewardsBudget: (adminStats.treasury.dailyRewardsCap || 7960) * (adminStats.treasury.programDuration || 365),
         dailyRewardsCap: adminStats.treasury.dailyRewardsCap || 7960,
         programDurationDays: adminStats.treasury.programDuration || 365,
         programStartDate: startDate,
@@ -186,17 +186,14 @@ export function AdminPanel() {
     },
   });
 
-  // Auto-login with default credentials if no token exists
+  // Restore token from localStorage if available (but don't auto-login)
   useEffect(() => {
     const storedToken = localStorage.getItem('adminToken');
     if (!adminToken && storedToken) {
       console.log('Using stored token:', storedToken);
       setAdminToken(storedToken);
-    } else if (!adminToken && !storedToken && !loginMutation.isPending && !loginMutation.isError) {
-      console.log('Auto-login attempt with default credentials');
-      loginMutation.mutate({ username: 'admin', password: 'admin123' });
     }
-  }, [adminToken, loginMutation.isPending, loginMutation.isError]);
+  }, [adminToken]);
 
   // Treasury configuration mutation (SECURE - NO PRIVATE KEYS)
   const treasuryConfigMutation = useMutation({
@@ -357,7 +354,7 @@ export function AdminPanel() {
     
     const config = {
       ...treasuryConfigForm,
-      dailyRewardsCap: treasuryConfigForm.annualRewardsBudget / 365, // Calculate daily from annual
+      dailyRewardsCap: treasuryConfigForm.annualRewardsBudget / treasuryConfigForm.programDurationDays, // Calculate daily from program duration
       programStartDate: new Date(treasuryConfigForm.programStartDate),
       programEndDate: new Date(treasuryConfigForm.programEndDate)
     };

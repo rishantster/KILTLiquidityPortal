@@ -1675,21 +1675,26 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Admin login
   app.post("/api/admin/login", async (req, res) => {
     try {
+      console.log('Admin login request body:', req.body);
       const { username, password } = req.body;
       
       if (!username || !password) {
+        console.log('Missing credentials:', { username: !!username, password: !!password });
         res.status(400).json({ error: 'Username and password required' });
         return;
       }
 
+      console.log('Validating credentials for:', username);
       if (validateAdminCredentials(username, password)) {
         const token = createAdminSession(username);
+        console.log('Admin login successful, token generated');
         res.json({
           success: true,
           token,
           message: 'Admin login successful'
         });
       } else {
+        console.log('Invalid credentials provided');
         res.status(401).json({ error: 'Invalid credentials' });
       }
     } catch (error) {

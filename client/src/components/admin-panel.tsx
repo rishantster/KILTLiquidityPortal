@@ -53,7 +53,7 @@ interface AdminStats {
 
 export function AdminPanel() {
   const { isConnected, address, connect, disconnect } = useWallet();
-  const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '');
+  const [adminToken, setAdminToken] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
   // Wallet-only authentication
   
@@ -99,14 +99,13 @@ export function AdminPanel() {
   const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({
     queryKey: ['/api/admin/dashboard'],
     queryFn: async () => {
-      const token = adminToken || localStorage.getItem('adminToken');
-      if (!token) {
+      if (!adminToken) {
         throw new Error('No admin token available');
       }
       
       const response = await fetch('/api/admin/dashboard', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${adminToken}`,
         },
       });
       
@@ -116,7 +115,7 @@ export function AdminPanel() {
       
       return response.json();
     },
-    enabled: !!(adminToken || localStorage.getItem('adminToken')) && isAuthorized,
+    enabled: !!adminToken && isAuthorized,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
@@ -194,24 +193,16 @@ export function AdminPanel() {
     },
   });
 
-  // Restore token from localStorage if available and validate it
-  useEffect(() => {
-    const storedToken = localStorage.getItem('adminToken');
-    if (!adminToken && storedToken) {
-      setAdminToken(storedToken);
-      setIsAuthorized(true);
-    }
-  }, [adminToken]);
+  // No auto-login - always require explicit login
 
   // Treasury configuration mutation (SECURE - NO PRIVATE KEYS)
   const treasuryConfigMutation = useMutation({
     mutationFn: async (config: any) => {
-      const token = adminToken || localStorage.getItem('adminToken');
       const response = await fetch('/api/admin/treasury/config', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${adminToken}`,
         },
         body: JSON.stringify(config),
       });
@@ -310,14 +301,6 @@ export function AdminPanel() {
 
   // Handle treasury configuration update
   const handleTreasuryConfigUpdate = () => {
-    // Debug form values
-    console.log('Treasury Config Form Values:', {
-      treasuryWalletAddress: treasuryConfigForm.treasuryWalletAddress,
-      totalAllocation: treasuryConfigForm.totalAllocation,
-      programDurationDays: treasuryConfigForm.programDurationDays,
-      annualRewardsBudget: treasuryConfigForm.annualRewardsBudget,
-      programStartDate: treasuryConfigForm.programStartDate
-    });
     
     // Validate that Total Allocation >= Annual Rewards Budget
     if (treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget) {
@@ -365,8 +348,8 @@ export function AdminPanel() {
     return treasuryConfigForm.totalAllocation / treasuryConfigForm.programDurationDays;
   };
 
-  // Login UI
-  if (!adminToken && !localStorage.getItem('adminToken')) {
+  // Login UI - always require explicit login
+  if (!adminToken) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-gray-900 border-gray-800">

@@ -158,13 +158,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         });
         
         // Log the account switch for debugging
-        console.log(`Account switched from ${previousAddress} to ${newAddress}`);
+        // Account switched - logging removed for production
       }
     };
 
     const handleChainChanged = async (chainId: string) => {
       // Network changed event
-      console.log(`Network changed to chain ID: ${chainId}`);
+      // Network changed - logging removed for production
       
       // Force switch to Base mainnet if not already on it
       if (chainId !== '0x2105' && isConnected) {

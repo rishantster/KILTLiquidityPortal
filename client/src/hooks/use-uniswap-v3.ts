@@ -214,7 +214,7 @@ export function useUniswapV3() {
     onSuccess: (data) => {
       toast({
         title: "Position Created Successfully!",
-        description: `Position minted and reward tracking enabled. Lock period: 90 days.`,
+        description: `Position minted and reward tracking enabled. Lock period: 7 days.`,
       });
       
       // Invalidate all related queries

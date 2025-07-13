@@ -489,7 +489,7 @@ export function AdminPanel() {
             <Alert>
               <ShieldCheck className="h-4 w-4" />
               <AlertDescription>
-                <strong>Claim-Based Reward System:</strong> Users can only claim rewards after a 90-day lock period. 
+                <strong>Claim-Based Reward System:</strong> Users can only claim rewards after a 7-day lock period. 
                 No automatic transfers occur - users must manually click "Claim Reward" to receive their KILT tokens.
               </AlertDescription>
             </Alert>

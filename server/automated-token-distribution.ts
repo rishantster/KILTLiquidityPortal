@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { db } from './db';
 import { rewards, treasuryConfig, adminOperations } from '@shared/schema';
-import { eq, and, isNotNull } from 'drizzle-orm';
+import { eq, and, isNotNull, isNull } from 'drizzle-orm';
 
 export interface TokenDistributionConfig {
   treasuryWalletAddress: string;
@@ -54,8 +54,8 @@ export class AutomatedTokenDistribution {
         .from(rewards)
         .where(
           and(
-            eq(rewards.claimed, false),
-            isNotNull(rewards.dailyAmount)
+            isNull(rewards.claimedAt),
+            isNotNull(rewards.dailyRewardAmount)
           )
         );
 
@@ -78,9 +78,7 @@ export class AutomatedTokenDistribution {
           if (result.success) {
             await db.update(rewards)
               .set({ 
-                claimed: true,
-                claimedAt: new Date(),
-                transactionHash: result.transactionHash
+                claimedAt: new Date()
               })
               .where(eq(rewards.id, reward.id));
           }
@@ -89,7 +87,7 @@ export class AutomatedTokenDistribution {
           results.push({
             success: false,
             error: error instanceof Error ? error.message : 'Unknown error',
-            amount: Number(reward.dailyAmount),
+            amount: Number(reward.dailyRewardAmount),
             recipient: reward.userAddress || 'unknown'
           });
         }
@@ -120,7 +118,7 @@ export class AutomatedTokenDistribution {
       const simulatedResult: DistributionResult = {
         success: true,
         transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
-        amount: Number(reward.dailyAmount),
+        amount: Number(reward.dailyRewardAmount),
         recipient: reward.userAddress || 'unknown',
         gasUsed: 21000
       };
@@ -133,7 +131,7 @@ export class AutomatedTokenDistribution {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        amount: Number(reward.dailyAmount),
+        amount: Number(reward.dailyRewardAmount),
         recipient: reward.userAddress || 'unknown'
       };
     }

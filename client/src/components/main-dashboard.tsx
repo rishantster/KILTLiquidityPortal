@@ -348,7 +348,7 @@ export function MainDashboard() {
                   <div className="pt-8 text-center">
                     <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
                     <p className="text-emerald-200/80 text-sm leading-relaxed">
-                      Receive rewards from 1% of total KILT supply with secure 90-day token locking mechanism.
+                      Receive rewards from 1% of total KILT supply with secure 7-day token locking mechanism.
                     </p>
                   </div>
                 </div>

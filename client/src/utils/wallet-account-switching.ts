@@ -41,7 +41,7 @@ export class WalletAccountSwitchingTest {
     ethereum.on('accountsChanged', this.handleAccountsChanged.bind(this));
     ethereum.on('chainChanged', this.handleChainChanged.bind(this));
     
-    console.log('🔍 Wallet account switching monitoring started');
+    // Wallet account switching monitoring started
   }
 
   /**
@@ -57,7 +57,7 @@ export class WalletAccountSwitchingTest {
     }
     
     this.isListening = false;
-    console.log('🔍 Wallet account switching monitoring stopped');
+    // Wallet account switching monitoring stopped
   }
 
   /**
@@ -107,18 +107,14 @@ export class WalletAccountSwitchingTest {
       }
     });
     
-    console.log('🔄 Account switch detected:', {
-      from: previousAddress,
-      to: currentAddress,
-      type: eventType
-    });
+    // Account switch detected - logging removed for production
   }
 
   /**
    * Handle chain changed event from wallet
    */
   private handleChainChanged(chainId: string): void {
-    console.log('🔗 Chain changed to:', chainId);
+    // Chain changed - logging removed for production
   }
 
   /**
@@ -145,7 +141,7 @@ export class WalletAccountSwitchingTest {
       return;
     }
     
-    console.log('🧪 Simulating account switch to:', newAddress);
+    // Simulating account switch - logging removed for production
     this.handleAccountsChanged([newAddress]);
   }
 

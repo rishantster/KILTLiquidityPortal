@@ -1709,7 +1709,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
             message: 'Admin login successful'
           });
         } else {
-          console.log('Invalid credentials provided');
+          // Invalid credentials - security logging removed for production
           res.status(401).json({ error: 'Invalid credentials' });
         }
         return;

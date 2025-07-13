@@ -252,7 +252,7 @@ export function PositionRegistration() {
             <AlertDescription className="text-emerald-100 text-xs">
               Already have KILT liquidity positions on Uniswap? Register them here to start earning treasury rewards!
               <div className="mt-1.5 text-xs text-emerald-200/80">
-                <div>• 90-day lock period • Immediate reward accrual • $100 minimum value</div>
+                <div>• 7-day lock period • Immediate reward accrual • $100 minimum value</div>
                 <div>• Auto-validation for full range positions • Historical verification</div>
               </div>
             </AlertDescription>

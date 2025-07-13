@@ -68,9 +68,40 @@ export class RewardService {
   private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
   
-  // Liquidity + Duration Weighted Rule parameters
-  private readonly LIQUIDITY_WEIGHT = 0.6; // w1 - weight for liquidity provided
-  private readonly TIME_WEIGHT = 0.4; // w2 - weight for days active
+  // New Formula Parameters: R_u = (L_u/L_T) * (w1 + (D_u/365)*1-w1) * R/365 * IRM
+  private readonly BASE_LIQUIDITY_WEIGHT = 0.6; // w1 - base liquidity weight
+
+  /**
+   * Calculate daily rewards using the new formula:
+   * R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+   * 
+   * @param userLiquidity - L_u: User's liquidity amount in USD
+   * @param totalLiquidity - L_T: Total liquidity in the system
+   * @param daysActive - D_u: Days the user has been active
+   * @param inRangeMultiplier - IRM: In-range multiplier (0.0 - 1.0)
+   * @returns Daily reward amount in KILT tokens
+   */
+  private calculateDailyRewardByFormula(
+    userLiquidity: number,
+    totalLiquidity: number,
+    daysActive: number,
+    inRangeMultiplier: number
+  ): number {
+    // Handle edge cases
+    if (totalLiquidity === 0 || userLiquidity === 0 || inRangeMultiplier === 0) {
+      return 0;
+    }
+
+    // Formula components
+    const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
+    const timeProgression = this.BASE_LIQUIDITY_WEIGHT + (daysActive / 365) * (1 - this.BASE_LIQUIDITY_WEIGHT); // w1 + (D_u/365)*(1-w1)
+    const dailyBudgetRate = this.TREASURY_ALLOCATION / 365; // R/365
+    
+    // Final calculation: R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+    const dailyReward = liquidityShare * timeProgression * dailyBudgetRate * inRangeMultiplier;
+    
+    return Math.max(0, dailyReward);
+  }
 
   /**
    * Calculate proportional reward multiplier based on liquidity share
@@ -296,13 +327,15 @@ export class RewardService {
     // Find user's ranking position
     const userRank = allParticipants.findIndex(pos => pos.userId === userId && pos.nftTokenId === nftTokenId) + 1;
     
-    // Calculate proportional reward formula with in-range adjustment
-    // R_u = (w1 * L_u/T_total + w2 * D_u/365) * R/365 * inRangeMultiplier
+    // Calculate rewards using the new formula: R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
     let dailyRewards = 0;
     let effectiveAPR = 0;
     let tradingFeeAPR = 0;
     let incentiveAPR = 0;
     let totalAPR = 0;
+    let liquidityShare = 0;
+    let timeProgression = this.BASE_LIQUIDITY_WEIGHT;
+    let inRangeMultiplier = 0;
     let aprBreakdown = {
       poolVolume24h: 0,
       poolTVL: 0,
@@ -316,18 +349,21 @@ export class RewardService {
     };
     
     if (totalActiveLiquidity > 0 && positionValueUSD > 0) {
-      const liquidityShare = positionValueUSD / totalActiveLiquidity;
-      const timeFactor = Math.min(daysStaked / this.PROGRAM_DURATION_DAYS, 1);
+      liquidityShare = positionValueUSD / totalActiveLiquidity;
       
       // Get in-range multiplier based on position's current range status
-      const inRangeMultiplier = await this.getInRangeMultiplier(nftTokenId);
+      inRangeMultiplier = await this.getInRangeMultiplier(nftTokenId);
       
-      // Calculate base component: w1 * L_u/T_total + w2 * D_u/365
-      const baseComponent = (this.LIQUIDITY_WEIGHT * liquidityShare) + (this.TIME_WEIGHT * timeFactor);
+      // Calculate daily rewards using the new formula
+      dailyRewards = this.calculateDailyRewardByFormula(
+        positionValueUSD,
+        totalActiveLiquidity,
+        daysStaked,
+        inRangeMultiplier
+      );
       
-      // Calculate daily rewards using proportional distribution with in-range adjustment
-      // R_u = base_component * R/365 * inRangeMultiplier
-      dailyRewards = baseComponent * this.DAILY_BUDGET * inRangeMultiplier;
+      // Calculate time progression for display
+      timeProgression = this.BASE_LIQUIDITY_WEIGHT + (daysStaked / 365) * (1 - this.BASE_LIQUIDITY_WEIGHT);
       
       // Calculate incentive APR based on daily rewards with reasonable caps
       const annualRewards = dailyRewards * 365;
@@ -357,12 +393,12 @@ export class RewardService {
             poolVolume24h: fullAPR.breakdown.poolVolume24h,
             poolTVL: fullAPR.breakdown.poolTVL,
             feeRate: fullAPR.breakdown.feeRate,
-            liquidityShare: fullAPR.breakdown.liquidityShare,
-            timeInRangeRatio: fullAPR.breakdown.timeInRangeRatio,
+            liquidityShare: liquidityShare,
+            timeInRangeRatio: inRangeMultiplier,
             concentrationFactor: fullAPR.breakdown.concentrationFactor,
             dailyFeeEarnings: fullAPR.breakdown.dailyFeeEarnings,
-            dailyIncentiveRewards: fullAPR.breakdown.dailyIncentiveRewards,
-            isInRange: fullAPR.breakdown.isInRange
+            dailyIncentiveRewards: dailyRewards,
+            isInRange: inRangeMultiplier > 0
           };
         } catch (error) {
           console.error('Error calculating full APR:', error);
@@ -386,8 +422,8 @@ export class RewardService {
     const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity);
 
     return {
-      baseAPR: effectiveAPR, // Now calculated from proportional system
-      timeMultiplier: timeFactor, // Now 0-1 normalized time factor
+      baseAPR: effectiveAPR, // Now calculated from new formula
+      timeMultiplier: timeProgression, // Now w1 + (D_u/365)*(1-w1)
       sizeMultiplier: liquidityShare, // Now liquidity share multiplier
       effectiveAPR,
       tradingFeeAPR,

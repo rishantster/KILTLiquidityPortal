@@ -67,9 +67,40 @@ export class FixedRewardService {
   private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
   
-  // Multiplicative Time Coefficient parameters
-  private readonly MIN_TIME_COEFFICIENT = 0.6; // Minimum 60% liquidity recognition on day 1
-  private readonly MAX_TIME_COEFFICIENT = 1.0; // Maximum 100% liquidity recognition on day 365
+  // New Formula Parameters: R_u = (L_u/L_T) * (w1 + (D_u/365)*1-w1) * R/365 * IRM
+  private readonly BASE_LIQUIDITY_WEIGHT = 0.6; // w1 - base liquidity weight
+
+  /**
+   * Calculate daily rewards using the new formula:
+   * R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+   * 
+   * @param userLiquidity - L_u: User's liquidity amount in USD
+   * @param totalLiquidity - L_T: Total liquidity in the system
+   * @param daysActive - D_u: Days the user has been active
+   * @param inRangeMultiplier - IRM: In-range multiplier (0.0 - 1.0)
+   * @returns Daily reward amount in KILT tokens
+   */
+  private calculateDailyRewardByFormula(
+    userLiquidity: number,
+    totalLiquidity: number,
+    daysActive: number,
+    inRangeMultiplier: number
+  ): number {
+    // Handle edge cases
+    if (totalLiquidity === 0 || userLiquidity === 0 || inRangeMultiplier === 0) {
+      return 0;
+    }
+
+    // Formula components
+    const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
+    const timeProgression = this.BASE_LIQUIDITY_WEIGHT + (daysActive / 365) * (1 - this.BASE_LIQUIDITY_WEIGHT); // w1 + (D_u/365)*(1-w1)
+    const dailyBudgetRate = this.TREASURY_ALLOCATION / 365; // R/365
+    
+    // Final calculation: R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+    const dailyReward = liquidityShare * timeProgression * dailyBudgetRate * inRangeMultiplier;
+    
+    return Math.max(0, dailyReward);
+  }
 
   /**
    * Calculate proportional reward multiplier based on liquidity share
@@ -222,24 +253,20 @@ export class FixedRewardService {
       // Calculate liquidity weight (proportional to total liquidity)
       const liquidityWeight = totalActiveLiquidity > 0 ? currentValueUSD / totalActiveLiquidity : 0;
       
-      // Calculate time-weighted coefficient using improved formula:
-      // R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
-      // Where w1 is minimum recognition (0.6) and grows to 1.0 over time
-      const w1 = this.MIN_TIME_COEFFICIENT; // 0.6
-      const timeRatio = Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1);
-      const timeWeightedCoefficient = w1 + (timeRatio * (1 - w1));
-      
       // Get in-range multiplier
       const inRangeMultiplier = await this.getInRangeMultiplier(nftTokenId);
       
-      // Calculate daily rewards using improved formula:
+      // Calculate daily rewards using the new formula:
       // R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
-      const dailyRewards = (
-        liquidityWeight * 
-        timeWeightedCoefficient * 
-        this.DAILY_BUDGET * 
+      const dailyRewards = this.calculateDailyRewardByFormula(
+        currentValueUSD,
+        totalActiveLiquidity,
+        daysActive,
         inRangeMultiplier
       );
+      
+      // Calculate time progression for display
+      const timeProgression = this.BASE_LIQUIDITY_WEIGHT + (daysActive / 365) * (1 - this.BASE_LIQUIDITY_WEIGHT);
       
       // Calculate effective APR
       const effectiveAPR = currentValueUSD > 0 ? (dailyRewards * 365) / currentValueUSD : 0;
@@ -253,7 +280,7 @@ export class FixedRewardService {
       
       return {
         baseAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
-        timeMultiplier: Math.round(timeWeightedCoefficient * 10000) / 10000, // 4 decimal places
+        timeMultiplier: Math.round(timeProgression * 10000) / 10000, // 4 decimal places
         sizeMultiplier: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
         effectiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
         tradingFeeAPR: 0,

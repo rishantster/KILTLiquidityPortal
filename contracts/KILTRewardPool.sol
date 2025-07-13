@@ -9,8 +9,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title KILTRewardPool
- * @dev Smart contract for KILT Liquidity Incentive Program with 90-day lock
- * Implements Top 100 ranking system with Liquidity + Duration Weighted Rule
+ * @dev Smart contract for KILT Liquidity Incentive Program with 7-day rolling claims
+ * Implements unlimited participant proportional reward system
  */
 contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     using SafeERC20 for IERC20;
@@ -21,16 +21,15 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     // Reward wallet address (separate from contract funding)
     address public rewardWallet;
     
-    // Program parameters
-    uint256 public constant TREASURY_ALLOCATION = 2905600 * 1e18; // 2.9M KILT tokens
-    uint256 public constant PROGRAM_DURATION = 365 days; // 1 year program
-    uint256 public constant LOCK_PERIOD = 90 days; // 90 days lock period
-    // No participant limit - open to all eligible positions
-    uint256 public constant MIN_POSITION_VALUE = 100 * 1e18; // $100 minimum (in USD with 18 decimals)
+    // Program parameters (configurable by admin)
+    uint256 public treasuryAllocation;
+    uint256 public programDuration;
+    uint256 public constant LOCK_PERIOD = 7 days; // 7 days rolling lock period
+    uint256 public constant MIN_POSITION_VALUE = 0; // No minimum position value
     
     // Program timing
-    uint256 public immutable programStartTime;
-    uint256 public immutable programEndTime;
+    uint256 public programStartTime;
+    uint256 public programEndTime;
     
     // Reward distribution
     uint256 public totalRewardsDistributed;
@@ -46,13 +45,20 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         bool isActive;
     }
     
+    // Individual daily reward tracking for rolling 7-day claims
+    struct DailyReward {
+        uint256 amount;
+        uint256 createdAt;
+        uint256 lockEndTime;
+        bool claimed;
+    }
+    
     // Reward tracking
     struct RewardInfo {
         uint256 totalEarned;
-        uint256 claimed;
+        uint256 totalClaimed;
         uint256 lastClaimTime;
-        uint256 lockEndTime;
-        bool isEligibleForClaim;
+        DailyReward[] dailyRewards;
     }
     
     // Mappings
@@ -60,7 +66,7 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     mapping(address => mapping(uint256 => RewardInfo)) public rewardInfo;
     mapping(address => uint256[]) public userPositions;
     
-    // All participants tracking
+    // All participants tracking (unlimited)
     address[] public allParticipants;
     mapping(address => bool) public isParticipant;
     
@@ -71,6 +77,7 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     event RewardsEarned(address indexed user, uint256 indexed nftTokenId, uint256 amount);
     event ParticipantAdded(address indexed participant);
     event RewardWalletUpdated(address indexed oldWallet, address indexed newWallet);
+    event ProgramConfigUpdated(uint256 treasuryAllocation, uint256 programDuration, uint256 dailyBudget);
     
     modifier onlyDuringProgram() {
         require(block.timestamp >= programStartTime && block.timestamp <= programEndTime, "Program not active");
@@ -85,17 +92,44 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     constructor(
         address _kiltToken,
         address _rewardWallet,
+        uint256 _treasuryAllocation,
+        uint256 _programDuration,
         uint256 _programStartTime
     ) {
         require(_kiltToken != address(0), "Invalid KILT token address");
         require(_rewardWallet != address(0), "Invalid reward wallet address");
         require(_programStartTime > block.timestamp, "Start time must be in future");
+        require(_treasuryAllocation > 0, "Treasury allocation must be positive");
+        require(_programDuration > 0, "Program duration must be positive");
         
         kiltToken = IERC20(_kiltToken);
         rewardWallet = _rewardWallet;
+        treasuryAllocation = _treasuryAllocation;
+        programDuration = _programDuration;
         programStartTime = _programStartTime;
-        programEndTime = _programStartTime + PROGRAM_DURATION;
-        dailyRewardBudget = TREASURY_ALLOCATION / (PROGRAM_DURATION / 1 days);
+        programEndTime = _programStartTime + _programDuration;
+        dailyRewardBudget = _treasuryAllocation / (_programDuration / 1 days);
+    }
+    
+    /**
+     * @dev Update program configuration (admin only)
+     */
+    function updateProgramConfig(
+        uint256 _treasuryAllocation,
+        uint256 _programDuration,
+        uint256 _programStartTime
+    ) external onlyOwner {
+        require(_programStartTime > block.timestamp, "Start time must be in future");
+        require(_treasuryAllocation > 0, "Treasury allocation must be positive");
+        require(_programDuration > 0, "Program duration must be positive");
+        
+        treasuryAllocation = _treasuryAllocation;
+        programDuration = _programDuration;
+        programStartTime = _programStartTime;
+        programEndTime = _programStartTime + _programDuration;
+        dailyRewardBudget = _treasuryAllocation / (_programDuration / 1 days);
+        
+        emit ProgramConfigUpdated(_treasuryAllocation, _programDuration, dailyRewardBudget);
     }
     
     /**
@@ -110,7 +144,7 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         uint256 liquidityValue
     ) external onlyOwner onlyDuringProgram {
         require(user != address(0), "Invalid user address");
-        require(liquidityValue >= MIN_POSITION_VALUE, "Position value too low");
+        require(liquidityValue > MIN_POSITION_VALUE, "Position value too low");
         require(!liquidityPositions[user][nftTokenId].isActive, "Position already exists");
         
         liquidityPositions[user][nftTokenId] = LiquidityPosition({
@@ -124,16 +158,17 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         
         userPositions[user].push(nftTokenId);
         
-        // Initialize reward info with 90-day lock
-        rewardInfo[user][nftTokenId] = RewardInfo({
-            totalEarned: 0,
-            claimed: 0,
-            lastClaimTime: 0,
-            lockEndTime: block.timestamp + LOCK_PERIOD,
-            isEligibleForClaim: false
-        });
+        // Initialize reward info
+        rewardInfo[user][nftTokenId].totalEarned = 0;
+        rewardInfo[user][nftTokenId].totalClaimed = 0;
+        rewardInfo[user][nftTokenId].lastClaimTime = 0;
         
-        updateTop100Rankings();
+        // Add to participants if not already added
+        if (!isParticipant[user]) {
+            allParticipants.push(user);
+            isParticipant[user] = true;
+            emit ParticipantAdded(user);
+        }
         
         emit LiquidityAdded(user, nftTokenId, liquidityValue);
     }
@@ -148,8 +183,6 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         uint256 nftTokenId
     ) external onlyOwner validPosition(user, nftTokenId) {
         liquidityPositions[user][nftTokenId].isActive = false;
-        updateTop100Rankings();
-        
         emit LiquidityRemoved(user, nftTokenId);
     }
     
@@ -164,14 +197,12 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         uint256 nftTokenId,
         uint256 newLiquidityValue
     ) external onlyOwner validPosition(user, nftTokenId) {
-        require(newLiquidityValue >= MIN_POSITION_VALUE, "Position value too low");
-        
+        require(newLiquidityValue > MIN_POSITION_VALUE, "Position value too low");
         liquidityPositions[user][nftTokenId].liquidityValue = newLiquidityValue;
-        updateTop100Rankings();
     }
     
     /**
-     * @dev Calculate daily rewards for a user position
+     * @dev Calculate daily rewards for a user position (proportional system)
      * @param user Address of the liquidity provider
      * @param nftTokenId Uniswap V3 NFT token ID
      * @return dailyReward Amount of KILT tokens earned per day
@@ -181,15 +212,10 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         uint256 nftTokenId
     ) public view validPosition(user, nftTokenId) returns (uint256 dailyReward) {
         LiquidityPosition memory position = liquidityPositions[user][nftTokenId];
-        uint256 rank = userRanking[user];
         
-        if (rank == 0 || rank > MAX_PARTICIPANTS) {
-            return 0;
-        }
-        
-        // Get total liquidity of top 100
-        uint256 totalTop100Liquidity = getTotalTop100Liquidity();
-        if (totalTop100Liquidity == 0) {
+        // Get total liquidity across all participants
+        uint256 totalLiquidity = getTotalActiveLiquidity();
+        if (totalLiquidity == 0) {
             return 0;
         }
         
@@ -197,19 +223,14 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         uint256 daysActive = (block.timestamp - position.stakingStartDate) / 1 days;
         if (daysActive == 0) daysActive = 1;
         
-        // Liquidity + Duration Weighted Rule
-        // R_u = (w1 * L_u/T_top100 + w2 * D_u/365) * R/365/100 * (1 - (rank-1)/99)
+        // Proportional reward formula: R_u = (w1 * L_u/T_total + w2 * D_u/365) * R/365 * inRangeMultiplier
         uint256 w1 = 60; // 0.6 * 100 for integer math
         uint256 w2 = 40; // 0.4 * 100 for integer math
         
-        uint256 liquidityRatio = (position.liquidityValue * w1) / totalTop100Liquidity;
+        uint256 liquidityRatio = (position.liquidityValue * w1) / totalLiquidity;
         uint256 timeRatio = (daysActive * w2) / 365;
         
-        uint256 baseReward = (liquidityRatio + timeRatio) * dailyRewardBudget / 100;
-        
-        // Apply rank multiplier: (1 - (rank-1)/99)
-        uint256 rankMultiplier = 100 - ((rank - 1) * 100) / 99;
-        dailyReward = (baseReward * rankMultiplier) / 100;
+        dailyReward = (liquidityRatio + timeRatio) * dailyRewardBudget / 100;
         
         return dailyReward;
     }
@@ -218,9 +239,9 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
      * @dev Distribute daily rewards to all active positions
      * Called by backend service daily
      */
-    function distributeDaily Rewards() external onlyOwner onlyDuringProgram {
-        for (uint256 i = 0; i < top100Participants.length; i++) {
-            address user = top100Participants[i];
+    function distributeDailyRewards() external onlyOwner onlyDuringProgram {
+        for (uint256 i = 0; i < allParticipants.length; i++) {
+            address user = allParticipants[i];
             uint256[] memory positions = userPositions[user];
             
             for (uint256 j = 0; j < positions.length; j++) {
@@ -230,13 +251,15 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
                     uint256 dailyReward = calculateDailyRewards(user, nftTokenId);
                     
                     if (dailyReward > 0) {
+                        // Add daily reward with 7-day lock period
+                        rewardInfo[user][nftTokenId].dailyRewards.push(DailyReward({
+                            amount: dailyReward,
+                            createdAt: block.timestamp,
+                            lockEndTime: block.timestamp + LOCK_PERIOD,
+                            claimed: false
+                        }));
+                        
                         rewardInfo[user][nftTokenId].totalEarned += dailyReward;
-                        
-                        // Check if 90-day lock period has passed
-                        if (block.timestamp >= rewardInfo[user][nftTokenId].lockEndTime) {
-                            rewardInfo[user][nftTokenId].isEligibleForClaim = true;
-                        }
-                        
                         emit RewardsEarned(user, nftTokenId, dailyReward);
                     }
                 }
@@ -247,7 +270,7 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     }
     
     /**
-     * @dev Claim accumulated rewards after 90-day lock period
+     * @dev Claim accumulated rewards after 7-day rolling lock period
      * @param nftTokenIds Array of NFT token IDs to claim rewards for
      */
     function claimRewards(uint256[] calldata nftTokenIds) external nonReentrant whenNotPaused {
@@ -257,61 +280,88 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
             uint256 nftTokenId = nftTokenIds[i];
             RewardInfo storage reward = rewardInfo[msg.sender][nftTokenId];
             
-            require(reward.isEligibleForClaim, "Rewards not eligible for claim yet");
-            require(block.timestamp >= reward.lockEndTime, "Still in lock period");
-            
-            uint256 claimableAmount = reward.totalEarned - reward.claimed;
-            
-            if (claimableAmount > 0) {
-                totalClaimable += claimableAmount;
-                reward.claimed += claimableAmount;
-                reward.lastClaimTime = block.timestamp;
+            // Check each daily reward for claimability
+            for (uint256 j = 0; j < reward.dailyRewards.length; j++) {
+                DailyReward storage dailyReward = reward.dailyRewards[j];
+                
+                // If reward is not claimed and lock period has expired
+                if (!dailyReward.claimed && block.timestamp >= dailyReward.lockEndTime) {
+                    totalClaimable += dailyReward.amount;
+                    dailyReward.claimed = true;
+                    reward.totalClaimed += dailyReward.amount;
+                }
             }
+            
+            reward.lastClaimTime = block.timestamp;
         }
         
-        require(totalClaimable > 0, "No rewards to claim");
-        require(kiltToken.balanceOf(rewardWallet) >= totalClaimable, "Insufficient reward wallet balance");
+        require(totalClaimable > 0, "No rewards available to claim");
         
         // Transfer tokens from reward wallet to user
-        kiltToken.safeTransferFrom(rewardWallet, msg.sender, totalClaimable);
+        require(kiltToken.transferFrom(rewardWallet, msg.sender, totalClaimable), "Transfer failed");
         
         emit RewardsClaimed(msg.sender, totalClaimable);
     }
     
     /**
-     * @dev Update top 100 rankings based on current liquidity values
+     * @dev Get claimable rewards for a user
+     * @param user Address to check
+     * @return claimable Total amount of KILT tokens ready to claim
      */
-    function updateTop100Rankings() internal {
-        // Get all active positions
-        address[] memory allUsers = new address[](1000); // Temporary array, size may need adjustment
-        uint256 userCount = 0;
+    function getClaimableRewards(address user) external view returns (uint256 claimable) {
+        uint256[] memory positions = userPositions[user];
         
-        // This is a simplified version - in production, you'd need a more efficient approach
-        // to track all users and their total liquidity values
+        for (uint256 i = 0; i < positions.length; i++) {
+            uint256 nftTokenId = positions[i];
+            RewardInfo memory reward = rewardInfo[user][nftTokenId];
+            
+            for (uint256 j = 0; j < reward.dailyRewards.length; j++) {
+                DailyReward memory dailyReward = reward.dailyRewards[j];
+                
+                if (!dailyReward.claimed && block.timestamp >= dailyReward.lockEndTime) {
+                    claimable += dailyReward.amount;
+                }
+            }
+        }
         
-        // For now, we'll just update the existing top100Participants array
-        // In a full implementation, you'd need to:
-        // 1. Get all users with active positions
-        // 2. Calculate their total liquidity scores
-        // 3. Sort by liquidity value
-        // 4. Take top 100
-        // 5. Update rankings
-        
-        emit Top100Updated(top100Participants);
+        return claimable;
     }
     
     /**
-     * @dev Get total liquidity of top 100 participants
-     * @return totalLiquidity Total USD value of all top 100 positions
+     * @dev Get pending rewards for a user (still locked)
+     * @param user Address to check
+     * @return pending Total amount of KILT tokens still locked
      */
-    function getTotalTop100Liquidity() public view returns (uint256 totalLiquidity) {
-        for (uint256 i = 0; i < top100Participants.length; i++) {
-            address user = top100Participants[i];
+    function getPendingRewards(address user) external view returns (uint256 pending) {
+        uint256[] memory positions = userPositions[user];
+        
+        for (uint256 i = 0; i < positions.length; i++) {
+            uint256 nftTokenId = positions[i];
+            RewardInfo memory reward = rewardInfo[user][nftTokenId];
+            
+            for (uint256 j = 0; j < reward.dailyRewards.length; j++) {
+                DailyReward memory dailyReward = reward.dailyRewards[j];
+                
+                if (!dailyReward.claimed && block.timestamp < dailyReward.lockEndTime) {
+                    pending += dailyReward.amount;
+                }
+            }
+        }
+        
+        return pending;
+    }
+    
+    /**
+     * @dev Get total active liquidity across all participants
+     * @return totalLiquidity Total USD value of all active positions
+     */
+    function getTotalActiveLiquidity() public view returns (uint256 totalLiquidity) {
+        for (uint256 i = 0; i < allParticipants.length; i++) {
+            address user = allParticipants[i];
             uint256[] memory positions = userPositions[user];
             
             for (uint256 j = 0; j < positions.length; j++) {
                 uint256 nftTokenId = positions[j];
-                
                 if (liquidityPositions[user][nftTokenId].isActive) {
                     totalLiquidity += liquidityPositions[user][nftTokenId].liquidityValue;
                 }
@@ -320,89 +370,14 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
     }
     
     /**
-     * @dev Get user's claimable rewards
-     * @param user Address of the user
-     * @return claimableAmount Total claimable KILT tokens
-     */
-    function getClaimableRewards(address user) external view returns (uint256 claimableAmount) {
-        uint256[] memory positions = userPositions[user];
-        
-        for (uint256 i = 0; i < positions.length; i++) {
-            uint256 nftTokenId = positions[i];
-            RewardInfo memory reward = rewardInfo[user][nftTokenId];
-            
-            if (reward.isEligibleForClaim && block.timestamp >= reward.lockEndTime) {
-                claimableAmount += reward.totalEarned - reward.claimed;
-            }
-        }
-    }
-    
-    /**
-     * @dev Get user's pending rewards (still in lock period)
-     * @param user Address of the user
-     * @return pendingAmount Total pending KILT tokens
-     */
-    function getPendingRewards(address user) external view returns (uint256 pendingAmount) {
-        uint256[] memory positions = userPositions[user];
-        
-        for (uint256 i = 0; i < positions.length; i++) {
-            uint256 nftTokenId = positions[i];
-            RewardInfo memory reward = rewardInfo[user][nftTokenId];
-            
-            if (block.timestamp < reward.lockEndTime) {
-                pendingAmount += reward.totalEarned - reward.claimed;
-            }
-        }
-    }
-    
-    /**
-     * @dev Update reward wallet address
-     * @param _newRewardWallet New reward wallet address
-     */
-    function updateRewardWallet(address _newRewardWallet) external onlyOwner {
-        require(_newRewardWallet != address(0), "Invalid reward wallet address");
-        require(_newRewardWallet != rewardWallet, "Same reward wallet address");
-        
-        address oldWallet = rewardWallet;
-        rewardWallet = _newRewardWallet;
-        
-        emit RewardWalletUpdated(oldWallet, _newRewardWallet);
-    }
-    
-    /**
-     * @dev Emergency withdraw function for contract owner
-     * Only withdraws tokens that were accidentally sent to the contract
-     */
-    function emergencyWithdraw() external onlyOwner {
-        uint256 balance = kiltToken.balanceOf(address(this));
-        require(balance > 0, "No tokens to withdraw");
-        
-        kiltToken.safeTransfer(owner(), balance);
-    }
-    
-    /**
-     * @dev Pause the contract
-     */
-    function pause() external onlyOwner {
-        _pause();
-    }
-    
-    /**
-     * @dev Unpause the contract
-     */
-    function unpause() external onlyOwner {
-        _unpause();
-    }
-    
-    /**
-     * @dev Get program info
+     * @dev Get program information
      * @return startTime Program start timestamp
      * @return endTime Program end timestamp
-     * @return totalAllocated Total KILT tokens allocated
-     * @return totalDistributed Total KILT tokens distributed
-     * @return remainingBudget Remaining KILT tokens to distribute
+     * @return totalAllocated Total treasury allocation
+     * @return totalDistributed Total rewards distributed
+     * @return remainingBudget Remaining budget
      * @return currentRewardWallet Current reward wallet address
-     * @return rewardWalletBalance Current balance of reward wallet
+     * @return rewardWalletBalance Current reward wallet balance
      */
     function getProgramInfo() external view returns (
         uint256 startTime,
@@ -413,12 +388,47 @@ contract KILTRewardPool is ReentrancyGuard, Ownable, Pausable {
         address currentRewardWallet,
         uint256 rewardWalletBalance
     ) {
-        startTime = programStartTime;
-        endTime = programEndTime;
-        totalAllocated = TREASURY_ALLOCATION;
-        totalDistributed = totalRewardsDistributed;
-        remainingBudget = TREASURY_ALLOCATION - totalRewardsDistributed;
-        currentRewardWallet = rewardWallet;
-        rewardWalletBalance = kiltToken.balanceOf(rewardWallet);
+        return (
+            programStartTime,
+            programEndTime,
+            treasuryAllocation,
+            totalRewardsDistributed,
+            treasuryAllocation - totalRewardsDistributed,
+            rewardWallet,
+            kiltToken.balanceOf(rewardWallet)
+        );
+    }
+    
+    /**
+     * @dev Update reward wallet address
+     * @param newRewardWallet New reward wallet address
+     */
+    function updateRewardWallet(address newRewardWallet) external onlyOwner {
+        require(newRewardWallet != address(0), "Invalid reward wallet address");
+        address oldWallet = rewardWallet;
+        rewardWallet = newRewardWallet;
+        emit RewardWalletUpdated(oldWallet, newRewardWallet);
+    }
+    
+    /**
+     * @dev Emergency pause function
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+    
+    /**
+     * @dev Emergency unpause function
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+    
+    /**
+     * @dev Get participant count
+     * @return count Total number of participants
+     */
+    function getParticipantCount() external view returns (uint256 count) {
+        return allParticipants.length;
     }
 }

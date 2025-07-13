@@ -5,7 +5,9 @@ async function main() {
   
   // Contract parameters
   const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8'; // KILT token on Base
-  const REWARD_WALLET_ADDRESS = '0x0000000000000000000000000000000000000000'; // To be set later
+  const REWARD_WALLET_ADDRESS = process.env.REWARD_WALLET_ADDRESS || '0x1234567890123456789012345678901234567890'; // From environment
+  const TREASURY_ALLOCATION = ethers.utils.parseEther('2905600'); // 2.9M KILT tokens
+  const PROGRAM_DURATION = 365 * 24 * 60 * 60; // 365 days in seconds
   const PROGRAM_START_TIME = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // Start in 24 hours
   
   // Deploy contract
@@ -13,6 +15,8 @@ async function main() {
   const rewardPool = await KILTRewardPool.deploy(
     KILT_TOKEN_ADDRESS,
     REWARD_WALLET_ADDRESS,
+    TREASURY_ALLOCATION,
+    PROGRAM_DURATION,
     PROGRAM_START_TIME
   );
   
@@ -24,8 +28,8 @@ async function main() {
   console.log('   - Reward Wallet:', REWARD_WALLET_ADDRESS);
   console.log('   - Program Start:', new Date(PROGRAM_START_TIME * 1000).toISOString());
   console.log('   - Program Duration: 365 days');
-  console.log('   - Lock Period: 90 days');
-  console.log('   - Treasury Allocation: 2,905,600 KILT');
+  console.log('   - Lock Period: 7 days (rolling)');
+  console.log('   - Treasury Allocation:', ethers.utils.formatEther(TREASURY_ALLOCATION), 'KILT');
   
   // Verify contract on Base scanner
   console.log('\n🔍 Verifying contract...');
@@ -35,6 +39,8 @@ async function main() {
       constructorArguments: [
         KILT_TOKEN_ADDRESS,
         REWARD_WALLET_ADDRESS,
+        TREASURY_ALLOCATION,
+        PROGRAM_DURATION,
         PROGRAM_START_TIME
       ],
     });

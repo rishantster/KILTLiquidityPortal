@@ -16,7 +16,6 @@ const KILT_REWARD_POOL_ADDRESS = process.env.KILT_REWARD_POOL_ADDRESS || '';
 const REWARD_WALLET_ADDRESS = process.env.REWARD_WALLET_ADDRESS || '';
 const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
-// SECURITY: Private key removed from service layer for enhanced security
 
 // Validate contract addresses at startup
 if (KILT_REWARD_POOL_ADDRESS && !isValidEthereumAddress(KILT_REWARD_POOL_ADDRESS)) {
@@ -29,7 +28,7 @@ if (!isValidEthereumAddress(KILT_TOKEN_ADDRESS)) {
   throw new Error('Invalid KILT_TOKEN_ADDRESS format');
 }
 
-// Contract ABI (minimal interface)
+// Updated contract ABI for rolling claims system
 const REWARD_POOL_ABI = [
   'function addLiquidityPosition(address user, uint256 nftTokenId, uint256 liquidityValue) external',
   'function removeLiquidityPosition(address user, uint256 nftTokenId) external',
@@ -39,52 +38,99 @@ const REWARD_POOL_ABI = [
   'function getClaimableRewards(address user) external view returns (uint256)',
   'function getPendingRewards(address user) external view returns (uint256)',
   'function updateRewardWallet(address newRewardWallet) external',
+  'function updateProgramConfig(uint256 treasuryAllocation, uint256 programDuration, uint256 programStartTime) external',
   'function getProgramInfo() external view returns (uint256, uint256, uint256, uint256, uint256, address, uint256)',
+  'function getTotalActiveLiquidity() external view returns (uint256)',
+  'function getParticipantCount() external view returns (uint256)',
   'function rewardWallet() external view returns (address)',
   'function claimRewards(uint256[] calldata nftTokenIds) external',
+  'function pause() external',
+  'function unpause() external',
   'event LiquidityAdded(address indexed user, uint256 indexed nftTokenId, uint256 liquidityValue)',
   'event LiquidityRemoved(address indexed user, uint256 indexed nftTokenId)',
   'event RewardsClaimed(address indexed user, uint256 amount)',
   'event RewardsEarned(address indexed user, uint256 indexed nftTokenId, uint256 amount)',
-  'event RewardWalletUpdated(address indexed oldWallet, address indexed newWallet)'
+  'event RewardWalletUpdated(address indexed oldWallet, address indexed newWallet)',
+  'event ProgramConfigUpdated(uint256 treasuryAllocation, uint256 programDuration, uint256 dailyBudget)',
+  'event ParticipantAdded(address indexed participant)'
 ];
 
 const KILT_TOKEN_ABI = [
   'function transfer(address to, uint256 amount) external returns (bool)',
   'function approve(address spender, uint256 amount) external returns (bool)',
   'function balanceOf(address account) external view returns (uint256)',
-  'function allowance(address owner, address spender) external view returns (uint256)'
+  'function allowance(address owner, address spender) external view returns (uint256)',
+  'function decimals() external view returns (uint8)',
+  'function symbol() external view returns (string)',
+  'function name() external view returns (string)'
 ];
+
+export interface ClaimResult {
+  success: boolean;
+  transactionHash?: string;
+  error?: string;
+  amount: number;
+  recipient: string;
+  gasUsed?: number;
+}
+
+export interface SmartContractProgramInfo {
+  startTime: number;
+  endTime: number;
+  totalAllocated: number;
+  totalDistributed: number;
+  remainingBudget: number;
+  currentRewardWallet: string;
+  rewardWalletBalance: number;
+}
+
+export interface SmartContractStats {
+  totalActiveLiquidity: number;
+  totalParticipants: number;
+  programInfo: SmartContractProgramInfo;
+}
 
 export class SmartContractService {
   private provider: ethers.JsonRpcProvider;
   private wallet: ethers.Wallet | null = null;
   private rewardPoolContract: ethers.Contract | null = null;
   private kiltTokenContract: ethers.Contract | null = null;
+  private isContractDeployed: boolean = false;
 
   constructor() {
     this.provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
     
+    // Only initialize contracts if both address and private key are available
     if (KILT_REWARD_POOL_ADDRESS && process.env.REWARD_WALLET_PRIVATE_KEY) {
-      this.wallet = new ethers.Wallet(process.env.REWARD_WALLET_PRIVATE_KEY, this.provider);
-      this.rewardPoolContract = new ethers.Contract(
-        KILT_REWARD_POOL_ADDRESS,
-        REWARD_POOL_ABI,
-        this.wallet
-      );
-      this.kiltTokenContract = new ethers.Contract(
-        KILT_TOKEN_ADDRESS,
-        KILT_TOKEN_ABI,
-        this.wallet
-      );
+      try {
+        this.wallet = new ethers.Wallet(process.env.REWARD_WALLET_PRIVATE_KEY, this.provider);
+        this.rewardPoolContract = new ethers.Contract(
+          KILT_REWARD_POOL_ADDRESS,
+          REWARD_POOL_ABI,
+          this.wallet
+        );
+        this.kiltTokenContract = new ethers.Contract(
+          KILT_TOKEN_ADDRESS,
+          KILT_TOKEN_ABI,
+          this.wallet
+        );
+        this.isContractDeployed = true;
+        console.log('✅ Smart contracts initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize smart contracts:', error);
+        this.isContractDeployed = false;
+      }
+    } else {
+      console.warn('⚠️ Smart contracts not deployed - using simulation mode');
+      this.isContractDeployed = false;
     }
   }
 
   /**
-   * Check if smart contract integration is available
+   * Check if smart contracts are deployed and accessible
    */
-  isContractAvailable(): boolean {
-    return !!(this.wallet && this.rewardPoolContract && KILT_REWARD_POOL_ADDRESS);
+  public isDeployed(): boolean {
+    return this.isContractDeployed;
   }
 
   /**
@@ -93,28 +139,34 @@ export class SmartContractService {
   async addLiquidityPosition(
     userAddress: string,
     nftTokenId: string,
-    liquidityValueUSD: number
-  ): Promise<{ success: boolean; txHash?: string; error?: string }> {
-    if (!this.isContractAvailable()) {
-      return { success: false, error: 'Smart contract not available' };
+    liquidityValue: number
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
     }
 
     try {
-      // Convert USD value to 18 decimals
-      const liquidityValue = ethers.parseEther(liquidityValueUSD.toString());
-      
-      const tx = await this.rewardPoolContract!.addLiquidityPosition(
+      const tx = await this.rewardPoolContract.addLiquidityPosition(
         userAddress,
         nftTokenId,
-        liquidityValue
+        ethers.parseEther(liquidityValue.toString())
       );
-
-      await tx.wait();
       
-      return { success: true, txHash: tx.hash };
-    } catch (error) {
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
       console.error('Failed to add liquidity position to contract:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
     }
   }
 
@@ -124,23 +176,32 @@ export class SmartContractService {
   async removeLiquidityPosition(
     userAddress: string,
     nftTokenId: string
-  ): Promise<{ success: boolean; txHash?: string; error?: string }> {
-    if (!this.isContractAvailable()) {
-      return { success: false, error: 'Smart contract not available' };
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
     }
 
     try {
-      const tx = await this.rewardPoolContract!.removeLiquidityPosition(
+      const tx = await this.rewardPoolContract.removeLiquidityPosition(
         userAddress,
         nftTokenId
       );
-
-      await tx.wait();
       
-      return { success: true, txHash: tx.hash };
-    } catch (error) {
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
       console.error('Failed to remove liquidity position from contract:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
     }
   }
 
@@ -150,242 +211,346 @@ export class SmartContractService {
   async updateLiquidityValue(
     userAddress: string,
     nftTokenId: string,
-    newLiquidityValueUSD: number
-  ): Promise<{ success: boolean; txHash?: string; error?: string }> {
-    if (!this.isContractAvailable()) {
-      return { success: false, error: 'Smart contract not available' };
+    newLiquidityValue: number
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
     }
 
     try {
-      const liquidityValue = ethers.parseEther(newLiquidityValueUSD.toString());
-      
-      const tx = await this.rewardPoolContract!.updateLiquidityValue(
+      const tx = await this.rewardPoolContract.updateLiquidityValue(
         userAddress,
         nftTokenId,
-        liquidityValue
+        ethers.parseEther(newLiquidityValue.toString())
       );
-
-      await tx.wait();
       
-      return { success: true, txHash: tx.hash };
-    } catch (error) {
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
       console.error('Failed to update liquidity value in contract:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
     }
   }
 
   /**
-   * Distribute daily rewards via smart contract
+   * Distribute daily rewards through smart contract
    */
-  async distributeDailyRewards(): Promise<{ success: boolean; txHash?: string; error?: string }> {
-    if (!this.isContractAvailable()) {
-      return { success: false, error: 'Smart contract not available' };
+  async distributeDailyRewards(): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
     }
 
     try {
-      const tx = await this.rewardPoolContract!.distributeDailyRewards();
-      await tx.wait();
+      const tx = await this.rewardPoolContract.distributeDailyRewards();
+      const receipt = await tx.wait();
       
-      return { success: true, txHash: tx.hash };
-    } catch (error) {
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
       console.error('Failed to distribute daily rewards:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
     }
   }
 
   /**
-   * Get claimable rewards for a user from smart contract
+   * Process reward claims through smart contract
+   */
+  async processRewardClaim(
+    userAddress: string,
+    nftTokenIds: string[]
+  ): Promise<ClaimResult> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed',
+        amount: 0,
+        recipient: userAddress
+      };
+    }
+
+    try {
+      // Get claimable amount before transaction
+      const claimableAmount = await this.rewardPoolContract.getClaimableRewards(userAddress);
+      
+      if (claimableAmount === 0n) {
+        return {
+          success: false,
+          error: 'No rewards available to claim',
+          amount: 0,
+          recipient: userAddress
+        };
+      }
+
+      // Execute claim transaction
+      const tx = await this.rewardPoolContract.claimRewards(nftTokenIds);
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash,
+        amount: Number(ethers.formatEther(claimableAmount)),
+        recipient: userAddress,
+        gasUsed: receipt.gasUsed ? Number(receipt.gasUsed) : undefined
+      };
+    } catch (error: any) {
+      console.error('Failed to process reward claim:', error);
+      return {
+        success: false,
+        error: error.message || 'Claim transaction failed',
+        amount: 0,
+        recipient: userAddress
+      };
+    }
+  }
+
+  /**
+   * Get claimable rewards for a user
    */
   async getClaimableRewards(userAddress: string): Promise<number> {
-    if (!this.isContractAvailable()) {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
       return 0;
     }
 
     try {
-      const claimableAmount = await this.rewardPoolContract!.getClaimableRewards(userAddress);
-      return parseFloat(ethers.formatEther(claimableAmount));
-    } catch (error) {
+      const claimableAmount = await this.rewardPoolContract.getClaimableRewards(userAddress);
+      return Number(ethers.formatEther(claimableAmount));
+    } catch (error: any) {
       console.error('Failed to get claimable rewards:', error);
       return 0;
     }
   }
 
   /**
-   * Get pending rewards for a user from smart contract
+   * Get pending rewards for a user (still locked)
    */
   async getPendingRewards(userAddress: string): Promise<number> {
-    if (!this.isContractAvailable()) {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
       return 0;
     }
 
     try {
-      const pendingAmount = await this.rewardPoolContract!.getPendingRewards(userAddress);
-      return parseFloat(ethers.formatEther(pendingAmount));
-    } catch (error) {
+      const pendingAmount = await this.rewardPoolContract.getPendingRewards(userAddress);
+      return Number(ethers.formatEther(pendingAmount));
+    } catch (error: any) {
       console.error('Failed to get pending rewards:', error);
       return 0;
     }
   }
 
   /**
-   * Update reward wallet address in smart contract
+   * Get smart contract statistics
    */
-  async updateRewardWallet(newRewardWallet: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
-    if (!this.isContractAvailable()) {
-      return { success: false, error: 'Smart contract not available' };
-    }
-
-    try {
-      const tx = await this.rewardPoolContract!.updateRewardWallet(newRewardWallet);
-      await tx.wait();
-      
-      return { success: true, txHash: tx.hash };
-    } catch (error) {
-      console.error('Failed to update reward wallet:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  /**
-   * Get program information from smart contract
-   */
-  async getProgramInfo(): Promise<{
-    startTime: number;
-    endTime: number;
-    totalAllocated: number;
-    totalDistributed: number;
-    remainingBudget: number;
-    rewardWallet: string;
-    rewardWalletBalance: number;
-  } | null> {
-    if (!this.isContractAvailable()) {
-      return null;
-    }
-
-    try {
-      const result = await this.rewardPoolContract!.getProgramInfo();
-      
+  async getSmartContractStats(): Promise<SmartContractStats> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
       return {
-        startTime: Number(result[0]),
-        endTime: Number(result[1]),
-        totalAllocated: parseFloat(ethers.formatEther(result[2])),
-        totalDistributed: parseFloat(ethers.formatEther(result[3])),
-        remainingBudget: parseFloat(ethers.formatEther(result[4])),
-        rewardWallet: result[5],
-        rewardWalletBalance: parseFloat(ethers.formatEther(result[6]))
+        totalActiveLiquidity: 0,
+        totalParticipants: 0,
+        programInfo: {
+          startTime: 0,
+          endTime: 0,
+          totalAllocated: 0,
+          totalDistributed: 0,
+          remainingBudget: 0,
+          currentRewardWallet: '',
+          rewardWalletBalance: 0
+        }
       };
-    } catch (error) {
-      console.error('Failed to get program info:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get current reward wallet address from smart contract
-   */
-  async getCurrentRewardWallet(): Promise<string | null> {
-    if (!this.isContractAvailable()) {
-      return null;
     }
 
     try {
-      return await this.rewardPoolContract!.rewardWallet();
-    } catch (error) {
-      console.error('Failed to get current reward wallet:', error);
-      return null;
-    }
-  }
+      const [totalLiquidity, participantCount, programInfo] = await Promise.all([
+        this.rewardPoolContract.getTotalActiveLiquidity(),
+        this.rewardPoolContract.getParticipantCount(),
+        this.rewardPoolContract.getProgramInfo()
+      ]);
 
-  /**
-   * Execute claim rewards transaction for a user
-   */
-  async executeClaimRewards(
-    userAddress: string,
-    nftTokenIds: string[]
-  ): Promise<{ success: boolean; txHash?: string; claimedAmount?: number; error?: string }> {
-    if (!this.isContractAvailable()) {
-      return { success: false, error: 'Smart contract not available' };
-    }
-
-    try {
-      // Get claimable amount before claiming
-      const claimableAmount = await this.getClaimableRewards(userAddress);
-      
-      if (claimableAmount <= 0) {
-        return { success: false, error: 'No rewards available to claim' };
-      }
-
-      // Convert string IDs to numbers
-      const tokenIds = nftTokenIds.map(id => BigInt(id));
-      
-      const tx = await this.rewardPoolContract!.claimRewards(tokenIds);
-      await tx.wait();
-      
-      return { 
-        success: true, 
-        txHash: tx.hash,
-        claimedAmount: claimableAmount
+      return {
+        totalActiveLiquidity: Number(ethers.formatEther(totalLiquidity)),
+        totalParticipants: Number(participantCount),
+        programInfo: {
+          startTime: Number(programInfo[0]),
+          endTime: Number(programInfo[1]),
+          totalAllocated: Number(ethers.formatEther(programInfo[2])),
+          totalDistributed: Number(ethers.formatEther(programInfo[3])),
+          remainingBudget: Number(ethers.formatEther(programInfo[4])),
+          currentRewardWallet: programInfo[5],
+          rewardWalletBalance: Number(ethers.formatEther(programInfo[6]))
+        }
       };
-    } catch (error) {
-      console.error('Failed to execute claim rewards:', error);
-      return { success: false, error: error.message };
+    } catch (error: any) {
+      console.error('Failed to get smart contract stats:', error);
+      return {
+        totalActiveLiquidity: 0,
+        totalParticipants: 0,
+        programInfo: {
+          startTime: 0,
+          endTime: 0,
+          totalAllocated: 0,
+          totalDistributed: 0,
+          remainingBudget: 0,
+          currentRewardWallet: '',
+          rewardWalletBalance: 0
+        }
+      };
     }
   }
 
   /**
-   * Check if reward wallet has sufficient KILT tokens
+   * Update program configuration
    */
-  async checkRewardWalletBalance(): Promise<{ balance: number; sufficient: boolean }> {
-    if (!this.isContractAvailable()) {
-      // Return treasury allocation as fallback when contract not available
-      return { balance: 2905600, sufficient: true };
+  async updateProgramConfig(
+    treasuryAllocation: number,
+    programDuration: number,
+    programStartTime: number
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
     }
 
     try {
-      const rewardWallet = await this.getCurrentRewardWallet();
-      if (!rewardWallet || rewardWallet === '0x0000000000000000000000000000000000000000') {
-        // Return treasury allocation as fallback when wallet not configured
-        return { balance: 2905600, sufficient: true };
-      }
-
-      const balance = await this.kiltTokenContract!.balanceOf(rewardWallet);
-      const balanceFormatted = parseFloat(ethers.formatEther(balance));
-      
-      // Check if balance is sufficient (at least 1000 KILT for daily operations)
-      const sufficient = balanceFormatted >= 1000;
-      
-      return { balance: balanceFormatted, sufficient };
-    } catch (error) {
-      console.error('Failed to check reward wallet balance:', error);
-      // Return treasury allocation as fallback on error
-      return { balance: 2905600, sufficient: true };
-    }
-  }
-
-  /**
-   * Setup reward wallet allowance for the contract
-   */
-  async setupRewardWalletAllowance(amount: number): Promise<{ success: boolean; txHash?: string; error?: string }> {
-    if (!this.isContractAvailable()) {
-      return { success: false, error: 'Smart contract not available' };
-    }
-
-    try {
-      const allowanceAmount = ethers.parseEther(amount.toString());
-      
-      const tx = await this.kiltTokenContract!.approve(
-        KILT_REWARD_POOL_ADDRESS,
-        allowanceAmount
+      const tx = await this.rewardPoolContract.updateProgramConfig(
+        ethers.parseEther(treasuryAllocation.toString()),
+        programDuration,
+        programStartTime
       );
       
-      await tx.wait();
+      const receipt = await tx.wait();
       
-      return { success: true, txHash: tx.hash };
-    } catch (error) {
-      console.error('Failed to setup reward wallet allowance:', error);
-      return { success: false, error: error.message };
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
+      console.error('Failed to update program config:', error);
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
+    }
+  }
+
+  /**
+   * Update reward wallet address
+   */
+  async updateRewardWallet(newRewardWallet: string): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
+    }
+
+    try {
+      const tx = await this.rewardPoolContract.updateRewardWallet(newRewardWallet);
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
+      console.error('Failed to update reward wallet:', error);
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
+    }
+  }
+
+  /**
+   * Get KILT token balance for an address
+   */
+  async getKiltTokenBalance(address: string): Promise<number> {
+    if (!this.kiltTokenContract) {
+      return 0;
+    }
+
+    try {
+      const balance = await this.kiltTokenContract.balanceOf(address);
+      return Number(ethers.formatEther(balance));
+    } catch (error: any) {
+      console.error('Failed to get KILT token balance:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Emergency pause contract
+   */
+  async pauseContract(): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
+    }
+
+    try {
+      const tx = await this.rewardPoolContract.pause();
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
+      console.error('Failed to pause contract:', error);
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
+    }
+  }
+
+  /**
+   * Emergency unpause contract
+   */
+  async unpauseContract(): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
+    }
+
+    try {
+      const tx = await this.rewardPoolContract.unpause();
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: any) {
+      console.error('Failed to unpause contract:', error);
+      return {
+        success: false,
+        error: error.message || 'Transaction failed'
+      };
     }
   }
 }
 
+// Export singleton instance
 export const smartContractService = new SmartContractService();

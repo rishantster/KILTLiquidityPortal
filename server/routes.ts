@@ -1727,6 +1727,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/admin/dashboard", requireAdminAuth, async (req, res) => {
     try {
       const stats = await adminService.getAdminTreasuryStats();
+      console.log('Admin dashboard stats:', JSON.stringify(stats, null, 2));
       res.json(stats);
     } catch (error) {
       console.error('Error getting admin dashboard:', error);

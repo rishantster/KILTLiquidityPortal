@@ -1890,8 +1890,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const config = req.body;
       const performedBy = req.user?.identifier || 'unknown';
       
-      if (!config.treasuryWalletAddress || !config.totalAllocation || !config.programDurationDays) {
-        res.status(400).json({ error: 'Treasury wallet address, total allocation, and program duration required' });
+      if (!config.totalAllocation || !config.programDurationDays) {
+        res.status(400).json({ error: 'Total allocation and program duration required' });
         return;
       }
 

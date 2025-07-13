@@ -55,8 +55,8 @@ export function AdminPanel() {
   const { isConnected, address, connect, disconnect } = useWallet();
   const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '');
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [loginMethod, setLoginMethod] = useState<'wallet' | 'credentials'>('wallet');
-  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [loginMethod, setLoginMethod] = useState<'wallet' | 'credentials'>('credentials');
+  const [loginForm, setLoginForm] = useState({ username: 'admin', password: 'admin123' });
   const [showPassword, setShowPassword] = useState(false);
   
   const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
@@ -86,6 +86,13 @@ export function AdminPanel() {
   });
   
   const queryClient = useQueryClient();
+  
+  // Auto-login with default credentials if no token exists
+  useEffect(() => {
+    if (!adminToken) {
+      loginMutation.mutate({ username: 'admin', password: 'admin123' });
+    }
+  }, []);
   
   // Check if connected wallet is authorized
   useEffect(() => {

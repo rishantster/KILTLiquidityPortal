@@ -55,9 +55,7 @@ export function AdminPanel() {
   const { isConnected, address, connect, disconnect } = useWallet();
   const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '');
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [loginMethod, setLoginMethod] = useState<'wallet' | 'credentials'>('credentials');
-  const [loginForm, setLoginForm] = useState({ username: 'admin', password: 'admin123' });
-  const [showPassword, setShowPassword] = useState(false);
+  // Wallet-only authentication
   
   const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
   
@@ -150,21 +148,20 @@ export function AdminPanel() {
     }
   }, [treasuryConfigForm.programStartDate, treasuryConfigForm.programDurationDays]);
 
-  // Admin login mutation (supports both methods)
+  // Wallet-only admin login mutation
   const loginMutation = useMutation({
-    mutationFn: async (loginData: { walletAddress?: string; username?: string; password?: string }) => {
-      const endpoint = loginData.walletAddress ? '/api/admin/login-wallet' : '/api/admin/login';
-      const response = await fetch(endpoint, {
+    mutationFn: async (walletAddress: string) => {
+      const response = await fetch('/api/admin/login-wallet', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify({ walletAddress }),
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
+        throw new Error(errorData.error || 'Wallet authentication failed');
       }
       
       return response.json();
@@ -173,7 +170,7 @@ export function AdminPanel() {
       setAdminToken(data.token);
       localStorage.setItem('adminToken', data.token);
       setIsAuthorized(true);
-      console.log('Admin login successful, token:', data.token);
+      console.log('Admin wallet login successful, token:', data.token);
       
       // Force a refresh of admin stats after successful login
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
@@ -272,43 +269,27 @@ export function AdminPanel() {
     },
   });
 
-  // Handle login
+  // Handle wallet login
   const handleLogin = async () => {
-    if (loginMethod === 'wallet') {
-      if (!isConnected || !address) {
-        toast({
-          title: "Connect Wallet",
-          description: "Please connect your wallet first",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      if (address.toLowerCase() !== ADMIN_WALLET_ADDRESS.toLowerCase()) {
-        toast({
-          title: "Unauthorized",
-          description: "This wallet is not authorized for admin access",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      loginMutation.mutate({ walletAddress: address });
-    } else {
-      if (!loginForm.username || !loginForm.password) {
-        toast({
-          title: "Missing Information",
-          description: "Please enter both username and password",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      loginMutation.mutate({ 
-        username: loginForm.username, 
-        password: loginForm.password 
+    if (!isConnected || !address) {
+      toast({
+        title: "Connect Wallet",
+        description: "Please connect your wallet first",
+        variant: "destructive",
       });
+      return;
     }
+    
+    if (address.toLowerCase() !== ADMIN_WALLET_ADDRESS.toLowerCase()) {
+      toast({
+        title: "Unauthorized",
+        description: "This wallet is not authorized for admin access",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    loginMutation.mutate(address);
   };
 
   // Handle logout
@@ -391,118 +372,43 @@ export function AdminPanel() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Login Method Toggle */}
-            <div className="flex rounded-lg bg-gray-800 p-1">
-              <button
-                onClick={() => setLoginMethod('wallet')}
-                className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === 'wallet'
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-              >
-                <Wallet className="w-4 h-4 inline mr-1" />
-                Wallet
-              </button>
-              <button
-                onClick={() => setLoginMethod('credentials')}
-                className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === 'credentials'
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-              >
-                <Lock className="w-4 h-4 inline mr-1" />
-                Credentials
-              </button>
+            {/* Wallet Authentication Only */}
+
+            <div className="space-y-4">
+              <Alert>
+                <ShieldCheck className="h-4 w-4" />
+                <AlertDescription>
+                  Connect with authorized admin wallet:
+                  <br />
+                  <code className="text-xs text-emerald-400">
+                    {ADMIN_WALLET_ADDRESS}
+                  </code>
+                </AlertDescription>
+              </Alert>
+              
+              {!isConnected ? (
+                <Button onClick={connect} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                  Connect Wallet
+                </Button>
+              ) : (
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-400">
+                    Connected: {address}
+                  </div>
+                  {isAuthorized ? (
+                    <Badge variant="default" className="bg-emerald-600">
+                      Authorized Wallet
+                    </Badge>
+                  ) : (
+                    <Badge variant="destructive">
+                      Unauthorized Wallet
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Wallet Login */}
-            {loginMethod === 'wallet' && (
-              <div className="space-y-4">
-                <Alert>
-                  <ShieldCheck className="h-4 w-4" />
-                  <AlertDescription>
-                    Connect with authorized admin wallet:
-                    <br />
-                    <code className="text-xs text-emerald-400">
-                      {ADMIN_WALLET_ADDRESS}
-                    </code>
-                  </AlertDescription>
-                </Alert>
-                
-                {!isConnected ? (
-                  <Button onClick={connect} className="w-full bg-emerald-600 hover:bg-emerald-700">
-                    Connect Wallet
-                  </Button>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="text-sm text-gray-400">
-                      Connected: {address}
-                    </div>
-                    {isAuthorized ? (
-                      <Badge variant="default" className="bg-emerald-600">
-                        Authorized Wallet
-                      </Badge>
-                    ) : (
-                      <Badge variant="destructive">
-                        Unauthorized Wallet
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
 
-            {/* Credentials Login */}
-            {loginMethod === 'credentials' && (
-              <div className="space-y-4">
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Default credentials:</strong> admin / admin123
-                  </AlertDescription>
-                </Alert>
-                <div>
-                  <Label htmlFor="username" className="text-white">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    value={loginForm.username}
-                    onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
-                    className="bg-gray-800 border-gray-700 text-white"
-                    placeholder="Enter username (default: admin)"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="password" className="text-white">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      className="bg-gray-800 border-gray-700 text-white pr-10"
-                      placeholder="Enter password (default: admin123)"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                <Button 
-                  onClick={() => setLoginForm({ username: 'admin', password: 'admin123' })}
-                  variant="outline"
-                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
-                >
-                  Use Default Credentials
-                </Button>
-              </div>
-            )}
 
             <Button 
               onClick={handleLogin} 
@@ -529,7 +435,7 @@ export function AdminPanel() {
           </h1>
           <div className="flex items-center gap-4">
             <Badge variant="default" className="bg-emerald-600/20 backdrop-blur-sm border border-emerald-400/30 text-emerald-300">
-              {loginMethod === 'wallet' ? 'Wallet Auth' : 'Credentials Auth'}
+              Wallet Auth
             </Badge>
             <Button 
               variant="outline" 

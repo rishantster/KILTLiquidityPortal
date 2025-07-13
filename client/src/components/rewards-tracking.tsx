@@ -369,10 +369,6 @@ export function RewardsTracking() {
                   <span className="text-white">${programAnalytics?.avgUserLiquidity?.toLocaleString() || '0'}</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-white/60">Distribution Rate:</span>
-                  <span className="text-white">7,960 KILT/day</span>
-                </div>
-                <div className="flex justify-between text-xs">
                   <span className="text-white/60">Reward Formula:</span>
                   <span className="text-white">Proportional + Time</span>
                 </div>

@@ -57,7 +57,10 @@ export function AdminPanel() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   // Wallet-only authentication
   
-  const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
+  const ADMIN_WALLET_ADDRESSES = [
+    '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
+    '0x861722f739539CF31d86F1221460Fa96C9baB95C'
+  ];
   
   // Treasury Configuration Form (NO PRIVATE KEYS)
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
@@ -88,7 +91,9 @@ export function AdminPanel() {
   // Check if connected wallet is authorized
   useEffect(() => {
     if (isConnected && address) {
-      const isAuth = address.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase();
+      const isAuth = ADMIN_WALLET_ADDRESSES.some(adminAddr => 
+        address.toLowerCase() === adminAddr.toLowerCase()
+      );
       setIsAuthorized(isAuth);
     } else {
       setIsAuthorized(false);
@@ -276,7 +281,9 @@ export function AdminPanel() {
       return;
     }
     
-    if (address.toLowerCase() !== ADMIN_WALLET_ADDRESS.toLowerCase()) {
+    if (!ADMIN_WALLET_ADDRESSES.some(adminAddr => 
+      address.toLowerCase() === adminAddr.toLowerCase()
+    )) {
       toast({
         title: "Unauthorized",
         description: "This wallet is not authorized for admin access",
@@ -366,11 +373,7 @@ export function AdminPanel() {
               <Alert>
                 <ShieldCheck className="h-4 w-4" />
                 <AlertDescription>
-                  Connect with authorized admin wallet:
-                  <br />
-                  <code className="text-xs text-emerald-400">
-                    {ADMIN_WALLET_ADDRESS}
-                  </code>
+                  Connect with your authorized admin wallet to access the admin panel.
                 </AlertDescription>
               </Alert>
               
@@ -381,7 +384,7 @@ export function AdminPanel() {
               ) : (
                 <div className="space-y-2">
                   <div className="text-sm text-gray-400">
-                    Connected: {address}
+                    Wallet Connected
                   </div>
                   {isAuthorized ? (
                     <Badge variant="default" className="bg-emerald-600">

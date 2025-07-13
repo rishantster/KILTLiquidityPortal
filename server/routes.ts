@@ -23,8 +23,7 @@ import { rewardCalculationDemo } from "./reward-calculation-demo";
 import { treasuryService } from "./treasury-service";
 import { adminService } from "./admin-service";
 import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
-import { automatedTokenDistribution } from "./automated-token-distribution";
-import { distributionScheduler } from "./distribution-scheduler";
+import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
@@ -1959,114 +1958,58 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // ===== TOKEN DISTRIBUTION ROUTES =====
+  // ===== CLAIM-BASED REWARD ROUTES =====
 
-  // Start automated token distribution
-  app.post("/api/admin/distribution/start", requireAdminAuth, async (req, res) => {
+  // Check if user can claim rewards (after 90-day lock period)
+  app.get("/api/rewards/claimability/:userAddress", async (req, res) => {
     try {
-      const { intervalMinutes = 60 } = req.body;
-      distributionScheduler.start(intervalMinutes);
-      res.json({ 
-        success: true, 
-        message: `Automated distribution started with ${intervalMinutes} minute intervals` 
-      });
+      const { userAddress } = req.params;
+      const claimability = await claimBasedRewards.checkClaimability(userAddress);
+      res.json(claimability);
     } catch (error) {
-      console.error('Error starting distribution:', error);
-      res.status(500).json({ error: 'Failed to start automated distribution' });
+      console.error('Error checking claimability:', error);
+      res.status(500).json({ error: 'Failed to check reward claimability' });
     }
   });
 
-  // Stop automated token distribution
-  app.post("/api/admin/distribution/stop", requireAdminAuth, async (req, res) => {
+  // Process user's claim request (only after 90-day lock expires)
+  app.post("/api/rewards/claim", async (req, res) => {
     try {
-      distributionScheduler.stop();
-      res.json({ 
-        success: true, 
-        message: 'Automated distribution stopped' 
-      });
-    } catch (error) {
-      console.error('Error stopping distribution:', error);
-      res.status(500).json({ error: 'Failed to stop automated distribution' });
-    }
-  });
-
-  // Get distribution scheduler status
-  app.get("/api/admin/distribution/status", requireAdminAuth, async (req, res) => {
-    try {
-      const status = distributionScheduler.getStatus();
-      res.json(status);
-    } catch (error) {
-      console.error('Error getting distribution status:', error);
-      res.status(500).json({ error: 'Failed to get distribution status' });
-    }
-  });
-
-  // Manual token distribution
-  app.post("/api/admin/distribution/manual", requireAdminAuth, async (req, res) => {
-    try {
-      const { recipientAddress, amount, reason } = req.body;
-      const performedBy = req.user?.identifier || 'unknown';
+      const { userAddress } = req.body;
       
-      if (!recipientAddress || !amount) {
-        res.status(400).json({ error: 'Recipient address and amount required' });
+      if (!userAddress) {
+        res.status(400).json({ error: 'User address required' });
         return;
       }
 
-      const result = await automatedTokenDistribution.manualDistribution(
-        recipientAddress,
-        parseFloat(amount),
-        reason || 'Manual distribution',
-        performedBy
-      );
-
+      const result = await claimBasedRewards.processClaimRequest(userAddress);
       res.json(result);
     } catch (error) {
-      console.error('Error in manual distribution:', error);
-      res.status(500).json({ error: 'Failed to process manual distribution' });
+      console.error('Error processing claim request:', error);
+      res.status(500).json({ error: 'Failed to process claim request' });
     }
   });
 
-  // Get distribution statistics
-  app.get("/api/admin/distribution/stats", requireAdminAuth, async (req, res) => {
+  // Get user's reward history with claim status
+  app.get("/api/rewards/history/:userAddress", async (req, res) => {
     try {
-      const stats = await automatedTokenDistribution.getDistributionStats();
+      const { userAddress } = req.params;
+      const history = await claimBasedRewards.getUserRewardHistory(userAddress);
+      res.json(history);
+    } catch (error) {
+      console.error('Error getting reward history:', error);
+      res.status(500).json({ error: 'Failed to get reward history' });
+    }
+  });
+
+  // Get claim statistics for admin panel
+  app.get("/api/admin/claims/stats", requireAdminAuth, async (req, res) => {
+    try {
+      const stats = await claimBasedRewards.getClaimStatistics();
       res.json(stats);
     } catch (error) {
-      console.error('Error getting distribution stats:', error);
-      res.status(500).json({ error: 'Failed to get distribution statistics' });
-    }
-  });
-
-  // Process rewards immediately (manual trigger)
-  app.post("/api/admin/distribution/process-now", requireAdminAuth, async (req, res) => {
-    try {
-      const results = await automatedTokenDistribution.processRewardDistributions();
-      const successful = results.filter(r => r.success).length;
-      const failed = results.filter(r => !r.success).length;
-      const totalAmount = results.reduce((sum, r) => sum + r.amount, 0);
-
-      res.json({
-        success: true,
-        processed: results.length,
-        successful,
-        failed,
-        totalAmount: totalAmount.toFixed(2),
-        details: results
-      });
-    } catch (error) {
-      console.error('Error processing rewards:', error);
-      res.status(500).json({ error: 'Failed to process rewards' });
-    }
-  });
-
-  // Get treasury balance for distribution
-  app.get("/api/admin/treasury/balance", requireAdminAuth, async (req, res) => {
-    try {
-      const balance = await automatedTokenDistribution.getTreasuryBalance();
-      res.json(balance);
-    } catch (error) {
-      console.error('Error getting treasury balance:', error);
-      res.status(500).json({ error: 'Failed to get treasury balance' });
+      console.error('Error getting claim statistics:', error);
+      res.status(500).json({ error: 'Failed to get claim statistics' });
     }
   });
 

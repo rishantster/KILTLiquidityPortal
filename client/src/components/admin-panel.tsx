@@ -484,198 +484,103 @@ export function AdminPanel() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Token Distribution Tab */}
+          {/* Claim-Based Rewards Tab */}
           <TabsContent value="distribution" className="space-y-4">
+            <Alert>
+              <ShieldCheck className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Claim-Based Reward System:</strong> Users can only claim rewards after a 90-day lock period. 
+                No automatic transfers occur - users must manually click "Claim Reward" to receive their KILT tokens.
+              </AlertDescription>
+            </Alert>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Distribution Control */}
+              {/* Transaction Signing Explanation */}
               <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-green-400" />
-                    Automated Distribution
+                    <Lock className="w-5 h-5 text-blue-400" />
+                    Transaction Signing Method
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Alert>
-                    <ShieldCheck className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>How it works:</strong> The system automatically scans for claimable rewards 
-                      and transfers KILT tokens from the treasury wallet to users' wallets every hour.
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {
-                        // Start distribution scheduler
-                        fetch('/api/admin/distribution/start', {
-                          method: 'POST',
-                          headers: {
-                            'Authorization': `Bearer ${adminToken}`,
-                            'Content-Type': 'application/json'
-                          },
-                          body: JSON.stringify({ intervalMinutes: 60 })
-                        }).then(res => res.json()).then(data => {
-                          toast({
-                            title: "Success",
-                            description: data.message,
-                          });
-                        });
-                      }}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Start Auto Distribution
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        // Stop distribution scheduler
-                        fetch('/api/admin/distribution/stop', {
-                          method: 'POST',
-                          headers: {
-                            'Authorization': `Bearer ${adminToken}`,
-                            'Content-Type': 'application/json'
-                          }
-                        }).then(res => res.json()).then(data => {
-                          toast({
-                            title: "Success",
-                            description: data.message,
-                          });
-                        });
-                      }}
-                      variant="outline"
-                      className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
-                    >
-                      Stop Auto Distribution
-                    </Button>
+                  <div className="text-sm text-gray-300">
+                    <strong>Current Implementation:</strong> Treasury wallet private key is required for backend transaction signing.
+                  </div>
+                  
+                  <div className="bg-gray-800 p-3 rounded text-xs">
+                    <strong>Two possible approaches:</strong>
+                    <br />
+                    <strong>1. Backend Signing:</strong> Treasury private key stored securely in backend, signs transactions automatically
+                    <br />
+                    <strong>2. Smart Contract:</strong> Deploy reward contract with claim functions, no private key needed
                   </div>
 
-                  <Button
-                    onClick={() => {
-                      // Process rewards immediately
-                      fetch('/api/admin/distribution/process-now', {
-                        method: 'POST',
-                        headers: {
-                          'Authorization': `Bearer ${adminToken}`,
-                          'Content-Type': 'application/json'
-                        }
-                      }).then(res => res.json()).then(data => {
-                        toast({
-                          title: "Distribution Complete",
-                          description: `Processed ${data.processed} rewards, ${data.successful} successful, ${data.totalAmount} KILT distributed`,
-                        });
-                      });
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    Process Rewards Now
-                  </Button>
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Security Note:</strong> Current system requires treasury private key for transaction signing. 
+                      Consider smart contract approach for enhanced security.
+                    </AlertDescription>
+                  </Alert>
                 </CardContent>
               </Card>
 
-              {/* Manual Distribution */}
+              {/* Claim Statistics */}
               <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Users className="w-5 h-5 text-purple-400" />
-                    Manual Distribution
+                    <TrendingUp className="w-5 h-5 text-green-400" />
+                    Claim Statistics
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="manualRecipient" className="text-white">Recipient Address</Label>
-                    <Input
-                      id="manualRecipient"
-                      placeholder="0x..."
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-white">0</div>
+                      <div className="text-xs text-gray-400">Total Claimed</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-white">0</div>
+                      <div className="text-xs text-gray-400">Claim Transactions</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-yellow-400">0</div>
+                      <div className="text-xs text-gray-400">Pending Claims</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-red-400">0</div>
+                      <div className="text-xs text-gray-400">Locked Rewards</div>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="manualAmount" className="text-white">Amount (KILT)</Label>
-                    <Input
-                      id="manualAmount"
-                      type="number"
-                      placeholder="1000"
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="manualReason" className="text-white">Reason</Label>
-                    <Input
-                      id="manualReason"
-                      placeholder="Manual reward distribution"
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => {
-                      const recipient = (document.getElementById('manualRecipient') as HTMLInputElement)?.value;
-                      const amount = (document.getElementById('manualAmount') as HTMLInputElement)?.value;
-                      const reason = (document.getElementById('manualReason') as HTMLInputElement)?.value;
-                      
-                      if (!recipient || !amount) {
-                        toast({
-                          title: "Error",
-                          description: "Recipient address and amount are required",
-                          variant: "destructive",
-                        });
-                        return;
-                      }
-
-                      fetch('/api/admin/distribution/manual', {
-                        method: 'POST',
-                        headers: {
-                          'Authorization': `Bearer ${adminToken}`,
-                          'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ recipientAddress: recipient, amount, reason })
-                      }).then(res => res.json()).then(data => {
-                        if (data.success) {
-                          toast({
-                            title: "Success",
-                            description: `${data.amount} KILT distributed to ${data.recipient}`,
-                          });
-                        } else {
-                          toast({
-                            title: "Error",
-                            description: data.error,
-                            variant: "destructive",
-                          });
-                        }
-                      });
-                    }}
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                  >
-                    Execute Manual Distribution
-                  </Button>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Distribution Statistics */}
+            {/* How It Works */}
             <Card className="bg-gray-900 border-gray-800">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-blue-400" />
-                  Distribution Statistics
+                  <Users className="w-5 h-5 text-purple-400" />
+                  How Claim-Based Rewards Work
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">0</div>
-                    <div className="text-sm text-gray-400">Total Distributed</div>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-gray-800 rounded">
+                    <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+                    <div className="text-sm font-medium text-white">1. Earn Rewards</div>
+                    <div className="text-xs text-gray-400">Users provide liquidity and earn daily rewards</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">0</div>
-                    <div className="text-sm text-gray-400">Total Transactions</div>
+                  <div className="text-center p-3 bg-gray-800 rounded">
+                    <Shield className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+                    <div className="text-sm font-medium text-white">2. 90-Day Lock</div>
+                    <div className="text-xs text-gray-400">Rewards locked for 90 days from first reward</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-400">0</div>
-                    <div className="text-sm text-gray-400">Successful</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-400">0</div>
-                    <div className="text-sm text-gray-400">Failed</div>
+                  <div className="text-center p-3 bg-gray-800 rounded">
+                    <CheckCircle className="w-6 h-6 text-green-400 mx-auto mb-2" />
+                    <div className="text-sm font-medium text-white">3. Manual Claim</div>
+                    <div className="text-xs text-gray-400">User clicks "Claim Reward" to receive KILT tokens</div>
                   </div>
                 </div>
               </CardContent>

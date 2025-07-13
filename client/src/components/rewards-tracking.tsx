@@ -73,23 +73,35 @@ export function RewardsTracking() {
   // Use unified dashboard data
   const { user, rewardStats, programAnalytics } = unifiedData;
 
-  // Get claimable rewards
-  const { data: claimableRewards } = useQuery({
-    queryKey: ['claimable-rewards', user?.id],
+  // Get claimability status (90-day lock check)
+  const { data: claimability } = useQuery({
+    queryKey: ['claimability', address],
     queryFn: async () => {
-      if (!user?.id) return [];
-      const response = await fetch(`/api/rewards/user/${user.id}/claimable`);
+      if (!address) return null;
+      const response = await fetch(`/api/rewards/claimability/${address}`);
       return response.json();
     },
-    enabled: !!user?.id,
+    enabled: !!address,
+    refetchInterval: 60000 // Check every minute
+  });
+
+  // Get reward history
+  const { data: rewardHistory } = useQuery({
+    queryKey: ['reward-history', address],
+    queryFn: async () => {
+      if (!address) return [];
+      const response = await fetch(`/api/rewards/history/${address}`);
+      return response.json();
+    },
+    enabled: !!address,
     refetchInterval: 30000
   });
 
-  // Claim rewards mutation
+  // Claim rewards mutation (90-day lock based)
   const claimMutation = useMutation({
     mutationFn: async () => {
-      if (!user?.id || !address) throw new Error('User not found or wallet not connected');
-      const response = await fetch(`/api/rewards/claim/${user.id}`, {
+      if (!address) throw new Error('Wallet not connected');
+      const response = await fetch('/api/rewards/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userAddress: address })
@@ -100,15 +112,24 @@ export function RewardsTracking() {
         throw new Error(error.error || 'Failed to claim rewards');
       }
       
-      return response.json() as Promise<ClaimResult>;
+      return response.json();
     },
     onSuccess: (result) => {
-      toast({
-        title: "Rewards Claimed!",
-        description: `Successfully claimed ${result.claimedAmount.toFixed(2)} KILT tokens`,
-      });
+      if (result.success) {
+        toast({
+          title: "Rewards Claimed!",
+          description: `Successfully claimed ${result.amount.toFixed(2)} KILT tokens`,
+        });
+      } else {
+        toast({
+          title: "Claim Failed",
+          description: result.error,
+          variant: "destructive"
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['claimability'] });
+      queryClient.invalidateQueries({ queryKey: ['reward-history'] });
       queryClient.invalidateQueries({ queryKey: ['reward-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['claimable-rewards'] });
     },
     onError: (error) => {
       toast({
@@ -119,11 +140,10 @@ export function RewardsTracking() {
     }
   });
 
-  const totalClaimableAmount = Array.isArray(claimableRewards) ? claimableRewards.reduce((total: number, reward: { amount: string | number }) => {
-    const accumulated = Number(reward.accumulatedAmount);
-    const claimed = Number(reward.claimedAmount || 0);
-    return total + (accumulated - claimed);
-  }, 0) : 0;
+  const totalClaimableAmount = claimability?.totalClaimable || 0;
+  const canClaim = claimability?.canClaim || false;
+  const lockExpired = claimability?.lockExpired || false;
+  const daysRemaining = claimability?.daysRemaining || 0;
 
   if (!isConnected) {
     return (
@@ -251,9 +271,9 @@ export function RewardsTracking() {
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || totalClaimableAmount === 0}
+                disabled={claimMutation.isPending || !canClaim}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
-                  totalClaimableAmount > 0 
+                  canClaim 
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
@@ -263,15 +283,20 @@ export function RewardsTracking() {
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Claiming...
                   </>
-                ) : totalClaimableAmount > 0 ? (
+                ) : canClaim ? (
                   <>
                     <Award className="h-4 w-4 mr-2" />
                     Claim Rewards
                   </>
-                ) : (
+                ) : lockExpired ? (
                   <>
                     <Lock className="h-4 w-4 mr-2" />
                     No Rewards Available
+                  </>
+                ) : (
+                  <>
+                    <Clock className="h-4 w-4 mr-2" />
+                    {daysRemaining} days remaining
                   </>
                 )}
               </Button>

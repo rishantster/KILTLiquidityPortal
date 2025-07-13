@@ -592,9 +592,9 @@ export function AdminPanel() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Key Difference:</strong> Users don't wait 7 days to claim everything. 
-                    Instead, they can claim rewards continuously as each daily reward reaches 7 days old.
-                    This means after initial 7-day period, users can claim rewards regularly.
+                    <strong>How It Works:</strong> Users accumulate rewards for 7 days, then can claim all 7 days worth at once on Day 8. 
+                    After that, they can claim new rewards daily as they accumulate (rolling basis).
+                    This means after the initial 7-day period, users get their first big claim, then continuous daily claims.
                   </AlertDescription>
                 </Alert>
               </CardContent>

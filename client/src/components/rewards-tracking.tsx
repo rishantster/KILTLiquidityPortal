@@ -324,8 +324,8 @@ export function RewardsTracking() {
             
             {!canClaim && daysRemaining > 0 && (
               <div className="text-white/60 text-xs text-center mt-2 p-2 bg-blue-500/10 rounded border border-blue-500/20">
-                <p className="font-medium">Next reward unlocks in {daysRemaining} days</p>
-                <p className="text-white/40">Each daily reward has its own 7-day lock period</p>
+                <p className="font-medium">Claim available in {daysRemaining} days</p>
+                <p className="text-white/40">You'll be able to claim all accumulated rewards at once</p>
               </div>
             )}
             

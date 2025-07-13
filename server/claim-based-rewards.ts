@@ -73,28 +73,31 @@ export class ClaimBasedRewards {
         };
       }
 
-      // Calculate claimable rewards (only those 90+ days old)
+      // Calculate claimable rewards based on 7-day lock from first reward
       const now = new Date();
       let totalClaimable = 0;
       let nearestUnlockDate: Date | null = null;
       let hasAnyUnlockedRewards = false;
 
-      for (const reward of userRewards) {
-        // Calculate when this specific reward unlocks (7 days from its creation)
-        const rewardUnlockDate = new Date(reward.createdAt);
-        rewardUnlockDate.setDate(rewardUnlockDate.getDate() + this.LOCK_PERIOD_DAYS);
-        
-        // Check if this reward is unlocked
-        if (now >= rewardUnlockDate) {
-          // This reward is unlocked and can be claimed
-          totalClaimable += parseFloat(reward.dailyAmount || '0');
-          hasAnyUnlockedRewards = true;
-        } else {
-          // This reward is still locked - track nearest unlock date
-          if (!nearestUnlockDate || rewardUnlockDate < nearestUnlockDate) {
-            nearestUnlockDate = rewardUnlockDate;
-          }
-        }
+      // Find the earliest reward (when lock period started)
+      const earliestReward = userRewards.reduce((earliest, reward) => {
+        return reward.createdAt < earliest.createdAt ? reward : earliest;
+      });
+
+      // Calculate when the 7-day lock period expires from first reward
+      const lockExpiryDate = new Date(earliestReward.createdAt);
+      lockExpiryDate.setDate(lockExpiryDate.getDate() + this.LOCK_PERIOD_DAYS);
+      
+      // Check if 7-day lock period has expired
+      if (now >= lockExpiryDate) {
+        // All rewards are unlocked - user can claim everything
+        totalClaimable = userRewards.reduce((sum, reward) => {
+          return sum + parseFloat(reward.dailyAmount || '0');
+        }, 0);
+        hasAnyUnlockedRewards = true;
+      } else {
+        // Still in lock period - track when it expires
+        nearestUnlockDate = lockExpiryDate;
       }
 
       // Calculate days remaining until next unlock
@@ -176,25 +179,35 @@ export class ClaimBasedRewards {
         };
       }
 
-      // Filter rewards that are 7+ days old (claimable)
+      // Check if 7-day lock period has expired from first reward
       const now = new Date();
-      const claimableRewards = userRewards.filter(reward => {
-        const rewardUnlockDate = new Date(reward.createdAt);
-        rewardUnlockDate.setDate(rewardUnlockDate.getDate() + this.LOCK_PERIOD_DAYS);
-        return now >= rewardUnlockDate;
+      
+      // Find the earliest reward (when lock period started)
+      const earliestReward = userRewards.reduce((earliest, reward) => {
+        return reward.createdAt < earliest.createdAt ? reward : earliest;
       });
 
-      if (claimableRewards.length === 0) {
+      // Calculate when the 7-day lock period expires from first reward
+      const lockExpiryDate = new Date(earliestReward.createdAt);
+      lockExpiryDate.setDate(lockExpiryDate.getDate() + this.LOCK_PERIOD_DAYS);
+      
+      // Check if lock period has expired
+      if (now < lockExpiryDate) {
+        const daysRemaining = Math.ceil((lockExpiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return {
           success: false,
-          error: 'No rewards have reached 7-day unlock period yet',
+          error: `Lock period active. ${daysRemaining} days remaining until you can claim all accumulated rewards.`,
           amount: 0,
           recipient: userAddress,
-          lockExpired: false
+          lockExpired: false,
+          daysRemaining
         };
       }
 
-      // Calculate total amount to claim (only unlocked rewards)
+      // All rewards are claimable after 7-day lock period
+      const claimableRewards = userRewards; // All rewards are claimable
+
+      // Calculate total amount to claim (all accumulated rewards)
       const totalAmount = claimableRewards.reduce((sum, reward) => {
         return sum + (parseFloat(reward.dailyAmount || '0'));
       }, 0);

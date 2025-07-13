@@ -435,11 +435,25 @@ export class FixedRewardService {
       // Calculate average APR
       const averageAPR = totalLiquidity > 0 ? (this.DAILY_BUDGET * 365) / totalLiquidity : 0;
       
-      // Calculate program days remaining
-      const programStartDate = new Date('2025-01-01'); // Adjust as needed
-      const now = new Date();
-      const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
-      const programDaysRemaining = Math.max(0, this.PROGRAM_DURATION_DAYS - daysElapsed);
+      // Calculate program days remaining from admin-configured end date
+      let programDaysRemaining = this.PROGRAM_DURATION_DAYS;
+      try {
+        const { adminService } = await import('./admin-service');
+        const treasuryStats = await adminService.getAdminTreasuryStats();
+        if (treasuryStats && treasuryStats.treasury && treasuryStats.treasury.programEndDate) {
+          const endDate = new Date(treasuryStats.treasury.programEndDate);
+          const now = new Date();
+          const timeDiff = endDate.getTime() - now.getTime();
+          programDaysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+        }
+      } catch (error) {
+        console.error('Error getting program end date:', error);
+        // Fall back to hardcoded calculation
+        const programStartDate = new Date('2025-01-01');
+        const now = new Date();
+        const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
+        programDaysRemaining = Math.max(0, this.PROGRAM_DURATION_DAYS - daysElapsed);
+      }
 
       // Get realistic APR range - use direct values if calculation fails
       let aprData;

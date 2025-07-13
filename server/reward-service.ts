@@ -875,7 +875,19 @@ export class RewardService {
     try {
       const rewardWalletBalance = await smartContractService.checkRewardWalletBalance();
       treasuryRemaining = rewardWalletBalance.balance || this.TREASURY_ALLOCATION;
-      daysRemaining = Math.floor(treasuryRemaining / this.DAILY_BUDGET);
+      
+      // Calculate actual calendar days remaining from program end date
+      const { adminService } = await import('./admin-service');
+      const treasuryConfig = await adminService.getAdminTreasuryStats();
+      if (treasuryConfig && treasuryConfig.programEndDate) {
+        const endDate = new Date(treasuryConfig.programEndDate);
+        const now = new Date();
+        const timeDiff = endDate.getTime() - now.getTime();
+        daysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+      } else {
+        // Fallback to budget-based calculation if no config
+        daysRemaining = Math.floor(treasuryRemaining / this.DAILY_BUDGET);
+      }
     } catch (error) {
       console.error('Error getting treasury balance:', error);
       // Use default values

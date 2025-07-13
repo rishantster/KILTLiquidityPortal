@@ -303,6 +303,7 @@ export class AdminService {
           annualRewardsBudget,
           dailyRewardsCap,
           programDuration: treasuryConf ? treasuryConf.programDurationDays : 365,
+          programEndDate: treasuryConf ? treasuryConf.programEndDate : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           isActive: treasuryConf ? treasuryConf.isActive : true,
           totalDistributed: Math.round(totalDistributed * 100) / 100,
           treasuryRemaining: totalAllocation - totalDistributed
@@ -319,6 +320,7 @@ export class AdminService {
           totalAllocation: 2905600,
           dailyRewardsCap: 7960,
           programDuration: 365,
+          programEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           isActive: true,
           totalDistributed: 0,
           treasuryRemaining: 2905600

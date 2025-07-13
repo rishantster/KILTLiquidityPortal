@@ -356,12 +356,6 @@ export class FixedRewardService {
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
     
-    console.log('APR Calculation - Daily Budget:', {
-      configured: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : null,
-      fallback: this.DAILY_BUDGET,
-      using: dailyBudget
-    });
-    
     // APR calculation parameters
     const inRangeMultiplier = 1.0; // Always in-range
     const w1 = this.MIN_TIME_COEFFICIENT; // 0.6

@@ -62,9 +62,9 @@ export function AdminPanel() {
   // Treasury Configuration Form (NO PRIVATE KEYS)
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
     treasuryWalletAddress: '',
-    totalAllocation: 2905600,
-    annualRewardsBudget: 2905398.79, // Free entry field
-    dailyRewardsCap: 7960,
+    totalAllocation: 0,
+    annualRewardsBudget: 0,
+    dailyRewardsCap: 0,
     programDurationDays: 365,
     programStartDate: new Date().toISOString().split('T')[0],
     programEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -79,8 +79,8 @@ export function AdminPanel() {
     liquidityWeight: 0.6,
     timeWeight: 0.4,
     minimumPositionValue: 0,
-    lockPeriod: 90,
-    dailyRewardsCap: 7960
+    lockPeriod: 7,
+    dailyRewardsCap: 0
   });
   
   const queryClient = useQueryClient();
@@ -89,11 +89,6 @@ export function AdminPanel() {
   useEffect(() => {
     if (isConnected && address) {
       const isAuth = address.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase();
-      console.log('Wallet Authorization Check:', {
-        connected: address,
-        authorized: ADMIN_WALLET_ADDRESS,
-        isAuthorized: isAuth
-      });
       setIsAuthorized(isAuth);
     } else {
       setIsAuthorized(false);
@@ -105,6 +100,10 @@ export function AdminPanel() {
     queryKey: ['/api/admin/dashboard'],
     queryFn: async () => {
       const token = adminToken || localStorage.getItem('adminToken');
+      if (!token) {
+        throw new Error('No admin token available');
+      }
+      
       const response = await fetch('/api/admin/dashboard', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -117,7 +116,7 @@ export function AdminPanel() {
       
       return response.json();
     },
-    enabled: !!(adminToken || localStorage.getItem('adminToken')),
+    enabled: !!(adminToken || localStorage.getItem('adminToken')) && isAuthorized,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 

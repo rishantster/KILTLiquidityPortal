@@ -9,11 +9,11 @@ export class DistributionScheduler {
    */
   start(intervalMinutes: number = 60): void {
     if (this.isRunning) {
-      console.log('Distribution scheduler is already running');
+      // Distribution scheduler is already running
       return;
     }
 
-    console.log(`Starting distribution scheduler with ${intervalMinutes} minute intervals`);
+    // Starting distribution scheduler with configured intervals
     
     this.isRunning = true;
     
@@ -35,7 +35,7 @@ export class DistributionScheduler {
       this.intervalId = null;
     }
     this.isRunning = false;
-    console.log('Distribution scheduler stopped');
+    // Distribution scheduler stopped
   }
 
   /**
@@ -43,14 +43,14 @@ export class DistributionScheduler {
    */
   private async runDistribution(): Promise<void> {
     try {
-      console.log('Running automated token distribution...');
+      // Running automated token distribution
       const results = await automatedTokenDistribution.processRewardDistributions();
       
       const successful = results.filter(r => r.success).length;
       const failed = results.filter(r => !r.success).length;
       const totalAmount = results.reduce((sum, r) => sum + r.amount, 0);
 
-      console.log(`Distribution completed: ${successful} successful, ${failed} failed, ${totalAmount.toFixed(2)} KILT distributed`);
+      // Distribution completed with results recorded
       
       if (failed > 0) {
         console.warn(`${failed} distributions failed`);

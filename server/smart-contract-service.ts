@@ -16,7 +16,7 @@ const KILT_REWARD_POOL_ADDRESS = process.env.KILT_REWARD_POOL_ADDRESS || '';
 const REWARD_WALLET_ADDRESS = process.env.REWARD_WALLET_ADDRESS || '';
 const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
-const PRIVATE_KEY = process.env.REWARD_WALLET_PRIVATE_KEY || '';
+// SECURITY: Private key removed from service layer for enhanced security
 
 // Validate contract addresses at startup
 if (KILT_REWARD_POOL_ADDRESS && !isValidEthereumAddress(KILT_REWARD_POOL_ADDRESS)) {
@@ -65,8 +65,8 @@ export class SmartContractService {
   constructor() {
     this.provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
     
-    if (PRIVATE_KEY && KILT_REWARD_POOL_ADDRESS) {
-      this.wallet = new ethers.Wallet(PRIVATE_KEY, this.provider);
+    if (KILT_REWARD_POOL_ADDRESS && process.env.REWARD_WALLET_PRIVATE_KEY) {
+      this.wallet = new ethers.Wallet(process.env.REWARD_WALLET_PRIVATE_KEY, this.provider);
       this.rewardPoolContract = new ethers.Contract(
         KILT_REWARD_POOL_ADDRESS,
         REWARD_POOL_ABI,

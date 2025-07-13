@@ -107,11 +107,7 @@ ${colorConfig
     .join("\n"));
 
   return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: cssContent,
-      }}
-    />
+    <style>{cssContent}</style>
   )
 }
 

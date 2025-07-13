@@ -232,7 +232,7 @@ export class PositionRegistrationService {
         rewardInfo: {
           dailyRewards: rewardCalc.dailyRewards,
           estimatedAPR: rewardCalc.totalAPR,
-          lockPeriodDays: 90
+          lockPeriodDays: 7
         }
       };
 

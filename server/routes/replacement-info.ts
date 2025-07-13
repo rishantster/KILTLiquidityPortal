@@ -26,8 +26,8 @@ router.get('/replacement-requirements', async (req, res) => {
       message: `Open participation! Add minimum $100 liquidity to join ${sortedPositions.length} other participants.`,
       requirements: {
         minimumPositionValue: 100,
-        lockPeriod: 90,
-        description: "Add at least $100 liquidity and wait 90 days to claim rewards"
+        lockPeriod: 7,
+        description: "Add at least $100 liquidity and wait 7 days to claim rewards"
       }
     });
     

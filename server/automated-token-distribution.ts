@@ -40,12 +40,12 @@ export class AutomatedTokenDistribution {
    */
   async processRewardDistributions(): Promise<DistributionResult[]> {
     try {
-      console.log('Starting automated token distribution process...');
+      // Starting automated token distribution process
       
       // Get treasury configuration
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       if (!treasuryConf) {
-        console.log('No treasury configuration found');
+        // No treasury configuration found
         return [];
       }
 
@@ -60,11 +60,11 @@ export class AutomatedTokenDistribution {
         );
 
       if (claimableRewards.length === 0) {
-        console.log('No claimable rewards found');
+        // No claimable rewards found
         return [];
       }
 
-      console.log(`Found ${claimableRewards.length} claimable rewards`);
+      // Found claimable rewards for processing
       
       const results: DistributionResult[] = [];
 
@@ -113,8 +113,7 @@ export class AutomatedTokenDistribution {
       // 2. Smart contract for reward distribution
       // 3. Proper gas estimation and fee handling
       
-      console.log(`Processing reward distribution for user: ${reward.userAddress}`);
-      console.log(`Amount: ${reward.dailyAmount} KILT`);
+      // Processing reward distribution
       
       // For now, we'll simulate the transaction
       // In production, this would be the actual blockchain transaction

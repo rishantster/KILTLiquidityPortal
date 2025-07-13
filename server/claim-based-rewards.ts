@@ -42,7 +42,7 @@ export class ClaimBasedRewards {
   async checkClaimability(userAddress: string): Promise<RewardClaimability> {
     try {
       // Get user from database
-      const [user] = await db.select().from(users).where(eq(users.walletAddress, userAddress));
+      const [user] = await db.select().from(users).where(eq(users.address, userAddress));
       if (!user) {
         return {
           canClaim: false,
@@ -102,11 +102,11 @@ export class ClaimBasedRewards {
 
       // Calculate days remaining until next unlock
       let daysRemaining = 0;
-      let lockExpiryDate = new Date();
+      let finalLockExpiryDate = new Date();
       
       if (nearestUnlockDate) {
         daysRemaining = Math.ceil((nearestUnlockDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        lockExpiryDate = nearestUnlockDate;
+        finalLockExpiryDate = nearestUnlockDate;
       }
 
       return {
@@ -114,7 +114,7 @@ export class ClaimBasedRewards {
         lockExpired: hasAnyUnlockedRewards,
         daysRemaining: hasAnyUnlockedRewards ? 0 : daysRemaining,
         totalClaimable,
-        lockExpiryDate
+        lockExpiryDate: finalLockExpiryDate
       };
     } catch (error) {
       console.error('Error checking claimability:', error);
@@ -129,7 +129,7 @@ export class ClaimBasedRewards {
   }
 
   /**
-   * Process a user's claim request (only after 90-day lock expires)
+   * Process a user's claim request (only after 7-day lock expires)
    */
   async processClaimRequest(userAddress: string): Promise<ClaimResult> {
     try {
@@ -148,7 +148,7 @@ export class ClaimBasedRewards {
       }
 
       // Get user from database
-      const [user] = await db.select().from(users).where(eq(users.walletAddress, userAddress));
+      const [user] = await db.select().from(users).where(eq(users.address, userAddress));
       if (!user) {
         return {
           success: false,
@@ -159,7 +159,7 @@ export class ClaimBasedRewards {
         };
       }
 
-      // Get all unclaimed rewards that are 90+ days old (claimable)
+      // Get all unclaimed rewards that are 7+ days old (claimable)
       const userRewards = await db.select()
         .from(rewards)
         .where(
@@ -260,7 +260,7 @@ export class ClaimBasedRewards {
    */
   async getUserRewardHistory(userAddress: string): Promise<any[]> {
     try {
-      const [user] = await db.select().from(users).where(eq(users.walletAddress, userAddress));
+      const [user] = await db.select().from(users).where(eq(users.address, userAddress));
       if (!user) return [];
 
       const userRewards = await db.select()
@@ -293,7 +293,7 @@ export class ClaimBasedRewards {
         }),
         treasuryAddress: userAddress,
         amount: amount.toString(),
-        reason: 'User claimed rewards after 90-day lock period',
+        reason: 'User claimed rewards after 7-day lock period',
         performedBy: userAddress,
         transactionHash,
         success: true

@@ -65,7 +65,7 @@ export class RewardService {
   private readonly TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
   private readonly PROGRAM_DURATION_DAYS = 365; // 365 days program duration
   private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
-  private readonly LOCK_PERIOD_DAYS = 90; // 90 days from liquidity addition
+  private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
   
   // Liquidity + Duration Weighted Rule parameters
@@ -381,7 +381,7 @@ export class RewardService {
     // Get accumulated rewards
     const accumulatedRewards = existingReward ? Number(existingReward.accumulatedAmount) : 0;
     
-    // Check if eligible for claiming (90 day lock from liquidity addition)
+    // Check if eligible for claiming (7 day lock from liquidity addition)
     const canClaim = daysSinceLiquidity >= this.LOCK_PERIOD_DAYS;
     const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysSinceLiquidity);
 

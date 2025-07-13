@@ -264,8 +264,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         reward: rewardResult,
         smartContract: contractResult,
         liquidityAddedAt,
-        lockPeriodDays: 90,
-        lockEndDate: new Date(liquidityAddedAt.getTime() + (90 * 24 * 60 * 60 * 1000))
+        lockPeriodDays: 7,
+        lockEndDate: new Date(liquidityAddedAt.getTime() + (7 * 24 * 60 * 60 * 1000))
       });
     } catch (error) {
       console.error('Error creating position with rewards:', error);
@@ -834,8 +834,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         message: `Open participation! Add minimum $100 liquidity to join ${sortedPositions.length} other participants.`,
         requirements: {
           minimumPositionValue: 100,
-          lockPeriod: 90,
-          description: "Add at least $100 liquidity and wait 90 days to claim rewards"
+          lockPeriod: 7,
+          description: "Add at least $100 liquidity and wait 7 days to claim rewards"
         }
       });
       
@@ -1676,22 +1676,22 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Admin login (supports both wallet and credentials)
   app.post("/api/admin/login", async (req, res) => {
     try {
-      console.log('Admin login request body:', req.body);
+      // Admin login request received
       const { username, password, walletAddress } = req.body;
       
       // Wallet-based authentication
       if (walletAddress) {
-        console.log('Validating admin wallet:', walletAddress);
+        // Validating admin wallet authentication
         if (validateAdminWallet(walletAddress)) {
           const token = createAdminSession(walletAddress, 'wallet');
-          console.log('Admin wallet login successful, token generated');
+          // Admin wallet login successful, token generated
           res.json({
             success: true,
             token,
             message: 'Admin access granted via wallet'
           });
         } else {
-          console.log('Unauthorized wallet address:', walletAddress);
+          // Unauthorized wallet address attempted
           res.status(401).json({ error: 'Unauthorized: Admin access restricted to authorized wallet' });
         }
         return;
@@ -1699,10 +1699,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Credentials-based authentication
       if (username && password) {
-        console.log('Validating admin credentials for:', username);
+        // Validating admin credentials
         if (validateAdminCredentials(username, password)) {
           const token = createAdminSession(username, 'credentials');
-          console.log('Admin credentials login successful, token generated');
+          // Admin credentials login successful, token generated
           res.json({
             success: true,
             token,
@@ -1960,7 +1960,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // ===== CLAIM-BASED REWARD ROUTES =====
 
-  // Check if user can claim rewards (after 90-day lock period)
+  // Check if user can claim rewards (after 7-day lock period)
   app.get("/api/rewards/claimability/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;
@@ -1972,7 +1972,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Process user's claim request (only after 90-day lock expires)
+  // Process user's claim request (only after 7-day lock expires)
   app.post("/api/rewards/claim", async (req, res) => {
     try {
       const { userAddress } = req.body;

@@ -222,7 +222,7 @@ export class AdminService {
         liquidityWeight: settingsMap.get('liquidityWeight') ? parseFloat(settingsMap.get('liquidityWeight')!) : 0.6,
         timeWeight: settingsMap.get('timeWeight') ? parseFloat(settingsMap.get('timeWeight')!) : 0.4,
         minimumPositionValue: settingsMap.get('minimumPositionValue') ? parseFloat(settingsMap.get('minimumPositionValue')!) : 100,
-        lockPeriod: settingsMap.get('lockPeriod') ? parseInt(settingsMap.get('lockPeriod')!) : 90,
+        lockPeriod: settingsMap.get('lockPeriod') ? parseInt(settingsMap.get('lockPeriod')!) : 7,
         dailyRewardsCap: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : undefined
       };
     } catch (error) {
@@ -234,7 +234,7 @@ export class AdminService {
         liquidityWeight: 0.6,
         timeWeight: 0.4,
         minimumPositionValue: 100,
-        lockPeriod: 90
+        lockPeriod: 7
       };
     }
   }

@@ -118,17 +118,34 @@ export function AdminPanel() {
   // Populate forms with current admin data
   useEffect(() => {
     if (adminStats?.treasury) {
+      const startDate = new Date().toISOString().split('T')[0];
+      const endDate = new Date(Date.now() + (adminStats.treasury.programDuration || 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
       setTreasuryConfigForm({
         treasuryWalletAddress: adminStats.treasury.address || '',
         totalAllocation: adminStats.treasury.totalAllocation || 2905600,
         dailyRewardsCap: adminStats.treasury.dailyRewardsCap || 7960,
         programDurationDays: adminStats.treasury.programDuration || 365,
-        programStartDate: new Date().toISOString().split('T')[0],
-        programEndDate: new Date(Date.now() + (adminStats.treasury.programDuration || 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        programStartDate: startDate,
+        programEndDate: endDate,
         isActive: adminStats.treasury.isActive || true
       });
     }
   }, [adminStats]);
+
+  // Auto-calculate program end date when start date or duration changes
+  useEffect(() => {
+    if (treasuryConfigForm.programStartDate && treasuryConfigForm.programDurationDays) {
+      const startDate = new Date(treasuryConfigForm.programStartDate);
+      const endDate = new Date(startDate.getTime() + treasuryConfigForm.programDurationDays * 24 * 60 * 60 * 1000);
+      const endDateString = endDate.toISOString().split('T')[0];
+      
+      setTreasuryConfigForm(prev => ({
+        ...prev,
+        programEndDate: endDateString
+      }));
+    }
+  }, [treasuryConfigForm.programStartDate, treasuryConfigForm.programDurationDays]);
 
   // Admin login mutation (supports both methods)
   const loginMutation = useMutation({
@@ -288,6 +305,28 @@ export function AdminPanel() {
 
   // Handle treasury configuration update
   const handleTreasuryConfigUpdate = () => {
+    // Validate that Total Allocation >= Annual Rewards Budget
+    const annualRewardsBudget = treasuryConfigForm.dailyRewardsCap * 365;
+    
+    if (treasuryConfigForm.totalAllocation < annualRewardsBudget) {
+      toast({
+        title: "Validation Error",
+        description: `Total Allocation (${treasuryConfigForm.totalAllocation.toLocaleString()} KILT) must be greater than or equal to Annual Rewards Budget (${annualRewardsBudget.toLocaleString()} KILT)`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate required fields
+    if (!treasuryConfigForm.treasuryWalletAddress || !treasuryConfigForm.totalAllocation || !treasuryConfigForm.programDurationDays) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const config = {
       ...treasuryConfigForm,
       programStartDate: new Date(treasuryConfigForm.programStartDate),
@@ -728,7 +767,11 @@ export function AdminPanel() {
                       type="number"
                       value={treasuryConfigForm.totalAllocation || ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, totalAllocation: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className={`bg-gray-800 border-gray-700 text-white ${
+                        treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) 
+                          ? 'border-red-500' 
+                          : 'border-gray-700'
+                      }`}
                     />
                   </div>
                   
@@ -751,15 +794,30 @@ export function AdminPanel() {
                       step="0.01"
                       value={treasuryConfigForm.dailyRewardsCap ? (treasuryConfigForm.dailyRewardsCap * 365).toFixed(2) : ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: (parseFloat(e.target.value) || 0) / 365 })}
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className={`bg-gray-800 border-gray-700 text-white ${
+                        treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) 
+                          ? 'border-red-500' 
+                          : 'border-gray-700'
+                      }`}
                     />
                     <div className="text-sm text-gray-400 mt-1">
-                      Auto-calculated: {treasuryConfigForm.totalAllocation && treasuryConfigForm.programDurationDays 
-                        ? (treasuryConfigForm.totalAllocation).toFixed(0) 
-                        : 2905600} KILT/year
+                      Must be ≤ Total Allocation ({treasuryConfigForm.totalAllocation?.toLocaleString() || '0'} KILT)
                     </div>
                   </div>
                 </div>
+                
+                {/* Validation Warning */}
+                {treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) && (
+                  <div className="bg-red-900/20 border border-red-500 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-red-400">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="font-medium">Validation Error</span>
+                    </div>
+                    <p className="text-red-300 text-sm mt-1">
+                      Total Allocation ({treasuryConfigForm.totalAllocation?.toLocaleString() || '0'} KILT) must be greater than or equal to Annual Rewards Budget ({((treasuryConfigForm.dailyRewardsCap * 365) || 0).toLocaleString()} KILT)
+                    </p>
+                  </div>
+                )}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -779,16 +837,20 @@ export function AdminPanel() {
                       id="endDate"
                       type="date"
                       value={treasuryConfigForm.programEndDate}
-                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programEndDate: e.target.value })}
-                      className="bg-gray-800 border-gray-700 text-white"
+                      readOnly
+                      className="bg-gray-700 border-gray-600 text-gray-300 cursor-not-allowed"
+                      title="Auto-calculated based on Start Date and Duration"
                     />
+                    <div className="text-sm text-gray-400 mt-1">
+                      Auto-calculated from Start Date + Duration
+                    </div>
                   </div>
                 </div>
 
                 <Button 
                   onClick={handleTreasuryConfigUpdate}
-                  disabled={treasuryConfigMutation.isPending}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  disabled={treasuryConfigMutation.isPending || treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365)}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
                 >
                   {treasuryConfigMutation.isPending ? 'Updating...' : 'Update Treasury Configuration'}
                 </Button>

@@ -87,13 +87,6 @@ export function AdminPanel() {
   
   const queryClient = useQueryClient();
   
-  // Auto-login with default credentials if no token exists
-  useEffect(() => {
-    if (!adminToken) {
-      loginMutation.mutate({ username: 'admin', password: 'admin123' });
-    }
-  }, []);
-  
   // Check if connected wallet is authorized
   useEffect(() => {
     if (isConnected && address) {
@@ -191,6 +184,14 @@ export function AdminPanel() {
       });
     },
   });
+
+  // Auto-login with default credentials if no token exists
+  useEffect(() => {
+    if (!adminToken && !loginMutation.isPending && !loginMutation.isError) {
+      console.log('Auto-login attempt with default credentials');
+      loginMutation.mutate({ username: 'admin', password: 'admin123' });
+    }
+  }, [adminToken, loginMutation.isPending, loginMutation.isError]);
 
   // Treasury configuration mutation (SECURE - NO PRIVATE KEYS)
   const treasuryConfigMutation = useMutation({

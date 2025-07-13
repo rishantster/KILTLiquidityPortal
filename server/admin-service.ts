@@ -49,11 +49,19 @@ export class AdminService {
    */
   async updateTreasuryConfiguration(config: AdminTreasuryConfiguration, performedBy: string): Promise<AdminOperationResult> {
     try {
+      console.log('Received config:', JSON.stringify(config, null, 2));
+      
       // Calculate daily rewards cap based on total allocation and program duration
       const dailyRewardsCap = config.totalAllocation / config.programDurationDays;
       
       // Use default treasury address if none provided
       const treasuryAddress = config.treasuryWalletAddress || '0x1234567890123456789012345678901234567890';
+      
+      // Ensure dates are properly converted
+      const startDate = config.programStartDate instanceof Date ? config.programStartDate : new Date(config.programStartDate);
+      const endDate = config.programEndDate instanceof Date ? config.programEndDate : new Date(config.programEndDate);
+      
+      console.log('Converted dates:', { startDate, endDate });
       
       const [existingConfig] = await db.select().from(treasuryConfig).limit(1);
       
@@ -64,8 +72,8 @@ export class AdminService {
             treasuryWalletAddress: treasuryAddress,
             totalAllocation: config.totalAllocation.toString(),
             dailyRewardsCap: dailyRewardsCap.toString(),
-            programStartDate: new Date(config.programStartDate),
-            programEndDate: new Date(config.programEndDate),
+            programStartDate: startDate,
+            programEndDate: endDate,
             programDurationDays: config.programDurationDays,
             isActive: config.isActive,
             updatedAt: new Date()
@@ -77,8 +85,8 @@ export class AdminService {
           treasuryWalletAddress: treasuryAddress,
           totalAllocation: config.totalAllocation.toString(),
           dailyRewardsCap: dailyRewardsCap.toString(),
-          programStartDate: new Date(config.programStartDate),
-          programEndDate: new Date(config.programEndDate),
+          programStartDate: startDate,
+          programEndDate: endDate,
           programDurationDays: config.programDurationDays,
           isActive: config.isActive,
           createdBy: performedBy

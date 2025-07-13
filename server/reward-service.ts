@@ -66,7 +66,7 @@ export class RewardService {
   private readonly PROGRAM_DURATION_DAYS = 365; // 365 days program duration
   private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
   private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
-  private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
+  private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
   
   // Liquidity + Duration Weighted Rule parameters
   private readonly LIQUIDITY_WEIGHT = 0.6; // w1 - weight for liquidity provided
@@ -222,7 +222,7 @@ export class RewardService {
    */
   private async checkParticipantEligibility(liquidity: number, daysActive: number): Promise<{ eligible: boolean, rank?: number }> {
     // All participants with minimum position value are eligible
-    if (liquidity >= this.MIN_POSITION_VALUE) {
+    if (liquidity > 0) { // Any position with value > $0 is eligible
       return { eligible: true };
     }
     

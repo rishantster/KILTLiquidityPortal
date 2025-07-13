@@ -220,7 +220,7 @@ export class AdminService {
         maxTimeCoefficient: settingsMap.get('maxTimeCoefficient') ? parseFloat(settingsMap.get('maxTimeCoefficient')!) : 1.0,
         liquidityWeight: settingsMap.get('liquidityWeight') ? parseFloat(settingsMap.get('liquidityWeight')!) : 0.6,
         timeWeight: settingsMap.get('timeWeight') ? parseFloat(settingsMap.get('timeWeight')!) : 0.4,
-        minimumPositionValue: settingsMap.get('minimumPositionValue') ? parseFloat(settingsMap.get('minimumPositionValue')!) : 100,
+        minimumPositionValue: settingsMap.get('minimumPositionValue') ? parseFloat(settingsMap.get('minimumPositionValue')!) : 0,
         lockPeriod: settingsMap.get('lockPeriod') ? parseInt(settingsMap.get('lockPeriod')!) : 7,
         dailyRewardsCap: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : undefined
       };
@@ -232,7 +232,7 @@ export class AdminService {
         maxTimeCoefficient: 1.0,
         liquidityWeight: 0.6,
         timeWeight: 0.4,
-        minimumPositionValue: 100,
+        minimumPositionValue: 0,
         lockPeriod: 7
       };
     }

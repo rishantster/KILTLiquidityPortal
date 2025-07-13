@@ -65,7 +65,7 @@ export class FixedRewardService {
   private readonly PROGRAM_DURATION_DAYS = 365; // 365 days program duration
   private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
   private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
-  private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
+  private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
   
   // Multiplicative Time Coefficient parameters
   private readonly MIN_TIME_COEFFICIENT = 0.6; // Minimum 60% liquidity recognition on day 1

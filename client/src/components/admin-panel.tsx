@@ -77,7 +77,7 @@ export function AdminPanel() {
     maxTimeCoefficient: 1.0,
     liquidityWeight: 0.6,
     timeWeight: 0.4,
-    minimumPositionValue: 100,
+    minimumPositionValue: 0,
     lockPeriod: 90,
     dailyRewardsCap: 7960
   });
@@ -93,17 +93,24 @@ export function AdminPanel() {
     }
   }, [isConnected, address]);
 
+  // Fetch admin stats
+  const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({
+    queryKey: ['/api/admin/dashboard'],
+    enabled: !!adminToken,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   // Populate forms with current admin data
   useEffect(() => {
-    if (adminStats) {
+    if (adminStats?.treasury) {
       setTreasuryConfigForm({
-        treasuryWalletAddress: adminStats.treasury?.address || '',
-        totalAllocation: adminStats.treasury?.totalAllocation || 2905600,
-        dailyRewardsCap: adminStats.treasury?.dailyRewardsCap || 7960,
-        programDurationDays: adminStats.treasury?.programDuration || 365,
+        treasuryWalletAddress: adminStats.treasury.address || '',
+        totalAllocation: adminStats.treasury.totalAllocation || 2905600,
+        dailyRewardsCap: adminStats.treasury.dailyRewardsCap || 7960,
+        programDurationDays: adminStats.treasury.programDuration || 365,
         programStartDate: new Date().toISOString().split('T')[0],
-        programEndDate: new Date(Date.now() + (adminStats.treasury?.programDuration || 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        isActive: adminStats.treasury?.isActive || true
+        programEndDate: new Date(Date.now() + (adminStats.treasury.programDuration || 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        isActive: adminStats.treasury.isActive || true
       });
     }
   }, [adminStats]);
@@ -142,13 +149,6 @@ export function AdminPanel() {
         variant: "destructive",
       });
     },
-  });
-
-  // Fetch admin stats
-  const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({
-    queryKey: ['/api/admin/dashboard'],
-    enabled: !!adminToken,
-    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Treasury configuration mutation (SECURE - NO PRIVATE KEYS)

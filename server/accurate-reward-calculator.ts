@@ -42,7 +42,7 @@ export class AccurateRewardCalculator {
   private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS;
   private readonly LIQUIDITY_WEIGHT = 0.6; // w1
   private readonly TIME_WEIGHT = 0.4; // w2
-  private readonly MIN_POSITION_VALUE = 100; // Minimum $100 position
+  private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
 
   constructor(private database: any) {}
 

@@ -22,12 +22,12 @@ router.get('/replacement-requirements', async (req, res) => {
     return res.json({
       openParticipation: true,
       totalParticipants: sortedPositions.length,
-      minimumLiquidity: 100, // Minimum $100 position
-      message: `Open participation! Add minimum $100 liquidity to join ${sortedPositions.length} other participants.`,
+      minimumLiquidity: 0, // No minimum position value - any position with value > $0 is eligible
+      message: `Open participation! Add any amount of liquidity to join ${sortedPositions.length} other participants.`,
       requirements: {
-        minimumPositionValue: 100,
+        minimumPositionValue: 0,
         lockPeriod: 7,
-        description: "Add at least $100 liquidity and wait 7 days to claim rewards"
+        description: "Add any amount of liquidity and wait 7 days to claim rewards"
       }
     });
     

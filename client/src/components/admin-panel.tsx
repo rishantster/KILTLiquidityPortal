@@ -21,7 +21,7 @@ import {
   EyeOff,
   Lock,
   ShieldCheck,
-  Clock,
+  Timer,
   Unlock
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -697,7 +697,7 @@ export function AdminPanel() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-3 bg-gray-800 rounded">
-                    <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+                    <Timer className="w-6 h-6 text-blue-400 mx-auto mb-2" />
                     <div className="text-sm font-medium text-white">1. Daily Rewards</div>
                     <div className="text-xs text-gray-400">Users earn proportional rewards from liquidity provision</div>
                   </div>
@@ -765,7 +765,7 @@ export function AdminPanel() {
                     <Input
                       id="totalAllocation"
                       type="number"
-                      value={treasuryConfigForm.totalAllocation || ''}
+                      value={treasuryConfigForm.totalAllocation?.toString() || ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, totalAllocation: parseInt(e.target.value) || 0 })}
                       className={`bg-gray-800/30 backdrop-blur-sm text-white placeholder-gray-400 ${
                         treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) 
@@ -780,7 +780,7 @@ export function AdminPanel() {
                     <Input
                       id="programDuration"
                       type="number"
-                      value={treasuryConfigForm.programDurationDays || ''}
+                      value={treasuryConfigForm.programDurationDays?.toString() || ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDurationDays: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
@@ -875,8 +875,8 @@ export function AdminPanel() {
                       id="liquidityWeight"
                       type="number"
                       step="0.01"
-                      value={settingsForm.liquidityWeight}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, liquidityWeight: parseFloat(e.target.value) })}
+                      value={settingsForm.liquidityWeight?.toString() || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, liquidityWeight: parseFloat(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
@@ -887,8 +887,8 @@ export function AdminPanel() {
                       id="timeWeight"
                       type="number"
                       step="0.01"
-                      value={settingsForm.timeWeight}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, timeWeight: parseFloat(e.target.value) })}
+                      value={settingsForm.timeWeight?.toString() || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, timeWeight: parseFloat(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
@@ -898,8 +898,8 @@ export function AdminPanel() {
                     <Input
                       id="minPositionValue"
                       type="number"
-                      value={settingsForm.minimumPositionValue}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, minimumPositionValue: parseInt(e.target.value) })}
+                      value={settingsForm.minimumPositionValue?.toString() || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
@@ -909,8 +909,8 @@ export function AdminPanel() {
                     <Input
                       id="lockPeriod"
                       type="number"
-                      value={settingsForm.lockPeriod}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, lockPeriod: parseInt(e.target.value) })}
+                      value={settingsForm.lockPeriod?.toString() || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
@@ -920,8 +920,8 @@ export function AdminPanel() {
                     <Input
                       id="dailyRewardsCap"
                       type="number"
-                      value={settingsForm.dailyRewardsCap * 365}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, dailyRewardsCap: parseFloat(e.target.value) / 365 })}
+                      value={settingsForm.dailyRewardsCap ? (settingsForm.dailyRewardsCap * 365).toString() : ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, dailyRewardsCap: (parseFloat(e.target.value) || 0) / 365 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>

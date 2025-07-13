@@ -306,7 +306,7 @@ export function RewardsTracking() {
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-white/60">Lock Period:</span>
-                <span className="text-white">30 days per reward</span>
+                <span className="text-white">7 days per reward</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-white/60">Claim Type:</span>
@@ -325,7 +325,7 @@ export function RewardsTracking() {
             {!canClaim && daysRemaining > 0 && (
               <div className="text-white/60 text-xs text-center mt-2 p-2 bg-blue-500/10 rounded border border-blue-500/20">
                 <p className="font-medium">Next reward unlocks in {daysRemaining} days</p>
-                <p className="text-white/40">Each daily reward has its own 30-day lock period</p>
+                <p className="text-white/40">Each daily reward has its own 7-day lock period</p>
               </div>
             )}
             

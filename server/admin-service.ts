@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 export interface AdminTreasuryConfiguration {
   treasuryWalletAddress: string;
   totalAllocation: number;
+  annualRewardsBudget?: number;
   dailyRewardsCap: number;
   programStartDate: Date;
   programEndDate: Date;
@@ -71,6 +72,7 @@ export class AdminService {
           .set({
             treasuryWalletAddress: treasuryAddress,
             totalAllocation: config.totalAllocation.toString(),
+            annualRewardsBudget: (config.annualRewardsBudget || config.totalAllocation).toString(),
             dailyRewardsCap: dailyRewardsCap.toString(),
             programStartDate: startDate,
             programEndDate: endDate,
@@ -83,6 +85,7 @@ export class AdminService {
         await db.insert(treasuryConfig).values({
           treasuryWalletAddress: treasuryAddress,
           totalAllocation: config.totalAllocation.toString(),
+          annualRewardsBudget: (config.annualRewardsBudget || config.totalAllocation).toString(),
           dailyRewardsCap: dailyRewardsCap.toString(),
           programStartDate: startDate,
           programEndDate: endDate,
@@ -276,15 +279,17 @@ export class AdminService {
       
       // Admin controls the treasury configuration - this is the authoritative source
       const totalAllocation = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 2905600;
+      const annualRewardsBudget = treasuryConf ? parseFloat(treasuryConf.annualRewardsBudget || treasuryConf.totalAllocation) : 1000000;
       const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 7960;
       
       // DEBUG: Log the treasury configuration values
       console.log('Treasury Config Retrieved:', {
         exists: !!treasuryConf,
         totalAllocation: treasuryConf?.totalAllocation,
+        annualRewardsBudget: treasuryConf?.annualRewardsBudget,
         dailyRewardsCap: treasuryConf?.dailyRewardsCap,
         programDuration: treasuryConf?.programDurationDays,
-        parsed: { totalAllocation, dailyRewardsCap }
+        parsed: { totalAllocation, annualRewardsBudget, dailyRewardsCap }
       });
       
       // Calculate total distributed directly (simplified for debugging)
@@ -295,6 +300,7 @@ export class AdminService {
           balance: treasuryBalance.balance,
           address: treasuryBalance.address,
           totalAllocation,
+          annualRewardsBudget,
           dailyRewardsCap,
           programDuration: treasuryConf ? treasuryConf.programDurationDays : 365,
           isActive: treasuryConf ? treasuryConf.isActive : true,

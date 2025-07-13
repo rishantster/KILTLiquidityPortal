@@ -208,6 +208,7 @@ export const treasuryConfig = pgTable("treasury_config", {
   id: serial("id").primaryKey(),
   treasuryWalletAddress: text("treasury_wallet_address").notNull().unique(),
   totalAllocation: numeric("total_allocation", { precision: 30, scale: 18 }).notNull(),
+  annualRewardsBudget: numeric("annual_rewards_budget", { precision: 30, scale: 18 }).notNull(),
   dailyRewardsCap: numeric("daily_rewards_cap", { precision: 30, scale: 18 }).notNull(),
   programStartDate: timestamp("program_start_date").notNull(),
   programEndDate: timestamp("program_end_date").notNull(),
@@ -387,6 +388,7 @@ export const insertProgramSettingsSchema = createInsertSchema(programSettings).p
 export const insertTreasuryConfigSchema = createInsertSchema(treasuryConfig).pick({
   treasuryWalletAddress: true,
   totalAllocation: true,
+  annualRewardsBudget: true,
   dailyRewardsCap: true,
   programStartDate: true,
   programEndDate: true,

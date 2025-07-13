@@ -125,7 +125,7 @@ export function AdminPanel() {
       setTreasuryConfigForm({
         treasuryWalletAddress: adminStats.treasury.address || '',
         totalAllocation: adminStats.treasury.totalAllocation || 2905600,
-        annualRewardsBudget: (adminStats.treasury.dailyRewardsCap || 7960) * (adminStats.treasury.programDuration || 365),
+        annualRewardsBudget: adminStats.treasury.annualRewardsBudget || 1000000,
         dailyRewardsCap: adminStats.treasury.dailyRewardsCap || 7960,
         programDurationDays: adminStats.treasury.programDuration || 365,
         programStartDate: startDate,
@@ -353,7 +353,8 @@ export function AdminPanel() {
     
     const config = {
       ...treasuryConfigForm,
-      dailyRewardsCap: treasuryConfigForm.annualRewardsBudget / treasuryConfigForm.programDurationDays, // Calculate daily from program duration
+      annualRewardsBudget: treasuryConfigForm.annualRewardsBudget,
+      dailyRewardsCap: treasuryConfigForm.annualRewardsBudget / treasuryConfigForm.programDurationDays, // Calculate daily from annual budget
       programStartDate: new Date(treasuryConfigForm.programStartDate),
       programEndDate: new Date(treasuryConfigForm.programEndDate)
     };
@@ -557,7 +558,7 @@ export function AdminPanel() {
                   </div>
                   <p className="text-white/70 text-xs mb-1">Total Rewards Budget</p>
                   <p className="text-white font-bold text-lg">
-                    {((adminStats?.treasury?.dailyRewardsCap || 7960) * (adminStats?.treasury?.programDuration || 365)).toLocaleString()} KILT
+                    {(adminStats?.treasury?.annualRewardsBudget || 1000000).toLocaleString()} KILT
                   </p>
                   <p className="text-purple-300 text-xs">Program Distribution</p>
                 </div>

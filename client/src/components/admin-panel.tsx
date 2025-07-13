@@ -326,9 +326,9 @@ export function AdminPanel() {
       return;
     }
     
-    // Validate required fields with better debugging
+    // Validate required fields with better debugging (Treasury Wallet Address bypassed for now)
     const missingFields = [];
-    if (!treasuryConfigForm.treasuryWalletAddress) missingFields.push("Treasury Wallet Address");
+    // if (!treasuryConfigForm.treasuryWalletAddress) missingFields.push("Treasury Wallet Address"); // Bypassed for now
     if (!treasuryConfigForm.totalAllocation || treasuryConfigForm.totalAllocation <= 0) missingFields.push("Total Allocation");
     if (!treasuryConfigForm.programDurationDays || treasuryConfigForm.programDurationDays <= 0) missingFields.push("Program Duration");
     if (!treasuryConfigForm.annualRewardsBudget || treasuryConfigForm.annualRewardsBudget <= 0) missingFields.push("Annual Rewards Budget");
@@ -760,13 +760,13 @@ export function AdminPanel() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="treasuryAddress" className="text-white">Treasury Wallet Address</Label>
+                    <Label htmlFor="treasuryAddress" className="text-white">Treasury Wallet Address <span className="text-gray-400 font-normal">(Optional)</span></Label>
                     <Input
                       id="treasuryAddress"
                       value={treasuryConfigForm.treasuryWalletAddress}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, treasuryWalletAddress: e.target.value })}
                       className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
-                      placeholder="0x..."
+                      placeholder="0x... (Leave empty if not available)"
                     />
                   </div>
                   

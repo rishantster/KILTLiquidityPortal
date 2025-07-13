@@ -458,9 +458,9 @@ export function AdminPanel() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-400">Daily Rewards Cap</p>
+                      <p className="text-sm text-gray-400">Annual Rewards Budget</p>
                       <p className="text-xl font-bold text-white">
-                        {adminStats?.treasury?.dailyRewardsCap?.toFixed(0) || 7960} KILT
+                        {((adminStats?.treasury?.dailyRewardsCap || 7960) * 365).toFixed(0)} KILT
                       </p>
                     </div>
                     <TrendingUp className="w-8 h-8 text-purple-400" />
@@ -625,12 +625,12 @@ export function AdminPanel() {
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
                     <div className="text-sm font-medium text-white">1. Daily Rewards</div>
-                    <div className="text-xs text-gray-400">Users earn rewards daily from liquidity provision</div>
+                    <div className="text-xs text-gray-400">Users earn proportional rewards from liquidity provision</div>
                   </div>
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <Shield className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
                     <div className="text-sm font-medium text-white">2. Individual Lock</div>
-                    <div className="text-xs text-gray-400">Each reward locked for 7 days from its creation</div>
+                    <div className="text-xs text-gray-400">Smart contract secured reward distribution</div>
                   </div>
                   <div className="text-center p-3 bg-gray-800 rounded">
                     <Unlock className="w-6 h-6 text-green-400 mx-auto mb-2" />
@@ -647,9 +647,9 @@ export function AdminPanel() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>How It Works:</strong> Users accumulate rewards for 7 days, then can claim all 7 days worth at once on Day 8. 
-                    After that, they can claim new rewards daily as they accumulate (rolling basis).
-                    This means after the initial 7-day period, users get their first big claim, then continuous daily claims.
+                    <strong>How It Works:</strong> Users earn rewards proportionally based on their liquidity contribution and time-in-range performance. 
+                    All rewards are secured by smart contract and distributed automatically.
+                    This system ensures fair distribution while maintaining the highest security standards.
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -709,19 +709,19 @@ export function AdminPanel() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="dailyRewardsCap" className="text-white">Daily Rewards Cap (KILT)</Label>
+                    <Label htmlFor="dailyRewardsCap" className="text-white">Annual Rewards Budget (KILT)</Label>
                     <Input
                       id="dailyRewardsCap"
                       type="number"
                       step="0.01"
-                      value={treasuryConfigForm.dailyRewardsCap}
-                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: parseFloat(e.target.value) })}
+                      value={treasuryConfigForm.dailyRewardsCap * 365}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: parseFloat(e.target.value) / 365 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                     <div className="text-sm text-gray-400 mt-1">
                       Auto-calculated: {treasuryConfigForm.totalAllocation && treasuryConfigForm.programDurationDays 
-                        ? (treasuryConfigForm.totalAllocation / treasuryConfigForm.programDurationDays).toFixed(2) 
-                        : 7960} KILT/day
+                        ? (treasuryConfigForm.totalAllocation).toFixed(0) 
+                        : 2905600} KILT/year
                     </div>
                   </div>
                 </div>
@@ -819,12 +819,12 @@ export function AdminPanel() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="dailyRewardsCap" className="text-white">Daily Rewards Cap (KILT)</Label>
+                    <Label htmlFor="dailyRewardsCap" className="text-white">Annual Rewards Budget (KILT)</Label>
                     <Input
                       id="dailyRewardsCap"
                       type="number"
-                      value={settingsForm.dailyRewardsCap}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, dailyRewardsCap: parseFloat(e.target.value) })}
+                      value={settingsForm.dailyRewardsCap * 365}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, dailyRewardsCap: parseFloat(e.target.value) / 365 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>

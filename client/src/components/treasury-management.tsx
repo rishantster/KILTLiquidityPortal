@@ -254,9 +254,9 @@ export function TreasuryManagement() {
             </div>
             
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/70">Daily Budget:</span>
+              <span className="text-sm text-white/70">Annual Budget:</span>
               <span className="text-sm font-bold text-white">
-                {formatKiltAmount(treasuryStats?.dailyBudget || 7960)} KILT
+                {((treasuryStats?.dailyBudget || 7960) * 365).toLocaleString()} KILT
               </span>
             </div>
           </CardContent>

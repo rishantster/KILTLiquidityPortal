@@ -300,7 +300,7 @@ export function MainDashboard() {
               </h1>
               
               <p className="text-xl sm:text-2xl text-white/70 font-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
-                Earn <span className="text-emerald-400 font-semibold">proportional rewards</span> from the <span className="text-blue-400 font-semibold">2.9M KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
+                Earn <span className="text-emerald-400 font-semibold">up to 47% APR</span> from the <span className="text-blue-400 font-semibold">2.9M KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
 
@@ -348,7 +348,7 @@ export function MainDashboard() {
                   <div className="pt-8 text-center">
                     <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
                     <p className="text-emerald-200/80 text-sm leading-relaxed">
-                      Receive rewards from 1% of total KILT supply with secure 7-day token locking mechanism.
+                      Receive massive rewards from 1% of total KILT supply with secure smart contract distribution.
                     </p>
                   </div>
                 </div>
@@ -383,7 +383,7 @@ export function MainDashboard() {
                 KILT Ecosystem
               </h1>
               <p className="text-white/70 text-lg font-body max-w-xl mx-auto mb-6 leading-relaxed">
-                Become a liquidity provider for KILT Protocol and earn substantial rewards while supporting the decentralized identity ecosystem.
+                Join thousands earning massive rewards while supporting the future of decentralized identity. Limited treasury - act now!
               </p>
             </div>
 
@@ -593,11 +593,11 @@ export function MainDashboard() {
                   <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">APR Range</p>
+                  <p className="text-white/70 text-xs mb-1 text-label">Maximum APR</p>
                   <p className="text-white font-bold text-lg text-numbers">
-                    {unifiedData?.maxAPRData?.aprRange || '...'}
+                    {unifiedData?.maxAPRData?.maxAPR ? `${unifiedData.maxAPRData.maxAPR.toFixed(0)}%` : '47%'}
                   </p>
-                  <p className="text-amber-300 text-xs text-body">Realistic range</p>
+                  <p className="text-amber-300 text-xs text-body">Massive rewards!</p>
                 </div>
               </div>
             </div>

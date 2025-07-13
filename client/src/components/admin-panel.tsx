@@ -11,16 +11,16 @@ import {
   Shield, 
   Settings, 
   Wallet, 
-  Plus, 
-  Minus, 
-  ArrowLeftRight, 
-  Clock, 
   CheckCircle, 
   AlertCircle,
   History,
   TrendingUp,
   DollarSign,
-  Users
+  Users,
+  Eye,
+  EyeOff,
+  Lock,
+  ShieldCheck
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -29,17 +29,12 @@ import { useWallet } from '@/contexts/wallet-context';
 
 interface AdminStats {
   treasury: {
-    currentTreasuryAddress: string;
     balance: number;
-    allowance: number;
-    isConfigured: boolean;
-    canTransfer: boolean;
-  };
-  program: {
+    address: string;
     totalAllocation: number;
-    totalDistributed: number;
-    remainingBudget: number;
-    dailyBudget: number;
+    dailyRewardsCap: number;
+    programDuration: number;
+    isActive: boolean;
   };
   settings: {
     programDuration: number;
@@ -49,6 +44,7 @@ interface AdminStats {
     timeWeight: number;
     minimumPositionValue: number;
     lockPeriod: number;
+    dailyRewardsCap?: number;
   };
   operationHistory: any[];
 }
@@ -57,19 +53,23 @@ export function AdminPanel() {
   const { isConnected, address, connect, disconnect } = useWallet();
   const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '');
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [showKeys, setShowKeys] = useState(false);
   const [loginMethod, setLoginMethod] = useState<'wallet' | 'credentials'>('wallet');
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   
   const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
-  const [treasuryForm, setTreasuryForm] = useState({
-    operation: 'add' as 'add' | 'remove' | 'transfer',
-    amount: '',
-    fromAddress: '',
-    toAddress: '',
-    privateKey: '',
-    reason: ''
+  
+  // Treasury Configuration Form (NO PRIVATE KEYS)
+  const [treasuryConfigForm, setTreasuryConfigForm] = useState({
+    treasuryWalletAddress: '',
+    totalAllocation: 2905600,
+    programDurationDays: 365,
+    programStartDate: new Date().toISOString().split('T')[0],
+    programEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    isActive: true
   });
+  
+  // Program Settings Form
   const [settingsForm, setSettingsForm] = useState({
     programDuration: 365,
     minTimeCoefficient: 0.6,
@@ -77,7 +77,8 @@ export function AdminPanel() {
     liquidityWeight: 0.6,
     timeWeight: 0.4,
     minimumPositionValue: 100,
-    lockPeriod: 90
+    lockPeriod: 90,
+    dailyRewardsCap: 7960
   });
   
   const queryClient = useQueryClient();
@@ -94,7 +95,8 @@ export function AdminPanel() {
   // Admin login mutation (supports both methods)
   const loginMutation = useMutation({
     mutationFn: async (loginData: { walletAddress?: string; username?: string; password?: string }) => {
-      const response = await fetch('/api/admin/login', {
+      const endpoint = loginData.walletAddress ? '/api/admin/login-wallet' : '/api/admin/login';
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,38 +128,32 @@ export function AdminPanel() {
     },
   });
 
-  // Admin dashboard data
-  const { data: adminStats, isLoading } = useQuery<AdminStats>({
-    queryKey: ['/api/admin/dashboard'],
+  // Fetch admin stats
+  const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({
+    queryKey: ['/api/admin/stats'],
     enabled: !!adminToken,
-    refetchInterval: 30000,
-    queryFn: async () => {
-      return apiRequest('/api/admin/dashboard', {
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
-    },
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  // Treasury operations mutation
-  const treasuryMutation = useMutation({
-    mutationFn: async ({ endpoint, data }: { endpoint: string; data: any }) => {
-      return apiRequest(endpoint, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${adminToken}` },
-        body: JSON.stringify(data),
+  // Treasury configuration mutation (SECURE - NO PRIVATE KEYS)
+  const treasuryConfigMutation = useMutation({
+    mutationFn: async (config: any) => {
+      return await apiRequest('/api/admin/treasury/config', 'POST', config, {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+        },
       });
     },
     onSuccess: (data) => {
       toast({
         title: "Success",
-        description: data.message || "Operation completed successfully",
+        description: data.message || "Treasury configuration updated",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
-      setTreasuryForm({ ...treasuryForm, privateKey: '', reason: '' });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
     },
     onError: (error: Error) => {
       toast({
-        title: "Operation Failed",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -167,680 +163,527 @@ export function AdminPanel() {
   // Program settings mutation
   const settingsMutation = useMutation({
     mutationFn: async (settings: any) => {
-      return apiRequest('/api/admin/program/settings', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${adminToken}` },
-        body: JSON.stringify(settings),
+      return await apiRequest('/api/admin/program/settings', 'POST', settings, {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+        },
       });
     },
     onSuccess: (data) => {
       toast({
         title: "Success",
-        description: "Program settings updated successfully",
+        description: data.message || "Program settings updated",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
     },
     onError: (error: Error) => {
       toast({
-        title: "Settings Update Failed",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  // Initialize settings form when data loads
-  React.useEffect(() => {
-    if (adminStats?.settings) {
-      setSettingsForm(adminStats.settings);
-    }
-  }, [adminStats]);
-
-  const handleWalletLogin = async () => {
-    if (!isConnected) {
-      await connect();
-      return;
-    }
-    
-    if (address && isAuthorized) {
+  // Handle login
+  const handleLogin = async () => {
+    if (loginMethod === 'wallet') {
+      if (!isConnected || !address) {
+        toast({
+          title: "Connect Wallet",
+          description: "Please connect your wallet first",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (address.toLowerCase() !== ADMIN_WALLET_ADDRESS.toLowerCase()) {
+        toast({
+          title: "Unauthorized",
+          description: "This wallet is not authorized for admin access",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       loginMutation.mutate({ walletAddress: address });
+    } else {
+      if (!loginForm.username || !loginForm.password) {
+        toast({
+          title: "Missing Information",
+          description: "Please enter both username and password",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      loginMutation.mutate({ 
+        username: loginForm.username, 
+        password: loginForm.password 
+      });
     }
   };
 
-  const handleCredentialsLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    loginMutation.mutate({ username: loginForm.username, password: loginForm.password });
-  };
-
-  const handleTreasuryOperation = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    let endpoint = '';
-    let data = {};
-    
-    switch (treasuryForm.operation) {
-      case 'add':
-        endpoint = '/api/admin/treasury/add';
-        data = {
-          amount: treasuryForm.amount,
-          toAddress: treasuryForm.toAddress,
-          privateKey: treasuryForm.privateKey,
-          reason: treasuryForm.reason
-        };
-        break;
-      case 'remove':
-        endpoint = '/api/admin/treasury/remove';
-        data = {
-          amount: treasuryForm.amount,
-          fromAddress: treasuryForm.fromAddress,
-          toAddress: treasuryForm.toAddress,
-          privateKey: treasuryForm.privateKey,
-          reason: treasuryForm.reason
-        };
-        break;
-      case 'transfer':
-        endpoint = '/api/admin/treasury/transfer';
-        data = {
-          amount: treasuryForm.amount,
-          fromAddress: treasuryForm.fromAddress,
-          toAddress: treasuryForm.toAddress,
-          privateKey: treasuryForm.privateKey,
-          reason: treasuryForm.reason
-        };
-        break;
-    }
-    
-    treasuryMutation.mutate({ endpoint, data });
-  };
-
-  const handleSettingsUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    settingsMutation.mutate(settingsForm);
-  };
-
-  const handleLogout = async () => {
+  // Handle logout
+  const handleLogout = () => {
     setAdminToken('');
     localStorage.removeItem('adminToken');
-    await disconnect();
+    setIsAuthorized(false);
     toast({
       title: "Logged Out",
       description: "Admin session ended",
     });
   };
 
-  const formatKiltAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+  // Handle treasury configuration update
+  const handleTreasuryConfigUpdate = () => {
+    const config = {
+      ...treasuryConfigForm,
+      programStartDate: new Date(treasuryConfigForm.programStartDate),
+      programEndDate: new Date(treasuryConfigForm.programEndDate)
+    };
+    treasuryConfigMutation.mutate(config);
   };
 
-  const formatAddress = (address: string) => {
-    if (!address || address === '0x0000000000000000000000000000000000000000') {
-      return 'Not configured';
-    }
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  // Handle settings update
+  const handleSettingsUpdate = () => {
+    settingsMutation.mutate(settingsForm);
   };
 
-  // Login interface (both wallet and credentials)
+  // Calculate daily rewards cap automatically
+  const calculateDailyRewardsCap = () => {
+    return treasuryConfigForm.totalAllocation / treasuryConfigForm.programDurationDays;
+  };
+
+  // Login UI
   if (!adminToken) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-black/40 backdrop-blur-xl border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="flex items-center justify-center gap-2 text-white text-xl">
-              <Shield className="h-6 w-6 text-emerald-400" />
-              Admin Panel
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-gray-900 border-gray-800">
+          <CardHeader className="text-center">
+            <CardTitle className="text-white flex items-center justify-center gap-2">
+              <Shield className="w-5 h-5 text-emerald-400" />
+              Admin Access
             </CardTitle>
-            <p className="text-emerald-200/70 text-sm mt-2">Access treasury management and program settings</p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             {/* Login Method Toggle */}
-            <div className="flex rounded-lg bg-emerald-500/10 backdrop-blur-sm p-1 border border-emerald-500/20">
-              <Button
-                type="button"
-                variant={loginMethod === 'wallet' ? 'default' : 'ghost'}
+            <div className="flex rounded-lg bg-gray-800 p-1">
+              <button
                 onClick={() => setLoginMethod('wallet')}
-                className={`flex-1 h-8 text-xs transition-all ${
-                  loginMethod === 'wallet' 
-                    ? 'bg-emerald-500/20 text-emerald-300 shadow-lg' 
-                    : 'text-emerald-200/70 hover:text-emerald-300 hover:bg-emerald-500/10'
+                className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  loginMethod === 'wallet'
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
-                <Wallet className="h-3 w-3 mr-1" />
+                <Wallet className="w-4 h-4 inline mr-1" />
                 Wallet
-              </Button>
-              <Button
-                type="button"
-                variant={loginMethod === 'credentials' ? 'default' : 'ghost'}
+              </button>
+              <button
                 onClick={() => setLoginMethod('credentials')}
-                className={`flex-1 h-8 text-xs transition-all ${
-                  loginMethod === 'credentials' 
-                    ? 'bg-emerald-500/20 text-emerald-300 shadow-lg' 
-                    : 'text-emerald-200/70 hover:text-emerald-300 hover:bg-emerald-500/10'
+                className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  loginMethod === 'credentials'
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
-                <Shield className="h-3 w-3 mr-1" />
+                <Lock className="w-4 h-4 inline mr-1" />
                 Credentials
-              </Button>
+              </button>
             </div>
 
             {/* Wallet Login */}
             {loginMethod === 'wallet' && (
-              <>
+              <div className="space-y-4">
+                <Alert>
+                  <ShieldCheck className="h-4 w-4" />
+                  <AlertDescription>
+                    Connect with authorized admin wallet:
+                    <br />
+                    <code className="text-xs text-emerald-400">
+                      {ADMIN_WALLET_ADDRESS}
+                    </code>
+                  </AlertDescription>
+                </Alert>
+                
                 {!isConnected ? (
-                  <div className="text-center space-y-4">
-                    <p className="text-emerald-200/70">Connect your wallet to access admin features</p>
-                    <Button
-                      onClick={handleWalletLogin}
-                      disabled={loginMutation.isPending}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-emerald-500/25"
-                    >
-                      <Wallet className="h-4 w-4 mr-2" />
-                      Connect Wallet
-                    </Button>
-                  </div>
-                ) : !isAuthorized ? (
-                  <div className="text-center space-y-4">
-                    <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-300">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Access Denied: Only authorized wallet addresses can access admin features.
-                      </AlertDescription>
-                    </Alert>
-                    <p className="text-emerald-200/70 text-sm">Connected: {address}</p>
-                    <p className="text-emerald-200/70 text-sm">Required: {ADMIN_WALLET_ADDRESS}</p>
-                    <Button
-                      onClick={handleLogout}
-                      variant="outline"
-                      className="w-full border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300"
-                    >
-                      Disconnect
-                    </Button>
-                  </div>
+                  <Button onClick={connect} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                    Connect Wallet
+                  </Button>
                 ) : (
-                  <div className="text-center space-y-4">
-                    <Alert className="bg-emerald-500/10 border-emerald-500/20 text-emerald-300">
-                      <CheckCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Authorized wallet connected. Click below to access admin features.
-                      </AlertDescription>
-                    </Alert>
-                    <p className="text-emerald-200/70 text-sm">Connected: {address}</p>
-                    <Button
-                      onClick={handleWalletLogin}
-                      disabled={loginMutation.isPending}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-emerald-500/25"
-                    >
-                      {loginMutation.isPending ? "Authenticating..." : "Access Admin Panel"}
-                    </Button>
+                  <div className="space-y-2">
+                    <div className="text-sm text-gray-400">
+                      Connected: {address}
+                    </div>
+                    {isAuthorized ? (
+                      <Badge variant="default" className="bg-emerald-600">
+                        Authorized Wallet
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive">
+                        Unauthorized Wallet
+                      </Badge>
+                    )}
                   </div>
                 )}
-              </>
+              </div>
             )}
 
             {/* Credentials Login */}
             {loginMethod === 'credentials' && (
-              <form onSubmit={handleCredentialsLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username" className="text-emerald-200">Username</Label>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="username" className="text-white">Username</Label>
                   <Input
                     id="username"
                     type="text"
                     value={loginForm.username}
                     onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
-                    className="bg-black/20 border-emerald-500/20 text-white placeholder:text-emerald-200/50 focus:border-emerald-400 focus:ring-emerald-400/20"
-                    placeholder="admin"
-                    required
+                    className="bg-gray-800 border-gray-700 text-white"
+                    placeholder="Enter username"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-emerald-200">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={loginForm.password}
-                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                    className="bg-black/20 border-emerald-500/20 text-white placeholder:text-emerald-200/50 focus:border-emerald-400 focus:ring-emerald-400/20"
-                    placeholder="admin123"
-                    required
-                  />
+                <div>
+                  <Label htmlFor="password" className="text-white">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      className="bg-gray-800 border-gray-700 text-white pr-10"
+                      placeholder="Enter password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
-                <Button
-                  type="submit"
-                  disabled={loginMutation.isPending}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-emerald-500/25"
-                >
-                  {loginMutation.isPending ? "Logging in..." : "Login"}
-                </Button>
-              </form>
+              </div>
             )}
+
+            <Button 
+              onClick={handleLogin} 
+              disabled={loginMutation.isPending}
+              className="w-full bg-emerald-600 hover:bg-emerald-700"
+            >
+              {loginMutation.isPending ? 'Authenticating...' : 'Login'}
+            </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-        <div className="text-emerald-200">Loading admin dashboard...</div>
-      </div>
-    );
-  }
-
+  // Main Admin Panel UI
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-950 text-white p-4">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Shield className="h-6 w-6 text-emerald-400" />
+            <Shield className="w-6 h-6 text-emerald-400" />
             KILT Admin Panel
           </h1>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            className="border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300"
-          >
-            Logout
-          </Button>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-          <Card className="bg-black/40 backdrop-blur-xl border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-emerald-200/70">Treasury Balance</p>
-                  <p className="text-lg font-bold text-white tabular-nums">
-                    {formatKiltAmount(adminStats?.treasury.balance || 0)}
-                  </p>
-                </div>
-                <Wallet className="h-5 w-5 text-emerald-400" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/40 backdrop-blur-xl border-blue-500/20 shadow-lg shadow-blue-500/5">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-blue-200/70">Total Allocation</p>
-                  <p className="text-lg font-bold text-white tabular-nums">
-                    {formatKiltAmount(adminStats?.program.totalAllocation || 0)}
-                  </p>
-                </div>
-                <DollarSign className="h-5 w-5 text-blue-400" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/40 backdrop-blur-xl border-orange-500/20 shadow-lg shadow-orange-500/5">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-orange-200/70">Daily Budget</p>
-                  <p className="text-lg font-bold text-white tabular-nums">
-                    {formatKiltAmount(adminStats?.program.dailyBudget || 0)}
-                  </p>
-                </div>
-                <TrendingUp className="h-5 w-5 text-orange-400" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/40 backdrop-blur-xl border-purple-500/20 shadow-lg shadow-purple-500/5">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-purple-200/70">Program Duration</p>
-                  <p className="text-lg font-bold text-white tabular-nums">
-                    {adminStats?.settings.programDuration || 365} days
-                  </p>
-                </div>
-                <Clock className="h-5 w-5 text-purple-400" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <Tabs defaultValue="treasury" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 bg-black/40 backdrop-blur-xl border-emerald-500/20">
-            <TabsTrigger 
-              value="treasury" 
-              className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 text-emerald-200/70"
+          <div className="flex items-center gap-4">
+            <Badge variant="default" className="bg-emerald-600">
+              {loginMethod === 'wallet' ? 'Wallet Auth' : 'Credentials Auth'}
+            </Badge>
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
             >
-              Treasury Management
+              Logout
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats Overview */}
+        {statsLoading ? (
+          <div className="text-center py-8">Loading admin data...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-400">Treasury Balance</p>
+                    <p className="text-xl font-bold text-white">
+                      {adminStats?.treasury?.balance?.toFixed(0) || 0} KILT
+                    </p>
+                  </div>
+                  <Wallet className="w-8 h-8 text-emerald-400" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-400">Total Allocation</p>
+                    <p className="text-xl font-bold text-white">
+                      {adminStats?.treasury?.totalAllocation?.toFixed(0) || 2905600} KILT
+                    </p>
+                  </div>
+                  <DollarSign className="w-8 h-8 text-blue-400" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-400">Daily Rewards Cap</p>
+                    <p className="text-xl font-bold text-white">
+                      {adminStats?.treasury?.dailyRewardsCap?.toFixed(0) || 7960} KILT
+                    </p>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-purple-400" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-400">Program Duration</p>
+                    <p className="text-xl font-bold text-white">
+                      {adminStats?.treasury?.programDuration || 365} days
+                    </p>
+                  </div>
+                  <Users className="w-8 h-8 text-green-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Main Admin Tabs */}
+        <Tabs defaultValue="treasury" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+            <TabsTrigger value="treasury" className="text-gray-300 data-[state=active]:bg-gray-700">
+              Treasury Config
             </TabsTrigger>
-            <TabsTrigger 
-              value="settings"
-              className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 text-emerald-200/70"
-            >
+            <TabsTrigger value="settings" className="text-gray-300 data-[state=active]:bg-gray-700">
               Program Settings
             </TabsTrigger>
-            <TabsTrigger 
-              value="history"
-              className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 text-emerald-200/70"
-            >
+            <TabsTrigger value="history" className="text-gray-300 data-[state=active]:bg-gray-700">
               Operation History
             </TabsTrigger>
           </TabsList>
 
+          {/* Treasury Configuration Tab */}
           <TabsContent value="treasury" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Treasury Status */}
-              <Card className="bg-black/40 backdrop-blur-xl border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white text-lg">Treasury Status</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-emerald-200/70">Address:</span>
-                    <span className="text-xs font-mono text-white">
-                      {formatAddress(adminStats?.treasury.currentTreasuryAddress || '')}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-emerald-200/70">Balance:</span>
-                    <span className="text-xs font-bold text-white tabular-nums">
-                      {formatKiltAmount(adminStats?.treasury.balance || 0)} KILT
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-emerald-200/70">Allowance:</span>
-                    <span className="text-xs font-bold text-white tabular-nums">
-                      {formatKiltAmount(adminStats?.treasury.allowance || 0)} KILT
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-emerald-200/70">Can Transfer:</span>
-                    <Badge 
-                      variant={adminStats?.treasury.canTransfer ? "default" : "destructive"}
-                      className={`text-xs ${adminStats?.treasury.canTransfer ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}
-                    >
-                      {adminStats?.treasury.canTransfer ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Treasury Operations */}
-              <Card className="bg-black/40 backdrop-blur-xl border-blue-500/20 shadow-lg shadow-blue-500/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white text-lg">Treasury Operations</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <form onSubmit={handleTreasuryOperation} className="space-y-3">
-                    <div className="space-y-2">
-                      <Label className="text-emerald-200 text-sm">Operation Type</Label>
-                      <div className="flex gap-1">
-                        <Button
-                          type="button"
-                          variant={treasuryForm.operation === 'add' ? 'default' : 'outline'}
-                          onClick={() => setTreasuryForm({ ...treasuryForm, operation: 'add' })}
-                          className={`flex-1 h-8 text-xs ${treasuryForm.operation === 'add' ? 'bg-emerald-500/20 text-emerald-300' : 'border-emerald-500/20 text-emerald-200/70'}`}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={treasuryForm.operation === 'remove' ? 'default' : 'outline'}
-                          onClick={() => setTreasuryForm({ ...treasuryForm, operation: 'remove' })}
-                          className={`flex-1 h-8 text-xs ${treasuryForm.operation === 'remove' ? 'bg-emerald-500/20 text-emerald-300' : 'border-emerald-500/20 text-emerald-200/70'}`}
-                        >
-                          <Minus className="h-3 w-3 mr-1" />
-                          Remove
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={treasuryForm.operation === 'transfer' ? 'default' : 'outline'}
-                          onClick={() => setTreasuryForm({ ...treasuryForm, operation: 'transfer' })}
-                          className={`flex-1 h-8 text-xs ${treasuryForm.operation === 'transfer' ? 'bg-emerald-500/20 text-emerald-300' : 'border-emerald-500/20 text-emerald-200/70'}`}
-                        >
-                          <ArrowLeftRight className="h-3 w-3 mr-1" />
-                          Transfer
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-emerald-200 text-sm">Amount (KILT)</Label>
-                      <Input
-                        type="number"
-                        value={treasuryForm.amount}
-                        onChange={(e) => setTreasuryForm({ ...treasuryForm, amount: e.target.value })}
-                        className="bg-black/20 border-emerald-500/20 text-white placeholder:text-emerald-200/50 focus:border-emerald-400 focus:ring-emerald-400/20 h-8 text-sm"
-                        placeholder="1000"
-                        required
-                      />
-                    </div>
-
-                    {treasuryForm.operation !== 'add' && (
-                      <div className="space-y-2">
-                        <Label className="text-white">From Address</Label>
-                        <Input
-                          type="text"
-                          value={treasuryForm.fromAddress}
-                          onChange={(e) => setTreasuryForm({ ...treasuryForm, fromAddress: e.target.value })}
-                          className="bg-black/20 border-gray-600 text-white"
-                          placeholder="0x..."
-                          required
-                        />
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <Label className="text-white">To Address</Label>
-                      <Input
-                        type="text"
-                        value={treasuryForm.toAddress}
-                        onChange={(e) => setTreasuryForm({ ...treasuryForm, toAddress: e.target.value })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        placeholder="0x..."
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-white">Private Key</Label>
-                      <Input
-                        type={showKeys ? "text" : "password"}
-                        value={treasuryForm.privateKey}
-                        onChange={(e) => setTreasuryForm({ ...treasuryForm, privateKey: e.target.value })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        placeholder="0x..."
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-white">Reason</Label>
-                      <Textarea
-                        value={treasuryForm.reason}
-                        onChange={(e) => setTreasuryForm({ ...treasuryForm, reason: e.target.value })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        placeholder="Describe the reason for this operation..."
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowKeys(!showKeys)}
-                        className="border-gray-600"
-                      >
-                        {showKeys ? 'Hide' : 'Show'} Keys
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={treasuryMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                      >
-                        {treasuryMutation.isPending ? 'Processing...' : 'Execute Operation'}
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-4">
-            <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
+            <Card className="bg-gray-900 border-gray-800">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Program Settings
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                  Secure Treasury Configuration
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSettingsUpdate} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-white">Program Duration (days)</Label>
-                      <Input
-                        type="number"
-                        value={settingsForm.programDuration}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, programDuration: parseInt(e.target.value) })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        min="1"
-                        max="1000"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-white">Lock Period (days)</Label>
-                      <Input
-                        type="number"
-                        value={settingsForm.lockPeriod}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, lockPeriod: parseInt(e.target.value) })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        min="1"
-                        max="365"
-                      />
-                    </div>
-                  </div>
+              <CardContent className="space-y-4">
+                <Alert>
+                  <ShieldCheck className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Security Notice:</strong> This configuration system does not require private keys. 
+                    All treasury operations are read-only with secure wallet-based configuration management.
+                  </AlertDescription>
+                </Alert>
 
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white">Reward Formula Coefficients</h3>
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
-                      </AlertDescription>
-                    </Alert>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-white">Min Time Coefficient</Label>
-                      <Input
-                        type="number"
-                        step="0.001"
-                        value={settingsForm.minTimeCoefficient}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, minTimeCoefficient: parseFloat(e.target.value) })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        min="0"
-                        max="1"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-white">Max Time Coefficient</Label>
-                      <Input
-                        type="number"
-                        step="0.001"
-                        value={settingsForm.maxTimeCoefficient}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, maxTimeCoefficient: parseFloat(e.target.value) })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        min="0"
-                        max="1"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-white">Liquidity Weight (w1)</Label>
-                      <Input
-                        type="number"
-                        step="0.001"
-                        value={settingsForm.liquidityWeight}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, liquidityWeight: parseFloat(e.target.value) })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        min="0"
-                        max="1"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-white">Time Weight (w2)</Label>
-                      <Input
-                        type="number"
-                        step="0.001"
-                        value={settingsForm.timeWeight}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, timeWeight: parseFloat(e.target.value) })}
-                        className="bg-black/20 border-gray-600 text-white"
-                        min="0"
-                        max="1"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-white">Minimum Position Value (USD)</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="treasuryAddress" className="text-white">Treasury Wallet Address</Label>
                     <Input
-                      type="number"
-                      value={settingsForm.minimumPositionValue}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, minimumPositionValue: parseFloat(e.target.value) })}
-                      className="bg-black/20 border-gray-600 text-white"
-                      min="1"
+                      id="treasuryAddress"
+                      value={treasuryConfigForm.treasuryWalletAddress}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, treasuryWalletAddress: e.target.value })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                      placeholder="0x..."
                     />
                   </div>
+                  
+                  <div>
+                    <Label htmlFor="totalAllocation" className="text-white">Total Allocation (KILT)</Label>
+                    <Input
+                      id="totalAllocation"
+                      type="number"
+                      value={treasuryConfigForm.totalAllocation}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, totalAllocation: parseInt(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="programDuration" className="text-white">Program Duration (Days)</Label>
+                    <Input
+                      id="programDuration"
+                      type="number"
+                      value={treasuryConfigForm.programDurationDays}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDurationDays: parseInt(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label className="text-white">Auto-Calculated Daily Rewards Cap</Label>
+                    <div className="text-lg font-bold text-emerald-400">
+                      {calculateDailyRewardsCap().toFixed(2)} KILT/day
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startDate" className="text-white">Program Start Date</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={treasuryConfigForm.programStartDate}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programStartDate: e.target.value })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="endDate" className="text-white">Program End Date</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={treasuryConfigForm.programEndDate}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programEndDate: e.target.value })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                </div>
 
-                  <Button
-                    type="submit"
-                    disabled={settingsMutation.isPending}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  >
-                    {settingsMutation.isPending ? 'Updating...' : 'Update Settings'}
-                  </Button>
-                </form>
+                <Button 
+                  onClick={handleTreasuryConfigUpdate}
+                  disabled={treasuryConfigMutation.isPending}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                >
+                  {treasuryConfigMutation.isPending ? 'Updating...' : 'Update Treasury Configuration'}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
-            <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20">
+          {/* Program Settings Tab */}
+          <TabsContent value="settings" className="space-y-4">
+            <Card className="bg-gray-900 border-gray-800">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <History className="h-5 w-5" />
+                  <Settings className="w-5 h-5 text-blue-400" />
+                  Program Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="liquidityWeight" className="text-white">Liquidity Weight (w1)</Label>
+                    <Input
+                      id="liquidityWeight"
+                      type="number"
+                      step="0.01"
+                      value={settingsForm.liquidityWeight}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, liquidityWeight: parseFloat(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="timeWeight" className="text-white">Time Weight (w2)</Label>
+                    <Input
+                      id="timeWeight"
+                      type="number"
+                      step="0.01"
+                      value={settingsForm.timeWeight}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, timeWeight: parseFloat(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="minPositionValue" className="text-white">Minimum Position Value ($)</Label>
+                    <Input
+                      id="minPositionValue"
+                      type="number"
+                      value={settingsForm.minimumPositionValue}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, minimumPositionValue: parseInt(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="lockPeriod" className="text-white">Lock Period (Days)</Label>
+                    <Input
+                      id="lockPeriod"
+                      type="number"
+                      value={settingsForm.lockPeriod}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, lockPeriod: parseInt(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="dailyRewardsCap" className="text-white">Daily Rewards Cap (KILT)</Label>
+                    <Input
+                      id="dailyRewardsCap"
+                      type="number"
+                      value={settingsForm.dailyRewardsCap}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, dailyRewardsCap: parseFloat(e.target.value) })}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleSettingsUpdate}
+                  disabled={settingsMutation.isPending}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  {settingsMutation.isPending ? 'Updating...' : 'Update Program Settings'}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Operation History Tab */}
+          <TabsContent value="history" className="space-y-4">
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <History className="w-5 h-5 text-purple-400" />
                   Operation History
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {adminStats?.operationHistory && adminStats.operationHistory.length > 0 ? (
+                <div className="space-y-2">
+                  {adminStats?.operationHistory?.length > 0 ? (
                     adminStats.operationHistory.map((op, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                          <div>
-                            <p className="text-white font-medium">{op.operation}</p>
-                            <p className="text-sm text-white/70">{op.reason}</p>
-                          </div>
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-800 rounded">
+                        <div>
+                          <div className="font-medium text-white">{op.operationType}</div>
+                          <div className="text-sm text-gray-400">{op.reason}</div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-white">{op.amount ? `${op.amount} KILT` : 'N/A'}</p>
-                          <p className="text-xs text-white/70">{new Date(op.timestamp).toLocaleString()}</p>
+                          <div className="text-sm text-gray-400">{op.performedBy}</div>
+                          <div className="text-xs text-gray-500">
+                            {new Date(op.timestamp).toLocaleString()}
+                          </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-white/70">
+                    <div className="text-center py-8 text-gray-400">
                       No operations recorded yet
                     </div>
                   )}

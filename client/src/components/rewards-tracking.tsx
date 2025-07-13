@@ -15,7 +15,8 @@ import {
   Trophy,
   Coins,
   BarChart3,
-  Gift
+  Gift,
+  Plus
 } from 'lucide-react';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
@@ -293,10 +294,15 @@ export function RewardsTracking() {
                     <Lock className="h-4 w-4 mr-2" />
                     No Rewards Available
                   </>
-                ) : (
+                ) : (rewardStats?.totalAccumulated || 0) > 0 ? (
                   <>
                     <Clock className="h-4 w-4 mr-2" />
                     {daysRemaining} days remaining
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add liquidity to earn rewards
                   </>
                 )}
               </Button>

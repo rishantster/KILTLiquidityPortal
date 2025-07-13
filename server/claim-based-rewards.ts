@@ -67,7 +67,7 @@ export class ClaimBasedRewards {
         return {
           canClaim: false,
           lockExpired: false,
-          daysRemaining: 0,
+          daysRemaining: 7, // Show 7 days as countdown until user creates positions
           totalClaimable: 0,
           lockExpiryDate: new Date()
         };

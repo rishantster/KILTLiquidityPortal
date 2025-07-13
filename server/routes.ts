@@ -1832,11 +1832,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Update program settings
+  // Update program settings with secure tracking
   app.post("/api/admin/program/settings", requireAdminAuth, async (req, res) => {
     try {
       const settings = req.body;
-      const result = await adminService.updateProgramSettings(settings);
+      const performedBy = req.user?.identifier || 'unknown';
+      
+      const result = await adminService.updateProgramSettings(settings, performedBy);
       res.json(result);
     } catch (error) {
       console.error('Error updating program settings:', error);
@@ -1864,6 +1866,94 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Error getting operation history:', error);
       res.status(500).json({ error: 'Failed to get operation history' });
+    }
+  });
+
+  // ===== NEW SECURE ADMIN ROUTES =====
+
+  // Get treasury balance (read-only)
+  app.get("/api/admin/treasury/balance", requireAdminAuth, async (req, res) => {
+    try {
+      const balance = await adminService.getTreasuryBalance();
+      res.json(balance);
+    } catch (error) {
+      console.error('Error getting treasury balance:', error);
+      res.status(500).json({ error: 'Failed to get treasury balance' });
+    }
+  });
+
+  // Update treasury configuration (without private keys)
+  app.post("/api/admin/treasury/config", requireAdminAuth, async (req, res) => {
+    try {
+      const config = req.body;
+      const performedBy = req.user?.identifier || 'unknown';
+      
+      if (!config.treasuryWalletAddress || !config.totalAllocation || !config.programDurationDays) {
+        res.status(400).json({ error: 'Treasury wallet address, total allocation, and program duration required' });
+        return;
+      }
+
+      const result = await adminService.updateTreasuryConfiguration(config, performedBy);
+      res.json(result);
+    } catch (error) {
+      console.error('Error updating treasury configuration:', error);
+      res.status(500).json({ error: 'Failed to update treasury configuration' });
+    }
+  });
+
+  // Admin login with credentials
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        res.status(400).json({ error: 'Username and password required' });
+        return;
+      }
+
+      const isValid = validateAdminCredentials(username, password);
+      if (!isValid) {
+        res.status(401).json({ error: 'Invalid credentials' });
+        return;
+      }
+
+      const token = createAdminSession(username, 'credentials');
+      res.json({ 
+        success: true, 
+        token, 
+        message: 'Admin login successful' 
+      });
+    } catch (error) {
+      console.error('Error during admin login:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Admin login with wallet
+  app.post("/api/admin/login-wallet", async (req, res) => {
+    try {
+      const { walletAddress } = req.body;
+      
+      if (!walletAddress) {
+        res.status(400).json({ error: 'Wallet address required' });
+        return;
+      }
+
+      const isValid = validateAdminWallet(walletAddress);
+      if (!isValid) {
+        res.status(401).json({ error: 'Invalid wallet address' });
+        return;
+      }
+
+      const token = createAdminSession(walletAddress, 'wallet');
+      res.json({ 
+        success: true, 
+        token, 
+        message: 'Admin wallet login successful' 
+      });
+    } catch (error) {
+      console.error('Error during admin wallet login:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

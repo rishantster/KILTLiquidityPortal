@@ -193,6 +193,46 @@ export const positionEligibility = pgTable("position_eligibility", {
   uniquePositionEligibility: unique().on(table.positionId, table.nftTokenId),
 }));
 
+// Program settings table for dynamic configuration
+export const programSettings = pgTable("program_settings", {
+  id: serial("id").primaryKey(),
+  settingKey: text("setting_key").notNull().unique(),
+  settingValue: text("setting_value").notNull(),
+  description: text("description"),
+  lastUpdatedBy: text("last_updated_by").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Treasury configuration table
+export const treasuryConfig = pgTable("treasury_config", {
+  id: serial("id").primaryKey(),
+  treasuryWalletAddress: text("treasury_wallet_address").notNull().unique(),
+  totalAllocation: numeric("total_allocation", { precision: 30, scale: 18 }).notNull(),
+  dailyRewardsCap: numeric("daily_rewards_cap", { precision: 30, scale: 18 }).notNull(),
+  programStartDate: timestamp("program_start_date").notNull(),
+  programEndDate: timestamp("program_end_date").notNull(),
+  programDurationDays: integer("program_duration_days").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Admin operations audit log
+export const adminOperations = pgTable("admin_operations", {
+  id: serial("id").primaryKey(),
+  operationType: text("operation_type").notNull(), // 'treasury_update', 'settings_change', 'rewards_cap_change'
+  operationDetails: text("operation_details").notNull(), // JSON string with operation details
+  treasuryAddress: text("treasury_address"),
+  amount: numeric("amount", { precision: 30, scale: 18 }),
+  reason: text("reason").notNull(),
+  performedBy: text("performed_by").notNull(), // Admin wallet address or username
+  transactionHash: text("transaction_hash"), // If blockchain transaction involved
+  success: boolean("success").notNull(),
+  errorMessage: text("error_message"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 // Liquidity events tracking table
 export const liquidityEvents = pgTable("liquidity_events", {
   id: serial("id").primaryKey(),
@@ -336,6 +376,83 @@ export const insertPoolMetricsHistorySchema = createInsertSchema(poolMetricsHist
   feeGrowthGlobal1: true,
 });
 
+// New schema validators for admin features
+export const insertProgramSettingsSchema = createInsertSchema(programSettings).pick({
+  settingKey: true,
+  settingValue: true,
+  description: true,
+  lastUpdatedBy: true,
+});
+
+export const insertTreasuryConfigSchema = createInsertSchema(treasuryConfig).pick({
+  treasuryWalletAddress: true,
+  totalAllocation: true,
+  dailyRewardsCap: true,
+  programStartDate: true,
+  programEndDate: true,
+  programDurationDays: true,
+  isActive: true,
+  createdBy: true,
+});
+
+export const insertAdminOperationSchema = createInsertSchema(adminOperations).pick({
+  operationType: true,
+  operationDetails: true,
+  treasuryAddress: true,
+  amount: true,
+  reason: true,
+  performedBy: true,
+  transactionHash: true,
+  success: true,
+  errorMessage: true,
+});
+
+// Type definitions for inserts and selects
+export type LpPosition = typeof lpPositions.$inferSelect;
+export type InsertLpPosition = typeof lpPositions.$inferInsert;
+
+export type Reward = typeof rewards.$inferSelect;
+export type InsertReward = typeof rewards.$inferInsert;
+
+export type PoolStats = typeof poolStats.$inferSelect;
+export type InsertPoolStats = typeof poolStats.$inferInsert;
+
+export type PositionSnapshot = typeof positionSnapshots.$inferSelect;
+export type InsertPositionSnapshot = typeof positionSnapshots.$inferInsert;
+
+export type PoolMetricsHistory = typeof poolMetricsHistory.$inferSelect;
+export type InsertPoolMetricsHistory = typeof poolMetricsHistory.$inferInsert;
+
+export type UserAnalytics = typeof userAnalytics.$inferSelect;
+export type InsertUserAnalytics = typeof userAnalytics.$inferInsert;
+
+export type FeeEvent = typeof feeEvents.$inferSelect;
+export type InsertFeeEvent = typeof feeEvents.$inferInsert;
+
+export type DailyReward = typeof dailyRewards.$inferSelect;
+export type InsertDailyReward = typeof dailyRewards.$inferInsert;
+
+export type PerformanceMetrics = typeof performanceMetrics.$inferSelect;
+export type InsertPerformanceMetrics = typeof performanceMetrics.$inferInsert;
+
+export type AppTransaction = typeof appTransactions.$inferSelect;
+export type InsertAppTransaction = typeof appTransactions.$inferInsert;
+
+export type PositionEligibility = typeof positionEligibility.$inferSelect;
+export type InsertPositionEligibility = typeof positionEligibility.$inferInsert;
+
+// Program settings types
+export type ProgramSettings = typeof programSettings.$inferSelect;
+export type InsertProgramSettings = typeof programSettings.$inferInsert;
+
+// Treasury config types
+export type TreasuryConfig = typeof treasuryConfig.$inferSelect;
+export type InsertTreasuryConfig = typeof treasuryConfig.$inferInsert;
+
+// Admin operations types
+export type AdminOperation = typeof adminOperations.$inferSelect;
+export type InsertAdminOperation = typeof adminOperations.$inferInsert;
+
 export const insertUserAnalyticsSchema = createInsertSchema(userAnalytics).pick({
   userId: true,
   date: true,
@@ -390,57 +507,7 @@ export type UserAnalytics = typeof userAnalytics.$inferSelect;
 export type InsertFeeEvent = z.infer<typeof insertFeeEventSchema>;
 export type FeeEvent = typeof feeEvents.$inferSelect;
 
-// Admin operations tracking
-export const adminOperations = pgTable("admin_operations", {
-  id: serial("id").primaryKey(),
-  operation: text("operation").notNull(),
-  amount: numeric("amount", { precision: 20, scale: 8 }),
-  fromAddress: text("from_address"),
-  toAddress: text("to_address"),
-  transactionHash: text("transaction_hash"),
-  reason: text("reason"),
-  settings: text("settings"), // JSON string for program settings
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-});
-
-// Program settings
-export const programSettings = pgTable("program_settings", {
-  id: serial("id").primaryKey(),
-  programDuration: integer("program_duration").default(365).notNull(),
-  minTimeCoefficient: numeric("min_time_coefficient", { precision: 5, scale: 3 }).default('0.600').notNull(),
-  maxTimeCoefficient: numeric("max_time_coefficient", { precision: 5, scale: 3 }).default('1.000').notNull(),
-  liquidityWeight: numeric("liquidity_weight", { precision: 5, scale: 3 }).default('0.600').notNull(),
-  timeWeight: numeric("time_weight", { precision: 5, scale: 3 }).default('0.400').notNull(),
-  minimumPositionValue: numeric("minimum_position_value", { precision: 20, scale: 8 }).default('100').notNull(),
-  lockPeriod: integer("lock_period").default(90).notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const insertAdminOperationSchema = createInsertSchema(adminOperations).pick({
-  operation: true,
-  amount: true,
-  fromAddress: true,
-  toAddress: true,
-  transactionHash: true,
-  reason: true,
-  settings: true,
-});
-
-export const insertProgramSettingsSchema = createInsertSchema(programSettings).pick({
-  programDuration: true,
-  minTimeCoefficient: true,
-  maxTimeCoefficient: true,
-  liquidityWeight: true,
-  timeWeight: true,
-  minimumPositionValue: true,
-  lockPeriod: true,
-});
-
-export type InsertAdminOperation = z.infer<typeof insertAdminOperationSchema>;
-export type AdminOperation = typeof adminOperations.$inferSelect;
-
-export type InsertProgramSettings = z.infer<typeof insertProgramSettingsSchema>;
-export type ProgramSettings = typeof programSettings.$inferSelect;
+// Clean up duplicate type definitions
 export type InsertPerformanceMetrics = z.infer<typeof insertPerformanceMetricsSchema>;
 export type LiquidityEvent = typeof liquidityEvents.$inferSelect;
 export type InsertLiquidityEvent = z.infer<typeof insertLiquidityEventSchema>;

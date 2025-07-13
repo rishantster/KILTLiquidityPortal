@@ -1,16 +1,17 @@
 import { ethers } from 'ethers';
 import { db } from './db';
 import { treasuryService } from './treasury-service';
-import { adminOperations, programSettings } from '@shared/schema';
+import { adminOperations, programSettings, treasuryConfig } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 
-export interface AdminTreasuryOperation {
-  operation: 'add' | 'remove' | 'transfer';
-  amount: number;
-  fromAddress?: string;
-  toAddress?: string;
-  privateKey: string;
-  reason: string;
+export interface AdminTreasuryConfiguration {
+  treasuryWalletAddress: string;
+  totalAllocation: number;
+  dailyRewardsCap: number;
+  programStartDate: Date;
+  programEndDate: Date;
+  programDurationDays: number;
+  isActive: boolean;
 }
 
 export interface AdminProgramSettings {
@@ -21,6 +22,7 @@ export interface AdminProgramSettings {
   timeWeight?: number; // w2 in formula
   minimumPositionValue?: number; // minimum USD value
   lockPeriod?: number; // in days
+  dailyRewardsCap?: number; // daily KILT cap for rewards
 }
 
 export interface AdminOperationResult {
@@ -34,10 +36,7 @@ export class AdminService {
   private provider: ethers.JsonRpcProvider;
   private readonly KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
   private readonly KILT_TOKEN_ABI = [
-    'function transfer(address to, uint256 amount) returns (bool)',
-    'function transferFrom(address from, address to, uint256 amount) returns (bool)',
     'function balanceOf(address account) view returns (uint256)',
-    'function approve(address spender, uint256 amount) returns (bool)',
     'function allowance(address owner, address spender) view returns (uint256)'
   ];
 
@@ -46,167 +45,142 @@ export class AdminService {
   }
 
   /**
-   * Add KILT tokens to treasury wallet
+   * Configure treasury settings without private keys
    */
-  async addToTreasury(operation: AdminTreasuryOperation): Promise<AdminOperationResult> {
+  async updateTreasuryConfiguration(config: AdminTreasuryConfiguration, performedBy: string): Promise<AdminOperationResult> {
     try {
-      if (!operation.toAddress || !operation.privateKey) {
-        return { success: false, message: 'Treasury address and private key required' };
-      }
-
-      const wallet = new ethers.Wallet(operation.privateKey, this.provider);
-      const kiltContract = new ethers.Contract(this.KILT_TOKEN_ADDRESS, this.KILT_TOKEN_ABI, wallet);
+      // Calculate daily rewards cap based on total allocation and program duration
+      const dailyRewardsCap = config.totalAllocation / config.programDurationDays;
       
-      const amountWei = ethers.parseEther(operation.amount.toString());
-      const tx = await kiltContract.transfer(operation.toAddress, amountWei);
-      await tx.wait();
+      const [existingConfig] = await db.select().from(treasuryConfig).limit(1);
+      
+      if (existingConfig) {
+        // Update existing configuration
+        await db.update(treasuryConfig)
+          .set({
+            treasuryWalletAddress: config.treasuryWalletAddress,
+            totalAllocation: config.totalAllocation.toString(),
+            dailyRewardsCap: dailyRewardsCap.toString(),
+            programStartDate: config.programStartDate,
+            programEndDate: config.programEndDate,
+            programDurationDays: config.programDurationDays,
+            isActive: config.isActive,
+            updatedAt: new Date()
+          })
+          .where(eq(treasuryConfig.id, existingConfig.id));
+      } else {
+        // Create new configuration
+        await db.insert(treasuryConfig).values({
+          treasuryWalletAddress: config.treasuryWalletAddress,
+          totalAllocation: config.totalAllocation.toString(),
+          dailyRewardsCap: dailyRewardsCap.toString(),
+          programStartDate: config.programStartDate,
+          programEndDate: config.programEndDate,
+          programDurationDays: config.programDurationDays,
+          isActive: config.isActive,
+          createdBy: performedBy
+        });
+      }
 
       // Log operation
       await this.logAdminOperation({
-        operation: 'treasury_add',
-        amount: operation.amount,
-        toAddress: operation.toAddress,
-        transactionHash: tx.hash,
-        reason: operation.reason,
-        timestamp: new Date()
+        operationType: 'treasury_configuration',
+        operationDetails: JSON.stringify(config),
+        treasuryAddress: config.treasuryWalletAddress,
+        amount: config.totalAllocation.toString(),
+        reason: 'Treasury configuration updated',
+        performedBy,
+        success: true
       });
 
       return {
         success: true,
-        transactionHash: tx.hash,
-        message: `Successfully added ${operation.amount} KILT to treasury`
+        message: `Treasury configuration updated successfully. Daily rewards cap: ${dailyRewardsCap.toFixed(2)} KILT`
       };
     } catch (error) {
       return {
         success: false,
-        message: 'Failed to add to treasury',
+        message: 'Failed to update treasury configuration',
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
 
   /**
-   * Remove KILT tokens from treasury wallet
+   * Get treasury balance from blockchain (read-only)
    */
-  async removeFromTreasury(operation: AdminTreasuryOperation): Promise<AdminOperationResult> {
+  async getTreasuryBalance(): Promise<{ balance: number; address: string }> {
     try {
-      if (!operation.fromAddress || !operation.toAddress || !operation.privateKey) {
-        return { success: false, message: 'From address, to address, and private key required' };
+      const [config] = await db.select().from(treasuryConfig).limit(1);
+      if (!config) {
+        return { balance: 0, address: '0x0000000000000000000000000000000000000000' };
       }
 
-      const wallet = new ethers.Wallet(operation.privateKey, this.provider);
-      const kiltContract = new ethers.Contract(this.KILT_TOKEN_ADDRESS, this.KILT_TOKEN_ABI, wallet);
-      
-      const amountWei = ethers.parseEther(operation.amount.toString());
-      const tx = await kiltContract.transfer(operation.toAddress, amountWei);
-      await tx.wait();
-
-      // Log operation
-      await this.logAdminOperation({
-        operation: 'treasury_remove',
-        amount: operation.amount,
-        fromAddress: operation.fromAddress,
-        toAddress: operation.toAddress,
-        transactionHash: tx.hash,
-        reason: operation.reason,
-        timestamp: new Date()
-      });
+      const kiltContract = new ethers.Contract(this.KILT_TOKEN_ADDRESS, this.KILT_TOKEN_ABI, this.provider);
+      const balance = await kiltContract.balanceOf(config.treasuryWalletAddress);
+      const balanceEther = parseFloat(ethers.formatEther(balance));
 
       return {
-        success: true,
-        transactionHash: tx.hash,
-        message: `Successfully removed ${operation.amount} KILT from treasury`
+        balance: balanceEther,
+        address: config.treasuryWalletAddress
       };
     } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to remove from treasury',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+      return { balance: 0, address: '0x0000000000000000000000000000000000000000' };
     }
   }
 
   /**
-   * Transfer KILT tokens between addresses
+   * Update program settings with dynamic daily rewards cap
    */
-  async transferTokens(operation: AdminTreasuryOperation): Promise<AdminOperationResult> {
+  async updateProgramSettings(settings: AdminProgramSettings, performedBy: string): Promise<AdminOperationResult> {
     try {
-      if (!operation.fromAddress || !operation.toAddress || !operation.privateKey) {
-        return { success: false, message: 'From address, to address, and private key required' };
-      }
-
-      const wallet = new ethers.Wallet(operation.privateKey, this.provider);
-      const kiltContract = new ethers.Contract(this.KILT_TOKEN_ADDRESS, this.KILT_TOKEN_ABI, wallet);
-      
-      const amountWei = ethers.parseEther(operation.amount.toString());
-      const tx = await kiltContract.transfer(operation.toAddress, amountWei);
-      await tx.wait();
-
-      // Log operation
-      await this.logAdminOperation({
-        operation: 'treasury_transfer',
-        amount: operation.amount,
-        fromAddress: operation.fromAddress,
-        toAddress: operation.toAddress,
-        transactionHash: tx.hash,
-        reason: operation.reason,
-        timestamp: new Date()
-      });
-
-      return {
-        success: true,
-        transactionHash: tx.hash,
-        message: `Successfully transferred ${operation.amount} KILT`
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to transfer tokens',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
-
-  /**
-   * Update program settings
-   */
-  async updateProgramSettings(settings: AdminProgramSettings): Promise<AdminOperationResult> {
-    try {
-      // Store updated settings in database
-      const currentSettings = await this.getCurrentProgramSettings();
-      const updatedSettings = { ...currentSettings, ...settings };
-      
-      // Update database with new settings using Drizzle ORM
-      await db.insert(programSettings).values({
-        id: 1,
-        programDuration: updatedSettings.programDuration,
-        minTimeCoefficient: updatedSettings.minTimeCoefficient?.toString(),
-        maxTimeCoefficient: updatedSettings.maxTimeCoefficient?.toString(),
-        liquidityWeight: updatedSettings.liquidityWeight?.toString(),
-        timeWeight: updatedSettings.timeWeight?.toString(),
-        minimumPositionValue: updatedSettings.minimumPositionValue?.toString(),
-        lockPeriod: updatedSettings.lockPeriod,
-        updatedAt: new Date()
-      }).onConflictDoUpdate({
-        target: programSettings.id,
-        set: {
-          programDuration: updatedSettings.programDuration,
-          minTimeCoefficient: updatedSettings.minTimeCoefficient?.toString(),
-          maxTimeCoefficient: updatedSettings.maxTimeCoefficient?.toString(),
-          liquidityWeight: updatedSettings.liquidityWeight?.toString(),
-          timeWeight: updatedSettings.timeWeight?.toString(),
-          minimumPositionValue: updatedSettings.minimumPositionValue?.toString(),
-          lockPeriod: updatedSettings.lockPeriod,
-          updatedAt: new Date()
+      // If daily rewards cap is provided, update treasury configuration
+      if (settings.dailyRewardsCap) {
+        const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+        if (treasuryConf) {
+          await db.update(treasuryConfig)
+            .set({
+              dailyRewardsCap: settings.dailyRewardsCap.toString(),
+              updatedAt: new Date()
+            })
+            .where(eq(treasuryConfig.id, treasuryConf.id));
         }
-      });
+      }
+
+      // Update program settings in key-value format
+      const settingsToUpdate = [
+        { key: 'programDuration', value: settings.programDuration?.toString() },
+        { key: 'minTimeCoefficient', value: settings.minTimeCoefficient?.toString() },
+        { key: 'maxTimeCoefficient', value: settings.maxTimeCoefficient?.toString() },
+        { key: 'liquidityWeight', value: settings.liquidityWeight?.toString() },
+        { key: 'timeWeight', value: settings.timeWeight?.toString() },
+        { key: 'minimumPositionValue', value: settings.minimumPositionValue?.toString() },
+        { key: 'lockPeriod', value: settings.lockPeriod?.toString() },
+      ].filter(setting => setting.value !== undefined);
+
+      for (const setting of settingsToUpdate) {
+        await db.insert(programSettings).values({
+          settingKey: setting.key,
+          settingValue: setting.value!,
+          description: `${setting.key} setting`,
+          lastUpdatedBy: performedBy
+        }).onConflictDoUpdate({
+          target: programSettings.settingKey,
+          set: {
+            settingValue: setting.value!,
+            lastUpdatedBy: performedBy,
+            updatedAt: new Date()
+          }
+        });
+      }
 
       // Log operation
       await this.logAdminOperation({
-        operation: 'program_settings_update',
-        settings: settings,
-        reason: 'Program settings updated by admin',
-        timestamp: new Date()
+        operationType: 'program_settings_update',
+        operationDetails: JSON.stringify(settings),
+        reason: 'Program settings updated',
+        performedBy,
+        success: true
       });
 
       return {
@@ -214,6 +188,15 @@ export class AdminService {
         message: 'Program settings updated successfully'
       };
     } catch (error) {
+      await this.logAdminOperation({
+        operationType: 'program_settings_update',
+        operationDetails: JSON.stringify(settings),
+        reason: 'Failed to update program settings',
+        performedBy,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      });
+
       return {
         success: false,
         message: 'Failed to update program settings',
@@ -227,30 +210,20 @@ export class AdminService {
    */
   async getCurrentProgramSettings(): Promise<AdminProgramSettings> {
     try {
-      const result = await db.select().from(programSettings).where(eq(programSettings.id, 1));
+      const settings = await db.select().from(programSettings);
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       
-      if (result.length > 0) {
-        const row = result[0];
-        return {
-          programDuration: row.programDuration || 365,
-          minTimeCoefficient: parseFloat(row.minTimeCoefficient) || 0.6,
-          maxTimeCoefficient: parseFloat(row.maxTimeCoefficient) || 1.0,
-          liquidityWeight: parseFloat(row.liquidityWeight) || 0.6,
-          timeWeight: parseFloat(row.timeWeight) || 0.4,
-          minimumPositionValue: parseFloat(row.minimumPositionValue) || 100,
-          lockPeriod: row.lockPeriod || 90
-        };
-      }
+      const settingsMap = new Map(settings.map(s => [s.settingKey, s.settingValue]));
       
-      // Default settings
       return {
-        programDuration: 365,
-        minTimeCoefficient: 0.6,
-        maxTimeCoefficient: 1.0,
-        liquidityWeight: 0.6,
-        timeWeight: 0.4,
-        minimumPositionValue: 100,
-        lockPeriod: 90
+        programDuration: settingsMap.get('programDuration') ? parseInt(settingsMap.get('programDuration')!) : 365,
+        minTimeCoefficient: settingsMap.get('minTimeCoefficient') ? parseFloat(settingsMap.get('minTimeCoefficient')!) : 0.6,
+        maxTimeCoefficient: settingsMap.get('maxTimeCoefficient') ? parseFloat(settingsMap.get('maxTimeCoefficient')!) : 1.0,
+        liquidityWeight: settingsMap.get('liquidityWeight') ? parseFloat(settingsMap.get('liquidityWeight')!) : 0.6,
+        timeWeight: settingsMap.get('timeWeight') ? parseFloat(settingsMap.get('timeWeight')!) : 0.4,
+        minimumPositionValue: settingsMap.get('minimumPositionValue') ? parseFloat(settingsMap.get('minimumPositionValue')!) : 100,
+        lockPeriod: settingsMap.get('lockPeriod') ? parseInt(settingsMap.get('lockPeriod')!) : 90,
+        dailyRewardsCap: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : undefined
       };
     } catch (error) {
       // Return default settings if database query fails
@@ -286,20 +259,25 @@ export class AdminService {
    */
   async getAdminTreasuryStats(): Promise<any> {
     try {
-      const treasuryInfo = await treasuryService.getTreasuryInfo();
-      const treasuryStats = await treasuryService.getTreasuryStats();
+      const treasuryBalance = await this.getTreasuryBalance();
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const programSettings = await this.getCurrentProgramSettings();
       
       return {
-        treasury: treasuryInfo,
-        program: treasuryStats,
+        treasury: {
+          balance: treasuryBalance.balance,
+          address: treasuryBalance.address,
+          totalAllocation: treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 2905600,
+          dailyRewardsCap: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 7960,
+          programDuration: treasuryConf ? treasuryConf.programDurationDays : 365,
+          isActive: treasuryConf ? treasuryConf.isActive : true
+        },
         settings: programSettings,
         operationHistory: await this.getOperationHistory(10)
       };
     } catch (error) {
       return {
-        treasury: { balance: 0, allowance: 0, isConfigured: false },
-        program: { totalAllocation: 2905600, totalDistributed: 0, remainingBudget: 2905600 },
+        treasury: { balance: 0, address: '0x0000000000000000000000000000000000000000' },
         settings: await this.getCurrentProgramSettings(),
         operationHistory: []
       };
@@ -312,17 +290,19 @@ export class AdminService {
   private async logAdminOperation(operation: any): Promise<void> {
     try {
       await db.insert(adminOperations).values({
-        operation: operation.operation,
-        amount: operation.amount?.toString() || null,
-        fromAddress: operation.fromAddress || null,
-        toAddress: operation.toAddress || null,
-        transactionHash: operation.transactionHash || null,
-        reason: operation.reason || null,
-        settings: operation.settings ? JSON.stringify(operation.settings) : null,
-        timestamp: operation.timestamp
+        operationType: operation.operationType,
+        operationDetails: operation.operationDetails,
+        treasuryAddress: operation.treasuryAddress,
+        amount: operation.amount,
+        reason: operation.reason,
+        performedBy: operation.performedBy,
+        transactionHash: operation.transactionHash,
+        success: operation.success,
+        errorMessage: operation.errorMessage
       });
     } catch (error) {
-      console.error('Failed to log admin operation:', error);
+      // Log error but don't fail the operation
+      return;
     }
   }
 }

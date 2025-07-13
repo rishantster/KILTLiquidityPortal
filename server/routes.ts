@@ -1903,33 +1903,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Admin login with credentials
-  app.post("/api/admin/login", async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      
-      if (!username || !password) {
-        res.status(400).json({ error: 'Username and password required' });
-        return;
-      }
 
-      const isValid = validateAdminCredentials(username, password);
-      if (!isValid) {
-        res.status(401).json({ error: 'Invalid credentials' });
-        return;
-      }
-
-      const token = createAdminSession(username, 'credentials');
-      res.json({ 
-        success: true, 
-        token, 
-        message: 'Admin login successful' 
-      });
-    } catch (error) {
-      console.error('Error during admin login:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
 
   // Admin login with wallet
   app.post("/api/admin/login-wallet", async (req, res) => {

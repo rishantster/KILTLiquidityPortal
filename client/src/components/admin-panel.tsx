@@ -186,12 +186,16 @@ export function AdminPanel() {
     },
   });
 
-  // Restore token from localStorage if available (but don't auto-login)
+  // Restore token from localStorage if available, or use default development token
   useEffect(() => {
     const storedToken = localStorage.getItem('adminToken');
     if (!adminToken && storedToken) {
-      console.log('Using stored token:', storedToken);
       setAdminToken(storedToken);
+    } else if (!adminToken && !storedToken) {
+      // Use default development token for testing
+      const defaultToken = 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3';
+      setAdminToken(defaultToken);
+      localStorage.setItem('adminToken', defaultToken);
     }
   }, [adminToken]);
 

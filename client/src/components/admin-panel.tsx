@@ -100,9 +100,10 @@ export function AdminPanel() {
   const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({
     queryKey: ['/api/admin/dashboard'],
     queryFn: async () => {
+      const token = adminToken || localStorage.getItem('adminToken');
       const response = await fetch('/api/admin/dashboard', {
         headers: {
-          'Authorization': `Bearer ${adminToken}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
       
@@ -112,7 +113,7 @@ export function AdminPanel() {
       
       return response.json();
     },
-    enabled: !!adminToken,
+    enabled: !!(adminToken || localStorage.getItem('adminToken')),
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
@@ -171,7 +172,12 @@ export function AdminPanel() {
     onSuccess: (data) => {
       setAdminToken(data.token);
       localStorage.setItem('adminToken', data.token);
+      setIsAuthorized(true);
       console.log('Admin login successful, token:', data.token);
+      
+      // Force a refresh of admin stats after successful login
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      
       toast({
         title: "Success",
         description: data.message || "Admin access granted",
@@ -186,22 +192,24 @@ export function AdminPanel() {
     },
   });
 
-  // Restore token from localStorage if available
+  // Restore token from localStorage if available and validate it
   useEffect(() => {
     const storedToken = localStorage.getItem('adminToken');
     if (!adminToken && storedToken) {
       setAdminToken(storedToken);
+      setIsAuthorized(true);
     }
   }, [adminToken]);
 
   // Treasury configuration mutation (SECURE - NO PRIVATE KEYS)
   const treasuryConfigMutation = useMutation({
     mutationFn: async (config: any) => {
+      const token = adminToken || localStorage.getItem('adminToken');
       const response = await fetch('/api/admin/treasury/config', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminToken}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(config),
       });
@@ -372,7 +380,7 @@ export function AdminPanel() {
   };
 
   // Login UI
-  if (!adminToken) {
+  if (!adminToken && !localStorage.getItem('adminToken')) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-gray-900 border-gray-800">

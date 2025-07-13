@@ -767,10 +767,10 @@ export function AdminPanel() {
                       type="number"
                       value={treasuryConfigForm.totalAllocation || ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, totalAllocation: parseInt(e.target.value) || 0 })}
-                      className={`bg-gray-800 border-gray-700 text-white ${
+                      className={`bg-gray-800/30 backdrop-blur-sm text-white placeholder-gray-400 ${
                         treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) 
-                          ? 'border-red-500' 
-                          : 'border-gray-700'
+                          ? 'border-red-500/50' 
+                          : 'border-gray-700/30'
                       }`}
                     />
                   </div>
@@ -794,10 +794,10 @@ export function AdminPanel() {
                       step="0.01"
                       value={treasuryConfigForm.dailyRewardsCap ? (treasuryConfigForm.dailyRewardsCap * 365).toFixed(2) : ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, dailyRewardsCap: (parseFloat(e.target.value) || 0) / 365 })}
-                      className={`bg-gray-800 border-gray-700 text-white ${
+                      className={`bg-gray-800/30 backdrop-blur-sm text-white placeholder-gray-400 ${
                         treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) 
-                          ? 'border-red-500' 
-                          : 'border-gray-700'
+                          ? 'border-red-500/50' 
+                          : 'border-gray-700/30'
                       }`}
                     />
                     <div className="text-sm text-gray-400 mt-1">
@@ -807,7 +807,7 @@ export function AdminPanel() {
                 </div>
                 
                 {/* Validation Warning */}
-                {treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) && (
+                {(treasuryConfigForm.totalAllocation > 0 && treasuryConfigForm.dailyRewardsCap > 0 && treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365)) && (
                   <div className="bg-red-900/20 border border-red-500 rounded-lg p-3">
                     <div className="flex items-center gap-2 text-red-400">
                       <AlertCircle className="w-4 h-4" />
@@ -838,7 +838,7 @@ export function AdminPanel() {
                       type="date"
                       value={treasuryConfigForm.programEndDate}
                       readOnly
-                      className="bg-gray-700 border-gray-600 text-gray-300 cursor-not-allowed"
+                      className="bg-gray-700/30 backdrop-blur-sm border-gray-600/30 text-gray-300 cursor-not-allowed"
                       title="Auto-calculated based on Start Date and Duration"
                     />
                     <div className="text-sm text-gray-400 mt-1">

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { db } from './db';
 import { rewards, users, adminOperations } from '@shared/schema';
-import { eq, and, lt } from 'drizzle-orm';
+import { eq, and, lt, isNull } from 'drizzle-orm';
 
 export interface ClaimResult {
   success: boolean;
@@ -59,7 +59,7 @@ export class ClaimBasedRewards {
         .where(
           and(
             eq(rewards.userId, user.id),
-            eq(rewards.claimed, false)
+            isNull(rewards.claimedAt)
           )
         );
 
@@ -165,7 +165,7 @@ export class ClaimBasedRewards {
         .where(
           and(
             eq(rewards.userId, user.id),
-            eq(rewards.claimed, false)
+            isNull(rewards.claimedAt)
           )
         );
 
@@ -209,7 +209,7 @@ export class ClaimBasedRewards {
 
       // Calculate total amount to claim (all accumulated rewards)
       const totalAmount = claimableRewards.reduce((sum, reward) => {
-        return sum + (parseFloat(reward.dailyAmount || '0'));
+        return sum + (parseFloat(reward.dailyRewardAmount || '0'));
       }, 0);
 
       // THIS IS WHERE THE SMART CONTRACT INTEGRATION WOULD HAPPEN
@@ -226,9 +226,7 @@ export class ClaimBasedRewards {
       for (const reward of claimableRewards) {
         await db.update(rewards)
           .set({
-            claimed: true,
-            claimedAt: new Date(),
-            transactionHash: simulatedTransactionHash
+            claimedAt: new Date()
           })
           .where(eq(rewards.id, reward.id));
       }
@@ -269,8 +267,8 @@ export class ClaimBasedRewards {
 
       return userRewards.map(reward => ({
         ...reward,
-        amount: parseFloat(reward.dailyAmount || '0'),
-        claimable: !reward.claimed
+        amount: parseFloat(reward.dailyRewardAmount || '0'),
+        claimable: !reward.claimedAt
       }));
     } catch (error) {
       console.error('Error getting reward history:', error);

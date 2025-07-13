@@ -52,13 +52,16 @@ export class AdminService {
       // Calculate daily rewards cap based on total allocation and program duration
       const dailyRewardsCap = config.totalAllocation / config.programDurationDays;
       
+      // Use default treasury address if none provided
+      const treasuryAddress = config.treasuryWalletAddress || '0x1234567890123456789012345678901234567890';
+      
       const [existingConfig] = await db.select().from(treasuryConfig).limit(1);
       
       if (existingConfig) {
         // Update existing configuration
         await db.update(treasuryConfig)
           .set({
-            treasuryWalletAddress: config.treasuryWalletAddress,
+            treasuryWalletAddress: treasuryAddress,
             totalAllocation: config.totalAllocation.toString(),
             dailyRewardsCap: dailyRewardsCap.toString(),
             programStartDate: config.programStartDate,
@@ -71,13 +74,14 @@ export class AdminService {
       } else {
         // Create new configuration
         await db.insert(treasuryConfig).values({
-          treasuryWalletAddress: config.treasuryWalletAddress,
+          treasuryWalletAddress: treasuryAddress,
           totalAllocation: config.totalAllocation.toString(),
           dailyRewardsCap: dailyRewardsCap.toString(),
           programStartDate: config.programStartDate,
           programEndDate: config.programEndDate,
           programDurationDays: config.programDurationDays,
-          isActive: config.isActive
+          isActive: config.isActive,
+          createdBy: performedBy
         });
       }
 
@@ -97,6 +101,7 @@ export class AdminService {
         message: `Treasury configuration updated successfully. Daily rewards cap: ${dailyRewardsCap.toFixed(2)} KILT`
       };
     } catch (error) {
+      console.error('Treasury configuration update error:', error);
       return {
         success: false,
         message: 'Failed to update treasury configuration',

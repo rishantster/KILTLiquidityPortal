@@ -472,7 +472,7 @@ export function AdminPanel() {
 
   // Main Admin Panel UI
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4">
+    <div className="min-h-screen bg-black text-white p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -481,13 +481,13 @@ export function AdminPanel() {
             KILT Admin Panel
           </h1>
           <div className="flex items-center gap-4">
-            <Badge variant="default" className="bg-emerald-600">
+            <Badge variant="default" className="bg-emerald-600/20 backdrop-blur-sm border border-emerald-400/30 text-emerald-300">
               {loginMethod === 'wallet' ? 'Wallet Auth' : 'Credentials Auth'}
             </Badge>
             <Button 
               variant="outline" 
               onClick={handleLogout}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="border-gray-600/30 text-gray-300 hover:bg-gray-800/30 backdrop-blur-sm"
             >
               Logout
             </Button>
@@ -500,7 +500,7 @@ export function AdminPanel() {
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -514,7 +514,7 @@ export function AdminPanel() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -528,7 +528,7 @@ export function AdminPanel() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -542,7 +542,7 @@ export function AdminPanel() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -558,12 +558,12 @@ export function AdminPanel() {
             </div>
 
             {/* Treasury Progress */}
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold text-white">Treasury Distribution Progress</h3>
-                    <Badge variant="outline" className="text-emerald-400 border-emerald-400">
+                    <Badge variant="outline" className="text-emerald-400 border-emerald-400/30 bg-emerald-400/10">
                       {adminStats?.treasury?.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
@@ -598,17 +598,17 @@ export function AdminPanel() {
 
         {/* Main Admin Tabs */}
         <Tabs defaultValue="treasury" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800">
-            <TabsTrigger value="treasury" className="text-gray-300 data-[state=active]:bg-gray-700">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
+            <TabsTrigger value="treasury" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Treasury Config
             </TabsTrigger>
-            <TabsTrigger value="distribution" className="text-gray-300 data-[state=active]:bg-gray-700">
+            <TabsTrigger value="distribution" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Token Distribution
             </TabsTrigger>
-            <TabsTrigger value="settings" className="text-gray-300 data-[state=active]:bg-gray-700">
+            <TabsTrigger value="settings" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Program Settings
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-gray-300 data-[state=active]:bg-gray-700">
+            <TabsTrigger value="history" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Operation History
             </TabsTrigger>
           </TabsList>
@@ -625,7 +625,7 @@ export function AdminPanel() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Transaction Signing Explanation */}
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Lock className="w-5 h-5 text-blue-400" />
@@ -755,7 +755,7 @@ export function AdminPanel() {
                       id="treasuryAddress"
                       value={treasuryConfigForm.treasuryWalletAddress}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, treasuryWalletAddress: e.target.value })}
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
                       placeholder="0x..."
                     />
                   </div>

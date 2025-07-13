@@ -584,15 +584,17 @@ export function AdminPanel() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-sm text-gray-300">
-                    <strong>Current Implementation:</strong> Treasury wallet private key is required for backend transaction signing.
+                    <strong>Current Implementation:</strong> Secure wallet-based configuration management with no private key storage required.
                   </div>
                   
                   <div className="bg-gray-800 p-3 rounded text-xs">
-                    <strong>Two possible approaches:</strong>
+                    <strong>Security Features:</strong>
                     <br />
-                    <strong>1. Backend Signing:</strong> Treasury private key stored securely in backend, signs transactions automatically
+                    <strong>• No Private Keys:</strong> All treasury operations use wallet-based authentication
                     <br />
-                    <strong>2. Smart Contract:</strong> Deploy reward contract with claim functions, no private key needed
+                    <strong>• Smart Contract:</strong> KILTRewardPool contract handles secure token distribution
+                    <br />
+                    <strong>• Configuration Only:</strong> Admin panel manages settings without handling sensitive keys
                   </div>
 
                   <Alert>

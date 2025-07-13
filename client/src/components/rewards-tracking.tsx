@@ -73,7 +73,7 @@ export function RewardsTracking() {
   // Use unified dashboard data
   const { user, rewardStats, programAnalytics } = unifiedData;
 
-  // Get claimability status (7-day lock check)
+  // Get claimability status (smart contract lock check)
   const { data: claimability } = useQuery({
     queryKey: ['claimability', address],
     queryFn: async () => {
@@ -97,7 +97,7 @@ export function RewardsTracking() {
     refetchInterval: 30000
   });
 
-  // Claim rewards mutation (7-day lock based)
+  // Claim rewards mutation (smart contract secured)
   const claimMutation = useMutation({
     mutationFn: async () => {
       if (!address) throw new Error('Wallet not connected');

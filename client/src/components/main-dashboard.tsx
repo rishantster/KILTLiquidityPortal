@@ -318,7 +318,7 @@ export function MainDashboard() {
             <div className="grid md:grid-cols-3 gap-6 mb-16">
               {/* KILT/ETH Pool - Hexagon Style */}
               <div className="group relative animate-fade-in animate-delay-100">
-                <div className="relative bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-transparent backdrop-blur-md border border-blue-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 hover:border-blue-300/50">
+                <div className="relative bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-transparent backdrop-blur-md border border-blue-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 hover:border-blue-300/50 h-[200px] flex flex-col">
                   {/* Floating Icon */}
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl rotate-45 flex items-center justify-center shadow-lg group-hover:rotate-90 transition-transform duration-500">
@@ -326,7 +326,7 @@ export function MainDashboard() {
                     </div>
                   </div>
                   
-                  <div className="pt-8 text-center">
+                  <div className="pt-8 text-center flex-1 flex flex-col justify-center">
                     <h3 className="text-white font-bold text-xl mb-3">KILT/ETH Pool</h3>
                     <p className="text-blue-200/80 text-sm leading-relaxed">
                       Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
@@ -337,7 +337,7 @@ export function MainDashboard() {
 
               {/* Treasury Rewards - Diamond Style */}
               <div className="group relative animate-fade-in animate-delay-200">
-                <div className="relative bg-gradient-to-br from-emerald-500/20 via-emerald-600/10 to-transparent backdrop-blur-md border border-emerald-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/30 hover:border-emerald-300/50">
+                <div className="relative bg-gradient-to-br from-emerald-500/20 via-emerald-600/10 to-transparent backdrop-blur-md border border-emerald-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/30 hover:border-emerald-300/50 h-[200px] flex flex-col">
                   {/* Floating Icon */}
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
@@ -345,7 +345,7 @@ export function MainDashboard() {
                     </div>
                   </div>
                   
-                  <div className="pt-8 text-center">
+                  <div className="pt-8 text-center flex-1 flex flex-col justify-center">
                     <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
                     <p className="text-emerald-200/80 text-sm leading-relaxed">
                       Receive massive rewards from 1% of total KILT supply with secure smart contract distribution.
@@ -356,7 +356,7 @@ export function MainDashboard() {
 
               {/* Program Analytics - Octagon Style */}
               <div className="group relative animate-fade-in animate-delay-300">
-                <div className="relative bg-gradient-to-br from-purple-500/20 via-purple-600/10 to-transparent backdrop-blur-md border border-purple-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 hover:border-purple-300/50">
+                <div className="relative bg-gradient-to-br from-purple-500/20 via-purple-600/10 to-transparent backdrop-blur-md border border-purple-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 hover:border-purple-300/50 h-[200px] flex flex-col">
                   {/* Floating Icon */}
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl transform rotate-12 flex items-center justify-center shadow-lg group-hover:rotate-45 transition-transform duration-500">
@@ -364,7 +364,7 @@ export function MainDashboard() {
                     </div>
                   </div>
                   
-                  <div className="pt-8 text-center">
+                  <div className="pt-8 text-center flex-1 flex flex-col justify-center">
                     <h3 className="text-white font-bold text-xl mb-3">Program Analytics</h3>
                     <p className="text-purple-200/80 text-sm leading-relaxed">
                       Track your position performance, rewards earned, and program progress with detailed analytics.

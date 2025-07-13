@@ -341,14 +341,27 @@ export class FixedRewardService {
    * Calculate APR range showing both practical and theoretical maximums
    * Shows realistic range users can expect in actual market conditions
    */
-  calculateMaximumTheoreticalAPR(): {
+  async calculateMaximumTheoreticalAPR(): Promise<{
     maxAPR: number;
     minAPR: number;
     aprRange: string;
     scenario: string;
     formula: string;
     assumptions: string[];
-  } {
+  }> {
+    // Get admin-configured daily budget (admin panel has superior control)
+    const { db } = await import('./db');
+    const { treasuryConfig } = await import('../shared/schema');
+    
+    const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+    const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
+    
+    console.log('APR Calculation - Daily Budget:', {
+      configured: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : null,
+      fallback: this.DAILY_BUDGET,
+      using: dailyBudget
+    });
+    
     // APR calculation parameters
     const inRangeMultiplier = 1.0; // Always in-range
     const w1 = this.MIN_TIME_COEFFICIENT; // 0.6
@@ -361,7 +374,7 @@ export class FixedRewardService {
     const shortTermDays = 30;
     const shortTermTimeRatio = Math.min(shortTermDays / this.PROGRAM_DURATION_DAYS, 1);
     const shortTermTimeCoefficient = w1 + (shortTermTimeRatio * (1 - w1)); // 0.6 + (30/365) * 0.4 = 0.633
-    const shortTermDailyRewards = typicalLiquidityShare * shortTermTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    const shortTermDailyRewards = typicalLiquidityShare * shortTermTimeCoefficient * dailyBudget * inRangeMultiplier;
     const shortTermAnnualRewards = shortTermDailyRewards * 365;
     const shortTermAnnualRewardsUSD = shortTermAnnualRewards * kiltPrice;
     const shortTermAPR = (shortTermAnnualRewardsUSD / typicalPositionValue) * 100;
@@ -370,7 +383,7 @@ export class FixedRewardService {
     const longTermDays = 365;
     const longTermTimeRatio = Math.min(longTermDays / this.PROGRAM_DURATION_DAYS, 1);
     const longTermTimeCoefficient = w1 + (longTermTimeRatio * (1 - w1)); // 0.6 + (365/365) * 0.4 = 1.0
-    const longTermDailyRewards = typicalLiquidityShare * longTermTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    const longTermDailyRewards = typicalLiquidityShare * longTermTimeCoefficient * dailyBudget * inRangeMultiplier;
     const longTermAnnualRewards = longTermDailyRewards * 365;
     const longTermAnnualRewardsUSD = longTermAnnualRewards * kiltPrice;
     const longTermAPR = (longTermAnnualRewardsUSD / typicalPositionValue) * 100;
@@ -388,7 +401,8 @@ export class FixedRewardService {
         "Time range: 30 days to 365 days",
         "Always in-range (IRM = 1.0)",
         "Current KILT price ($0.01602)",
-        "APR increases with time commitment"
+        "APR increases with time commitment",
+        `Daily budget: ${dailyBudget.toFixed(2)} KILT (from admin config)`
       ]
     };
   }
@@ -436,7 +450,7 @@ export class FixedRewardService {
       // Get realistic APR range - use direct values if calculation fails
       let aprData;
       try {
-        aprData = this.calculateMaximumTheoreticalAPR();
+        aprData = await this.calculateMaximumTheoreticalAPR();
       } catch (error) {
         console.error('Error calculating APR data:', error);
         aprData = { minAPR: 29.46, maxAPR: 46.55 };

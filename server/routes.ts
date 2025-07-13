@@ -790,7 +790,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get maximum theoretical APR calculation
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
-      const maxAPR = fixedRewardService.calculateMaximumTheoreticalAPR();
+      const maxAPR = await fixedRewardService.calculateMaximumTheoreticalAPR();
       res.json(maxAPR);
     } catch (error) {
       console.error('Error calculating maximum APR:', error);

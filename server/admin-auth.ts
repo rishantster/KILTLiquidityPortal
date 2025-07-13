@@ -1,12 +1,15 @@
 import { createHash } from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 
-// Admin credentials (in production, use environment variables)
+// Admin credentials (traditional login)
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || createHash('sha256').update('admin123').digest('hex');
 
+// Admin wallet address (wallet-based login)
+const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
+
 // Simple session storage (in production, use Redis or database)
-const adminSessions = new Map<string, { userId: string; expires: number }>();
+const adminSessions = new Map<string, { identifier: string; type: 'wallet' | 'credentials'; expires: number }>();
 
 export function generateAdminToken(): string {
   return createHash('sha256').update(Date.now().toString() + Math.random().toString()).digest('hex');
@@ -17,11 +20,15 @@ export function validateAdminCredentials(username: string, password: string): bo
   return username === ADMIN_USERNAME && passwordHash === ADMIN_PASSWORD_HASH;
 }
 
-export function createAdminSession(userId: string): string {
+export function validateAdminWallet(walletAddress: string): boolean {
+  return walletAddress.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase();
+}
+
+export function createAdminSession(identifier: string, type: 'wallet' | 'credentials'): string {
   const token = generateAdminToken();
   const expires = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
   
-  adminSessions.set(token, { userId, expires });
+  adminSessions.set(token, { identifier, type, expires });
   return token;
 }
 

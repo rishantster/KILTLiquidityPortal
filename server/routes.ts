@@ -22,7 +22,7 @@ import { positionRegistrationService } from "./position-registration-service";
 import { rewardCalculationDemo } from "./reward-calculation-demo";
 import { treasuryService } from "./treasury-service";
 import { adminService } from "./admin-service";
-import { validateAdminCredentials, createAdminSession, requireAdminAuth } from "./admin-auth";
+import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
 import { db } from "./db";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
@@ -1672,31 +1672,50 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // ===== ADMIN PANEL ROUTES =====
   
-  // Admin login
+  // Admin login (supports both wallet and credentials)
   app.post("/api/admin/login", async (req, res) => {
     try {
       console.log('Admin login request body:', req.body);
-      const { username, password } = req.body;
+      const { username, password, walletAddress } = req.body;
       
-      if (!username || !password) {
-        console.log('Missing credentials:', { username: !!username, password: !!password });
-        res.status(400).json({ error: 'Username and password required' });
+      // Wallet-based authentication
+      if (walletAddress) {
+        console.log('Validating admin wallet:', walletAddress);
+        if (validateAdminWallet(walletAddress)) {
+          const token = createAdminSession(walletAddress, 'wallet');
+          console.log('Admin wallet login successful, token generated');
+          res.json({
+            success: true,
+            token,
+            message: 'Admin access granted via wallet'
+          });
+        } else {
+          console.log('Unauthorized wallet address:', walletAddress);
+          res.status(401).json({ error: 'Unauthorized: Admin access restricted to authorized wallet' });
+        }
         return;
       }
-
-      console.log('Validating credentials for:', username);
-      if (validateAdminCredentials(username, password)) {
-        const token = createAdminSession(username);
-        console.log('Admin login successful, token generated');
-        res.json({
-          success: true,
-          token,
-          message: 'Admin login successful'
-        });
-      } else {
-        console.log('Invalid credentials provided');
-        res.status(401).json({ error: 'Invalid credentials' });
+      
+      // Credentials-based authentication
+      if (username && password) {
+        console.log('Validating admin credentials for:', username);
+        if (validateAdminCredentials(username, password)) {
+          const token = createAdminSession(username, 'credentials');
+          console.log('Admin credentials login successful, token generated');
+          res.json({
+            success: true,
+            token,
+            message: 'Admin login successful'
+          });
+        } else {
+          console.log('Invalid credentials provided');
+          res.status(401).json({ error: 'Invalid credentials' });
+        }
+        return;
       }
+      
+      // No valid authentication method provided
+      res.status(400).json({ error: 'Either wallet address or username/password required' });
     } catch (error) {
       console.error('Admin login error:', error);
       res.status(500).json({ error: 'Login failed' });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { toast } from '@/hooks/use-toast';
+import { useWallet } from '@/contexts/wallet-context';
 
 interface AdminStats {
   treasury: {
@@ -53,9 +54,14 @@ interface AdminStats {
 }
 
 export function AdminPanel() {
+  const { isConnected, address, connect, disconnect } = useWallet();
   const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '');
-  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [showKeys, setShowKeys] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<'wallet' | 'credentials'>('wallet');
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  
+  const ADMIN_WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
   const [treasuryForm, setTreasuryForm] = useState({
     operation: 'add' as 'add' | 'remove' | 'transfer',
     amount: '',
@@ -76,15 +82,24 @@ export function AdminPanel() {
   
   const queryClient = useQueryClient();
   
-  // Admin login mutation
+  // Check if connected wallet is authorized
+  useEffect(() => {
+    if (isConnected && address) {
+      setIsAuthorized(address.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase());
+    } else {
+      setIsAuthorized(false);
+    }
+  }, [isConnected, address]);
+
+  // Admin login mutation (supports both methods)
   const loginMutation = useMutation({
-    mutationFn: async (credentials: { username: string; password: string }) => {
+    mutationFn: async (loginData: { walletAddress?: string; username?: string; password?: string }) => {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(loginData),
       });
       
       if (!response.ok) {
@@ -99,12 +114,12 @@ export function AdminPanel() {
       localStorage.setItem('adminToken', data.token);
       toast({
         title: "Success",
-        description: "Admin login successful",
+        description: data.message || "Admin access granted",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Login Failed",
+        title: "Access Denied",
         description: error.message,
         variant: "destructive",
       });
@@ -181,9 +196,20 @@ export function AdminPanel() {
     }
   }, [adminStats]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleWalletLogin = async () => {
+    if (!isConnected) {
+      await connect();
+      return;
+    }
+    
+    if (address && isAuthorized) {
+      loginMutation.mutate({ walletAddress: address });
+    }
+  };
+
+  const handleCredentialsLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    loginMutation.mutate(loginForm);
+    loginMutation.mutate({ username: loginForm.username, password: loginForm.password });
   };
 
   const handleTreasuryOperation = (e: React.FormEvent) => {
@@ -232,9 +258,10 @@ export function AdminPanel() {
     settingsMutation.mutate(settingsForm);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setAdminToken('');
     localStorage.removeItem('adminToken');
+    await disconnect();
     toast({
       title: "Logged Out",
       description: "Admin session ended",
@@ -255,7 +282,7 @@ export function AdminPanel() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  // Login form if not authenticated
+  // Login interface (both wallet and credentials)
   if (!adminToken) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
@@ -266,38 +293,119 @@ export function AdminPanel() {
               Admin Panel
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-white">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={loginForm.username}
-                  onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
-                  className="bg-black/20 border-gray-600 text-white"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={loginForm.password}
-                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  className="bg-black/20 border-gray-600 text-white"
-                  required
-                />
-              </div>
+          <CardContent className="space-y-4">
+            {/* Login Method Toggle */}
+            <div className="flex rounded-lg bg-black/20 p-1">
               <Button
-                type="submit"
-                disabled={loginMutation.isPending}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                type="button"
+                variant={loginMethod === 'wallet' ? 'default' : 'ghost'}
+                onClick={() => setLoginMethod('wallet')}
+                className="flex-1 h-8 text-xs"
               >
-                {loginMutation.isPending ? "Logging in..." : "Login"}
+                <Wallet className="h-3 w-3 mr-1" />
+                Wallet
               </Button>
-            </form>
+              <Button
+                type="button"
+                variant={loginMethod === 'credentials' ? 'default' : 'ghost'}
+                onClick={() => setLoginMethod('credentials')}
+                className="flex-1 h-8 text-xs"
+              >
+                <Shield className="h-3 w-3 mr-1" />
+                Credentials
+              </Button>
+            </div>
+
+            {/* Wallet Login */}
+            {loginMethod === 'wallet' && (
+              <>
+                {!isConnected ? (
+                  <div className="text-center space-y-4">
+                    <p className="text-white/70">Connect your wallet to access admin features</p>
+                    <Button
+                      onClick={handleWalletLogin}
+                      disabled={loginMutation.isPending}
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                    >
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet
+                    </Button>
+                  </div>
+                ) : !isAuthorized ? (
+                  <div className="text-center space-y-4">
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Access Denied: Only authorized wallet addresses can access admin features.
+                      </AlertDescription>
+                    </Alert>
+                    <p className="text-white/70 text-sm">Connected: {address}</p>
+                    <p className="text-white/70 text-sm">Required: {ADMIN_WALLET_ADDRESS}</p>
+                    <Button
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="w-full border-red-500 text-red-400 hover:bg-red-500 hover:text-white"
+                    >
+                      Disconnect
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center space-y-4">
+                    <Alert>
+                      <CheckCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Authorized wallet connected. Click below to access admin features.
+                      </AlertDescription>
+                    </Alert>
+                    <p className="text-white/70 text-sm">Connected: {address}</p>
+                    <Button
+                      onClick={handleWalletLogin}
+                      disabled={loginMutation.isPending}
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    >
+                      {loginMutation.isPending ? "Authenticating..." : "Access Admin Panel"}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Credentials Login */}
+            {loginMethod === 'credentials' && (
+              <form onSubmit={handleCredentialsLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-white">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={loginForm.username}
+                    onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                    className="bg-black/20 border-gray-600 text-white"
+                    placeholder="admin"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-white">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                    className="bg-black/20 border-gray-600 text-white"
+                    placeholder="admin123"
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={loginMutation.isPending}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                >
+                  {loginMutation.isPending ? "Logging in..." : "Login"}
+                </Button>
+              </form>
+            )}
           </CardContent>
         </Card>
       </div>

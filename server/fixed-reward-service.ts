@@ -349,57 +349,46 @@ export class FixedRewardService {
     formula: string;
     assumptions: string[];
   } {
-    // Maximum scenario: 100% liquidity share, 365 days, in-range
-    const liquidityShare = 1.0; // 100% of pool liquidity
-    const daysActive = 365; // Full year
+    // APR calculation parameters
     const inRangeMultiplier = 1.0; // Always in-range
-    
-    // Calculate maximum time coefficient
     const w1 = this.MIN_TIME_COEFFICIENT; // 0.6
-    const timeRatio = Math.min(daysActive / this.PROGRAM_DURATION_DAYS, 1); // 1.0
-    const maxTimeCoefficient = w1 + (timeRatio * (1 - w1)); // 0.6 + 1.0 * 0.4 = 1.0
-    
-    // Calculate APR using realistic position sizes that users actually have
-    // Realistic scenario: Most positions will be $200-$1000 range
     const realisticTotalPool = 100000; // $100K total liquidity (more realistic)
-    const minPositionValue = 200; // $200 minimum position
-    const maxPositionValue = 1000; // $1000 typical larger position
-    
-    // Calculate APR for minimum position size ($200)
-    const minLiquidityShare = minPositionValue / realisticTotalPool; // 0.2% of pool
-    const minDailyRewards = minLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
-    const minAnnualRewards = minDailyRewards * 365;
+    const typicalPositionValue = 500; // $500 typical position
+    const typicalLiquidityShare = typicalPositionValue / realisticTotalPool; // 0.5% of pool
     const kiltPrice = 0.01602; // Current KILT price
-    const minAnnualRewardsUSD = minAnnualRewards * kiltPrice;
-    const minAPR = (minAnnualRewardsUSD / minPositionValue) * 100;
     
-    // Calculate APR for maximum typical position size ($1000)
-    const maxLiquidityShare = maxPositionValue / realisticTotalPool; // 1% of pool
-    const maxTypicalDailyRewards = maxLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
-    const maxAnnualRewards = maxTypicalDailyRewards * 365;
-    const maxAnnualRewardsUSD = maxAnnualRewards * kiltPrice;
-    const maxAPR = (maxAnnualRewardsUSD / maxPositionValue) * 100;
+    // Calculate APR for 30-day position (short term)
+    const shortTermDays = 30;
+    const shortTermTimeRatio = Math.min(shortTermDays / this.PROGRAM_DURATION_DAYS, 1);
+    const shortTermTimeCoefficient = w1 + (shortTermTimeRatio * (1 - w1)); // 0.6 + (30/365) * 0.4 = 0.633
+    const shortTermDailyRewards = typicalLiquidityShare * shortTermTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    const shortTermAnnualRewards = shortTermDailyRewards * 365;
+    const shortTermAnnualRewardsUSD = shortTermAnnualRewards * kiltPrice;
+    const shortTermAPR = (shortTermAnnualRewardsUSD / typicalPositionValue) * 100;
     
-    // Calculate theoretical maximum for exceptional cases (top 1% of pool)
-    const theoreticalLiquidityShare = 0.01; // 1% of total pool
-    const theoreticalDailyRewards = theoreticalLiquidityShare * maxTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
-    const theoreticalAnnualRewards = theoreticalDailyRewards * 365;
-    const theoreticalAnnualRewardsUSD = theoreticalAnnualRewards * kiltPrice;
-    const theoreticalMaxAPR = (theoreticalAnnualRewardsUSD / maxPositionValue) * 100;
+    // Calculate APR for 365-day position (long term)
+    const longTermDays = 365;
+    const longTermTimeRatio = Math.min(longTermDays / this.PROGRAM_DURATION_DAYS, 1);
+    const longTermTimeCoefficient = w1 + (longTermTimeRatio * (1 - w1)); // 0.6 + (365/365) * 0.4 = 1.0
+    const longTermDailyRewards = typicalLiquidityShare * longTermTimeCoefficient * this.DAILY_BUDGET * inRangeMultiplier;
+    const longTermAnnualRewards = longTermDailyRewards * 365;
+    const longTermAnnualRewardsUSD = longTermAnnualRewards * kiltPrice;
+    const longTermAPR = (longTermAnnualRewardsUSD / typicalPositionValue) * 100;
+    
     
     return {
-      maxAPR: Math.round(theoreticalMaxAPR * 100) / 100,
-      minAPR: Math.round(minAPR * 100) / 100,
-      aprRange: `${Math.round(minAPR)}% - ${Math.round(theoreticalMaxAPR)}%`,
+      maxAPR: Math.round(longTermAPR * 100) / 100,
+      minAPR: Math.round(shortTermAPR * 100) / 100,
+      aprRange: `${Math.round(shortTermAPR)}% - ${Math.round(longTermAPR)}%`,
       scenario: "Typical liquidity provider positions",
       formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
       assumptions: [
-        "Position range: $200 to $1000 (typical user sizes)",
+        "Typical position size: $500 (0.5% of pool)",
         "Total pool: $100K (realistic market size)",
-        "Position active for full year (365 days)",
+        "Time range: 30 days to 365 days",
         "Always in-range (IRM = 1.0)",
         "Current KILT price ($0.01602)",
-        "Competitive market with multiple participants"
+        "APR increases with time commitment"
       ]
     };
   }

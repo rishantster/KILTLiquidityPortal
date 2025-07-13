@@ -88,7 +88,13 @@ export function AdminPanel() {
   // Check if connected wallet is authorized
   useEffect(() => {
     if (isConnected && address) {
-      setIsAuthorized(address.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase());
+      const isAuth = address.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase();
+      console.log('Wallet Authorization Check:', {
+        connected: address,
+        authorized: ADMIN_WALLET_ADDRESS,
+        isAuthorized: isAuth
+      });
+      setIsAuthorized(isAuth);
     } else {
       setIsAuthorized(false);
     }

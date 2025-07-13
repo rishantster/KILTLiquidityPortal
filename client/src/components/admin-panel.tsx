@@ -499,62 +499,56 @@ export function AdminPanel() {
           <div className="text-center py-8">Loading admin data...</div>
         ) : (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
-                <CardContent className="p-4 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-400">Treasury Balance</p>
-                      <p className="text-xl font-bold text-white">
-                        {adminStats?.treasury?.balance?.toFixed(0) || 0} KILT
-                      </p>
-                    </div>
-                    <Wallet className="w-8 h-8 text-emerald-400 flex-shrink-0" />
+            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                {/* Treasury Balance */}
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Wallet className="h-5 w-5 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-white/70 text-xs mb-1">Treasury Balance</p>
+                  <p className="text-white font-bold text-lg">
+                    {adminStats?.treasury?.balance?.toFixed(0) || 0} KILT
+                  </p>
+                  <p className="text-emerald-300 text-xs">Available</p>
+                </div>
 
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
-                <CardContent className="p-4 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-400">Total Allocation</p>
-                      <p className="text-xl font-bold text-white">
-                        {adminStats?.treasury?.totalAllocation?.toFixed(0) || 2905600} KILT
-                      </p>
-                    </div>
-                    <DollarSign className="w-8 h-8 text-blue-400 flex-shrink-0" />
+                {/* Total Allocation */}
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <DollarSign className="h-5 w-5 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-white/70 text-xs mb-1">Total Allocation</p>
+                  <p className="text-white font-bold text-lg">
+                    {adminStats?.treasury?.totalAllocation?.toFixed(0) || 2905600} KILT
+                  </p>
+                  <p className="text-blue-300 text-xs">Program Budget</p>
+                </div>
 
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
-                <CardContent className="p-4 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-400">Annual Rewards Budget</p>
-                      <p className="text-xl font-bold text-white">
-                        {((adminStats?.treasury?.dailyRewardsCap || 7960) * 365).toFixed(0)} KILT
-                      </p>
-                    </div>
-                    <TrendingUp className="w-8 h-8 text-purple-400 flex-shrink-0" />
+                {/* Annual Rewards Budget */}
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-white/70 text-xs mb-1">Annual Rewards Budget</p>
+                  <p className="text-white font-bold text-lg">
+                    {((adminStats?.treasury?.dailyRewardsCap || 7960) * 365).toFixed(0)} KILT
+                  </p>
+                  <p className="text-purple-300 text-xs">Yearly Distribution</p>
+                </div>
 
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30 h-[120px]">
-                <CardContent className="p-4 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-400">Program Duration</p>
-                      <p className="text-xl font-bold text-white">
-                        {adminStats?.treasury?.programDuration || 365} days
-                      </p>
-                    </div>
-                    <Users className="w-8 h-8 text-green-400 flex-shrink-0" />
+                {/* Program Duration */}
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Users className="h-5 w-5 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-white/70 text-xs mb-1">Program Duration</p>
+                  <p className="text-white font-bold text-lg">
+                    {adminStats?.treasury?.programDuration || 365} days
+                  </p>
+                  <p className="text-green-300 text-xs">Active Period</p>
+                </div>
+              </div>
             </div>
 
             {/* Treasury Progress */}

@@ -33,16 +33,16 @@ console.log("=".repeat(80));
 console.log("APR CALCULATION: POOL LIFECYCLE PROGRESSION");
 console.log("=".repeat(80));
 
-console.log("\n📊 POOL LIFECYCLE APR PROGRESSION:");
-console.log("- Early Stage: $500 positions in $100K pools → ~29% APR");
+console.log("\n📊 HIGH APR OPTIMIZATION FOR EARLY PARTICIPANTS:");
+console.log("- Early Stage: $500 positions in $100K pools → ~30% APR (HIGH REWARDS!)");
 console.log("- Growth Stage: $1000 positions in $500K pools → ~15% APR");
-console.log("- Mature Stage: $2000 positions in $1M pools → ~5% APR");
-console.log("- Realistic pool growth trajectory over time");
+console.log("- Mature Stage: $2000 positions in $800K pools → ~5% APR");
+console.log("- Optimized for attractive early participant rewards");
 
-console.log("\n🎯 CURRENT CALCULATION SHOWS:");
-console.log("- Early participants: 29.46% APR (0.5% pool share)");
-console.log("- Mature participants: 4.65% APR (0.2% pool share)");
-console.log("- APR Range: 29% - 5% (lifecycle progression)");
+console.log("\n🎯 CURRENT HIGH APR CALCULATION:");
+console.log("- Early participants: ~30% APR (0.5% pool share) - VERY ATTRACTIVE!");
+console.log("- Mature participants: ~5% APR (0.25% pool share) - SUSTAINABLE");
+console.log("- APR Range: 30% - 5% (HIGH APR lifecycle progression)");
 
 console.log("\n" + "=".repeat(80));
 console.log("POOL LIFECYCLE PROGRESSION ANALYSIS");

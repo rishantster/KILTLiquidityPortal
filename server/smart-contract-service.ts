@@ -95,7 +95,7 @@ export class SmartContractService {
   private wallet: ethers.Wallet | null = null;
   private rewardPoolContract: ethers.Contract | null = null;
   private kiltTokenContract: ethers.Contract | null = null;
-  private isContractDeployed: boolean = false;
+  private isContractDeployed: boolean = false; // Production: Deploy contracts before enabling
 
   constructor() {
     this.provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
@@ -115,7 +115,7 @@ export class SmartContractService {
           this.wallet
         );
         this.isContractDeployed = true;
-        console.log('✅ Smart contracts initialized successfully');
+        // Smart contracts initialized successfully
       } catch (error) {
         console.error('❌ Failed to initialize smart contracts:', error);
         this.isContractDeployed = false;

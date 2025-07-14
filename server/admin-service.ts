@@ -50,19 +50,19 @@ export class AdminService {
    */
   async updateTreasuryConfiguration(config: AdminTreasuryConfiguration, performedBy: string): Promise<AdminOperationResult> {
     try {
-      console.log('Received config:', JSON.stringify(config, null, 2));
+      // Treasury configuration received
       
       // Calculate daily rewards cap from annual budget (if provided) or from total allocation
       const dailyRewardsCap = config.dailyRewardsCap || (config.totalAllocation / config.programDurationDays);
       
       // Use default treasury address if none provided
-      const treasuryAddress = config.treasuryWalletAddress || '0x1234567890123456789012345678901234567890';
+      const treasuryAddress = config.treasuryWalletAddress || '0x0000000000000000000000000000000000000000';
       
       // Ensure dates are properly converted
       const startDate = config.programStartDate instanceof Date ? config.programStartDate : new Date(config.programStartDate);
       const endDate = config.programEndDate instanceof Date ? config.programEndDate : new Date(config.programEndDate);
       
-      console.log('Converted dates:', { startDate, endDate });
+      // Date conversion completed
       
       const [existingConfig] = await db.select().from(treasuryConfig).limit(1);
       
@@ -282,15 +282,7 @@ export class AdminService {
       const annualRewardsBudget = treasuryConf ? parseFloat(treasuryConf.annualRewardsBudget || treasuryConf.totalAllocation) : 1000000;
       const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 7960;
       
-      // DEBUG: Log the treasury configuration values
-      console.log('Treasury Config Retrieved:', {
-        exists: !!treasuryConf,
-        totalAllocation: treasuryConf?.totalAllocation,
-        annualRewardsBudget: treasuryConf?.annualRewardsBudget,
-        dailyRewardsCap: treasuryConf?.dailyRewardsCap,
-        programDuration: treasuryConf?.programDurationDays,
-        parsed: { totalAllocation, annualRewardsBudget, dailyRewardsCap }
-      });
+      // Treasury configuration retrieved successfully
       
       // Calculate total distributed directly (simplified for debugging)
       const totalDistributed = 0; // Simplified to avoid dynamic import issues

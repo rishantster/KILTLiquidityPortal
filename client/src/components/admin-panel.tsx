@@ -179,7 +179,7 @@ export function AdminPanel() {
       setAdminToken(data.token);
       localStorage.setItem('adminToken', data.token);
       setIsAuthorized(true);
-      console.log('Admin wallet login successful, token:', data.token);
+      // Admin wallet login successful
       
       // Force a refresh of admin stats after successful login
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });

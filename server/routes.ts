@@ -19,7 +19,7 @@ import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
-import { rewardCalculationDemo } from "./reward-calculation-demo";
+// Removed reward calculation demo import
 import { treasuryService } from "./treasury-service";
 import { adminService } from "./admin-service";
 import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
@@ -1727,7 +1727,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/admin/dashboard", requireAdminAuth, async (req, res) => {
     try {
       const stats = await adminService.getAdminTreasuryStats();
-      console.log('Admin dashboard stats:', JSON.stringify(stats, null, 2));
+      // Admin dashboard stats retrieved
       res.json(stats);
     } catch (error) {
       console.error('Error getting admin dashboard:', error);

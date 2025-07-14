@@ -383,12 +383,12 @@ export class FixedRewardService {
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
     
-    // APR calculation parameters
+    // APR calculation parameters - realistic mature pool scenario
     const inRangeMultiplier = 1.0; // Always in-range
-    const w1 = this.MIN_TIME_COEFFICIENT; // 0.6
-    const realisticTotalPool = 100000; // $100K total liquidity (more realistic)
-    const typicalPositionValue = 500; // $500 typical position
-    const typicalLiquidityShare = typicalPositionValue / realisticTotalPool; // 0.5% of pool
+    const w1 = this.BASE_LIQUIDITY_WEIGHT; // 0.6
+    const maturePoolSize = 1000000; // $1M mature pool (most users will join established pools)
+    const typicalPositionValue = 2000; // $2000 typical position (more realistic)
+    const typicalLiquidityShare = typicalPositionValue / maturePoolSize; // 0.2% of pool
     const kiltPrice = 0.01602; // Current KILT price
     
     // Calculate APR for 30-day position (short term)
@@ -409,19 +409,25 @@ export class FixedRewardService {
     const longTermAnnualRewardsUSD = longTermAnnualRewards * kiltPrice;
     const longTermAPR = (longTermAnnualRewardsUSD / typicalPositionValue) * 100;
     
+
+    
+    
+    // Handle potential NaN values
+    const finalMinAPR = isNaN(shortTermAPR) ? 0 : Math.round(shortTermAPR * 100) / 100;
+    const finalMaxAPR = isNaN(longTermAPR) ? 0 : Math.round(longTermAPR * 100) / 100;
     
     return {
-      maxAPR: Math.round(longTermAPR * 100) / 100,
-      minAPR: Math.round(shortTermAPR * 100) / 100,
-      aprRange: `${Math.round(shortTermAPR)}% - ${Math.round(longTermAPR)}%`,
-      scenario: "Typical liquidity provider positions",
+      maxAPR: finalMaxAPR,
+      minAPR: finalMinAPR,
+      aprRange: `${Math.round(finalMinAPR)}% - ${Math.round(finalMaxAPR)}%`,
+      scenario: "Mature pool with typical positions",
       formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
       assumptions: [
-        "Typical position size: $500 (0.5% of pool)",
-        "Total pool: $100K (realistic market size)",
-        "Time range: 30 days to 365 days",
+        `Typical position size: $${typicalPositionValue.toLocaleString()} (${(typicalLiquidityShare * 100).toFixed(1)}% of pool)`,
+        `Mature pool: $${maturePoolSize.toLocaleString()} (established liquidity)`,
+        `Time range: ${shortTermDays} days to ${this.PROGRAM_DURATION_DAYS} days`,
         "Always in-range (IRM = 1.0)",
-        "Current KILT price ($0.01602)",
+        `Current KILT price ($${kiltPrice})`,
         "APR increases with time commitment",
         `Daily budget: ${dailyBudget.toFixed(2)} KILT (from admin config)`
       ]

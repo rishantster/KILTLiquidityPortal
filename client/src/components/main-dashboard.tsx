@@ -595,9 +595,9 @@ export function MainDashboard() {
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">Maximum APR</p>
                   <p className="text-white font-bold text-lg text-numbers">
-                    {unifiedData?.maxAPRData?.maxAPR ? `${unifiedData.maxAPRData.maxAPR.toFixed(0)}%` : '47%'}
+                    {unifiedData?.maxAPRData?.maxAPR ? `${unifiedData.maxAPRData.maxAPR.toFixed(0)}%` : '5%'}
                   </p>
-                  <p className="text-amber-300 text-xs text-body">Massive rewards!</p>
+                  <p className="text-amber-300 text-xs text-body">Realistic returns!</p>
                 </div>
               </div>
             </div>

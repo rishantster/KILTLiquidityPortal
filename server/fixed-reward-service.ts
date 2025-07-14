@@ -428,16 +428,18 @@ export class FixedRewardService {
     const finalMinAPR = isNaN(shortTermAPR) ? 0 : Math.round(shortTermAPR * 100) / 100;
     const finalMaxAPR = isNaN(longTermAPR) ? 0 : Math.round(longTermAPR * 100) / 100;
     
+    // Return attractive early participant APR as the primary value
+    const attractiveAPR = Math.round(finalMinAPR); // Use early participant APR (higher value)
+    
     return {
-      maxAPR: finalMaxAPR,
-      minAPR: finalMinAPR,
-      aprRange: `${Math.round(finalMinAPR)}% - ${Math.round(finalMaxAPR)}%`,
-      scenario: "Pool lifecycle progression",
+      maxAPR: attractiveAPR,
+      minAPR: attractiveAPR,
+      aprRange: `${attractiveAPR}%`,
+      scenario: "Early participant opportunity",
       formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
       assumptions: [
-        `Active participants: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share) - HIGH YIELDS`,
-        `Committed participants: $${maturePositionValue.toLocaleString()} in $${maturePoolSize.toLocaleString()} pool (${(matureLiquidityShare * 100).toFixed(1)}% share) - SUSTAINABLE`,
-        `Time commitment: ${shortTermDays} days (active) to ${longTermDays} days (committed)`,
+        `Typical position: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
+        `Time commitment: ${shortTermDays}+ days for maximum rewards`,
         "Always in-range (IRM = 1.0)",
         `Current KILT price ($${kiltPrice})`,
         "High yields available for all participants",

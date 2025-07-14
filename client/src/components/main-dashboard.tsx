@@ -593,9 +593,9 @@ export function MainDashboard() {
                   <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">APR Range</p>
+                  <p className="text-white/70 text-xs mb-1 text-label">Current APR</p>
                   <p className="text-white font-bold text-lg text-numbers">
-                    {unifiedData?.maxAPRData?.aprRange || '31% - 6%'}
+                    {unifiedData?.maxAPRData?.aprRange || '31%'}
                   </p>
                   <p className="text-amber-300 text-xs text-body">High yields available!</p>
                 </div>

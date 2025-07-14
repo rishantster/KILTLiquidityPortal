@@ -11,6 +11,7 @@ import {
 import { eq, and } from 'drizzle-orm';
 import { rewardService } from './reward-service';
 import { historicalValidationService, type HistoricalValidationResult } from './historical-validation-service';
+import { liquidityTypeDetector, type LiquidityTypeResult } from './liquidity-type-detector';
 
 export interface PositionRegistrationResult {
   success: boolean;
@@ -19,6 +20,7 @@ export interface PositionRegistrationResult {
   alreadyRegistered?: boolean;
   eligibilityStatus: 'eligible' | 'ineligible' | 'pending';
   validationResult?: HistoricalValidationResult;
+  liquidityTypeResult?: LiquidityTypeResult;
   rewardInfo?: {
     dailyRewards: number;
     estimatedAPR: number;
@@ -96,7 +98,19 @@ export class PositionRegistrationService {
         };
       }
 
-      // Historical validation for 50/50 balance at creation
+      // Step 1: Liquidity type detection
+      const liquidityTypeResult = await liquidityTypeDetector.detectLiquidityType(
+        positionData.amount0,
+        positionData.amount1,
+        18, // KILT decimals
+        18, // WETH decimals
+        parseFloat(positionData.minPrice),
+        parseFloat(positionData.maxPrice),
+        0.01602, // Current KILT price
+        positionData.poolAddress
+      );
+
+      // Step 2: Historical validation for 50/50 balance at creation
       let validationResult: HistoricalValidationResult | undefined;
       
       if (positionData.creationBlockNumber && positionData.creationTransactionHash) {
@@ -117,7 +131,8 @@ export class PositionRegistrationService {
             success: false,
             message: `Position rejected: ${validationResult.reason}`,
             eligibilityStatus: 'ineligible',
-            validationResult
+            validationResult,
+            liquidityTypeResult
           };
         }
       } else {
@@ -125,7 +140,8 @@ export class PositionRegistrationService {
         return {
           success: false,
           message: 'Position requires historical validation data (block number and transaction hash)',
-          eligibilityStatus: 'pending'
+          eligibilityStatus: 'pending',
+          liquidityTypeResult
         };
       }
 
@@ -229,6 +245,7 @@ export class PositionRegistrationService {
           : `Position validated and registered! ${validationResult?.reason || 'Balanced position confirmed.'}`,
         eligibilityStatus: 'eligible',
         validationResult,
+        liquidityTypeResult,
         rewardInfo: {
           dailyRewards: rewardCalc.dailyRewards,
           estimatedAPR: rewardCalc.totalAPR,

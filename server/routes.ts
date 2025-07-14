@@ -19,6 +19,7 @@ import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
+import { liquidityTypeDetector } from "./liquidity-type-detector";
 // Removed reward calculation demo import
 import { treasuryService } from "./treasury-service";
 import { adminService } from "./admin-service";
@@ -1554,6 +1555,43 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         success: false,
         error: 'Failed to generate comparison'
       });
+    }
+  });
+
+  // ===== LIQUIDITY TYPE DETECTION ROUTES =====
+  
+  // Analyze liquidity type for a position
+  app.post("/api/positions/analyze-liquidity-type", async (req, res) => {
+    try {
+      const {
+        token0Amount,
+        token1Amount,
+        token0Decimals = 18,
+        token1Decimals = 18,
+        minPrice,
+        maxPrice,
+        currentPrice,
+        poolAddress
+      } = req.body;
+
+      const result = await liquidityTypeDetector.detectLiquidityType(
+        token0Amount,
+        token1Amount,
+        token0Decimals,
+        token1Decimals,
+        minPrice,
+        maxPrice,
+        currentPrice,
+        poolAddress
+      );
+
+      res.json({
+        ...result,
+        recommendations: liquidityTypeDetector.getRecommendations(result)
+      });
+    } catch (error) {
+      console.error('Error analyzing liquidity type:', error);
+      res.status(500).json({ error: "Failed to analyze liquidity type" });
     }
   });
 

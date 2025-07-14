@@ -30,27 +30,28 @@ function calculateOldFormulaAPR(userLiquidity, totalLiquidity, daysActive) {
 }
 
 console.log("=".repeat(80));
-console.log("APR CALCULATION COMPARISON: OLD vs NEW REALISTIC EXPECTATIONS");
+console.log("APR CALCULATION: POOL LIFECYCLE PROGRESSION");
 console.log("=".repeat(80));
 
-console.log("\n📊 BEFORE (Old Calculation):");
-console.log("- Assumed $500 positions in $100K pools");
-console.log("- APR Range: 29% - 47%");
-console.log("- Optimistic small pool scenario");
+console.log("\n📊 POOL LIFECYCLE APR PROGRESSION:");
+console.log("- Early Stage: $500 positions in $100K pools → ~29% APR");
+console.log("- Growth Stage: $1000 positions in $500K pools → ~15% APR");
+console.log("- Mature Stage: $2000 positions in $1M pools → ~5% APR");
+console.log("- Realistic pool growth trajectory over time");
 
-console.log("\n📊 AFTER (New Calculation):");
-console.log("- Assumes $2000 positions in $1M pools");
-console.log("- APR Range: 3% - 5%");
-console.log("- Realistic mature pool scenario");
+console.log("\n🎯 CURRENT CALCULATION SHOWS:");
+console.log("- Early participants: 29.46% APR (0.5% pool share)");
+console.log("- Mature participants: 4.65% APR (0.2% pool share)");
+console.log("- APR Range: 29% - 5% (lifecycle progression)");
 
 console.log("\n" + "=".repeat(80));
-console.log("SIDE-BY-SIDE COMPARISON FOR TYPICAL USER SCENARIOS");
+console.log("POOL LIFECYCLE PROGRESSION ANALYSIS");
 console.log("=".repeat(80));
 
-const scenarios = [
-    { amount: 1000, pool: 500000, name: "Small Position in Medium Pool" },
-    { amount: 2000, pool: 1000000, name: "Medium Position in Large Pool" },
-    { amount: 5000, pool: 2000000, name: "Large Position in Very Large Pool" }
+const lifecycleStages = [
+    { stage: "Early", amount: 500, pool: 100000, participants: 50 },
+    { stage: "Growth", amount: 1000, pool: 500000, participants: 200 },
+    { stage: "Mature", amount: 2000, pool: 1000000, participants: 500 }
 ];
 
 const timePeriods = [
@@ -59,24 +60,22 @@ const timePeriods = [
     { days: 365, name: "1 Year" }
 ];
 
-scenarios.forEach(({ amount, pool, name }) => {
-    console.log(`\n${name} ($${amount.toLocaleString()} in $${pool.toLocaleString()} pool)`);
+console.log("\nPool Lifecycle APR Progression:");
+console.log("=".repeat(60));
+
+lifecycleStages.forEach(({ stage, amount, pool, participants }) => {
+    console.log(`\n${stage} Stage: $${amount.toLocaleString()} positions in $${pool.toLocaleString()} pool (~${participants} participants)`);
     console.log("-".repeat(60));
     
-    console.log(`${"Time Period".padEnd(12)} | ${"Old Formula".padEnd(12)} | ${"New Formula".padEnd(12)} | ${"Difference"}`);
+    console.log(`${"Time Period".padEnd(12)} | ${"APR".padEnd(8)} | ${"Pool Share".padEnd(10)} | ${"Daily Reward"}`);
     console.log("-".repeat(60));
     
     timePeriods.forEach(({ days, name: timeName }) => {
-        // Old formula used smaller pool assumptions
-        const oldPoolSize = pool / 10; // Simulating old optimistic assumptions
-        const oldAPR = calculateOldFormulaAPR(amount, oldPoolSize, days);
+        const apr = calculateNewFormulaAPR(amount, pool, days);
+        const poolShare = ((amount / pool) * 100).toFixed(2);
+        const dailyReward = (apr / 100 * amount / 365).toFixed(2);
         
-        // New formula uses realistic pool sizes
-        const newAPR = calculateNewFormulaAPR(amount, pool, days);
-        
-        const difference = ((newAPR - oldAPR) / oldAPR * 100).toFixed(1);
-        
-        console.log(`${timeName.padEnd(12)} | ${oldAPR.toFixed(1).padStart(10)}% | ${newAPR.toFixed(1).padStart(10)}% | ${difference.padStart(8)}%`);
+        console.log(`${timeName.padEnd(12)} | ${apr.toFixed(1).padStart(6)}% | ${poolShare.padStart(8)}% | $${dailyReward.padStart(7)}`);
     });
 });
 

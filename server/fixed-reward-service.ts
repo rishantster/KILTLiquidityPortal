@@ -383,31 +383,38 @@ export class FixedRewardService {
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
     
-    // APR calculation parameters - realistic mature pool scenario
+    // APR calculation parameters - realistic pool lifecycle progression
     const inRangeMultiplier = 1.0; // Always in-range
     const w1 = this.BASE_LIQUIDITY_WEIGHT; // 0.6
-    const maturePoolSize = 1000000; // $1M mature pool (most users will join established pools)
-    const typicalPositionValue = 2000; // $2000 typical position (more realistic)
-    const typicalLiquidityShare = typicalPositionValue / maturePoolSize; // 0.2% of pool
     const kiltPrice = 0.01602; // Current KILT price
     
-    // Calculate APR for 30-day position (short term)
+    // Early pool scenario (initial participants)
+    const earlyPoolSize = 100000; // $100K early pool
+    const earlyPositionValue = 500; // $500 early position
+    const earlyLiquidityShare = earlyPositionValue / earlyPoolSize; // 0.5% of pool
+    
+    // Mature pool scenario (later participants)
+    const maturePoolSize = 1000000; // $1M mature pool
+    const maturePositionValue = 2000; // $2000 mature position
+    const matureLiquidityShare = maturePositionValue / maturePoolSize; // 0.2% of pool
+    
+    // Calculate APR for early participants (30-day position in small pool)
     const shortTermDays = 30;
     const shortTermTimeRatio = Math.min(shortTermDays / this.PROGRAM_DURATION_DAYS, 1);
     const shortTermTimeCoefficient = w1 + (shortTermTimeRatio * (1 - w1)); // 0.6 + (30/365) * 0.4 = 0.633
-    const shortTermDailyRewards = typicalLiquidityShare * shortTermTimeCoefficient * dailyBudget * inRangeMultiplier;
+    const shortTermDailyRewards = earlyLiquidityShare * shortTermTimeCoefficient * dailyBudget * inRangeMultiplier;
     const shortTermAnnualRewards = shortTermDailyRewards * 365;
     const shortTermAnnualRewardsUSD = shortTermAnnualRewards * kiltPrice;
-    const shortTermAPR = (shortTermAnnualRewardsUSD / typicalPositionValue) * 100;
+    const shortTermAPR = (shortTermAnnualRewardsUSD / earlyPositionValue) * 100;
     
-    // Calculate APR for 365-day position (long term)
+    // Calculate APR for mature participants (365-day position in large pool)
     const longTermDays = 365;
     const longTermTimeRatio = Math.min(longTermDays / this.PROGRAM_DURATION_DAYS, 1);
     const longTermTimeCoefficient = w1 + (longTermTimeRatio * (1 - w1)); // 0.6 + (365/365) * 0.4 = 1.0
-    const longTermDailyRewards = typicalLiquidityShare * longTermTimeCoefficient * dailyBudget * inRangeMultiplier;
+    const longTermDailyRewards = matureLiquidityShare * longTermTimeCoefficient * dailyBudget * inRangeMultiplier;
     const longTermAnnualRewards = longTermDailyRewards * 365;
     const longTermAnnualRewardsUSD = longTermAnnualRewards * kiltPrice;
-    const longTermAPR = (longTermAnnualRewardsUSD / typicalPositionValue) * 100;
+    const longTermAPR = (longTermAnnualRewardsUSD / maturePositionValue) * 100;
     
 
     
@@ -420,15 +427,15 @@ export class FixedRewardService {
       maxAPR: finalMaxAPR,
       minAPR: finalMinAPR,
       aprRange: `${Math.round(finalMinAPR)}% - ${Math.round(finalMaxAPR)}%`,
-      scenario: "Mature pool with typical positions",
+      scenario: "Pool lifecycle progression",
       formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
       assumptions: [
-        `Typical position size: $${typicalPositionValue.toLocaleString()} (${(typicalLiquidityShare * 100).toFixed(1)}% of pool)`,
-        `Mature pool: $${maturePoolSize.toLocaleString()} (established liquidity)`,
-        `Time range: ${shortTermDays} days to ${this.PROGRAM_DURATION_DAYS} days`,
+        `Early participants: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
+        `Mature participants: $${maturePositionValue.toLocaleString()} in $${maturePoolSize.toLocaleString()} pool (${(matureLiquidityShare * 100).toFixed(1)}% share)`,
+        `Time commitment: ${shortTermDays} days (early) to ${this.PROGRAM_DURATION_DAYS} days (mature)`,
         "Always in-range (IRM = 1.0)",
         `Current KILT price ($${kiltPrice})`,
-        "APR increases with time commitment",
+        "Higher APR for early participants",
         `Daily budget: ${dailyBudget.toFixed(2)} KILT (from admin config)`
       ]
     };

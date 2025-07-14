@@ -97,11 +97,11 @@ export function useUnifiedDashboard() {
       try {
         const response = await fetch('/api/rewards/maximum-apr');
         if (!response.ok) {
-          return { minAPR: 3, maxAPR: 5, aprRange: "3% - 5%" };
+          return { minAPR: 29, maxAPR: 5, aprRange: "29% - 5%" };
         }
         return response.json();
       } catch (error) {
-        return { minAPR: 3, maxAPR: 5, aprRange: "3% - 5%" };
+        return { minAPR: 29, maxAPR: 5, aprRange: "29% - 5%" };
       }
     },
     enabled: !!address && isConnected,
@@ -120,9 +120,9 @@ export function useUnifiedDashboard() {
             totalLiquidity: 0,
             activeParticipants: 0,
             estimatedAPR: { 
-              low: maxAPRData?.minAPR || 3, 
-              average: Math.round(((maxAPRData?.minAPR || 3) + (maxAPRData?.maxAPR || 5)) / 2),
-              high: maxAPRData?.maxAPR || 5 
+              low: maxAPRData?.maxAPR || 5, 
+              average: Math.round(((maxAPRData?.maxAPR || 5) + (maxAPRData?.minAPR || 29)) / 2),
+              high: maxAPRData?.minAPR || 29 
             },
             treasuryRemaining: 2905600,
             avgUserLiquidity: 0

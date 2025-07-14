@@ -593,11 +593,11 @@ export function MainDashboard() {
                   <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">Maximum APR</p>
+                  <p className="text-white/70 text-xs mb-1 text-label">APR Range</p>
                   <p className="text-white font-bold text-lg text-numbers">
-                    {unifiedData?.maxAPRData?.maxAPR ? `${unifiedData.maxAPRData.maxAPR.toFixed(0)}%` : '5%'}
+                    {unifiedData?.maxAPRData?.minAPR ? `${unifiedData.maxAPRData.minAPR.toFixed(0)}%` : '29%'}
                   </p>
-                  <p className="text-amber-300 text-xs text-body">Realistic returns!</p>
+                  <p className="text-amber-300 text-xs text-body">Early participants!</p>
                 </div>
               </div>
             </div>

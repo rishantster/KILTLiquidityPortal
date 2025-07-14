@@ -595,9 +595,9 @@ export function MainDashboard() {
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">APR Range</p>
                   <p className="text-white font-bold text-lg text-numbers">
-                    {unifiedData?.maxAPRData?.minAPR ? `${unifiedData.maxAPRData.minAPR.toFixed(0)}%` : '29%'}
+                    {unifiedData?.maxAPRData?.aprRange || '31% - 6%'}
                   </p>
-                  <p className="text-amber-300 text-xs text-body">Early participants!</p>
+                  <p className="text-amber-300 text-xs text-body">High yields available!</p>
                 </div>
               </div>
             </div>

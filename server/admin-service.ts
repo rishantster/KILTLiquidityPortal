@@ -6,9 +6,8 @@ import { eq } from 'drizzle-orm';
 
 export interface AdminTreasuryConfiguration {
   treasuryWalletAddress: string;
-  totalAllocation: number;
-  annualRewardsBudget?: number;
-  dailyRewardsCap: number;
+  programBudget: number; // Single unified budget field
+  dailyRewardsCap?: number; // Optional - auto-calculated if not provided
   programStartDate: Date;
   programEndDate: Date;
   programDurationDays: number;
@@ -49,8 +48,8 @@ export class AdminService {
     try {
       // Treasury configuration received
       
-      // Calculate daily rewards cap from annual budget (if provided) or from total allocation
-      const dailyRewardsCap = config.dailyRewardsCap || (config.totalAllocation / config.programDurationDays);
+      // Calculate daily rewards cap from program budget
+      const dailyRewardsCap = config.dailyRewardsCap || (config.programBudget / config.programDurationDays);
       
       // Use default treasury address if none provided
       const treasuryAddress = config.treasuryWalletAddress || '0x0000000000000000000000000000000000000000';
@@ -68,8 +67,8 @@ export class AdminService {
         await db.update(treasuryConfig)
           .set({
             treasuryWalletAddress: treasuryAddress,
-            totalAllocation: config.totalAllocation.toString(),
-            annualRewardsBudget: (config.annualRewardsBudget || config.totalAllocation).toString(),
+            totalAllocation: config.programBudget.toString(),
+            annualRewardsBudget: config.programBudget.toString(),
             dailyRewardsCap: dailyRewardsCap.toString(),
             programStartDate: startDate,
             programEndDate: endDate,
@@ -81,8 +80,8 @@ export class AdminService {
         // Create new configuration
         await db.insert(treasuryConfig).values({
           treasuryWalletAddress: treasuryAddress,
-          totalAllocation: config.totalAllocation.toString(),
-          annualRewardsBudget: (config.annualRewardsBudget || config.totalAllocation).toString(),
+          totalAllocation: config.programBudget.toString(),
+          annualRewardsBudget: config.programBudget.toString(),
           dailyRewardsCap: dailyRewardsCap.toString(),
           programStartDate: startDate,
           programEndDate: endDate,
@@ -105,7 +104,7 @@ export class AdminService {
 
       return {
         success: true,
-        message: `Treasury configuration updated successfully. Daily rewards cap: ${dailyRewardsCap.toFixed(2)} KILT`
+        message: `Treasury configuration updated successfully. Program budget: ${config.programBudget.toLocaleString()} KILT, Daily cap: ${dailyRewardsCap.toFixed(2)} KILT`
       };
     } catch (error) {
       console.error('Treasury configuration update error:', error);
@@ -268,8 +267,7 @@ export class AdminService {
       const programSettings = await this.getCurrentProgramSettings();
       
       // Admin controls the treasury configuration - this is the authoritative source
-      const totalAllocation = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 2905600;
-      const annualRewardsBudget = treasuryConf ? parseFloat(treasuryConf.annualRewardsBudget || treasuryConf.totalAllocation) : 1000000;
+      const programBudget = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 2905600;
       const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 7960;
       
       // Treasury configuration retrieved successfully
@@ -281,14 +279,13 @@ export class AdminService {
         treasury: {
           balance: treasuryBalance.balance,
           address: treasuryBalance.address,
-          totalAllocation,
-          annualRewardsBudget,
+          programBudget,
           dailyRewardsCap,
           programDuration: treasuryConf ? treasuryConf.programDurationDays : 365,
           programEndDate: treasuryConf ? treasuryConf.programEndDate : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           isActive: treasuryConf ? treasuryConf.isActive : true,
           totalDistributed: Math.round(totalDistributed * 100) / 100,
-          treasuryRemaining: totalAllocation - totalDistributed
+          treasuryRemaining: programBudget - totalDistributed
         },
         settings: programSettings,
         operationHistory: await this.getOperationHistory(10)
@@ -297,9 +294,9 @@ export class AdminService {
       console.error('Admin service error in getAdminTreasuryStats:', error);
       return {
         treasury: { 
-          balance: 0, 
+          balance: 0,
+          programBudget: 2905600, 
           address: '0x0000000000000000000000000000000000000000',
-          totalAllocation: 2905600,
           dailyRewardsCap: 7960,
           programDuration: 365,
           programEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),

@@ -22,7 +22,9 @@ import {
   Lock,
   ShieldCheck,
   Timer,
-  Unlock
+  Unlock,
+  Calculator,
+  Calendar
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -33,20 +35,19 @@ interface AdminStats {
   treasury: {
     balance: number;
     address: string;
-    totalAllocation: number;
+    programBudget: number; // Single unified budget field
     dailyRewardsCap: number;
     programDuration: number;
     isActive: boolean;
+    totalDistributed: number;
+    treasuryRemaining: number;
   };
   settings: {
     programDuration: number;
-    minTimeCoefficient: number;
-    maxTimeCoefficient: number;
-    liquidityWeight: number;
-    timeWeight: number;
+    maxLiquidityBoost: number;
     minimumPositionValue: number;
     lockPeriod: number;
-    dailyRewardsCap?: number;
+    inRangeRequirement: boolean;
   };
   operationHistory: any[];
 }
@@ -65,8 +66,7 @@ export function AdminPanel() {
   // Treasury Configuration Form (NO PRIVATE KEYS)
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
     treasuryWalletAddress: '',
-    totalAllocation: 0,
-    annualRewardsBudget: 0,
+    programBudget: 0, // Single unified budget field
     dailyRewardsCap: 0,
     programDurationDays: 365,
     programStartDate: new Date().toISOString().split('T')[0],
@@ -129,8 +129,7 @@ export function AdminPanel() {
       
       setTreasuryConfigForm({
         treasuryWalletAddress: adminStats.treasury.address || '',
-        totalAllocation: adminStats.treasury.totalAllocation || 2905600,
-        annualRewardsBudget: adminStats.treasury.annualRewardsBudget || 1000000,
+        programBudget: adminStats.treasury.programBudget || 2905600,
         dailyRewardsCap: adminStats.treasury.dailyRewardsCap || 7960,
         programDurationDays: adminStats.treasury.programDuration || 365,
         programStartDate: startDate,
@@ -317,22 +316,10 @@ export function AdminPanel() {
   // Handle treasury configuration update
   const handleTreasuryConfigUpdate = () => {
     
-    // Validate that Total Allocation >= Annual Rewards Budget
-    if (treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget) {
-      toast({
-        title: "Validation Error",
-        description: `Total Allocation (${treasuryConfigForm.totalAllocation.toLocaleString()} KILT) must be greater than or equal to Annual Rewards Budget (${treasuryConfigForm.annualRewardsBudget.toLocaleString()} KILT)`,
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Validate required fields with better debugging (Treasury Wallet Address bypassed for now)
+    // Validate required fields
     const missingFields = [];
-    // if (!treasuryConfigForm.treasuryWalletAddress) missingFields.push("Treasury Wallet Address"); // Bypassed for now
-    if (!treasuryConfigForm.totalAllocation || treasuryConfigForm.totalAllocation <= 0) missingFields.push("Total Allocation");
+    if (!treasuryConfigForm.programBudget || treasuryConfigForm.programBudget <= 0) missingFields.push("Program Budget");
     if (!treasuryConfigForm.programDurationDays || treasuryConfigForm.programDurationDays <= 0) missingFields.push("Program Duration");
-    if (!treasuryConfigForm.annualRewardsBudget || treasuryConfigForm.annualRewardsBudget <= 0) missingFields.push("Annual Rewards Budget");
     
     if (missingFields.length > 0) {
       toast({
@@ -465,52 +452,52 @@ export function AdminPanel() {
                   <p className="text-emerald-300 text-xs">Available</p>
                 </div>
 
-                {/* Total Allocation */}
+                {/* Program Budget */}
                 <div className="text-center">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <DollarSign className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1">Total Allocation</p>
+                  <p className="text-white/70 text-xs mb-1">Program Budget</p>
                   <p className="text-white font-bold text-lg">
-                    {adminStats?.treasury?.totalAllocation?.toFixed(0) || 2905600} KILT
+                    {((adminStats?.treasury?.programBudget || 2905600) / 1000000).toFixed(1)}M KILT
                   </p>
-                  <p className="text-blue-300 text-xs">Program Budget</p>
-                </div>
-
-                {/* Annual Rewards Budget */}
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <TrendingUp className="h-5 w-5 text-white" />
-                  </div>
-                  <p className="text-white/70 text-xs mb-1">Total Rewards Budget</p>
-                  <p className="text-white font-bold text-lg">
-                    {(adminStats?.treasury?.annualRewardsBudget || 1000000).toLocaleString()} KILT
-                  </p>
-                  <p className="text-purple-300 text-xs">Program Distribution</p>
+                  <p className="text-blue-300 text-xs">Total Allocation</p>
                 </div>
 
                 {/* Daily Rewards Cap */}
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Timer className="h-5 w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Daily Rewards Cap</p>
                   <p className="text-white font-bold text-lg">
                     {(adminStats?.treasury?.dailyRewardsCap || 0).toFixed(2)} KILT
                   </p>
-                  <p className="text-orange-300 text-xs">Daily Limit</p>
+                  <p className="text-purple-300 text-xs">Per Day</p>
                 </div>
 
                 {/* Program Duration */}
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Users className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Calendar className="h-5 w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Program Duration</p>
                   <p className="text-white font-bold text-lg">
                     {adminStats?.treasury?.programDuration || 365} days
                   </p>
-                  <p className="text-green-300 text-xs">Active Period</p>
+                  <p className="text-orange-300 text-xs">Active Period</p>
+                </div>
+
+                {/* Remaining Budget */}
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <p className="text-white/70 text-xs mb-1">Remaining Budget</p>
+                  <p className="text-white font-bold text-lg">
+                    {((adminStats?.treasury?.treasuryRemaining || 2905600) / 1000000).toFixed(1)}M KILT
+                  </p>
+                  <p className="text-green-300 text-xs">Available</p>
                 </div>
               </div>
             </div>
@@ -537,7 +524,7 @@ export function AdminPanel() {
                       <div 
                         className="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full" 
                         style={{ 
-                          width: `${((adminStats?.treasury?.totalDistributed || 0) / (adminStats?.treasury?.totalAllocation || 2905600)) * 100}%` 
+                          width: `${((adminStats?.treasury?.totalDistributed || 0) / (adminStats?.treasury?.programBudget || 2905600)) * 100}%` 
                         }}
                       ></div>
                     </div>
@@ -721,18 +708,16 @@ export function AdminPanel() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="totalAllocation" className="text-white">Total Allocation (KILT)</Label>
+                    <Label htmlFor="programBudget" className="text-white">Program Budget (KILT)</Label>
                     <Input
-                      id="totalAllocation"
+                      id="programBudget"
                       type="number"
-                      value={treasuryConfigForm.totalAllocation?.toString() || ''}
-                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, totalAllocation: parseInt(e.target.value) || 0 })}
-                      className={`bg-gray-800/30 backdrop-blur-sm text-white placeholder-gray-400 ${
-                        treasuryConfigForm.totalAllocation < (treasuryConfigForm.dailyRewardsCap * 365) 
-                          ? 'border-red-500/50' 
-                          : 'border-gray-700/30'
-                      }`}
+                      value={treasuryConfigForm.programBudget?.toString() || ''}
+                      onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programBudget: parseInt(e.target.value) || 0 })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="Total KILT tokens allocated for program"
                     />
+                    <p className="text-xs text-gray-400 mt-1">Single unified budget for entire program duration</p>
                   </div>
                   
                   <div>
@@ -742,47 +727,22 @@ export function AdminPanel() {
                       type="number"
                       value={treasuryConfigForm.programDurationDays?.toString() || ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDurationDays: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="Duration in days"
                     />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="annualRewardsBudget" className="text-white">Annual Rewards Budget (KILT)</Label>
-                    <Input
-                      id="annualRewardsBudget"
-                      type="number"
-                      step="0.01"
-                      value={treasuryConfigForm.annualRewardsBudget?.toString() || ''}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value) || 0;
-                        setTreasuryConfigForm({ 
-                          ...treasuryConfigForm, 
-                          annualRewardsBudget: value,
-                          dailyRewardsCap: value / 365
-                        });
-                      }}
-                      className={`bg-gray-800/30 backdrop-blur-sm text-white placeholder-gray-400 ${
-                        treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget 
-                          ? 'border-red-500/50' 
-                          : 'border-gray-700/30'
-                      }`}
-                      placeholder="Enter annual rewards budget"
-                    />
-                    <div className="text-sm text-gray-400 mt-1">
-                      Must be ≤ Total Allocation ({treasuryConfigForm.totalAllocation?.toLocaleString() || '0'} KILT)
-                    </div>
+                    <p className="text-xs text-gray-400 mt-1">Auto-calculates daily rewards cap</p>
                   </div>
                 </div>
                 
-                {/* Validation Warning */}
-                {(treasuryConfigForm.totalAllocation > 0 && treasuryConfigForm.annualRewardsBudget > 0 && treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget) && (
-                  <div className="bg-red-900/20 border border-red-500 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-red-400">
-                      <AlertCircle className="w-4 h-4" />
-                      <span className="font-medium">Validation Error</span>
+                {/* Auto-calculated daily rewards cap display */}
+                {treasuryConfigForm.programBudget > 0 && treasuryConfigForm.programDurationDays > 0 && (
+                  <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-emerald-400">
+                      <Calculator className="w-4 h-4" />
+                      <span className="font-medium">Auto-calculated Daily Budget</span>
                     </div>
-                    <p className="text-red-300 text-sm mt-1">
-                      Total Allocation ({treasuryConfigForm.totalAllocation?.toLocaleString() || '0'} KILT) must be greater than or equal to Annual Rewards Budget ({treasuryConfigForm.annualRewardsBudget?.toLocaleString() || '0'} KILT)
+                    <p className="text-emerald-300 text-sm mt-1">
+                      Daily Rewards Cap: {((treasuryConfigForm.programBudget || 0) / (treasuryConfigForm.programDurationDays || 1)).toFixed(2)} KILT/day
                     </p>
                   </div>
                 )}
@@ -817,7 +777,7 @@ export function AdminPanel() {
 
                 <Button 
                   onClick={handleTreasuryConfigUpdate}
-                  disabled={treasuryConfigMutation.isPending || treasuryConfigForm.totalAllocation < treasuryConfigForm.annualRewardsBudget}
+                  disabled={treasuryConfigMutation.isPending || !treasuryConfigForm.programBudget || treasuryConfigForm.programBudget <= 0}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
                 >
                   {treasuryConfigMutation.isPending ? 'Updating...' : 'Update Treasury Configuration'}

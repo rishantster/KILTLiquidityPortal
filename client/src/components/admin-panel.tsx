@@ -439,19 +439,7 @@ export function AdminPanel() {
         ) : (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                {/* Treasury Balance */}
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Wallet className="h-5 w-5 text-white" />
-                  </div>
-                  <p className="text-white/70 text-xs mb-1">Treasury Balance</p>
-                  <p className="text-white font-bold text-lg">
-                    {adminStats?.treasury?.balance?.toFixed(0) || 0} KILT
-                  </p>
-                  <p className="text-emerald-300 text-xs">Available</p>
-                </div>
-
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 {/* Program Budget */}
                 <div className="text-center">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">

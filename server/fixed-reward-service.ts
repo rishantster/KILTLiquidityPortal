@@ -67,16 +67,16 @@ export class FixedRewardService {
   private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
   
-  // New Formula Parameters: R_u = (L_u/L_T) * (w1 + (D_u/365)*1-w1) * R/365 * IRM
-  private readonly BASE_LIQUIDITY_WEIGHT = 0.6; // w1 - base liquidity weight
+  // Refined Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * R * IRM
+  private readonly BASE_LIQUIDITY_WEIGHT = 0.6; // w1 - max liquidity boost
 
   /**
-   * Calculate daily rewards using the new formula:
-   * R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+   * Calculate daily rewards using the refined formula:
+   * R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * R * IRM
    * 
    * @param userLiquidity - L_u: User's liquidity amount in USD
    * @param totalLiquidity - L_T: Total liquidity in the system
-   * @param daysActive - D_u: Days the user has been active
+   * @param daysActive - D_u: Number of unbroken days the user has been in the pool
    * @param inRangeMultiplier - IRM: In-range multiplier (0.0 - 1.0)
    * @returns Daily reward amount in KILT tokens
    */
@@ -93,11 +93,11 @@ export class FixedRewardService {
 
     // Formula components
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
-    const timeProgression = this.BASE_LIQUIDITY_WEIGHT + (daysActive / 365) * (1 - this.BASE_LIQUIDITY_WEIGHT); // w1 + (D_u/365)*(1-w1)
-    const dailyBudgetRate = this.TREASURY_ALLOCATION / 365; // R/365
+    const timeBoost = 1 + ((daysActive / this.PROGRAM_DURATION_DAYS) * this.BASE_LIQUIDITY_WEIGHT); // 1 + ((D_u/P)*w1)
+    const dailyRewardRate = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // R/P (daily allocation)
     
-    // Final calculation: R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
-    const dailyReward = liquidityShare * timeProgression * dailyBudgetRate * inRangeMultiplier;
+    // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * (R/P) * IRM
+    const dailyReward = liquidityShare * timeBoost * dailyRewardRate * inRangeMultiplier;
     
     return Math.max(0, dailyReward);
   }

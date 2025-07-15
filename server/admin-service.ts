@@ -15,7 +15,7 @@ export interface AdminTreasuryConfiguration {
 }
 
 export interface AdminProgramSettings {
-  programDuration?: number; // P - days in reward period
+  // NOTE: programDuration is now controlled by Treasury Config (programDurationDays)
   maxLiquidityBoost?: number; // w1 - max liquidity boost (0.6 = 60% boost)
   minimumPositionValue?: number; // minimum USD value (set to 0 for no minimum)
   lockPeriod?: number; // claim lock period in days (7 days)
@@ -76,6 +76,13 @@ export class AdminService {
             isActive: config.isActive
           })
           .where(eq(treasuryConfig.id, existingConfig.id));
+        
+        // CRITICAL: Sync program_settings table with treasury config duration
+        await db.update(programSettings)
+          .set({
+            programDuration: config.programDurationDays,
+            updatedAt: new Date()
+          });
       } else {
         // Create new configuration
         await db.insert(treasuryConfig).values({
@@ -89,6 +96,13 @@ export class AdminService {
           isActive: config.isActive,
           createdBy: performedBy
         });
+        
+        // CRITICAL: Sync program_settings table with treasury config duration
+        await db.update(programSettings)
+          .set({
+            programDuration: config.programDurationDays,
+            updatedAt: new Date()
+          });
       }
 
       // Log operation (temporarily disabled for debugging)
@@ -146,6 +160,12 @@ export class AdminService {
     try {
       console.log('Admin service updateProgramSettings called with:', settings, performedBy);
       
+      // Get treasury config to use as authoritative source for program duration
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const authoritativeProgramDuration = treasuryConf ? treasuryConf.programDurationDays : 365;
+      
+      console.log('Using authoritative program duration from treasury config:', authoritativeProgramDuration);
+      
       // First, get existing settings or create default values
       const [existingSettings] = await db.select().from(programSettings).limit(1);
       
@@ -154,7 +174,7 @@ export class AdminService {
       if (existingSettings) {
         // Update existing settings record using actual database columns
         const updateData = {
-          programDuration: settings.programDuration || existingSettings.programDuration,
+          programDuration: authoritativeProgramDuration, // Always use treasury config value
           // Map maxLiquidityBoost to liquidityWeight for existing column
           liquidityWeight: settings.maxLiquidityBoost?.toString() || existingSettings.liquidityWeight,
           minimumPositionValue: settings.minimumPositionValue?.toString() || existingSettings.minimumPositionValue,
@@ -170,7 +190,7 @@ export class AdminService {
       } else {
         // Create new settings record with defaults using actual database columns
         const insertData = {
-          programDuration: settings.programDuration || 365,
+          programDuration: authoritativeProgramDuration, // Always use treasury config value
           // Map maxLiquidityBoost to liquidityWeight for existing column
           liquidityWeight: settings.maxLiquidityBoost?.toString() || "0.6",
           minimumPositionValue: settings.minimumPositionValue?.toString() || "0",

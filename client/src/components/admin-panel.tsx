@@ -37,13 +37,13 @@ interface AdminStats {
     address: string;
     programBudget: number; // Single unified budget field
     dailyRewardsCap: number;
-    programDuration: number;
+    programDuration: number; // Authoritative source for program duration
     isActive: boolean;
     totalDistributed: number;
     treasuryRemaining: number;
   };
   settings: {
-    programDuration: number;
+    // NOTE: programDuration removed - now controlled by Treasury Config
     maxLiquidityBoost: number;
     minimumPositionValue: number;
     lockPeriod: number;
@@ -76,7 +76,7 @@ export function AdminPanel() {
   
   // Program Settings Form - Updated for Refined Formula
   const [settingsForm, setSettingsForm] = useState({
-    programDuration: 365, // P - days in reward period
+    // NOTE: programDuration removed - now controlled by Treasury Config
     maxLiquidityBoost: 0.6, // w1 - max liquidity boost (60% boost at program end)
     minimumPositionValue: 0, // minimum USD value (0 = no minimum)
     lockPeriod: 7, // claim lock period in days
@@ -141,7 +141,7 @@ export function AdminPanel() {
     // Populate refined formula settings
     if (adminStats?.settings) {
       setSettingsForm({
-        programDuration: adminStats.settings.programDuration || 365,
+        // NOTE: programDuration removed - now controlled by Treasury Config
         maxLiquidityBoost: adminStats.settings.maxLiquidityBoost || 0.6,
         minimumPositionValue: adminStats.settings.minimumPositionValue || 0,
         lockPeriod: adminStats.settings.lockPeriod || 7,
@@ -684,18 +684,7 @@ export function AdminPanel() {
                     <p className="text-xs text-gray-400 mt-1">0.6 = 60% boost at program end (160% total)</p>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="programDuration" className="text-white">Program Duration (P)</Label>
-                    <Input
-                      id="programDuration"
-                      type="number"
-                      min="1"
-                      value={settingsForm.programDuration?.toString() || ''}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, programDuration: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">Days in reward period (e.g., 365 for annual)</p>
-                  </div>
+                  {/* Program Duration now controlled by Treasury Config */}
                   
                   <div>
                     <Label htmlFor="minimumPositionValue" className="text-white">Minimum Position Value ($)</Label>

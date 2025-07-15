@@ -650,28 +650,133 @@ export function AdminPanel() {
 
                 </div>
                 
-                {/* Program Settings Section */}
+                {/* Program Settings Section - Hybrid Mode */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Program Settings</h3>
+                  <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Hybrid Reward Settings</h3>
+                  <div className="text-sm text-gray-400 mb-4">
+                    <p>Combine Merkl's fee-based rewards with KILT's time-based approach for optimal incentives</p>
+                  </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="maxLiquidityBoost" className="text-white">Max Liquidity Boost (w1)</Label>
-                      <Input
-                        id="maxLiquidityBoost"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="1"
-                        value={settingsForm.maxLiquidityBoost?.toString() || ''}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
-                        className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
-                      />
-                      <p className="text-xs text-gray-400 mt-1">0.6 = 60% boost at program end (160% total)</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Merkl-Style Weights */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-emerald-400">Merkl Components (60%)</h4>
+                      
+                      <div>
+                        <Label htmlFor="feeWeight" className="text-white">Fee Earnings Weight</Label>
+                        <Input
+                          id="feeWeight"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1"
+                          value="0.30"
+                          className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                          readOnly
+                        />
+                        <p className="text-xs text-gray-400 mt-1">30% - Rewards based on fees earned</p>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="token0Weight" className="text-white">KILT Holdings Weight</Label>
+                        <Input
+                          id="token0Weight"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1"
+                          value="0.15"
+                          className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                          readOnly
+                        />
+                        <p className="text-xs text-gray-400 mt-1">15% - Rewards based on KILT token holdings</p>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="token1Weight" className="text-white">ETH Holdings Weight</Label>
+                        <Input
+                          id="token1Weight"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1"
+                          value="0.15"
+                          className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                          readOnly
+                        />
+                        <p className="text-xs text-gray-400 mt-1">15% - Rewards based on ETH token holdings</p>
+                      </div>
                     </div>
                     
-                    <div>
-                      <Label htmlFor="minimumPositionValue" className="text-white">Minimum Position Value ($)</Label>
+                    {/* KILT-Style Weights */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-blue-400">KILT Components (40%)</h4>
+                      
+                      <div>
+                        <Label htmlFor="liquidityWeight" className="text-white">Liquidity Share Weight</Label>
+                        <Input
+                          id="liquidityWeight"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1"
+                          value="0.25"
+                          className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                          readOnly
+                        />
+                        <p className="text-xs text-gray-400 mt-1">25% - Rewards based on liquidity share</p>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="timeWeight" className="text-white">Time Progression Weight</Label>
+                        <Input
+                          id="timeWeight"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1"
+                          value="0.15"
+                          className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                          readOnly
+                        />
+                        <p className="text-xs text-gray-400 mt-1">15% - Rewards based on time commitment</p>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-white flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={true}
+                            readOnly
+                            className="rounded bg-gray-800/30 backdrop-blur-sm border-gray-700/30"
+                          />
+                          Concentration Bonus
+                        </Label>
+                        <p className="text-xs text-gray-400 mt-1">Tighter ranges earn up to 2x bonus</p>
+                      </div>
+                    </div>
+                    
+                    {/* Standard Settings */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-purple-400">Standard Settings</h4>
+                      
+                      <div>
+                        <Label htmlFor="maxLiquidityBoost" className="text-white">Max Liquidity Boost (w1)</Label>
+                        <Input
+                          id="maxLiquidityBoost"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1"
+                          value={settingsForm.maxLiquidityBoost?.toString() || ''}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
+                          className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">0.6 = 60% boost at program end (160% total)</p>
+                      </div>
+                    
+                      <div>
+                        <Label htmlFor="minimumPositionValue" className="text-white">Minimum Position Value ($)</Label>
                       <Input
                         id="minimumPositionValue"
                         type="number"
@@ -681,10 +786,10 @@ export function AdminPanel() {
                         className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
                       />
                       <p className="text-xs text-gray-400 mt-1">0 = no minimum (any position eligible)</p>
-                    </div>
+                      </div>
                     
-                    <div>
-                      <Label htmlFor="lockPeriod" className="text-white">Claim Lock Period (Days)</Label>
+                      <div>
+                        <Label htmlFor="lockPeriod" className="text-white">Claim Lock Period (Days)</Label>
                       <Input
                         id="lockPeriod"
                         type="number"
@@ -694,19 +799,20 @@ export function AdminPanel() {
                         className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
                       />
                       <p className="text-xs text-gray-400 mt-1">Rolling claim period (7 days recommended)</p>
-                    </div>
+                      </div>
                     
-                    <div>
-                      <Label className="text-white flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settingsForm.inRangeRequirement || false}
-                          onChange={(e) => setSettingsForm({ ...settingsForm, inRangeRequirement: e.target.checked })}
-                          className="rounded bg-gray-800/30 backdrop-blur-sm border-gray-700/30"
-                        />
-                        In-Range Requirement (IRM)
-                      </Label>
-                      <p className="text-xs text-gray-400 mt-1">Whether positions must be in-range to earn rewards</p>
+                      <div>
+                        <Label className="text-white flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={settingsForm.inRangeRequirement || false}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, inRangeRequirement: e.target.checked })}
+                            className="rounded bg-gray-800/30 backdrop-blur-sm border-gray-700/30"
+                          />
+                          In-Range Requirement (IRM)
+                        </Label>
+                        <p className="text-xs text-gray-400 mt-1">Whether positions must be in-range to earn rewards</p>
+                      </div>
                     </div>
                   </div>
                 </div>

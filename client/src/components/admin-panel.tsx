@@ -530,13 +530,10 @@ export function AdminPanel() {
         )}
 
         {/* Main Admin Tabs */}
-        <Tabs defaultValue="treasury" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
-            <TabsTrigger value="treasury" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
-              Treasury Config
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
-              Program Settings
+        <Tabs defaultValue="unified-config" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
+            <TabsTrigger value="unified-config" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
+              Program Configuration
             </TabsTrigger>
             <TabsTrigger value="history" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Operation History
@@ -545,16 +542,20 @@ export function AdminPanel() {
 
 
 
-          {/* Treasury Configuration Tab */}
-          <TabsContent value="treasury" className="space-y-4">
+          {/* Unified Program Configuration Tab */}
+          <TabsContent value="unified-config" className="space-y-4">
             <Card className="bg-gray-900 border-gray-800">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  Secure Treasury Configuration
+                  Unified Program Configuration
                 </CardTitle>
+                <div className="text-sm text-gray-400 mt-2">
+                  <p className="mb-1">Complete treasury and program settings in one place</p>
+                  <code className="text-emerald-400">R_u = (L_u/L_T) × (1 + ((D_u/P)×w1)) × R × IRM</code>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <Alert>
                   <ShieldCheck className="h-4 w-4" />
                   <AlertDescription>
@@ -562,6 +563,10 @@ export function AdminPanel() {
                     All treasury operations are read-only with secure wallet-based configuration management.
                   </AlertDescription>
                 </Alert>
+                
+                {/* Treasury Configuration Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Treasury Configuration</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -643,99 +648,92 @@ export function AdminPanel() {
                   </div>
                 </div>
 
-                <Button 
-                  onClick={handleTreasuryConfigUpdate}
-                  disabled={treasuryConfigMutation.isPending || !treasuryConfigForm.programBudget || treasuryConfigForm.programBudget <= 0}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
-                >
-                  {treasuryConfigMutation.isPending ? 'Updating...' : 'Update Treasury Configuration'}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Program Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-blue-400" />
-                  Program Settings - Refined Formula
-                </CardTitle>
-                <div className="text-sm text-gray-400 mt-2">
-                  <code className="text-emerald-400">R_u = (L_u/L_T) × (1 + ((D_u/P)×w1)) × R × IRM</code>
-                  <p className="mt-1">Where R_u = daily rewards, L_u/L_T = liquidity share, D_u/P = time progression, w1 = max boost, R = reward pool, IRM = in-range multiplier</p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="maxLiquidityBoost" className="text-white">Max Liquidity Boost (w1)</Label>
-                    <Input
-                      id="maxLiquidityBoost"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="1"
-                      value={settingsForm.maxLiquidityBoost?.toString() || ''}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">0.6 = 60% boost at program end (160% total)</p>
-                  </div>
+                
+                {/* Program Settings Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Program Settings</h3>
                   
-                  {/* Program Duration now controlled by Treasury Config */}
-                  
-                  <div>
-                    <Label htmlFor="minimumPositionValue" className="text-white">Minimum Position Value ($)</Label>
-                    <Input
-                      id="minimumPositionValue"
-                      type="number"
-                      min="0"
-                      value={settingsForm.minimumPositionValue?.toString() || ''}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">0 = no minimum (any position eligible)</p>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="lockPeriod" className="text-white">Claim Lock Period (Days)</Label>
-                    <Input
-                      id="lockPeriod"
-                      type="number"
-                      min="1"
-                      value={settingsForm.lockPeriod?.toString() || ''}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">Rolling claim period (7 days recommended)</p>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-white flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={settingsForm.inRangeRequirement || false}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, inRangeRequirement: e.target.checked })}
-                        className="rounded"
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="maxLiquidityBoost" className="text-white">Max Liquidity Boost (w1)</Label>
+                      <Input
+                        id="maxLiquidityBoost"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="1"
+                        value={settingsForm.maxLiquidityBoost?.toString() || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
+                        className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
                       />
-                      In-Range Requirement (IRM)
-                    </Label>
-                    <p className="text-xs text-gray-400 mt-1">Whether positions must be in-range to earn rewards</p>
+                      <p className="text-xs text-gray-400 mt-1">0.6 = 60% boost at program end (160% total)</p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="minimumPositionValue" className="text-white">Minimum Position Value ($)</Label>
+                      <Input
+                        id="minimumPositionValue"
+                        type="number"
+                        min="0"
+                        value={settingsForm.minimumPositionValue?.toString() || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
+                        className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">0 = no minimum (any position eligible)</p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="lockPeriod" className="text-white">Claim Lock Period (Days)</Label>
+                      <Input
+                        id="lockPeriod"
+                        type="number"
+                        min="1"
+                        value={settingsForm.lockPeriod?.toString() || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
+                        className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">Rolling claim period (7 days recommended)</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-white flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.inRangeRequirement || false}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, inRangeRequirement: e.target.checked })}
+                          className="rounded bg-gray-800/30 backdrop-blur-sm border-gray-700/30"
+                        />
+                        In-Range Requirement (IRM)
+                      </Label>
+                      <p className="text-xs text-gray-400 mt-1">Whether positions must be in-range to earn rewards</p>
+                    </div>
                   </div>
                 </div>
-
-                <Button 
-                  onClick={handleSettingsUpdate}
-                  disabled={settingsMutation.isPending}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  {settingsMutation.isPending ? 'Updating...' : 'Update Program Settings'}
-                </Button>
+                
+                {/* Unified Update Button */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button 
+                    onClick={handleTreasuryConfigUpdate}
+                    disabled={treasuryConfigMutation.isPending || !treasuryConfigForm.programBudget || treasuryConfigForm.programBudget <= 0}
+                    className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    {treasuryConfigMutation.isPending ? 'Updating Treasury...' : 'Update Treasury Config'}
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleSettingsUpdate}
+                    disabled={settingsMutation.isPending}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {settingsMutation.isPending ? 'Updating Settings...' : 'Update Program Settings'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Removed separate Program Settings Tab - now unified */}
 
           {/* Operation History Tab */}
           <TabsContent value="history" className="space-y-4">

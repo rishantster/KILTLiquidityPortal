@@ -140,45 +140,31 @@ export class AdminService {
   }
 
   /**
-   * Update program settings with dynamic daily rewards cap
+   * Update program settings using existing database schema
    */
   async updateProgramSettings(settings: AdminProgramSettings, performedBy: string): Promise<AdminOperationResult> {
     try {
-      // If daily rewards cap is provided, update treasury configuration
-      if (settings.dailyRewardsCap) {
-        const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
-        if (treasuryConf) {
-          await db.update(treasuryConfig)
-            .set({
-              dailyRewardsCap: settings.dailyRewardsCap.toString(),
-              updatedAt: new Date()
-            })
-            .where(eq(treasuryConfig.id, treasuryConf.id));
-        }
-      }
-
-      // Update program settings in key-value format - Refined Formula Parameters
-      const settingsToUpdate = [
-        { key: 'programDuration', value: settings.programDuration?.toString() },
-        { key: 'maxLiquidityBoost', value: settings.maxLiquidityBoost?.toString() },
-        { key: 'minimumPositionValue', value: settings.minimumPositionValue?.toString() },
-        { key: 'lockPeriod', value: settings.lockPeriod?.toString() },
-        { key: 'inRangeRequirement', value: settings.inRangeRequirement?.toString() },
-      ].filter(setting => setting.value !== undefined);
-
-      for (const setting of settingsToUpdate) {
-        await db.insert(programSettings).values({
-          settingKey: setting.key,
-          settingValue: setting.value!,
-          description: `${setting.key} setting`,
-          lastUpdatedBy: performedBy
-        }).onConflictDoUpdate({
-          target: programSettings.settingKey,
-          set: {
-            settingValue: setting.value!,
-            lastUpdatedBy: performedBy,
+      // First, get existing settings or create default values
+      const [existingSettings] = await db.select().from(programSettings).limit(1);
+      
+      if (existingSettings) {
+        // Update existing settings record
+        await db.update(programSettings)
+          .set({
+            programDuration: settings.programDuration || existingSettings.programDuration,
+            maxLiquidityBoost: settings.maxLiquidityBoost?.toString() || existingSettings.maxLiquidityBoost,
+            minimumPositionValue: settings.minimumPositionValue?.toString() || existingSettings.minimumPositionValue,
+            lockPeriod: settings.lockPeriod || existingSettings.lockPeriod,
             updatedAt: new Date()
-          }
+          })
+          .where(eq(programSettings.id, existingSettings.id));
+      } else {
+        // Create new settings record with defaults
+        await db.insert(programSettings).values({
+          programDuration: settings.programDuration || 365,
+          maxLiquidityBoost: settings.maxLiquidityBoost?.toString() || "0.6",
+          minimumPositionValue: settings.minimumPositionValue?.toString() || "0",
+          lockPeriod: settings.lockPeriod || 7
         });
       }
 
@@ -214,21 +200,29 @@ export class AdminService {
   }
 
   /**
-   * Get current program settings
+   * Get current program settings using existing database schema
    */
   async getCurrentProgramSettings(): Promise<AdminProgramSettings> {
     try {
-      const settings = await db.select().from(programSettings);
-      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const [settings] = await db.select().from(programSettings).limit(1);
       
-      const settingsMap = new Map(settings.map(s => [s.settingKey, s.settingValue]));
+      if (settings) {
+        return {
+          programDuration: settings.programDuration || 365,
+          maxLiquidityBoost: parseFloat(settings.maxLiquidityBoost) || 0.6,
+          minimumPositionValue: parseFloat(settings.minimumPositionValue) || 0,
+          lockPeriod: settings.lockPeriod || 7,
+          inRangeRequirement: true // Always true for refined formula
+        };
+      }
       
+      // Return default settings if no database record exists
       return {
-        programDuration: settingsMap.get('programDuration') ? parseInt(settingsMap.get('programDuration')!) : 365,
-        maxLiquidityBoost: settingsMap.get('maxLiquidityBoost') ? parseFloat(settingsMap.get('maxLiquidityBoost')!) : 0.6,
-        minimumPositionValue: settingsMap.get('minimumPositionValue') ? parseFloat(settingsMap.get('minimumPositionValue')!) : 0,
-        lockPeriod: settingsMap.get('lockPeriod') ? parseInt(settingsMap.get('lockPeriod')!) : 7,
-        inRangeRequirement: settingsMap.get('inRangeRequirement') === 'true'
+        programDuration: 365,
+        maxLiquidityBoost: 0.6,
+        minimumPositionValue: 0,
+        lockPeriod: 7,
+        inRangeRequirement: true
       };
     } catch (error) {
       // Return default settings if database query fails

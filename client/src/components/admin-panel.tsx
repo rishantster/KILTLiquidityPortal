@@ -531,12 +531,9 @@ export function AdminPanel() {
 
         {/* Main Admin Tabs */}
         <Tabs defaultValue="treasury" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
             <TabsTrigger value="treasury" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Treasury Config
-            </TabsTrigger>
-            <TabsTrigger value="distribution" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
-              Token Distribution
             </TabsTrigger>
             <TabsTrigger value="settings" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Program Settings
@@ -546,124 +543,7 @@ export function AdminPanel() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Claim-Based Rewards Tab */}
-          <TabsContent value="distribution" className="space-y-4">
-            <Alert>
-              <ShieldCheck className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Claim-Based Reward System:</strong> Users can only claim rewards after a 7-day lock period. 
-                No automatic transfers occur - users must manually click "Claim Reward" to receive their KILT tokens.
-              </AlertDescription>
-            </Alert>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Transaction Signing Explanation */}
-              <Card className="bg-gray-900/20 backdrop-blur-sm border border-gray-800/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Lock className="w-5 h-5 text-blue-400" />
-                    Transaction Signing Method
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-300">
-                    <strong>Current Implementation:</strong> Secure wallet-based configuration management with no private key storage required.
-                  </div>
-                  
-                  <div className="bg-gray-800 p-3 rounded text-xs">
-                    <strong>Security Features:</strong>
-                    <br />
-                    <strong>• No Private Keys:</strong> All treasury operations use wallet-based authentication
-                    <br />
-                    <strong>• Smart Contract:</strong> KILTRewardPool contract handles secure token distribution
-                    <br />
-                    <strong>• Configuration Only:</strong> Admin panel manages settings without handling sensitive keys
-                  </div>
-
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Security Note:</strong> Current system requires treasury private key for transaction signing. 
-                      Consider smart contract approach for enhanced security.
-                    </AlertDescription>
-                  </Alert>
-                </CardContent>
-              </Card>
-
-              {/* Claim Statistics */}
-              <Card className="bg-gray-900 border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-green-400" />
-                    Claim Statistics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white">0</div>
-                      <div className="text-xs text-gray-400">Total Claimed</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white">0</div>
-                      <div className="text-xs text-gray-400">Claim Transactions</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-yellow-400">0</div>
-                      <div className="text-xs text-gray-400">Pending Claims</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-red-400">0</div>
-                      <div className="text-xs text-gray-400">Locked Rewards</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* How It Works */}
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Users className="w-5 h-5 text-purple-400" />
-                  How Rolling Claims Work
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="text-center p-3 bg-gray-800 rounded">
-                    <Timer className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                    <div className="text-sm font-medium text-white">1. Daily Rewards</div>
-                    <div className="text-xs text-gray-400">Users earn proportional rewards from liquidity provision</div>
-                  </div>
-                  <div className="text-center p-3 bg-gray-800 rounded">
-                    <Shield className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                    <div className="text-sm font-medium text-white">2. Individual Lock</div>
-                    <div className="text-xs text-gray-400">Smart contract secured reward distribution</div>
-                  </div>
-                  <div className="text-center p-3 bg-gray-800 rounded">
-                    <Unlock className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                    <div className="text-sm font-medium text-white">3. Rolling Unlock</div>
-                    <div className="text-xs text-gray-400">Rewards unlock continuously as they age 7+ days</div>
-                  </div>
-                  <div className="text-center p-3 bg-gray-800 rounded">
-                    <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-                    <div className="text-sm font-medium text-white">4. Claim Available</div>
-                    <div className="text-xs text-gray-400">User claims only unlocked rewards anytime</div>
-                  </div>
-                </div>
-                
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>How It Works:</strong> Users earn rewards proportionally based on their liquidity contribution and time-in-range performance. 
-                    All rewards are secured by smart contract and distributed automatically.
-                    This system ensures fair distribution while maintaining the highest security standards.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Treasury Configuration Tab */}
           <TabsContent value="treasury" className="space-y-4">

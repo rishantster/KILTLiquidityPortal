@@ -193,13 +193,17 @@ export const positionEligibility = pgTable("position_eligibility", {
   uniquePositionEligibility: unique().on(table.positionId, table.nftTokenId),
 }));
 
-// Program settings table for dynamic configuration
+// Program settings table - matches existing database schema
 export const programSettings = pgTable("program_settings", {
   id: serial("id").primaryKey(),
-  settingKey: text("setting_key").notNull().unique(),
-  settingValue: text("setting_value").notNull(),
-  description: text("description"),
-  lastUpdatedBy: text("last_updated_by").notNull(),
+  programDuration: integer("program_duration").notNull().default(365),
+  minTimeCoefficient: decimal("min_time_coefficient", { precision: 10, scale: 3 }).notNull().default("0.600"),
+  maxTimeCoefficient: decimal("max_time_coefficient", { precision: 10, scale: 3 }).notNull().default("1.000"),
+  liquidityWeight: decimal("liquidity_weight", { precision: 10, scale: 3 }).notNull().default("0.600"),
+  timeWeight: decimal("time_weight", { precision: 10, scale: 3 }).notNull().default("0.400"),
+  minimumPositionValue: decimal("minimum_position_value", { precision: 18, scale: 8 }).notNull().default("100.00000000"),
+  lockPeriod: integer("lock_period").notNull().default(90),
+  maxLiquidityBoost: decimal("max_liquidity_boost", { precision: 10, scale: 3 }).notNull().default("0.600"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -379,10 +383,10 @@ export const insertPoolMetricsHistorySchema = createInsertSchema(poolMetricsHist
 
 // New schema validators for admin features
 export const insertProgramSettingsSchema = createInsertSchema(programSettings).pick({
-  settingKey: true,
-  settingValue: true,
-  description: true,
-  lastUpdatedBy: true,
+  programDuration: true,
+  maxLiquidityBoost: true,
+  minimumPositionValue: true,
+  lockPeriod: true,
 });
 
 export const insertTreasuryConfigSchema = createInsertSchema(treasuryConfig).pick({

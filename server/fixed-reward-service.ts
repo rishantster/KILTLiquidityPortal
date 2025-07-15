@@ -68,7 +68,7 @@ export class FixedRewardService {
   private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
   
   // Refined Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * R * IRM
-  private readonly BASE_LIQUIDITY_WEIGHT = 0.6; // w1 - max liquidity boost
+  // Note: BASE_LIQUIDITY_WEIGHT is now loaded from admin panel settings dynamically
 
   /**
    * Calculate daily rewards using the refined formula:
@@ -80,21 +80,33 @@ export class FixedRewardService {
    * @param inRangeMultiplier - IRM: In-range multiplier (0.0 - 1.0)
    * @returns Daily reward amount in KILT tokens
    */
-  private calculateDailyRewardByFormula(
+  private async calculateDailyRewardByFormula(
     userLiquidity: number,
     totalLiquidity: number,
     daysActive: number,
     inRangeMultiplier: number
-  ): number {
+  ): Promise<number> {
     // Handle edge cases
     if (totalLiquidity === 0 || userLiquidity === 0 || inRangeMultiplier === 0) {
       return 0;
     }
 
+    // Get admin-configured parameters
+    const { programSettings, treasuryConfig } = await import('../shared/schema');
+    const [settings] = await this.database.select().from(programSettings).limit(1);
+    const [treasury] = await this.database.select().from(treasuryConfig).limit(1);
+
+    // Use admin-configured values with fallbacks
+    const liquidityWeight = settings ? parseFloat(settings.liquidityWeight) : 0.6;
+    const programDuration = settings ? settings.programDuration : this.PROGRAM_DURATION_DAYS;
+    const dailyBudget = treasury ? parseFloat(treasury.dailyRewardsCap) : this.DAILY_BUDGET;
+    
+    console.log('Admin-configured values:', { liquidityWeight, programDuration, dailyBudget });
+
     // Formula components
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
-    const timeBoost = 1 + ((daysActive / this.PROGRAM_DURATION_DAYS) * this.BASE_LIQUIDITY_WEIGHT); // 1 + ((D_u/P)*w1)
-    const dailyRewardRate = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // R/P (daily allocation)
+    const timeBoost = 1 + ((daysActive / programDuration) * liquidityWeight); // 1 + ((D_u/P)*w1)
+    const dailyRewardRate = dailyBudget; // R/P (daily allocation from admin)
     
     // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * (R/P) * IRM
     const dailyReward = liquidityShare * timeBoost * dailyRewardRate * inRangeMultiplier;
@@ -258,15 +270,19 @@ export class FixedRewardService {
       
       // Calculate daily rewards using the new formula:
       // R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
-      const dailyRewards = this.calculateDailyRewardByFormula(
+      const dailyRewards = await this.calculateDailyRewardByFormula(
         currentValueUSD,
         totalActiveLiquidity,
         daysActive,
         inRangeMultiplier
       );
       
-      // Calculate time progression for display
-      const timeProgression = this.BASE_LIQUIDITY_WEIGHT + (daysActive / 365) * (1 - this.BASE_LIQUIDITY_WEIGHT);
+      // Calculate time progression for display using admin-configured values
+      const { programSettings: programSettingsSchema } = await import('../shared/schema');
+      const [programSettings] = await this.database.select().from(programSettingsSchema).limit(1);
+      const adminLiquidityWeight = programSettings ? parseFloat(programSettings.liquidityWeight) : 0.6;
+      const adminProgramDuration = programSettings ? programSettings.programDuration : 365;
+      const timeProgression = 1 + ((daysActive / adminProgramDuration) * adminLiquidityWeight);
       
       // Calculate effective APR
       const effectiveAPR = currentValueUSD > 0 ? (dailyRewards * 365) / currentValueUSD : 0;
@@ -390,8 +406,12 @@ export class FixedRewardService {
     
     // APR calculation parameters - realistic pool lifecycle progression
     const inRangeMultiplier = 1.0; // Always in-range
-    const w1 = this.BASE_LIQUIDITY_WEIGHT; // 0.6
     const kiltPrice = 0.01602; // Current KILT price
+    
+    // Get admin-configured values
+    const { programSettings } = await import('../shared/schema');
+    const [settings] = await this.database.select().from(programSettings).limit(1);
+    const w1 = settings ? parseFloat(settings.liquidityWeight) : 0.6; // Admin-configured liquidity weight
     
     // High APR scenario for early participants (small pool, high rewards)
     const earlyPoolSize = 100000; // $100K early pool

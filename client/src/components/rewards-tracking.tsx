@@ -38,6 +38,9 @@ interface ProgramAnalytics {
   activeParticipants: number;
   estimatedAPR: { low: number; average: number; high: number };
   treasuryRemaining: number;
+  treasuryTotal: number;
+  programDuration: number;
+  programDaysRemaining: number;
   avgUserLiquidity: number;
 }
 
@@ -396,7 +399,7 @@ export function RewardsTracking() {
           <CardContent className="p-3">
             <div className="space-y-3">
               <div className="text-center p-2 bg-purple-500/10 rounded border border-purple-500/20">
-                <div className="text-purple-400 text-xs mb-1">Total Allocation</div>
+                <div className="text-purple-400 text-xs mb-1">Program Budget</div>
                 <div className="text-sm font-bold text-white flex items-center justify-center gap-2">
                   {((programAnalytics?.treasuryTotal || 2905600) / 1000000).toFixed(1)}M <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
                 </div>
@@ -417,7 +420,7 @@ export function RewardsTracking() {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Program Duration:</span>
-                  <span className="text-white">365 days</span>
+                  <span className="text-white">{programAnalytics?.programDuration || 365} days</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Days Remaining:</span>

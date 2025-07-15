@@ -458,6 +458,7 @@ export class FixedRewardService {
     dailyBudget: number;
     averageAPR: number;
     programDaysRemaining: number;
+    programDuration: number;
     totalDistributed: number;
     treasuryTotal: number;
     treasuryRemaining: number;
@@ -519,6 +520,7 @@ export class FixedRewardService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const treasuryTotal = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.TREASURY_ALLOCATION;
       const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
+      const programDuration = treasuryConf ? treasuryConf.programDurationDays : this.PROGRAM_DURATION_DAYS;
       
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100, // 2 decimal places
@@ -526,6 +528,7 @@ export class FixedRewardService {
         dailyBudget: Math.round(dailyBudget * 100) / 100, // 2 decimal places
         averageAPR: Math.round(averageAPR * 10000) / 10000, // 4 decimal places for APR
         programDaysRemaining,
+        programDuration,
         totalDistributed: Math.round(totalDistributed * 100) / 100, // 2 decimal places
         treasuryTotal,
         treasuryRemaining: treasuryTotal - totalDistributed,
@@ -543,6 +546,7 @@ export class FixedRewardService {
         dailyBudget: this.DAILY_BUDGET,
         averageAPR: 0,
         programDaysRemaining: this.PROGRAM_DURATION_DAYS,
+        programDuration: this.PROGRAM_DURATION_DAYS,
         totalDistributed: 0,
         treasuryTotal: this.TREASURY_ALLOCATION,
         treasuryRemaining: this.TREASURY_ALLOCATION,

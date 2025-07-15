@@ -1928,8 +1928,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const config = req.body;
       const performedBy = req.user?.identifier || 'unknown';
       
-      if (!config.totalAllocation || !config.programDurationDays) {
-        res.status(400).json({ error: 'Total allocation and program duration required' });
+      if (!config.programBudget || !config.programDurationDays) {
+        res.status(400).json({ error: 'Program budget and program duration required' });
         return;
       }
 

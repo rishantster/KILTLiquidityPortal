@@ -499,16 +499,17 @@ export class FixedRewardService {
       // Get admin-configured treasury values (admin panel has superior control)
       const { treasuryConfig } = await import('../shared/schema');
       
-      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const [treasuryConf] = await this.database.select().from(treasuryConfig).limit(1);
+
       const treasuryTotal = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.TREASURY_ALLOCATION;
       const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
       const programDuration = treasuryConf ? treasuryConf.programDurationDays : this.PROGRAM_DURATION_DAYS;
       
       // Calculate program days remaining - show remaining days within program duration
       try {
-        // Use actual database configuration dates
-        const startDate = treasuryConf ? new Date(treasuryConf.programStartDate) : new Date('2025-07-18');
-        const endDate = treasuryConf ? new Date(treasuryConf.programEndDate) : new Date('2025-10-16');
+        // Use hardcoded dates as database dates are causing Invalid Date issues
+        const startDate = new Date('2025-07-18');
+        const endDate = new Date('2025-10-16');
         const now = new Date();
         
         if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
@@ -536,6 +537,25 @@ export class FixedRewardService {
         const programStartDate = new Date('2025-07-18'); // Default start date
         const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
         programDaysRemaining = Math.max(0, programDuration - daysElapsed);
+      }
+      
+      // Ensure programDaysRemaining is never null - calculate manually if needed
+      if (programDaysRemaining === null || programDaysRemaining === undefined || isNaN(programDaysRemaining)) {
+        // Manual calculation with known dates
+        const manualStartDate = new Date('2025-07-18');
+        const manualEndDate = new Date('2025-10-16');
+        const currentDate = new Date();
+        
+        if (currentDate < manualStartDate) {
+          // Before program starts - show days until start
+          programDaysRemaining = Math.ceil((manualStartDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+        } else if (currentDate >= manualStartDate && currentDate <= manualEndDate) {
+          // During program - show days until end
+          programDaysRemaining = Math.max(0, Math.ceil((manualEndDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)));
+        } else {
+          // After program ends
+          programDaysRemaining = 0;
+        }
       }
       
       return {

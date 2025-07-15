@@ -74,16 +74,13 @@ export function AdminPanel() {
     isActive: true
   });
   
-  // Program Settings Form
+  // Program Settings Form - Updated for Refined Formula
   const [settingsForm, setSettingsForm] = useState({
-    programDuration: 365,
-    minTimeCoefficient: 0.6,
-    maxTimeCoefficient: 1.0,
-    liquidityWeight: 0.6,
-    timeWeight: 0.4,
-    minimumPositionValue: 0,
-    lockPeriod: 7,
-    dailyRewardsCap: 0
+    programDuration: 365, // P - days in reward period
+    maxLiquidityBoost: 0.6, // w1 - max liquidity boost (60% boost at program end)
+    minimumPositionValue: 0, // minimum USD value (0 = no minimum)
+    lockPeriod: 7, // claim lock period in days
+    inRangeRequirement: true // whether IRM (In-Range Multiplier) is required
   });
   
   const queryClient = useQueryClient();
@@ -139,6 +136,17 @@ export function AdminPanel() {
         programStartDate: startDate,
         programEndDate: endDate,
         isActive: adminStats.treasury.isActive || true
+      });
+    }
+    
+    // Populate refined formula settings
+    if (adminStats?.settings) {
+      setSettingsForm({
+        programDuration: adminStats.settings.programDuration || 365,
+        maxLiquidityBoost: adminStats.settings.maxLiquidityBoost || 0.6,
+        minimumPositionValue: adminStats.settings.minimumPositionValue || 0,
+        lockPeriod: adminStats.settings.lockPeriod || 7,
+        inRangeRequirement: adminStats.settings.inRangeRequirement ?? true
       });
     }
   }, [adminStats]);
@@ -824,66 +832,80 @@ export function AdminPanel() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Settings className="w-5 h-5 text-blue-400" />
-                  Program Settings
+                  Program Settings - Refined Formula
                 </CardTitle>
+                <div className="text-sm text-gray-400 mt-2">
+                  <code className="text-emerald-400">R_u = (L_u/L_T) × (1 + ((D_u/P)×w1)) × R × IRM</code>
+                  <p className="mt-1">Where R_u = daily rewards, L_u/L_T = liquidity share, D_u/P = time progression, w1 = max boost, R = reward pool, IRM = in-range multiplier</p>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="liquidityWeight" className="text-white">Liquidity Weight (w1)</Label>
+                    <Label htmlFor="maxLiquidityBoost" className="text-white">Max Liquidity Boost (w1)</Label>
                     <Input
-                      id="liquidityWeight"
+                      id="maxLiquidityBoost"
                       type="number"
                       step="0.01"
-                      value={settingsForm.liquidityWeight?.toString() || ''}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, liquidityWeight: parseFloat(e.target.value) || 0 })}
+                      min="0"
+                      max="1"
+                      value={settingsForm.maxLiquidityBoost?.toString() || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
+                    <p className="text-xs text-gray-400 mt-1">0.6 = 60% boost at program end (160% total)</p>
                   </div>
                   
                   <div>
-                    <Label htmlFor="timeWeight" className="text-white">Time Weight (w2)</Label>
+                    <Label htmlFor="programDuration" className="text-white">Program Duration (P)</Label>
                     <Input
-                      id="timeWeight"
+                      id="programDuration"
                       type="number"
-                      step="0.01"
-                      value={settingsForm.timeWeight?.toString() || ''}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, timeWeight: parseFloat(e.target.value) || 0 })}
+                      min="1"
+                      value={settingsForm.programDuration?.toString() || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, programDuration: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
+                    <p className="text-xs text-gray-400 mt-1">Days in reward period (e.g., 365 for annual)</p>
                   </div>
                   
                   <div>
-                    <Label htmlFor="minPositionValue" className="text-white">Minimum Position Value ($)</Label>
+                    <Label htmlFor="minimumPositionValue" className="text-white">Minimum Position Value ($)</Label>
                     <Input
-                      id="minPositionValue"
+                      id="minimumPositionValue"
                       type="number"
+                      min="0"
                       value={settingsForm.minimumPositionValue?.toString() || ''}
                       onChange={(e) => setSettingsForm({ ...settingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
+                    <p className="text-xs text-gray-400 mt-1">0 = no minimum (any position eligible)</p>
                   </div>
                   
                   <div>
-                    <Label htmlFor="lockPeriod" className="text-white">Lock Period (Days)</Label>
+                    <Label htmlFor="lockPeriod" className="text-white">Claim Lock Period (Days)</Label>
                     <Input
                       id="lockPeriod"
                       type="number"
+                      min="1"
                       value={settingsForm.lockPeriod?.toString() || ''}
                       onChange={(e) => setSettingsForm({ ...settingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
+                    <p className="text-xs text-gray-400 mt-1">Rolling claim period (7 days recommended)</p>
                   </div>
                   
                   <div>
-                    <Label htmlFor="dailyRewardsCap" className="text-white">Annual Rewards Budget (KILT)</Label>
-                    <Input
-                      id="dailyRewardsCap"
-                      type="number"
-                      value={settingsForm.dailyRewardsCap ? (settingsForm.dailyRewardsCap * 365).toString() : ''}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, dailyRewardsCap: (parseFloat(e.target.value) || 0) / 365 })}
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
+                    <Label className="text-white flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={settingsForm.inRangeRequirement || false}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, inRangeRequirement: e.target.checked })}
+                        className="rounded"
+                      />
+                      In-Range Requirement (IRM)
+                    </Label>
+                    <p className="text-xs text-gray-400 mt-1">Whether positions must be in-range to earn rewards</p>
                   </div>
                 </div>
 

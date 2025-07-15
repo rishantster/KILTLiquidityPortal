@@ -16,14 +16,11 @@ export interface AdminTreasuryConfiguration {
 }
 
 export interface AdminProgramSettings {
-  programDuration?: number; // in days
-  minTimeCoefficient?: number; // for MIN_TIME_COEFFICIENT in formula
-  maxTimeCoefficient?: number; // for MAX_TIME_COEFFICIENT in formula
-  liquidityWeight?: number; // w1 in formula
-  timeWeight?: number; // w2 in formula
-  minimumPositionValue?: number; // minimum USD value
-  lockPeriod?: number; // in days
-  dailyRewardsCap?: number; // daily KILT cap for rewards
+  programDuration?: number; // P - days in reward period
+  maxLiquidityBoost?: number; // w1 - max liquidity boost (0.6 = 60% boost)
+  minimumPositionValue?: number; // minimum USD value (set to 0 for no minimum)
+  lockPeriod?: number; // claim lock period in days (7 days)
+  inRangeRequirement?: boolean; // whether IRM (In-Range Multiplier) is required
 }
 
 export interface AdminOperationResult {
@@ -161,15 +158,13 @@ export class AdminService {
         }
       }
 
-      // Update program settings in key-value format
+      // Update program settings in key-value format - Refined Formula Parameters
       const settingsToUpdate = [
         { key: 'programDuration', value: settings.programDuration?.toString() },
-        { key: 'minTimeCoefficient', value: settings.minTimeCoefficient?.toString() },
-        { key: 'maxTimeCoefficient', value: settings.maxTimeCoefficient?.toString() },
-        { key: 'liquidityWeight', value: settings.liquidityWeight?.toString() },
-        { key: 'timeWeight', value: settings.timeWeight?.toString() },
+        { key: 'maxLiquidityBoost', value: settings.maxLiquidityBoost?.toString() },
         { key: 'minimumPositionValue', value: settings.minimumPositionValue?.toString() },
         { key: 'lockPeriod', value: settings.lockPeriod?.toString() },
+        { key: 'inRangeRequirement', value: settings.inRangeRequirement?.toString() },
       ].filter(setting => setting.value !== undefined);
 
       for (const setting of settingsToUpdate) {
@@ -231,24 +226,19 @@ export class AdminService {
       
       return {
         programDuration: settingsMap.get('programDuration') ? parseInt(settingsMap.get('programDuration')!) : 365,
-        minTimeCoefficient: settingsMap.get('minTimeCoefficient') ? parseFloat(settingsMap.get('minTimeCoefficient')!) : 0.6,
-        maxTimeCoefficient: settingsMap.get('maxTimeCoefficient') ? parseFloat(settingsMap.get('maxTimeCoefficient')!) : 1.0,
-        liquidityWeight: settingsMap.get('liquidityWeight') ? parseFloat(settingsMap.get('liquidityWeight')!) : 0.6,
-        timeWeight: settingsMap.get('timeWeight') ? parseFloat(settingsMap.get('timeWeight')!) : 0.4,
+        maxLiquidityBoost: settingsMap.get('maxLiquidityBoost') ? parseFloat(settingsMap.get('maxLiquidityBoost')!) : 0.6,
         minimumPositionValue: settingsMap.get('minimumPositionValue') ? parseFloat(settingsMap.get('minimumPositionValue')!) : 0,
         lockPeriod: settingsMap.get('lockPeriod') ? parseInt(settingsMap.get('lockPeriod')!) : 7,
-        dailyRewardsCap: treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : undefined
+        inRangeRequirement: settingsMap.get('inRangeRequirement') === 'true'
       };
     } catch (error) {
       // Return default settings if database query fails
       return {
         programDuration: 365,
-        minTimeCoefficient: 0.6,
-        maxTimeCoefficient: 1.0,
-        liquidityWeight: 0.6,
-        timeWeight: 0.4,
+        maxLiquidityBoost: 0.6,
         minimumPositionValue: 0,
-        lockPeriod: 7
+        lockPeriod: 7,
+        inRangeRequirement: true
       };
     }
   }

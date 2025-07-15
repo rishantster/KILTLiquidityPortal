@@ -404,19 +404,19 @@ export class FixedRewardService {
     const matureLiquidityShare = maturePositionValue / maturePoolSize; // 0.25% of pool
     
     // Calculate APR for early participants (30-day position in small pool) - HIGH APR
+    // Using refined formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * (R/P) * IRM
     const shortTermDays = 30;
-    const shortTermTimeRatio = Math.min(shortTermDays / programDuration, 1);
-    const shortTermTimeCoefficient = w1 + (shortTermTimeRatio * (1 - w1)); // Dynamic based on program duration
-    const shortTermDailyRewards = earlyLiquidityShare * shortTermTimeCoefficient * dailyBudget * inRangeMultiplier;
+    const shortTermTimeBoost = 1 + ((shortTermDays / programDuration) * w1);
+    const shortTermDailyRewards = earlyLiquidityShare * shortTermTimeBoost * dailyBudget * inRangeMultiplier;
     const shortTermAnnualRewards = shortTermDailyRewards * 365;
     const shortTermAnnualRewardsUSD = shortTermAnnualRewards * kiltPrice;
     const shortTermAPR = (shortTermAnnualRewardsUSD / earlyPositionValue) * 100;
     
     // Calculate APR for mature participants (full program duration position in larger pool) - MODERATE APR
+    // Using refined formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * (R/P) * IRM
     const longTermDays = programDuration; // Use full program duration
-    const longTermTimeRatio = Math.min(longTermDays / programDuration, 1);
-    const longTermTimeCoefficient = w1 + (longTermTimeRatio * (1 - w1)); // = 1.0 for full program duration
-    const longTermDailyRewards = matureLiquidityShare * longTermTimeCoefficient * dailyBudget * inRangeMultiplier;
+    const longTermTimeBoost = 1 + ((longTermDays / programDuration) * w1); // = 1.6 for full program duration
+    const longTermDailyRewards = matureLiquidityShare * longTermTimeBoost * dailyBudget * inRangeMultiplier;
     const longTermAnnualRewards = longTermDailyRewards * 365;
     const longTermAnnualRewardsUSD = longTermAnnualRewards * kiltPrice;
     const longTermAPR = (longTermAnnualRewardsUSD / maturePositionValue) * 100;
@@ -436,7 +436,7 @@ export class FixedRewardService {
       minAPR: attractiveAPR,
       aprRange: `${attractiveAPR}%`,
       scenario: "Early participant opportunity",
-      formula: "R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM",
+      formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * R * IRM",
       assumptions: [
         `Typical position: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
         `Time commitment: ${shortTermDays}+ days for maximum rewards`,

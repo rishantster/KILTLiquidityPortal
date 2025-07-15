@@ -81,6 +81,12 @@ export function requireAdminAuth(req: Request, res: Response, next: NextFunction
     return;
   }
   
+  // Add user info to request for logging
+  const session = adminSessions.get(token);
+  if (session) {
+    req.user = { identifier: session.identifier, type: session.type };
+  }
+  
   next();
 }
 

@@ -144,28 +144,42 @@ export class AdminService {
    */
   async updateProgramSettings(settings: AdminProgramSettings, performedBy: string): Promise<AdminOperationResult> {
     try {
+      console.log('Admin service updateProgramSettings called with:', settings, performedBy);
+      
       // First, get existing settings or create default values
       const [existingSettings] = await db.select().from(programSettings).limit(1);
       
+      console.log('Existing settings:', existingSettings);
+      
       if (existingSettings) {
-        // Update existing settings record
+        // Update existing settings record using actual database columns
+        const updateData = {
+          programDuration: settings.programDuration || existingSettings.programDuration,
+          // Map maxLiquidityBoost to liquidityWeight for existing column
+          liquidityWeight: settings.maxLiquidityBoost?.toString() || existingSettings.liquidityWeight,
+          minimumPositionValue: settings.minimumPositionValue?.toString() || existingSettings.minimumPositionValue,
+          lockPeriod: settings.lockPeriod || existingSettings.lockPeriod,
+          updatedAt: new Date()
+        };
+        
+        console.log('Updating with data:', updateData);
+        
         await db.update(programSettings)
-          .set({
-            programDuration: settings.programDuration || existingSettings.programDuration,
-            maxLiquidityBoost: settings.maxLiquidityBoost?.toString() || existingSettings.maxLiquidityBoost,
-            minimumPositionValue: settings.minimumPositionValue?.toString() || existingSettings.minimumPositionValue,
-            lockPeriod: settings.lockPeriod || existingSettings.lockPeriod,
-            updatedAt: new Date()
-          })
+          .set(updateData)
           .where(eq(programSettings.id, existingSettings.id));
       } else {
-        // Create new settings record with defaults
-        await db.insert(programSettings).values({
+        // Create new settings record with defaults using actual database columns
+        const insertData = {
           programDuration: settings.programDuration || 365,
-          maxLiquidityBoost: settings.maxLiquidityBoost?.toString() || "0.6",
+          // Map maxLiquidityBoost to liquidityWeight for existing column
+          liquidityWeight: settings.maxLiquidityBoost?.toString() || "0.6",
           minimumPositionValue: settings.minimumPositionValue?.toString() || "0",
           lockPeriod: settings.lockPeriod || 7
-        });
+        };
+        
+        console.log('Inserting new settings:', insertData);
+        
+        await db.insert(programSettings).values(insertData);
       }
 
       // Log operation
@@ -209,7 +223,8 @@ export class AdminService {
       if (settings) {
         return {
           programDuration: settings.programDuration || 365,
-          maxLiquidityBoost: parseFloat(settings.maxLiquidityBoost) || 0.6,
+          // Map liquidityWeight to maxLiquidityBoost for UI
+          maxLiquidityBoost: parseFloat(settings.liquidityWeight) || 0.6,
           minimumPositionValue: parseFloat(settings.minimumPositionValue) || 0,
           lockPeriod: settings.lockPeriod || 7,
           inRangeRequirement: true // Always true for refined formula

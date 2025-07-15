@@ -1,5 +1,17 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
+
+// Extend Express Request interface to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        identifier: string;
+        type: 'wallet' | 'credentials';
+      };
+    }
+  }
+}
 import { storage } from "./storage";
 import { 
   insertUserSchema, 
@@ -1878,7 +1890,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const settings = req.body;
       const performedBy = req.user?.identifier || 'unknown';
       
+      console.log('Program settings update request:', {
+        settings,
+        performedBy,
+        user: req.user
+      });
+      
       const result = await adminService.updateProgramSettings(settings, performedBy);
+      
+      console.log('Program settings update result:', result);
       res.json(result);
     } catch (error) {
       console.error('Error updating program settings:', error);

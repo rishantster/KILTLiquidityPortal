@@ -203,7 +203,6 @@ export const programSettings = pgTable("program_settings", {
   timeWeight: decimal("time_weight", { precision: 10, scale: 3 }).notNull().default("0.400"),
   minimumPositionValue: decimal("minimum_position_value", { precision: 18, scale: 8 }).notNull().default("100.00000000"),
   lockPeriod: integer("lock_period").notNull().default(90),
-  maxLiquidityBoost: decimal("max_liquidity_boost", { precision: 10, scale: 3 }).notNull().default("0.600"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -384,7 +383,7 @@ export const insertPoolMetricsHistorySchema = createInsertSchema(poolMetricsHist
 // New schema validators for admin features
 export const insertProgramSettingsSchema = createInsertSchema(programSettings).pick({
   programDuration: true,
-  maxLiquidityBoost: true,
+  liquidityWeight: true,
   minimumPositionValue: true,
   lockPeriod: true,
 });

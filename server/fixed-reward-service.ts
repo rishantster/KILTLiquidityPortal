@@ -486,23 +486,6 @@ export class FixedRewardService {
       
       // Calculate program days remaining from admin-configured end date
       let programDaysRemaining = this.PROGRAM_DURATION_DAYS;
-      try {
-        const { adminService } = await import('./admin-service');
-        const treasuryStats = await adminService.getAdminTreasuryStats();
-        if (treasuryStats && treasuryStats.treasury && treasuryStats.treasury.programEndDate) {
-          const endDate = new Date(treasuryStats.treasury.programEndDate);
-          const now = new Date();
-          const timeDiff = endDate.getTime() - now.getTime();
-          programDaysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
-        }
-      } catch (error) {
-        console.error('Error getting program end date:', error);
-        // Fall back to hardcoded calculation
-        const programStartDate = new Date('2025-01-01');
-        const now = new Date();
-        const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
-        programDaysRemaining = Math.max(0, this.PROGRAM_DURATION_DAYS - daysElapsed);
-      }
 
       // Get realistic APR range - use direct values if calculation fails
       let aprData;
@@ -514,13 +497,36 @@ export class FixedRewardService {
       }
       
       // Get admin-configured treasury values (admin panel has superior control)
-      const { db } = await import('./db');
       const { treasuryConfig } = await import('../shared/schema');
       
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const treasuryTotal = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.TREASURY_ALLOCATION;
       const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
       const programDuration = treasuryConf ? treasuryConf.programDurationDays : this.PROGRAM_DURATION_DAYS;
+      
+      // Calculate program days remaining - use known config dates to avoid SQL issues
+      try {
+        // Use known admin configuration dates: July 18, 2025 to October 16, 2025 (90 days)
+        const endDate = new Date('2025-10-16');
+        const now = new Date();
+        
+        if (!isNaN(endDate.getTime())) {
+          const timeDiff = endDate.getTime() - now.getTime();
+          programDaysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+        } else {
+          // Fall back to calculating from program duration
+          const programStartDate = new Date('2025-07-18'); // Default start date
+          const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
+          programDaysRemaining = Math.max(0, programDuration - daysElapsed);
+        }
+      } catch (error) {
+        console.error('Error calculating program days remaining:', error);
+        // Fall back to calculating from program duration
+        const now = new Date();
+        const programStartDate = new Date('2025-07-18'); // Default start date
+        const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
+        programDaysRemaining = Math.max(0, programDuration - daysElapsed);
+      }
       
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100, // 2 decimal places

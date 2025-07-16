@@ -3,7 +3,7 @@ import { base } from 'viem/chains';
 
 // Base Network Configuration
 const BASE_CHAIN_ID = 8453;
-const BASE_RPC_URL = 'https://mainnet.base.org';
+const BASE_RPC_URL = 'https://base.llamarpc.com';
 
 // Uniswap V3 Contract Addresses on Base (official addresses)
 const UNISWAP_V3_FACTORY = '0x33128a8fC17869897dcE68Ed026d694621f6FDfD';
@@ -74,7 +74,6 @@ export class UniswapIntegrationService {
       
       return positions;
     } catch (error) {
-      // Error fetching user positions
       return [];
     }
   }
@@ -117,9 +116,11 @@ export class UniswapIntegrationService {
       const [nonce, operator, token0, token1, fee, tickLower, tickUpper, liquidity, feeGrowthInside0LastX128, feeGrowthInside1LastX128, tokensOwed0, tokensOwed1] = positionData as any[];
 
       // Only process KILT positions
-      const { kilt } = await blockchainConfigService.getTokenAddresses();
-      if (token0.toLowerCase() !== kilt.toLowerCase() && 
-          token1.toLowerCase() !== kilt.toLowerCase()) {
+      const blockchainConfig = await blockchainConfigService.getConfiguration();
+      const kiltAddress = blockchainConfig.kiltTokenAddress.toLowerCase();
+      
+      if (token0.toLowerCase() !== kiltAddress && 
+          token1.toLowerCase() !== kiltAddress) {
         return null;
       }
 
@@ -404,6 +405,9 @@ export class UniswapIntegrationService {
    */
   async debugUserPositions(userAddress: string): Promise<any> {
     try {
+      console.log('DEBUG: Testing position detection for', userAddress);
+      console.log('DEBUG: Using contract address', UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER);
+      
       // Test the contract address and function call
       const balance = await this.client.readContract({
         address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
@@ -420,17 +424,55 @@ export class UniswapIntegrationService {
         args: [userAddress as `0x${string}`],
       });
 
+      console.log('DEBUG: Balance result:', balance?.toString());
+      
       const blockchainConfig = await blockchainConfigService.getConfiguration();
+      
+      // If balance > 0, try to get first token ID
+      let firstTokenId = null;
+      let tokenIds = [];
+      if (Number(balance) > 0) {
+        try {
+          // Get all token IDs
+          for (let i = 0; i < Number(balance); i++) {
+            const tokenId = await this.client.readContract({
+              address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
+              abi: [
+                {
+                  inputs: [
+                    { internalType: 'address', name: 'owner', type: 'address' },
+                    { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  ],
+                  name: 'tokenOfOwnerByIndex',
+                  outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                  stateMutability: 'view',
+                  type: 'function',
+                },
+              ],
+              functionName: 'tokenOfOwnerByIndex',
+              args: [userAddress as `0x${string}`, BigInt(i)],
+            });
+            tokenIds.push(tokenId?.toString());
+          }
+          firstTokenId = tokenIds[0];
+          console.log('DEBUG: All token IDs:', tokenIds);
+        } catch (tokenError) {
+          console.log('DEBUG: Error getting token IDs:', tokenError.message);
+        }
+      }
       
       return {
         userAddress,
         contractAddress: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER,
         balance: balance?.toString() || '0',
         balanceNumber: Number(balance),
+        firstTokenId,
+        allTokenIds: tokenIds,
         blockchainConfig,
         timestamp: new Date().toISOString()
       };
     } catch (error) {
+      console.log('DEBUG: Error in debugUserPositions:', error.message);
       return {
         userAddress,
         contractAddress: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER,
@@ -445,20 +487,22 @@ export class UniswapIntegrationService {
    */
   private async getUserTokenIds(userAddress: string): Promise<string[]> {
     try {
-      // Get user's token balance
-      const balance = await this.client.readContract({
-        address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
-        abi: [
-          {
-            inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
-            name: 'balanceOf',
-            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-            stateMutability: 'view',
-            type: 'function',
-          },
-        ],
-        functionName: 'balanceOf',
-        args: [userAddress as `0x${string}`],
+      // Get user's token balance with retry logic
+      const balance = await this.retryWithBackoff(async () => {
+        return await this.client.readContract({
+          address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
+          abi: [
+            {
+              inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+              name: 'balanceOf',
+              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          functionName: 'balanceOf',
+          args: [userAddress as `0x${string}`],
+        });
       });
 
       const tokenIds: string[] = [];
@@ -469,34 +513,68 @@ export class UniswapIntegrationService {
         return [];
       }
 
-      // Get each token ID by index
+      // Get each token ID by index with retry logic and delay
       for (let i = 0; i < balanceNum; i++) {
-        const tokenId = await this.client.readContract({
-          address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
-          abi: [
-            {
-              inputs: [
-                { internalType: 'address', name: 'owner', type: 'address' },
-                { internalType: 'uint256', name: 'index', type: 'uint256' },
+        try {
+          // Add delay between requests to avoid rate limiting
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+          
+          const tokenId = await this.retryWithBackoff(async () => {
+            return await this.client.readContract({
+              address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
+              abi: [
+                {
+                  inputs: [
+                    { internalType: 'address', name: 'owner', type: 'address' },
+                    { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  ],
+                  name: 'tokenOfOwnerByIndex',
+                  outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                  stateMutability: 'view',
+                  type: 'function',
+                },
               ],
-              name: 'tokenOfOwnerByIndex',
-              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-              stateMutability: 'view',
-              type: 'function',
-            },
-          ],
-          functionName: 'tokenOfOwnerByIndex',
-          args: [userAddress as `0x${string}`, BigInt(i)],
-        });
+              functionName: 'tokenOfOwnerByIndex',
+              args: [userAddress as `0x${string}`, BigInt(i)],
+            });
+          });
 
-        tokenIds.push((tokenId as bigint).toString());
+          const tokenIdStr = (tokenId as bigint).toString();
+          tokenIds.push(tokenIdStr);
+        } catch (tokenError) {
+          // Skip failed token IDs
+        }
       }
 
       return tokenIds;
     } catch (error) {
-      // Error getting user token IDs - contract call failed
       return [];
     }
+  }
+
+  private async retryWithBackoff<T>(fn: () => Promise<T>, maxRetries: number = 3): Promise<T> {
+    let lastError: Error | null = null;
+    
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        return await fn();
+      } catch (error) {
+        lastError = error as Error;
+        
+        // Check if it's a rate limit error
+        if (error.message.includes('429') || error.message.includes('rate limit')) {
+          const delay = Math.pow(2, i) * 1000 + Math.random() * 1000; // Exponential backoff with jitter
+          console.log(`DEBUG: Rate limit hit, retrying in ${delay}ms (attempt ${i + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error; // Re-throw non-rate-limit errors immediately
+        }
+      }
+    }
+    
+    throw lastError;
   }
 
   // Helper functions for tick math

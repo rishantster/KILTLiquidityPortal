@@ -101,8 +101,8 @@ function AdminPanelSimplified() {
   // Treasury configuration form
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
     treasuryWalletAddress: '',
-    programBudget: '500000',
-    programDuration: '90',
+    programBudget: '',
+    programDuration: '',
     programStartDate: '2025-07-16',
     programEndDate: '2025-10-14',
     isActive: true
@@ -110,10 +110,10 @@ function AdminPanelSimplified() {
 
   // Simplified program settings form - only essential parameters
   const [programSettingsForm, setProgramSettingsForm] = useState({
-    timeBoostCoefficient: '0.6',  // b_time in the formula
-    fullRangeBonus: '1.2',        // FRB in the formula
-    minimumPositionValue: '10',   // Anti-spam protection
-    lockPeriod: '7'               // Reward lock period
+    timeBoostCoefficient: '',  // b_time in the formula
+    fullRangeBonus: '',        // FRB in the formula
+    minimumPositionValue: '',   // Anti-spam protection
+    lockPeriod: ''               // Reward lock period
   });
 
   // Blockchain configuration form
@@ -190,9 +190,9 @@ function AdminPanelSimplified() {
       // Convert string values to numbers for backend compatibility
       const configData = {
         ...treasuryConfigForm,
-        programBudget: treasuryConfigForm.programBudget === '' ? 500000 : parseInt(treasuryConfigForm.programBudget),
-        programDuration: treasuryConfigForm.programDuration === '' ? 90 : parseInt(treasuryConfigForm.programDuration),
-        programDurationDays: treasuryConfigForm.programDuration === '' ? 90 : parseInt(treasuryConfigForm.programDuration)
+        programBudget: treasuryConfigForm.programBudget === '' ? 500000 : (isNaN(parseInt(treasuryConfigForm.programBudget)) ? 500000 : parseInt(treasuryConfigForm.programBudget)),
+        programDuration: treasuryConfigForm.programDuration === '' ? 90 : (isNaN(parseInt(treasuryConfigForm.programDuration)) ? 90 : parseInt(treasuryConfigForm.programDuration)),
+        programDurationDays: treasuryConfigForm.programDuration === '' ? 90 : (isNaN(parseInt(treasuryConfigForm.programDuration)) ? 90 : parseInt(treasuryConfigForm.programDuration))
       };
       
       return await apiRequest('/api/admin/treasury/config', {
@@ -219,10 +219,10 @@ function AdminPanelSimplified() {
       
       // Convert string values to numbers for backend compatibility
       const settingsData = {
-        timeBoostCoefficient: programSettingsForm.timeBoostCoefficient === '' ? 0.6 : parseFloat(programSettingsForm.timeBoostCoefficient),
-        fullRangeBonus: programSettingsForm.fullRangeBonus === '' ? 1.2 : parseFloat(programSettingsForm.fullRangeBonus),
-        minimumPositionValue: programSettingsForm.minimumPositionValue === '' ? 10 : parseInt(programSettingsForm.minimumPositionValue),
-        lockPeriod: programSettingsForm.lockPeriod === '' ? 7 : parseInt(programSettingsForm.lockPeriod)
+        timeBoostCoefficient: programSettingsForm.timeBoostCoefficient === '' ? 0.6 : (isNaN(parseFloat(programSettingsForm.timeBoostCoefficient)) ? 0.6 : parseFloat(programSettingsForm.timeBoostCoefficient)),
+        fullRangeBonus: programSettingsForm.fullRangeBonus === '' ? 1.2 : (isNaN(parseFloat(programSettingsForm.fullRangeBonus)) ? 1.2 : parseFloat(programSettingsForm.fullRangeBonus)),
+        minimumPositionValue: programSettingsForm.minimumPositionValue === '' ? 10 : (isNaN(parseInt(programSettingsForm.minimumPositionValue)) ? 10 : parseInt(programSettingsForm.minimumPositionValue)),
+        lockPeriod: programSettingsForm.lockPeriod === '' ? 7 : (isNaN(parseInt(programSettingsForm.lockPeriod)) ? 7 : parseInt(programSettingsForm.lockPeriod))
       };
       
       return await apiRequest('/api/admin/settings', {

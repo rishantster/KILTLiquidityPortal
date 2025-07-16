@@ -136,7 +136,7 @@ function AdminPanelSimplified() {
       setIsAuthorized(isWalletAuthorized);
       
       // Auto-login if wallet is authorized and no token exists
-      if (isWalletAuthorized && !adminToken) {
+      if (isWalletAuthorized && !adminToken && !loginMutation.isPending) {
         loginMutation.mutate();
       }
     }
@@ -167,10 +167,12 @@ function AdminPanelSimplified() {
       });
       return response;
     },
-    onSuccess: (data) => {
-      setAdminToken(data.token);
-      localStorage.setItem('admin-token', data.token);
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+    onSuccess: (data: any) => {
+      if (data.success && data.token) {
+        setAdminToken(data.token);
+        localStorage.setItem('admin-token', data.token);
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      }
     },
     onError: (error) => {
       console.error('Login error:', error);
@@ -180,6 +182,9 @@ function AdminPanelSimplified() {
   // Treasury config mutation
   const treasuryConfigMutation = useMutation({
     mutationFn: async () => {
+      if (!adminToken) {
+        throw new Error('No admin token available');
+      }
       return await apiRequest('/api/admin/treasury/config', {
         method: 'POST',
         data: treasuryConfigForm
@@ -193,6 +198,9 @@ function AdminPanelSimplified() {
   // Program settings mutation
   const settingsMutation = useMutation({
     mutationFn: async () => {
+      if (!adminToken) {
+        throw new Error('No admin token available');
+      }
       return await apiRequest('/api/admin/settings', {
         method: 'POST',
         data: programSettingsForm
@@ -206,6 +214,9 @@ function AdminPanelSimplified() {
   // Blockchain config mutation
   const blockchainConfigMutation = useMutation({
     mutationFn: async () => {
+      if (!adminToken) {
+        throw new Error('No admin token available');
+      }
       return await apiRequest('/api/admin/blockchain-config', {
         method: 'POST',
         data: blockchainConfigForm
@@ -344,6 +355,15 @@ function AdminPanelSimplified() {
           </div>
           
           <div className="flex items-center gap-4">
+            {/* Treasury Status */}
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+              <DollarSign className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs text-white/80">Treasury:</span>
+              <span className="text-sm font-bold text-emerald-400">
+                {adminStats ? `${(adminStats.treasury.programBudget / 1000000).toFixed(1)}M KILT` : '0.5M KILT'}
+              </span>
+            </div>
+
             {/* Current APR Display */}
             <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
               <TrendingUp className="w-4 h-4 text-emerald-400" />

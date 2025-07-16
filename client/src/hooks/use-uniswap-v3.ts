@@ -33,7 +33,7 @@ export function useUniswapV3() {
   const { data: kiltEthPositions, isLoading: kiltEthLoading } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
-      const response = await fetch(`/api/positions/wallet/${address}`);
+      const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
       if (!response.ok) throw new Error('Failed to fetch KILT positions');
       const positions = await response.json();
       

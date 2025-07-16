@@ -36,6 +36,7 @@ import { blockchainConfigService } from "./blockchain-config-service";
 // Removed treasuryService - consolidated into admin service
 import { adminService } from "./admin-service";
 import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
+import { realTimeDataService } from "./real-time-data-service";
 import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";

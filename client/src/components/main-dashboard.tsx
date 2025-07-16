@@ -37,6 +37,7 @@ import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useAppSession } from '@/hooks/use-app-session';
 import { useToast } from '@/hooks/use-toast';
+import { useRealTimeDashboard } from '@/hooks/use-real-time-data';
 
 // Assets and icons
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -67,6 +68,7 @@ export function MainDashboard() {
   const { kiltBalance, wethBalance } = useUniswapV3();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
+  const realTimeData = useRealTimeDashboard(address, unifiedData.user?.id);
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);

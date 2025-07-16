@@ -463,20 +463,22 @@ export class FixedRewardService {
       const poolInfo = await uniswapIntegrationService.getPoolInfo(poolAddress);
       currentPoolTVL = poolInfo.tvlUSD || 0;
       
-      // Get actual position data from database
+      // Get actual position data from database (ONLY app-registered positions are reward-eligible)
+      // Note: This excludes direct Uniswap positions that haven't registered on our app
       const activePositions = await this.getAllActiveParticipants();
       if (activePositions.length > 0) {
         const totalPositionValue = activePositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUSD || '0'), 0);
         averagePositionValue = totalPositionValue / activePositions.length;
-        actualLiquidityShare = averagePositionValue / currentPoolTVL;
+        // Calculate share based on app-registered positions only (not all pool liquidity)
+        actualLiquidityShare = averagePositionValue / Math.max(currentPoolTVL, totalPositionValue);
       }
     } catch (error) {
       console.error('Error getting real pool data:', error);
     }
     
-    // Use real data if available, otherwise use realistic scenarios for estimation
-    const poolTVL = currentPoolTVL > 0 ? currentPoolTVL : 100000; // Fallback to $100K early stage
-    const typicalPositionValue = averagePositionValue > 0 ? averagePositionValue : 500; // Fallback to $500
+    // Use real data if available, otherwise use realistic initial launch scenarios
+    const poolTVL = currentPoolTVL > 0 ? currentPoolTVL : 20000; // Fallback to $20K initial launch
+    const typicalPositionValue = averagePositionValue > 0 ? averagePositionValue : 100; // Fallback to $100 initial positions
     const liquidityShare = actualLiquidityShare > 0 ? actualLiquidityShare : (typicalPositionValue / poolTVL);
     
     console.log('APR Calculation Data Sources:', {
@@ -523,7 +525,8 @@ export class FixedRewardService {
       formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)",
       assumptions: [
         `Position: $${typicalPositionValue.toLocaleString()} in $${poolTVL.toLocaleString()} pool (${(liquidityShare * 100).toFixed(1)}% share)`,
-        `Data Source: ${currentPoolTVL > 0 ? 'Real Uniswap V3 pool data' : 'Estimated early stage scenario'}`,
+        `Data Source: ${currentPoolTVL > 0 ? 'Real Uniswap V3 pool data' : 'Estimated initial launch scenario'}`,
+        `Reward Eligibility: Only app-registered positions (not all Uniswap positions)`,
         `Full Range Bonus: ${fullRangeBonusCoeff}x (${Math.round((fullRangeBonusCoeff - 1) * 100)}% boost for balanced 50/50 liquidity)`,
         `Concentrated positions: ${Math.round(finalConcentratedAPR)}% APR (no FRB bonus)`,
         `Time commitment: ${fullRangeDays}+ days for maximum rewards`,

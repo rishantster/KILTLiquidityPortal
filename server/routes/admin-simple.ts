@@ -35,10 +35,11 @@ router.get('/config', async (req, res) => {
     const aprMultiplier = budgetAmount / 500000;
     
     // APR Calculation Proof:
-    // Base APR: 31% (for 500K KILT over 90 days with typical $500 position in $100K pool)
+    // Base APR: 31% (for 500K KILT over 90 days with typical $100 position in $20K initial pool)
     // Current Budget: ${budgetAmount} KILT
     // Multiplier: ${aprMultiplier} (budget / 500K baseline)
     // Final APR: ${Math.round(31 * aprMultiplier)}%
+    // Note: Only app-registered positions are reward-eligible
     
     const representativeAPR = Math.round(31 * aprMultiplier);
     const aprRange = `${representativeAPR}%`;

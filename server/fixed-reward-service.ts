@@ -60,17 +60,17 @@ export interface ClaimRewardResult {
 export class FixedRewardService {
   constructor(private database: any) {}
 
-  // Open participation reward system parameters
-  private readonly TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
-  private readonly PROGRAM_DURATION_DAYS = 365; // 365 days program duration
-  private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
-  private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
-  private readonly MIN_POSITION_VALUE = 10; // $10 minimum position value to prevent spam
+  // Default fallback values (only used when admin config is unavailable)
+  private readonly DEFAULT_TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
+  private readonly DEFAULT_PROGRAM_DURATION_DAYS = 365; // 365 days program duration
+  private readonly DEFAULT_DAILY_BUDGET = this.DEFAULT_TREASURY_ALLOCATION / this.DEFAULT_PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
+  private readonly DEFAULT_LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
+  private readonly DEFAULT_MIN_POSITION_VALUE = 10; // $10 minimum position value to prevent spam
   
-  // New Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-  // Fixed parameters
-  private readonly B_TIME = 0.6; // Time boost coefficient
-  private readonly FRB = 1.2; // Full Range Bonus - 20% boost for full range positions
+  // Default Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
+  // These are overridden by admin configuration
+  private readonly DEFAULT_B_TIME = 0.6; // Time boost coefficient
+  private readonly DEFAULT_FRB = 1.2; // Full Range Bonus - 20% boost for full range positions
 
   /**
    * Calculate daily rewards using the new formula:
@@ -95,24 +95,25 @@ export class FixedRewardService {
       return 0;
     }
 
-    // Get admin-configured parameters
+    // Get admin-configured parameters from database
     const { programSettings, treasuryConfig } = await import('../shared/schema');
     const [settings] = await this.database.select().from(programSettings).limit(1);
     const [treasury] = await this.database.select().from(treasuryConfig).limit(1);
 
     // Use admin-configured values with fallbacks
-    const programDuration = settings ? settings.programDuration : this.PROGRAM_DURATION_DAYS;
-    const dailyBudget = treasury ? parseFloat(treasury.dailyRewardsCap) : this.DAILY_BUDGET;
+    const programDuration = settings ? settings.programDuration : this.DEFAULT_PROGRAM_DURATION_DAYS;
+    const dailyBudget = treasury ? parseFloat(treasury.dailyRewardsCap) : this.DEFAULT_DAILY_BUDGET;
+    const timeBoostCoeff = settings ? parseFloat(settings.liquidityWeight) : this.DEFAULT_B_TIME;
     
     // New formula implementation with FRB support
 
     // Formula components
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
-    const timeBoost = 1 + ((daysActive / programDuration) * this.B_TIME); // 1 + ((D_u/P)*b_time)
+    const timeBoost = 1 + ((daysActive / programDuration) * timeBoostCoeff); // 1 + ((D_u/P)*b_time) - using admin config
     const dailyRewardRate = dailyBudget; // R/P (daily allocation from admin)
     
     // Full Range Bonus: only full range positions get FRB multiplier
-    const fullRangeBonus = isFullRange ? this.FRB : 1.0;
+    const fullRangeBonus = isFullRange ? this.DEFAULT_FRB : 1.0;
     
     // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const dailyReward = liquidityShare * timeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardRate;
@@ -536,11 +537,20 @@ export class FixedRewardService {
 
       const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;
       
-      // Calculate average APR
-      const averageAPR = totalLiquidity > 0 ? (this.DAILY_BUDGET * 365) / totalLiquidity : 0;
+      // Calculate average APR using admin-configured values
+      const averageAPR = totalLiquidity > 0 ? (dailyBudget * 365) / totalLiquidity : 0;
+      
+      // Get admin-configured treasury values (admin panel has superior control)
+      const { treasuryConfig } = await import('../shared/schema');
+      
+      const [treasuryConf] = await this.database.select().from(treasuryConfig).limit(1);
+
+      const treasuryTotal = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.DEFAULT_TREASURY_ALLOCATION;
+      const dailyBudgetConfig = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DEFAULT_DAILY_BUDGET;
+      const programDurationConfig = treasuryConf ? treasuryConf.programDurationDays : this.DEFAULT_PROGRAM_DURATION_DAYS;
       
       // Calculate program days remaining from admin-configured end date
-      let programDaysRemaining = this.PROGRAM_DURATION_DAYS;
+      let programDaysRemaining = programDurationConfig;
 
       // Get realistic APR range - use direct values if calculation fails
       let aprData;
@@ -550,15 +560,6 @@ export class FixedRewardService {
         console.error('Error calculating APR data:', error);
         aprData = { minAPR: 29.46, maxAPR: 46.55 };
       }
-      
-      // Get admin-configured treasury values (admin panel has superior control)
-      const { treasuryConfig } = await import('../shared/schema');
-      
-      const [treasuryConf] = await this.database.select().from(treasuryConfig).limit(1);
-
-      const treasuryTotal = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.TREASURY_ALLOCATION;
-      const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
-      const programDuration = treasuryConf ? treasuryConf.programDurationDays : this.PROGRAM_DURATION_DAYS;
       
       // Calculate program days remaining - show remaining days within program duration
       try {
@@ -583,7 +584,7 @@ export class FixedRewardService {
         } else {
           // Fall back to calculating from program duration
           const daysElapsed = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-          programDaysRemaining = Math.max(0, programDuration - daysElapsed);
+          programDaysRemaining = Math.max(0, programDurationConfig - daysElapsed);
         }
       } catch (error) {
         console.error('Error calculating program days remaining:', error);
@@ -591,7 +592,7 @@ export class FixedRewardService {
         const now = new Date();
         const programStartDate = new Date('2025-07-18'); // Default start date
         const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
-        programDaysRemaining = Math.max(0, programDuration - daysElapsed);
+        programDaysRemaining = Math.max(0, programDurationConfig - daysElapsed);
       }
       
       // Ensure programDaysRemaining is never null - calculate manually if needed
@@ -616,10 +617,10 @@ export class FixedRewardService {
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100, // 2 decimal places
         activeParticipants: activeParticipants.length,
-        dailyBudget: Math.round(dailyBudget * 100) / 100, // 2 decimal places
+        dailyBudget: Math.round(dailyBudgetConfig * 100) / 100, // 2 decimal places
         averageAPR: Math.round(averageAPR * 10000) / 10000, // 4 decimal places for APR
         programDaysRemaining,
-        programDuration,
+        programDuration: programDurationConfig,
         totalDistributed: Math.round(totalDistributed * 100) / 100, // 2 decimal places
         treasuryTotal,
         treasuryRemaining: treasuryTotal - totalDistributed,
@@ -634,13 +635,13 @@ export class FixedRewardService {
       return {
         totalLiquidity: 0,
         activeParticipants: 0,
-        dailyBudget: this.DAILY_BUDGET,
+        dailyBudget: this.DEFAULT_DAILY_BUDGET,
         averageAPR: 0,
-        programDaysRemaining: this.PROGRAM_DURATION_DAYS,
-        programDuration: this.PROGRAM_DURATION_DAYS,
+        programDaysRemaining: this.DEFAULT_PROGRAM_DURATION_DAYS,
+        programDuration: this.DEFAULT_PROGRAM_DURATION_DAYS,
         totalDistributed: 0,
-        treasuryTotal: this.TREASURY_ALLOCATION,
-        treasuryRemaining: this.TREASURY_ALLOCATION,
+        treasuryTotal: this.DEFAULT_TREASURY_ALLOCATION,
+        treasuryRemaining: this.DEFAULT_TREASURY_ALLOCATION,
         estimatedAPR: {
           low: 29,
           average: 38,

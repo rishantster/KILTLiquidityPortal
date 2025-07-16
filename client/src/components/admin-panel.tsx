@@ -356,9 +356,9 @@ export function AdminPanel() {
           ) : (
             <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <DollarSign className="h-4 w-4 text-white" />
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <DollarSign className="h-5 w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Treasury Budget</p>
                   <p className="text-white font-bold text-lg">
@@ -366,9 +366,9 @@ export function AdminPanel() {
                   </p>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Timer className="h-4 w-4 text-white" />
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Timer className="h-5 w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Daily Budget</p>
                   <p className="text-white font-bold text-lg">
@@ -376,9 +376,9 @@ export function AdminPanel() {
                   </p>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Calendar className="h-4 w-4 text-white" />
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Calendar className="h-5 w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Duration</p>
                   <p className="text-white font-bold text-lg">

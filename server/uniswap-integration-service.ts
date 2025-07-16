@@ -11,8 +11,7 @@ const UNISWAP_V3_POOL_KILT_ETH = '0x123'; // Replace with actual pool address
 const UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BF5d1C1e1C7AB9E7F7B';
 
 // Token Addresses
-const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
-const WETH_TOKEN_ADDRESS = '0x4200000000000000000000000000000000000006';
+import { blockchainConfigService } from './blockchain-config-service';
 
 // Create Base network client
 const baseClient = createPublicClient({
@@ -119,8 +118,9 @@ export class UniswapIntegrationService {
       const [nonce, operator, token0, token1, fee, tickLower, tickUpper, liquidity, feeGrowthInside0LastX128, feeGrowthInside1LastX128, tokensOwed0, tokensOwed1] = positionData as any[];
 
       // Only process KILT positions
-      if (token0.toLowerCase() !== KILT_TOKEN_ADDRESS.toLowerCase() && 
-          token1.toLowerCase() !== KILT_TOKEN_ADDRESS.toLowerCase()) {
+      const { kilt } = await blockchainConfigService.getTokenAddresses();
+      if (token0.toLowerCase() !== kilt.toLowerCase() && 
+          token1.toLowerCase() !== kilt.toLowerCase()) {
         return null;
       }
 
@@ -385,12 +385,16 @@ export class UniswapIntegrationService {
     // For KILT, use CoinGecko API or on-chain price feeds
     // For WETH, use standard ETH price
     
-    if (tokenAddress.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase()) {
+    const { kilt } = await blockchainConfigService.getTokenAddresses();
+    if (tokenAddress.toLowerCase() === kilt.toLowerCase()) {
       // Use existing KILT price service
       return 0.016; // Placeholder - should use actual price feed
-    } else if (tokenAddress.toLowerCase() === WETH_TOKEN_ADDRESS.toLowerCase()) {
-      // Use ETH price
-      return 2500; // Placeholder - should use actual price feed
+    } else {
+      const { weth } = await blockchainConfigService.getTokenAddresses();
+      if (tokenAddress.toLowerCase() === weth.toLowerCase()) {
+        // Use ETH price
+        return 2500; // Placeholder - should use actual price feed
+      }
     }
     
     return 0;

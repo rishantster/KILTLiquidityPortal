@@ -37,6 +37,7 @@ import { adminService } from "./admin-service";
 import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
 import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
+import { blockchainConfigRouter } from "./routes/blockchain-config";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
@@ -2051,6 +2052,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.status(500).json({ error: 'Failed to get claim statistics' });
     }
   });
+
+  // Blockchain configuration routes
+  app.use("/api/blockchain", blockchainConfigRouter);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -14,7 +14,7 @@ import { isValidEthereumAddress } from './crypto-utils';
 // Smart contract configuration with validation
 const KILT_REWARD_POOL_ADDRESS = process.env.KILT_REWARD_POOL_ADDRESS || '';
 const REWARD_WALLET_ADDRESS = process.env.REWARD_WALLET_ADDRESS || '';
-const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
+import { blockchainConfigService } from './blockchain-config-service';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 
 // Validate contract addresses at startup
@@ -24,9 +24,7 @@ if (KILT_REWARD_POOL_ADDRESS && !isValidEthereumAddress(KILT_REWARD_POOL_ADDRESS
 if (REWARD_WALLET_ADDRESS && !isValidEthereumAddress(REWARD_WALLET_ADDRESS)) {
   throw new Error('Invalid REWARD_WALLET_ADDRESS format');
 }
-if (!isValidEthereumAddress(KILT_TOKEN_ADDRESS)) {
-  throw new Error('Invalid KILT_TOKEN_ADDRESS format');
-}
+// Token address validation now handled by blockchain configuration service
 
 // Updated contract ABI for rolling claims system
 const REWARD_POOL_ABI = [
@@ -109,11 +107,8 @@ export class SmartContractService {
           REWARD_POOL_ABI,
           this.wallet
         );
-        this.kiltTokenContract = new ethers.Contract(
-          KILT_TOKEN_ADDRESS,
-          KILT_TOKEN_ABI,
-          this.wallet
-        );
+        // Initialize KILT token contract lazily when needed
+        // this.kiltTokenContract will be set in initializeKiltContract method
         this.isContractDeployed = true;
         // Smart contracts initialized successfully
       } catch (error) {
@@ -123,6 +118,20 @@ export class SmartContractService {
     } else {
       console.warn('⚠️ Smart contracts not deployed - using simulation mode');
       this.isContractDeployed = false;
+    }
+  }
+
+  /**
+   * Initialize KILT token contract
+   */
+  private async initializeKiltContract(): Promise<void> {
+    if (!this.kiltTokenContract && this.wallet) {
+      const { kilt } = await blockchainConfigService.getTokenAddresses();
+      this.kiltTokenContract = new ethers.Contract(
+        kilt,
+        KILT_TOKEN_ABI,
+        this.wallet
+      );
     }
   }
 
@@ -147,6 +156,8 @@ export class SmartContractService {
         error: 'Smart contracts not deployed'
       };
     }
+
+    await this.initializeKiltContract();
 
     try {
       const tx = await this.rewardPoolContract.addLiquidityPosition(

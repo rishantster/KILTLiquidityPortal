@@ -1,5 +1,5 @@
 // Constants for KILT token
-const KILT_TOKEN_ADDRESS = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+import { blockchainConfigService } from './blockchain-config-service';
 const KILT_TOTAL_SUPPLY = 290560000;
 const KILT_CIRCULATING_SUPPLY = 276970000; // From CoinMarketCap: 276.97M KILT
 const TREASURY_TOTAL = KILT_TOTAL_SUPPLY * 0.01;

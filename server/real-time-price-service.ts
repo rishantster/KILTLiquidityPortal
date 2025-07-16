@@ -5,9 +5,8 @@ import { base } from 'viem/chains';
 const BASE_RPC_URL = 'https://mainnet.base.org';
 
 // Token and Pool Addresses
-const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
-const WETH_TOKEN_ADDRESS = '0x4200000000000000000000000000000000000006';
-const KILT_ETH_POOL_ADDRESS = '0x6690F71D45C5C9336d5Ce1B9c5E8b4b3e0c0e7d0'; // Replace with actual pool
+import { blockchainConfigService } from './blockchain-config-service';
+// Pool address now retrieved from blockchain config service
 
 // Create Base network client
 const baseClient = createPublicClient({
@@ -53,7 +52,8 @@ export class RealTimePriceService {
    * Get real-time KILT price from multiple sources
    */
   async getKiltPrice(): Promise<TokenPrice> {
-    const cached = this.priceCache.get(KILT_TOKEN_ADDRESS);
+    const { kilt } = await blockchainConfigService.getTokenAddresses();
+    const cached = this.priceCache.get(kilt);
     if (cached && Date.now() - cached.lastUpdated < this.CACHE_DURATION) {
       return cached;
     }
@@ -67,14 +67,14 @@ export class RealTimePriceService {
       
       // Use CoinGecko as primary, pool as fallback
       const finalPrice: TokenPrice = {
-        address: KILT_TOKEN_ADDRESS,
+        address: kilt,
         symbol: 'KILT',
         priceUSD: priceData.priceUSD || poolPrice.priceUSD,
         priceETH: priceData.priceETH || poolPrice.priceETH,
         lastUpdated: Date.now(),
       };
 
-      this.priceCache.set(KILT_TOKEN_ADDRESS, finalPrice);
+      this.priceCache.set(kilt, finalPrice);
       return finalPrice;
     } catch (error) {
       console.error('Error fetching KILT price:', error);
@@ -86,7 +86,7 @@ export class RealTimePriceService {
       
       // Last resort fallback
       return {
-        address: KILT_TOKEN_ADDRESS,
+        address: kilt,
         symbol: 'KILT',
         priceUSD: 0.016,
         priceETH: 0.0000064,
@@ -99,7 +99,8 @@ export class RealTimePriceService {
    * Get real-time ETH price
    */
   async getEthPrice(): Promise<TokenPrice> {
-    const cached = this.priceCache.get(WETH_TOKEN_ADDRESS);
+    const { weth } = await blockchainConfigService.getTokenAddresses();
+    const cached = this.priceCache.get(weth);
     if (cached && Date.now() - cached.lastUpdated < this.CACHE_DURATION) {
       return cached;
     }
@@ -109,13 +110,13 @@ export class RealTimePriceService {
       const data = await response.json();
       
       const ethPrice: TokenPrice = {
-        address: WETH_TOKEN_ADDRESS,
+        address: weth,
         symbol: 'ETH',
         priceUSD: data.ethereum.usd,
         lastUpdated: Date.now(),
       };
 
-      this.priceCache.set(WETH_TOKEN_ADDRESS, ethPrice);
+      this.priceCache.set(weth, ethPrice);
       return ethPrice;
     } catch (error) {
       console.error('Error fetching ETH price:', error);
@@ -127,7 +128,7 @@ export class RealTimePriceService {
       
       // Fallback price
       return {
-        address: WETH_TOKEN_ADDRESS,
+        address: weth,
         symbol: 'ETH',
         priceUSD: 2500,
         lastUpdated: Date.now(),

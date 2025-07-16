@@ -3,6 +3,7 @@ import { db } from './db';
 import { treasuryService } from './treasury-service';
 import { adminOperations, programSettings, treasuryConfig } from '@shared/schema';
 import { eq } from 'drizzle-orm';
+import { blockchainConfigService } from './blockchain-config-service';
 
 export interface AdminTreasuryConfiguration {
   treasuryWalletAddress: string;
@@ -31,7 +32,6 @@ export interface AdminOperationResult {
 
 export class AdminService {
   private provider: ethers.JsonRpcProvider;
-  private readonly KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
   private readonly KILT_TOKEN_ABI = [
     'function balanceOf(address account) view returns (uint256)',
     'function allowance(address owner, address spender) view returns (uint256)'
@@ -140,7 +140,8 @@ export class AdminService {
         return { balance: 0, address: '0x0000000000000000000000000000000000000000' };
       }
 
-      const kiltContract = new ethers.Contract(this.KILT_TOKEN_ADDRESS, this.KILT_TOKEN_ABI, this.provider);
+      const { kilt } = await blockchainConfigService.getTokenAddresses();
+      const kiltContract = new ethers.Contract(kilt, this.KILT_TOKEN_ABI, this.provider);
       const balance = await kiltContract.balanceOf(config.treasuryWalletAddress);
       const balanceEther = parseFloat(ethers.formatEther(balance));
 

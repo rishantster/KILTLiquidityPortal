@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { blockchainConfigService } from './blockchain-config-service';
 
 export interface TreasuryInfo {
   currentTreasuryAddress: string;
@@ -20,7 +21,7 @@ export class TreasuryService {
   private kiltContract: ethers.Contract | null = null;
   
   // Contract addresses
-  private readonly KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
+  private readonly blockchainConfigService = blockchainConfigService;
   private readonly REWARD_POOL_ADDRESS = process.env.KILT_REWARD_POOL_ADDRESS || '';
   
   // ABIs (simplified for treasury operations)
@@ -56,11 +57,8 @@ export class TreasuryService {
         );
       }
       
-      this.kiltContract = new ethers.Contract(
-        this.KILT_TOKEN_ADDRESS,
-        this.KILT_TOKEN_ABI,
-        this.provider
-      );
+      // Initialize KILT token contract lazily when needed
+      // this.kiltContract will be set in initializeKiltContract method
     } catch (error) {
       console.error('Failed to initialize treasury contracts:', error);
     }

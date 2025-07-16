@@ -221,6 +221,20 @@ export const treasuryConfig = pgTable("treasury_config", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Token and pool configuration table - eliminates hardcoded addresses
+export const tokenPoolConfig = pgTable("token_pool_config", {
+  id: serial("id").primaryKey(),
+  kiltTokenAddress: text("kilt_token_address").notNull(),
+  wethTokenAddress: text("weth_token_address").notNull(),
+  poolAddress: text("pool_address").notNull(),
+  poolFeeRate: integer("pool_fee_rate").notNull().default(3000), // 0.3% = 3000
+  networkId: integer("network_id").notNull().default(8453), // Base network
+  isActive: boolean("is_active").default(true).notNull(),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Admin operations audit log
 export const adminOperations = pgTable("admin_operations", {
   id: serial("id").primaryKey(),
@@ -411,6 +425,16 @@ export const insertAdminOperationSchema = createInsertSchema(adminOperations).pi
   errorMessage: true,
 });
 
+export const insertTokenPoolConfigSchema = createInsertSchema(tokenPoolConfig).pick({
+  kiltTokenAddress: true,
+  wethTokenAddress: true,
+  poolAddress: true,
+  poolFeeRate: true,
+  networkId: true,
+  isActive: true,
+  createdBy: true,
+});
+
 // Type definitions for inserts and selects
 export type LpPosition = typeof lpPositions.$inferSelect;
 export type InsertLpPosition = typeof lpPositions.$inferInsert;
@@ -456,6 +480,9 @@ export type InsertTreasuryConfig = typeof treasuryConfig.$inferInsert;
 // Admin operations types
 export type AdminOperation = typeof adminOperations.$inferSelect;
 export type InsertAdminOperation = typeof adminOperations.$inferInsert;
+
+export type TokenPoolConfig = typeof tokenPoolConfig.$inferSelect;
+export type InsertTokenPoolConfig = typeof tokenPoolConfig.$inferInsert;
 
 export const insertUserAnalyticsSchema = createInsertSchema(userAnalytics).pick({
   userId: true,

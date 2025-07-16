@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { db } from './db';
 import { rewards, treasuryConfig, adminOperations } from '@shared/schema';
 import { eq, and, isNotNull, isNull } from 'drizzle-orm';
+import { blockchainConfigService } from './blockchain-config-service';
 
 export interface TokenDistributionConfig {
   treasuryWalletAddress: string;
@@ -23,7 +24,7 @@ export interface DistributionResult {
 
 export class AutomatedTokenDistribution {
   private provider: ethers.JsonRpcProvider;
-  private readonly KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
+  private readonly blockchainConfigService = blockchainConfigService;
   private readonly KILT_TOKEN_ABI = [
     'function transfer(address to, uint256 amount) returns (bool)',
     'function balanceOf(address account) view returns (uint256)',
@@ -147,7 +148,8 @@ export class AutomatedTokenDistribution {
         return { balance: 0, address: '0x0000000000000000000000000000000000000000' };
       }
 
-      const kiltContract = new ethers.Contract(this.KILT_TOKEN_ADDRESS, this.KILT_TOKEN_ABI, this.provider);
+      const { kilt } = await this.blockchainConfigService.getTokenAddresses();
+      const kiltContract = new ethers.Contract(kilt, this.KILT_TOKEN_ABI, this.provider);
       const balance = await kiltContract.balanceOf(config.treasuryWalletAddress);
       const balanceEther = parseFloat(ethers.formatEther(balance));
 

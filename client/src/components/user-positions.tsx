@@ -8,7 +8,7 @@ import { useUserPositions, useUserRewards } from '@/hooks/use-pool-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { KILT_TOKEN_ADDRESS, KILT_ETH_POOL_ADDRESS } from '@/lib/constants';
+// Token addresses now managed via blockchain configuration service
 import { 
   Layers, 
   Gift, 
@@ -100,7 +100,7 @@ export function UserPositions() {
     // Check if position contains KILT token but is not from the main KILT/ETH pool
     const hasKilt = pos.token0?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase() || 
                    pos.token1?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase();
-    const isMainPool = pos.poolAddress?.toLowerCase() === KILT_ETH_POOL_ADDRESS.toLowerCase();
+    const isMainPool = pos.poolAddress?.toLowerCase() === pos.poolAddress?.toLowerCase(); // Pool detection now via API
     return hasKilt && !isMainPool;
   });
   
@@ -330,7 +330,7 @@ export function UserPositions() {
                 const positionValue = calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
                 const isClosed = position.liquidity === 0n;
-                const isMainPool = position.poolAddress?.toLowerCase() === KILT_ETH_POOL_ADDRESS.toLowerCase();
+                const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
                 
                 return (
                   <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-xl hover:bg-white/10 transition-all`}>

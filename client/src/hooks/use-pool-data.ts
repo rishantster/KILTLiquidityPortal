@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { KILT_ETH_POOL_ADDRESS } from '@/lib/constants';
+// Pool address now managed via blockchain configuration service
 
 export function usePoolData() {
   return useQuery({
-    queryKey: [`/api/pool/${KILT_ETH_POOL_ADDRESS}`],
+    queryKey: [`/api/pool/current`],
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 }

@@ -3,6 +3,7 @@ import { db } from './db';
 import { rewards, users, adminOperations } from '@shared/schema';
 import { eq, and, lt, isNull } from 'drizzle-orm';
 import { smartContractService } from './smart-contract-service';
+import { blockchainConfigService } from './blockchain-config-service';
 
 export interface ClaimResult {
   success: boolean;
@@ -24,7 +25,7 @@ export interface RewardClaimability {
 
 export class ClaimBasedRewards {
   private provider: ethers.JsonRpcProvider;
-  private readonly KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
+  private readonly blockchainConfigService = blockchainConfigService;
   private readonly LOCK_PERIOD_DAYS = 7;
   private readonly KILT_TOKEN_ABI = [
     'function transfer(address to, uint256 amount) returns (bool)',

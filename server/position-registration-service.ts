@@ -266,12 +266,12 @@ export class PositionRegistrationService {
   /**
    * Validate that position contains KILT token
    */
-  private validateKiltPosition(positionData: ExternalPositionData): boolean {
-    const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
+  private async validateKiltPosition(positionData: ExternalPositionData): Promise<boolean> {
+    const { kilt } = await blockchainConfigService.getTokenAddresses();
     
     return (
-      positionData.token0Address.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase() ||
-      positionData.token1Address.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase()
+      positionData.token0Address.toLowerCase() === kilt.toLowerCase() ||
+      positionData.token1Address.toLowerCase() === kilt.toLowerCase()
     );
   }
 

@@ -5,12 +5,12 @@
 
 class KiltPriceService {
   private static instance: KiltPriceService;
-  private currentPrice: number = 0.01602; // Initial fallback price
-  private lastSuccessfulPrice: number = 0.01602; // Last known good price
+  private currentPrice: number = 0.01757; // Current price from CoinGecko for migrated token
+  private lastSuccessfulPrice: number = 0.01757; // Last known good price
   private lastUpdate: number = 0;
   private fetchInterval: NodeJS.Timeout | null = null;
-  private readonly UPDATE_INTERVAL = 30000; // 30 seconds
-  private readonly INITIAL_FALLBACK_PRICE = 0.01602; // Conservative initial price
+  private readonly UPDATE_INTERVAL = 10000; // 10 seconds for real-time updates
+  private readonly INITIAL_FALLBACK_PRICE = 0.01757; // Updated price from CoinGecko
   private readonly MAX_PRICE_CHANGE_THRESHOLD = 0.5; // 50% max change per update (circuit breaker)
 
   private constructor() {
@@ -62,12 +62,42 @@ class KiltPriceService {
    */
   private async fetchKiltPrice(): Promise<void> {
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
-      const data = await response.json();
+      // Use GeckoTerminal API for real-time DEX pricing - more accurate for Base network
+      const geckoTerminalUrl = 'https://api.geckoterminal.com/api/v2/simple/networks/base/token_price/0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
       
-      if (data && data['kilt-protocol'] && data['kilt-protocol'].usd) {
-        const newPrice = data['kilt-protocol'].usd;
+      let newPrice = 0;
+      
+      // Try GeckoTerminal first (real-time DEX data)
+      try {
+        const response = await fetch(geckoTerminalUrl);
+        const data = await response.json();
         
+        if (data && data.data && data.data.attributes && data.data.attributes.token_prices) {
+          const tokenPrices = data.data.attributes.token_prices;
+          const kiltAddress = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
+          if (tokenPrices[kiltAddress]) {
+            newPrice = parseFloat(tokenPrices[kiltAddress]);
+          }
+        }
+      } catch (error) {
+        // GeckoTerminal failed, try fallback
+      }
+      
+      // Fallback to CoinGecko if GeckoTerminal fails
+      if (newPrice === 0) {
+        try {
+          const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
+          const data = await response.json();
+          
+          if (data && data['kilt-protocol'] && data['kilt-protocol'].usd) {
+            newPrice = data['kilt-protocol'].usd;
+          }
+        } catch (error) {
+          // Both endpoints failed
+        }
+      }
+      
+      if (newPrice > 0) {
         // Circuit breaker: Detect unrealistic price changes
         if (this.lastSuccessfulPrice > 0) {
           const priceChange = Math.abs(newPrice - this.lastSuccessfulPrice) / this.lastSuccessfulPrice;
@@ -89,7 +119,7 @@ class KiltPriceService {
         this.currentPrice = this.getIntelligentFallbackPrice();
       }
     } catch (error) {
-      // CoinGecko API error, using fallback
+      // All APIs failed, using fallback
       this.currentPrice = this.getIntelligentFallbackPrice();
     }
   }

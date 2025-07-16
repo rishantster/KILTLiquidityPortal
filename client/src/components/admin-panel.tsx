@@ -794,7 +794,6 @@ export function AdminPanel() {
                   </div>
                 </div>
               </div>
-            </div>
             </TabsContent>
 
             {/* Blockchain Configuration Tab */}

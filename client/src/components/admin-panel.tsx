@@ -483,35 +483,48 @@ export function AdminPanel() {
 
   // Main Admin Panel UI
   return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Shield className="w-6 h-6 text-emerald-400" />
-            KILT Admin Panel
-          </h1>
-          <div className="flex items-center gap-4">
-            <Badge variant="default" className="bg-emerald-600/20 backdrop-blur-sm border border-emerald-400/30 text-emerald-300">
-              Wallet Auth
-            </Badge>
-            <Button 
-              variant="outline" 
-              onClick={handleLogout}
-              className="border-gray-600/30 text-gray-300 hover:bg-gray-800/30 backdrop-blur-sm"
-            >
-              Logout
-            </Button>
+    <div className="min-h-screen bg-black text-white">
+      {/* Glassmorphism Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.1),rgba(255,255,255,0))]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_80%_80%,rgba(16,185,129,0.05),rgba(255,255,255,0))]"></div>
+      </div>
+      
+      <div className="relative z-10 p-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center backdrop-blur-sm border border-emerald-400/30">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                KILT Admin Panel
+              </h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <Badge variant="default" className="bg-emerald-600/20 backdrop-blur-sm border border-emerald-400/30 text-emerald-300 px-3 py-1">
+                Wallet Auth
+              </Badge>
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="border-gray-600/30 text-gray-300 hover:bg-gray-800/30 backdrop-blur-sm hover:border-emerald-400/30 transition-all duration-200"
+              >
+                Logout
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Stats Overview */}
-        {statsLoading ? (
-          <div className="text-center py-8">Loading admin data...</div>
-        ) : (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          {/* Stats Overview */}
+          {statsLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-pulse text-emerald-400">Loading admin data...</div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Program Budget */}
                 <div className="text-center">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
@@ -601,54 +614,54 @@ export function AdminPanel() {
           </div>
         )}
 
-        {/* Main Admin Tabs */}
-        <div className="mt-8 mb-4">
-          <Tabs defaultValue="unified-config" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 h-12 mb-6">
-              <TabsTrigger 
-                value="unified-config" 
-                className="text-gray-300 data-[state=active]:bg-gray-700/70 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium"
-              >
-                Program Configuration
-              </TabsTrigger>
-              <TabsTrigger 
-                value="blockchain-config" 
-                className="text-gray-300 data-[state=active]:bg-gray-700/70 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium"
-              >
-                Blockchain Configuration
-              </TabsTrigger>
-              <TabsTrigger 
-                value="history" 
-                className="text-gray-300 data-[state=active]:bg-gray-700/70 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium"
-              >
-                Operation History
-              </TabsTrigger>
-            </TabsList>
+          {/* Main Admin Tabs */}
+          <div className="mt-8 mb-6">
+            <Tabs defaultValue="unified-config" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl h-14 p-1 mb-6">
+                <TabsTrigger 
+                  value="unified-config" 
+                  className="text-gray-300 data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium rounded-lg transition-all duration-200"
+                >
+                  Program Configuration
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="blockchain-config" 
+                  className="text-gray-300 data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium rounded-lg transition-all duration-200"
+                >
+                  Blockchain Configuration
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="history" 
+                  className="text-gray-300 data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium rounded-lg transition-all duration-200"
+                >
+                  Operation History
+                </TabsTrigger>
+              </TabsList>
 
 
 
-          {/* Unified Program Configuration Tab */}
-          <TabsContent value="unified-config" className="space-y-4">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  Unified Program Configuration
-                </CardTitle>
-                <div className="text-sm text-gray-400 mt-2">
-                  <p className="mb-1">Complete treasury and program settings in one place</p>
-                  <code className="text-emerald-400">R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)</code>
-                  <p className="text-xs mt-1 text-yellow-400">FRB = Full Range Bonus (1.2x for 50/50 balanced positions)</p>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Alert>
-                  <ShieldCheck className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Security Notice:</strong> This configuration system does not require private keys. 
-                    All treasury operations are read-only with secure wallet-based configuration management.
-                  </AlertDescription>
-                </Alert>
+              {/* Unified Program Configuration Tab */}
+              <TabsContent value="unified-config" className="space-y-6">
+                <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                      Unified Program Configuration
+                    </CardTitle>
+                    <div className="text-sm text-gray-400 mt-2">
+                      <p className="mb-1">Complete treasury and program settings in one place</p>
+                      <code className="text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)</code>
+                      <p className="text-xs mt-1 text-yellow-400">FRB = Full Range Bonus (1.2x for 50/50 balanced positions)</p>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <Alert className="bg-emerald-400/10 border-emerald-400/30">
+                      <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                      <AlertDescription className="text-gray-300">
+                        <strong>Security Notice:</strong> This configuration system does not require private keys. 
+                        All treasury operations are read-only with secure wallet-based configuration management.
+                      </AlertDescription>
+                    </Alert>
                 
                 {/* Treasury Configuration Section */}
                 <div className="space-y-4">
@@ -661,7 +674,7 @@ export function AdminPanel() {
                       id="treasuryAddress"
                       value={treasuryConfigForm.treasuryWalletAddress}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, treasuryWalletAddress: e.target.value })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="0x... (Leave empty if not available)"
                     />
                   </div>
@@ -673,7 +686,7 @@ export function AdminPanel() {
                       type="number"
                       value={treasuryConfigForm.programBudget?.toString() || ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programBudget: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="Total KILT tokens allocated for program"
                     />
                     <p className="text-xs text-gray-400 mt-1">Single unified budget for entire program duration</p>
@@ -686,7 +699,7 @@ export function AdminPanel() {
                       type="number"
                       value={treasuryConfigForm.programDurationDays?.toString() || ''}
                       onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDurationDays: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="Duration in days"
                     />
                     <p className="text-xs text-gray-400 mt-1">Auto-calculates daily rewards cap</p>
@@ -935,27 +948,27 @@ export function AdminPanel() {
             </Card>
           </TabsContent>
 
-          {/* Blockchain Configuration Tab */}
-          <TabsContent value="blockchain-config" className="space-y-4">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-blue-400" />
-                  Blockchain Configuration
-                </CardTitle>
-                <div className="text-sm text-gray-400 mt-2">
-                  <p className="mb-1">Manage token addresses, pool configuration, and network settings</p>
-                  <p className="text-xs text-yellow-400">⚠️ Changes affect all backend services and price data sources</p>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Important:</strong> These settings control the core blockchain infrastructure. 
-                    Changes will restart all price monitoring and contract integration services.
-                  </AlertDescription>
-                </Alert>
+              {/* Blockchain Configuration Tab */}
+              <TabsContent value="blockchain-config" className="space-y-6">
+                <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Settings className="w-5 h-5 text-blue-400" />
+                      Blockchain Configuration
+                    </CardTitle>
+                    <div className="text-sm text-gray-400 mt-2">
+                      <p className="mb-1">Manage token addresses, pool configuration, and network settings</p>
+                      <p className="text-xs text-yellow-400">⚠️ Changes affect all backend services and price data sources</p>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <Alert className="bg-blue-400/10 border-blue-400/30">
+                      <AlertCircle className="h-4 w-4 text-blue-400" />
+                      <AlertDescription className="text-gray-300">
+                        <strong>Important:</strong> These settings control the core blockchain infrastructure. 
+                        Changes will restart all price monitoring and contract integration services.
+                      </AlertDescription>
+                    </Alert>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -964,7 +977,7 @@ export function AdminPanel() {
                       id="kiltTokenAddress"
                       value={blockchainConfigForm.kiltTokenAddress}
                       onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, kiltTokenAddress: e.target.value })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
                     />
                     <p className="text-xs text-gray-400 mt-1">Base network KILT token contract address</p>
@@ -976,7 +989,7 @@ export function AdminPanel() {
                       id="wethTokenAddress"
                       value={blockchainConfigForm.wethTokenAddress}
                       onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, wethTokenAddress: e.target.value })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="0x4200000000000000000000000000000000000006"
                     />
                     <p className="text-xs text-gray-400 mt-1">Wrapped ETH token address on Base</p>
@@ -988,7 +1001,7 @@ export function AdminPanel() {
                       id="poolAddress"
                       value={blockchainConfigForm.poolAddress}
                       onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, poolAddress: e.target.value })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="0xB578b4c5539FD22D7a0E6682Ab645c623Bae9dEb"
                     />
                     <p className="text-xs text-gray-400 mt-1">Uniswap V3 KILT/ETH pool contract address</p>
@@ -1001,7 +1014,7 @@ export function AdminPanel() {
                       type="number"
                       value={blockchainConfigForm.poolFeeRate?.toString() || ''}
                       onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, poolFeeRate: parseInt(e.target.value) || 3000 })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="3000"
                     />
                     <p className="text-xs text-gray-400 mt-1">Fee tier (500 = 0.05%, 3000 = 0.3%, 10000 = 1%)</p>
@@ -1014,7 +1027,7 @@ export function AdminPanel() {
                       type="number"
                       value={blockchainConfigForm.networkId?.toString() || ''}
                       onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, networkId: parseInt(e.target.value) || 8453 })}
-                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 transition-all duration-200"
                       placeholder="8453"
                     />
                     <p className="text-xs text-gray-400 mt-1">Base network chain ID (8453)</p>
@@ -1022,7 +1035,7 @@ export function AdminPanel() {
                 </div>
 
                 {/* Current Configuration Display */}
-                <div className="bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30">
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
                   <h4 className="text-white font-medium mb-3">Current Configuration</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                     <div>
@@ -1055,42 +1068,44 @@ export function AdminPanel() {
             </Card>
           </TabsContent>
 
-          {/* Operation History Tab */}
-          <TabsContent value="history" className="space-y-4">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <History className="w-5 h-5 text-purple-400" />
-                  Operation History
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {adminStats?.operationHistory?.length > 0 ? (
-                    adminStats.operationHistory.map((op, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-gray-800 rounded">
-                        <div>
-                          <div className="font-medium text-white">{op.operationType}</div>
-                          <div className="text-sm text-gray-400">{op.reason}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-400">{op.performedBy}</div>
-                          <div className="text-xs text-gray-500">
-                            {new Date(op.timestamp).toLocaleString()}
+              {/* Operation History Tab */}
+              <TabsContent value="history" className="space-y-6">
+                <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <History className="w-5 h-5 text-purple-400" />
+                      Operation History
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {adminStats?.operationHistory?.length > 0 ? (
+                        adminStats.operationHistory.map((op, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                            <div>
+                              <div className="font-medium text-white">{op.operationType}</div>
+                              <div className="text-sm text-gray-400">{op.reason}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-400">{op.performedBy}</div>
+                              <div className="text-xs text-gray-500">
+                                {new Date(op.timestamp).toLocaleString()}
+                              </div>
+                            </div>
                           </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-gray-400">
+                          No operations recorded yet
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-gray-400">
-                      No operations recorded yet
+                      )}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          </Tabs>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              </Tabs>
+            </div>
+          </div>
         </div>
       </div>
     </div>

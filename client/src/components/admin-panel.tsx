@@ -372,22 +372,22 @@ export function AdminPanel() {
 
           {/* Main Admin Tabs */}
           <Tabs defaultValue="program-config" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl h-12 p-1">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 rounded-xl h-14 p-1 mb-6">
               <TabsTrigger 
                 value="program-config" 
-                className="text-gray-300 data-[state=active]:bg-white/10 data-[state=active]:text-white font-medium rounded-lg transition-all duration-200"
+                className="text-white data-[state=active]:bg-emerald-600/30 data-[state=active]:text-emerald-200 font-medium rounded-lg transition-all duration-200 px-4 py-2"
               >
                 Program Configuration
               </TabsTrigger>
               <TabsTrigger 
                 value="blockchain-config" 
-                className="text-gray-300 data-[state=active]:bg-white/10 data-[state=active]:text-white font-medium rounded-lg transition-all duration-200"
+                className="text-white data-[state=active]:bg-blue-600/30 data-[state=active]:text-blue-200 font-medium rounded-lg transition-all duration-200 px-4 py-2"
               >
                 Blockchain Configuration
               </TabsTrigger>
               <TabsTrigger 
                 value="history" 
-                className="text-gray-300 data-[state=active]:bg-white/10 data-[state=active]:text-white font-medium rounded-lg transition-all duration-200"
+                className="text-white data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-200 font-medium rounded-lg transition-all duration-200 px-4 py-2"
               >
                 Operation History
               </TabsTrigger>

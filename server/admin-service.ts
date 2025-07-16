@@ -375,8 +375,8 @@ export class AdminService {
       const programSettings = await this.getCurrentProgramSettings();
       
       // Admin controls the treasury configuration - this is the authoritative source
-      const programBudget = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 2905600;
-      const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 7960;
+      const programBudget = treasuryConf ? parseFloat(treasuryConf.total_allocation) : 2905600;
+      const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.daily_rewards_cap) : 7960;
       
       // Treasury configuration retrieved successfully
       
@@ -389,9 +389,9 @@ export class AdminService {
           address: treasuryBalance.address,
           programBudget,
           dailyRewardsCap,
-          programDuration: treasuryConf ? treasuryConf.programDurationDays : 365,
-          programEndDate: treasuryConf && treasuryConf.programEndDate ? new Date(treasuryConf.programEndDate) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-          isActive: treasuryConf ? treasuryConf.isActive : true,
+          programDuration: treasuryConf ? treasuryConf.program_duration_days : 365,
+          programEndDate: treasuryConf && treasuryConf.program_end_date ? new Date(treasuryConf.program_end_date) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          isActive: treasuryConf ? treasuryConf.is_active : true,
           totalDistributed: Math.round(totalDistributed * 100) / 100,
           treasuryRemaining: programBudget - totalDistributed
         },

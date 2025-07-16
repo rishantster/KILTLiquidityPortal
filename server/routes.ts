@@ -38,7 +38,7 @@ import { validateAdminCredentials, validateAdminWallet, createAdminSession, requ
 import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";
-import { adminSimpleRouter } from "./routes/admin-simple";
+// import { adminSimpleRouter } from "./routes/admin-simple"; // Deprecated - use main admin dashboard
 import { systemHealthRouter } from "./routes/system-health";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
@@ -1793,7 +1793,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/admin/dashboard", requireAdminAuth, async (req, res) => {
     try {
       const stats = await adminService.getAdminTreasuryStats();
-      // Admin dashboard stats retrieved
       res.json(stats);
     } catch (error) {
       console.error('Error getting admin dashboard:', error);
@@ -1801,78 +1800,40 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Update treasury address (admin only)
-  app.post("/api/admin/treasury/update-address", requireAdminAuth, async (req, res) => {
+  // Update treasury configuration
+  app.post("/api/admin/treasury/config", requireAdminAuth, async (req, res) => {
     try {
-      const { newTreasuryAddress, ownerPrivateKey } = req.body;
+      const config = req.body;
+      const performedBy = req.user?.identifier || 'unknown';
       
-      if (!newTreasuryAddress || !ownerPrivateKey) {
-        res.status(400).json({ error: 'Missing required parameters' });
+      if (!config.programBudget || !config.programDurationDays) {
+        res.status(400).json({ error: 'Program budget and program duration required' });
         return;
       }
 
-      const result = await treasuryService.updateTreasuryAddress(
-        newTreasuryAddress,
-        ownerPrivateKey
-      );
-
+      const result = await adminService.updateTreasuryConfiguration(config, performedBy);
       res.json(result);
     } catch (error) {
-      console.error('Error updating treasury address:', error);
-      res.status(500).json({ error: 'Failed to update treasury address' });
+      console.error('Error updating treasury configuration:', error);
+      res.status(500).json({ error: 'Failed to update treasury configuration' });
     }
   });
 
-  // Add to treasury wallet
-  app.post("/api/admin/treasury/add", requireAdminAuth, async (req, res) => {
+  // Update program settings
+  app.post("/api/admin/program/settings", requireAdminAuth, async (req, res) => {
     try {
-      const { amount, toAddress, privateKey, reason } = req.body;
+      const settings = req.body;
+      const performedBy = req.user?.identifier || 'unknown';
       
-      if (!amount || !toAddress || !privateKey) {
-        res.status(400).json({ error: 'Amount, treasury address, and private key required' });
-        return;
-      }
-
-      const result = await adminService.addToTreasury({
-        operation: 'add',
-        amount: parseFloat(amount),
-        toAddress,
-        privateKey,
-        reason: reason || 'Treasury funding'
-      });
-
+      const result = await adminService.updateProgramSettings(settings, performedBy);
       res.json(result);
     } catch (error) {
-      console.error('Error adding to treasury:', error);
-      res.status(500).json({ error: 'Failed to add to treasury' });
+      console.error('Error updating program settings:', error);
+      res.status(500).json({ error: 'Failed to update program settings' });
     }
   });
 
-  // Remove from treasury wallet
-  app.post("/api/admin/treasury/remove", requireAdminAuth, async (req, res) => {
-    try {
-      const { amount, fromAddress, toAddress, privateKey, reason } = req.body;
-      
-      if (!amount || !fromAddress || !toAddress || !privateKey) {
-        res.status(400).json({ error: 'Amount, from address, to address, and private key required' });
-        return;
-      }
-
-      const result = await adminService.removeFromTreasury({
-        operation: 'remove',
-        amount: parseFloat(amount),
-        fromAddress,
-        toAddress,
-        privateKey,
-        reason: reason || 'Treasury withdrawal'
-      });
-
-      res.json(result);
-    } catch (error) {
-      console.error('Error removing from treasury:', error);
-      res.status(500).json({ error: 'Failed to remove from treasury' });
-    }
-  });
+  // Treasury operations moved to admin dashboard interface
 
   // Transfer tokens between addresses
   app.post("/api/admin/treasury/transfer", requireAdminAuth, async (req, res) => {
@@ -1947,46 +1908,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // ===== NEW SECURE ADMIN ROUTES =====
 
-  // Get treasury balance (read-only)
-  app.get("/api/admin/treasury/balance", requireAdminAuth, async (req, res) => {
-    try {
-      const balance = await adminService.getTreasuryBalance();
-      res.json(balance);
-    } catch (error) {
-      console.error('Error getting treasury balance:', error);
-      res.status(500).json({ error: 'Failed to get treasury balance' });
-    }
-  });
+  // Treasury balance available in /api/admin/dashboard
 
-  // Get treasury configuration
-  app.get("/api/admin/treasury/config", requireAdminAuth, async (req, res) => {
-    try {
-      const config = await adminService.getAdminTreasuryStats();
-      res.json(config);
-    } catch (error) {
-      console.error('Error getting treasury configuration:', error);
-      res.status(500).json({ error: 'Failed to get treasury configuration' });
-    }
-  });
-
-  // Update treasury configuration (without private keys)
-  app.post("/api/admin/treasury/config", requireAdminAuth, async (req, res) => {
-    try {
-      const config = req.body;
-      const performedBy = req.user?.identifier || 'unknown';
-      
-      if (!config.programBudget || !config.programDurationDays) {
-        res.status(400).json({ error: 'Program budget and program duration required' });
-        return;
-      }
-
-      const result = await adminService.updateTreasuryConfiguration(config, performedBy);
-      res.json(result);
-    } catch (error) {
-      console.error('Error updating treasury configuration:', error);
-      res.status(500).json({ error: 'Failed to update treasury configuration' });
-    }
-  });
+  // Treasury configuration endpoints consolidated into /api/admin/dashboard
 
 
 
@@ -2082,8 +2006,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Blockchain configuration routes
   app.use("/api/blockchain", blockchainConfigRouter);
 
-  // Admin simple routes (working replacement for complex admin system)
-  app.use("/api/admin-simple", adminSimpleRouter);
+  // Admin simple routes (deprecated - use main /api/admin/dashboard endpoint)
+  // app.use("/api/admin-simple", adminSimpleRouter);
 
   // System health and debugging routes
   app.use("/api/system", systemHealthRouter);

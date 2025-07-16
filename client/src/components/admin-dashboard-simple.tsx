@@ -31,7 +31,7 @@ export function AdminDashboardSimple() {
     treasuryBudget: 500000,
     programDuration: 90,
     dailyBudget: 5555.56,
-    aprRange: "31% - 6%",
+    aprRange: "31%",
     timeBoost: 0.6,
     fullRangeBonus: 1.2,
     minPositionValue: 10,
@@ -69,7 +69,7 @@ export function AdminDashboardSimple() {
           treasuryBudget: parseFloat(data.treasury.totalAllocation) || 500000,
           programDuration: data.treasury.programDurationDays || 90,
           dailyBudget: parseFloat(data.treasury.dailyRewardsCap) || 5555.56,
-          aprRange: data.aprRange || "31% - 6%",
+          aprRange: data.aprRange || "31%",
           timeBoost: parseFloat(data.settings.timeBoostCoefficient) || 0.6,
           fullRangeBonus: parseFloat(data.settings.fullRangeBonus) || 1.2,
           minPositionValue: parseFloat(data.settings.minimumPositionValue) || 10,
@@ -84,7 +84,8 @@ export function AdminDashboardSimple() {
   // Calculate derived values
   const calculateDerivedValues = () => {
     const dailyBudget = config.treasuryBudget / config.programDuration;
-    const aprRange = `${Math.round(31 * (config.treasuryBudget / 500000))}% - ${Math.round(6 * (config.treasuryBudget / 500000))}%`;
+    const representativeAPR = Math.round(31 * (config.treasuryBudget / 500000));
+    const aprRange = `${representativeAPR}%`;
     
     setConfig(prev => ({
       ...prev,

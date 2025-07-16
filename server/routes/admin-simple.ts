@@ -29,16 +29,13 @@ router.get('/config', async (req, res) => {
       inRangeRequirement: true
     };
 
-    // Calculate APR range (using total allocation from database)
+    // Calculate APR as single representative value (early stage APR for clear communication)
     const budgetAmount = parseFloat(treasury.totalAllocation) || parseFloat(treasury.programBudget) || 500000;
     const aprMultiplier = budgetAmount / 500000;
     
-    // Debug logging (remove in production)
-    // console.log('APR calculation debug:', { budgetAmount, aprMultiplier });
-    
-    const minAPR = Math.round(31 * aprMultiplier);
-    const maxAPR = Math.round(6 * aprMultiplier);
-    const aprRange = `${minAPR}% - ${maxAPR}%`;
+    // Use early stage APR as the primary value for user communication
+    const representativeAPR = Math.round(31 * aprMultiplier);
+    const aprRange = `${representativeAPR}%`;
 
     res.json({
       treasury,

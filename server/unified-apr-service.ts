@@ -45,12 +45,12 @@ class UnifiedAPRService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const [settingsConf] = await db.select().from(programSettings).limit(1);
 
-      // Use admin configuration as primary source with correct column names (snake_case from database)
-      const treasuryAllocation = treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : 750000;
-      const programDuration = treasuryConf?.program_duration_days || 90;
-      const dailyBudget = treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : (treasuryAllocation / programDuration);
-      const timeBoost = settingsConf?.time_boost_coefficient ? parseFloat(settingsConf.time_boost_coefficient) : 0.6;
-      const fullRangeBonus = settingsConf?.full_range_bonus ? parseFloat(settingsConf.full_range_bonus) : 1.2;
+      // Use admin configuration as primary source with correct column names (camelCase from Drizzle schema)
+      const treasuryAllocation = treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : 750000;
+      const programDuration = treasuryConf?.programDurationDays || 90;
+      const dailyBudget = treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : (treasuryAllocation / programDuration);
+      const timeBoost = settingsConf?.timeBoostCoefficient ? parseFloat(settingsConf.timeBoostCoefficient) : 0.6;
+      const fullRangeBonus = settingsConf?.fullRangeBonus ? parseFloat(settingsConf.fullRangeBonus) : 1.2;
       
       // Clear cache to force recalculation
       this.aprCache = null;

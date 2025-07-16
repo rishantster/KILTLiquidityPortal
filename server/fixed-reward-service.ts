@@ -93,14 +93,14 @@ export class FixedRewardService {
       const [settingsConf] = await db.select().from(programSettings).limit(1);
       
       // Use admin values with fallback to defaults (snake_case from database)
-      const treasuryAllocation = treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : this.DEFAULT_TREASURY_ALLOCATION;
-      const programDurationDays = treasuryConf?.program_duration_days || this.DEFAULT_PROGRAM_DURATION_DAYS;
-      const dailyBudget = treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : (treasuryAllocation / programDurationDays);
+      const treasuryAllocation = treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : this.DEFAULT_TREASURY_ALLOCATION;
+      const programDurationDays = treasuryConf?.programDurationDays || this.DEFAULT_PROGRAM_DURATION_DAYS;
+      const dailyBudget = treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : (treasuryAllocation / programDurationDays);
       
-      const lockPeriodDays = settingsConf?.lock_period || this.DEFAULT_LOCK_PERIOD_DAYS;
-      const minimumPositionValue = settingsConf?.minimum_position_value || this.DEFAULT_MIN_POSITION_VALUE;
-      const timeBoostCoefficient = settingsConf?.time_boost_coefficient || this.DEFAULT_B_TIME;
-      const fullRangeBonus = settingsConf?.full_range_bonus || this.DEFAULT_FRB;
+      const lockPeriodDays = settingsConf?.lockPeriod || this.DEFAULT_LOCK_PERIOD_DAYS;
+      const minimumPositionValue = settingsConf?.minimumPositionValue || this.DEFAULT_MIN_POSITION_VALUE;
+      const timeBoostCoefficient = settingsConf?.timeBoostCoefficient || this.DEFAULT_B_TIME;
+      const fullRangeBonus = settingsConf?.fullRangeBonus || this.DEFAULT_FRB;
       
       return {
         treasuryAllocation,

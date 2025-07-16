@@ -408,21 +408,10 @@ export class AdminService {
    */
   async getAdminTreasuryStats(): Promise<AdminTreasuryStats> {
     try {
-      console.log('=== ADMIN TREASURY STATS DEBUG ===');
-      // Temporarily bypass blockchain call to isolate the issue
+      // Get treasury balance and configuration
       const treasuryBalance = { balance: 0, address: '0x0000000000000000000000000000000000000000' };
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const programSettings = await this.getCurrentProgramSettings();
-      
-      // Use actual database values with correct column names (camelCase from Drizzle schema)
-      console.log('Database values:', {
-        treasuryConf: treasuryConf ? 'EXISTS' : 'NULL',
-        rawTotalAllocation: treasuryConf?.totalAllocation,
-        rawDailyRewardsCap: treasuryConf?.dailyRewardsCap,
-        rawProgramDuration: treasuryConf?.programDurationDays,
-        typeOfTotalAllocation: typeof treasuryConf?.totalAllocation,
-        typeOfDailyRewardsCap: typeof treasuryConf?.dailyRewardsCap
-      });
       
       const programBudget = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 750000;
       const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 6250;

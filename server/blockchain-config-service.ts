@@ -139,6 +139,25 @@ export class BlockchainConfigService {
   }
 
   /**
+   * Update treasury wallet address (admin only)
+   */
+  async updateTreasuryWalletAddress(treasuryWalletAddress: string, updatedBy: string): Promise<void> {
+    try {
+      await db.update(treasuryConfig).set({
+        treasuryWalletAddress: treasuryWalletAddress,
+        updatedAt: new Date(),
+      });
+
+      // Clear cache to force reload
+      this.configCache = null;
+      this.cacheExpiry = 0;
+    } catch (error) {
+      // Error updating treasury wallet address
+      throw error;
+    }
+  }
+
+  /**
    * Clear configuration cache (useful for testing)
    */
   clearCache(): void {

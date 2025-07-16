@@ -85,6 +85,12 @@ export default function AdminPanel() {
     minimumPositionValue: '',
     lockPeriod: ''
   });
+
+  const [blockchainForm, setBlockchainForm] = useState({
+    kiltTokenAddress: '',
+    poolAddress: '',
+    treasuryWalletAddress: ''
+  });
   
   // Authentication state
   const [loginType, setLoginType] = useState<'wallet' | 'credentials'>('wallet');
@@ -236,6 +242,39 @@ export default function AdminPanel() {
     }
   });
 
+  // Blockchain configuration mutation
+  const updateBlockchainMutation = useMutation({
+    mutationFn: async (config: any) => {
+      const response = await fetch('/api/blockchain/config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(config)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      // Invalidate all relevant caches to force refresh
+      queryClient.invalidateQueries({ queryKey: ['/api/blockchain/config'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      toast({
+        title: "Blockchain Config Updated",
+        description: "Blockchain configuration updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
   // Populate form with current treasury values when data is loaded
   useEffect(() => {
     if (treasuryStats?.treasury) {
@@ -258,6 +297,17 @@ export default function AdminPanel() {
       });
     }
   }, [treasuryStats]);
+
+  // Populate blockchain form with current configuration when data is loaded
+  useEffect(() => {
+    if (blockchainConfig) {
+      setBlockchainForm({
+        kiltTokenAddress: blockchainConfig.kiltTokenAddress || '',
+        poolAddress: blockchainConfig.poolAddress || '',
+        treasuryWalletAddress: blockchainConfig.treasuryWalletAddress || ''
+      });
+    }
+  }, [blockchainConfig]);
 
   const handleLogin = () => {
     if (loginType === 'wallet' && address) {
@@ -288,6 +338,19 @@ export default function AdminPanel() {
       inRangeRequirement: true
     };
     updateProgramMutation.mutate(values);
+  };
+
+  const handleBlockchainUpdate = () => {
+    const values = {
+      kiltTokenAddress: blockchainForm.kiltTokenAddress,
+      poolAddress: blockchainForm.poolAddress,
+      treasuryWalletAddress: blockchainForm.treasuryWalletAddress,
+      wethTokenAddress: '0x4200000000000000000000000000000000000006', // Base WETH
+      poolFeeRate: 3000,
+      networkId: 8453,
+      updatedBy: 'admin'
+    };
+    updateBlockchainMutation.mutate(values);
   };
 
   if (!isAuthenticated) {
@@ -650,9 +713,10 @@ export default function AdminPanel() {
                     <Label htmlFor="kiltToken">KILT Token Address</Label>
                     <Input
                       id="kiltToken"
-                      defaultValue={blockchainConfig?.kiltTokenAddress || "Loading..."}
+                      value={blockchainForm.kiltTokenAddress}
+                      onChange={(e) => setBlockchainForm({...blockchainForm, kiltTokenAddress: e.target.value})}
+                      placeholder="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
                       className="bg-white/5 border-gray-800/30"
-                      readOnly
                     />
                     <p className="text-xs text-gray-400 mt-1">Base Network</p>
                   </div>
@@ -660,9 +724,10 @@ export default function AdminPanel() {
                     <Label htmlFor="poolAddress">KILT/ETH Pool Address</Label>
                     <Input
                       id="poolAddress"
-                      defaultValue={blockchainConfig?.poolAddress || "Loading..."}
+                      value={blockchainForm.poolAddress}
+                      onChange={(e) => setBlockchainForm({...blockchainForm, poolAddress: e.target.value})}
+                      placeholder="0xB578b4c5539FD22D7a0E6682Ab645c623Bae9dEb"
                       className="bg-white/5 border-gray-800/30"
-                      readOnly
                     />
                     <p className="text-xs text-gray-400 mt-1">Uniswap V3 Pool (0.3% fee tier)</p>
                   </div>
@@ -670,25 +735,40 @@ export default function AdminPanel() {
                     <Label htmlFor="treasuryWallet">Treasury Wallet Address</Label>
                     <Input
                       id="treasuryWallet"
-                      defaultValue={treasuryStats?.treasury?.address || "Not configured"}
+                      value={blockchainForm.treasuryWalletAddress}
+                      onChange={(e) => setBlockchainForm({...blockchainForm, treasuryWalletAddress: e.target.value})}
+                      placeholder="Treasury wallet address"
                       className="bg-white/5 border-gray-800/30"
-                      readOnly
                     />
                   </div>
                   <div>
                     <Label htmlFor="networkId">Network ID</Label>
                     <Input
                       id="networkId"
-                      defaultValue="8453 (Base Mainnet)"
+                      value="8453 (Base Mainnet)"
                       className="bg-white/5 border-gray-800/30"
                       readOnly
                     />
                   </div>
                 </div>
+                <Button 
+                  onClick={handleBlockchainUpdate}
+                  disabled={updateBlockchainMutation.isPending}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                >
+                  {updateBlockchainMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Updating Configuration...
+                    </>
+                  ) : (
+                    'Update Blockchain Configuration'
+                  )}
+                </Button>
                 <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
                   <p className="text-amber-400 text-sm">
                     <AlertCircle className="h-4 w-4 inline mr-1" />
-                    Blockchain addresses are managed through the treasury configuration.
+                    Changes to blockchain configuration will affect all system operations.
                   </p>
                 </div>
                 <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">

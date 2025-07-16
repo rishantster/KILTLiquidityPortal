@@ -18,7 +18,7 @@ router.get('/config', async (req, res) => {
 // Update blockchain configuration (admin only)
 router.post('/config', requireAdminAuth, async (req, res) => {
   try {
-    const { kiltTokenAddress, wethTokenAddress, poolAddress, poolFeeRate, networkId } = req.body;
+    const { kiltTokenAddress, wethTokenAddress, poolAddress, poolFeeRate, networkId, treasuryWalletAddress } = req.body;
     
     if (!kiltTokenAddress || !wethTokenAddress || !poolAddress) {
       return res.status(400).json({ error: 'Missing required configuration fields' });
@@ -32,6 +32,11 @@ router.post('/config', requireAdminAuth, async (req, res) => {
       networkId: networkId || 8453,
       updatedBy: req.adminId || 'unknown',
     });
+
+    // Update treasury wallet address if provided
+    if (treasuryWalletAddress) {
+      await blockchainConfigService.updateTreasuryWalletAddress(treasuryWalletAddress, req.adminId || 'unknown');
+    }
 
     res.json({ success: true, message: 'Blockchain configuration updated successfully' });
   } catch (error) {

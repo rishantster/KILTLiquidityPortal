@@ -378,7 +378,7 @@ export function AdminPanel() {
 
               <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
                 <CardContent className="p-4 text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Timer className="h-4 w-4 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Daily Budget</p>
@@ -390,7 +390,7 @@ export function AdminPanel() {
 
               <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
                 <CardContent className="p-4 text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Calendar className="h-4 w-4 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Duration</p>
@@ -421,7 +421,7 @@ export function AdminPanel() {
               </TabsTrigger>
               <TabsTrigger 
                 value="history" 
-                className="text-white data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-200 font-medium rounded-lg transition-all duration-200 px-3 py-2 flex items-center gap-2"
+                className="text-white data-[state=active]:bg-emerald-600/30 data-[state=active]:text-emerald-200 font-medium rounded-lg transition-all duration-200 px-3 py-2 flex items-center gap-2"
               >
                 <History className="w-4 h-4" />
                 <span className="text-sm">History</span>
@@ -559,7 +559,7 @@ export function AdminPanel() {
                     <Button
                       onClick={handleSettingsUpdate}
                       disabled={settingsMutation.isPending}
-                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 backdrop-blur-sm border border-blue-400/30 transition-all duration-200 h-8 text-sm"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 backdrop-blur-sm border border-emerald-400/30 transition-all duration-200 h-8 text-sm"
                     >
                       {settingsMutation.isPending ? 'Updating...' : 'Update Settings'}
                     </Button>
@@ -716,7 +716,7 @@ export function AdminPanel() {
                   <Button
                     onClick={handleBlockchainConfigUpdate}
                     disabled={blockchainConfigMutation.isPending}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 backdrop-blur-sm border border-blue-400/30 transition-all duration-200 h-8 text-sm"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 backdrop-blur-sm border border-emerald-400/30 transition-all duration-200 h-8 text-sm"
                   >
                     {blockchainConfigMutation.isPending ? 'Updating...' : 'Update Blockchain'}
                   </Button>
@@ -729,7 +729,7 @@ export function AdminPanel() {
               <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-white flex items-center gap-2">
-                    <History className="w-4 h-4 text-purple-400" />
+                    <History className="w-4 h-4 text-emerald-400" />
                     <span className="text-lg">Operation History</span>
                   </CardTitle>
                 </CardHeader>
@@ -739,7 +739,7 @@ export function AdminPanel() {
                       adminStats.operationHistory.map((op, index) => (
                         <div key={index} className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-200">
                           <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
                               <Activity className="w-3 h-3 text-white" />
                             </div>
                             <div>
@@ -757,7 +757,7 @@ export function AdminPanel() {
                       ))
                     ) : (
                       <div className="text-center py-8">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-3">
                           <History className="w-6 h-6 text-white" />
                         </div>
                         <div className="text-white text-sm font-medium mb-1">No Operations Yet</div>

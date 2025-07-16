@@ -112,7 +112,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json(unregisteredPositions);
     } catch (error) {
       // Failed to fetch unregistered positions
-      console.error("Error fetching unregistered positions:", error);
       res.status(500).json({ error: "Failed to fetch unregistered positions" });
     }
   });
@@ -143,7 +142,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
     } catch (error) {
       // Failed to fetch user position count
-      console.error("Error fetching user position count:", error);
       res.status(500).json({ error: "Failed to fetch user position count" });
     }
   });

@@ -1891,7 +1891,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   });
 
   // Update program settings with secure tracking
-  app.post("/api/admin/program/settings", requireAdminAuth, async (req, res) => {
+  app.post("/api/admin/program-settings", requireAdminAuth, async (req, res) => {
     try {
       const settings = req.body;
       const performedBy = req.user?.identifier || 'unknown';

@@ -172,7 +172,7 @@ export function AdminPanelSimplified() {
   // Treasury update mutation
   const treasuryMutation = useMutation({
     mutationFn: async (config: any) => {
-      const response = await fetch('/api/admin/treasury-config', {
+      const response = await fetch('/api/admin/treasury/config', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

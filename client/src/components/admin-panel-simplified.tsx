@@ -298,25 +298,30 @@ export default function AdminPanelSimplified() {
   // Update forms when data loads (only once)
   useEffect(() => {
     if (adminStats && !hasLoadedInitialData) {
-      setTreasuryConfigForm({
-        treasuryWalletAddress: adminStats.treasury.address || '',
-        programBudget: String(adminStats.treasury.programBudget || 500000),
-        programDuration: String(adminStats.treasury.programDuration || 90),
-        programStartDate: '2025-07-16',
-        programEndDate: '2025-10-14',
-        isActive: adminStats.treasury.isActive ?? true
-      });
+      // Only set form values if they are currently empty (not if user is typing)
+      if (treasuryConfigForm.programBudget === '' && treasuryConfigForm.programDuration === '') {
+        setTreasuryConfigForm({
+          treasuryWalletAddress: adminStats.treasury.address || '',
+          programBudget: String(adminStats.treasury.programBudget || 500000),
+          programDuration: String(adminStats.treasury.programDuration || 90),
+          programStartDate: '2025-07-16',
+          programEndDate: '2025-10-14',
+          isActive: adminStats.treasury.isActive ?? true
+        });
+      }
       
-      setProgramSettingsForm({
-        timeBoostCoefficient: String(adminStats.settings.timeBoostCoefficient || 0.6),
-        fullRangeBonus: String(adminStats.settings.fullRangeBonus || 1.2),
-        minimumPositionValue: String(adminStats.settings.minimumPositionValue || 10),
-        lockPeriod: String(adminStats.settings.lockPeriod || 7)
-      });
+      if (programSettingsForm.timeBoostCoefficient === '' && programSettingsForm.fullRangeBonus === '') {
+        setProgramSettingsForm({
+          timeBoostCoefficient: String(adminStats.settings.timeBoostCoefficient || 0.6),
+          fullRangeBonus: String(adminStats.settings.fullRangeBonus || 1.2),
+          minimumPositionValue: String(adminStats.settings.minimumPositionValue || 10),
+          lockPeriod: String(adminStats.settings.lockPeriod || 7)
+        });
+      }
       
       setHasLoadedInitialData(true);
     }
-  }, [adminStats, hasLoadedInitialData]);
+  }, [adminStats, hasLoadedInitialData, treasuryConfigForm, programSettingsForm]);
 
   useEffect(() => {
     if (blockchainConfig) {
@@ -330,7 +335,6 @@ export default function AdminPanelSimplified() {
   }, [blockchainConfig]);
 
   // Show login screen if not authenticated
-  console.log('Debug auth:', { adminToken, isAuthorized, address, isConnected });
   if (!adminToken || !isAuthorized) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4">

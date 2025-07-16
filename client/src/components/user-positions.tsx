@@ -385,7 +385,7 @@ export function UserPositions() {
                             ETH
                           </span>
                           <span className="text-white font-bold tabular-nums">
-                            {position.token0Amount ? formatTokenAmount(BigInt(position.token0Amount), 18) : '0'}
+                            {position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(3) : '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -394,7 +394,7 @@ export function UserPositions() {
                             KILT
                           </span>
                           <span className="text-white font-bold tabular-nums">
-                            {position.token1Amount ? formatTokenAmount(BigInt(position.token1Amount), 18) : '0'}
+                            {position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(4) : '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">

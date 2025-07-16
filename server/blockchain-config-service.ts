@@ -9,10 +9,6 @@ export interface BlockchainConfiguration {
   poolFeeRate: number;
   networkId: number;
   treasuryWalletAddress: string;
-  rewardWalletAddress?: string;
-  uniswapV3Factory?: string;
-  uniswapV3Router?: string;
-  positionManager?: string;
   isActive: boolean;
 }
 
@@ -62,10 +58,6 @@ export class BlockchainConfigService {
         poolFeeRate: tokenPoolConf.poolFeeRate,
         networkId: tokenPoolConf.networkId,
         treasuryWalletAddress: treasuryConf.treasuryWalletAddress,
-        rewardWalletAddress: treasuryConf.treasuryWalletAddress, // Use treasury wallet for rewards by default
-        uniswapV3Factory: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
-        uniswapV3Router: '0x2626664c2603336E57B271c5C0b26F421741e481',
-        positionManager: '0x03a520b32C04BF3bEEf7BF5d0a7B8c68b7e6e5c7',
         isActive: tokenPoolConf.isActive && treasuryConf.isActive,
       };
 
@@ -85,10 +77,6 @@ export class BlockchainConfigService {
         poolFeeRate: 3000,
         networkId: 8453,
         treasuryWalletAddress: '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
-        rewardWalletAddress: '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
-        uniswapV3Factory: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
-        uniswapV3Router: '0x2626664c2603336E57B271c5C0b26F421741e481',
-        positionManager: '0x03a520b32C04BF3bEEf7BF5d0a7B8c68b7e6e5c7',
         isActive: true,
       };
     }

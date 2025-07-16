@@ -75,14 +75,7 @@ export default function AdminPanel() {
 
   const [blockchainConfigForm, setBlockchainConfigForm] = useState({
     kiltTokenAddress: '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8',
-    wethTokenAddress: '0x4200000000000000000000000000000000000006',
-    poolAddress: '0x...',
-    poolFeeRate: 3000,
-    networkId: 8453,
-    rewardWalletAddress: '',
-    uniswapV3Factory: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
-    uniswapV3Router: '0x2626664c2603336E57B271c5C0b26F421741e481',
-    positionManager: '0x03a520b32C04BF3bEEf7BF5d0a7B8c68b7e6e5c7'
+    poolAddress: '0x...'
   });
 
   // Query admin stats
@@ -145,14 +138,7 @@ export default function AdminPanel() {
     if (blockchainConfig) {
       setBlockchainConfigForm({
         kiltTokenAddress: blockchainConfig.kiltTokenAddress,
-        wethTokenAddress: blockchainConfig.wethTokenAddress,
-        poolAddress: blockchainConfig.poolAddress,
-        poolFeeRate: blockchainConfig.poolFeeRate,
-        networkId: blockchainConfig.networkId,
-        rewardWalletAddress: blockchainConfig.rewardWalletAddress || '',
-        uniswapV3Factory: blockchainConfig.uniswapV3Factory || '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
-        uniswapV3Router: blockchainConfig.uniswapV3Router || '0x2626664c2603336E57B271c5C0b26F421741e481',
-        positionManager: blockchainConfig.positionManager || '0x03a520b32C04BF3bEEf7BF5d0a7B8c68b7e6e5c7'
+        poolAddress: blockchainConfig.poolAddress
       });
     }
   }, [blockchainConfig]);
@@ -464,149 +450,35 @@ export default function AdminPanel() {
                     </div>
                   </div>
 
-                  {/* Token Configuration */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-yellow-400" />
-                      Token Configuration
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="kiltTokenAddress" className="text-white text-xs">KILT Token Address</Label>
-                        <Input
-                          id="kiltTokenAddress"
-                          value={blockchainConfigForm.kiltTokenAddress}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, kiltTokenAddress: e.target.value })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="wethTokenAddress" className="text-white text-xs">WETH Token Address</Label>
-                        <Input
-                          id="wethTokenAddress"
-                          value={blockchainConfigForm.wethTokenAddress}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, wethTokenAddress: e.target.value })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="0x4200000000000000000000000000000000000006"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Pool Configuration */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      <Server className="w-4 h-4 text-green-400" />
-                      Pool Configuration
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="poolAddress" className="text-white text-xs">Pool Address</Label>
-                        <Input
-                          id="poolAddress"
-                          value={blockchainConfigForm.poolAddress}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, poolAddress: e.target.value })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="0x..."
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="poolFeeRate" className="text-white text-xs">Pool Fee Rate (bps)</Label>
-                        <Input
-                          id="poolFeeRate"
-                          type="number"
-                          value={blockchainConfigForm.poolFeeRate}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, poolFeeRate: parseInt(e.target.value) || 0 })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="3000"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Uniswap V3 Integration */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      <Settings className="w-4 h-4 text-purple-400" />
-                      Uniswap V3 Integration
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="uniswapV3Factory" className="text-white text-xs">Factory Address</Label>
-                        <Input
-                          id="uniswapV3Factory"
-                          value={blockchainConfigForm.uniswapV3Factory}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, uniswapV3Factory: e.target.value })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="0x33128a8fC17869897dcE68Ed026d694621f6FDfD"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="uniswapV3Router" className="text-white text-xs">Router Address</Label>
-                        <Input
-                          id="uniswapV3Router"
-                          value={blockchainConfigForm.uniswapV3Router}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, uniswapV3Router: e.target.value })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="0x2626664c2603336E57B271c5C0b26F421741e481"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="positionManager" className="text-white text-xs">Position Manager</Label>
-                        <Input
-                          id="positionManager"
-                          value={blockchainConfigForm.positionManager}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, positionManager: e.target.value })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="0x03a520b32C04BF3bEEf7BF5d0a7B8c68b7e6e5c7"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="networkId" className="text-white text-xs">Network ID</Label>
-                        <Input
-                          id="networkId"
-                          type="number"
-                          value={blockchainConfigForm.networkId}
-                          onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, networkId: parseInt(e.target.value) || 0 })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-xs h-8"
-                          placeholder="8453"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Reward Wallet Configuration */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-emerald-400" />
-                      Reward Wallet Configuration
-                    </h3>
-                    
-                    <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                        <span className="text-emerald-200 text-sm">Reward wallet handles token distribution. Can be managed through smart contract or direct configuration.</span>
-                      </div>
+                  {/* Essential Blockchain Configuration */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="kiltTokenAddress" className="text-white text-sm font-medium">KILT Token Address</Label>
+                      <Input
+                        id="kiltTokenAddress"
+                        value={blockchainConfigForm.kiltTokenAddress}
+                        onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, kiltTokenAddress: e.target.value })}
+                        className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-sm h-9 mt-1"
+                        placeholder="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
+                      />
                     </div>
                     
                     <div>
-                      <Label htmlFor="rewardWalletAddress" className="text-white text-xs">Reward Wallet Address</Label>
+                      <Label htmlFor="poolAddress" className="text-white text-sm font-medium">KILT/ETH Pool Address</Label>
                       <Input
-                        id="rewardWalletAddress"
-                        value={blockchainConfigForm.rewardWalletAddress}
-                        onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, rewardWalletAddress: e.target.value })}
-                        className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 text-xs h-8"
+                        id="poolAddress"
+                        value={blockchainConfigForm.poolAddress}
+                        onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, poolAddress: e.target.value })}
+                        className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-blue-400/50 focus:ring-blue-400/20 text-sm h-9 mt-1"
                         placeholder="0x..."
                       />
+                    </div>
+                    
+                    <div className="bg-blue-400/10 border border-blue-400/30 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4 text-blue-400" />
+                        <span className="text-blue-200 text-sm">Network: Base Mainnet (8453). Only essential addresses for main app functionality.</span>
+                      </div>
                     </div>
                   </div>
 

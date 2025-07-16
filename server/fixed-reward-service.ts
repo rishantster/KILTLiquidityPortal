@@ -569,10 +569,15 @@ export class FixedRewardService {
         
         // Try to use admin-configured dates if available
         if (treasuryConf && treasuryConf.programStartDate && treasuryConf.programEndDate) {
-          const startDate = new Date(treasuryConf.programStartDate);
-          const endDate = new Date(treasuryConf.programEndDate);
+          // Handle both string and Date objects
+          const startDate = typeof treasuryConf.programStartDate === 'string' 
+            ? new Date(treasuryConf.programStartDate) 
+            : treasuryConf.programStartDate;
+          const endDate = typeof treasuryConf.programEndDate === 'string' 
+            ? new Date(treasuryConf.programEndDate) 
+            : treasuryConf.programEndDate;
           
-          if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+          if (startDate && endDate && !isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
             if (now < startDate) {
               // Program hasn't started yet - show days until start
               const timeDiff = startDate.getTime() - now.getTime();

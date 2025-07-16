@@ -100,8 +100,8 @@ function AdminPanelSimplified() {
   // Treasury configuration form
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
     treasuryWalletAddress: '',
-    programBudget: 500000,
-    programDuration: 90,
+    programBudget: '500000',
+    programDuration: '90',
     programStartDate: '2025-07-16',
     programEndDate: '2025-10-14',
     isActive: true
@@ -109,10 +109,10 @@ function AdminPanelSimplified() {
 
   // Simplified program settings form - only essential parameters
   const [programSettingsForm, setProgramSettingsForm] = useState({
-    timeBoostCoefficient: 0.6,  // b_time in the formula
-    fullRangeBonus: 1.2,        // FRB in the formula
-    minimumPositionValue: 10,   // Anti-spam protection
-    lockPeriod: 7               // Reward lock period
+    timeBoostCoefficient: '0.6',  // b_time in the formula
+    fullRangeBonus: '1.2',        // FRB in the formula
+    minimumPositionValue: '10',   // Anti-spam protection
+    lockPeriod: '7'               // Reward lock period
   });
 
   // Blockchain configuration form
@@ -186,10 +186,12 @@ function AdminPanelSimplified() {
         throw new Error('No admin token available');
       }
       
-      // Add programDurationDays field for backend compatibility
+      // Convert string values to numbers for backend compatibility
       const configData = {
         ...treasuryConfigForm,
-        programDurationDays: treasuryConfigForm.programDuration
+        programBudget: parseInt(treasuryConfigForm.programBudget) || 500000,
+        programDuration: parseInt(treasuryConfigForm.programDuration) || 90,
+        programDurationDays: parseInt(treasuryConfigForm.programDuration) || 90
       };
       
       return await apiRequest('/api/admin/treasury/config', {
@@ -212,9 +214,18 @@ function AdminPanelSimplified() {
       if (!adminToken) {
         throw new Error('No admin token available');
       }
+      
+      // Convert string values to numbers for backend compatibility
+      const settingsData = {
+        timeBoostCoefficient: parseFloat(programSettingsForm.timeBoostCoefficient) || 0.6,
+        fullRangeBonus: parseFloat(programSettingsForm.fullRangeBonus) || 1.2,
+        minimumPositionValue: parseInt(programSettingsForm.minimumPositionValue) || 10,
+        lockPeriod: parseInt(programSettingsForm.lockPeriod) || 7
+      };
+      
       return await apiRequest('/api/admin/settings', {
         method: 'POST',
-        data: programSettingsForm
+        data: settingsData
       });
     },
     onSuccess: () => {
@@ -283,18 +294,18 @@ function AdminPanelSimplified() {
     if (adminStats) {
       setTreasuryConfigForm({
         treasuryWalletAddress: adminStats.treasury.address || '',
-        programBudget: adminStats.treasury.programBudget || 500000,
-        programDuration: adminStats.treasury.programDuration || 90,
+        programBudget: String(adminStats.treasury.programBudget || 500000),
+        programDuration: String(adminStats.treasury.programDuration || 90),
         programStartDate: '2025-07-16',
         programEndDate: '2025-10-14',
         isActive: adminStats.treasury.isActive ?? true
       });
       
       setProgramSettingsForm({
-        timeBoostCoefficient: adminStats.settings.timeBoostCoefficient || 0.6,
-        fullRangeBonus: adminStats.settings.fullRangeBonus || 1.2,
-        minimumPositionValue: adminStats.settings.minimumPositionValue || 10,
-        lockPeriod: adminStats.settings.lockPeriod || 7
+        timeBoostCoefficient: String(adminStats.settings.timeBoostCoefficient || 0.6),
+        fullRangeBonus: String(adminStats.settings.fullRangeBonus || 1.2),
+        minimumPositionValue: String(adminStats.settings.minimumPositionValue || 10),
+        lockPeriod: String(adminStats.settings.lockPeriod || 7)
       });
     }
   }, [adminStats]);
@@ -450,7 +461,7 @@ function AdminPanelSimplified() {
                           id="programBudget"
                           type="number"
                           value={treasuryConfigForm.programBudget}
-                          onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programBudget: parseInt(e.target.value) || 0 })}
+                          onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programBudget: e.target.value })}
                           className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border-gray-800/30 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                           placeholder="500000"
                         />
@@ -462,7 +473,7 @@ function AdminPanelSimplified() {
                           id="programDuration"
                           type="number"
                           value={treasuryConfigForm.programDuration}
-                          onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDuration: parseInt(e.target.value) || 0 })}
+                          onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDuration: e.target.value })}
                           className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border-gray-800/30 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                           placeholder="90"
                         />
@@ -520,7 +531,7 @@ function AdminPanelSimplified() {
                             type="number"
                             step="0.1"
                             value={programSettingsForm.timeBoostCoefficient}
-                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, timeBoostCoefficient: parseFloat(e.target.value) || 0 })}
+                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, timeBoostCoefficient: e.target.value })}
                             className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                             placeholder="0.6"
                           />
@@ -533,7 +544,7 @@ function AdminPanelSimplified() {
                             type="number"
                             step="0.1"
                             value={programSettingsForm.fullRangeBonus}
-                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, fullRangeBonus: parseFloat(e.target.value) || 0 })}
+                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, fullRangeBonus: e.target.value })}
                             className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                             placeholder="1.2"
                           />
@@ -554,7 +565,7 @@ function AdminPanelSimplified() {
                             id="minimumPositionValue"
                             type="number"
                             value={programSettingsForm.minimumPositionValue}
-                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
+                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, minimumPositionValue: e.target.value })}
                             className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                             placeholder="10"
                           />
@@ -566,7 +577,7 @@ function AdminPanelSimplified() {
                             id="lockPeriod"
                             type="number"
                             value={programSettingsForm.lockPeriod}
-                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
+                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, lockPeriod: e.target.value })}
                             className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                             placeholder="7"
                           />

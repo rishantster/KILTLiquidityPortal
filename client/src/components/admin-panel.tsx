@@ -552,7 +552,8 @@ export function AdminPanel() {
                 </CardTitle>
                 <div className="text-sm text-gray-400 mt-2">
                   <p className="mb-1">Complete treasury and program settings in one place</p>
-                  <code className="text-emerald-400">R_u = (L_u/L_T) × (1 + ((D_u/P)×w1)) × R × IRM</code>
+                  <code className="text-emerald-400">R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)</code>
+                  <p className="text-xs mt-1 text-yellow-400">FRB = Full Range Bonus (1.2x for 50/50 balanced positions)</p>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -772,7 +773,7 @@ export function AdminPanel() {
                           onChange={(e) => setSettingsForm({ ...settingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
                           className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white"
                         />
-                        <p className="text-xs text-gray-400 mt-1">0.6 = 60% boost at program end (160% total)</p>
+                        <p className="text-xs text-gray-400 mt-1">0.6 = 60% time boost at program end</p>
                       </div>
                     
                       <div>
@@ -812,6 +813,16 @@ export function AdminPanel() {
                           In-Range Requirement (IRM)
                         </Label>
                         <p className="text-xs text-gray-400 mt-1">Whether positions must be in-range to earn rewards</p>
+                      </div>
+                      
+                      <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3">
+                        <div className="flex items-center gap-2 text-yellow-400">
+                          <span className="font-medium">📊 Full Range Bonus (FRB)</span>
+                        </div>
+                        <p className="text-yellow-300 text-sm mt-1">
+                          Full range positions (50/50 balanced) automatically receive 1.2x bonus (20% boost). 
+                          Concentrated positions get 1.0x (no bonus) and "try their luck" with focused ranges.
+                        </p>
                       </div>
                     </div>
                   </div>

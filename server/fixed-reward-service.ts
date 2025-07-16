@@ -70,7 +70,7 @@ export class FixedRewardService {
   // New Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
   // Fixed parameters
   private readonly B_TIME = 0.6; // Time boost coefficient
-  private readonly FRB = 1.2; // Fixed rate boost multiplier
+  private readonly FRB = 1.2; // Full Range Bonus - 20% boost for full range positions
 
   /**
    * Calculate daily rewards using the new formula:
@@ -80,13 +80,15 @@ export class FixedRewardService {
    * @param totalLiquidity - L_T: Total liquidity in the system
    * @param daysActive - D_u: Number of unbroken days the user has been in the pool
    * @param inRangeMultiplier - IRM: In-range multiplier (0.0 - 1.0)
+   * @param isFullRange - Whether position is full range (gets FRB bonus)
    * @returns Daily reward amount in KILT tokens
    */
   private async calculateDailyRewardByFormula(
     userLiquidity: number,
     totalLiquidity: number,
     daysActive: number,
-    inRangeMultiplier: number
+    inRangeMultiplier: number,
+    isFullRange: boolean = false
   ): Promise<number> {
     // Handle edge cases
     if (totalLiquidity === 0 || userLiquidity === 0 || inRangeMultiplier === 0) {
@@ -109,8 +111,11 @@ export class FixedRewardService {
     const timeBoost = 1 + ((daysActive / programDuration) * this.B_TIME); // 1 + ((D_u/P)*b_time)
     const dailyRewardRate = dailyBudget; // R/P (daily allocation from admin)
     
+    // Full Range Bonus: only full range positions get FRB multiplier
+    const fullRangeBonus = isFullRange ? this.FRB : 1.0;
+    
     // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-    const dailyReward = liquidityShare * timeBoost * inRangeMultiplier * this.FRB * dailyRewardRate;
+    const dailyReward = liquidityShare * timeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardRate;
     
     return Math.max(0, dailyReward);
   }
@@ -170,6 +175,35 @@ export class FixedRewardService {
     } catch (error) {
       console.error('Error calculating in-range multiplier:', error);
       return 0.5;
+    }
+  }
+
+  /**
+   * Check if position is full range (gets FRB bonus)
+   */
+  private async isFullRangePosition(position: any): Promise<boolean> {
+    try {
+      const minPrice = parseFloat(position.minPrice?.toString() || '0');
+      const maxPrice = parseFloat(position.maxPrice?.toString() || '0');
+      
+      // Full range positions have very wide price ranges
+      const FULL_RANGE_MIN = 0.0001; 
+      const FULL_RANGE_MAX = 1000000;
+      
+      const isFullRange = minPrice <= FULL_RANGE_MIN && maxPrice >= FULL_RANGE_MAX;
+      
+      console.log('Full range check:', { 
+        nftTokenId: position.nftTokenId,
+        minPrice, 
+        maxPrice, 
+        isFullRange,
+        frbBonus: isFullRange ? this.FRB : 1.0
+      });
+      
+      return isFullRange;
+    } catch (error) {
+      console.error('Error checking full range position:', error);
+      return false;
     }
   }
 
@@ -269,13 +303,17 @@ export class FixedRewardService {
       // Get in-range multiplier
       const inRangeMultiplier = await this.getInRangeMultiplier(nftTokenId);
       
+      // Check if position is full range (gets FRB bonus)
+      const isFullRange = await this.isFullRangePosition(position);
+      
       // Calculate daily rewards using the new formula:
-      // R_u = (L_u/L_T) * (w1 + (D_u/365)*(1-w1)) * R/365 * IRM
+      // R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
       const dailyRewards = await this.calculateDailyRewardByFormula(
         currentValueUSD,
         totalActiveLiquidity,
         daysActive,
-        inRangeMultiplier
+        inRangeMultiplier,
+        isFullRange
       );
       
       // Calculate time progression for display using admin-configured values
@@ -424,33 +462,33 @@ export class FixedRewardService {
     const maturePositionValue = 2000; // $2000 mature position
     const matureLiquidityShare = maturePositionValue / maturePoolSize; // 0.25% of pool
     
-    // Calculate APR for early participants (30-day position in small pool) - HIGH APR
+    // Calculate APR for full range positions (gets FRB bonus)
     // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-    const shortTermDays = 30;
-    const shortTermTimeBoost = 1 + ((shortTermDays / programDuration) * this.B_TIME);
-    const shortTermDailyRewards = earlyLiquidityShare * shortTermTimeBoost * inRangeMultiplier * this.FRB * dailyBudget;
-    const shortTermAnnualRewards = shortTermDailyRewards * 365;
-    const shortTermAnnualRewardsUSD = shortTermAnnualRewards * kiltPrice;
-    const shortTermAPR = (shortTermAnnualRewardsUSD / earlyPositionValue) * 100;
+    const fullRangeDays = 30;
+    const fullRangeTimeBoost = 1 + ((fullRangeDays / programDuration) * this.B_TIME);
+    const fullRangeDailyRewards = earlyLiquidityShare * fullRangeTimeBoost * inRangeMultiplier * this.FRB * dailyBudget;
+    const fullRangeAnnualRewards = fullRangeDailyRewards * 365;
+    const fullRangeAnnualRewardsUSD = fullRangeAnnualRewards * kiltPrice;
+    const fullRangeAPR = (fullRangeAnnualRewardsUSD / earlyPositionValue) * 100;
     
-    // Calculate APR for mature participants (full program duration position in larger pool) - MODERATE APR
-    // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-    const longTermDays = programDuration; // Use full program duration
-    const longTermTimeBoost = 1 + ((longTermDays / programDuration) * this.B_TIME); // = 1.6 for full program duration
-    const longTermDailyRewards = matureLiquidityShare * longTermTimeBoost * inRangeMultiplier * this.FRB * dailyBudget;
-    const longTermAnnualRewards = longTermDailyRewards * 365;
-    const longTermAnnualRewardsUSD = longTermAnnualRewards * kiltPrice;
-    const longTermAPR = (longTermAnnualRewardsUSD / maturePositionValue) * 100;
+    // Calculate APR for concentrated positions (no FRB bonus)
+    // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * 1.0 * (R/P)
+    const concentratedDays = 30;
+    const concentratedTimeBoost = 1 + ((concentratedDays / programDuration) * this.B_TIME);
+    const concentratedDailyRewards = earlyLiquidityShare * concentratedTimeBoost * inRangeMultiplier * 1.0 * dailyBudget;
+    const concentratedAnnualRewards = concentratedDailyRewards * 365;
+    const concentratedAnnualRewardsUSD = concentratedAnnualRewards * kiltPrice;
+    const concentratedAPR = (concentratedAnnualRewardsUSD / earlyPositionValue) * 100;
     
 
     
     
     // Handle potential NaN values
-    const finalMinAPR = isNaN(shortTermAPR) ? 0 : Math.round(shortTermAPR * 100) / 100;
-    const finalMaxAPR = isNaN(longTermAPR) ? 0 : Math.round(longTermAPR * 100) / 100;
+    const finalFullRangeAPR = isNaN(fullRangeAPR) ? 0 : Math.round(fullRangeAPR * 100) / 100;
+    const finalConcentratedAPR = isNaN(concentratedAPR) ? 0 : Math.round(concentratedAPR * 100) / 100;
     
-    // Return attractive early participant APR as the primary value
-    const attractiveAPR = Math.round(finalMinAPR); // Use early participant APR (higher value)
+    // Return full range APR as the primary value (higher due to FRB bonus)
+    const attractiveAPR = Math.round(finalFullRangeAPR);
     
     return {
       maxAPR: attractiveAPR,
@@ -459,11 +497,13 @@ export class FixedRewardService {
       scenario: "Early participant opportunity",
       formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)",
       assumptions: [
-        `Typical position: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
-        `Time commitment: ${shortTermDays}+ days for maximum rewards`,
+        `Full range position: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
+        `Full Range Bonus: ${this.FRB}x (20% boost for balanced 50/50 liquidity)`,
+        `Concentrated positions: ${Math.round(finalConcentratedAPR)}% APR (no FRB bonus)`,
+        `Time commitment: ${fullRangeDays}+ days for maximum rewards`,
         "Always in-range (IRM = 1.0)",
         `Current KILT price ($${kiltPrice})`,
-        "High yields available for all participants",
+        "Encourages balanced liquidity provision",
         `Treasury allocation: ${totalAllocation.toLocaleString()} KILT over ${programDuration} days`,
         `Daily budget: ${dailyBudget.toFixed(2)} KILT (dynamically adjusted)`
       ]

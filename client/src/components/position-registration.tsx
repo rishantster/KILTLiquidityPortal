@@ -93,22 +93,28 @@ export function PositionRegistration() {
       if (!address) return { eligiblePositions: [], totalPositions: 0, message: '' };
       
       try {
-        // Fetch actual Uniswap V3 positions containing KILT token
-        const response = await fetch(`/api/positions/unregistered/${address}`);
+        // Fetch actual Uniswap V3 positions containing KILT token (using working endpoint)
+        const response = await fetch(`/api/positions/wallet/${address}`);
         if (!response.ok) {
           throw new Error('Failed to fetch positions');
         }
         
-        const data = await response.json();
+        const walletPositions = await response.json();
         
-        // Also get total positions to differentiate between "no positions" and "no unregistered positions"
-        const totalPositionsResponse = await fetch(`/api/positions/user-total/${address}`);
-        const totalPositions = totalPositionsResponse.ok ? (await totalPositionsResponse.json()).count : 0;
+        // Get already registered positions to filter them out
+        const registeredResponse = await fetch(`/api/positions/eligible/${address}`);
+        const registeredPositions = registeredResponse.ok ? await registeredResponse.json() : [];
+        const registeredNftIds = new Set(registeredPositions.map((p: any) => p.nftTokenId));
+        
+        // Filter out already registered positions
+        const eligiblePositions = walletPositions.filter((pos: any) => 
+          !registeredNftIds.has(pos.tokenId.toString())
+        );
         
         return {
-          eligiblePositions: data.eligiblePositions || [],
-          totalPositions,
-          message: data.message || ''
+          eligiblePositions,
+          totalPositions: walletPositions.length,
+          message: eligiblePositions.length > 0 ? `Found ${eligiblePositions.length} unregistered positions` : ''
         };
       } catch (error) {
         // Error fetching unregistered positions

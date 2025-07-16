@@ -30,6 +30,7 @@ import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
+import { blockchainConfigService } from "./blockchain-config-service";
 // Removed liquidityTypeDetector - consolidated into position registration
 // Removed reward calculation demo import
 // Removed treasuryService - consolidated into admin service
@@ -90,21 +91,28 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const userAddress = req.params.address;
       
-      // Get all positions for this user address from Uniswap V3
-      const userPositions = await storage.getUserPositions(userAddress);
+      // Get all positions for this user address from Uniswap V3 (using real blockchain data)
+      const userPositions = await uniswapIntegrationService.getUserPositions(userAddress);
       
       // Get already registered positions
       const registeredPositions = await storage.getRegisteredPositions(userAddress);
       const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId));
       
-      // Filter out already registered positions
-      const unregisteredPositions = userPositions.filter(pos => 
-        !registeredNftIds.has(pos.nftTokenId) && pos.isKiltPosition
-      );
+      // Get KILT token address from blockchain configuration
+      const blockchainConfig = await blockchainConfigService.getConfiguration();
+      const kiltTokenAddress = blockchainConfig.kiltTokenAddress;
+      
+      // Filter out already registered positions and only include KILT positions
+      const unregisteredPositions = userPositions.filter(pos => {
+        const isKiltPosition = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
+                              pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
+        return !registeredNftIds.has(pos.tokenId.toString()) && isKiltPosition;
+      });
       
       res.json(unregisteredPositions);
     } catch (error) {
       // Failed to fetch unregistered positions
+      console.error("Error fetching unregistered positions:", error);
       res.status(500).json({ error: "Failed to fetch unregistered positions" });
     }
   });
@@ -114,11 +122,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const userAddress = req.params.address;
       
-      // Get all positions for this user address from Uniswap V3
-      const userPositions = await storage.getUserPositions(userAddress);
+      // Get all positions for this user address from Uniswap V3 (using real blockchain data)
+      const userPositions = await uniswapIntegrationService.getUserPositions(userAddress);
+      
+      // Get KILT token address from blockchain configuration
+      const blockchainConfig = await blockchainConfigService.getConfiguration();
+      const kiltTokenAddress = blockchainConfig.kiltTokenAddress;
       
       // Count only KILT positions
-      const kiltPositions = userPositions.filter(pos => pos.isKiltPosition);
+      const kiltPositions = userPositions.filter(pos => {
+        const isKiltPosition = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
+                              pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
+        return isKiltPosition;
+      });
       
       res.json({ 
         count: kiltPositions.length,
@@ -127,6 +143,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
     } catch (error) {
       // Failed to fetch user position count
+      console.error("Error fetching user position count:", error);
       res.status(500).json({ error: "Failed to fetch user position count" });
     }
   });

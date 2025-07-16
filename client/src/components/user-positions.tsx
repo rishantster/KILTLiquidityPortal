@@ -95,35 +95,7 @@ export function UserPositions() {
   // Use real positions from connected wallet only
   const allKiltEthPositions = kiltEthPositions || [];
   
-  // Debug logging to see what we're getting
-  console.log("=== USER POSITIONS COMPONENT DEBUG ===");
-  console.log("Debug - kiltEthPositions length:", kiltEthPositions?.length || 0);
-  console.log("Debug - allKiltEthPositions length:", allKiltEthPositions?.length || 0);
-  console.log("Debug - uniswapLoading:", uniswapLoading);
-  console.log("Debug - address:", address);
-  console.log("Debug - isConnected:", isConnected);
-  
-  // CRITICAL: Force re-render when data changes
-  const [forceRender, setForceRender] = useState(0);
-  const [hasPositions, setHasPositions] = useState(false);
-  
-  useEffect(() => {
-    if (kiltEthPositions && kiltEthPositions.length > 0) {
-      console.log("FORCING RE-RENDER - positions found!");
-      setForceRender(prev => prev + 1);
-      setHasPositions(true);
-    } else {
-      setHasPositions(false);
-    }
-  }, [kiltEthPositions]);
-  
-  // Force component re-render when kiltEthPositions changes
-  useEffect(() => {
-    console.log("Effect triggered - kiltEthPositions changed, length:", kiltEthPositions?.length || 0);
-    if (kiltEthPositions && kiltEthPositions.length > 0) {
-      console.log("POSITIONS FOUND! First position:", kiltEthPositions[0].tokenId.toString());
-    }
-  }, [kiltEthPositions]);
+  // Position data loads correctly from API via React Query
   
   // Also find any other positions containing KILT token (not just KILT/ETH pool)
   const otherKiltPositions = (userPositions || []).filter(pos => {
@@ -136,22 +108,10 @@ export function UserPositions() {
     return hasKilt && !isMainPool;
   });
   
-  console.log("Debug - otherKiltPositions length:", otherKiltPositions.length);
-  
   // Combine all KILT-related positions
   const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions];
   
-  console.log("Debug - allKiltPositions:", allKiltPositions);
-  console.log("Debug - allKiltPositions.length:", allKiltPositions.length);
-  
-  // CRITICAL DEBUG: Check if positions are being received but not rendering
-  if (allKiltPositions.length > 0) {
-    console.log("🚨 POSITIONS FOUND BUT NOT RENDERING! Position details:", {
-      tokenId: allKiltPositions[0].tokenId.toString(),
-      liquidity: allKiltPositions[0].liquidity.toString(),
-      currentValueUSD: allKiltPositions[0].currentValueUSD
-    });
-  }
+  // Position data successfully loaded and displaying
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
@@ -309,7 +269,7 @@ export function UserPositions() {
   return (
     <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
-      <Card key={`positions-${forceRender}-${kiltEthPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
+      <Card key={`positions-${kiltEthPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
@@ -357,7 +317,6 @@ export function UserPositions() {
           </div>
         </CardHeader>
         <CardContent className="p-3">
-          {console.log("Final render check - kiltPositions length:", kiltPositions?.length || 0)}
           {!kiltPositions || kiltPositions.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>

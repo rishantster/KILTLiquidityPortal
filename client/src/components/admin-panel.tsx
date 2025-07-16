@@ -315,41 +315,32 @@ export function AdminPanel() {
 
   // Main Admin Panel UI
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Ultra-Modern Glassmorphism Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_120%_at_30%_-20%,rgba(16,185,129,0.2),rgba(255,255,255,0))]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_120%_at_70%_80%,rgba(56,189,248,0.15),rgba(255,255,255,0))]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,rgba(16,185,129,0.08),rgba(255,255,255,0))]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_20%_20%,rgba(236,72,153,0.1),rgba(255,255,255,0))]"></div>
-      </div>
-      
-      <div className="relative z-10 p-6">
-        <div className="max-w-6xl mx-auto space-y-6">
-          {/* Sleek Header */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="space-y-6">
+          {/* Clean Professional Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center p-2 flex-shrink-0">
+                <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                  KILT Admin Panel
-                </h1>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-white truncate">KILT Admin Panel</h1>
                 <p className="text-gray-400 text-sm">Treasury Management</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="px-3 py-1 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-lg">
+            
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-medium">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                  <span className="text-emerald-300 text-sm">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <span>{address?.slice(0, 6)}...{address?.slice(-4)}</span>
                 </div>
               </div>
               <Button 
                 variant="outline"
                 onClick={handleLogout}
-                className="bg-red-500/20 border-red-400/30 text-red-300 hover:bg-red-500/30 px-3 py-1 rounded-lg text-sm"
+                className="bg-red-500/20 border-red-400/30 text-red-300 hover:bg-red-500/30 px-3 py-1.5 rounded-full text-sm"
               >
                 <LogOut className="w-4 h-4 mr-1" />
                 Logout
@@ -363,9 +354,9 @@ export function AdminPanel() {
               <div className="animate-pulse text-emerald-400">Loading...</div>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-                <CardContent className="p-4 text-center">
+            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <DollarSign className="h-4 w-4 text-white" />
                   </div>
@@ -373,11 +364,9 @@ export function AdminPanel() {
                   <p className="text-white font-bold text-lg">
                     {((adminStats?.treasury?.programBudget || 500000) / 1000000).toFixed(1)}M KILT
                   </p>
-                </CardContent>
-              </Card>
+                </div>
 
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-                <CardContent className="p-4 text-center">
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
                   <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Timer className="h-4 w-4 text-white" />
                   </div>
@@ -385,85 +374,77 @@ export function AdminPanel() {
                   <p className="text-white font-bold text-lg">
                     {(adminStats?.treasury?.dailyRewardsCap || 5556).toFixed(0)} KILT
                   </p>
-                </CardContent>
-              </Card>
+                </div>
 
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-                <CardContent className="p-4 text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Calendar className="h-4 w-4 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1">Duration</p>
                   <p className="text-white font-bold text-lg">
                     {adminStats?.treasury?.programDuration || 90} days
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Compact Tab Navigation */}
+          {/* Clean Navigation Tabs */}
           <Tabs defaultValue="program-config" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl h-12 p-1 mb-6">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12 sm:h-14 gap-1">
               <TabsTrigger 
                 value="program-config" 
-                className="text-white data-[state=active]:bg-emerald-600/30 data-[state=active]:text-emerald-200 font-medium rounded-lg transition-all duration-200 px-3 py-2 flex items-center gap-2"
+                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center"
               >
-                <Settings className="w-4 h-4" />
-                <span className="text-sm">Program</span>
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5" />
+                <span className="text-xs sm:text-sm">Program</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="blockchain-config" 
-                className="text-white data-[state=active]:bg-blue-600/30 data-[state=active]:text-blue-200 font-medium rounded-lg transition-all duration-200 px-3 py-2 flex items-center gap-2"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center"
               >
-                <Database className="w-4 h-4" />
-                <span className="text-sm">Blockchain</span>
+                <Database className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5" />
+                <span className="text-xs sm:text-sm">Blockchain</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="history" 
-                className="text-white data-[state=active]:bg-emerald-600/30 data-[state=active]:text-emerald-200 font-medium rounded-lg transition-all duration-200 px-3 py-2 flex items-center gap-2"
+                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center"
               >
-                <History className="w-4 h-4" />
-                <span className="text-sm">History</span>
+                <History className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5" />
+                <span className="text-xs sm:text-sm">History</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Program Configuration Tab */}
-            <TabsContent value="program-config" className="space-y-4 mt-4">
+            <TabsContent value="program-config" className="space-y-4">
               {/* Current Formula Display */}
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Code2 className="w-4 h-4 text-emerald-400" />
-                    <span className="text-lg">Current Formula</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/20">
-                    <div className="font-mono text-emerald-300 text-sm mb-2">
-                      R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      b_time = {adminStats?.settings?.maxLiquidityBoost || 0.6} • IRM = {adminStats?.settings?.inRangeRequirement ? '1.0' : '0.0'} • FRB = 1.2x
+              <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <Code2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-white text-lg font-medium">Current Formula</span>
+                </div>
+                <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/20">
+                  <div className="font-mono text-emerald-300 text-sm mb-2">
+                    R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    b_time = {adminStats?.settings?.maxLiquidityBoost || 0.6} • IRM = {adminStats?.settings?.inRangeRequirement ? '1.0' : '0.0'} • FRB = 1.2x
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span className="text-white text-lg font-medium">Configuration</span>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-emerald-400" />
+                      <span className="text-emerald-200 text-sm">Treasury operations are secure and wallet-based.</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <span className="text-lg">Configuration</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-4">
-                  <Alert className="bg-emerald-400/10 border-emerald-400/30 rounded-lg">
-                    <Shield className="h-4 w-4 text-emerald-400" />
-                    <AlertDescription className="text-emerald-200 text-sm">
-                      Treasury operations are secure and wallet-based.
-                    </AlertDescription>
-                  </Alert>
 
                   {/* Treasury Configuration */}
                   <div className="space-y-3">
@@ -498,7 +479,7 @@ export function AdminPanel() {
                     <Button
                       onClick={handleTreasuryConfigUpdate}
                       disabled={treasuryConfigMutation.isPending}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 backdrop-blur-sm border border-emerald-400/30 transition-all duration-200 h-8 text-sm"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium h-8 text-sm rounded-lg transition-all duration-200"
                     >
                       {treasuryConfigMutation.isPending ? 'Updating...' : 'Update Treasury'}
                     </Button>
@@ -559,31 +540,29 @@ export function AdminPanel() {
                     <Button
                       onClick={handleSettingsUpdate}
                       disabled={settingsMutation.isPending}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 backdrop-blur-sm border border-emerald-400/30 transition-all duration-200 h-8 text-sm"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium h-8 text-sm rounded-lg transition-all duration-200"
                     >
                       {settingsMutation.isPending ? 'Updating...' : 'Update Settings'}
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </TabsContent>
 
             {/* Blockchain Configuration Tab */}
-            <TabsContent value="blockchain-config" className="space-y-4 mt-4">
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Database className="w-4 h-4 text-blue-400" />
-                    <span className="text-lg">Blockchain Configuration</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-4">
-                  <Alert className="bg-blue-400/10 border-blue-400/30 rounded-lg">
-                    <Activity className="h-4 w-4 text-blue-400" />
-                    <AlertDescription className="text-blue-200 text-sm">
-                      Network ID 8453 = Base Mainnet. Changes restart monitoring services.
-                    </AlertDescription>
-                  </Alert>
+            <TabsContent value="blockchain-config" className="space-y-4">
+              <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <Database className="w-4 h-4 text-blue-400" />
+                  <span className="text-white text-lg font-medium">Blockchain Configuration</span>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-blue-400/10 border border-blue-400/30 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-blue-400" />
+                      <span className="text-blue-200 text-sm">Network ID 8453 = Base Mainnet. Changes restart monitoring services.</span>
+                    </div>
+                  </div>
 
                   {/* Token Configuration */}
                   <div className="space-y-3">
@@ -716,24 +695,22 @@ export function AdminPanel() {
                   <Button
                     onClick={handleBlockchainConfigUpdate}
                     disabled={blockchainConfigMutation.isPending}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 backdrop-blur-sm border border-emerald-400/30 transition-all duration-200 h-8 text-sm"
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium h-8 text-sm rounded-lg transition-all duration-200"
                   >
                     {blockchainConfigMutation.isPending ? 'Updating...' : 'Update Blockchain'}
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </TabsContent>
 
             {/* Operation History Tab */}
-            <TabsContent value="history" className="space-y-4 mt-4">
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <History className="w-4 h-4 text-emerald-400" />
-                    <span className="text-lg">Operation History</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
+            <TabsContent value="history" className="space-y-4">
+              <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <History className="w-4 h-4 text-purple-400" />
+                  <span className="text-white text-lg font-medium">Operation History</span>
+                </div>
+                <div className="space-y-2">
                   <div className="space-y-2">
                     {adminStats?.operationHistory?.length > 0 ? (
                       adminStats.operationHistory.map((op, index) => (
@@ -765,8 +742,8 @@ export function AdminPanel() {
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

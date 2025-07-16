@@ -48,7 +48,7 @@ export function AdminDashboardSimple() {
       const authorized = AUTHORIZED_ADMIN_WALLETS.some(adminWallet => 
         adminWallet.toLowerCase() === address.toLowerCase()
       );
-      console.log('Admin wallet check:', { address, authorized, adminWallets: AUTHORIZED_ADMIN_WALLETS });
+      // Debug logging removed for production
       setIsAuthorized(authorized);
       if (!authorized) {
         setMessage("⚠️ Wallet not authorized for admin access");

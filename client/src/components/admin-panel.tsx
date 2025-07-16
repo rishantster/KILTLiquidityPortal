@@ -91,6 +91,8 @@ export default function AdminPanel() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+
+
   // Admin login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username?: string; password?: string; walletAddress?: string }) => {
@@ -207,6 +209,29 @@ export default function AdminPanel() {
       });
     }
   });
+
+  // Populate form with current treasury values when data is loaded
+  useEffect(() => {
+    if (treasuryStats?.treasury) {
+      setTreasuryForm({
+        programBudget: treasuryStats.treasury.programBudget?.toString() || '',
+        programDurationDays: treasuryStats.treasury.programDuration?.toString() || '',
+        treasuryWalletAddress: treasuryStats.treasury.address || ''
+      });
+    }
+  }, [treasuryStats]);
+
+  // Populate program form with current settings when data is loaded
+  useEffect(() => {
+    if (treasuryStats?.settings) {
+      setProgramForm({
+        timeBoostCoefficient: treasuryStats.settings.timeBoostCoefficient?.toString() || '',
+        fullRangeBonus: treasuryStats.settings.fullRangeBonus?.toString() || '',
+        minimumPositionValue: treasuryStats.settings.minimumPositionValue?.toString() || '',
+        lockPeriod: treasuryStats.settings.lockPeriod?.toString() || ''
+      });
+    }
+  }, [treasuryStats]);
 
   const handleLogin = () => {
     if (loginType === 'wallet' && address) {
@@ -353,7 +378,7 @@ export default function AdminPanel() {
           </TabsList>
 
           <TabsContent value="treasury" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-gray-300">Treasury Balance</CardTitle>
@@ -365,10 +390,19 @@ export default function AdminPanel() {
               
               <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
                 <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Program Budget</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{treasuryStats?.treasury?.programBudget?.toLocaleString() || '0'} KILT</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+                <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-gray-300">Daily Budget</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{treasuryStats?.programAnalytics?.dailyBudget?.toLocaleString() || '0'} KILT</div>
+                  <div className="text-2xl font-bold">{treasuryStats?.treasury?.dailyRewardsCap?.toLocaleString() || '0'} KILT</div>
                 </CardContent>
               </Card>
               
@@ -377,7 +411,7 @@ export default function AdminPanel() {
                   <CardTitle className="text-sm font-medium text-gray-300">Days Remaining</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{treasuryStats?.programAnalytics?.daysRemaining || 0}</div>
+                  <div className="text-2xl font-bold">{treasuryStats?.treasury?.programDuration || 0}</div>
                 </CardContent>
               </Card>
               
@@ -387,7 +421,7 @@ export default function AdminPanel() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-emerald-400">
-                    {treasuryStats?.programAnalytics?.isActive ? 'Active' : 'Inactive'}
+                    {treasuryStats?.treasury?.isActive ? 'Active' : 'Inactive'}
                   </div>
                 </CardContent>
               </Card>

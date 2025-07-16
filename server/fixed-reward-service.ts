@@ -449,33 +449,61 @@ export class FixedRewardService {
     const timeBoostCoeff = settings ? parseFloat(settings.liquidityWeight) : this.DEFAULT_B_TIME; // Admin-configured time boost
     const fullRangeBonusCoeff = settings ? parseFloat(settings.fullRangeBonus) : this.DEFAULT_FRB; // Admin-configured FRB
     
-    // High APR scenario for early participants (small pool, high rewards)
-    const earlyPoolSize = 100000; // $100K early pool
-    const earlyPositionValue = 500; // $500 early position
-    const earlyLiquidityShare = earlyPositionValue / earlyPoolSize; // 0.5% of pool
+    // Get REAL pool data from blockchain instead of assumptions
+    let currentPoolTVL = 0;
+    let averagePositionValue = 0;
+    let actualLiquidityShare = 0;
     
-    // Moderate APR scenario for later participants (larger pool)
-    const maturePoolSize = 800000; // $800K mature pool
-    const maturePositionValue = 2000; // $2000 mature position
-    const matureLiquidityShare = maturePositionValue / maturePoolSize; // 0.25% of pool
+    try {
+      // Get actual pool TVL from Uniswap V3 integration
+      const { uniswapIntegrationService } = await import('./uniswap-integration-service');
+      const { blockchainConfigService } = await import('./blockchain-config-service');
+      
+      const poolAddress = await blockchainConfigService.getPoolAddress();
+      const poolInfo = await uniswapIntegrationService.getPoolInfo(poolAddress);
+      currentPoolTVL = poolInfo.tvlUSD || 0;
+      
+      // Get actual position data from database
+      const activePositions = await this.getAllActiveParticipants();
+      if (activePositions.length > 0) {
+        const totalPositionValue = activePositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUSD || '0'), 0);
+        averagePositionValue = totalPositionValue / activePositions.length;
+        actualLiquidityShare = averagePositionValue / currentPoolTVL;
+      }
+    } catch (error) {
+      console.error('Error getting real pool data:', error);
+    }
     
-    // Calculate APR for full range positions (gets FRB bonus)
+    // Use real data if available, otherwise use realistic scenarios for estimation
+    const poolTVL = currentPoolTVL > 0 ? currentPoolTVL : 100000; // Fallback to $100K early stage
+    const typicalPositionValue = averagePositionValue > 0 ? averagePositionValue : 500; // Fallback to $500
+    const liquidityShare = actualLiquidityShare > 0 ? actualLiquidityShare : (typicalPositionValue / poolTVL);
+    
+    console.log('APR Calculation Data Sources:', {
+      currentPoolTVL,
+      averagePositionValue,
+      actualLiquidityShare,
+      usingRealData: currentPoolTVL > 0 && averagePositionValue > 0,
+      fallbackUsed: currentPoolTVL === 0 || averagePositionValue === 0
+    });
+    
+    // Calculate APR for full range positions using REAL data (gets FRB bonus)
     // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const fullRangeDays = 30;
     const fullRangeTimeBoost = 1 + ((fullRangeDays / programDuration) * timeBoostCoeff);
-    const fullRangeDailyRewards = earlyLiquidityShare * fullRangeTimeBoost * inRangeMultiplier * fullRangeBonusCoeff * dailyBudget;
+    const fullRangeDailyRewards = liquidityShare * fullRangeTimeBoost * inRangeMultiplier * fullRangeBonusCoeff * dailyBudget;
     const fullRangeAnnualRewards = fullRangeDailyRewards * 365;
     const fullRangeAnnualRewardsUSD = fullRangeAnnualRewards * kiltPrice;
-    const fullRangeAPR = (fullRangeAnnualRewardsUSD / earlyPositionValue) * 100;
+    const fullRangeAPR = (fullRangeAnnualRewardsUSD / typicalPositionValue) * 100;
     
-    // Calculate APR for concentrated positions (no FRB bonus)
+    // Calculate APR for concentrated positions using REAL data (no FRB bonus)
     // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * 1.0 * (R/P)
     const concentratedDays = 30;
     const concentratedTimeBoost = 1 + ((concentratedDays / programDuration) * timeBoostCoeff);
-    const concentratedDailyRewards = earlyLiquidityShare * concentratedTimeBoost * inRangeMultiplier * 1.0 * dailyBudget;
+    const concentratedDailyRewards = liquidityShare * concentratedTimeBoost * inRangeMultiplier * 1.0 * dailyBudget;
     const concentratedAnnualRewards = concentratedDailyRewards * 365;
     const concentratedAnnualRewardsUSD = concentratedAnnualRewards * kiltPrice;
-    const concentratedAPR = (concentratedAnnualRewardsUSD / earlyPositionValue) * 100;
+    const concentratedAPR = (concentratedAnnualRewardsUSD / typicalPositionValue) * 100;
     
 
     
@@ -494,7 +522,8 @@ export class FixedRewardService {
       scenario: "Early participant opportunity",
       formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)",
       assumptions: [
-        `Full range position: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
+        `Position: $${typicalPositionValue.toLocaleString()} in $${poolTVL.toLocaleString()} pool (${(liquidityShare * 100).toFixed(1)}% share)`,
+        `Data Source: ${currentPoolTVL > 0 ? 'Real Uniswap V3 pool data' : 'Estimated early stage scenario'}`,
         `Full Range Bonus: ${fullRangeBonusCoeff}x (${Math.round((fullRangeBonusCoeff - 1) * 100)}% boost for balanced 50/50 liquidity)`,
         `Concentrated positions: ${Math.round(finalConcentratedAPR)}% APR (no FRB bonus)`,
         `Time commitment: ${fullRangeDays}+ days for maximum rewards`,

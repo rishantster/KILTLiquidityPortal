@@ -104,9 +104,9 @@ export function useUnifiedDashboard() {
         return { minAPR: 47, maxAPR: 47, aprRange: "47%" };
       }
     },
-    enabled: !!address && isConnected,
-    refetchInterval: 60000,
-    staleTime: 30000
+    refetchInterval: 10000, // Refresh every 10 seconds for admin changes
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true // Refetch when window gains focus
   });
 
   // Get program analytics with proper error handling
@@ -152,9 +152,10 @@ export function useUnifiedDashboard() {
         };
       }
     },
-    enabled: !!address && isConnected && !!maxAPRData,
-    refetchInterval: 60000, // Reduce frequency to improve performance
-    staleTime: 30000 // Cache for 30 seconds
+    enabled: !!maxAPRData,
+    refetchInterval: 10000, // Refresh every 10 seconds for admin changes
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true // Refetch when window gains focus
   });
 
   // Get user analytics dashboard

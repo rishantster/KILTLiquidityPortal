@@ -126,7 +126,9 @@ export default function AdminPanel() {
   const { data: treasuryStats, isLoading: statsLoading } = useQuery<AdminTreasuryStats>({
     queryKey: ['/api/admin/dashboard'],
     enabled: isAuthenticated && !!adminToken,
-    refetchInterval: 30000,
+    refetchInterval: 5000, // Check every 5 seconds for admin changes
+    staleTime: 0, // Always consider stale to force fresh data
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const response = await fetch('/api/admin/dashboard', {
         headers: { Authorization: `Bearer ${adminToken}` }
@@ -140,7 +142,9 @@ export default function AdminPanel() {
   const { data: unifiedAPR, isLoading: aprLoading } = useQuery({
     queryKey: ['/api/rewards/maximum-apr'],
     enabled: isAuthenticated && !!adminToken,
-    refetchInterval: 30000,
+    refetchInterval: 5000, // Check every 5 seconds for admin changes
+    staleTime: 0, // Always consider stale to force fresh data
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const response = await fetch('/api/rewards/maximum-apr');
       if (!response.ok) throw new Error('Failed to fetch APR calculations');
@@ -164,7 +168,12 @@ export default function AdminPanel() {
       return data;
     },
     onSuccess: () => {
+      // Invalidate all relevant caches to force refresh
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['maxAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['programAnalytics'] });
+      queryClient.invalidateQueries({ queryKey: ['personalAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['rewardStats'] });
       toast({
         title: "Treasury Updated",
         description: "Treasury configuration updated successfully",
@@ -195,7 +204,12 @@ export default function AdminPanel() {
       return data;
     },
     onSuccess: () => {
+      // Invalidate all relevant caches to force refresh
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['maxAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['programAnalytics'] });
+      queryClient.invalidateQueries({ queryKey: ['personalAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['rewardStats'] });
       toast({
         title: "Program Updated",
         description: "Program settings updated successfully",
@@ -608,36 +622,7 @@ export default function AdminPanel() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="blockchain" className="space-y-6">
-            <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
-              <CardHeader>
-                <CardTitle>Blockchain Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <Label htmlFor="kiltToken">KILT Token Address</Label>
-                    <Input
-                      id="kiltToken"
-                      placeholder="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
-                      className="bg-white/5 border-gray-800/30"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="poolAddress">KILT/ETH Pool Address</Label>
-                    <Input
-                      id="poolAddress"
-                      placeholder="Pool address"
-                      className="bg-white/5 border-gray-800/30"
-                    />
-                  </div>
-                </div>
-                <Button className="w-full">
-                  Update Blockchain Configuration
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
+
 
           <TabsContent value="blockchain" className="space-y-6">
             <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">

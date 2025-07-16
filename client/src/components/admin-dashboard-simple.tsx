@@ -25,6 +25,13 @@ interface AdminConfig {
   lockPeriod: number;
 }
 
+interface BlockchainConfig {
+  kiltTokenAddress: string;
+  poolAddress: string;
+  treasuryWalletAddress: string;
+  networkId: number;
+}
+
 export function AdminDashboardSimple() {
   const { address, isConnected } = useWallet();
   const [config, setConfig] = useState<AdminConfig>({
@@ -37,10 +44,18 @@ export function AdminDashboardSimple() {
     minPositionValue: 10,
     lockPeriod: 7
   });
+
+  const [blockchainConfig, setBlockchainConfig] = useState<BlockchainConfig>({
+    kiltTokenAddress: "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8",
+    poolAddress: "0xB578b4c5539FD22D7a0E6682Ab645c623Bae9dEb",
+    treasuryWalletAddress: "0x0000000000000000000000000000000000000000",
+    networkId: 8453
+  });
   
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("treasury");
 
   // Check if wallet is authorized and load config
   useEffect(() => {
@@ -75,6 +90,16 @@ export function AdminDashboardSimple() {
           minPositionValue: parseFloat(data.settings.minimumPositionValue) || 10,
           lockPeriod: data.settings.lockPeriod || 7
         });
+
+        // Load blockchain configuration if available
+        if (data.blockchain) {
+          setBlockchainConfig({
+            kiltTokenAddress: data.blockchain.kiltTokenAddress || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8",
+            poolAddress: data.blockchain.poolAddress || "0xB578b4c5539FD22D7a0E6682Ab645c623Bae9dEb",
+            treasuryWalletAddress: data.treasury.treasuryWalletAddress || "0x0000000000000000000000000000000000000000",
+            networkId: data.blockchain.networkId || 8453
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to load admin config:', error);
@@ -228,8 +253,30 @@ export function AdminDashboardSimple() {
           </Alert>
         )}
 
-        {/* Main Configuration Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Navigation Tabs */}
+        <div className="flex gap-2 mb-6">
+          <Button
+            variant={activeTab === "treasury" ? "default" : "outline"}
+            onClick={() => setActiveTab("treasury")}
+            className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30"
+          >
+            <DollarSign className="w-4 h-4 mr-2" />
+            Treasury
+          </Button>
+          <Button
+            variant={activeTab === "blockchain" ? "default" : "outline"}
+            onClick={() => setActiveTab("blockchain")}
+            className="bg-blue-500/20 border-blue-500/30 text-blue-300 hover:bg-blue-500/30"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Blockchain
+          </Button>
+        </div>
+
+        {/* Main Configuration */}
+        <div className="space-y-6">
+          {activeTab === "treasury" && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Treasury Configuration */}
           <Card className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border-gray-800/30">

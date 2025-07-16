@@ -152,4 +152,26 @@ router.post('/settings', async (req, res) => {
   }
 });
 
+// Blockchain Configuration API
+router.post('/blockchain', async (req, res) => {
+  try {
+    const { kiltTokenAddress, poolAddress, networkId, isActive } = req.body;
+    
+    // Update blockchain configuration
+    const { blockchainConfigService } = await import('./blockchain-config-service');
+    
+    await blockchainConfigService.updateTokenPoolConfig({
+      kiltTokenAddress,
+      poolAddress,
+      networkId,
+      isActive: isActive || true
+    });
+    
+    res.json({ success: true, message: 'Blockchain configuration updated successfully' });
+  } catch (error) {
+    console.error('Error updating blockchain configuration:', error);
+    res.status(500).json({ error: 'Failed to update blockchain configuration' });
+  }
+});
+
 export { router as adminSimpleRouter };

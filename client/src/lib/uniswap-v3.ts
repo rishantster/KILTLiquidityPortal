@@ -246,7 +246,7 @@ export class UniswapV3Service {
           positions.push(position);
         }
       } catch (error) {
-        console.error('Error fetching position:', tokenId.toString(), error);
+        // Error fetching position
       }
     }
 

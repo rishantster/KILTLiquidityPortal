@@ -61,7 +61,7 @@ export function useGasEstimation(ethPrice: number = 2500) {
         setGasPrice(currentGasPrice);
         setError(null);
       } catch (err) {
-        console.error('Failed to fetch gas price:', err);
+        // Failed to fetch gas price
         setError('Failed to fetch gas price');
         // Fallback to reasonable Base network gas price (0.001 gwei)
         setGasPrice(1000000n);
@@ -134,7 +134,7 @@ export function useGasEstimation(ethPrice: number = 2500) {
 
       return calculateGasEstimation(gasLimit);
     } catch (err) {
-      console.error('Failed to estimate gas:', err);
+      // Failed to estimate gas
       return {
         gasPrice,
         gasLimit: 0n,

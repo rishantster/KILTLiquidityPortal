@@ -44,6 +44,44 @@ export interface AdminOperationResult {
   error?: string;
 }
 
+export interface AdminOperationHistoryItem {
+  id: number;
+  operationType: string;
+  operationDetails: string;
+  amount?: number;
+  reason: string;
+  performedBy: string;
+  transactionHash?: string;
+  success: boolean;
+  timestamp: Date;
+}
+
+export interface AdminTreasuryStats {
+  totalLiquidity: number;
+  activeParticipants: number;
+  treasuryBalance: number;
+  programDuration: number;
+  dailyRewardsCap: number;
+  estimatedAPR: { low: number; average: number; high: number };
+}
+
+export interface AdminOperationLog {
+  operationType: string;
+  operationDetails: string;
+  amount?: number;
+  reason: string;
+  performedBy: string;
+  transactionHash?: string;
+  success: boolean;
+}
+
+export interface TopPerformingPosition {
+  positionId: number;
+  annualizedReturn: number;
+  nftTokenId: string;
+  totalValueUSD: number;
+}
+
 export class AdminService {
   private provider: ethers.JsonRpcProvider;
   private readonly KILT_TOKEN_ABI = [
@@ -139,7 +177,7 @@ export class AdminService {
       return {
         success: false,
         message: 'Failed to update treasury configuration',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error'
       };
     }
   }
@@ -266,13 +304,13 @@ export class AdminService {
         reason: 'Failed to update program settings',
         performedBy,
         success: false,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+        errorMessage: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error'
       });
 
       return {
         success: false,
         message: 'Failed to update program settings',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error'
       };
     }
   }
@@ -353,7 +391,7 @@ export class AdminService {
   /**
    * Get admin operation history
    */
-  async getOperationHistory(limit: number = 50): Promise<any[]> {
+  async getOperationHistory(limit: number = 50): Promise<AdminOperationHistoryItem[]> {
     try {
       const result = await db.select().from(adminOperations)
         .orderBy(adminOperations.timestamp)
@@ -368,7 +406,7 @@ export class AdminService {
   /**
    * Get treasury statistics for admin using unified APR service and real-time KILT price
    */
-  async getAdminTreasuryStats(): Promise<any> {
+  async getAdminTreasuryStats(): Promise<AdminTreasuryStats> {
     try {
       const treasuryBalance = await this.getTreasuryBalance();
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
@@ -444,7 +482,7 @@ export class AdminService {
   /**
    * Log admin operations for audit trail
    */
-  private async logAdminOperation(operation: any): Promise<void> {
+  private async logAdminOperation(operation: AdminOperationLog): Promise<void> {
     try {
       await db.insert(adminOperations).values({
         operationType: operation.operationType,

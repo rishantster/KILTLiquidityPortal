@@ -32,7 +32,7 @@ export function useAppSession() {
   // Create app session for transaction tracking
   const createAppSession = useCallback(async (userId: number): Promise<string | null> => {
     if (!address || !isConnected) {
-      console.error('Cannot create app session: wallet not connected');
+      // Cannot create app session: wallet not connected
       return null;
     }
 
@@ -59,7 +59,7 @@ export function useAppSession() {
 
       return null;
     } catch (error) {
-      console.error('Failed to create app session:', error);
+      // Failed to create app session
       toast({
         title: 'Session Creation Failed',
         description: 'Failed to create secure app session. Please try again.',
@@ -87,7 +87,7 @@ export function useAppSession() {
     blockNumber?: number;
   }): Promise<TransactionRecordData | null> => {
     if (!sessionId || isSessionExpired()) {
-      console.error('Cannot record transaction: no valid session');
+      // Cannot record transaction: no valid session
       toast({
         title: 'Session Expired',
         description: 'Please reconnect your wallet to continue.',
@@ -110,10 +110,10 @@ export function useAppSession() {
         return response;
       }
 
-      console.error('Failed to record transaction:', response);
+      // Failed to record transaction
       return null;
     } catch (error) {
-      console.error('Error recording transaction:', error);
+      // Error recording transaction
       toast({
         title: 'Transaction Recording Failed',
         description: 'Failed to record transaction for rewards. Position may not be eligible.',

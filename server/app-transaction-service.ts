@@ -30,6 +30,14 @@ export interface SessionData {
   isActive: boolean;
 }
 
+export interface BlockchainVerificationData {
+  blockNumber: number;
+  gasUsed: number;
+  gasPrice: string;
+  transactionHash: string;
+  status: 'success' | 'failed';
+}
+
 export class AppTransactionService {
   private readonly APP_VERSION = "1.0.0";
   private readonly SESSION_DURATION_HOURS = 24;
@@ -139,16 +147,16 @@ export class AppTransactionService {
       
       return { success: true, transactionId: appTransaction.id };
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to record app transaction
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error' };
     }
   }
 
   /**
    * Verify transaction on blockchain and update status
    */
-  async verifyTransaction(transactionId: number, blockchainData: any): Promise<boolean> {
+  async verifyTransaction(transactionId: number, blockchainData: BlockchainVerificationData): Promise<boolean> {
     try {
       const [transaction] = await db
         .select()
@@ -174,7 +182,7 @@ export class AppTransactionService {
       
       return true;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to verify transaction
       return false;
     }
@@ -216,7 +224,7 @@ export class AppTransactionService {
       
       return true;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to create position eligibility
       return false;
     }
@@ -240,7 +248,7 @@ export class AppTransactionService {
       
       return !!eligibility;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to check position eligibility
       return false;
     }
@@ -259,7 +267,7 @@ export class AppTransactionService {
       
       return transactions;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to get user app transactions
       return [];
     }
@@ -288,7 +296,7 @@ export class AppTransactionService {
       
       return positions;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to get user eligible positions
       return [];
     }

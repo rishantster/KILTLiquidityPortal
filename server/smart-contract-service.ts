@@ -172,11 +172,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to add liquidity position to contract
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }
@@ -207,11 +207,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to remove liquidity position from contract
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }
@@ -244,11 +244,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to update liquidity value in contract
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }
@@ -272,11 +272,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to distribute daily rewards
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }
@@ -321,11 +321,11 @@ export class SmartContractService {
         recipient: userAddress,
         gasUsed: receipt.gasUsed ? Number(receipt.gasUsed) : undefined
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to process reward claim
       return {
         success: false,
-        error: error.message || 'Claim transaction failed',
+        error: error instanceof Error ? error.message : String(error) || 'Claim transaction failed',
         amount: 0,
         recipient: userAddress
       };
@@ -343,7 +343,7 @@ export class SmartContractService {
     try {
       const claimableAmount = await this.rewardPoolContract.getClaimableRewards(userAddress);
       return Number(ethers.formatEther(claimableAmount));
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to get claimable rewards
       return 0;
     }
@@ -360,7 +360,7 @@ export class SmartContractService {
     try {
       const pendingAmount = await this.rewardPoolContract.getPendingRewards(userAddress);
       return Number(ethers.formatEther(pendingAmount));
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to get pending rewards
       return 0;
     }
@@ -406,7 +406,7 @@ export class SmartContractService {
           rewardWalletBalance: Number(ethers.formatEther(programInfo[6]))
         }
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to get smart contract stats
       return {
         totalActiveLiquidity: 0,
@@ -452,11 +452,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to update program config
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }
@@ -480,11 +480,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to update reward wallet
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }
@@ -500,7 +500,7 @@ export class SmartContractService {
     try {
       const balance = await this.kiltTokenContract.balanceOf(address);
       return Number(ethers.formatEther(balance));
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to get KILT token balance
       return 0;
     }
@@ -519,7 +519,7 @@ export class SmartContractService {
       const sufficient = balance >= 100000; // Consider sufficient if >= 100k KILT
       
       return { balance, sufficient };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to check reward wallet balance
       return { balance: 0, sufficient: false };
     }
@@ -573,7 +573,7 @@ export class SmartContractService {
         lockPeriod: 7,
         isActive: true
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to get program info
       return {
         startTime: Math.floor(Date.now() / 1000),
@@ -610,11 +610,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to pause contract
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }
@@ -638,11 +638,11 @@ export class SmartContractService {
         success: true,
         transactionHash: receipt.hash
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Failed to unpause contract
       return {
         success: false,
-        error: error.message || 'Transaction failed'
+        error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
       };
     }
   }

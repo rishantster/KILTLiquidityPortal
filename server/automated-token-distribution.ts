@@ -87,7 +87,7 @@ export class AutomatedTokenDistribution {
           // Error processing reward
           results.push({
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error',
             amount: Number(reward.dailyRewardAmount),
             recipient: reward.userAddress || 'unknown'
           });
@@ -131,7 +131,7 @@ export class AutomatedTokenDistribution {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error',
         amount: Number(reward.dailyRewardAmount),
         recipient: reward.userAddress || 'unknown'
       };
@@ -212,7 +212,7 @@ export class AutomatedTokenDistribution {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error',
         amount: amount,
         recipient: recipientAddress
       };

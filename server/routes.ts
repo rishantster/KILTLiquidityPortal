@@ -1889,7 +1889,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Blockchain configuration routes
   app.use("/api/blockchain", blockchainConfigRouter);
 
-  // Admin simple routes (deprecated - use main /api/admin/dashboard endpoint)
+  // Admin simple routes (legacy support)
   // app.use("/api/admin-simple", adminSimpleRouter);
 
   // System health and debugging routes

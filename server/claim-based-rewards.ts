@@ -251,7 +251,7 @@ export class ClaimBasedRewards {
       // Error processing claim request
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Unknown error',
         amount: 0,
         recipient: userAddress,
         lockExpired: false

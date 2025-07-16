@@ -111,7 +111,7 @@ export function PositionRegistration() {
           message: data.message || ''
         };
       } catch (error) {
-        console.error('Error fetching unregistered positions:', error);
+        // Error fetching unregistered positions
         return { eligiblePositions: [], totalPositions: 0, message: '' };
       }
     },

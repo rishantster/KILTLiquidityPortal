@@ -175,7 +175,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             description: "Automatically switched to Base mainnet for KILT operations.",
           });
         } catch (error) {
-          console.error('Failed to switch to Base mainnet:', error);
+          // Failed to switch to Base mainnet
           toast({
             title: "Network Error",
             description: "Please manually switch to Base mainnet in your wallet.",

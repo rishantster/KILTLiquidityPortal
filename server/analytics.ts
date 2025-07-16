@@ -21,7 +21,7 @@ import {
 
 // Analytics service for tracking and calculating advanced metrics
 export class AnalyticsService {
-  constructor(private db: any) {}
+  constructor(private db: any) {} // Database interface with Drizzle ORM
 
   // Position Analytics
   async createPositionSnapshot(data: InsertPositionSnapshot): Promise<PositionSnapshot> {
@@ -304,7 +304,7 @@ export class AnalyticsService {
     return userStats;
   }
 
-  async getTopPerformingPositions(userId: number, limit = 5): Promise<any[]> {
+  async getTopPerformingPositions(userId: number, limit = 5): Promise<TopPerformingPosition[]> {
     const result = await this.db
       .select({
         positionId: performanceMetrics.positionId,

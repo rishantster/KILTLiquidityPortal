@@ -126,14 +126,7 @@ class UnifiedAPRService {
       
       // Daily reward per position using exact formula
       // dailyBudget is in KILT tokens, need to convert to USD for APR calculation
-      let kiltPrice = 0.01602; // Fallback price
-      try {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
-        const data = await response.json();
-        kiltPrice = data['kilt-protocol']?.usd || 0.01602;
-      } catch (error) {
-        console.error('Error fetching KILT price from CoinGecko:', error);
-      }
+      const kiltPrice = await import('./kilt-price-service.js').then(m => m.kiltPriceService.getCurrentPrice());
       
       const dailyRewardBudgetUSD = dailyBudget * kiltPrice; // Convert KILT to USD
       const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardBudgetUSD;
@@ -179,14 +172,7 @@ class UnifiedAPRService {
       console.error('Error in unified APR calculation:', error);
       
       // Return consistent fallback values with real KILT price
-      let fallbackKiltPrice = 0.01602;
-      try {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
-        const data = await response.json();
-        fallbackKiltPrice = data['kilt-protocol']?.usd || 0.01602;
-      } catch (error) {
-        console.error('Error fetching KILT price for fallback:', error);
-      }
+      const fallbackKiltPrice = await import('./kilt-price-service.js').then(m => m.kiltPriceService.getCurrentPrice());
       
       const fallbackResult = {
         minAPR: 31,

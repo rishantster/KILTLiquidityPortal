@@ -2,9 +2,14 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
+import { kiltPriceService } from "./kilt-price-service.js";
 
 // Validate environment variables first
 validateEnvironment();
+
+// Initialize KILT price service for background price fetching
+console.log('🚀 Starting KILT price service...');
+kiltPriceService; // This will start the background price fetching
 
 const app = express();
 

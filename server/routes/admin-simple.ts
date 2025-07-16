@@ -60,14 +60,8 @@ router.get('/config', async (req, res) => {
       const maxTimeBoost = 1 + maxTimeProgression;
       
       // dailyBudget is in KILT tokens, need to convert to USD for APR calculation
-      let kiltPrice = 0.01602; // Fallback price
-      try {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
-        const data = await response.json();
-        kiltPrice = data['kilt-protocol']?.usd || 0.01602;
-      } catch (error) {
-        console.error('Error fetching KILT price from CoinGecko:', error);
-      }
+      const { kiltPriceService } = await import('../kilt-price-service.js');
+      const kiltPrice = kiltPriceService.getCurrentPrice();
       
       const dailyBudgetUSD = dailyBudget * kiltPrice; // Convert KILT to USD
       const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyBudgetUSD;
@@ -123,6 +117,18 @@ router.post('/clear-cache', async (req, res) => {
   } catch (error) {
     console.error('Error clearing cache:', error);
     res.status(500).json({ error: 'Failed to clear cache' });
+  }
+});
+
+// Get current KILT price info
+router.get('/kilt-price', async (req, res) => {
+  try {
+    const { kiltPriceService } = await import('../kilt-price-service.js');
+    const priceInfo = kiltPriceService.getPriceInfo();
+    res.json(priceInfo);
+  } catch (error) {
+    console.error('Error getting KILT price info:', error);
+    res.status(500).json({ error: 'Failed to get KILT price info' });
   }
 });
 

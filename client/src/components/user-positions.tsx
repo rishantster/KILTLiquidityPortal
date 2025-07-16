@@ -69,7 +69,7 @@ export function UserPositions() {
   // Uniswap V3 Integration
   const {
     userPositions,
-    kiltEthPositions: realKiltEthPositions,
+    kiltEthPositions,
     poolData,
     kiltBalance,
     wethBalance,
@@ -93,7 +93,7 @@ export function UserPositions() {
     typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
   // Use real positions from connected wallet only
-  const allKiltEthPositions = realKiltEthPositions || [];
+  const allKiltEthPositions = kiltEthPositions || [];
   
   // Also find any other positions containing KILT token (not just KILT/ETH pool)
   const otherKiltPositions = (userPositions || []).filter(pos => {

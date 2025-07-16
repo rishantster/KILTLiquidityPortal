@@ -614,7 +614,7 @@ export function AdminPanel() {
                         </h4>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <Label htmlFor="maxLiquidityBoost" className="text-white text-xs">b_time (Time boost factor)</Label>
+                            <Label htmlFor="maxLiquidityBoost" className="text-white text-xs">Time Boost Factor</Label>
                             <Input
                               id="maxLiquidityBoost"
                               type="number"

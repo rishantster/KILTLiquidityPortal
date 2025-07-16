@@ -1833,6 +1833,21 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Admin logout
+  app.post("/api/admin/logout", requireAdminAuth, async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (token) {
+        const { adminSessions } = await import('./admin-auth.js');
+        adminSessions.delete(token);
+      }
+      res.json({ success: true, message: 'Logged out successfully' });
+    } catch (error) {
+      console.error('Admin logout error:', error);
+      res.status(500).json({ error: 'Logout failed' });
+    }
+  });
+
   // Treasury operations moved to admin dashboard interface
 
   // Transfer tokens between addresses

@@ -45,13 +45,17 @@ class UnifiedAPRService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const [settingsConf] = await db.select().from(programSettings).limit(1);
 
-      // Use admin configuration as primary source
-      const treasuryAllocation = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 500000;
-      const programDuration = treasuryConf ? treasuryConf.programDurationDays : 90;
-      const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 5555.56;
+      // Use admin configuration as primary source with correct column names
+      const treasuryAllocation = treasuryConf ? parseFloat(treasuryConf.total_allocation) : 500000;
+      const programDuration = treasuryConf ? treasuryConf.program_duration_days : 90;
+      const dailyBudget = treasuryConf ? parseFloat(treasuryConf.daily_rewards_cap) : 5555.56;
       const timeBoost = settingsConf ? parseFloat(settingsConf.timeBoostCoefficient) : 0.6;
       const fullRangeBonus = settingsConf ? parseFloat(settingsConf.fullRangeBonus) : 1.2;
 
+      // Get REAL-TIME KILT price from kiltPriceService
+      const { kiltPriceService } = await import('./kilt-price-service.js');
+      const kiltPrice = kiltPriceService.getCurrentPrice();
+      
       // Get REAL Uniswap pool data instead of assumptions
       let poolTVL = 100000; // Default fallback
       let actualPositionValue = 500; // Default fallback
@@ -126,7 +130,7 @@ class UnifiedAPRService {
       
       // Daily reward per position using exact formula
       // dailyBudget is in KILT tokens, need to convert to USD for APR calculation
-      const kiltPrice = await import('./kilt-price-service.js').then(m => m.kiltPriceService.getCurrentPrice());
+      // (kiltPrice already declared above)
       
       const dailyRewardBudgetUSD = dailyBudget * kiltPrice; // Convert KILT to USD
       const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardBudgetUSD;

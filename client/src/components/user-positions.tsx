@@ -102,7 +102,7 @@ export function UserPositions() {
     const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"; // Retrieved from blockchain config
     const hasKilt = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
                    pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
-    const isMainPool = pos.poolAddress?.toLowerCase() === pos.poolAddress?.toLowerCase(); // Pool detection now via API
+    const isMainPool = pos.poolAddress?.toLowerCase() === poolData?.poolAddress?.toLowerCase(); // Pool detection now via API
     return hasKilt && !isMainPool;
   });
   

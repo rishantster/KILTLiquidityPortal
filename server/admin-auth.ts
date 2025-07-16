@@ -12,7 +12,7 @@ const ADMIN_WALLET_ADDRESSES = [
 ];
 
 // Simple session storage (in memory for development - persistent across server restarts)
-const adminSessions = new Map<string, { identifier: string; type: 'wallet' | 'credentials'; expires: number }>();
+export const adminSessions = new Map<string, { identifier: string; type: 'wallet' | 'credentials'; expires: number }>();
 
 // Initialize with a default session for development
 const defaultToken = createHash('sha256').update('admin-default-token').digest('hex');
@@ -20,6 +20,14 @@ adminSessions.set(defaultToken, {
   identifier: 'admin', 
   type: 'credentials', 
   expires: Date.now() + (365 * 24 * 60 * 60 * 1000) // 1 year for development
+});
+
+// Also add a long-lived session for the main admin wallet
+const adminWalletToken = createHash('sha256').update('admin-wallet-token-' + Date.now()).digest('hex');
+adminSessions.set(adminWalletToken, { 
+  identifier: '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e', 
+  type: 'wallet', 
+  expires: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
 });
 
 export function generateAdminToken(): string {
@@ -39,7 +47,7 @@ export function validateAdminWallet(walletAddress: string): boolean {
 
 export function createAdminSession(identifier: string, type: 'wallet' | 'credentials'): string {
   const token = generateAdminToken();
-  const expires = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+  const expires = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days for better user experience
   
   adminSessions.set(token, { identifier, type, expires });
   return token;

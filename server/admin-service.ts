@@ -366,7 +366,7 @@ export class AdminService {
   }
 
   /**
-   * Get treasury statistics for admin
+   * Get treasury statistics for admin using unified APR service and real-time KILT price
    */
   async getAdminTreasuryStats(): Promise<any> {
     try {
@@ -374,11 +374,18 @@ export class AdminService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const programSettings = await this.getCurrentProgramSettings();
       
-      // Admin controls the treasury configuration - this is the authoritative source
-      const programBudget = treasuryConf ? parseFloat(treasuryConf.total_allocation) : 2905600;
-      const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.daily_rewards_cap) : 7960;
+      // Use actual database values with correct column names
+      const programBudget = treasuryConf ? parseFloat(treasuryConf.total_allocation) : 750000;
+      const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.daily_rewards_cap) : 6250;
+      const programDuration = treasuryConf ? treasuryConf.program_duration_days : 120;
       
-      // Treasury configuration retrieved successfully
+      // Use real-time KILT price from kiltPriceService
+      const { kiltPriceService } = await import('./kilt-price-service.js');
+      const kiltPrice = kiltPriceService.getCurrentPrice();
+      
+      // Get unified APR calculation
+      const { unifiedAPRService } = await import('./unified-apr-service.js');
+      const aprData = await unifiedAPRService.getUnifiedAPRCalculation();
       
       // Calculate total distributed directly (simplified for debugging)
       const totalDistributed = 0; // Simplified to avoid dynamic import issues
@@ -389,28 +396,44 @@ export class AdminService {
           address: treasuryBalance.address,
           programBudget,
           dailyRewardsCap,
-          programDuration: treasuryConf ? treasuryConf.program_duration_days : 365,
-          programEndDate: treasuryConf && treasuryConf.program_end_date ? new Date(treasuryConf.program_end_date) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          programDuration,
+          programEndDate: treasuryConf && treasuryConf.program_end_date ? new Date(treasuryConf.program_end_date) : new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000),
+          programStartDate: treasuryConf && treasuryConf.program_start_date ? new Date(treasuryConf.program_start_date) : new Date(),
           isActive: treasuryConf ? treasuryConf.is_active : true,
           totalDistributed: Math.round(totalDistributed * 100) / 100,
-          treasuryRemaining: programBudget - totalDistributed
+          treasuryRemaining: programBudget - totalDistributed,
+          kiltPrice: kiltPrice,
+          aprData: aprData
         },
         settings: programSettings,
         operationHistory: await this.getOperationHistory(10)
       };
     } catch (error) {
       console.error('Admin service error in getAdminTreasuryStats:', error);
+      
+      // Get real-time KILT price even in error case
+      let kiltPrice = 0.016;
+      try {
+        const { kiltPriceService } = await import('./kilt-price-service.js');
+        kiltPrice = kiltPriceService.getCurrentPrice();
+      } catch (priceError) {
+        console.error('Error getting KILT price:', priceError);
+      }
+      
       return {
         treasury: { 
           balance: 0,
-          programBudget: 2905600, 
+          programBudget: 750000, 
           address: '0x0000000000000000000000000000000000000000',
-          dailyRewardsCap: 7960,
-          programDuration: 365,
-          programEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          dailyRewardsCap: 6250,
+          programDuration: 120,
+          programEndDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000),
+          programStartDate: new Date(),
           isActive: true,
           totalDistributed: 0,
-          treasuryRemaining: 2905600
+          treasuryRemaining: 750000,
+          kiltPrice: kiltPrice,
+          aprData: { minAPR: 31, maxAPR: 47, aprRange: '31% - 47%' }
         },
         settings: await this.getCurrentProgramSettings(),
         operationHistory: []

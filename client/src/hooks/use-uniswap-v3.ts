@@ -30,15 +30,23 @@ export function useUniswapV3() {
   });
 
   // Query KILT/ETH positions specifically using backend API
-  const { data: kiltEthPositions, isLoading: kiltEthLoading } = useQuery<UniswapV3Position[]>({
+  const { data: kiltEthPositions, isLoading: kiltEthLoading, error: kiltEthError } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
+      console.log('Fetching KILT positions for address:', address?.toLowerCase());
       const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
-      if (!response.ok) throw new Error('Failed to fetch KILT positions');
+      console.log('API response status:', response.status);
+      
+      if (!response.ok) {
+        console.error('Failed to fetch KILT positions:', response.status);
+        throw new Error('Failed to fetch KILT positions');
+      }
+      
       const positions = await response.json();
+      console.log('Raw positions from API:', positions);
       
       // Convert backend format to frontend format
-      return positions.map((pos: any) => ({
+      const converted = positions.map((pos: any) => ({
         tokenId: BigInt(pos.tokenId),
         nonce: BigInt(0), // Not needed for display
         operator: '0x0000000000000000000000000000000000000000',
@@ -59,6 +67,9 @@ export function useUniswapV3() {
         isActive: pos.isActive,
         poolAddress: pos.poolAddress
       }));
+      
+      console.log('Converted positions:', converted);
+      return converted;
     },
     enabled: !!address && isConnected,
     refetchInterval: 30000

@@ -98,6 +98,9 @@ export function UserPositions() {
   // Debug logging to see what we're getting
   console.log("Debug - kiltEthPositions:", kiltEthPositions);
   console.log("Debug - allKiltEthPositions:", allKiltEthPositions);
+  console.log("Debug - uniswapLoading:", uniswapLoading);
+  console.log("Debug - address:", address);
+  console.log("Debug - isConnected:", isConnected);
   
   // Also find any other positions containing KILT token (not just KILT/ETH pool)
   const otherKiltPositions = (userPositions || []).filter(pos => {

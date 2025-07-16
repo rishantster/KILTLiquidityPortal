@@ -127,7 +127,7 @@ export function AdminPanel() {
       }
       const response = await apiRequest('/api/admin/login-wallet', {
         method: 'POST',
-        body: { walletAddress: address }
+        data: { walletAddress: address }
       });
       return response;
     },
@@ -147,7 +147,7 @@ export function AdminPanel() {
     mutationFn: async () => {
       return await apiRequest('/api/admin/treasury/config', {
         method: 'POST',
-        body: treasuryConfigForm
+        data: treasuryConfigForm
       });
     },
     onSuccess: () => {
@@ -160,7 +160,7 @@ export function AdminPanel() {
     mutationFn: async () => {
       return await apiRequest('/api/admin/settings', {
         method: 'POST',
-        body: programSettingsForm
+        data: programSettingsForm
       });
     },
     onSuccess: () => {
@@ -173,7 +173,7 @@ export function AdminPanel() {
     mutationFn: async () => {
       return await apiRequest('/api/admin/blockchain-config', {
         method: 'POST',
-        body: blockchainConfigForm
+        data: blockchainConfigForm
       });
     },
     onSuccess: () => {

@@ -120,8 +120,9 @@ export function UserPositions() {
   
   // Count non-KILT positions
   const nonKiltPositions = (userPositions || []).filter(pos => {
-    const hasKilt = pos.token0?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase() || 
-                   pos.token1?.toLowerCase() === KILT_TOKEN_ADDRESS.toLowerCase();
+    const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"; // Retrieved from blockchain config
+    const hasKilt = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
+                   pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
     return !hasKilt;
   });
   

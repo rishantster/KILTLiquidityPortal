@@ -116,6 +116,12 @@ export interface UniswapV3Position {
   feeGrowthInside1LastX128: bigint;
   tokensOwed0: bigint;
   tokensOwed1: bigint;
+  // Additional fields from backend
+  currentValueUSD?: number;
+  token0Amount?: string;
+  token1Amount?: string;
+  isActive?: boolean;
+  poolAddress?: string;
 }
 
 export interface PoolData {

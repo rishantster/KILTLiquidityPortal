@@ -330,7 +330,7 @@ export function UserPositions() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {kiltPositions && kiltPositions.map((position) => {
-                const positionValue = calculatePositionValue(position);
+                const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
                 const isClosed = position.liquidity === 0n;
                 const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
@@ -381,20 +381,20 @@ export function UserPositions() {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-                            KILT
-                          </span>
-                          <span className="text-white font-bold tabular-nums">
-                            {formatTokenAmount(position.tokensOwed0, 18) || '0'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-white/60 flex items-center gap-1">
                             <EthereumLogo className="w-5 h-5" />
                             ETH
                           </span>
                           <span className="text-white font-bold tabular-nums">
-                            {formatTokenAmount(position.tokensOwed1, 18) || '0'}
+                            {position.token0Amount ? formatTokenAmount(BigInt(position.token0Amount), 18) : '0'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-white/60 flex items-center gap-1">
+                            <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                            KILT
+                          </span>
+                          <span className="text-white font-bold tabular-nums">
+                            {position.token1Amount ? formatTokenAmount(BigInt(position.token1Amount), 18) : '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">

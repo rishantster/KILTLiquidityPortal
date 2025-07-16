@@ -29,16 +29,36 @@ export function useUniswapV3() {
     refetchInterval: 30000
   });
 
-  // Query KILT/ETH positions specifically
+  // Query KILT/ETH positions specifically using backend API
   const { data: kiltEthPositions, isLoading: kiltEthLoading } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
-      // Get blockchain config first
-      const response = await fetch('/api/blockchain/config');
-      if (!response.ok) throw new Error('Failed to fetch blockchain config');
-      const config = await response.json();
+      const response = await fetch(`/api/positions/wallet/${address}`);
+      if (!response.ok) throw new Error('Failed to fetch KILT positions');
+      const positions = await response.json();
       
-      return uniswapV3Service.getKiltEthPositions(address!, config.kiltTokenAddress, config.wethTokenAddress);
+      // Convert backend format to frontend format
+      return positions.map((pos: any) => ({
+        tokenId: BigInt(pos.tokenId),
+        nonce: BigInt(0), // Not needed for display
+        operator: '0x0000000000000000000000000000000000000000',
+        token0: pos.token0,
+        token1: pos.token1,
+        fee: pos.feeTier,
+        tickLower: pos.tickLower,
+        tickUpper: pos.tickUpper,
+        liquidity: BigInt(pos.liquidity),
+        feeGrowthInside0LastX128: BigInt(0),
+        feeGrowthInside1LastX128: BigInt(0),
+        tokensOwed0: BigInt(pos.fees.token0),
+        tokensOwed1: BigInt(pos.fees.token1),
+        // Add custom fields for display
+        currentValueUSD: pos.currentValueUSD,
+        token0Amount: pos.token0Amount,
+        token1Amount: pos.token1Amount,
+        isActive: pos.isActive,
+        poolAddress: pos.poolAddress
+      }));
     },
     enabled: !!address && isConnected,
     refetchInterval: 30000

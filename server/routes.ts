@@ -797,11 +797,28 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get program analytics (open participation)
+  // Get program analytics (open participation) - USE UNIFIED SERVICE
   app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
+      const { unifiedAPRService } = await import('./unified-apr-service.js');
+      const aprData = await unifiedAPRService.getUnifiedAPRCalculation();
+      
+      // Get basic analytics from fixedRewardService
       const analytics = await fixedRewardService.getProgramAnalytics();
-      res.json(analytics);
+      
+      // Merge with unified APR data to ensure consistency
+      const unifiedAnalytics = {
+        ...analytics,
+        estimatedAPR: {
+          low: aprData.minAPR,
+          average: Math.round((aprData.minAPR + aprData.maxAPR) / 2),
+          high: aprData.maxAPR
+        },
+        aprRange: aprData.aprRange,
+        calculationDetails: aprData.calculationDetails
+      };
+      
+      res.json(unifiedAnalytics);
     } catch (error) {
       console.error('Error getting program analytics:', error);
       res.status(500).json({ error: 'Internal server error' });

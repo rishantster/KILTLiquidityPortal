@@ -194,12 +194,12 @@ export class AdminService {
 
       const { kilt } = await blockchainConfigService.getTokenAddresses();
       const kiltContract = new ethers.Contract(kilt, this.KILT_TOKEN_ABI, this.provider);
-      const balance = await kiltContract.balanceOf(config.treasuryWalletAddress);
+      const balance = await kiltContract.balanceOf(config.treasury_wallet_address);
       const balanceEther = parseFloat(ethers.formatEther(balance));
 
       return {
         balance: balanceEther,
-        address: config.treasuryWalletAddress
+        address: config.treasury_wallet_address
       };
     } catch (error) {
       return { balance: 0, address: '0x0000000000000000000000000000000000000000' };
@@ -412,7 +412,7 @@ export class AdminService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const programSettings = await this.getCurrentProgramSettings();
       
-      // Use actual database values with correct column names
+      // Use actual database values with correct column names (snake_case from database)
       const programBudget = treasuryConf ? parseFloat(treasuryConf.total_allocation) : 750000;
       const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.daily_rewards_cap) : 6250;
       const programDuration = treasuryConf ? treasuryConf.program_duration_days : 120;

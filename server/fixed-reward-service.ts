@@ -92,8 +92,8 @@ export class FixedRewardService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const [settingsConf] = await db.select().from(programSettings).limit(1);
       
-      // Use admin values with fallback to defaults
-      const treasuryAllocation = treasuryConf?.program_budget ? parseFloat(treasuryConf.program_budget) : this.DEFAULT_TREASURY_ALLOCATION;
+      // Use admin values with fallback to defaults (snake_case from database)
+      const treasuryAllocation = treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : this.DEFAULT_TREASURY_ALLOCATION;
       const programDurationDays = treasuryConf?.program_duration_days || this.DEFAULT_PROGRAM_DURATION_DAYS;
       const dailyBudget = treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : (treasuryAllocation / programDurationDays);
       

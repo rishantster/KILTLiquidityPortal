@@ -825,8 +825,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         },
         aprRange: aprData.aprRange,
         calculationDetails: aprData.calculationDetails,
-        // Override with admin-configured values
-        totalBudget: treasuryConf?.program_budget ? parseFloat(treasuryConf.program_budget) : analytics.totalBudget,
+        // Override with admin-configured values (snake_case from database)
+        totalBudget: treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : analytics.totalBudget,
         dailyBudget: treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : analytics.dailyBudget,
         programDuration: treasuryConf?.program_duration_days || analytics.programDuration,
         daysRemaining: daysRemaining,

@@ -10,10 +10,10 @@ export const UNISWAP_V3_CONTRACTS = {
   V3_STAKER: '0x42bE4D6527829FeFA1493e1fb9F3676d2425C3C1' as Address
 } as const;
 
-// Token addresses
+// Token addresses - these will be fetched dynamically from blockchain config
 export const TOKENS = {
   KILT: '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8' as Address,
-  WETH: '0x4200000000000000000000000000000000000006' as Address
+  WETH: '0x4200000000000000000000000000000000000006' as Address // Fallback - will be updated dynamically
 } as const;
 
 // Uniswap V3 ABIs

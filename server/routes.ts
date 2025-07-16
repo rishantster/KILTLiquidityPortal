@@ -808,11 +808,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get maximum theoretical APR calculation
+  // Get maximum theoretical APR calculation (using unified service)
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
-      const maxAPR = await fixedRewardService.calculateMaximumTheoreticalAPR();
-      res.json(maxAPR);
+      const { unifiedAPRService } = await import('./unified-apr-service.js');
+      const aprData = await unifiedAPRService.getUnifiedAPRCalculation();
+      
+      res.json({
+        maxAPR: aprData.maxAPR,
+        minAPR: aprData.minAPR,
+        aprRange: aprData.aprRange,
+        calculationDetails: aprData.calculationDetails
+      });
     } catch (error) {
       console.error('Error calculating maximum APR:', error);
       res.status(500).json({ error: "Failed to calculate maximum APR" });
@@ -1514,8 +1521,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const { poolAddress } = req.params;
       
-      const poolInfo = await uniswapIntegrationService.getPoolInfo(poolAddress);
-      res.json(poolInfo);
+      const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
+      res.json(poolData);
     } catch (error) {
       console.error('Error getting pool info:', error);
       res.status(500).json({ error: "Failed to get pool info" });

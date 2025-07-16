@@ -460,8 +460,8 @@ export class FixedRewardService {
       const { blockchainConfigService } = await import('./blockchain-config-service');
       
       const poolAddress = await blockchainConfigService.getPoolAddress();
-      const poolInfo = await uniswapIntegrationService.getPoolInfo(poolAddress);
-      currentPoolTVL = poolInfo.tvlUSD || 0;
+      const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
+      currentPoolTVL = poolData.tvlUSD || 0;
       
       // Get actual position data from database (ONLY app-registered positions are reward-eligible)
       // Note: This excludes direct Uniswap positions that haven't registered on our app

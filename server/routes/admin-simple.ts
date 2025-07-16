@@ -29,33 +29,66 @@ router.get('/config', async (req, res) => {
       inRangeRequirement: true
     };
 
-    // Calculate APR as single representative value (early stage APR for clear communication)
-    const budgetAmount = parseFloat(treasury.totalAllocation) || parseFloat(treasury.programBudget) || 500000;
-    const programDuration = treasury.programDurationDays || 90;
-    const aprMultiplier = budgetAmount / 500000;
-    
-    // APR Calculation Proof:
-    // Base APR: 31% (for 500K KILT over 90 days with typical $100 position in $20K initial pool)
-    // Current Budget: ${budgetAmount} KILT
-    // Multiplier: ${aprMultiplier} (budget / 500K baseline)
-    // Final APR: ${Math.round(31 * aprMultiplier)}%
-    // Note: Only app-registered positions are reward-eligible
-    
-    const representativeAPR = Math.round(31 * aprMultiplier);
-    const aprRange = `${representativeAPR}%`;
-    
-    console.log('APR Calculation Details:', {
-      budgetAmount,
-      programDuration,
-      aprMultiplier,
-      baseAPR: 31,
-      finalAPR: representativeAPR
-    });
+    // Calculate APR using the exact reward formula R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
+    let aprData;
+    try {
+      const { unifiedAPRService } = await import('../unified-apr-service.js');
+      aprData = await unifiedAPRService.getUnifiedAPRCalculation();
+      console.log('Admin Panel APR (Unified with Real Uniswap Data):', aprData);
+    } catch (error) {
+      console.error('Error loading unified APR service, using fallback calculation:', error);
+      
+      // Fallback calculation using the same formula
+      const treasuryBudget = parseFloat(treasury.totalAllocation) || 500000;
+      const programDuration = treasury.programDurationDays || 90;
+      const dailyBudget = parseFloat(treasury.dailyRewardsCap) || 5555.56;
+      const timeBoost = parseFloat(settings.timeBoostCoefficient) || 0.6;
+      const fullRangeBonus = parseFloat(settings.fullRangeBonus) || 1.2;
+      
+      // Use realistic pool scenarios based on actual Uniswap data
+      const assumedPositionValue = 2000; // Realistic position size for serious participants
+      const assumedPoolTVL = 1000000; // Mature pool TVL (1M) for realistic APR
+      const liquidityShare = assumedPositionValue / assumedPoolTVL;
+      const inRangeMultiplier = 1.0;
+      
+      // Calculate APR using exact formula
+      const minDays = 30;
+      const maxDays = programDuration;
+      const minTimeProgression = (minDays / programDuration) * timeBoost;
+      const maxTimeProgression = (maxDays / programDuration) * timeBoost;
+      const minTimeBoost = 1 + minTimeProgression;
+      const maxTimeBoost = 1 + maxTimeProgression;
+      
+      const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyBudget;
+      const maxDailyReward = liquidityShare * maxTimeBoost * inRangeMultiplier * fullRangeBonus * dailyBudget;
+      
+      const minAPR = Math.round((minDailyReward * 365 / assumedPositionValue) * 100);
+      const maxAPR = Math.round((maxDailyReward * 365 / assumedPositionValue) * 100);
+      
+      aprData = {
+        minAPR,
+        maxAPR,
+        aprRange: `${minAPR}% - ${maxAPR}%`,
+        calculationDetails: {
+          treasuryAllocation: treasuryBudget,
+          programDuration,
+          dailyBudget,
+          timeBoost,
+          fullRangeBonus,
+          baseAPR: minAPR,
+          dataSource: 'fallback-formula-based',
+          poolTVL: assumedPoolTVL,
+          positionValue: assumedPositionValue,
+          liquidityShare: liquidityShare
+        }
+      };
+    }
 
     res.json({
       treasury,
       settings,
-      aprRange,
+      aprRange: aprData.aprRange,
+      aprDetails: aprData.calculationDetails,
       systemStatus: {
         totalUsers: 1,
         lpPositions: 0,
@@ -108,6 +141,10 @@ router.post('/treasury', async (req, res) => {
       });
     }
 
+    // Clear unified APR cache when treasury config changes
+    const { unifiedAPRService } = await import('../unified-apr-service.js');
+    unifiedAPRService.clearCache();
+    
     res.json({ success: true, message: 'Treasury configuration updated successfully' });
   } catch (error) {
     console.error('Error updating treasury config:', error);
@@ -145,6 +182,10 @@ router.post('/settings', async (req, res) => {
       });
     }
 
+    // Clear unified APR cache when program settings change
+    const { unifiedAPRService } = await import('../unified-apr-service.js');
+    unifiedAPRService.clearCache();
+    
     res.json({ success: true, message: 'Program settings updated successfully' });
   } catch (error) {
     console.error('Error updating program settings:', error);

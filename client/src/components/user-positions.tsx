@@ -96,6 +96,7 @@ export function UserPositions() {
   const allKiltEthPositions = kiltEthPositions || [];
   
   // Debug logging to see what we're getting
+  console.log("=== USER POSITIONS COMPONENT DEBUG ===");
   console.log("Debug - kiltEthPositions:", kiltEthPositions);
   console.log("Debug - allKiltEthPositions:", allKiltEthPositions);
   console.log("Debug - uniswapLoading:", uniswapLoading);

@@ -105,10 +105,15 @@ export function UserPositions() {
   
   // CRITICAL: Force re-render when data changes
   const [forceRender, setForceRender] = useState(0);
+  const [hasPositions, setHasPositions] = useState(false);
+  
   useEffect(() => {
     if (kiltEthPositions && kiltEthPositions.length > 0) {
       console.log("FORCING RE-RENDER - positions found!");
       setForceRender(prev => prev + 1);
+      setHasPositions(true);
+    } else {
+      setHasPositions(false);
     }
   }, [kiltEthPositions]);
   
@@ -353,7 +358,13 @@ export function UserPositions() {
         </CardHeader>
         <CardContent className="p-3">
           {console.log("Final render check - kiltPositions length:", kiltPositions?.length || 0)}
-          {!kiltPositions || kiltPositions.length === 0 ? (
+          {hasPositions ? (
+            <div className="text-center py-4">
+              <p className="text-green-500 font-bold">🎉 POSITION FOUND! Rendering...</p>
+              <p className="text-white text-sm">Force render counter: {forceRender}</p>
+              <p className="text-white text-sm">Has positions: {hasPositions ? 'YES' : 'NO'}</p>
+            </div>
+          ) : !kiltPositions || kiltPositions.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>
               <p className="text-white/40 text-xs">Add liquidity to pools containing KILT token to get started</p>

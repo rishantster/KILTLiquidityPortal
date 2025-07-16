@@ -75,7 +75,9 @@ export function useUniswapV3() {
     enabled: !!address && isConnected,
     refetchInterval: 30000,
     retry: 3,
-    staleTime: 60000
+    staleTime: 0, // Always fresh data
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   // Query KILT/ETH pool address from blockchain config

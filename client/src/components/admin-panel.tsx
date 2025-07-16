@@ -589,9 +589,10 @@ export function AdminPanel() {
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Right Column - Program Settings */}
-              <div className="h-full">
+            {/* Right Column - Program Settings */}
+            <div className="h-full">
                 <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
                   <Settings className="h-3 w-3 text-emerald-400" />
                   Program Settings
@@ -794,6 +795,7 @@ export function AdminPanel() {
                   </div>
                 </div>
               </div>
+            </div>
             </TabsContent>
 
             {/* Blockchain Configuration Tab */}
@@ -998,3 +1000,5 @@ export function AdminPanel() {
     </div>
   );
 }
+
+export default AdminPanel;

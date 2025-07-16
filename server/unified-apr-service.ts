@@ -61,11 +61,11 @@ class UnifiedAPRService {
       
       // Use REAL TVL data from DexScreener verification
       const poolTVL = 80000; // Real $80K TVL from DexScreener
-      const actualPositionValue = 1000; // Realistic $1K position size
+      let actualPositionValue = 1000; // Realistic $1K position size
       const usingRealData = true;
       
       // Get actual position data from APP-REGISTERED positions only
-        const { db } = await import('./db');
+      try {
         const { lpPositions, positionEligibility } = await import('../shared/schema');
         const { sql } = await import('drizzle-orm');
         
@@ -158,8 +158,8 @@ class UnifiedAPRService {
     } catch (error) {
       // Error in unified APR calculation, using fallback
       
-      // Return consistent fallback values with real KILT price
-      const fallbackKiltPrice = await import('./kilt-price-service.js').then(m => m.kiltPriceService.getCurrentPrice());
+      // Use synchronous fallback price instead of async import
+      const fallbackKiltPrice = 0.01683; // Current KILT price fallback
       
       const fallbackResult = {
         minAPR: 31,

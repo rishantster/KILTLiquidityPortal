@@ -67,6 +67,7 @@ function AdminPanelSimplified() {
     localStorage.getItem('admin-token')
   );
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
 
   // Calculate APR based on admin settings using the reward formula
   const calculateDynamicAPR = (adminStats: AdminStats) => {
@@ -201,6 +202,7 @@ function AdminPanelSimplified() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      setHasLoadedInitialData(false); // Allow form to reload with new values
       alert('Treasury configuration updated successfully!');
     },
     onError: (error: any) => {
@@ -230,6 +232,7 @@ function AdminPanelSimplified() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      setHasLoadedInitialData(false); // Allow form to reload with new values
       alert('Program settings updated successfully!');
     },
     onError: (error: any) => {
@@ -289,9 +292,9 @@ function AdminPanelSimplified() {
     blockchainConfigMutation.mutate();
   };
 
-  // Update forms when data loads
+  // Update forms when data loads (only once)
   useEffect(() => {
-    if (adminStats) {
+    if (adminStats && !hasLoadedInitialData) {
       setTreasuryConfigForm({
         treasuryWalletAddress: adminStats.treasury.address || '',
         programBudget: String(adminStats.treasury.programBudget || 500000),
@@ -307,8 +310,10 @@ function AdminPanelSimplified() {
         minimumPositionValue: String(adminStats.settings.minimumPositionValue || 10),
         lockPeriod: String(adminStats.settings.lockPeriod || 7)
       });
+      
+      setHasLoadedInitialData(true);
     }
-  }, [adminStats]);
+  }, [adminStats, hasLoadedInitialData]);
 
   useEffect(() => {
     if (blockchainConfig) {

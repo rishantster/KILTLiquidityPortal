@@ -193,16 +193,15 @@ export const positionEligibility = pgTable("position_eligibility", {
   uniquePositionEligibility: unique().on(table.positionId, table.nftTokenId),
 }));
 
-// Program settings table - matches existing database schema
+// Program settings table - cleaned up for new formula
 export const programSettings = pgTable("program_settings", {
   id: serial("id").primaryKey(),
-  programDuration: integer("program_duration").notNull().default(365),
-  minTimeCoefficient: decimal("min_time_coefficient", { precision: 10, scale: 3 }).notNull().default("0.600"),
-  maxTimeCoefficient: decimal("max_time_coefficient", { precision: 10, scale: 3 }).notNull().default("1.000"),
-  liquidityWeight: decimal("liquidity_weight", { precision: 10, scale: 3 }).notNull().default("0.600"),
-  timeWeight: decimal("time_weight", { precision: 10, scale: 3 }).notNull().default("0.400"),
-  minimumPositionValue: decimal("minimum_position_value", { precision: 18, scale: 8 }).notNull().default("100.00000000"),
-  lockPeriod: integer("lock_period").notNull().default(90),
+  programDuration: integer("program_duration").notNull().default(90),
+  liquidityWeight: decimal("liquidity_weight", { precision: 10, scale: 3 }).notNull().default("0.600"), // b_time parameter
+  minimumPositionValue: decimal("minimum_position_value", { precision: 18, scale: 8 }).notNull().default("10.00000000"),
+  lockPeriod: integer("lock_period").notNull().default(7),
+  inRangeRequirement: boolean("in_range_requirement").default(true).notNull(),
+  fullRangeBonus: decimal("full_range_bonus", { precision: 10, scale: 3 }).notNull().default("1.200"), // FRB parameter
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

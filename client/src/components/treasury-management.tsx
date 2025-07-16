@@ -34,7 +34,7 @@ export function TreasuryManagement() {
   const [ownerPrivateKey, setOwnerPrivateKey] = useState('');
   const [treasuryPrivateKey, setTreasuryPrivateKey] = useState('');
   const [newTreasuryAddress, setNewTreasuryAddress] = useState('');
-  const [allowanceAmount, setAllowanceAmount] = useState('2905600');
+  const [allowanceAmount, setAllowanceAmount] = useState('500000');
   const [showKeys, setShowKeys] = useState(false);
   
   const queryClient = useQueryClient();
@@ -235,7 +235,7 @@ export function TreasuryManagement() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/70">Total Allocation:</span>
               <span className="text-sm font-bold text-white">
-                {formatKiltAmount(treasuryStats?.totalAllocation || 2905600)} KILT
+                {formatKiltAmount(treasuryStats?.totalAllocation || 500000)} KILT
               </span>
             </div>
             
@@ -249,14 +249,14 @@ export function TreasuryManagement() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/70">Remaining:</span>
               <span className="text-sm font-bold text-white">
-                {formatKiltAmount(treasuryStats?.remainingBudget || 2905600)} KILT
+                {formatKiltAmount(treasuryStats?.remainingBudget || 500000)} KILT
               </span>
             </div>
             
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/70">Annual Budget:</span>
               <span className="text-sm font-bold text-white">
-                {((treasuryStats?.treasuryTotal || 2905600)).toLocaleString()} KILT
+                {((treasuryStats?.treasuryTotal || 500000)).toLocaleString()} KILT
               </span>
             </div>
           </CardContent>
@@ -367,7 +367,7 @@ export function TreasuryManagement() {
               </Label>
               <Input
                 id="allowanceAmount"
-                placeholder="2905600"
+                placeholder="500000"
                 value={allowanceAmount}
                 onChange={(e) => setAllowanceAmount(e.target.value)}
                 className="bg-black/20 border-white/20 text-white"

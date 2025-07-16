@@ -300,7 +300,7 @@ export function MainDashboard() {
               </h1>
               
               <p className="text-xl sm:text-2xl text-white/70 font-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
-                Earn <span className="text-emerald-400 font-semibold">up to 47% APR</span> from the <span className="text-blue-400 font-semibold">2.9M KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
+                Earn <span className="text-emerald-400 font-semibold">up to {unifiedData.maxAPRData?.aprRange || '47%'} APR</span> from the <span className="text-blue-400 font-semibold">{unifiedData.programAnalytics ? `${(unifiedData.programAnalytics.treasuryTotal / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
 
@@ -348,7 +348,7 @@ export function MainDashboard() {
                   <div className="pt-8 text-center flex-1 flex flex-col justify-center">
                     <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
                     <p className="text-emerald-200/80 text-sm leading-relaxed">
-                      Receive massive rewards from 1% of total KILT supply with secure smart contract distribution.
+                      Receive attractive rewards from KILT treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
                 </div>

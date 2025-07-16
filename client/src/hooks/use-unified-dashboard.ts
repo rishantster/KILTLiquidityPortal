@@ -97,11 +97,11 @@ export function useUnifiedDashboard() {
       try {
         const response = await fetch('/api/rewards/maximum-apr');
         if (!response.ok) {
-          return { minAPR: 29, maxAPR: 5, aprRange: "29% - 5%" };
+          return { minAPR: 47, maxAPR: 47, aprRange: "47%" };
         }
         return response.json();
       } catch (error) {
-        return { minAPR: 29, maxAPR: 5, aprRange: "29% - 5%" };
+        return { minAPR: 47, maxAPR: 47, aprRange: "47%" };
       }
     },
     enabled: !!address && isConnected,

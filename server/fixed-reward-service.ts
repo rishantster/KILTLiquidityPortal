@@ -61,9 +61,9 @@ export class FixedRewardService {
   constructor(private database: any) {}
 
   // Default fallback values (only used when admin config is unavailable)
-  private readonly DEFAULT_TREASURY_ALLOCATION = 2905600; // 1% of 290.56M KILT supply
-  private readonly DEFAULT_PROGRAM_DURATION_DAYS = 365; // 365 days program duration
-  private readonly DEFAULT_DAILY_BUDGET = this.DEFAULT_TREASURY_ALLOCATION / this.DEFAULT_PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
+  private readonly DEFAULT_TREASURY_ALLOCATION = 500000; // Admin-configured default
+  private readonly DEFAULT_PROGRAM_DURATION_DAYS = 90; // Admin-configured default
+  private readonly DEFAULT_DAILY_BUDGET = 5555.56; // Admin-configured default
   private readonly DEFAULT_LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
   private readonly DEFAULT_MIN_POSITION_VALUE = 10; // $10 minimum position value to prevent spam
   
@@ -104,16 +104,17 @@ export class FixedRewardService {
     const programDuration = settings ? settings.programDuration : this.DEFAULT_PROGRAM_DURATION_DAYS;
     const dailyBudget = treasury ? parseFloat(treasury.dailyRewardsCap) : this.DEFAULT_DAILY_BUDGET;
     const timeBoostCoeff = settings ? parseFloat(settings.liquidityWeight) : this.DEFAULT_B_TIME;
+    const fullRangeBonusCoeff = settings ? parseFloat(settings.fullRangeBonus) : this.DEFAULT_FRB;
     
-    // New formula implementation with FRB support
+    // New formula implementation with admin-configured FRB support
 
     // Formula components
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
     const timeBoost = 1 + ((daysActive / programDuration) * timeBoostCoeff); // 1 + ((D_u/P)*b_time) - using admin config
     const dailyRewardRate = dailyBudget; // R/P (daily allocation from admin)
     
-    // Full Range Bonus: only full range positions get FRB multiplier
-    const fullRangeBonus = isFullRange ? this.DEFAULT_FRB : 1.0;
+    // Full Range Bonus: only full range positions get FRB multiplier (admin-configured)
+    const fullRangeBonus = isFullRange ? fullRangeBonusCoeff : 1.0;
     
     // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const dailyReward = liquidityShare * timeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardRate;
@@ -324,9 +325,10 @@ export class FixedRewardService {
       // Get accumulated rewards
       const accumulatedRewards = await this.getAccumulatedRewards(position.id);
       
-      // Calculate claim eligibility
-      const canClaim = daysActive >= this.LOCK_PERIOD_DAYS;
-      const daysUntilClaim = Math.max(0, this.LOCK_PERIOD_DAYS - daysActive);
+      // Calculate claim eligibility using admin-configured lock period
+      const lockPeriod = programSettings ? programSettings.lockPeriod : this.DEFAULT_LOCK_PERIOD_DAYS;
+      const canClaim = daysActive >= lockPeriod;
+      const daysUntilClaim = Math.max(0, lockPeriod - daysActive);
       
       return {
         baseAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
@@ -433,10 +435,9 @@ export class FixedRewardService {
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     
     // Use admin-configured treasury values with fallback to defaults
-    
-    const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DAILY_BUDGET;
-    const totalAllocation = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.TREASURY_ALLOCATION;
-    const programDuration = treasuryConf ? (treasuryConf.programDurationDays || this.PROGRAM_DURATION_DAYS) : this.PROGRAM_DURATION_DAYS;
+    const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DEFAULT_DAILY_BUDGET;
+    const totalAllocation = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.DEFAULT_TREASURY_ALLOCATION;
+    const programDuration = treasuryConf ? (treasuryConf.programDurationDays || this.DEFAULT_PROGRAM_DURATION_DAYS) : this.DEFAULT_PROGRAM_DURATION_DAYS;
     
     // APR calculation parameters - realistic pool lifecycle progression
     const inRangeMultiplier = 1.0; // Always in-range
@@ -445,7 +446,8 @@ export class FixedRewardService {
     // Get admin-configured values
     const { programSettings } = await import('../shared/schema');
     const [settings] = await this.database.select().from(programSettings).limit(1);
-    const w1 = settings ? parseFloat(settings.liquidityWeight) : 0.6; // Admin-configured liquidity weight
+    const timeBoostCoeff = settings ? parseFloat(settings.liquidityWeight) : this.DEFAULT_B_TIME; // Admin-configured time boost
+    const fullRangeBonusCoeff = settings ? parseFloat(settings.fullRangeBonus) : this.DEFAULT_FRB; // Admin-configured FRB
     
     // High APR scenario for early participants (small pool, high rewards)
     const earlyPoolSize = 100000; // $100K early pool
@@ -460,8 +462,8 @@ export class FixedRewardService {
     // Calculate APR for full range positions (gets FRB bonus)
     // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const fullRangeDays = 30;
-    const fullRangeTimeBoost = 1 + ((fullRangeDays / programDuration) * this.B_TIME);
-    const fullRangeDailyRewards = earlyLiquidityShare * fullRangeTimeBoost * inRangeMultiplier * this.FRB * dailyBudget;
+    const fullRangeTimeBoost = 1 + ((fullRangeDays / programDuration) * timeBoostCoeff);
+    const fullRangeDailyRewards = earlyLiquidityShare * fullRangeTimeBoost * inRangeMultiplier * fullRangeBonusCoeff * dailyBudget;
     const fullRangeAnnualRewards = fullRangeDailyRewards * 365;
     const fullRangeAnnualRewardsUSD = fullRangeAnnualRewards * kiltPrice;
     const fullRangeAPR = (fullRangeAnnualRewardsUSD / earlyPositionValue) * 100;
@@ -469,7 +471,7 @@ export class FixedRewardService {
     // Calculate APR for concentrated positions (no FRB bonus)
     // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * 1.0 * (R/P)
     const concentratedDays = 30;
-    const concentratedTimeBoost = 1 + ((concentratedDays / programDuration) * this.B_TIME);
+    const concentratedTimeBoost = 1 + ((concentratedDays / programDuration) * timeBoostCoeff);
     const concentratedDailyRewards = earlyLiquidityShare * concentratedTimeBoost * inRangeMultiplier * 1.0 * dailyBudget;
     const concentratedAnnualRewards = concentratedDailyRewards * 365;
     const concentratedAnnualRewardsUSD = concentratedAnnualRewards * kiltPrice;
@@ -493,7 +495,7 @@ export class FixedRewardService {
       formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)",
       assumptions: [
         `Full range position: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
-        `Full Range Bonus: ${this.FRB}x (20% boost for balanced 50/50 liquidity)`,
+        `Full Range Bonus: ${fullRangeBonusCoeff}x (${Math.round((fullRangeBonusCoeff - 1) * 100)}% boost for balanced 50/50 liquidity)`,
         `Concentrated positions: ${Math.round(finalConcentratedAPR)}% APR (no FRB bonus)`,
         `Time commitment: ${fullRangeDays}+ days for maximum rewards`,
         "Always in-range (IRM = 1.0)",

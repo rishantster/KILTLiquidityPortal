@@ -17,10 +17,24 @@ export interface AdminTreasuryConfiguration {
 
 export interface AdminProgramSettings {
   // NOTE: programDuration is now controlled by Treasury Config (programDurationDays)
+  
+  // Core formula parameters
   maxLiquidityBoost?: number; // w1 - max liquidity boost (0.6 = 60% boost)
+  baseLiquidityWeight?: number; // Base liquidity coefficient
+  timeBoostCoefficient?: number; // Time boost multiplier
+  inRangeMultiplier?: number; // IRM coefficient
+  poolFactor?: number; // Pool performance factor
+  concentrationBonus?: number; // Concentration range bonus
+  
+  // Position requirements
   minimumPositionValue?: number; // minimum USD value (set to 0 for no minimum)
   lockPeriod?: number; // claim lock period in days (7 days)
   inRangeRequirement?: boolean; // whether IRM (In-Range Multiplier) is required
+  fullRangeBonus?: number; // FRB parameter
+  
+  // Performance thresholds
+  minimumTimeInRange?: number; // 80% minimum time in range
+  performanceThreshold?: number; // 50% performance threshold
 }
 
 export interface AdminOperationResult {
@@ -173,13 +187,28 @@ export class AdminService {
       console.log('Existing settings:', existingSettings);
       
       if (existingSettings) {
-        // Update existing settings record using actual database columns
+        // Update existing settings record with all new parameters
         const updateData = {
           programDuration: authoritativeProgramDuration, // Always use treasury config value
-          // Map maxLiquidityBoost to liquidityWeight for existing column
+          
+          // Core formula parameters
           liquidityWeight: settings.maxLiquidityBoost?.toString() || existingSettings.liquidityWeight,
+          baseLiquidityWeight: settings.baseLiquidityWeight?.toString() || existingSettings.baseLiquidityWeight || "1.000",
+          timeBoostCoefficient: settings.timeBoostCoefficient?.toString() || existingSettings.timeBoostCoefficient || "1.000",
+          inRangeMultiplier: settings.inRangeMultiplier?.toString() || existingSettings.inRangeMultiplier || "1.000",
+          poolFactor: settings.poolFactor?.toString() || existingSettings.poolFactor || "1.000",
+          concentrationBonus: settings.concentrationBonus?.toString() || existingSettings.concentrationBonus || "1.000",
+          
+          // Position requirements
           minimumPositionValue: settings.minimumPositionValue?.toString() || existingSettings.minimumPositionValue,
           lockPeriod: settings.lockPeriod || existingSettings.lockPeriod,
+          inRangeRequirement: settings.inRangeRequirement ?? existingSettings.inRangeRequirement,
+          fullRangeBonus: settings.fullRangeBonus?.toString() || existingSettings.fullRangeBonus,
+          
+          // Performance thresholds
+          minimumTimeInRange: settings.minimumTimeInRange?.toString() || existingSettings.minimumTimeInRange || "0.800",
+          performanceThreshold: settings.performanceThreshold?.toString() || existingSettings.performanceThreshold || "0.500",
+          
           updatedAt: new Date()
         };
         
@@ -189,13 +218,27 @@ export class AdminService {
           .set(updateData)
           .where(eq(programSettings.id, existingSettings.id));
       } else {
-        // Create new settings record with defaults using actual database columns
+        // Create new settings record with defaults for all parameters
         const insertData = {
           programDuration: authoritativeProgramDuration, // Always use treasury config value
-          // Map maxLiquidityBoost to liquidityWeight for existing column
-          liquidityWeight: settings.maxLiquidityBoost?.toString() || "0.6",
-          minimumPositionValue: settings.minimumPositionValue?.toString() || "10",
-          lockPeriod: settings.lockPeriod || 7
+          
+          // Core formula parameters
+          liquidityWeight: settings.maxLiquidityBoost?.toString() || "0.600",
+          baseLiquidityWeight: settings.baseLiquidityWeight?.toString() || "1.000",
+          timeBoostCoefficient: settings.timeBoostCoefficient?.toString() || "1.000",
+          inRangeMultiplier: settings.inRangeMultiplier?.toString() || "1.000",
+          poolFactor: settings.poolFactor?.toString() || "1.000",
+          concentrationBonus: settings.concentrationBonus?.toString() || "1.000",
+          
+          // Position requirements
+          minimumPositionValue: settings.minimumPositionValue?.toString() || "10.00000000",
+          lockPeriod: settings.lockPeriod || 7,
+          inRangeRequirement: settings.inRangeRequirement ?? true,
+          fullRangeBonus: settings.fullRangeBonus?.toString() || "1.200",
+          
+          // Performance thresholds
+          minimumTimeInRange: settings.minimumTimeInRange?.toString() || "0.800",
+          performanceThreshold: settings.performanceThreshold?.toString() || "0.500"
         };
         
         console.log('Inserting new settings:', insertData);
@@ -243,31 +286,66 @@ export class AdminService {
       
       if (settings) {
         return {
-          programDuration: settings.programDuration || 365,
-          // Map liquidityWeight to maxLiquidityBoost for UI
+          // Core formula parameters
           maxLiquidityBoost: parseFloat(settings.liquidityWeight) || 0.6,
+          baseLiquidityWeight: parseFloat(settings.baseLiquidityWeight) || 1.0,
+          timeBoostCoefficient: parseFloat(settings.timeBoostCoefficient) || 1.0,
+          inRangeMultiplier: parseFloat(settings.inRangeMultiplier) || 1.0,
+          poolFactor: parseFloat(settings.poolFactor) || 1.0,
+          concentrationBonus: parseFloat(settings.concentrationBonus) || 1.0,
+          
+          // Position requirements
           minimumPositionValue: parseFloat(settings.minimumPositionValue) || 10,
           lockPeriod: settings.lockPeriod || 7,
-          inRangeRequirement: true // Always true for refined formula
+          inRangeRequirement: settings.inRangeRequirement ?? true,
+          fullRangeBonus: parseFloat(settings.fullRangeBonus) || 1.2,
+          
+          // Performance thresholds
+          minimumTimeInRange: parseFloat(settings.minimumTimeInRange) || 0.8,
+          performanceThreshold: parseFloat(settings.performanceThreshold) || 0.5
         };
       }
       
       // Return default settings if no database record exists
       return {
-        programDuration: 365,
+        // Core formula parameters
         maxLiquidityBoost: 0.6,
+        baseLiquidityWeight: 1.0,
+        timeBoostCoefficient: 1.0,
+        inRangeMultiplier: 1.0,
+        poolFactor: 1.0,
+        concentrationBonus: 1.0,
+        
+        // Position requirements
         minimumPositionValue: 10,
         lockPeriod: 7,
-        inRangeRequirement: true
+        inRangeRequirement: true,
+        fullRangeBonus: 1.2,
+        
+        // Performance thresholds
+        minimumTimeInRange: 0.8,
+        performanceThreshold: 0.5
       };
     } catch (error) {
       // Return default settings if database query fails
       return {
-        programDuration: 365,
+        // Core formula parameters
         maxLiquidityBoost: 0.6,
+        baseLiquidityWeight: 1.0,
+        timeBoostCoefficient: 1.0,
+        inRangeMultiplier: 1.0,
+        poolFactor: 1.0,
+        concentrationBonus: 1.0,
+        
+        // Position requirements
         minimumPositionValue: 10,
         lockPeriod: 7,
-        inRangeRequirement: true
+        inRangeRequirement: true,
+        fullRangeBonus: 1.2,
+        
+        // Performance thresholds
+        minimumTimeInRange: 0.8,
+        performanceThreshold: 0.5
       };
     }
   }

@@ -48,10 +48,23 @@ interface AdminStats {
     treasuryRemaining: number;
   };
   settings: {
+    // Core formula parameters
     maxLiquidityBoost: number;
+    baseLiquidityWeight: number;
+    timeBoostCoefficient: number;
+    inRangeMultiplier: number;
+    poolFactor: number;
+    concentrationBonus: number;
+    
+    // Position requirements
     minimumPositionValue: number;
     lockPeriod: number;
     inRangeRequirement: boolean;
+    fullRangeBonus: number;
+    
+    // Performance thresholds
+    minimumTimeInRange: number;
+    performanceThreshold: number;
   };
   operationHistory: any[];
 }
@@ -86,10 +99,23 @@ export function AdminPanel() {
 
   // Program settings form
   const [programSettingsForm, setProgramSettingsForm] = useState({
+    // Core formula parameters
     maxLiquidityBoost: 0.6,
+    baseLiquidityWeight: 1.0,
+    timeBoostCoefficient: 1.0,
+    inRangeMultiplier: 1.0,
+    poolFactor: 1.0,
+    concentrationBonus: 1.0,
+    
+    // Position requirements
     minimumPositionValue: 10,
     lockPeriod: 7,
-    inRangeRequirement: true
+    inRangeRequirement: true,
+    fullRangeBonus: 1.2,
+    
+    // Performance thresholds
+    minimumTimeInRange: 0.8,
+    performanceThreshold: 0.5
   });
 
   // Blockchain configuration form
@@ -203,10 +229,23 @@ export function AdminPanel() {
         isActive: adminStats.treasury.isActive
       });
       setProgramSettingsForm({
+        // Core formula parameters
         maxLiquidityBoost: adminStats.settings.maxLiquidityBoost || 0.6,
+        baseLiquidityWeight: adminStats.settings.baseLiquidityWeight || 1.0,
+        timeBoostCoefficient: adminStats.settings.timeBoostCoefficient || 1.0,
+        inRangeMultiplier: adminStats.settings.inRangeMultiplier || 1.0,
+        poolFactor: adminStats.settings.poolFactor || 1.0,
+        concentrationBonus: adminStats.settings.concentrationBonus || 1.0,
+        
+        // Position requirements
         minimumPositionValue: adminStats.settings.minimumPositionValue || 10,
         lockPeriod: adminStats.settings.lockPeriod || 7,
-        inRangeRequirement: adminStats.settings.inRangeRequirement
+        inRangeRequirement: adminStats.settings.inRangeRequirement,
+        fullRangeBonus: adminStats.settings.fullRangeBonus || 1.2,
+        
+        // Performance thresholds
+        minimumTimeInRange: adminStats.settings.minimumTimeInRange || 0.8,
+        performanceThreshold: adminStats.settings.performanceThreshold || 0.5
       });
     }
   }, [adminStats]);
@@ -427,8 +466,10 @@ export function AdminPanel() {
                   <div className="font-mono text-emerald-300 text-sm mb-2">
                     R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)
                   </div>
-                  <div className="text-xs text-gray-400">
-                    b_time = {adminStats?.settings?.maxLiquidityBoost || 0.6} • IRM = {adminStats?.settings?.inRangeRequirement ? '1.0' : '0.0'} • FRB = 1.2x
+                  <div className="text-xs text-gray-400 space-y-1">
+                    <div>R_u = Daily user rewards • L_u = User liquidity amount • L_T = Total pool liquidity</div>
+                    <div>D_u = Days user has been active • P = Program duration (90 days) • b_time = Time boost factor ({adminStats?.settings?.maxLiquidityBoost || 0.6})</div>
+                    <div>IRM = In-range multiplier ({adminStats?.settings?.inRangeRequirement ? '1.0' : '0.0'}) • FRB = Full range bonus (1.2x) • R = Total reward budget (500000 KILT)</div>
                   </div>
                 </div>
               </div>
@@ -564,41 +605,182 @@ export function AdminPanel() {
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label htmlFor="maxLiquidityBoost" className="text-white text-xs">Max Boost</Label>
-                          <Input
-                            id="maxLiquidityBoost"
-                            type="number"
-                            step="0.1"
-                            value={programSettingsForm.maxLiquidityBoost}
-                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
-                            className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
-                            placeholder="0.6"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="minimumPositionValue" className="text-white text-xs">Min Value ($)</Label>
-                          <Input
-                            id="minimumPositionValue"
-                            type="number"
-                            value={programSettingsForm.minimumPositionValue}
-                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
-                            className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
-                            placeholder="10"
-                          />
+                    <div className="space-y-3 max-h-[240px] overflow-y-auto">
+                      {/* Core Formula Parameters */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-semibold text-emerald-400 flex items-center gap-1">
+                          <Zap className="w-3 h-3" />
+                          Core Formula Parameters
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label htmlFor="maxLiquidityBoost" className="text-white text-xs">b_time (Time boost factor)</Label>
+                            <Input
+                              id="maxLiquidityBoost"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.maxLiquidityBoost}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="0.6"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="inRangeMultiplier" className="text-white text-xs">IRM (In-range multiplier)</Label>
+                            <Input
+                              id="inRangeMultiplier"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.inRangeMultiplier}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, inRangeMultiplier: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="1.0"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="fullRangeBonus" className="text-white text-xs">FRB (Full range bonus)</Label>
+                            <Input
+                              id="fullRangeBonus"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.fullRangeBonus}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, fullRangeBonus: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="1.2"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="baseLiquidityWeight" className="text-white text-xs">Base liquidity weight</Label>
+                            <Input
+                              id="baseLiquidityWeight"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.baseLiquidityWeight}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, baseLiquidityWeight: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="1.0"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="timeBoostCoefficient" className="text-white text-xs">Time boost coefficient</Label>
+                            <Input
+                              id="timeBoostCoefficient"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.timeBoostCoefficient}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, timeBoostCoefficient: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="1.0"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="poolFactor" className="text-white text-xs">Pool factor</Label>
+                            <Input
+                              id="poolFactor"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.poolFactor}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, poolFactor: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="1.0"
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="inRangeRequirement"
-                          checked={programSettingsForm.inRangeRequirement}
-                          onCheckedChange={(checked) => setProgramSettingsForm({ ...programSettingsForm, inRangeRequirement: checked })}
-                        />
-                        <Label htmlFor="inRangeRequirement" className="text-white text-xs">In-Range Requirement</Label>
+                      {/* Position Requirements */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-semibold text-blue-400 flex items-center gap-1">
+                          <Lock className="w-3 h-3" />
+                          Position Requirements
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label htmlFor="minimumPositionValue" className="text-white text-xs">Minimum position value ($)</Label>
+                            <Input
+                              id="minimumPositionValue"
+                              type="number"
+                              value={programSettingsForm.minimumPositionValue}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="10"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="lockPeriod" className="text-white text-xs">Lock period (days)</Label>
+                            <Input
+                              id="lockPeriod"
+                              type="number"
+                              value={programSettingsForm.lockPeriod}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="7"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="concentrationBonus" className="text-white text-xs">Concentration bonus</Label>
+                            <Input
+                              id="concentrationBonus"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.concentrationBonus}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, concentrationBonus: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="1.0"
+                            />
+                          </div>
+                          
+                          <div className="flex items-center space-x-2 pt-4">
+                            <Switch
+                              id="inRangeRequirement"
+                              checked={programSettingsForm.inRangeRequirement}
+                              onCheckedChange={(checked) => setProgramSettingsForm({ ...programSettingsForm, inRangeRequirement: checked })}
+                            />
+                            <Label htmlFor="inRangeRequirement" className="text-white text-xs">In-range requirement</Label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Performance Thresholds */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-semibold text-purple-400 flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3" />
+                          Performance Thresholds
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label htmlFor="minimumTimeInRange" className="text-white text-xs">Minimum time in range</Label>
+                            <Input
+                              id="minimumTimeInRange"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.minimumTimeInRange}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, minimumTimeInRange: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="0.8"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="performanceThreshold" className="text-white text-xs">Performance threshold</Label>
+                            <Input
+                              id="performanceThreshold"
+                              type="number"
+                              step="0.1"
+                              value={programSettingsForm.performanceThreshold}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, performanceThreshold: parseFloat(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="0.5"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
 

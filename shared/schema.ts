@@ -193,15 +193,29 @@ export const positionEligibility = pgTable("position_eligibility", {
   uniquePositionEligibility: unique().on(table.positionId, table.nftTokenId),
 }));
 
-// Program settings table - cleaned up for new formula
+// Program settings table - comprehensive formula parameters
 export const programSettings = pgTable("program_settings", {
   id: serial("id").primaryKey(),
   programDuration: integer("program_duration").notNull().default(90),
+  
+  // Core formula parameters
   liquidityWeight: decimal("liquidity_weight", { precision: 10, scale: 3 }).notNull().default("0.600"), // b_time parameter
+  baseLiquidityWeight: decimal("base_liquidity_weight", { precision: 10, scale: 3 }).notNull().default("1.000"), // Base liquidity coefficient
+  timeBoostCoefficient: decimal("time_boost_coefficient", { precision: 10, scale: 3 }).notNull().default("1.000"), // Time boost multiplier
+  inRangeMultiplier: decimal("in_range_multiplier", { precision: 10, scale: 3 }).notNull().default("1.000"), // IRM coefficient
+  poolFactor: decimal("pool_factor", { precision: 10, scale: 3 }).notNull().default("1.000"), // Pool performance factor
+  concentrationBonus: decimal("concentration_bonus", { precision: 10, scale: 3 }).notNull().default("1.000"), // Concentration range bonus
+  
+  // Position requirements
   minimumPositionValue: decimal("minimum_position_value", { precision: 18, scale: 8 }).notNull().default("10.00000000"),
   lockPeriod: integer("lock_period").notNull().default(7),
   inRangeRequirement: boolean("in_range_requirement").default(true).notNull(),
   fullRangeBonus: decimal("full_range_bonus", { precision: 10, scale: 3 }).notNull().default("1.200"), // FRB parameter
+  
+  // Performance thresholds
+  minimumTimeInRange: decimal("minimum_time_in_range", { precision: 10, scale: 3 }).notNull().default("0.800"), // 80% minimum time in range
+  performanceThreshold: decimal("performance_threshold", { precision: 10, scale: 3 }).notNull().default("0.500"), // 50% performance threshold
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

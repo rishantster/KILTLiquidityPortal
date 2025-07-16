@@ -23,8 +23,7 @@ import {
   Wallet,
   Activity
 } from 'lucide-react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { injected } from 'wagmi/connectors';
+import { useWallet } from '@/contexts/wallet-context';
 import { apiRequest } from '@/lib/queryClient';
 
 interface AdminStats {
@@ -58,9 +57,7 @@ interface BlockchainConfig {
 
 export function AdminPanel() {
   const queryClient = useQueryClient();
-  const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { address, isConnected, connectWallet, disconnectWallet } = useWallet();
   
   const [adminToken, setAdminToken] = useState<string | null>(
     localStorage.getItem('admin-token')
@@ -208,7 +205,7 @@ export function AdminPanel() {
   const handleLogout = () => {
     setAdminToken(null);
     localStorage.removeItem('admin-token');
-    disconnect();
+    disconnectWallet();
   };
 
   const handleTreasuryConfigUpdate = async () => {
@@ -251,7 +248,7 @@ export function AdminPanel() {
               
               {!isConnected ? (
                 <Button 
-                  onClick={() => connect({ connector: injected() })} 
+                  onClick={connectWallet} 
                   className="w-full bg-emerald-600 hover:bg-emerald-700 backdrop-blur-sm border border-emerald-400/30 transition-all duration-200"
                 >
                   Connect Wallet

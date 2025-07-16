@@ -67,12 +67,14 @@ export class FixedRewardService {
   private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
   private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
   
-  // Refined Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * R * IRM
-  // Note: BASE_LIQUIDITY_WEIGHT is now loaded from admin panel settings dynamically
+  // New Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
+  // Fixed parameters
+  private readonly B_TIME = 0.6; // Time boost coefficient
+  private readonly FRB = 1.2; // Fixed rate boost multiplier
 
   /**
-   * Calculate daily rewards using the refined formula:
-   * R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * R * IRM
+   * Calculate daily rewards using the new formula:
+   * R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
    * 
    * @param userLiquidity - L_u: User's liquidity amount in USD
    * @param totalLiquidity - L_T: Total liquidity in the system
@@ -97,19 +99,18 @@ export class FixedRewardService {
     const [treasury] = await this.database.select().from(treasuryConfig).limit(1);
 
     // Use admin-configured values with fallbacks
-    const liquidityWeight = settings ? parseFloat(settings.liquidityWeight) : 0.6;
     const programDuration = settings ? settings.programDuration : this.PROGRAM_DURATION_DAYS;
     const dailyBudget = treasury ? parseFloat(treasury.dailyRewardsCap) : this.DAILY_BUDGET;
     
-    console.log('Admin-configured values:', { liquidityWeight, programDuration, dailyBudget });
+    console.log('New formula values:', { programDuration, dailyBudget, bTime: this.B_TIME, frb: this.FRB });
 
     // Formula components
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
-    const timeBoost = 1 + ((daysActive / programDuration) * liquidityWeight); // 1 + ((D_u/P)*w1)
+    const timeBoost = 1 + ((daysActive / programDuration) * this.B_TIME); // 1 + ((D_u/P)*b_time)
     const dailyRewardRate = dailyBudget; // R/P (daily allocation from admin)
     
-    // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * (R/P) * IRM
-    const dailyReward = liquidityShare * timeBoost * dailyRewardRate * inRangeMultiplier;
+    // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
+    const dailyReward = liquidityShare * timeBoost * inRangeMultiplier * this.FRB * dailyRewardRate;
     
     return Math.max(0, dailyReward);
   }
@@ -424,19 +425,19 @@ export class FixedRewardService {
     const matureLiquidityShare = maturePositionValue / maturePoolSize; // 0.25% of pool
     
     // Calculate APR for early participants (30-day position in small pool) - HIGH APR
-    // Using refined formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * (R/P) * IRM
+    // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const shortTermDays = 30;
-    const shortTermTimeBoost = 1 + ((shortTermDays / programDuration) * w1);
-    const shortTermDailyRewards = earlyLiquidityShare * shortTermTimeBoost * dailyBudget * inRangeMultiplier;
+    const shortTermTimeBoost = 1 + ((shortTermDays / programDuration) * this.B_TIME);
+    const shortTermDailyRewards = earlyLiquidityShare * shortTermTimeBoost * inRangeMultiplier * this.FRB * dailyBudget;
     const shortTermAnnualRewards = shortTermDailyRewards * 365;
     const shortTermAnnualRewardsUSD = shortTermAnnualRewards * kiltPrice;
     const shortTermAPR = (shortTermAnnualRewardsUSD / earlyPositionValue) * 100;
     
     // Calculate APR for mature participants (full program duration position in larger pool) - MODERATE APR
-    // Using refined formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * (R/P) * IRM
+    // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const longTermDays = programDuration; // Use full program duration
-    const longTermTimeBoost = 1 + ((longTermDays / programDuration) * w1); // = 1.6 for full program duration
-    const longTermDailyRewards = matureLiquidityShare * longTermTimeBoost * dailyBudget * inRangeMultiplier;
+    const longTermTimeBoost = 1 + ((longTermDays / programDuration) * this.B_TIME); // = 1.6 for full program duration
+    const longTermDailyRewards = matureLiquidityShare * longTermTimeBoost * inRangeMultiplier * this.FRB * dailyBudget;
     const longTermAnnualRewards = longTermDailyRewards * 365;
     const longTermAnnualRewardsUSD = longTermAnnualRewards * kiltPrice;
     const longTermAPR = (longTermAnnualRewardsUSD / maturePositionValue) * 100;
@@ -456,7 +457,7 @@ export class FixedRewardService {
       minAPR: attractiveAPR,
       aprRange: `${attractiveAPR}%`,
       scenario: "Early participant opportunity",
-      formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*w1)) * R * IRM",
+      formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)",
       assumptions: [
         `Typical position: $${earlyPositionValue} in $${earlyPoolSize.toLocaleString()} pool (${(earlyLiquidityShare * 100).toFixed(1)}% share)`,
         `Time commitment: ${shortTermDays}+ days for maximum rewards`,

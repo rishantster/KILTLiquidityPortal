@@ -137,9 +137,17 @@ router.post('/treasury', async (req, res) => {
   try {
     const { treasuryBudget, programDuration, treasuryWalletAddress } = req.body;
     
+    // Validate inputs
+    if (!treasuryBudget || !programDuration) {
+      return res.status(400).json({ error: 'Missing required fields: treasuryBudget and programDuration' });
+    }
+    
     const dailyRewardsCap = treasuryBudget / programDuration;
-    const programStartDate = new Date();
-    const programEndDate = new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000);
+    
+    // Create valid dates - use string format for database compatibility
+    const now = new Date();
+    const programStartDate = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    const programEndDate = new Date(now.getTime() + programDuration * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     // Check if configuration exists
     const existing = await db.select().from(treasuryConfig).limit(1);
@@ -149,11 +157,12 @@ router.post('/treasury', async (req, res) => {
       await db.update(treasuryConfig)
         .set({
           treasuryWalletAddress: treasuryWalletAddress || existing[0].treasuryWalletAddress,
-          totalAllocation: treasuryBudget || existing[0].totalAllocation,
-          programDurationDays: programDuration || existing[0].programDurationDays,
-          dailyRewardsCap: dailyRewardsCap || existing[0].dailyRewardsCap,
-          programStartDate: programStartDate || existing[0].programStartDate,
-          programEndDate: programEndDate || existing[0].programEndDate,
+          totalAllocation: treasuryBudget.toString(),
+          annualRewardsBudget: treasuryBudget.toString(),
+          programDurationDays: programDuration,
+          dailyRewardsCap: dailyRewardsCap.toString(),
+          programStartDate,
+          programEndDate,
           isActive: true
         })
         .where(eq(treasuryConfig.id, existing[0].id));
@@ -161,9 +170,10 @@ router.post('/treasury', async (req, res) => {
       // Create new configuration
       await db.insert(treasuryConfig).values({
         treasuryWalletAddress: treasuryWalletAddress || '0x0000000000000000000000000000000000000000',
-        totalAllocation: treasuryBudget || 500000,
-        programDurationDays: programDuration || 90,
-        dailyRewardsCap: dailyRewardsCap || 5555.56,
+        totalAllocation: treasuryBudget.toString(),
+        annualRewardsBudget: treasuryBudget.toString(),
+        programDurationDays: programDuration,
+        dailyRewardsCap: dailyRewardsCap.toString(),
         programStartDate,
         programEndDate,
         isActive: true,
@@ -175,17 +185,23 @@ router.post('/treasury', async (req, res) => {
     const { unifiedAPRService } = await import('../unified-apr-service.js');
     unifiedAPRService.clearCache();
     
-    res.json({ success: true, message: 'Treasury configuration updated successfully' });
+    res.json({
+      success: true,
+      message: `Treasury configuration updated successfully. Budget: ${treasuryBudget.toLocaleString()} KILT, Duration: ${programDuration} days, Daily Cap: ${dailyRewardsCap.toFixed(2)} KILT`
+    });
   } catch (error) {
     console.error('Error updating treasury config:', error);
-    res.status(500).json({ error: 'Failed to update treasury configuration' });
+    res.status(500).json({ 
+      error: 'Failed to update treasury configuration',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
 // Update program settings
 router.post('/settings', async (req, res) => {
   try {
-    const { timeBoost, fullRangeBonus, minPositionValue, lockPeriod } = req.body;
+    const { timeBoostCoefficient, fullRangeBonus, minimumPositionValue, lockPeriod } = req.body;
     
     // Check if settings exist
     const existing = await db.select().from(programSettings).limit(1);
@@ -194,9 +210,9 @@ router.post('/settings', async (req, res) => {
       // Update existing settings
       await db.update(programSettings)
         .set({
-          timeBoostCoefficient: timeBoost || existing[0].timeBoostCoefficient,
-          fullRangeBonus: fullRangeBonus || existing[0].fullRangeBonus,
-          minimumPositionValue: minPositionValue || existing[0].minimumPositionValue,
+          timeBoostCoefficient: timeBoostCoefficient ? timeBoostCoefficient.toString() : existing[0].timeBoostCoefficient,
+          fullRangeBonus: fullRangeBonus ? fullRangeBonus.toString() : existing[0].fullRangeBonus,
+          minimumPositionValue: minimumPositionValue ? minimumPositionValue.toString() : existing[0].minimumPositionValue,
           lockPeriod: lockPeriod || existing[0].lockPeriod,
           inRangeRequirement: true
         })
@@ -204,9 +220,9 @@ router.post('/settings', async (req, res) => {
     } else {
       // Create new settings
       await db.insert(programSettings).values({
-        timeBoostCoefficient: timeBoost || 0.6,
-        fullRangeBonus: fullRangeBonus || 1.2,
-        minimumPositionValue: minPositionValue || 10,
+        timeBoostCoefficient: timeBoostCoefficient ? timeBoostCoefficient.toString() : '0.6',
+        fullRangeBonus: fullRangeBonus ? fullRangeBonus.toString() : '1.2',
+        minimumPositionValue: minimumPositionValue ? minimumPositionValue.toString() : '10',
         lockPeriod: lockPeriod || 7,
         inRangeRequirement: true
       });

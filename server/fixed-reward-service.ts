@@ -561,57 +561,48 @@ export class FixedRewardService {
         aprData = { minAPR: 29.46, maxAPR: 46.55 };
       }
       
-      // Calculate program days remaining - show remaining days within program duration
+      // Calculate program days remaining using admin-configured dates
       try {
-        // Use hardcoded dates as database dates are causing Invalid Date issues
-        const startDate = new Date('2025-07-18');
-        const endDate = new Date('2025-10-16');
         const now = new Date();
         
-        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-          if (now < startDate) {
-            // Program hasn't started yet - show days until start
-            const timeDiff = startDate.getTime() - now.getTime();
-            programDaysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-          } else if (now >= startDate && now <= endDate) {
-            // Program is running - show days until end
-            const timeDiff = endDate.getTime() - now.getTime();
-            programDaysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+        // Try to use admin-configured dates if available
+        if (treasuryConf && treasuryConf.programStartDate && treasuryConf.programEndDate) {
+          const startDate = new Date(treasuryConf.programStartDate);
+          const endDate = new Date(treasuryConf.programEndDate);
+          
+          if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+            if (now < startDate) {
+              // Program hasn't started yet - show days until start
+              const timeDiff = startDate.getTime() - now.getTime();
+              programDaysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            } else if (now >= startDate && now <= endDate) {
+              // Program is running - show days until end
+              const timeDiff = endDate.getTime() - now.getTime();
+              programDaysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+            } else {
+              // Program has ended
+              programDaysRemaining = 0;
+            }
           } else {
-            // Program has ended
-            programDaysRemaining = 0;
+            throw new Error('Invalid admin-configured dates');
           }
         } else {
-          // Fall back to calculating from program duration
-          const daysElapsed = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-          programDaysRemaining = Math.max(0, programDurationConfig - daysElapsed);
+          // No admin dates configured - calculate from program duration
+          // Assume program started today and runs for configured duration
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Start of today
+          programDaysRemaining = programDurationConfig;
         }
       } catch (error) {
         console.error('Error calculating program days remaining:', error);
-        // Fall back to calculating from program duration
-        const now = new Date();
-        const programStartDate = new Date('2025-07-18'); // Default start date
-        const daysElapsed = Math.floor((now.getTime() - programStartDate.getTime()) / (1000 * 60 * 60 * 24));
-        programDaysRemaining = Math.max(0, programDurationConfig - daysElapsed);
+        // Final fallback - use program duration as remaining days
+        programDaysRemaining = programDurationConfig;
       }
       
-      // Ensure programDaysRemaining is never null - calculate manually if needed
+      // Ensure programDaysRemaining is never null or invalid
       if (programDaysRemaining === null || programDaysRemaining === undefined || isNaN(programDaysRemaining)) {
-        // Manual calculation with known dates
-        const manualStartDate = new Date('2025-07-18');
-        const manualEndDate = new Date('2025-10-16');
-        const currentDate = new Date();
-        
-        if (currentDate < manualStartDate) {
-          // Before program starts - show days until start
-          programDaysRemaining = Math.ceil((manualStartDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
-        } else if (currentDate >= manualStartDate && currentDate <= manualEndDate) {
-          // During program - show days until end
-          programDaysRemaining = Math.max(0, Math.ceil((manualEndDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)));
-        } else {
-          // After program ends
-          programDaysRemaining = 0;
-        }
+        // Final fallback - use program duration
+        programDaysRemaining = programDurationConfig;
       }
       
       return {

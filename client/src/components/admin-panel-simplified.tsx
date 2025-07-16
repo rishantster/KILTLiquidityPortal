@@ -52,6 +52,15 @@ export function AdminPanelSimplified() {
     isActive: true
   });
 
+  // Formula Parameters Form
+  const [formulaParams, setFormulaParams] = useState({
+    timeBoostWeight: 0.6,        // b_time - time boost weight (0.6 = 60% boost)
+    fullRangeBonus: 1.2,         // FRB - full range bonus multiplier
+    inRangeRequirement: true,    // IRM - in-range requirement
+    minimumPositionValue: 10,    // Minimum position value in USD
+    lockPeriod: 7               // Lock period in days
+  });
+
   // Check if connected wallet is authorized
   useEffect(() => {
     if (isConnected && address) {
@@ -125,7 +134,7 @@ export function AdminPanelSimplified() {
     refetchInterval: 30000,
   });
 
-  // Populate form with current data
+  // Populate forms with current data
   useEffect(() => {
     if (adminStats?.treasury) {
       setTreasuryForm({
@@ -134,6 +143,16 @@ export function AdminPanelSimplified() {
         programStartDate: new Date().toISOString().split('T')[0],
         programEndDate: new Date(Date.now() + (adminStats.treasury.programDuration || 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         isActive: adminStats.treasury.isActive
+      });
+    }
+    
+    if (adminStats?.settings) {
+      setFormulaParams({
+        timeBoostWeight: adminStats.settings.maxLiquidityBoost || 0.6,
+        fullRangeBonus: 1.2,
+        inRangeRequirement: adminStats.settings.inRangeRequirement || true,
+        minimumPositionValue: adminStats.settings.minimumPositionValue || 10,
+        lockPeriod: adminStats.settings.lockPeriod || 7
       });
     }
   }, [adminStats]);
@@ -196,6 +215,42 @@ export function AdminPanelSimplified() {
     disconnect();
   };
 
+  // Formula parameters update mutation
+  const formulaMutation = useMutation({
+    mutationFn: async (params: any) => {
+      const response = await fetch('/api/admin/program-settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify(params),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Formula params error:', errorText);
+        throw new Error(`Failed to update formula parameters: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Formula Updated",
+        description: "Formula parameters have been successfully updated",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleTreasuryUpdate = () => {
     treasuryMutation.mutate({
       treasuryWalletAddress: '',
@@ -205,6 +260,15 @@ export function AdminPanelSimplified() {
       programStartDate: new Date(treasuryForm.programStartDate),
       programEndDate: new Date(treasuryForm.programEndDate),
       isActive: treasuryForm.isActive
+    });
+  };
+
+  const handleFormulaUpdate = () => {
+    formulaMutation.mutate({
+      maxLiquidityBoost: formulaParams.timeBoostWeight,
+      minimumPositionValue: formulaParams.minimumPositionValue,
+      lockPeriod: formulaParams.lockPeriod,
+      inRangeRequirement: formulaParams.inRangeRequirement
     });
   };
 
@@ -325,7 +389,7 @@ export function AdminPanelSimplified() {
             <Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/30">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-emerald-400" />
+                  <DollarSign className="w-5 h-5 text-emerald-400" />
                   Treasury Configuration
                 </CardTitle>
                 <p className="text-gray-400 text-sm">Configure program budget and duration</p>
@@ -398,6 +462,120 @@ export function AdminPanelSimplified() {
                   className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
                 >
                   {treasuryMutation.isPending ? 'Updating Treasury...' : 'Update Treasury Configuration'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Formula Parameters Configuration */}
+            <Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-blue-400" />
+                  Formula Parameters
+                </CardTitle>
+                <p className="text-gray-400 text-sm">Configure reward formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="timeBoostWeight" className="text-white">Time Boost Weight (b_time)</Label>
+                    <Input
+                      id="timeBoostWeight"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="1"
+                      value={formulaParams.timeBoostWeight?.toString() || ''}
+                      onChange={(e) => setFormulaParams({ ...formulaParams, timeBoostWeight: parseFloat(e.target.value) || 0 })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="0.6 = 60% time boost"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Maximum time-based reward boost (0.6 = 60%)</p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="fullRangeBonus" className="text-white">Full Range Bonus (FRB)</Label>
+                    <Input
+                      id="fullRangeBonus"
+                      type="number"
+                      step="0.1"
+                      min="1"
+                      max="2"
+                      value={formulaParams.fullRangeBonus?.toString() || ''}
+                      onChange={(e) => setFormulaParams({ ...formulaParams, fullRangeBonus: parseFloat(e.target.value) || 1 })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="1.2 = 20% bonus"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Bonus for full range positions (1.2 = 20% bonus)</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="minimumPositionValue" className="text-white">Minimum Position Value ($)</Label>
+                    <Input
+                      id="minimumPositionValue"
+                      type="number"
+                      min="0"
+                      value={formulaParams.minimumPositionValue?.toString() || ''}
+                      onChange={(e) => setFormulaParams({ ...formulaParams, minimumPositionValue: parseInt(e.target.value) || 0 })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="10"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Minimum USD value for spam protection</p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="lockPeriod" className="text-white">Lock Period (Days)</Label>
+                    <Input
+                      id="lockPeriod"
+                      type="number"
+                      min="1"
+                      value={formulaParams.lockPeriod?.toString() || ''}
+                      onChange={(e) => setFormulaParams({ ...formulaParams, lockPeriod: parseInt(e.target.value) || 0 })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="7"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Days rewards are locked before claiming</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="inRangeRequirement"
+                    checked={formulaParams.inRangeRequirement}
+                    onChange={(e) => setFormulaParams({ ...formulaParams, inRangeRequirement: e.target.checked })}
+                    className="rounded bg-gray-800/30 backdrop-blur-sm border-gray-700/30"
+                  />
+                  <Label htmlFor="inRangeRequirement" className="text-white">
+                    In-Range Requirement (IRM)
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-400 ml-6">Only in-range positions earn rewards</p>
+                
+                {/* Formula Preview */}
+                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-blue-400 mb-2">
+                    <Calculator className="w-4 h-4" />
+                    <span className="font-medium">Formula Preview</span>
+                  </div>
+                  <div className="font-mono text-sm text-blue-300">
+                    R_u = (L_u/L_T) * (1 + ((D_u/P)*{formulaParams.timeBoostWeight})) * {formulaParams.inRangeRequirement ? 'IRM' : '1'} * {formulaParams.fullRangeBonus} * (R/P)
+                  </div>
+                  <div className="text-xs text-gray-400 mt-2">
+                    • Time boost: {(formulaParams.timeBoostWeight * 100).toFixed(0)}% max
+                    • Full range bonus: {((formulaParams.fullRangeBonus - 1) * 100).toFixed(0)}% extra
+                    • In-range required: {formulaParams.inRangeRequirement ? 'Yes' : 'No'}
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleFormulaUpdate}
+                  disabled={formulaMutation.isPending}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {formulaMutation.isPending ? 'Updating Formula...' : 'Update Formula Parameters'}
                 </Button>
               </CardContent>
             </Card>

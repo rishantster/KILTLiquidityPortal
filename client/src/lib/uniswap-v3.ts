@@ -227,18 +227,22 @@ export class UniswapV3Service {
     return tokenIds;
   }
 
-  async getKiltEthPositions(userAddress: Address): Promise<UniswapV3Position[]> {
+  async getKiltEthPositions(userAddress: Address, kiltTokenAddress?: Address, wethTokenAddress?: Address): Promise<UniswapV3Position[]> {
     const allTokenIds = await this.getUserPositions(userAddress);
     const positions: UniswapV3Position[] = [];
+
+    // Use provided addresses or fall back to constants
+    const kiltAddr = kiltTokenAddress || TOKENS.KILT;
+    const wethAddr = wethTokenAddress || TOKENS.WETH;
 
     for (const tokenId of allTokenIds) {
       try {
         const position = await this.getPosition(tokenId);
         
-        // Check if this is a KILT/ETH position
+        // Check if this is a KILT/ETH position with dynamic addresses
         const isKiltEthPosition = (
-          (position.token0 === TOKENS.KILT && position.token1 === TOKENS.WETH) ||
-          (position.token0 === TOKENS.WETH && position.token1 === TOKENS.KILT)
+          (position.token0.toLowerCase() === kiltAddr.toLowerCase() && position.token1.toLowerCase() === wethAddr.toLowerCase()) ||
+          (position.token0.toLowerCase() === wethAddr.toLowerCase() && position.token1.toLowerCase() === kiltAddr.toLowerCase())
         );
 
         // Include both open and closed positions (removed liquidity > 0n check)

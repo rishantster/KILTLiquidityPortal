@@ -433,38 +433,39 @@ export function AdminPanel() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
-                <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <span className="text-white text-lg font-medium">Configuration</span>
-                </div>
-                <div className="space-y-4">
-                  <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-emerald-400" />
-                      <span className="text-emerald-200 text-sm">Treasury operations are secure and wallet-based.</span>
-                    </div>
-                  </div>
-
-                  {/* Treasury Configuration */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-white">Treasury Configuration</h3>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="programBudget" className="text-white text-xs">Budget (KILT)</Label>
-                        <Input
-                          id="programBudget"
-                          type="number"
-                          value={treasuryConfigForm.programBudget}
-                          onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programBudget: parseInt(e.target.value) || 0 })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
-                          placeholder="500000"
-                        />
+              {/* Two Column Layout - Compact */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Left Column - Treasury Configuration */}
+                <div className="h-full">
+                  <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
+                    <DollarSign className="h-3 w-3 text-emerald-400" />
+                    Treasury Configuration
+                  </h2>
+                  <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10 h-[360px] flex flex-col">
+                    <div className="space-y-4 flex-1">
+                      <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-3">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-emerald-400" />
+                          <span className="text-emerald-200 text-sm">Treasury operations are secure and wallet-based.</span>
+                        </div>
                       </div>
-                      
-                      <div>
-                        <Label htmlFor="programDuration" className="text-white text-xs">Duration (Days)</Label>
+
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="programBudget" className="text-white text-xs">Budget (KILT)</Label>
+                            <Input
+                              id="programBudget"
+                              type="number"
+                              value={treasuryConfigForm.programBudget}
+                              onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programBudget: parseInt(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="500000"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="programDuration" className="text-white text-xs">Duration (Days)</Label>
                         <Input
                           id="programDuration"
                           type="number"
@@ -547,6 +548,71 @@ export function AdminPanel() {
                   </div>
                 </div>
               </div>
+
+              {/* Right Column - Program Settings */}
+              <div className="h-full">
+                <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
+                  <Settings className="h-3 w-3 text-emerald-400" />
+                  Program Settings
+                </h2>
+                <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10 h-[360px] flex flex-col">
+                  <div className="space-y-4 flex-1">
+                    <div className="bg-blue-400/10 border border-blue-400/30 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-blue-400" />
+                        <span className="text-blue-200 text-sm">Formula parameters control reward distribution.</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="maxLiquidityBoost" className="text-white text-xs">Max Boost</Label>
+                          <Input
+                            id="maxLiquidityBoost"
+                            type="number"
+                            step="0.1"
+                            value={programSettingsForm.maxLiquidityBoost}
+                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, maxLiquidityBoost: parseFloat(e.target.value) || 0 })}
+                            className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                            placeholder="0.6"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="minimumPositionValue" className="text-white text-xs">Min Value ($)</Label>
+                          <Input
+                            id="minimumPositionValue"
+                            type="number"
+                            value={programSettingsForm.minimumPositionValue}
+                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, minimumPositionValue: parseInt(e.target.value) || 0 })}
+                            className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                            placeholder="10"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="inRangeRequirement"
+                          checked={programSettingsForm.inRangeRequirement}
+                          onCheckedChange={(checked) => setProgramSettingsForm({ ...programSettingsForm, inRangeRequirement: checked })}
+                        />
+                        <Label htmlFor="inRangeRequirement" className="text-white text-xs">In-Range Requirement</Label>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={handleSettingsUpdate}
+                      disabled={settingsMutation.isPending}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium h-8 text-sm rounded-lg transition-all duration-200"
+                    >
+                      {settingsMutation.isPending ? 'Updating...' : 'Update Settings'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
             </TabsContent>
 
             {/* Blockchain Configuration Tab */}

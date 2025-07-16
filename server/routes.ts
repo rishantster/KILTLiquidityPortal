@@ -806,6 +806,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Get basic analytics from fixedRewardService
       const analytics = await fixedRewardService.getProgramAnalytics();
       
+      // Get admin configuration for real-time program data
+      const { treasuryConfig, programSettings } = await import('../shared/schema');
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const [settingsConf] = await db.select().from(programSettings).limit(1);
+      
+      // Calculate days remaining based on admin configuration
+      const programEndDate = treasuryConf?.program_end_date ? new Date(treasuryConf.program_end_date) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+      const daysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+      
       // Merge with unified APR data to ensure consistency
       const unifiedAnalytics = {
         ...analytics,
@@ -815,7 +824,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           high: aprData.maxAPR
         },
         aprRange: aprData.aprRange,
-        calculationDetails: aprData.calculationDetails
+        calculationDetails: aprData.calculationDetails,
+        // Override with admin-configured values
+        totalBudget: treasuryConf?.program_budget ? parseFloat(treasuryConf.program_budget) : analytics.totalBudget,
+        dailyBudget: treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : analytics.dailyBudget,
+        programDuration: treasuryConf?.program_duration_days || analytics.programDuration,
+        daysRemaining: daysRemaining,
+        programStartDate: treasuryConf?.program_start_date || analytics.programStartDate,
+        programEndDate: treasuryConf?.program_end_date || analytics.programEndDate,
+        isActive: treasuryConf?.is_active !== undefined ? treasuryConf.is_active : analytics.isActive
       };
       
       res.json(unifiedAnalytics);
@@ -1684,6 +1701,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
 
       const result = await adminService.updateTreasuryConfiguration(config, performedBy);
+      
+      // Clear unified APR cache to ensure changes take effect immediately
+      const { unifiedAPRService } = await import('./unified-apr-service.js');
+      unifiedAPRService.clearCache();
+      
       res.json(result);
     } catch (error) {
       // Error updating treasury configuration
@@ -1698,6 +1720,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const performedBy = req.user?.identifier || 'unknown';
       
       const result = await adminService.updateProgramSettings(settings, performedBy);
+      
+      // Clear unified APR cache to ensure changes take effect immediately
+      const { unifiedAPRService } = await import('./unified-apr-service.js');
+      unifiedAPRService.clearCache();
+      
       res.json(result);
     } catch (error) {
       // Error updating program settings

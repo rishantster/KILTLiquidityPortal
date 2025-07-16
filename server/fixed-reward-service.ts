@@ -73,6 +73,59 @@ export class FixedRewardService {
   private readonly DEFAULT_FRB = 1.2; // Full Range Bonus (FRB) - 20% boost for full range positions
 
   /**
+   * Get admin configuration values (single source of truth)
+   */
+  private async getAdminConfiguration(): Promise<{
+    treasuryAllocation: number;
+    programDurationDays: number;
+    dailyBudget: number;
+    lockPeriodDays: number;
+    minimumPositionValue: number;
+    timeBoostCoefficient: number;
+    fullRangeBonus: number;
+  }> {
+    try {
+      // Import schema tables
+      const { treasuryConfig, programSettings } = await import('@shared/schema');
+      
+      // Get admin-configured values
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const [settingsConf] = await db.select().from(programSettings).limit(1);
+      
+      // Use admin values with fallback to defaults
+      const treasuryAllocation = treasuryConf?.program_budget ? parseFloat(treasuryConf.program_budget) : this.DEFAULT_TREASURY_ALLOCATION;
+      const programDurationDays = treasuryConf?.program_duration_days || this.DEFAULT_PROGRAM_DURATION_DAYS;
+      const dailyBudget = treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : (treasuryAllocation / programDurationDays);
+      
+      const lockPeriodDays = settingsConf?.lock_period || this.DEFAULT_LOCK_PERIOD_DAYS;
+      const minimumPositionValue = settingsConf?.minimum_position_value || this.DEFAULT_MIN_POSITION_VALUE;
+      const timeBoostCoefficient = settingsConf?.time_boost_coefficient || this.DEFAULT_B_TIME;
+      const fullRangeBonus = settingsConf?.full_range_bonus || this.DEFAULT_FRB;
+      
+      return {
+        treasuryAllocation,
+        programDurationDays,
+        dailyBudget,
+        lockPeriodDays,
+        minimumPositionValue,
+        timeBoostCoefficient,
+        fullRangeBonus
+      };
+    } catch (error) {
+      // Admin configuration not available - use defaults
+      return {
+        treasuryAllocation: this.DEFAULT_TREASURY_ALLOCATION,
+        programDurationDays: this.DEFAULT_PROGRAM_DURATION_DAYS,
+        dailyBudget: this.DEFAULT_DAILY_BUDGET,
+        lockPeriodDays: this.DEFAULT_LOCK_PERIOD_DAYS,
+        minimumPositionValue: this.DEFAULT_MIN_POSITION_VALUE,
+        timeBoostCoefficient: this.DEFAULT_B_TIME,
+        fullRangeBonus: this.DEFAULT_FRB
+      };
+    }
+  }
+
+  /**
    * Calculate daily rewards using the new formula:
    * R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
    * 
@@ -95,26 +148,16 @@ export class FixedRewardService {
       return 0;
     }
 
-    // Get admin-configured parameters from database
-    const { programSettings, treasuryConfig } = await import('../shared/schema');
-    const [settings] = await this.database.select().from(programSettings).limit(1);
-    const [treasury] = await this.database.select().from(treasuryConfig).limit(1);
-
-    // Use admin-configured values with fallbacks
-    const programDuration = settings ? settings.programDuration : this.DEFAULT_PROGRAM_DURATION_DAYS;
-    const dailyBudget = treasury ? parseFloat(treasury.dailyRewardsCap) : this.DEFAULT_DAILY_BUDGET;
-    const timeBoostCoeff = settings ? parseFloat(settings.liquidityWeight) : this.DEFAULT_B_TIME;
-    const fullRangeBonusCoeff = settings ? parseFloat(settings.fullRangeBonus) : this.DEFAULT_FRB;
+    // Get admin-configured parameters (single source of truth)
+    const config = await this.getAdminConfiguration();
     
-    // New formula implementation with admin-configured FRB support
-
-    // Formula components
+    // Formula components using admin configuration
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
-    const timeBoost = 1 + ((daysActive / programDuration) * timeBoostCoeff); // 1 + ((D_u/P)*b_time) - using admin config
-    const dailyRewardRate = dailyBudget; // R/P (daily allocation from admin)
+    const timeBoost = 1 + ((daysActive / config.programDurationDays) * config.timeBoostCoefficient); // 1 + ((D_u/P)*b_time)
+    const dailyRewardRate = config.dailyBudget; // R/P (daily allocation from admin)
     
     // Full Range Bonus: only full range positions get FRB multiplier (admin-configured)
-    const fullRangeBonus = isFullRange ? fullRangeBonusCoeff : 1.0;
+    const fullRangeBonus = isFullRange ? config.fullRangeBonus : 1.0;
     
     // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const dailyReward = liquidityShare * timeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardRate;

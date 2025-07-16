@@ -46,9 +46,9 @@ class UnifiedAPRService {
       const [settingsConf] = await db.select().from(programSettings).limit(1);
 
       // Use admin configuration as primary source with correct column names
-      const treasuryAllocation = treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : 750000;
+      const treasuryAllocation = treasuryConf?.program_budget ? parseFloat(treasuryConf.program_budget) : 750000;
       const programDuration = treasuryConf?.program_duration_days || 90;
-      const dailyBudget = treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : 8333.33;
+      const dailyBudget = treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : (treasuryAllocation / programDuration);
       const timeBoost = settingsConf?.time_boost_coefficient ? parseFloat(settingsConf.time_boost_coefficient) : 0.6;
       const fullRangeBonus = settingsConf?.full_range_bonus ? parseFloat(settingsConf.full_range_bonus) : 1.2;
       

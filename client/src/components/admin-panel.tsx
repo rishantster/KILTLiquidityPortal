@@ -88,6 +88,7 @@ export default function AdminPanel() {
 
   const [blockchainForm, setBlockchainForm] = useState({
     kiltTokenAddress: '',
+    wethTokenAddress: '',
     poolAddress: '',
     treasuryWalletAddress: ''
   });
@@ -303,6 +304,7 @@ export default function AdminPanel() {
     if (blockchainConfig) {
       setBlockchainForm({
         kiltTokenAddress: blockchainConfig.kiltTokenAddress || '',
+        wethTokenAddress: blockchainConfig.wethTokenAddress || '',
         poolAddress: blockchainConfig.poolAddress || '',
         treasuryWalletAddress: blockchainConfig.treasuryWalletAddress || ''
       });
@@ -343,9 +345,9 @@ export default function AdminPanel() {
   const handleBlockchainUpdate = () => {
     const values = {
       kiltTokenAddress: blockchainForm.kiltTokenAddress,
+      wethTokenAddress: blockchainForm.wethTokenAddress,
       poolAddress: blockchainForm.poolAddress,
       treasuryWalletAddress: blockchainForm.treasuryWalletAddress,
-      wethTokenAddress: '0x4200000000000000000000000000000000000006', // Base WETH
       poolFeeRate: 3000,
       networkId: 8453,
       updatedBy: 'admin'
@@ -719,6 +721,17 @@ export default function AdminPanel() {
                       className="bg-white/5 border-gray-800/30"
                     />
                     <p className="text-xs text-gray-400 mt-1">Base Network</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="wethToken">WETH Token Address</Label>
+                    <Input
+                      id="wethToken"
+                      value={blockchainForm.wethTokenAddress}
+                      onChange={(e) => setBlockchainForm({...blockchainForm, wethTokenAddress: e.target.value})}
+                      placeholder="0x4200000000000000000000000000000000000006"
+                      className="bg-white/5 border-gray-800/30"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Wrapped Ethereum token</p>
                   </div>
                   <div>
                     <Label htmlFor="poolAddress">KILT/ETH Pool Address</Label>

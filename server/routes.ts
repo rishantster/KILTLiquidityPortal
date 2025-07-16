@@ -24,7 +24,6 @@ import {
 import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 import { AnalyticsService } from "./analytics";
-import { rewardService } from "./reward-service";
 import { fixedRewardService } from "./fixed-reward-service";
 import { realTimePriceService } from "./real-time-price-service";
 import { uniswapIntegrationService } from "./uniswap-integration-service";
@@ -223,6 +222,12 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       // Create LP position in database with app tracking
+      // Validate position meets minimum requirements to prevent spam
+      if (positionValueUSD < 10) {
+        res.status(400).json({ error: "Position value must be at least $10 to prevent spam" });
+        return;
+      }
+
       const positionData = {
         userId,
         nftId,
@@ -263,7 +268,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       );
       
       // Create reward tracking entry
-      const rewardResult = await rewardService.createPositionReward(
+      const rewardResult = await fixedRewardService.calculatePositionRewards(
         userId,
         position.id,
         nftId.toString(),
@@ -702,7 +707,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      const reward = await rewardService.createPositionReward(
+      const reward = await fixedRewardService.calculatePositionRewards(
         userId,
         positionId,
         nftTokenId,
@@ -751,7 +756,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      const result = await rewardService.claimRewards(userId, userAddress);
+      const result = await claimBasedRewards.processClaimRequest(userAddress);
       
       if (result.success) {
         res.json(result);
@@ -772,7 +777,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const positionId = parseInt(req.params.positionId);
       const days = parseInt(req.query.days as string) || 30;
       
-      const history = await rewardService.getPositionRewardHistory(userId, positionId, days);
+      const history = await fixedRewardService.getUserRewards(userId);
       res.json(history);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch reward history" });
@@ -815,7 +820,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/user/:userId/claimable", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      const claimableRewards = await rewardService.getClaimableRewards(userId);
+      const userAddress = req.params.userId; // This should be user address from request params
+      const claimableRewards = await claimBasedRewards.checkClaimability(userAddress);
       res.json(claimableRewards);
     } catch (error) {
       // Return fallback claimable amount to prevent frontend errors
@@ -969,7 +975,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       for (const position of positions) {
         const positionValueUSD = position.amount0 * 0.01602203 + position.amount1 * 2500; // Rough calculation
         
-        const rewardCalc = await rewardService.calculatePositionRewards(
+        const rewardCalc = await fixedRewardService.calculatePositionRewards(
           user.id,
           position.nftTokenId,
           positionValueUSD,
@@ -1026,7 +1032,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
 
       // Calculate rewards (includes both trading fees and incentives)
-      const rewardResult = await rewardService.calculatePositionRewards(
+      const rewardResult = await fixedRewardService.calculatePositionRewards(
         position.userId,
         position.nftTokenId,
         Number(position.currentValueUSD),

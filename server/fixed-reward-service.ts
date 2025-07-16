@@ -65,7 +65,7 @@ export class FixedRewardService {
   private readonly PROGRAM_DURATION_DAYS = 365; // 365 days program duration
   private readonly DAILY_BUDGET = this.TREASURY_ALLOCATION / this.PROGRAM_DURATION_DAYS; // ~7,960 KILT/day
   private readonly LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
-  private readonly MIN_POSITION_VALUE = 0; // No minimum position value - any position with value > $0 is eligible
+  private readonly MIN_POSITION_VALUE = 10; // $10 minimum position value to prevent spam
   
   // New Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
   // Fixed parameters
@@ -104,7 +104,7 @@ export class FixedRewardService {
     const programDuration = settings ? settings.programDuration : this.PROGRAM_DURATION_DAYS;
     const dailyBudget = treasury ? parseFloat(treasury.dailyRewardsCap) : this.DAILY_BUDGET;
     
-    console.log('New formula values:', { programDuration, dailyBudget, bTime: this.B_TIME, frb: this.FRB });
+    // New formula implementation with FRB support
 
     // Formula components
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
@@ -192,13 +192,7 @@ export class FixedRewardService {
       
       const isFullRange = minPrice <= FULL_RANGE_MIN && maxPrice >= FULL_RANGE_MAX;
       
-      console.log('Full range check:', { 
-        nftTokenId: position.nftTokenId,
-        minPrice, 
-        maxPrice, 
-        isFullRange,
-        frbBonus: isFullRange ? this.FRB : 1.0
-      });
+      // Full range detection logic implemented
       
       return isFullRange;
     } catch (error) {

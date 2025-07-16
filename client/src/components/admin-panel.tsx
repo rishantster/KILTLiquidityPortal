@@ -78,7 +78,7 @@ export function AdminPanel() {
   const [settingsForm, setSettingsForm] = useState({
     // NOTE: programDuration removed - now controlled by Treasury Config
     maxLiquidityBoost: 0.6, // w1 - max liquidity boost (60% boost at program end)
-    minimumPositionValue: 0, // minimum USD value (0 = no minimum)
+    minimumPositionValue: 10, // minimum USD value (0 = no minimum)
     lockPeriod: 7, // claim lock period in days
     inRangeRequirement: true // whether IRM (In-Range Multiplier) is required
   });

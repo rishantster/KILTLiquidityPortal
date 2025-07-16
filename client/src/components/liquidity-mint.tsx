@@ -340,6 +340,10 @@ export function LiquidityMint() {
         <p className="text-white/70 text-xs max-w-xl mx-auto">
           Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + trading fees
         </p>
+        <div className="text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-1 inline-block">
+          <Info className="h-3 w-3 inline mr-1" />
+          Minimum position value: $10 (anti-spam protection)
+        </div>
         <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-0.5 text-xs">
           {poolExists ? 'Pool Active' : 'Pool Not Found'}
         </Badge>

@@ -193,7 +193,7 @@ export class AdminService {
           programDuration: authoritativeProgramDuration, // Always use treasury config value
           // Map maxLiquidityBoost to liquidityWeight for existing column
           liquidityWeight: settings.maxLiquidityBoost?.toString() || "0.6",
-          minimumPositionValue: settings.minimumPositionValue?.toString() || "0",
+          minimumPositionValue: settings.minimumPositionValue?.toString() || "10",
           lockPeriod: settings.lockPeriod || 7
         };
         
@@ -245,7 +245,7 @@ export class AdminService {
           programDuration: settings.programDuration || 365,
           // Map liquidityWeight to maxLiquidityBoost for UI
           maxLiquidityBoost: parseFloat(settings.liquidityWeight) || 0.6,
-          minimumPositionValue: parseFloat(settings.minimumPositionValue) || 0,
+          minimumPositionValue: parseFloat(settings.minimumPositionValue) || 10,
           lockPeriod: settings.lockPeriod || 7,
           inRangeRequirement: true // Always true for refined formula
         };
@@ -255,7 +255,7 @@ export class AdminService {
       return {
         programDuration: 365,
         maxLiquidityBoost: 0.6,
-        minimumPositionValue: 0,
+        minimumPositionValue: 10,
         lockPeriod: 7,
         inRangeRequirement: true
       };
@@ -264,7 +264,7 @@ export class AdminService {
       return {
         programDuration: 365,
         maxLiquidityBoost: 0.6,
-        minimumPositionValue: 0,
+        minimumPositionValue: 10,
         lockPeriod: 7,
         inRangeRequirement: true
       };

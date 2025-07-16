@@ -9,7 +9,7 @@ import {
   type InsertAppTransaction
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
-import { rewardService } from './reward-service';
+import { fixedRewardService } from './fixed-reward-service';
 import { historicalValidationService, type HistoricalValidationResult } from './historical-validation-service';
 import { liquidityTypeDetector, type LiquidityTypeResult } from './liquidity-type-detector';
 
@@ -219,7 +219,7 @@ export class PositionRegistrationService {
         .values(eligibilityRecord);
 
       // Calculate reward information
-      const rewardCalc = await rewardService.calculatePositionRewards(
+      const rewardCalc = await fixedRewardService.calculatePositionRewards(
         userId,
         positionData.nftTokenId,
         positionData.currentValueUSD,
@@ -228,7 +228,7 @@ export class PositionRegistrationService {
       );
 
       // Create initial reward tracking
-      await rewardService.createPositionReward(
+      await fixedRewardService.updateRewardRecord(
         userId,
         createdPosition.id,
         positionData.nftTokenId,

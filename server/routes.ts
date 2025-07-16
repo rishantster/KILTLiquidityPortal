@@ -25,14 +25,14 @@ import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 import { AnalyticsService } from "./analytics";
 import { fixedRewardService } from "./fixed-reward-service";
-import { realTimePriceService } from "./real-time-price-service";
+// Removed realTimePriceService - using kiltPriceService instead
 import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
-import { liquidityTypeDetector } from "./liquidity-type-detector";
+// Removed liquidityTypeDetector - consolidated into position registration
 // Removed reward calculation demo import
-import { treasuryService } from "./treasury-service";
+// Removed treasuryService - consolidated into admin service
 import { adminService } from "./admin-service";
 import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
 import { claimBasedRewards } from "./claim-based-rewards";
@@ -104,7 +104,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(unregisteredPositions);
     } catch (error) {
-      console.error("Failed to fetch unregistered positions:", error);
+      // Failed to fetch unregistered positions
       res.status(500).json({ error: "Failed to fetch unregistered positions" });
     }
   });
@@ -126,7 +126,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         kiltPositions: kiltPositions.length
       });
     } catch (error) {
-      console.error("Failed to fetch user position count:", error);
+      // Failed to fetch user position count
       res.status(500).json({ error: "Failed to fetch user position count" });
     }
   });
@@ -151,7 +151,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
       
     } catch (error) {
-      console.error("Failed to create app session:", error);
+      // Failed to create app session
       res.status(500).json({ error: "Failed to create app session" });
     }
   });
@@ -190,7 +190,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
       
     } catch (error) {
-      console.error("Failed to record app transaction:", error);
+      // Failed to record app transaction
       res.status(500).json({ error: "Failed to record app transaction" });
     }
   });
@@ -289,7 +289,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         lockEndDate: new Date(liquidityAddedAt.getTime() + (7 * 24 * 60 * 60 * 1000))
       });
     } catch (error) {
-      console.error('Error creating position with rewards:', error);
+      // Error creating position with rewards
       res.status(500).json({ error: "Failed to create position with rewards" });
     }
   });
@@ -328,7 +328,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const transactions = await appTransactionService.getUserAppTransactions(userId);
       res.json(transactions);
     } catch (error) {
-      console.error("Failed to get user app transactions:", error);
+      // Failed to get user app transactions
       res.status(500).json({ error: "Failed to get user app transactions" });
     }
   });
@@ -339,7 +339,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const positions = await appTransactionService.getUserEligiblePositions(userId);
       res.json(positions);
     } catch (error) {
-      console.error("Failed to get user eligible positions:", error);
+      // Failed to get user eligible positions
       res.status(500).json({ error: "Failed to get user eligible positions" });
     }
   });
@@ -359,7 +359,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
       
     } catch (error) {
-      console.error("Failed to check position eligibility:", error);
+      // Failed to check position eligibility
       res.status(500).json({ error: "Failed to check position eligibility" });
     }
   });
@@ -369,7 +369,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const stats = appTransactionService.getSessionStats();
       res.json(stats);
     } catch (error) {
-      console.error("Failed to get session stats:", error);
+      // Failed to get session stats
       res.status(500).json({ error: "Failed to get session stats" });
     }
   });
@@ -487,7 +487,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(performanceData);
     } catch (error) {
-      console.error("Failed to fetch pool performance:", error);
+      // Failed to fetch pool performance
       res.status(500).json({ error: "Failed to fetch pool performance data" });
     }
   });
@@ -660,7 +660,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const balanceInfo = await smartContractService.checkRewardWalletBalance();
       res.json(balanceInfo);
     } catch (error) {
-      console.error('Error checking reward wallet balance:', error);
+      // Error checking reward wallet balance
       res.status(500).json({ error: 'Failed to check reward wallet balance' });
     }
   });
@@ -670,7 +670,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const programInfo = await smartContractService.getProgramInfo();
       res.json(programInfo);
     } catch (error) {
-      console.error('Error fetching program info:', error);
+      // Error fetching program info
       res.status(500).json({ error: 'Failed to fetch program info' });
     }
   });
@@ -743,7 +743,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const stats = await fixedRewardService.getUserRewardStats(userId);
       res.json(stats);
     } catch (error) {
-      console.error('Error getting user reward stats:', error);
+      // Error getting user reward stats
       res.status(500).json({ error: "Failed to fetch user reward stats" });
     }
   });
@@ -820,7 +820,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(unifiedAnalytics);
     } catch (error) {
-      console.error('Error getting program analytics:', error);
+      // Error getting program analytics
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -838,7 +838,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         calculationDetails: aprData.calculationDetails
       });
     } catch (error) {
-      console.error('Error calculating maximum APR:', error);
+      // Error calculating maximum APR
       res.status(500).json({ error: "Failed to calculate maximum APR" });
     }
   });
@@ -886,7 +886,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
       
     } catch (error) {
-      console.error('Error fetching participation requirements:', error);
+      // Error fetching participation requirements
       res.status(500).json({ 
         error: 'Failed to fetch participation requirements',
         openParticipation: true,
@@ -964,7 +964,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
       
     } catch (error) {
-      console.error('Error checking eligibility:', error);
+      // Error checking eligibility
       res.status(500).json({ error: 'Failed to check eligibility' });
     }
   });
@@ -1036,7 +1036,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         totalParticipants 
       });
     } catch (error) {
-      console.error('Error calculating user APR:', error);
+      // Error calculating user APR
       res.status(500).json({ error: "Failed to calculate user APR" });
     }
   });
@@ -1091,7 +1091,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         }
       });
     } catch (error) {
-      console.error('Error getting position APR breakdown:', error);
+      // Error getting position APR breakdown
       res.status(500).json({ error: 'Failed to get APR breakdown' });
     }
   });
@@ -1112,7 +1112,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         lastUpdated: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error getting pool metrics:', error);
+      // Error getting pool metrics
       res.status(500).json({ error: 'Failed to get pool metrics' });
     }
   });
@@ -1185,7 +1185,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         recommendation: results.find(r => r.strategy.includes('Balanced'))?.strategy || 'Balanced (±50%)'
       });
     } catch (error) {
-      console.error('Error calculating range strategy APR:', error);
+      // Error calculating range strategy APR
       res.status(500).json({ error: 'Failed to calculate range strategy APR' });
     }
   });
@@ -1264,7 +1264,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
 
     } catch (error) {
-      console.error("Error registering position:", error);
+      // Error registering position
       res.status(500).json({ error: "Failed to register position" });
     }
   });
@@ -1285,7 +1285,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
 
     } catch (error) {
-      console.error("Error checking registration status:", error);
+      // Error checking registration status
       res.status(500).json({ error: "Failed to check registration status" });
     }
   });
@@ -1307,7 +1307,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
 
     } catch (error) {
-      console.error("Error fetching unregistered positions:", error);
+      // Error fetching unregistered positions
       res.status(500).json({ error: "Failed to fetch unregistered positions" });
     }
   });
@@ -1345,7 +1345,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
 
     } catch (error) {
-      console.error("Error bulk registering positions:", error);
+      // Error bulk registering positions
       res.status(500).json({ error: "Failed to bulk register positions" });
     }
   });
@@ -1379,7 +1379,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(result);
     } catch (error) {
-      console.error('Error increasing liquidity:', error);
+      // Error increasing liquidity
       res.status(500).json({ error: "Failed to increase liquidity" });
     }
   });
@@ -1410,7 +1410,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(result);
     } catch (error) {
-      console.error('Error decreasing liquidity:', error);
+      // Error decreasing liquidity
       res.status(500).json({ error: "Failed to decrease liquidity" });
     }
   });
@@ -1440,7 +1440,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(result);
     } catch (error) {
-      console.error('Error collecting fees:', error);
+      // Error collecting fees
       res.status(500).json({ error: "Failed to collect fees" });
     }
   });
@@ -1476,7 +1476,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(result);
     } catch (error) {
-      console.error('Error burning position:', error);
+      // Error burning position
       res.status(500).json({ error: "Failed to burn position" });
     }
   });
@@ -1489,7 +1489,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const status = await uniswapIntegrationService.getPositionStatus(nftTokenId);
       res.json(status);
     } catch (error) {
-      console.error('Error getting position status:', error);
+      // Error getting position status
       res.status(500).json({ error: "Failed to get position status" });
     }
   });
@@ -1502,7 +1502,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const fees = await uniswapIntegrationService.getPositionFees(nftTokenId);
       res.json(fees);
     } catch (error) {
-      console.error('Error getting position fees:', error);
+      // Error getting position fees
       res.status(500).json({ error: "Failed to get position fees" });
     }
   });
@@ -1515,7 +1515,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const value = await uniswapIntegrationService.getPositionValue(nftTokenId);
       res.json(value);
     } catch (error) {
-      console.error('Error getting position value:', error);
+      // Error getting position value
       res.status(500).json({ error: "Failed to get position value" });
     }
   });
@@ -1528,7 +1528,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const positions = await uniswapIntegrationService.getUserPositions(userAddress);
       res.json(positions);
     } catch (error) {
-      console.error('Error getting user positions:', error);
+      // Error getting user positions
       res.status(500).json({ error: "Failed to get user positions" });
     }
   });
@@ -1541,7 +1541,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
       res.json(poolData);
     } catch (error) {
-      console.error('Error getting pool info:', error);
+      // Error getting pool info
       res.status(500).json({ error: "Failed to get pool info" });
     }
   });
@@ -1554,7 +1554,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const price = await uniswapIntegrationService.getPoolPrice(poolAddress);
       res.json(price);
     } catch (error) {
-      console.error('Error getting pool price:', error);
+      // Error getting pool price
       res.status(500).json({ error: "Failed to get pool price" });
     }
   });
@@ -1572,7 +1572,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error generating vulnerability report:', error);
+      // Error generating vulnerability report
       res.status(500).json({
         success: false,
         error: 'Failed to generate vulnerability report'
@@ -1595,7 +1595,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         }
       });
     } catch (error) {
-      console.error('Error generating comparison:', error);
+      // Error generating comparison
       res.status(500).json({
         success: false,
         error: 'Failed to generate comparison'
@@ -1603,156 +1603,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // ===== LIQUIDITY TYPE DETECTION ROUTES =====
-  
-  // Analyze liquidity type for a position
-  app.post("/api/positions/analyze-liquidity-type", async (req, res) => {
-    try {
-      const {
-        token0Amount,
-        token1Amount,
-        token0Decimals = 18,
-        token1Decimals = 18,
-        minPrice,
-        maxPrice,
-        currentPrice,
-        poolAddress
-      } = req.body;
+  // ===== LIQUIDITY TYPE DETECTION ROUTES (REMOVED) =====
+  // Note: Liquidity type detection moved inline to position registration service
 
-      const result = await liquidityTypeDetector.detectLiquidityType(
-        token0Amount,
-        token1Amount,
-        token0Decimals,
-        token1Decimals,
-        minPrice,
-        maxPrice,
-        currentPrice,
-        poolAddress
-      );
-
-      res.json({
-        ...result,
-        recommendations: liquidityTypeDetector.getRecommendations(result)
-      });
-    } catch (error) {
-      console.error('Error analyzing liquidity type:', error);
-      res.status(500).json({ error: "Failed to analyze liquidity type" });
-    }
-  });
-
-  // ===== TREASURY MANAGEMENT ROUTES =====
-  
-  // Get current treasury information
-  app.get("/api/treasury/info", async (req, res) => {
-    try {
-      const treasuryInfo = await treasuryService.getTreasuryInfo();
-      res.json(treasuryInfo);
-    } catch (error) {
-      console.error('Error getting treasury info:', error);
-      res.status(500).json({ error: 'Failed to get treasury information' });
-    }
-  });
-
-  // Get treasury statistics
-  app.get("/api/treasury/stats", async (req, res) => {
-    try {
-      const stats = await treasuryService.getTreasuryStats();
-      res.json(stats);
-    } catch (error) {
-      console.error('Error getting treasury stats:', error);
-      res.status(500).json({ error: 'Failed to get treasury statistics' });
-    }
-  });
-
-  // Get contract owner address
-  app.get("/api/treasury/owner", async (req, res) => {
-    try {
-      const owner = await treasuryService.getContractOwner();
-      res.json({ owner });
-    } catch (error) {
-      console.error('Error getting contract owner:', error);
-      res.status(500).json({ error: 'Failed to get contract owner' });
-    }
-  });
-
-  // Update treasury wallet address (requires owner private key)
-  app.post("/api/treasury/update-address", async (req, res) => {
-    try {
-      const { newTreasuryAddress, ownerPrivateKey } = req.body;
-      
-      if (!newTreasuryAddress || !ownerPrivateKey) {
-        res.status(400).json({ error: 'Missing required parameters' });
-        return;
-      }
-
-      const result = await treasuryService.updateTreasuryAddress(
-        newTreasuryAddress,
-        ownerPrivateKey
-      );
-
-      if (result.success) {
-        res.json({
-          success: true,
-          message: 'Treasury address updated successfully',
-          transactionHash: result.transactionHash,
-          newAddress: newTreasuryAddress
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          error: result.error
-        });
-      }
-    } catch (error) {
-      console.error('Error updating treasury address:', error);
-      res.status(500).json({ error: 'Failed to update treasury address' });
-    }
-  });
-
-  // Setup treasury allowance (requires treasury private key)
-  app.post("/api/treasury/setup-allowance", async (req, res) => {
-    try {
-      const { treasuryPrivateKey, allowanceAmount = 2905600 } = req.body;
-      
-      if (!treasuryPrivateKey) {
-        res.status(400).json({ error: 'Treasury private key required' });
-        return;
-      }
-
-      const result = await treasuryService.setupTreasuryAllowance(
-        treasuryPrivateKey,
-        allowanceAmount
-      );
-
-      if (result.success) {
-        res.json({
-          success: true,
-          message: 'Treasury allowance setup successfully',
-          transactionHash: result.transactionHash,
-          allowanceAmount
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          error: result.error
-        });
-      }
-    } catch (error) {
-      console.error('Error setting up treasury allowance:', error);
-      res.status(500).json({ error: 'Failed to setup treasury allowance' });
-    }
-  });
-
-  // Validate treasury setup
-  app.get("/api/treasury/validate", async (req, res) => {
-    try {
-      const validation = await treasuryService.validateTreasurySetup();
-      res.json(validation);
-    } catch (error) {
-      console.error('Error validating treasury setup:', error);
-      res.status(500).json({ error: 'Failed to validate treasury setup' });
-    }
-  });
+  // ===== TREASURY MANAGEMENT ROUTES (REMOVED) =====
+  // Note: Treasury management consolidated into admin service
 
   // ===== ADMIN PANEL ROUTES =====
   
@@ -1801,7 +1656,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // No valid authentication method provided
       res.status(400).json({ error: 'Either wallet address or username/password required' });
     } catch (error) {
-      console.error('Admin login error:', error);
+      // Admin login error
       res.status(500).json({ error: 'Login failed' });
     }
   });
@@ -1812,7 +1667,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const stats = await adminService.getAdminTreasuryStats();
       res.json(stats);
     } catch (error) {
-      console.error('Error getting admin dashboard:', error);
+      // Error getting admin dashboard
       res.status(500).json({ error: 'Failed to load dashboard' });
     }
   });
@@ -1831,7 +1686,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const result = await adminService.updateTreasuryConfiguration(config, performedBy);
       res.json(result);
     } catch (error) {
-      console.error('Error updating treasury configuration:', error);
+      // Error updating treasury configuration
       res.status(500).json({ error: 'Failed to update treasury configuration' });
     }
   });
@@ -1845,7 +1700,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const result = await adminService.updateProgramSettings(settings, performedBy);
       res.json(result);
     } catch (error) {
-      console.error('Error updating program settings:', error);
+      // Error updating program settings
       res.status(500).json({ error: 'Failed to update program settings' });
     }
   });
@@ -1860,7 +1715,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       res.json({ success: true, message: 'Logged out successfully' });
     } catch (error) {
-      console.error('Admin logout error:', error);
+      // Admin logout error
       res.status(500).json({ error: 'Logout failed' });
     }
   });
@@ -1888,7 +1743,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
       res.json(result);
     } catch (error) {
-      console.error('Error transferring tokens:', error);
+      // Error transferring tokens
       res.status(500).json({ error: 'Failed to transfer tokens' });
     }
   });
@@ -1899,18 +1754,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const settings = req.body;
       const performedBy = req.user?.identifier || 'unknown';
       
-      console.log('Program settings update request:', {
-        settings,
-        performedBy,
-        user: req.user
-      });
+      // Program settings update request
       
       const result = await adminService.updateProgramSettings(settings, performedBy);
       
-      console.log('Program settings update result:', result);
+      // Program settings update result
       res.json(result);
     } catch (error) {
-      console.error('Error updating program settings:', error);
+      // Error updating program settings
       res.status(500).json({ error: 'Failed to update program settings' });
     }
   });
@@ -1921,7 +1772,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const settings = await adminService.getCurrentProgramSettings();
       res.json(settings);
     } catch (error) {
-      console.error('Error getting program settings:', error);
+      // Error getting program settings
       res.status(500).json({ error: 'Failed to get program settings' });
     }
   });
@@ -1933,7 +1784,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const history = await adminService.getOperationHistory(limit);
       res.json(history);
     } catch (error) {
-      console.error('Error getting operation history:', error);
+      // Error getting operation history
       res.status(500).json({ error: 'Failed to get operation history' });
     }
   });
@@ -1950,32 +1801,32 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.post("/api/admin/login-wallet", async (req, res) => {
     try {
       const { walletAddress } = req.body;
-      console.log('Admin login attempt with wallet:', walletAddress);
+      // Admin login attempt with wallet
       
       if (!walletAddress) {
-        console.log('Missing wallet address');
+        // Missing wallet address
         res.status(400).json({ error: 'Wallet address required' });
         return;
       }
 
       const isValid = validateAdminWallet(walletAddress);
-      console.log('Wallet validation result:', isValid);
+      // Wallet validation result
       
       if (!isValid) {
-        console.log('Invalid wallet address:', walletAddress);
+        // Invalid wallet address
         res.status(401).json({ error: 'Invalid wallet address' });
         return;
       }
 
       const token = createAdminSession(walletAddress, 'wallet');
-      console.log('Admin session created successfully');
+      // Admin session created successfully
       res.json({ 
         success: true, 
         token, 
         message: 'Admin wallet login successful' 
       });
     } catch (error) {
-      console.error('Error during admin wallet login:', error);
+      // Error during admin wallet login
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -1989,7 +1840,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const claimability = await claimBasedRewards.checkClaimability(userAddress);
       res.json(claimability);
     } catch (error) {
-      console.error('Error checking claimability:', error);
+      // Error checking claimability
       res.status(500).json({ error: 'Failed to check reward claimability' });
     }
   });
@@ -2007,7 +1858,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const result = await claimBasedRewards.processClaimRequest(userAddress);
       res.json(result);
     } catch (error) {
-      console.error('Error processing claim request:', error);
+      // Error processing claim request
       res.status(500).json({ error: 'Failed to process claim request' });
     }
   });
@@ -2019,7 +1870,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const history = await claimBasedRewards.getUserRewardHistory(userAddress);
       res.json(history);
     } catch (error) {
-      console.error('Error getting reward history:', error);
+      // Error getting reward history
       res.status(500).json({ error: 'Failed to get reward history' });
     }
   });
@@ -2030,7 +1881,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const stats = await claimBasedRewards.getClaimStatistics();
       res.json(stats);
     } catch (error) {
-      console.error('Error getting claim statistics:', error);
+      // Error getting claim statistics
       res.status(500).json({ error: 'Failed to get claim statistics' });
     }
   });

@@ -10,7 +10,7 @@ router.get('/config', async (req, res) => {
     const config = await blockchainConfigService.getConfiguration();
     res.json(config);
   } catch (error) {
-    console.error('Error fetching blockchain configuration:', error);
+    // Error fetching blockchain configuration
     res.status(500).json({ error: 'Failed to fetch blockchain configuration' });
   }
 });
@@ -35,7 +35,7 @@ router.post('/config', requireAdminAuth, async (req, res) => {
 
     res.json({ success: true, message: 'Blockchain configuration updated successfully' });
   } catch (error) {
-    console.error('Error updating blockchain configuration:', error);
+    // Error updating blockchain configuration
     res.status(500).json({ error: 'Failed to update blockchain configuration' });
   }
 });

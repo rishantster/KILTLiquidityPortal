@@ -75,7 +75,7 @@ export class UniswapIntegrationService {
       
       return positions;
     } catch (error) {
-      console.error('Error fetching user positions:', error);
+      // Error fetching user positions
       return [];
     }
   }
@@ -166,7 +166,7 @@ export class UniswapIntegrationService {
         },
       };
     } catch (error) {
-      console.error(`Error fetching position data for token ${tokenId}:`, error);
+      // Error fetching position data
       return null;
     }
   }
@@ -197,7 +197,7 @@ export class UniswapIntegrationService {
 
       return poolAddress as string;
     } catch (error) {
-      console.error('Error getting pool address:', error);
+      // Error getting pool address
       throw error;
     }
   }
@@ -315,7 +315,7 @@ export class UniswapIntegrationService {
         feesUSD24h,
       };
     } catch (error) {
-      console.error('Error getting pool data:', error);
+      // Error getting pool data
       throw error;
     }
   }
@@ -449,7 +449,7 @@ export class UniswapIntegrationService {
 
       return tokenIds;
     } catch (error) {
-      console.error('Error getting user token IDs:', error);
+      // Error getting user token IDs
       return [];
     }
   }

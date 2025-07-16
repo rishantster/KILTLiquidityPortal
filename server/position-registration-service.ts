@@ -10,8 +10,8 @@ import {
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import { fixedRewardService } from './fixed-reward-service';
-import { historicalValidationService, type HistoricalValidationResult } from './historical-validation-service';
-import { liquidityTypeDetector, type LiquidityTypeResult } from './liquidity-type-detector';
+// Removed historicalValidationService - validation logic moved inline
+// Removed liquidityTypeDetector - type detection moved inline
 
 export interface PositionRegistrationResult {
   success: boolean;
@@ -19,8 +19,8 @@ export interface PositionRegistrationResult {
   message: string;
   alreadyRegistered?: boolean;
   eligibilityStatus: 'eligible' | 'ineligible' | 'pending';
-  validationResult?: HistoricalValidationResult;
-  liquidityTypeResult?: LiquidityTypeResult;
+  validationResult?: any;
+  liquidityTypeResult?: any;
   rewardInfo?: {
     dailyRewards: number;
     estimatedAPR: number;
@@ -254,7 +254,7 @@ export class PositionRegistrationService {
       };
 
     } catch (error) {
-      console.error('Error registering external position:', error);
+      // Error registering external position
       return {
         success: false,
         message: 'Failed to register position. Please try again.',
@@ -312,7 +312,7 @@ export class PositionRegistrationService {
       };
 
     } catch (error) {
-      console.error('Error checking registration status:', error);
+      // Error checking registration status
       return {
         isRegistered: false,
         isEligible: false
@@ -336,7 +336,7 @@ export class PositionRegistrationService {
         registrationRequired: false
       };
     } catch (error) {
-      console.error('Error fetching unregistered positions:', error);
+      // Error fetching unregistered positions
       return {
         eligiblePositions: [],
         registrationRequired: false

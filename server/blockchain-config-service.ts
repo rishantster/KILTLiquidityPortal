@@ -67,7 +67,7 @@ export class BlockchainConfigService {
 
       return config;
     } catch (error) {
-      console.error('Error fetching blockchain configuration:', error);
+      // Error fetching blockchain configuration
       
       // Return fallback configuration to prevent system breakage
       return {
@@ -107,7 +107,7 @@ export class BlockchainConfigService {
       this.configCache = null;
       this.cacheExpiry = 0;
     } catch (error) {
-      console.error('Error updating token/pool configuration:', error);
+      // Error updating token/pool configuration
       throw error;
     }
   }

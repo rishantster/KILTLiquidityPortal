@@ -54,22 +54,21 @@ export function createAdminSession(identifier: string, type: 'wallet' | 'credent
 }
 
 export function validateAdminSession(token: string): boolean {
-  console.log('Validating token:', token);
-  console.log('Active sessions:', Array.from(adminSessions.keys()));
+  // Validating token
   
   const session = adminSessions.get(token);
   if (!session) {
-    console.log('No session found for token');
+    // No session found for token
     return false;
   }
   
   if (Date.now() > session.expires) {
-    console.log('Session expired');
+    // Session expired
     adminSessions.delete(token);
     return false;
   }
   
-  console.log('Session valid');
+  // Session valid
   return true;
 }
 

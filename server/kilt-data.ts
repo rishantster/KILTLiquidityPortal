@@ -70,7 +70,7 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     
     return result;
   } catch (error) {
-    console.error('Error fetching KILT token data:', error);
+    // Error fetching KILT token data
     // Return fallback data if API fails
     return {
       price: Math.round(0.0289 * 100000) / 100000, // 5 decimal places for price
@@ -128,7 +128,7 @@ export async function getBaseNetworkStats() {
       networkFee: 2.50 // Average transaction fee in USD
     };
   } catch (error) {
-    console.error('Error fetching Base network stats:', error);
+    // Error fetching Base network stats
     return {
       gasPrice: 0.002,
       blockNumber: 25000000,

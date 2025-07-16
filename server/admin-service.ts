@@ -135,7 +135,7 @@ export class AdminService {
         message: `Treasury configuration updated successfully. Program budget: ${config.programBudget.toLocaleString()} KILT, Daily cap: ${dailyRewardsCap.toFixed(2)} KILT`
       };
     } catch (error) {
-      console.error('Treasury configuration update error:', error);
+      // Treasury configuration update error
       return {
         success: false,
         message: 'Failed to update treasury configuration',
@@ -173,18 +173,18 @@ export class AdminService {
    */
   async updateProgramSettings(settings: AdminProgramSettings, performedBy: string): Promise<AdminOperationResult> {
     try {
-      console.log('Admin service updateProgramSettings called with:', settings, performedBy);
+      // Admin service updateProgramSettings called
       
       // Get treasury config to use as authoritative source for program duration
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const authoritativeProgramDuration = treasuryConf ? treasuryConf.programDurationDays : 365;
       
-      console.log('Using authoritative program duration from treasury config:', authoritativeProgramDuration);
+      // Using authoritative program duration from treasury config
       
       // First, get existing settings or create default values
       const [existingSettings] = await db.select().from(programSettings).limit(1);
       
-      console.log('Existing settings:', existingSettings);
+      // Existing settings retrieved
       
       if (existingSettings) {
         // Update existing settings record with all new parameters
@@ -212,7 +212,7 @@ export class AdminService {
           updatedAt: new Date()
         };
         
-        console.log('Updating with data:', updateData);
+        // Updating with data
         
         await db.update(programSettings)
           .set(updateData)
@@ -241,7 +241,7 @@ export class AdminService {
           performanceThreshold: settings.performanceThreshold?.toString() || "0.500"
         };
         
-        console.log('Inserting new settings:', insertData);
+        // Inserting new settings
         
         await db.insert(programSettings).values(insertData);
       }
@@ -409,7 +409,7 @@ export class AdminService {
         operationHistory: await this.getOperationHistory(10)
       };
     } catch (error) {
-      console.error('Admin service error in getAdminTreasuryStats:', error);
+      // Admin service error in getAdminTreasuryStats
       
       // Get real-time KILT price even in error case
       let kiltPrice = 0.016;
@@ -417,7 +417,7 @@ export class AdminService {
         const { kiltPriceService } = await import('./kilt-price-service.js');
         kiltPrice = kiltPriceService.getCurrentPrice();
       } catch (priceError) {
-        console.error('Error getting KILT price:', priceError);
+        // Error getting KILT price
       }
       
       return {

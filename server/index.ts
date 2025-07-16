@@ -8,7 +8,6 @@ import { kiltPriceService } from "./kilt-price-service.js";
 validateEnvironment();
 
 // Initialize KILT price service for background price fetching
-console.log('🚀 Starting KILT price service...');
 kiltPriceService; // This will start the background price fetching
 
 const app = express();

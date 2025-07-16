@@ -46,11 +46,14 @@ class UnifiedAPRService {
       const [settingsConf] = await db.select().from(programSettings).limit(1);
 
       // Use admin configuration as primary source with correct column names
-      const treasuryAllocation = treasuryConf ? parseFloat(treasuryConf.total_allocation) : 500000;
-      const programDuration = treasuryConf ? treasuryConf.program_duration_days : 90;
-      const dailyBudget = treasuryConf ? parseFloat(treasuryConf.daily_rewards_cap) : 5555.56;
-      const timeBoost = settingsConf ? parseFloat(settingsConf.timeBoostCoefficient) : 0.6;
-      const fullRangeBonus = settingsConf ? parseFloat(settingsConf.fullRangeBonus) : 1.2;
+      const treasuryAllocation = treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : 750000;
+      const programDuration = treasuryConf?.program_duration_days || 90;
+      const dailyBudget = treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : 8333.33;
+      const timeBoost = settingsConf?.time_boost_coefficient ? parseFloat(settingsConf.time_boost_coefficient) : 0.6;
+      const fullRangeBonus = settingsConf?.full_range_bonus ? parseFloat(settingsConf.full_range_bonus) : 1.2;
+      
+      // Clear cache to force recalculation
+      this.aprCache = null;
 
       // Get REAL-TIME KILT price from kiltPriceService
       const { kiltPriceService } = await import('./kilt-price-service.js');
@@ -96,17 +99,10 @@ class UnifiedAPRService {
           actualPositionValue = totalValue / appRegisteredPositions.length;
         }
         
-        console.log('Unified APR using real Uniswap data (App-Registered Only):', {
-          poolTVL,
-          actualPositionValue,
-          usingRealData,
-          appRegisteredPositions: appRegisteredPositions.length,
-          liquidityShare: actualPositionValue / poolTVL,
-          rewardEligibleOnly: true
-        });
+        // Using real Uniswap data for app-registered positions only
         
       } catch (error) {
-        console.error('Error getting real Uniswap data:', error);
+        // Fallback to default values when Uniswap data unavailable
       }
       
       // Calculate base APR using REAL data
@@ -169,11 +165,10 @@ class UnifiedAPRService {
         timestamp: Date.now()
       };
 
-      console.log('Unified APR Calculation:', result);
       return result;
 
     } catch (error) {
-      console.error('Error in unified APR calculation:', error);
+      // Error in unified APR calculation, using fallback
       
       // Return consistent fallback values with real KILT price
       const fallbackKiltPrice = await import('./kilt-price-service.js').then(m => m.kiltPriceService.getCurrentPrice());

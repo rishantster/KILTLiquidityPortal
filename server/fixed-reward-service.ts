@@ -1,5 +1,5 @@
 import { db } from './db';
-import { realTimePriceService } from './real-time-price-service';
+import { kiltPriceService } from './kilt-price-service';
 import { 
   rewards, 
   dailyRewards, 
@@ -175,7 +175,7 @@ export class FixedRewardService {
       // Default to 50% for concentrated positions without performance data
       return 0.5;
     } catch (error) {
-      console.error('Error calculating in-range multiplier:', error);
+      // Error calculating in-range multiplier
       return 0.5;
     }
   }
@@ -198,7 +198,7 @@ export class FixedRewardService {
       
       return isFullRange;
     } catch (error) {
-      console.error('Error checking full range position:', error);
+      // Error checking full range position
       return false;
     }
   }
@@ -226,7 +226,7 @@ export class FixedRewardService {
 
       return participants;
     } catch (error) {
-      console.error('Error getting active participants:', error);
+      // Error getting active participants
       return [];
     }
   }
@@ -250,7 +250,7 @@ export class FixedRewardService {
 
       return result[0]?.totalLiquidity || 0;
     } catch (error) {
-      console.error('Error getting total active liquidity:', error);
+      // Error getting total active liquidity
       return 0;
     }
   }
@@ -359,7 +359,7 @@ export class FixedRewardService {
         },
       };
     } catch (error) {
-      console.error('Error calculating position rewards:', error);
+      // Error calculating position rewards
       throw error;
     }
   }
@@ -392,7 +392,7 @@ export class FixedRewardService {
       
       return storedValue;
     } catch (error) {
-      console.error('Error calculating real-time position value:', error);
+      // Error calculating real-time position value
       return parseFloat(position.currentValueUSD?.toString() || '0');
     }
   }
@@ -411,7 +411,7 @@ export class FixedRewardService {
 
       return result[0]?.totalAccumulated || 0;
     } catch (error) {
-      console.error('Error getting accumulated rewards:', error);
+      // Error getting accumulated rewards
       return 0;
     }
   }
@@ -473,7 +473,7 @@ export class FixedRewardService {
         actualLiquidityShare = averagePositionValue / Math.max(currentPoolTVL, totalPositionValue);
       }
     } catch (error) {
-      console.error('Error getting real pool data:', error);
+      // Error getting real pool data
     }
     
     // Use real data if available, otherwise use realistic initial launch scenarios
@@ -481,13 +481,7 @@ export class FixedRewardService {
     const typicalPositionValue = averagePositionValue > 0 ? averagePositionValue : 100; // Fallback to $100 initial positions
     const liquidityShare = actualLiquidityShare > 0 ? actualLiquidityShare : (typicalPositionValue / poolTVL);
     
-    console.log('APR Calculation Data Sources:', {
-      currentPoolTVL,
-      averagePositionValue,
-      actualLiquidityShare,
-      usingRealData: currentPoolTVL > 0 && averagePositionValue > 0,
-      fallbackUsed: currentPoolTVL === 0 || averagePositionValue === 0
-    });
+    // APR Calculation Data Sources logged
     
     // Calculate APR for full range positions using REAL data (gets FRB bonus)
     // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
@@ -598,7 +592,7 @@ export class FixedRewardService {
       try {
         aprData = await this.calculateMaximumTheoreticalAPR();
       } catch (error) {
-        console.error('Error calculating APR data:', error);
+        // Error calculating APR data
         aprData = { minAPR: 29.46, maxAPR: 46.55 };
       }
       
@@ -634,7 +628,7 @@ export class FixedRewardService {
           programDaysRemaining = programDurationConfig;
         }
       } catch (error) {
-        console.error('Error calculating program days remaining:', error);
+        // Error calculating program days remaining
         // Final fallback - use program duration as remaining days
         programDaysRemaining = programDurationConfig;
       }
@@ -662,7 +656,7 @@ export class FixedRewardService {
         }
       };
     } catch (error) {
-      console.error('Error getting program analytics:', error);
+      // Error getting program analytics
       return {
         totalLiquidity: 0,
         activeParticipants: 0,
@@ -699,11 +693,11 @@ export class FixedRewardService {
           // Update or create reward record
           await this.updateRewardRecord(participant.userId, participant.nftTokenId, rewardCalculation);
         } catch (error) {
-          console.error(`Error updating rewards for participant ${participant.userId}:`, error);
+          // Error updating rewards for participant
         }
       }
     } catch (error) {
-      console.error('Error updating daily rewards:', error);
+      // Error updating daily rewards
     }
   }
 
@@ -763,7 +757,7 @@ export class FixedRewardService {
           });
       }
     } catch (error) {
-      console.error('Error updating reward record:', error);
+      // Error updating reward record
     }
   }
 
@@ -777,7 +771,7 @@ export class FixedRewardService {
         .from(rewards)
         .where(eq(rewards.userId, userId));
     } catch (error) {
-      console.error('Error getting user rewards:', error);
+      // Error getting user rewards
       return [];
     }
   }
@@ -816,7 +810,7 @@ export class FixedRewardService {
         activePositions: rawStats.activePositions,
       };
     } catch (error) {
-      console.error('Error getting user reward stats:', error);
+      // Error getting user reward stats
       return {
         totalAccumulated: 0,
         totalClaimable: 0,

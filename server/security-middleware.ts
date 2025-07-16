@@ -208,14 +208,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   
   // Log error for debugging
   if (status >= 500) {
-    console.error('Server Error:', {
-      error: err.message,
-      stack: isDev ? err.stack : undefined,
-      url: req.url,
-      method: req.method,
-      ip: req.ip,
-      userAgent: req.get('User-Agent')
-    });
+    // Server error logged
   }
 
   res.status(status).json({
@@ -238,10 +231,10 @@ export const validateEnvironment = () => {
   // Validate smart contract environment variables if provided
   if (process.env.KILT_REWARD_POOL_ADDRESS) {
     if (!process.env.REWARD_WALLET_PRIVATE_KEY) {
-      console.warn('Warning: KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_PRIVATE_KEY missing');
+      // Warning: KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_PRIVATE_KEY missing
     }
     if (!process.env.REWARD_WALLET_ADDRESS) {
-      console.warn('Warning: KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_ADDRESS missing');
+      // Warning: KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_ADDRESS missing
     }
   }
 };

@@ -140,7 +140,7 @@ export class AppTransactionService {
       return { success: true, transactionId: appTransaction.id };
       
     } catch (error: any) {
-      console.error("Failed to record app transaction:", error);
+      // Failed to record app transaction
       return { success: false, error: error.message };
     }
   }
@@ -175,7 +175,7 @@ export class AppTransactionService {
       return true;
       
     } catch (error: any) {
-      console.error("Failed to verify transaction:", error);
+      // Failed to verify transaction
       return false;
     }
   }
@@ -217,7 +217,7 @@ export class AppTransactionService {
       return true;
       
     } catch (error: any) {
-      console.error("Failed to create position eligibility:", error);
+      // Failed to create position eligibility
       return false;
     }
   }
@@ -241,7 +241,7 @@ export class AppTransactionService {
       return !!eligibility;
       
     } catch (error: any) {
-      console.error("Failed to check position eligibility:", error);
+      // Failed to check position eligibility
       return false;
     }
   }
@@ -260,7 +260,7 @@ export class AppTransactionService {
       return transactions;
       
     } catch (error: any) {
-      console.error("Failed to get user app transactions:", error);
+      // Failed to get user app transactions
       return [];
     }
   }
@@ -289,7 +289,7 @@ export class AppTransactionService {
       return positions;
       
     } catch (error: any) {
-      console.error("Failed to get user eligible positions:", error);
+      // Failed to get user eligible positions
       return [];
     }
   }

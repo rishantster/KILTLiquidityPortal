@@ -113,7 +113,7 @@ export class ClaimBasedRewards {
         };
       }
     } catch (error) {
-      console.error('Error checking claimability:', error);
+      // Error checking claimability
       return {
         canClaim: false,
         lockExpired: false,
@@ -248,7 +248,7 @@ export class ClaimBasedRewards {
         lockExpired: true
       };
     } catch (error) {
-      console.error('Error processing claim request:', error);
+      // Error processing claim request
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -277,7 +277,7 @@ export class ClaimBasedRewards {
         claimable: !reward.claimedAt
       }));
     } catch (error) {
-      console.error('Error getting reward history:', error);
+      // Error getting reward history
       return [];
     }
   }
@@ -303,7 +303,7 @@ export class ClaimBasedRewards {
         success: true
       });
     } catch (error) {
-      console.error('Error logging claim operation:', error);
+      // Error logging claim operation
     }
   }
 
@@ -333,7 +333,7 @@ export class ClaimBasedRewards {
         lockedRewards
       };
     } catch (error) {
-      console.error('Error getting claim statistics:', error);
+      // Error getting claim statistics
       return {
         totalClaimed: 0,
         totalClaimTransactions: 0,

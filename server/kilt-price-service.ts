@@ -24,10 +24,7 @@ class KiltPriceService {
   private loadPersistedPrice(): void {
     // In a production environment, this could load from database or Redis
     // For now, we'll just use the initial fallback
-    console.log('🔄 Loading persisted KILT price...');
-    if (this.lastSuccessfulPrice > 0) {
-      console.log(`📊 Using persisted KILT price: $${this.lastSuccessfulPrice.toFixed(8)}`);
-    }
+    // Load persisted price from storage
   }
 
   /**
@@ -37,7 +34,7 @@ class KiltPriceService {
     // In production, this would save to database or Redis
     // For now, we just store in memory
     this.lastSuccessfulPrice = price;
-    console.log(`💾 Persisted KILT price: $${price.toFixed(8)}`);
+    // Price persisted successfully
   }
 
   static getInstance(): KiltPriceService {
@@ -76,7 +73,7 @@ class KiltPriceService {
           const priceChange = Math.abs(newPrice - this.lastSuccessfulPrice) / this.lastSuccessfulPrice;
           
           if (priceChange > this.MAX_PRICE_CHANGE_THRESHOLD) {
-            console.warn(`🚨 KILT Price change too large (${(priceChange * 100).toFixed(1)}%), keeping last fetched price: $${this.lastSuccessfulPrice.toFixed(8)}`);
+            // Price change too large, using last successful price
             this.currentPrice = this.lastSuccessfulPrice;
             return;
           }
@@ -86,14 +83,13 @@ class KiltPriceService {
         this.currentPrice = newPrice;
         this.lastUpdate = Date.now();
         await this.persistPrice(newPrice);
-        console.log(`KILT Price updated: $${this.currentPrice.toFixed(8)} (${new Date().toLocaleTimeString()})`);
+        // KILT price updated successfully
       } else {
-        console.warn('Invalid KILT price data from CoinGecko, using last fetched value');
+        // Invalid price data, using fallback
         this.currentPrice = this.getIntelligentFallbackPrice();
       }
     } catch (error) {
-      console.error('Error fetching KILT price from CoinGecko:', error);
-      console.log('Falling back to last successfully fetched KILT price');
+      // CoinGecko API error, using fallback
       this.currentPrice = this.getIntelligentFallbackPrice();
     }
   }
@@ -102,13 +98,11 @@ class KiltPriceService {
    * Get intelligent fallback price - always uses last successfully fetched value
    */
   private getIntelligentFallbackPrice(): number {
-    // Always use last successful price from CoinGecko, only use initial fallback if we've never fetched successfully
+    // Always use last successful price from CoinGecko, only use initial fallback if never fetched successfully
     if (this.lastSuccessfulPrice > 0) {
-      console.log(`📈 Using last fetched KILT price: $${this.lastSuccessfulPrice.toFixed(8)} (fallback mode)`);
       return this.lastSuccessfulPrice;
     }
     
-    console.warn(`⚠️  No previous KILT price available, using emergency fallback: $${this.INITIAL_FALLBACK_PRICE.toFixed(8)}`);
     return this.INITIAL_FALLBACK_PRICE;
   }
 

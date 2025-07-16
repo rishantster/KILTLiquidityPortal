@@ -65,7 +65,7 @@ export async function getPositionAPRBreakdown(req: Request, res: Response) {
       }
     });
   } catch (error) {
-    console.error('Error getting position APR breakdown:', error);
+    // Error getting position APR breakdown
     res.status(500).json({ error: 'Failed to get APR breakdown' });
   }
 }
@@ -88,7 +88,7 @@ export async function getPoolMetrics(req: Request, res: Response) {
       lastUpdated: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error getting pool metrics:', error);
+    // Error getting pool metrics
     res.status(500).json({ error: 'Failed to get pool metrics' });
   }
 }
@@ -162,7 +162,7 @@ export async function calculateRangeStrategyAPR(req: Request, res: Response) {
       recommendation: results.find(r => r.strategy.includes('Balanced'))?.strategy || 'Balanced (±50%)'
     });
   } catch (error) {
-    console.error('Error calculating range strategy APR:', error);
+    // Error calculating range strategy APR
     res.status(500).json({ error: 'Failed to calculate range strategy APR' });
   }
 }

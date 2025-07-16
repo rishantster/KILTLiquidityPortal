@@ -84,7 +84,7 @@ export class AutomatedTokenDistribution {
               .where(eq(rewards.id, reward.id));
           }
         } catch (error) {
-          console.error(`Error processing reward ${reward.id}:`, error);
+          // Error processing reward
           results.push({
             success: false,
             error: error instanceof Error ? error.message : 'Unknown error',
@@ -96,7 +96,7 @@ export class AutomatedTokenDistribution {
 
       return results;
     } catch (error) {
-      console.error('Error in automated token distribution:', error);
+      // Error in automated token distribution
       return [];
     }
   }
@@ -158,7 +158,7 @@ export class AutomatedTokenDistribution {
         address: config.treasuryWalletAddress
       };
     } catch (error) {
-      console.error('Error getting treasury balance:', error);
+      // Error getting treasury balance
       return { balance: 0, address: '0x0000000000000000000000000000000000000000' };
     }
   }
@@ -248,7 +248,7 @@ export class AutomatedTokenDistribution {
         errorMessage: result.error
       });
     } catch (error) {
-      console.error('Error logging distribution operation:', error);
+      // Error logging distribution operation
     }
   }
 
@@ -304,7 +304,7 @@ export class AutomatedTokenDistribution {
 
       return stats;
     } catch (error) {
-      console.error('Error getting distribution stats:', error);
+      // Error getting distribution stats
       return {
         totalDistributed: 0,
         totalTransactions: 0,

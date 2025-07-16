@@ -51,7 +51,7 @@ router.get('/health', async (req, res) => {
     res.json(systemHealth);
     
   } catch (error) {
-    console.error('System health check failed:', error);
+    // System health check failed
     res.status(500).json({
       status: 'unhealthy',
       error: 'System health check failed',
@@ -109,7 +109,7 @@ router.post('/fix-database', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Database repair failed:', error);
+    // Database repair failed
     res.status(500).json({
       success: false,
       error: 'Database repair failed'

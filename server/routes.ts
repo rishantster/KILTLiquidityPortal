@@ -1974,19 +1974,25 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.post("/api/admin/login-wallet", async (req, res) => {
     try {
       const { walletAddress } = req.body;
+      console.log('Admin login attempt with wallet:', walletAddress);
       
       if (!walletAddress) {
+        console.log('Missing wallet address');
         res.status(400).json({ error: 'Wallet address required' });
         return;
       }
 
       const isValid = validateAdminWallet(walletAddress);
+      console.log('Wallet validation result:', isValid);
+      
       if (!isValid) {
+        console.log('Invalid wallet address:', walletAddress);
         res.status(401).json({ error: 'Invalid wallet address' });
         return;
       }
 
       const token = createAdminSession(walletAddress, 'wallet');
+      console.log('Admin session created successfully');
       res.json({ 
         success: true, 
         token, 

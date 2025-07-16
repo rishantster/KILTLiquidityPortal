@@ -1550,6 +1550,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Debug endpoint to test Uniswap V3 contract calls
+  app.get("/api/positions/debug/:userAddress", async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      
+      const debugInfo = await uniswapIntegrationService.debugUserPositions(userAddress);
+      res.json(debugInfo);
+    } catch (error) {
+      // Error debugging user positions
+      res.status(500).json({ error: "Failed to debug user positions" });
+    }
+  });
+
   // Get pool information
   app.get("/api/pools/:poolAddress/info", async (req, res) => {
     try {

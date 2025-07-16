@@ -5,10 +5,9 @@ import { base } from 'viem/chains';
 const BASE_CHAIN_ID = 8453;
 const BASE_RPC_URL = 'https://mainnet.base.org';
 
-// Uniswap V3 Contract Addresses on Base
-const UNISWAP_V3_FACTORY = '0x33128a8fC17869897dcE68Ed026d694621f6FDeD';
-const UNISWAP_V3_POOL_KILT_ETH = '0x123'; // Replace with actual pool address
-const UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BF5d1C1e1C7AB9E7F7B';
+// Uniswap V3 Contract Addresses on Base (official addresses)
+const UNISWAP_V3_FACTORY = '0x33128a8fC17869897dcE68Ed026d694621f6FDfD';
+const UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1';
 
 // Token Addresses
 import { blockchainConfigService } from './blockchain-config-service';
@@ -401,6 +400,47 @@ export class UniswapIntegrationService {
   }
 
   /**
+   * Debug method to test Uniswap V3 contract calls
+   */
+  async debugUserPositions(userAddress: string): Promise<any> {
+    try {
+      // Test the contract address and function call
+      const balance = await this.client.readContract({
+        address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
+        abi: [
+          {
+            inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+            name: 'balanceOf',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+        ],
+        functionName: 'balanceOf',
+        args: [userAddress as `0x${string}`],
+      });
+
+      const blockchainConfig = await blockchainConfigService.getConfiguration();
+      
+      return {
+        userAddress,
+        contractAddress: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER,
+        balance: balance?.toString() || '0',
+        balanceNumber: Number(balance),
+        blockchainConfig,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      return {
+        userAddress,
+        contractAddress: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER,
+        error: error.message || 'Unknown error',
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+
+  /**
    * Get user's NFT token IDs
    */
   private async getUserTokenIds(userAddress: string): Promise<string[]> {
@@ -423,6 +463,11 @@ export class UniswapIntegrationService {
 
       const tokenIds: string[] = [];
       const balanceNum = Number(balance);
+
+      // If no positions, return empty array
+      if (balanceNum === 0) {
+        return [];
+      }
 
       // Get each token ID by index
       for (let i = 0; i < balanceNum; i++) {
@@ -449,7 +494,7 @@ export class UniswapIntegrationService {
 
       return tokenIds;
     } catch (error) {
-      // Error getting user token IDs
+      // Error getting user token IDs - contract call failed
       return [];
     }
   }

@@ -10,6 +10,8 @@ import {
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import { fixedRewardService } from './fixed-reward-service';
+import { blockchainConfigService } from './blockchain-config-service';
+import { uniswapIntegrationService } from './uniswap-integration-service';
 // Removed historicalValidationService - validation logic moved inline
 // Removed liquidityTypeDetector - type detection moved inline
 
@@ -328,12 +330,66 @@ export class PositionRegistrationService {
     registrationRequired: boolean;
   }> {
     try {
-      // This would integrate with Uniswap V3 contracts to fetch user's positions
-      // For now, return structure for frontend integration
+      // Get blockchain configuration to determine KILT token address
+      const blockchainConfig = await blockchainConfigService.getConfiguration();
+      const kiltTokenAddress = blockchainConfig.kiltTokenAddress.toLowerCase();
+      const wethTokenAddress = blockchainConfig.wethTokenAddress.toLowerCase();
+      
+      // Get all user positions from Uniswap V3
+      const allUserPositions = await uniswapIntegrationService.getUserPositions(userAddress);
+      
+      // Filter positions that contain KILT token
+      const kiltPositions = allUserPositions.filter(position => {
+        const token0Lower = position.token0.toLowerCase();
+        const token1Lower = position.token1.toLowerCase();
+        
+        // Check if position contains KILT token
+        const containsKilt = token0Lower === kiltTokenAddress || token1Lower === kiltTokenAddress;
+        
+        // For enhanced filtering, also check for KILT/WETH pairs specifically
+        const isKiltWethPair = (
+          (token0Lower === kiltTokenAddress && token1Lower === wethTokenAddress) ||
+          (token0Lower === wethTokenAddress && token1Lower === kiltTokenAddress)
+        );
+        
+        return containsKilt && position.isActive;
+      });
+      
+      // Get already registered positions for this user
+      const registeredPositions = await this.db
+        .select()
+        .from(lpPositions)
+        .where(eq(lpPositions.userId, userAddress));
+      
+      const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId));
+      
+      // Filter out already registered positions
+      const unregisteredPositions = kiltPositions.filter(position => 
+        !registeredNftIds.has(position.tokenId)
+      );
+      
+      // Transform to expected format for frontend
+      const eligiblePositions = unregisteredPositions.map(position => ({
+        nftTokenId: position.tokenId,
+        poolAddress: position.poolAddress,
+        token0Address: position.token0,
+        token1Address: position.token1,
+        amount0: position.token0Amount,
+        amount1: position.token1Amount,
+        minPrice: "0", // Would need to calculate from ticks
+        maxPrice: "0", // Would need to calculate from ticks
+        liquidity: position.liquidity,
+        currentValueUSD: position.currentValueUSD,
+        feeTier: position.feeTier,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+        isActive: position.isActive,
+        createdAt: new Date() // Would need creation timestamp from blockchain
+      }));
       
       return {
-        eligiblePositions: [],
-        registrationRequired: false
+        eligiblePositions,
+        registrationRequired: eligiblePositions.length > 0
       };
     } catch (error) {
       // Error fetching unregistered positions

@@ -408,14 +408,25 @@ export class AdminService {
    */
   async getAdminTreasuryStats(): Promise<AdminTreasuryStats> {
     try {
-      const treasuryBalance = await this.getTreasuryBalance();
+      console.log('=== ADMIN TREASURY STATS DEBUG ===');
+      // Temporarily bypass blockchain call to isolate the issue
+      const treasuryBalance = { balance: 0, address: '0x0000000000000000000000000000000000000000' };
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const programSettings = await this.getCurrentProgramSettings();
       
-      // Use actual database values with correct column names (snake_case from database)
-      const programBudget = treasuryConf ? parseFloat(treasuryConf.total_allocation) : 750000;
-      const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.daily_rewards_cap) : 6250;
-      const programDuration = treasuryConf ? treasuryConf.program_duration_days : 120;
+      // Use actual database values with correct column names (camelCase from Drizzle schema)
+      console.log('Database values:', {
+        treasuryConf: treasuryConf ? 'EXISTS' : 'NULL',
+        rawTotalAllocation: treasuryConf?.totalAllocation,
+        rawDailyRewardsCap: treasuryConf?.dailyRewardsCap,
+        rawProgramDuration: treasuryConf?.programDurationDays,
+        typeOfTotalAllocation: typeof treasuryConf?.totalAllocation,
+        typeOfDailyRewardsCap: typeof treasuryConf?.dailyRewardsCap
+      });
+      
+      const programBudget = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 750000;
+      const dailyRewardsCap = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : 6250;
+      const programDuration = treasuryConf ? treasuryConf.programDurationDays : 120;
       
       // Use real-time KILT price from kiltPriceService
       const { kiltPriceService } = await import('./kilt-price-service.js');
@@ -431,13 +442,13 @@ export class AdminService {
       return {
         treasury: {
           balance: treasuryBalance.balance,
-          address: treasuryBalance.address,
+          address: treasuryConf ? treasuryConf.treasuryWalletAddress : treasuryBalance.address,
           programBudget,
           dailyRewardsCap,
           programDuration,
-          programEndDate: treasuryConf && treasuryConf.program_end_date ? new Date(treasuryConf.program_end_date) : new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000),
-          programStartDate: treasuryConf && treasuryConf.program_start_date ? new Date(treasuryConf.program_start_date) : new Date(),
-          isActive: treasuryConf ? treasuryConf.is_active : true,
+          programEndDate: treasuryConf && treasuryConf.programEndDate ? new Date(treasuryConf.programEndDate) : new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000),
+          programStartDate: treasuryConf && treasuryConf.programStartDate ? new Date(treasuryConf.programStartDate) : new Date(),
+          isActive: treasuryConf ? treasuryConf.isActive : true,
           totalDistributed: Math.round(totalDistributed * 100) / 100,
           treasuryRemaining: programBudget - totalDistributed,
           kiltPrice: kiltPrice,

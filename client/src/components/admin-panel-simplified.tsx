@@ -26,7 +26,8 @@ import {
   Copy,
   CheckCircle,
   Database,
-  Network
+  Network,
+  TrendingUp
 } from 'lucide-react';
 import { useWallet } from '@/contexts/wallet-context';
 import { apiRequest } from '@/lib/queryClient';
@@ -66,6 +67,35 @@ function AdminPanelSimplified() {
     localStorage.getItem('admin-token')
   );
   const [isAuthorized, setIsAuthorized] = useState(false);
+
+  // Calculate APR based on admin settings using the reward formula
+  const calculateDynamicAPR = (adminStats: AdminStats) => {
+    if (!adminStats) return 47;
+    
+    const { treasury, settings } = adminStats;
+    
+    // Base parameters from the reward formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
+    const dailyBudget = treasury.programBudget / treasury.programDuration;
+    const annualBudget = dailyBudget * 365;
+    const timeBoostCoeff = settings.timeBoostCoefficient || 0.6;
+    const fullRangeBonus = settings.fullRangeBonus || 1.2;
+    
+    // Assume typical position parameters for APR calculation
+    const typicalLiquidityShare = 0.01; // 1% of total pool
+    const maxTimeProgression = 1.0; // Full time progression
+    const inRangeMultiplier = 1.0; // Full in-range performance
+    
+    // Calculate max APR using the reward formula
+    const maxAPR = (
+      typicalLiquidityShare * 
+      (1 + (maxTimeProgression * timeBoostCoeff)) * 
+      inRangeMultiplier * 
+      fullRangeBonus * 
+      (annualBudget / 100000) // Assume $100k typical position
+    ) * 100; // Convert to percentage
+    
+    return Math.min(maxAPR, 100); // Cap at 100% for realism
+  };
 
   // Treasury configuration form
   const [treasuryConfigForm, setTreasuryConfigForm] = useState({
@@ -293,25 +323,49 @@ function AdminPanelSimplified() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <header className="border-b border-white/10 bg-black/50 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <Shield className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white">KILT Admin Panel</h1>
+            <div>
+              <h1 className="text-xl font-bold text-white">KILT Admin Panel</h1>
+              <p className="text-xs text-white/60">Manage liquidity incentive program</p>
+            </div>
           </div>
-          <Button 
-            onClick={handleLogout}
-            variant="outline"
-            className="bg-white/5 backdrop-blur-sm border-white/20 text-white hover:bg-white/10"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          
+          <div className="flex items-center gap-4">
+            {/* Current APR Display */}
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs text-white/80">Current APR:</span>
+              <span className="text-sm font-bold text-emerald-400">
+                {adminStats ? `${calculateDynamicAPR(adminStats).toFixed(1)}%` : '47%'}
+              </span>
+            </div>
+            
+            {/* Network Status */}
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span className="text-xs text-white/80">Base Network</span>
+            </div>
+            
+            <Button 
+              onClick={handleLogout}
+              variant="outline"
+              className="bg-white/5 backdrop-blur-sm border-white/20 text-white hover:bg-white/10 text-sm"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Logout
+            </Button>
+          </div>
         </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto p-4">
 
         {/* Main Content */}
         <Tabs defaultValue="program-config" className="space-y-4">
@@ -475,6 +529,29 @@ function AdminPanelSimplified() {
                           />
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Dynamic APR Preview */}
+                  <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-emerald-400" />
+                        <span className="text-emerald-200 text-sm font-medium">Live APR Preview</span>
+                      </div>
+                      <span className="text-emerald-300 text-lg font-bold">
+                        {adminStats ? `${calculateDynamicAPR({
+                          ...adminStats,
+                          settings: {
+                            ...adminStats.settings,
+                            timeBoostCoefficient: programSettingsForm.timeBoostCoefficient,
+                            fullRangeBonus: programSettingsForm.fullRangeBonus
+                          }
+                        }).toFixed(1)}%` : '47%'}
+                      </span>
+                    </div>
+                    <div className="text-xs text-emerald-200/80 mt-1">
+                      Updates in real-time as you modify settings
                     </div>
                   </div>
 

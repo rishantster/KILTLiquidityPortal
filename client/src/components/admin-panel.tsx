@@ -533,7 +533,7 @@ export function AdminPanel() {
                     
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="maxLiquidityBoost" className="text-white text-xs">Max Boost</Label>
+                        <Label htmlFor="maxLiquidityBoost" className="text-white text-xs">Time Boost Factor</Label>
                         <Input
                           id="maxLiquidityBoost"
                           type="number"

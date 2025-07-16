@@ -281,11 +281,36 @@ export default function AdminPanel() {
                   <span className="text-white text-lg font-medium">Current Formula</span>
                 </div>
                 <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/20">
-                  <div className="font-mono text-emerald-300 text-sm mb-2">
+                  <div className="font-mono text-emerald-300 text-sm mb-3">
                     R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)
                   </div>
-                  <div className="text-xs text-gray-400">
-                    b_time = {adminStats?.settings?.maxLiquidityBoost || 0.6} • IRM = {adminStats?.settings?.inRangeRequirement ? '1.0' : '0.0'} • FRB = 1.2x
+                  
+                  {/* Variable Explanations */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-xs">
+                    <div className="space-y-1">
+                      <div className="text-blue-300"><span className="font-mono">R_u</span> = Daily user rewards</div>
+                      <div className="text-blue-300"><span className="font-mono">L_u</span> = User liquidity amount</div>
+                      <div className="text-blue-300"><span className="font-mono">L_T</span> = Total pool liquidity</div>
+                      <div className="text-blue-300"><span className="font-mono">D_u</span> = Days user has been active</div>
+                      <div className="text-blue-300"><span className="font-mono">P</span> = Program duration ({adminStats?.treasury?.programDuration || 90} days)</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-yellow-300"><span className="font-mono">b_time</span> = Time boost factor ({adminStats?.settings?.maxLiquidityBoost || 0.6})</div>
+                      <div className="text-green-300"><span className="font-mono">IRM</span> = In-range multiplier ({adminStats?.settings?.inRangeRequirement ? '1.0' : '0.0'})</div>
+                      <div className="text-purple-300"><span className="font-mono">FRB</span> = Full range bonus (1.2x)</div>
+                      <div className="text-emerald-300"><span className="font-mono">R</span> = Total reward budget ({adminStats?.treasury?.programBudget || 500000} KILT)</div>
+                    </div>
+                  </div>
+                  
+                  {/* Current Values */}
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <div className="text-xs text-gray-400 flex flex-wrap gap-4">
+                      <span>b_time = {adminStats?.settings?.maxLiquidityBoost || 0.6}</span>
+                      <span>IRM = {adminStats?.settings?.inRangeRequirement ? '1.0' : '0.0'}</span>
+                      <span>FRB = 1.2x</span>
+                      <span>Lock = {adminStats?.settings?.lockPeriod || 7} days</span>
+                      <span>Min = ${adminStats?.settings?.minimumPositionValue || 10}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -400,16 +425,30 @@ export default function AdminPanel() {
                           </div>
                         </div>
                         
-                        <div>
-                          <Label htmlFor="lockPeriod" className="text-white text-xs">Lock Period (Days)</Label>
-                          <Input
-                            id="lockPeriod"
-                            type="number"
-                            value={programSettingsForm.lockPeriod}
-                            onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
-                            className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
-                            placeholder="7"
-                          />
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="lockPeriod" className="text-white text-xs">Lock Period (Days)</Label>
+                            <Input
+                              id="lockPeriod"
+                              type="number"
+                              value={programSettingsForm.lockPeriod}
+                              onChange={(e) => setProgramSettingsForm({ ...programSettingsForm, lockPeriod: parseInt(e.target.value) || 0 })}
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm"
+                              placeholder="7"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="fullRangeBonus" className="text-white text-xs">Full Range Bonus</Label>
+                            <Input
+                              id="fullRangeBonus"
+                              type="number"
+                              step="0.1"
+                              value={1.2}
+                              disabled
+                              className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-8 text-sm opacity-70"
+                            />
+                          </div>
                         </div>
 
                         <div className="flex items-center space-x-2">
@@ -417,8 +456,9 @@ export default function AdminPanel() {
                             id="inRangeRequirement"
                             checked={programSettingsForm.inRangeRequirement}
                             onCheckedChange={(checked) => setProgramSettingsForm({ ...programSettingsForm, inRangeRequirement: checked })}
+                            className="data-[state=checked]:bg-emerald-600"
                           />
-                          <Label htmlFor="inRangeRequirement" className="text-white text-xs">In-Range Requirement</Label>
+                          <Label htmlFor="inRangeRequirement" className="text-white text-xs">In-Range Requirement (IRM)</Label>
                         </div>
                       </div>
                     </div>

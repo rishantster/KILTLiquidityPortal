@@ -445,6 +445,11 @@ export function useUniswapV3() {
   // Check if pool exists based on actual pool data
   const poolExists = !!poolData;
 
+  // Debug the hook return values
+  console.log('Hook returning - kiltEthPositions length:', kiltEthPositions?.length || 0);
+  console.log('Hook returning - kiltEthLoading:', kiltEthLoading);
+  console.log('Hook returning - kiltEthError:', kiltEthError);
+
   return {
     // Data
     userPositions: userPositions || [],

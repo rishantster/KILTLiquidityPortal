@@ -97,11 +97,16 @@ export function UserPositions() {
   
   // Debug logging to see what we're getting
   console.log("=== USER POSITIONS COMPONENT DEBUG ===");
-  console.log("Debug - kiltEthPositions:", kiltEthPositions);
-  console.log("Debug - allKiltEthPositions:", allKiltEthPositions);
+  console.log("Debug - kiltEthPositions length:", kiltEthPositions?.length || 0);
+  console.log("Debug - allKiltEthPositions length:", allKiltEthPositions?.length || 0);
   console.log("Debug - uniswapLoading:", uniswapLoading);
   console.log("Debug - address:", address);
   console.log("Debug - isConnected:", isConnected);
+  
+  // Force component re-render when kiltEthPositions changes
+  useEffect(() => {
+    console.log("Effect triggered - kiltEthPositions changed, length:", kiltEthPositions?.length || 0);
+  }, [kiltEthPositions]);
   
   // Also find any other positions containing KILT token (not just KILT/ETH pool)
   const otherKiltPositions = (userPositions || []).filter(pos => {
@@ -324,6 +329,7 @@ export function UserPositions() {
           </div>
         </CardHeader>
         <CardContent className="p-3">
+          {console.log("Final render check - kiltPositions length:", kiltPositions?.length || 0)}
           {!kiltPositions || kiltPositions.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>

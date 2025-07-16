@@ -602,18 +602,28 @@ export function AdminPanel() {
         )}
 
         {/* Main Admin Tabs */}
-        <Tabs defaultValue="unified-config" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
-            <TabsTrigger value="unified-config" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
-              Program Configuration
-            </TabsTrigger>
-            <TabsTrigger value="blockchain-config" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
-              Blockchain Configuration
-            </TabsTrigger>
-            <TabsTrigger value="history" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
-              Operation History
-            </TabsTrigger>
-          </TabsList>
+        <div className="mt-8 mb-4">
+          <Tabs defaultValue="unified-config" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 h-12 mb-6">
+              <TabsTrigger 
+                value="unified-config" 
+                className="text-gray-300 data-[state=active]:bg-gray-700/70 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium"
+              >
+                Program Configuration
+              </TabsTrigger>
+              <TabsTrigger 
+                value="blockchain-config" 
+                className="text-gray-300 data-[state=active]:bg-gray-700/70 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium"
+              >
+                Blockchain Configuration
+              </TabsTrigger>
+              <TabsTrigger 
+                value="history" 
+                className="text-gray-300 data-[state=active]:bg-gray-700/70 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white font-medium"
+              >
+                Operation History
+              </TabsTrigger>
+            </TabsList>
 
 
 
@@ -1080,7 +1090,8 @@ export function AdminPanel() {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+          </Tabs>
+        </div>
       </div>
     </div>
   );

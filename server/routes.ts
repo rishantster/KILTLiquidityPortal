@@ -38,6 +38,8 @@ import { validateAdminCredentials, validateAdminWallet, createAdminSession, requ
 import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";
+import { adminSimpleRouter } from "./routes/admin-simple";
+import { systemHealthRouter } from "./routes/system-health";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
@@ -2072,6 +2074,12 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // Blockchain configuration routes
   app.use("/api/blockchain", blockchainConfigRouter);
+
+  // Admin simple routes (working replacement for complex admin system)
+  app.use("/api/admin-simple", adminSimpleRouter);
+
+  // System health and debugging routes
+  app.use("/api/system", systemHealthRouter);
 
   const httpServer = createServer(app);
   return httpServer;

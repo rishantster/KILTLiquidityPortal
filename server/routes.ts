@@ -1914,7 +1914,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   });
 
   // Get program settings
-  app.get("/api/admin/program/settings", requireAdminAuth, async (req, res) => {
+  app.get("/api/admin/program-settings", requireAdminAuth, async (req, res) => {
     try {
       const settings = await adminService.getCurrentProgramSettings();
       res.json(settings);
@@ -1946,6 +1946,17 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Error getting treasury balance:', error);
       res.status(500).json({ error: 'Failed to get treasury balance' });
+    }
+  });
+
+  // Get treasury configuration
+  app.get("/api/admin/treasury/config", requireAdminAuth, async (req, res) => {
+    try {
+      const config = await adminService.getAdminTreasuryStats();
+      res.json(config);
+    } catch (error) {
+      console.error('Error getting treasury configuration:', error);
+      res.status(500).json({ error: 'Failed to get treasury configuration' });
     }
   });
 

@@ -77,8 +77,8 @@ function AdminPanelSimplified() {
     // Base parameters from the reward formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const dailyBudget = treasury.programBudget / treasury.programDuration;
     const annualBudget = dailyBudget * 365;
-    const timeBoostCoeff = settings.timeBoostCoefficient || 0.6;
-    const fullRangeBonus = settings.fullRangeBonus || 1.2;
+    const timeBoostCoeff = typeof settings.timeBoostCoefficient === 'number' ? settings.timeBoostCoefficient : 0.6;
+    const fullRangeBonus = typeof settings.fullRangeBonus === 'number' ? settings.fullRangeBonus : 1.2;
     
     // Assume typical position parameters for APR calculation
     const typicalLiquidityShare = 0.01; // 1% of total pool
@@ -189,9 +189,9 @@ function AdminPanelSimplified() {
       // Convert string values to numbers for backend compatibility
       const configData = {
         ...treasuryConfigForm,
-        programBudget: parseInt(treasuryConfigForm.programBudget) || 500000,
-        programDuration: parseInt(treasuryConfigForm.programDuration) || 90,
-        programDurationDays: parseInt(treasuryConfigForm.programDuration) || 90
+        programBudget: treasuryConfigForm.programBudget === '' ? 500000 : parseInt(treasuryConfigForm.programBudget),
+        programDuration: treasuryConfigForm.programDuration === '' ? 90 : parseInt(treasuryConfigForm.programDuration),
+        programDurationDays: treasuryConfigForm.programDuration === '' ? 90 : parseInt(treasuryConfigForm.programDuration)
       };
       
       return await apiRequest('/api/admin/treasury/config', {
@@ -217,10 +217,10 @@ function AdminPanelSimplified() {
       
       // Convert string values to numbers for backend compatibility
       const settingsData = {
-        timeBoostCoefficient: parseFloat(programSettingsForm.timeBoostCoefficient) || 0.6,
-        fullRangeBonus: parseFloat(programSettingsForm.fullRangeBonus) || 1.2,
-        minimumPositionValue: parseInt(programSettingsForm.minimumPositionValue) || 10,
-        lockPeriod: parseInt(programSettingsForm.lockPeriod) || 7
+        timeBoostCoefficient: programSettingsForm.timeBoostCoefficient === '' ? 0.6 : parseFloat(programSettingsForm.timeBoostCoefficient),
+        fullRangeBonus: programSettingsForm.fullRangeBonus === '' ? 1.2 : parseFloat(programSettingsForm.fullRangeBonus),
+        minimumPositionValue: programSettingsForm.minimumPositionValue === '' ? 10 : parseInt(programSettingsForm.minimumPositionValue),
+        lockPeriod: programSettingsForm.lockPeriod === '' ? 7 : parseInt(programSettingsForm.lockPeriod)
       };
       
       return await apiRequest('/api/admin/settings', {

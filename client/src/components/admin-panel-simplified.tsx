@@ -123,18 +123,24 @@ function AdminPanelSimplified() {
     isActive: true
   });
 
-  // Check if wallet is authorized
+  // Check if wallet is authorized and auto-login
   useEffect(() => {
     if (address) {
       const authorizedWallets = [
         '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
         '0x861722f739539CF31d86F1221460Fa96C9baB95C'
       ];
-      setIsAuthorized(authorizedWallets.some(wallet => 
+      const isWalletAuthorized = authorizedWallets.some(wallet => 
         wallet.toLowerCase() === address.toLowerCase()
-      ));
+      );
+      setIsAuthorized(isWalletAuthorized);
+      
+      // Auto-login if wallet is authorized and no token exists
+      if (isWalletAuthorized && !adminToken) {
+        loginMutation.mutate();
+      }
     }
-  }, [address]);
+  }, [address, adminToken]);
 
   // Admin stats query
   const { data: adminStats, isLoading: statsLoading } = useQuery<AdminStats>({

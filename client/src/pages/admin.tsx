@@ -1,5 +1,5 @@
-import { AdminDashboardSimple } from '@/components/admin-dashboard-simple-fixed';
+import AdminPanelSimplified from '@/components/admin-panel-simplified';
 
 export default function AdminPage() {
-  return <AdminDashboardSimple />;
+  return <AdminPanelSimplified />;
 }

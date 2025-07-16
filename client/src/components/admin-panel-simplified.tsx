@@ -59,7 +59,7 @@ interface BlockchainConfig {
   isActive: boolean;
 }
 
-function AdminPanelSimplified() {
+export default function AdminPanelSimplified() {
   const queryClient = useQueryClient();
   const { address, isConnected, connect, disconnect } = useWallet();
   
@@ -140,6 +140,9 @@ function AdminPanelSimplified() {
       if (isWalletAuthorized && !adminToken && !loginMutation.isPending) {
         loginMutation.mutate();
       }
+    } else {
+      // Reset authorization if no address
+      setIsAuthorized(false);
     }
   }, [address, adminToken]);
 
@@ -327,6 +330,7 @@ function AdminPanelSimplified() {
   }, [blockchainConfig]);
 
   // Show login screen if not authenticated
+  console.log('Debug auth:', { adminToken, isAuthorized, address, isConnected });
   if (!adminToken || !isAuthorized) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -745,5 +749,3 @@ function AdminPanelSimplified() {
     </div>
   );
 }
-
-export default AdminPanelSimplified;

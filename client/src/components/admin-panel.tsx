@@ -82,6 +82,16 @@ export function AdminPanel() {
     lockPeriod: 7, // claim lock period in days
     inRangeRequirement: true // whether IRM (In-Range Multiplier) is required
   });
+
+  // Blockchain Configuration Form
+  const [blockchainConfigForm, setBlockchainConfigForm] = useState({
+    kiltTokenAddress: '',
+    wethTokenAddress: '',
+    poolAddress: '',
+    poolFeeRate: 3000,
+    networkId: 8453,
+    isActive: true
+  });
   
   const queryClient = useQueryClient();
   
@@ -149,6 +159,33 @@ export function AdminPanel() {
       });
     }
   }, [adminStats]);
+
+  // Fetch blockchain configuration
+  const { data: blockchainConfig } = useQuery({
+    queryKey: ['/api/blockchain/config'],
+    queryFn: async () => {
+      const response = await fetch('/api/blockchain/config');
+      if (!response.ok) {
+        throw new Error('Failed to fetch blockchain configuration');
+      }
+      return response.json();
+    },
+    enabled: isAuthorized,
+  });
+
+  // Populate blockchain form with current data
+  useEffect(() => {
+    if (blockchainConfig) {
+      setBlockchainConfigForm({
+        kiltTokenAddress: blockchainConfig.kiltTokenAddress || '',
+        wethTokenAddress: blockchainConfig.wethTokenAddress || '',
+        poolAddress: blockchainConfig.poolAddress || '',
+        poolFeeRate: blockchainConfig.poolFeeRate || 3000,
+        networkId: blockchainConfig.networkId || 8453,
+        isActive: blockchainConfig.isActive ?? true
+      });
+    }
+  }, [blockchainConfig]);
 
   // Auto-calculate program end date when start date or duration changes
   useEffect(() => {
@@ -267,6 +304,41 @@ export function AdminPanel() {
         description: data.message || "Program settings updated",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Blockchain configuration mutation
+  const blockchainConfigMutation = useMutation({
+    mutationFn: async (config: any) => {
+      const response = await fetch('/api/blockchain/config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify(config),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update blockchain configuration');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Success",
+        description: data.message || "Blockchain configuration updated",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/blockchain/config'] });
     },
     onError: (error: Error) => {
       toast({
@@ -531,9 +603,12 @@ export function AdminPanel() {
 
         {/* Main Admin Tabs */}
         <Tabs defaultValue="unified-config" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
             <TabsTrigger value="unified-config" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Program Configuration
+            </TabsTrigger>
+            <TabsTrigger value="blockchain-config" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
+              Blockchain Configuration
             </TabsTrigger>
             <TabsTrigger value="history" className="text-gray-300 data-[state=active]:bg-gray-700/50 data-[state=active]:backdrop-blur-sm">
               Operation History
@@ -850,7 +925,125 @@ export function AdminPanel() {
             </Card>
           </TabsContent>
 
-          {/* Removed separate Program Settings Tab - now unified */}
+          {/* Blockchain Configuration Tab */}
+          <TabsContent value="blockchain-config" className="space-y-4">
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-blue-400" />
+                  Blockchain Configuration
+                </CardTitle>
+                <div className="text-sm text-gray-400 mt-2">
+                  <p className="mb-1">Manage token addresses, pool configuration, and network settings</p>
+                  <p className="text-xs text-yellow-400">⚠️ Changes affect all backend services and price data sources</p>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Important:</strong> These settings control the core blockchain infrastructure. 
+                    Changes will restart all price monitoring and contract integration services.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="kiltTokenAddress" className="text-white">KILT Token Address</Label>
+                    <Input
+                      id="kiltTokenAddress"
+                      value={blockchainConfigForm.kiltTokenAddress}
+                      onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, kiltTokenAddress: e.target.value })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Base network KILT token contract address</p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="wethTokenAddress" className="text-white">WETH Token Address</Label>
+                    <Input
+                      id="wethTokenAddress"
+                      value={blockchainConfigForm.wethTokenAddress}
+                      onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, wethTokenAddress: e.target.value })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="0x4200000000000000000000000000000000000006"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Wrapped ETH token address on Base</p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="poolAddress" className="text-white">KILT/ETH Pool Address</Label>
+                    <Input
+                      id="poolAddress"
+                      value={blockchainConfigForm.poolAddress}
+                      onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, poolAddress: e.target.value })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="0xB578b4c5539FD22D7a0E6682Ab645c623Bae9dEb"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Uniswap V3 KILT/ETH pool contract address</p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="poolFeeRate" className="text-white">Pool Fee Rate</Label>
+                    <Input
+                      id="poolFeeRate"
+                      type="number"
+                      value={blockchainConfigForm.poolFeeRate?.toString() || ''}
+                      onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, poolFeeRate: parseInt(e.target.value) || 3000 })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="3000"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Fee tier (500 = 0.05%, 3000 = 0.3%, 10000 = 1%)</p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="networkId" className="text-white">Network ID</Label>
+                    <Input
+                      id="networkId"
+                      type="number"
+                      value={blockchainConfigForm.networkId?.toString() || ''}
+                      onChange={(e) => setBlockchainConfigForm({ ...blockchainConfigForm, networkId: parseInt(e.target.value) || 8453 })}
+                      className="bg-gray-800/30 backdrop-blur-sm border-gray-700/30 text-white placeholder-gray-400"
+                      placeholder="8453"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Base network chain ID (8453)</p>
+                  </div>
+                </div>
+
+                {/* Current Configuration Display */}
+                <div className="bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30">
+                  <h4 className="text-white font-medium mb-3">Current Configuration</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-400">KILT Token:</span>
+                      <div className="text-white font-mono text-xs break-all">{blockchainConfig?.kiltTokenAddress || 'Loading...'}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">WETH Token:</span>
+                      <div className="text-white font-mono text-xs break-all">{blockchainConfig?.wethTokenAddress || 'Loading...'}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Pool Address:</span>
+                      <div className="text-white font-mono text-xs break-all">{blockchainConfig?.poolAddress || 'Loading...'}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Network:</span>
+                      <div className="text-white">Base ({blockchainConfig?.networkId || 8453})</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={() => blockchainConfigMutation.mutate(blockchainConfigForm)}
+                  disabled={blockchainConfigMutation.isPending || !blockchainConfigForm.kiltTokenAddress || !blockchainConfigForm.poolAddress}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {blockchainConfigMutation.isPending ? 'Updating Configuration...' : 'Update Blockchain Configuration'}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Operation History Tab */}
           <TabsContent value="history" className="space-y-4">

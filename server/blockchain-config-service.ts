@@ -1,5 +1,6 @@
 import { db } from './db';
 import { tokenPoolConfig, treasuryConfig, TokenPoolConfig, TreasuryConfig } from '../shared/schema';
+import { eq } from 'drizzle-orm';
 
 export interface BlockchainConfiguration {
   kiltTokenAddress: string;
@@ -38,12 +39,12 @@ export class BlockchainConfigService {
     try {
       // Get token/pool configuration
       const [tokenPoolConf] = await db.select().from(tokenPoolConfig)
-        .where(tokenPoolConfig.isActive.eq(true))
+        .where(eq(tokenPoolConfig.isActive, true))
         .limit(1);
 
       // Get treasury configuration
       const [treasuryConf] = await db.select().from(treasuryConfig)
-        .where(treasuryConfig.isActive.eq(true))
+        .where(eq(treasuryConfig.isActive, true))
         .limit(1);
 
       if (!tokenPoolConf || !treasuryConf) {

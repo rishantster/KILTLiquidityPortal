@@ -45,7 +45,10 @@ export function AdminDashboardSimple() {
   // Check if wallet is authorized and load config
   useEffect(() => {
     if (address && isConnected) {
-      const authorized = AUTHORIZED_ADMIN_WALLETS.includes(address);
+      const authorized = AUTHORIZED_ADMIN_WALLETS.some(adminWallet => 
+        adminWallet.toLowerCase() === address.toLowerCase()
+      );
+      console.log('Admin wallet check:', { address, authorized, adminWallets: AUTHORIZED_ADMIN_WALLETS });
       setIsAuthorized(authorized);
       if (!authorized) {
         setMessage("⚠️ Wallet not authorized for admin access");

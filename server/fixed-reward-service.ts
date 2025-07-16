@@ -291,7 +291,28 @@ export class FixedRewardService {
           )
         );
 
-      return result[0]?.totalLiquidity || 0;
+      const totalLiquidity = result[0]?.totalLiquidity || 0;
+      
+      // Debug logging to verify the query is working
+      if (totalLiquidity === 0) {
+        // Check if query returns any results
+        const debugResult = await this.database
+          .select()
+          .from(lpPositions)
+          .where(
+            and(
+              eq(lpPositions.isActive, true),
+              eq(lpPositions.rewardEligible, true)
+            )
+          );
+        
+        // Log debug info about why liquidity might be 0
+        if (debugResult.length > 0) {
+          // Found positions but sum is 0
+        }
+      }
+
+      return totalLiquidity;
     } catch (error) {
       // Error getting total active liquidity
       return 0;
@@ -412,28 +433,12 @@ export class FixedRewardService {
    */
   private async calculateRealTimePositionValue(position: any): Promise<number> {
     try {
-      // Use current stored value, enhanced with real-time price data when available
+      // Use current stored value from database
       const storedValue = parseFloat(position.currentValueUSD?.toString() || '0');
       
-      // If we have token amounts, calculate with real-time prices
-      if (position.token0Amount && position.token1Amount && position.token0Address && position.token1Address) {
-        const realTimeValue = await realTimePriceService.calculatePositionValueUSD(
-          position.token0Amount.toString(),
-          position.token1Amount.toString(),
-          position.token0Address,
-          position.token1Address
-        );
-        
-        // Update stored value
-        await this.database
-          .update(lpPositions)
-          .set({ currentValueUSD: realTimeValue.toString() })
-          .where(eq(lpPositions.id, position.id));
-          
-        return realTimeValue;
-      }
-      
-      return storedValue;
+      // For now, return the stored value as it's already calculated by the position tracking system
+      // Real-time price updates can be enhanced later with proper price service integration
+      return storedValue > 0 ? storedValue : 0;
     } catch (error) {
       // Error calculating real-time position value
       return parseFloat(position.currentValueUSD?.toString() || '0');

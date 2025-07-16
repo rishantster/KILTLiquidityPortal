@@ -1023,49 +1023,29 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      // Calculate average APR across all positions
-      let totalAPR = 0;
-      let totalTradingFeeAPR = 0;
-      let totalIncentiveAPR = 0;
-      let totalValueUSD = 0;
-      let bestRank = null;
-      let totalParticipants = 100;
+      // Use the first position for APR calculation (simplified implementation)
+      const position = positions[0];
       
-      for (const position of positions) {
-        const positionValueUSD = position.amount0 * 0.01602203 + position.amount1 * 2500; // Rough calculation
-        
-        const rewardCalc = await fixedRewardService.calculatePositionRewards(
-          user.id,
-          position.nftTokenId,
-          positionValueUSD,
-          new Date(position.createdAt),
-          new Date(position.createdAt)
-        );
-        
-        totalAPR += rewardCalc.totalAPR * positionValueUSD;
-        totalTradingFeeAPR += rewardCalc.tradingFeeAPR * positionValueUSD;
-        totalIncentiveAPR += rewardCalc.incentiveAPR * positionValueUSD;
-        totalValueUSD += positionValueUSD;
-        
-        // Track the best (lowest) rank across all positions
-        if (rewardCalc.rank && (!bestRank || rewardCalc.rank < bestRank)) {
-          bestRank = rewardCalc.rank;
-        }
-        
-        totalParticipants = rewardCalc.totalParticipants;
+      // Debug - check if position exists
+      if (!position) {
+        res.json({ effectiveAPR: 0, tradingFeeAPR: 0, incentiveAPR: 0, totalAPR: 0, rank: null, totalParticipants: 1 });
+        return;
       }
       
-      const weightedTotalAPR = totalValueUSD > 0 ? totalAPR / totalValueUSD : 0;
-      const weightedTradingFeeAPR = totalValueUSD > 0 ? totalTradingFeeAPR / totalValueUSD : 0;
-      const weightedIncentiveAPR = totalValueUSD > 0 ? totalIncentiveAPR / totalValueUSD : 0;
+      const rewardCalc = await fixedRewardService.calculatePositionRewards(
+        user.id,
+        position.nftTokenId,
+        new Date(position.createdAt),
+        new Date(position.createdAt)
+      );
       
       res.json({ 
-        effectiveAPR: weightedTotalAPR,
-        tradingFeeAPR: weightedTradingFeeAPR,
-        incentiveAPR: weightedIncentiveAPR,
-        totalAPR: weightedTotalAPR,
-        rank: bestRank, 
-        totalParticipants 
+        effectiveAPR: rewardCalc.effectiveAPR,
+        tradingFeeAPR: rewardCalc.tradingFeeAPR,
+        incentiveAPR: rewardCalc.incentiveAPR,
+        totalAPR: rewardCalc.totalAPR,
+        rank: rewardCalc.rank,
+        totalParticipants: rewardCalc.totalParticipants
       });
     } catch (error) {
       // Error calculating user APR

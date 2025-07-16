@@ -33,17 +33,13 @@ export function useUniswapV3() {
   const { data: kiltEthPositions, isLoading: kiltEthLoading, error: kiltEthError } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
-      console.log('Fetching KILT positions for address:', address?.toLowerCase());
       const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
-      console.log('API response status:', response.status);
       
       if (!response.ok) {
-        console.error('Failed to fetch KILT positions:', response.status);
         throw new Error('Failed to fetch KILT positions');
       }
       
       const positions = await response.json();
-      console.log('Raw positions from API:', positions);
       
       // Convert backend format to frontend format
       const converted = positions.map((pos: any) => ({
@@ -68,8 +64,6 @@ export function useUniswapV3() {
         poolAddress: pos.poolAddress
       }));
       
-      console.log('Converted positions count:', converted.length);
-      console.log('First position tokenId:', converted[0]?.tokenId.toString());
       return converted;
     },
     enabled: !!address && isConnected,
@@ -448,9 +442,7 @@ export function useUniswapV3() {
   const poolExists = !!poolData;
 
   // Debug the hook return values
-  console.log('Hook returning - kiltEthPositions length:', kiltEthPositions?.length || 0);
-  console.log('Hook returning - kiltEthLoading:', kiltEthLoading);
-  console.log('Hook returning - kiltEthError:', kiltEthError);
+
 
   return {
     // Data

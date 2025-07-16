@@ -12,6 +12,8 @@ import {
   type PoolStats,
   type InsertPoolStats
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -179,4 +181,100 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database storage implementation using Drizzle ORM
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserByAddress(address: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.address, address)).limit(1);
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  async getLpPosition(id: number): Promise<LpPosition | undefined> {
+    const result = await db.select().from(lpPositions).where(eq(lpPositions.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getLpPositionsByUserId(userId: number): Promise<LpPosition[]> {
+    return await db.select().from(lpPositions).where(eq(lpPositions.userId, userId));
+  }
+
+  async getAllLpPositions(): Promise<LpPosition[]> {
+    return await db.select().from(lpPositions);
+  }
+
+  async createLpPosition(insertPosition: InsertLpPosition): Promise<LpPosition> {
+    const result = await db.insert(lpPositions).values(insertPosition).returning();
+    return result[0];
+  }
+
+  async updateLpPosition(id: number, updates: Partial<LpPosition>): Promise<LpPosition | undefined> {
+    const result = await db.update(lpPositions).set(updates).where(eq(lpPositions.id, id)).returning();
+    return result[0];
+  }
+
+  async getUserPositions(address: string): Promise<any[]> {
+    // Return empty array - positions come from blockchain data
+    return [];
+  }
+
+  async getRegisteredPositions(address: string): Promise<any[]> {
+    const user = await this.getUserByAddress(address);
+    if (!user) return [];
+    
+    return await db.select().from(lpPositions).where(eq(lpPositions.userId, user.id));
+  }
+
+  async getRewardsByUserId(userId: number): Promise<Reward[]> {
+    return await db.select().from(rewards).where(eq(rewards.userId, userId));
+  }
+
+  async getRewardsByPositionId(positionId: number): Promise<Reward[]> {
+    return await db.select().from(rewards).where(eq(rewards.positionId, positionId));
+  }
+
+  async createReward(insertReward: InsertReward): Promise<Reward> {
+    const result = await db.insert(rewards).values(insertReward).returning();
+    return result[0];
+  }
+
+  async claimRewards(userId: number): Promise<void> {
+    await db.update(rewards)
+      .set({ claimedAt: new Date() })
+      .where(eq(rewards.userId, userId));
+  }
+
+  async getPoolStats(poolAddress: string): Promise<PoolStats | undefined> {
+    const result = await db.select().from(poolStats).where(eq(poolStats.poolAddress, poolAddress)).limit(1);
+    return result[0];
+  }
+
+  async updatePoolStats(poolAddress: string, stats: InsertPoolStats): Promise<PoolStats> {
+    const existing = await this.getPoolStats(poolAddress);
+    if (existing) {
+      const result = await db.update(poolStats)
+        .set({ ...stats, updatedAt: new Date() })
+        .where(eq(poolStats.poolAddress, poolAddress))
+        .returning();
+      return result[0];
+    } else {
+      const result = await db.insert(poolStats).values({
+        ...stats,
+        poolAddress,
+        updatedAt: new Date()
+      }).returning();
+      return result[0];
+    }
+  }
+}
+
+// Use database storage instead of in-memory storage
+export const storage = new DatabaseStorage();

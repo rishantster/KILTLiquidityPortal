@@ -446,8 +446,7 @@ export class UniswapIntegrationService {
    */
   async debugUserPositions(userAddress: string): Promise<any> {
     try {
-      console.log('DEBUG: Testing position detection for', userAddress);
-      console.log('DEBUG: Using contract address', UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER);
+
       
       // Test the contract address and function call
       const balance = await this.client.readContract({
@@ -465,7 +464,7 @@ export class UniswapIntegrationService {
         args: [userAddress as `0x${string}`],
       });
 
-      console.log('DEBUG: Balance result:', balance?.toString());
+
       
       const blockchainConfig = await blockchainConfigService.getConfiguration();
       
@@ -496,9 +495,7 @@ export class UniswapIntegrationService {
             tokenIds.push(tokenId?.toString());
           }
           firstTokenId = tokenIds[0];
-          console.log('DEBUG: All token IDs:', tokenIds);
         } catch (tokenError) {
-          console.log('DEBUG: Error getting token IDs:', tokenError.message);
         }
       }
       
@@ -513,7 +510,7 @@ export class UniswapIntegrationService {
         timestamp: new Date().toISOString()
       };
     } catch (error) {
-      console.log('DEBUG: Error in debugUserPositions:', error.message);
+
       return {
         userAddress,
         contractAddress: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER,
@@ -607,7 +604,7 @@ export class UniswapIntegrationService {
         // Check if it's a rate limit error
         if (error.message.includes('429') || error.message.includes('rate limit')) {
           const delay = Math.pow(2, i) * 1000 + Math.random() * 1000; // Exponential backoff with jitter
-          console.log(`DEBUG: Rate limit hit, retrying in ${delay}ms (attempt ${i + 1}/${maxRetries})`);
+
           await new Promise(resolve => setTimeout(resolve, delay));
         } else {
           throw error; // Re-throw non-rate-limit errors immediately

@@ -69,8 +69,8 @@ export class FixedRewardService {
   
   // Default Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
   // These are overridden by admin configuration
-  private readonly DEFAULT_B_TIME = 0.6; // Time boost coefficient
-  private readonly DEFAULT_FRB = 1.2; // Full Range Bonus - 20% boost for full range positions
+  private readonly DEFAULT_B_TIME = 0.6; // Time boost coefficient (b_time)
+  private readonly DEFAULT_FRB = 1.2; // Full Range Bonus (FRB) - 20% boost for full range positions
 
   /**
    * Calculate daily rewards using the new formula:

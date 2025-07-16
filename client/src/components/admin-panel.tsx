@@ -97,25 +97,13 @@ export function AdminPanel() {
     isActive: true
   });
 
-  // Program settings form
+  // Program settings form - simplified to essential formula parameters
   const [programSettingsForm, setProgramSettingsForm] = useState({
-    // Core formula parameters
-    maxLiquidityBoost: 0.6,
-    baseLiquidityWeight: 1.0,
-    timeBoostCoefficient: 1.0,
-    inRangeMultiplier: 1.0,
-    poolFactor: 1.0,
-    concentrationBonus: 1.0,
-    
-    // Position requirements
-    minimumPositionValue: 10,
-    lockPeriod: 7,
-    inRangeRequirement: true,
-    fullRangeBonus: 1.2,
-    
-    // Performance thresholds
-    minimumTimeInRange: 0.8,
-    performanceThreshold: 0.5
+    // Essential formula parameters only
+    timeBoostCoefficient: 0.6,  // b_time in the formula
+    fullRangeBonus: 1.2,        // FRB in the formula
+    minimumPositionValue: 10,   // Anti-spam protection
+    lockPeriod: 7               // Reward lock period
   });
 
   // Blockchain configuration form

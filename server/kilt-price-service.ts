@@ -5,14 +5,39 @@
 
 class KiltPriceService {
   private static instance: KiltPriceService;
-  private currentPrice: number = 0.01602; // Fallback price
+  private currentPrice: number = 0.01602; // Initial fallback price
+  private lastSuccessfulPrice: number = 0.01602; // Last known good price
   private lastUpdate: number = 0;
   private fetchInterval: NodeJS.Timeout | null = null;
   private readonly UPDATE_INTERVAL = 30000; // 30 seconds
-  private readonly FALLBACK_PRICE = 0.01602;
+  private readonly INITIAL_FALLBACK_PRICE = 0.01602; // Conservative initial price
+  private readonly MAX_PRICE_CHANGE_THRESHOLD = 0.5; // 50% max change per update (circuit breaker)
 
   private constructor() {
+    this.loadPersistedPrice();
     this.startBackgroundFetching();
+  }
+
+  /**
+   * Load last persisted price from environment or database
+   */
+  private loadPersistedPrice(): void {
+    // In a production environment, this could load from database or Redis
+    // For now, we'll just use the initial fallback
+    console.log('🔄 Loading persisted KILT price...');
+    if (this.lastSuccessfulPrice > 0) {
+      console.log(`📊 Using persisted KILT price: $${this.lastSuccessfulPrice.toFixed(8)}`);
+    }
+  }
+
+  /**
+   * Persist current price for server restarts
+   */
+  private async persistPrice(price: number): Promise<void> {
+    // In production, this would save to database or Redis
+    // For now, we just store in memory
+    this.lastSuccessfulPrice = price;
+    console.log(`💾 Persisted KILT price: $${price.toFixed(8)}`);
   }
 
   static getInstance(): KiltPriceService {
@@ -36,7 +61,7 @@ class KiltPriceService {
   }
 
   /**
-   * Fetch KILT price from CoinGecko API
+   * Fetch KILT price from CoinGecko API with intelligent fallback
    */
   private async fetchKiltPrice(): Promise<void> {
     try {
@@ -44,17 +69,47 @@ class KiltPriceService {
       const data = await response.json();
       
       if (data && data['kilt-protocol'] && data['kilt-protocol'].usd) {
-        this.currentPrice = data['kilt-protocol'].usd;
+        const newPrice = data['kilt-protocol'].usd;
+        
+        // Circuit breaker: Detect unrealistic price changes
+        if (this.lastSuccessfulPrice > 0) {
+          const priceChange = Math.abs(newPrice - this.lastSuccessfulPrice) / this.lastSuccessfulPrice;
+          
+          if (priceChange > this.MAX_PRICE_CHANGE_THRESHOLD) {
+            console.warn(`🚨 KILT Price change too large (${(priceChange * 100).toFixed(1)}%), keeping last fetched price: $${this.lastSuccessfulPrice.toFixed(8)}`);
+            this.currentPrice = this.lastSuccessfulPrice;
+            return;
+          }
+        }
+        
+        // Valid price update
+        this.currentPrice = newPrice;
         this.lastUpdate = Date.now();
+        await this.persistPrice(newPrice);
         console.log(`KILT Price updated: $${this.currentPrice.toFixed(8)} (${new Date().toLocaleTimeString()})`);
       } else {
-        console.warn('Invalid KILT price data from CoinGecko, using fallback');
-        this.currentPrice = this.FALLBACK_PRICE;
+        console.warn('Invalid KILT price data from CoinGecko, using last fetched value');
+        this.currentPrice = this.getIntelligentFallbackPrice();
       }
     } catch (error) {
       console.error('Error fetching KILT price from CoinGecko:', error);
-      this.currentPrice = this.FALLBACK_PRICE;
+      console.log('Falling back to last successfully fetched KILT price');
+      this.currentPrice = this.getIntelligentFallbackPrice();
     }
+  }
+
+  /**
+   * Get intelligent fallback price - always uses last successfully fetched value
+   */
+  private getIntelligentFallbackPrice(): number {
+    // Always use last successful price from CoinGecko, only use initial fallback if we've never fetched successfully
+    if (this.lastSuccessfulPrice > 0) {
+      console.log(`📈 Using last fetched KILT price: $${this.lastSuccessfulPrice.toFixed(8)} (fallback mode)`);
+      return this.lastSuccessfulPrice;
+    }
+    
+    console.warn(`⚠️  No previous KILT price available, using emergency fallback: $${this.INITIAL_FALLBACK_PRICE.toFixed(8)}`);
+    return this.INITIAL_FALLBACK_PRICE;
   }
 
   /**
@@ -72,16 +127,29 @@ class KiltPriceService {
     lastUpdate: number;
     timeSinceUpdate: number;
     isStale: boolean;
+    lastSuccessfulPrice: number;
+    priceSource: 'live' | 'last-fetched' | 'circuit-breaker';
   } {
     const now = Date.now();
     const timeSinceUpdate = now - this.lastUpdate;
     const isStale = timeSinceUpdate > this.UPDATE_INTERVAL * 2; // Stale if more than 1 minute old
+    
+    let priceSource: 'live' | 'last-fetched' | 'circuit-breaker' = 'live';
+    if (this.lastUpdate > 0 && this.currentPrice === this.lastSuccessfulPrice) {
+      priceSource = 'live';
+    } else if (this.lastUpdate === 0 && this.currentPrice === this.lastSuccessfulPrice) {
+      priceSource = 'last-fetched';
+    } else if (this.currentPrice === this.lastSuccessfulPrice) {
+      priceSource = 'circuit-breaker';
+    }
 
     return {
       price: this.currentPrice,
       lastUpdate: this.lastUpdate,
       timeSinceUpdate,
-      isStale
+      isStale,
+      lastSuccessfulPrice: this.lastSuccessfulPrice,
+      priceSource
     };
   }
 

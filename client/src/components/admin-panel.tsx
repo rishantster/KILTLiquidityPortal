@@ -138,6 +138,18 @@ export default function AdminPanel() {
     }
   });
 
+  // Blockchain configuration query
+  const { data: blockchainConfig, isLoading: blockchainLoading } = useQuery({
+    queryKey: ['/api/blockchain/config'],
+    enabled: isAuthenticated && !!adminToken,
+    refetchInterval: 30000, // Check every 30 seconds 
+    queryFn: async () => {
+      const response = await fetch('/api/blockchain/config');
+      if (!response.ok) throw new Error('Failed to fetch blockchain config');
+      return response.json();
+    }
+  });
+
   // Unified APR calculations (single source of truth)
   const { data: unifiedAPR, isLoading: aprLoading } = useQuery({
     queryKey: ['/api/rewards/maximum-apr'],
@@ -638,11 +650,21 @@ export default function AdminPanel() {
                     <Label htmlFor="kiltToken">KILT Token Address</Label>
                     <Input
                       id="kiltToken"
-                      defaultValue="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
+                      defaultValue={blockchainConfig?.kiltTokenAddress || "Loading..."}
                       className="bg-white/5 border-gray-800/30"
                       readOnly
                     />
                     <p className="text-xs text-gray-400 mt-1">Base Network</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="poolAddress">KILT/ETH Pool Address</Label>
+                    <Input
+                      id="poolAddress"
+                      defaultValue={blockchainConfig?.poolAddress || "Loading..."}
+                      className="bg-white/5 border-gray-800/30"
+                      readOnly
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Uniswap V3 Pool (0.3% fee tier)</p>
                   </div>
                   <div>
                     <Label htmlFor="treasuryWallet">Treasury Wallet Address</Label>

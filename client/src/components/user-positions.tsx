@@ -95,6 +95,10 @@ export function UserPositions() {
   // Use real positions from connected wallet only
   const allKiltEthPositions = kiltEthPositions || [];
   
+  // Debug logging to see what we're getting
+  console.log("Debug - kiltEthPositions:", kiltEthPositions);
+  console.log("Debug - allKiltEthPositions:", allKiltEthPositions);
+  
   // Also find any other positions containing KILT token (not just KILT/ETH pool)
   const otherKiltPositions = (userPositions || []).filter(pos => {
     // Check if position contains KILT token but is not from the main KILT/ETH pool
@@ -109,10 +113,14 @@ export function UserPositions() {
   // Combine all KILT-related positions
   const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions];
   
+  console.log("Debug - allKiltPositions:", allKiltPositions);
+  
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
     ? allKiltPositions 
     : allKiltPositions.filter(pos => pos.liquidity > 0n);
+    
+  console.log("Debug - kiltPositions after filter:", kiltPositions);
   
   // Count open and closed positions
   const openPositions = allKiltPositions.filter(pos => pos.liquidity > 0n);

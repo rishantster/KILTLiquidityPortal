@@ -8,7 +8,7 @@ import { treasuryConfig, programSettings } from '../shared/schema';
 class UnifiedAPRService {
   private static instance: UnifiedAPRService;
   private aprCache: { value: any; timestamp: number } | null = null;
-  private readonly CACHE_DURATION = 60000; // 1 minute cache
+  private readonly CACHE_DURATION = 30000; // 30 seconds cache to allow price updates
 
   static getInstance(): UnifiedAPRService {
     if (!UnifiedAPRService.instance) {
@@ -125,9 +125,19 @@ class UnifiedAPRService {
       const maxTimeBoost = 1 + maxTimeProgression;
       
       // Daily reward per position using exact formula
-      const dailyRewardBudget = dailyBudget;
-      const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardBudget;
-      const maxDailyReward = liquidityShare * maxTimeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardBudget;
+      // dailyBudget is in KILT tokens, need to convert to USD for APR calculation
+      let kiltPrice = 0.01602; // Fallback price
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
+        const data = await response.json();
+        kiltPrice = data['kilt-protocol']?.usd || 0.01602;
+      } catch (error) {
+        console.error('Error fetching KILT price from CoinGecko:', error);
+      }
+      
+      const dailyRewardBudgetUSD = dailyBudget * kiltPrice; // Convert KILT to USD
+      const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardBudgetUSD;
+      const maxDailyReward = liquidityShare * maxTimeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardBudgetUSD;
       
       // Annualized APR calculation
       const minAnnualReward = minDailyReward * 365;
@@ -144,6 +154,8 @@ class UnifiedAPRService {
           treasuryAllocation,
           programDuration,
           dailyBudget,
+          dailyBudgetUSD: dailyRewardBudgetUSD,
+          kiltPrice,
           timeBoost,
           fullRangeBonus,
           baseAPR: minAPR,
@@ -166,7 +178,16 @@ class UnifiedAPRService {
     } catch (error) {
       console.error('Error in unified APR calculation:', error);
       
-      // Return consistent fallback values
+      // Return consistent fallback values with real KILT price
+      let fallbackKiltPrice = 0.01602;
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
+        const data = await response.json();
+        fallbackKiltPrice = data['kilt-protocol']?.usd || 0.01602;
+      } catch (error) {
+        console.error('Error fetching KILT price for fallback:', error);
+      }
+      
       const fallbackResult = {
         minAPR: 31,
         maxAPR: 31,
@@ -175,6 +196,8 @@ class UnifiedAPRService {
           treasuryAllocation: 500000,
           programDuration: 90,
           dailyBudget: 5555.56,
+          dailyBudgetUSD: 5555.56 * fallbackKiltPrice,
+          kiltPrice: fallbackKiltPrice,
           timeBoost: 0.6,
           fullRangeBonus: 1.2,
           baseAPR: 31,

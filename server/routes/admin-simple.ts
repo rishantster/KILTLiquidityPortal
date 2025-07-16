@@ -59,8 +59,19 @@ router.get('/config', async (req, res) => {
       const minTimeBoost = 1 + minTimeProgression;
       const maxTimeBoost = 1 + maxTimeProgression;
       
-      const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyBudget;
-      const maxDailyReward = liquidityShare * maxTimeBoost * inRangeMultiplier * fullRangeBonus * dailyBudget;
+      // dailyBudget is in KILT tokens, need to convert to USD for APR calculation
+      let kiltPrice = 0.01602; // Fallback price
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd');
+        const data = await response.json();
+        kiltPrice = data['kilt-protocol']?.usd || 0.01602;
+      } catch (error) {
+        console.error('Error fetching KILT price from CoinGecko:', error);
+      }
+      
+      const dailyBudgetUSD = dailyBudget * kiltPrice; // Convert KILT to USD
+      const minDailyReward = liquidityShare * minTimeBoost * inRangeMultiplier * fullRangeBonus * dailyBudgetUSD;
+      const maxDailyReward = liquidityShare * maxTimeBoost * inRangeMultiplier * fullRangeBonus * dailyBudgetUSD;
       
       const minAPR = Math.round((minDailyReward * 365 / assumedPositionValue) * 100);
       const maxAPR = Math.round((maxDailyReward * 365 / assumedPositionValue) * 100);
@@ -73,6 +84,8 @@ router.get('/config', async (req, res) => {
           treasuryAllocation: treasuryBudget,
           programDuration,
           dailyBudget,
+          dailyBudgetUSD,
+          kiltPrice,
           timeBoost,
           fullRangeBonus,
           baseAPR: minAPR,
@@ -99,6 +112,17 @@ router.get('/config', async (req, res) => {
   } catch (error) {
     console.error('Error fetching admin config:', error);
     res.status(500).json({ error: 'Failed to fetch admin configuration' });
+  }
+});
+
+// Clear cache endpoint
+router.post('/clear-cache', async (req, res) => {
+  try {
+    unifiedAPRService.clearCache();
+    res.json({ success: true, message: 'Cache cleared successfully' });
+  } catch (error) {
+    console.error('Error clearing cache:', error);
+    res.status(500).json({ error: 'Failed to clear cache' });
   }
 });
 

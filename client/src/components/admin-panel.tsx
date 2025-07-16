@@ -121,6 +121,7 @@ export function AdminPanel() {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async () => {
+      console.log('Mutation executing with address:', address);
       if (!address) {
         throw new Error('No wallet address available');
       }
@@ -131,6 +132,7 @@ export function AdminPanel() {
       return response;
     },
     onSuccess: (data) => {
+      console.log('Login successful:', data);
       setAdminToken(data.token);
       localStorage.setItem('admin-token', data.token);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
@@ -206,11 +208,13 @@ export function AdminPanel() {
   }, [blockchainConfig]);
 
   const handleLogin = async () => {
+    console.log('Login attempt with state:', { isConnected, isAuthorized, address });
     if (!isConnected || !isAuthorized || !address) {
       console.error('Login requirements not met:', { isConnected, isAuthorized, address });
       return;
     }
     try {
+      console.log('Attempting login with address:', address);
       await loginMutation.mutateAsync();
     } catch (error) {
       console.error('Login failed:', error);

@@ -185,13 +185,24 @@ function AdminPanelSimplified() {
       if (!adminToken) {
         throw new Error('No admin token available');
       }
+      
+      // Add programDurationDays field for backend compatibility
+      const configData = {
+        ...treasuryConfigForm,
+        programDurationDays: treasuryConfigForm.programDuration
+      };
+      
       return await apiRequest('/api/admin/treasury/config', {
         method: 'POST',
-        data: treasuryConfigForm
+        data: configData
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      alert('Treasury configuration updated successfully!');
+    },
+    onError: (error: any) => {
+      alert(`Error updating treasury config: ${error.message}`);
     }
   });
 
@@ -208,6 +219,10 @@ function AdminPanelSimplified() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      alert('Program settings updated successfully!');
+    },
+    onError: (error: any) => {
+      alert(`Error updating program settings: ${error.message}`);
     }
   });
 
@@ -341,48 +356,50 @@ function AdminPanelSimplified() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-black/50 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+      {/* Header - Match main app design */}
+      <header className="border-b border-gray-800/30 bg-gradient-to-r from-gray-900/40 via-gray-800/30 to-gray-900/40 backdrop-blur-md sticky top-0 z-50 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
               <Shield className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">KILT Admin Panel</h1>
-              <p className="text-xs text-white/60">Manage liquidity incentive program</p>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+                KILT Admin Panel
+              </h1>
+              <p className="text-sm text-gray-400">Manage liquidity incentive program</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            {/* Treasury Status */}
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+          <div className="flex items-center gap-3">
+            {/* Treasury Status - Match main app style */}
+            <div className="flex items-center gap-2 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border border-gray-800/30 rounded-lg px-3 py-2">
               <DollarSign className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs text-white/80">Treasury:</span>
+              <span className="text-xs text-gray-300">Treasury:</span>
               <span className="text-sm font-bold text-emerald-400">
                 {adminStats ? `${(adminStats.treasury.programBudget / 1000000).toFixed(1)}M KILT` : '0.5M KILT'}
               </span>
             </div>
 
-            {/* Current APR Display */}
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+            {/* Current APR Display - Match main app style */}
+            <div className="flex items-center gap-2 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border border-gray-800/30 rounded-lg px-3 py-2">
               <TrendingUp className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs text-white/80">Current APR:</span>
+              <span className="text-xs text-gray-300">Current APR:</span>
               <span className="text-sm font-bold text-emerald-400">
                 {adminStats ? `${calculateDynamicAPR(adminStats).toFixed(1)}%` : '47%'}
               </span>
             </div>
             
-            {/* Network Status */}
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+            {/* Network Status - Match main app style */}
+            <div className="flex items-center gap-2 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border border-gray-800/30 rounded-lg px-3 py-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-white/80">Base Network</span>
+              <span className="text-xs text-gray-300">Base Network</span>
             </div>
             
             <Button 
               onClick={handleLogout}
               variant="outline"
-              className="bg-white/5 backdrop-blur-sm border-white/20 text-white hover:bg-white/10 text-sm"
+              className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border-gray-800/30 text-white hover:bg-white/10 text-sm"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Logout
@@ -393,16 +410,16 @@ function AdminPanelSimplified() {
 
       <div className="max-w-7xl mx-auto p-4">
 
-        {/* Main Content */}
-        <Tabs defaultValue="program-config" className="space-y-4">
-          <TabsList className="bg-white/10 backdrop-blur-sm border-white/20">
-            <TabsTrigger value="program-config" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-300">
+        {/* Main Content - Match main app design */}
+        <Tabs defaultValue="program-config" className="space-y-6">
+          <TabsList className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border border-gray-800/30 p-1">
+            <TabsTrigger value="program-config" className="data-[state=active]:bg-emerald-600/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-400/30 text-gray-300 border border-transparent">
               Program Configuration
             </TabsTrigger>
-            <TabsTrigger value="blockchain-config" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-300">
+            <TabsTrigger value="blockchain-config" className="data-[state=active]:bg-blue-600/20 data-[state=active]:text-blue-400 data-[state=active]:border-blue-400/30 text-gray-300 border border-transparent">
               Blockchain Configuration
             </TabsTrigger>
-            <TabsTrigger value="operation-history" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">
+            <TabsTrigger value="operation-history" className="data-[state=active]:bg-purple-600/20 data-[state=active]:text-purple-400 data-[state=active]:border-purple-400/30 text-gray-300 border border-transparent">
               Operation History
             </TabsTrigger>
           </TabsList>
@@ -417,7 +434,7 @@ function AdminPanelSimplified() {
                   <DollarSign className="h-5 w-5 text-emerald-400" />
                   Treasury Configuration
                 </h2>
-                <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-4 border border-white/10 space-y-4">
+                <div className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm rounded-lg p-4 border border-gray-800/30 space-y-4">
                   <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-3">
                     <div className="flex items-center gap-2">
                       <Activity className="h-4 w-4 text-emerald-400" />
@@ -434,7 +451,7 @@ function AdminPanelSimplified() {
                           type="number"
                           value={treasuryConfigForm.programBudget}
                           onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programBudget: parseInt(e.target.value) || 0 })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
+                          className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border-gray-800/30 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                           placeholder="500000"
                         />
                       </div>
@@ -446,7 +463,7 @@ function AdminPanelSimplified() {
                           type="number"
                           value={treasuryConfigForm.programDuration}
                           onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, programDuration: parseInt(e.target.value) || 0 })}
-                          className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
+                          className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border-gray-800/30 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                           placeholder="90"
                         />
                       </div>
@@ -458,7 +475,7 @@ function AdminPanelSimplified() {
                         id="treasuryWalletAddress"
                         value={treasuryConfigForm.treasuryWalletAddress}
                         onChange={(e) => setTreasuryConfigForm({ ...treasuryConfigForm, treasuryWalletAddress: e.target.value })}
-                        className="bg-white/5 backdrop-blur-sm border-white/10 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
+                        className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border-gray-800/30 text-white placeholder-gray-400 focus:border-emerald-400/50 focus:ring-emerald-400/20 h-10 text-sm"
                         placeholder="0x..."
                       />
                     </div>
@@ -467,7 +484,7 @@ function AdminPanelSimplified() {
                   <Button
                     onClick={handleTreasuryUpdate}
                     disabled={treasuryConfigMutation.isPending}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium h-10 text-sm rounded-lg transition-all duration-200"
+                    className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:opacity-50 text-white font-medium h-10 text-sm rounded-lg transition-all duration-200 backdrop-blur-sm"
                   >
                     {treasuryConfigMutation.isPending ? 'Updating...' : 'Update Treasury Config'}
                   </Button>
@@ -480,7 +497,7 @@ function AdminPanelSimplified() {
                   <Settings className="h-5 w-5 text-emerald-400" />
                   Program Settings
                 </h2>
-                <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-4 border border-white/10 space-y-4">
+                <div className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm rounded-lg p-4 border border-gray-800/30 space-y-4">
                   <div className="bg-blue-400/10 border border-blue-400/30 rounded-lg p-3">
                     <div className="flex items-center gap-2">
                       <Activity className="h-4 w-4 text-blue-400" />

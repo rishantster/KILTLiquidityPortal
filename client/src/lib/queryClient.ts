@@ -14,9 +14,19 @@ export async function apiRequest<T = unknown>(
     data?: unknown;
   }
 ): Promise<T> {
+  const headers: HeadersInit = options?.data ? { "Content-Type": "application/json" } : {};
+  
+  // Add admin token for admin routes
+  if (url.includes('/api/admin/')) {
+    const adminToken = localStorage.getItem('admin-token');
+    if (adminToken) {
+      headers.Authorization = `Bearer ${adminToken}`;
+    }
+  }
+
   const res = await fetch(url, {
     method: options?.method || 'GET',
-    headers: options?.data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: options?.data ? JSON.stringify(options.data) : undefined,
     credentials: "include",
   });
@@ -31,8 +41,19 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    const headers: HeadersInit = { "Content-Type": "application/json" };
+    
+    // Add admin token for admin routes
+    if (typeof queryKey[0] === 'string' && queryKey[0].includes('/api/admin/')) {
+      const adminToken = localStorage.getItem('admin-token');
+      if (adminToken) {
+        headers.Authorization = `Bearer ${adminToken}`;
+      }
+    }
+
     const res = await fetch(queryKey[0] as string, {
       credentials: "include",
+      headers,
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

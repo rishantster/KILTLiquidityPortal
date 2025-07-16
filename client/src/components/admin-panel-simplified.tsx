@@ -107,15 +107,19 @@ export function AdminPanelSimplified() {
     queryFn: async () => {
       const response = await fetch('/api/admin/dashboard', {
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${adminToken}`,
         },
       });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch admin data');
+        const errorText = await response.text();
+        console.error('Admin dashboard error:', errorText);
+        throw new Error(`Failed to fetch admin data: ${response.status}`);
       }
       
-      return response.json();
+      const data = await response.json();
+      return data;
     },
     enabled: !!adminToken && isAuthorized,
     refetchInterval: 30000,
@@ -159,7 +163,9 @@ export function AdminPanelSimplified() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update treasury configuration');
+        const errorText = await response.text();
+        console.error('Treasury config error:', errorText);
+        throw new Error(`Failed to update treasury configuration: ${response.status}`);
       }
 
       return response.json();

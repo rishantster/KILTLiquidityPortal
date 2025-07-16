@@ -57,7 +57,7 @@ interface BlockchainConfig {
 
 export function AdminPanel() {
   const queryClient = useQueryClient();
-  const { address, isConnected, connectWallet, disconnectWallet } = useWallet();
+  const { address, isConnected, connect, disconnect } = useWallet();
   
   const [adminToken, setAdminToken] = useState<string | null>(
     localStorage.getItem('admin-token')
@@ -121,6 +121,9 @@ export function AdminPanel() {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async () => {
+      if (!address) {
+        throw new Error('No wallet address available');
+      }
       const response = await apiRequest('/api/admin/login-wallet', {
         method: 'POST',
         body: { walletAddress: address }
@@ -131,6 +134,9 @@ export function AdminPanel() {
       setAdminToken(data.token);
       localStorage.setItem('admin-token', data.token);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+    },
+    onError: (error) => {
+      console.error('Login error:', error);
     }
   });
 
@@ -200,14 +206,21 @@ export function AdminPanel() {
   }, [blockchainConfig]);
 
   const handleLogin = async () => {
-    if (!isConnected || !isAuthorized) return;
-    await loginMutation.mutateAsync();
+    if (!isConnected || !isAuthorized || !address) {
+      console.error('Login requirements not met:', { isConnected, isAuthorized, address });
+      return;
+    }
+    try {
+      await loginMutation.mutateAsync();
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
   const handleLogout = () => {
     setAdminToken(null);
     localStorage.removeItem('admin-token');
-    disconnectWallet();
+    disconnect();
   };
 
   const handleTreasuryConfigUpdate = async () => {
@@ -250,7 +263,7 @@ export function AdminPanel() {
               
               {!isConnected ? (
                 <Button 
-                  onClick={connectWallet} 
+                  onClick={connect} 
                   className="w-full bg-emerald-600 hover:bg-emerald-700 backdrop-blur-sm border border-emerald-400/30 transition-all duration-200"
                 >
                   Connect Wallet

@@ -44,6 +44,8 @@ export function LiquidityMint() {
   const { 
     kiltBalance, 
     wethBalance, 
+    ethBalance,
+    preferredEthToken,
     poolExists, 
     mintPosition, 
     approveToken,
@@ -57,7 +59,8 @@ export function LiquidityMint() {
   const { toast } = useToast();
 
   const [kiltAmount, setKiltAmount] = useState('');
-  const [wethAmount, setWethAmount] = useState('');
+  const [ethAmount, setEthAmount] = useState('');
+  const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('ETH');
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
   const [selectedStrategy, setSelectedStrategy] = useState('balanced');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
@@ -104,7 +107,14 @@ export function LiquidityMint() {
     }
   ];
 
-  // Auto-calculate amounts based on slider percentage - limited by WETH balance
+  // Set preferred ETH token on component mount
+  useEffect(() => {
+    if (preferredEthToken) {
+      setSelectedEthToken(preferredEthToken.type);
+    }
+  }, [preferredEthToken]);
+
+  // Auto-calculate amounts based on slider percentage - limited by selected ETH token balance
   useEffect(() => {
     // Don't auto-calculate if user is manually entering values
     if (isManualInput) return;
@@ -114,26 +124,28 @@ export function LiquidityMint() {
     // Handle 0% case - clear amounts
     if (percent === 0) {
       setKiltAmount('');
-      setWethAmount('');
+      setEthAmount('');
       return;
     }
     
-    if (wethBalance && percent > 0) {
+    const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;
+    
+    if (selectedBalance && percent > 0) {
       try {
-        const wethBalanceStr = formatTokenAmount(wethBalance);
-        const maxWethAmount = parseFloat(wethBalanceStr);
+        const balanceStr = formatTokenAmount(selectedBalance);
+        const maxAmount = parseFloat(balanceStr);
         
-        if (!isNaN(maxWethAmount) && maxWethAmount > 0) {
-          const wethAmountCalculated = (maxWethAmount * percent / 100);
+        if (!isNaN(maxAmount) && maxAmount > 0) {
+          const ethAmountCalculated = (maxAmount * percent / 100);
           
           // Ensure no negative values
-          if (wethAmountCalculated >= 0) {
-            setWethAmount(wethAmountCalculated.toFixed(3)); // 3 decimal places
+          if (ethAmountCalculated >= 0) {
+            setEthAmount(ethAmountCalculated.toFixed(3)); // 3 decimal places
             
             // Auto-calculate KILT amount based on current pool ratio
             const kiltPrice = kiltData?.price || 0.0289;
             const ethPrice = 3200; // Approximate ETH price
-            const kiltAmountCalculated = (wethAmountCalculated * ethPrice) / kiltPrice;
+            const kiltAmountCalculated = (ethAmountCalculated * ethPrice) / kiltPrice;
             
             if (kiltAmountCalculated >= 0) {
               setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
@@ -144,7 +156,7 @@ export function LiquidityMint() {
         // Error calculating amounts
       }
     }
-  }, [positionSizePercent, wethBalance, formatTokenAmount, kiltData?.price, isManualInput]);
+  }, [positionSizePercent, ethBalance, wethBalance, selectedEthToken, formatTokenAmount, kiltData?.price, isManualInput]);
 
   const handleKiltAmountChange = (value: string) => {
     // Prevent negative values
@@ -161,16 +173,17 @@ export function LiquidityMint() {
       const wethAmountCalculated = (numValue * kiltPrice) / ethPrice;
       
       if (wethAmountCalculated >= 0) {
-        setWethAmount(wethAmountCalculated.toFixed(3)); // 3 decimal places
+        setEthAmount(wethAmountCalculated.toFixed(3)); // 3 decimal places
       }
       
-      // Update position size slider based on WETH balance (limiting factor)
-      if (wethBalance) {
+      // Update position size slider based on selected ETH token balance (limiting factor)
+      const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;
+      if (selectedBalance) {
         try {
-          const wethBalanceStr = formatTokenAmount(wethBalance);
-          const maxWethAmount = parseFloat(wethBalanceStr);
-          if (!isNaN(maxWethAmount) && maxWethAmount > 0) {
-            const percentageUsed = Math.min(100, Math.max(0, (wethAmountCalculated / maxWethAmount) * 100));
+          const balanceStr = formatTokenAmount(selectedBalance);
+          const maxAmount = parseFloat(balanceStr);
+          if (!isNaN(maxAmount) && maxAmount > 0) {
+            const percentageUsed = Math.min(100, Math.max(0, (wethAmountCalculated / maxAmount) * 100));
             setPositionSizePercent([Math.round(percentageUsed)]);
           }
         } catch (error) {
@@ -178,18 +191,18 @@ export function LiquidityMint() {
         }
       }
     } else if (value === '') {
-      setWethAmount('');
+      setEthAmount('');
       setPositionSizePercent([0]);
     }
   };
 
-  const handleWethAmountChange = (value: string) => {
+  const handleEthAmountChange = (value: string) => {
     // Prevent negative values
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
     setIsManualInput(true);
-    setWethAmount(value);
+    setEthAmount(value);
     
     // Auto-calculate KILT amount
     if (value && !isNaN(numValue)) {
@@ -200,17 +213,18 @@ export function LiquidityMint() {
       if (kiltAmountCalculated >= 0) {
         setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
         
-        // Update position size slider based on WETH balance (limiting factor)
-        if (wethBalance) {
+        // Update position size slider based on selected ETH token balance (limiting factor)
+        const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;
+        if (selectedBalance) {
           try {
-            const wethBalanceStr = formatTokenAmount(wethBalance);
-            const maxWethAmount = parseFloat(wethBalanceStr);
-            if (!isNaN(maxWethAmount) && maxWethAmount > 0) {
-              const percentageUsed = Math.min(100, Math.max(0, (numValue / maxWethAmount) * 100));
+            const balanceStr = formatTokenAmount(selectedBalance);
+            const maxAmount = parseFloat(balanceStr);
+            if (!isNaN(maxAmount) && maxAmount > 0) {
+              const percentageUsed = Math.min(100, Math.max(0, (numValue / maxAmount) * 100));
               setPositionSizePercent([Math.round(percentageUsed)]);
             }
           } catch (error) {
-            // Error updating slider from WETH
+            // Error updating slider from ETH
           }
         }
       }
@@ -260,11 +274,11 @@ export function LiquidityMint() {
   };
 
   const handleMintPosition = async () => {
-    if (!address || !kiltAmount || !wethAmount) return;
+    if (!address || !kiltAmount || !ethAmount) return;
 
     try {
       const kiltAmountParsed = parseTokenAmount(kiltAmount);
-      const wethAmountParsed = parseTokenAmount(wethAmount);
+      const ethAmountParsed = parseTokenAmount(ethAmount);
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600); // 1 hour from now
 
       // Convert price range to ticks based on selected strategy
@@ -291,7 +305,7 @@ export function LiquidityMint() {
         tickLower,
         tickUpper,
         amount0Desired: kiltAmountParsed,
-        amount1Desired: wethAmountParsed,
+        amount1Desired: ethAmountParsed,
         amount0Min: BigInt(0),
         amount1Min: BigInt(0),
         recipient: address as `0x${string}`,
@@ -305,7 +319,7 @@ export function LiquidityMint() {
 
       // Reset form
       setKiltAmount('');
-      setWethAmount('');
+      setEthAmount('');
       setPositionSizePercent([25]);
     } catch (error: unknown) {
       toast({
@@ -356,7 +370,7 @@ export function LiquidityMint() {
             <Target className="h-3 w-3 text-emerald-400" />
             Position Size
           </CardTitle>
-          <p className="text-white/60 text-xs">Amount to Provide: {positionSizePercent[0]}% of WETH balance</p>
+          <p className="text-white/60 text-xs">Amount to Provide: {positionSizePercent[0]}% of {selectedEthToken} balance</p>
         </CardHeader>
         <CardContent className="space-y-3 p-3">
           <div className="space-y-3">
@@ -437,30 +451,75 @@ export function LiquidityMint() {
           </CardContent>
         </Card>
 
-        {/* Sleek ETH Input */}
+        {/* Sleek ETH/WETH Input */}
         <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-500/20 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <EthereumLogo className="w-4 h-4" />
-              ETH
+              {selectedEthToken}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 p-4">
+            {/* ETH/WETH Token Selector */}
+            <div className="flex gap-2 mb-3">
+              <Button
+                variant={selectedEthToken === 'ETH' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedEthToken('ETH')}
+                className={`flex-1 h-8 text-xs font-semibold transition-all duration-300 ${
+                  selectedEthToken === 'ETH' 
+                    ? 'bg-blue-500 hover:bg-blue-600 shadow-lg' 
+                    : 'hover:bg-blue-500/10 hover:border-blue-500/50'
+                }`}
+              >
+                <EthereumLogo className="w-3 h-3 mr-1" />
+                ETH
+                {ethBalance && (
+                  <span className="ml-1 text-xs opacity-70">
+                    ({formatTokenAmount(ethBalance, 18).slice(0, 6)})
+                  </span>
+                )}
+              </Button>
+              <Button
+                variant={selectedEthToken === 'WETH' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedEthToken('WETH')}
+                className={`flex-1 h-8 text-xs font-semibold transition-all duration-300 ${
+                  selectedEthToken === 'WETH' 
+                    ? 'bg-blue-500 hover:bg-blue-600 shadow-lg' 
+                    : 'hover:bg-blue-500/10 hover:border-blue-500/50'
+                }`}
+              >
+                <EthereumLogo className="w-3 h-3 mr-1" />
+                WETH
+                {wethBalance && (
+                  <span className="ml-1 text-xs opacity-70">
+                    ({formatTokenAmount(wethBalance, 18).slice(0, 6)})
+                  </span>
+                )}
+              </Button>
+            </div>
+            
             <div className="space-y-3">
               <Input
                 type="number"
-                value={wethAmount}
-                onChange={(e) => handleWethAmountChange(e.target.value)}
-                placeholder="Enter ETH amount"
+                value={ethAmount}
+                onChange={(e) => handleEthAmountChange(e.target.value)}
+                placeholder={`Enter ${selectedEthToken} amount`}
                 min="0"
                 className="bg-white/5 border-white/10 text-white text-lg h-12 text-center font-bold rounded-lg"
               />
               <div className="flex justify-between items-center">
                 <span className="text-white/60 text-sm">
-                  Balance: <span className="font-bold text-white">{wethBalance ? formatTokenAmount(wethBalance) : '0.0000'}</span> 
+                  Balance: <span className="font-bold text-white">
+                    {selectedEthToken === 'ETH' 
+                      ? (ethBalance ? formatTokenAmount(ethBalance) : '0.0000')
+                      : (wethBalance ? formatTokenAmount(wethBalance) : '0.0000')
+                    }
+                  </span> 
                   <span className="inline-flex items-center gap-1 ml-1">
                     <EthereumLogo className="w-4 h-4" />
-                    WETH
+                    {selectedEthToken}
                   </span>
                 </span>
                 <span className="text-blue-400 font-semibold text-xs px-2 py-1 bg-blue-500/10 rounded">
@@ -651,14 +710,14 @@ export function LiquidityMint() {
           ) : (
             <>
               <CheckCircle2 className="h-4 w-4 mr-2" />
-              Approve Tokens
+              Approve KILT + {selectedEthToken}
             </>
           )}
         </Button>
 
         <Button
           onClick={handleMintPosition}
-          disabled={isMinting || !kiltAmount || !wethAmount || !poolExists}
+          disabled={isMinting || !kiltAmount || !ethAmount || !poolExists}
           className="h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-sm font-semibold rounded-lg transition-all duration-300"
         >
           {isMinting ? (

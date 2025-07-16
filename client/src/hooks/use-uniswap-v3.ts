@@ -11,7 +11,8 @@ import {
   type DecreaseLiquidityParams,
   type CollectParams,
   TOKENS,
-  UNISWAP_V3_CONTRACTS
+  UNISWAP_V3_CONTRACTS,
+  publicClient
 } from '@/lib/uniswap-v3';
 import { useToast } from './use-toast';
 
@@ -157,6 +158,17 @@ export function useUniswapV3() {
       if (!response.ok) throw new Error('Failed to fetch blockchain config');
       const config = await response.json();
       return uniswapV3Service.getTokenBalance(config.wethTokenAddress, address!);
+    },
+    enabled: !!address && isConnected,
+    refetchInterval: 15000
+  });
+
+  // Query native ETH balance
+  const { data: ethBalance } = useQuery<bigint>({
+    queryKey: ['eth-balance', address],
+    queryFn: async () => {
+      if (!address) return BigInt(0);
+      return await publicClient.getBalance({ address: address as `0x${string}` });
     },
     enabled: !!address && isConnected,
     refetchInterval: 15000
@@ -441,8 +453,32 @@ export function useUniswapV3() {
   // Check if pool exists based on actual pool data
   const poolExists = !!poolData;
 
-  // Debug the hook return values
+  // Determine the best ETH/WETH option based on balance
+  const getPreferredEthToken = () => {
+    const ethBal = ethBalance || BigInt(0);
+    const wethBal = wethBalance || BigInt(0);
+    
+    // Return the token with higher balance, defaulting to ETH if equal
+    if (ethBal >= wethBal) {
+      return {
+        type: 'ETH' as const,
+        balance: ethBal,
+        address: null, // Native ETH doesn't have an address
+        symbol: 'ETH',
+        isNative: true
+      };
+    } else {
+      return {
+        type: 'WETH' as const,
+        balance: wethBal,
+        address: TOKENS.WETH,
+        symbol: 'WETH',
+        isNative: false
+      };
+    }
+  };
 
+  const preferredEthToken = getPreferredEthToken();
 
   return {
     // Data
@@ -452,6 +488,8 @@ export function useUniswapV3() {
     kiltEthPoolAddress,
     kiltBalance: kiltBalance || BigInt(0),
     wethBalance: wethBalance || BigInt(0),
+    ethBalance: ethBalance || BigInt(0),
+    preferredEthToken,
     poolExists,
 
     // Loading states

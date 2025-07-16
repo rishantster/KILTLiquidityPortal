@@ -102,14 +102,48 @@ export function PositionRegistration() {
         const walletPositions = await response.json();
         
         // Get already registered positions to filter them out
-        const registeredResponse = await fetch(`/api/positions/eligible/${address}`);
+        // First get/create user to get userId
+        const userResponse = await fetch(`/api/users/${address}`);
+        let userId;
+        if (!userResponse.ok) {
+          const createResponse = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address })
+          });
+          const userData = await createResponse.json();
+          userId = userData.id;
+        } else {
+          const userData = await userResponse.json();
+          userId = userData.id;
+        }
+        
+        const registeredResponse = await fetch(`/api/positions/user/${userId}`);
         const registeredPositions = registeredResponse.ok ? await registeredResponse.json() : [];
         const registeredNftIds = new Set(registeredPositions.map((p: any) => p.nftTokenId));
         
-        // Filter out already registered positions
-        const eligiblePositions = walletPositions.filter((pos: any) => 
-          !registeredNftIds.has(pos.tokenId.toString())
-        );
+        // Filter out already registered positions and transform data format
+        const eligiblePositions = walletPositions
+          .filter((pos: any) => !registeredNftIds.has(pos.tokenId.toString()))
+          .map((pos: any) => ({
+            nftTokenId: pos.tokenId.toString(),
+            poolAddress: pos.poolAddress,
+            token0Address: pos.token0,
+            token1Address: pos.token1,
+            amount0: pos.token0Amount,
+            amount1: pos.token1Amount,
+            liquidity: pos.liquidity,
+            currentValueUSD: pos.currentValueUSD,
+            feeTier: pos.feeTier,
+            tickLower: pos.tickLower,
+            tickUpper: pos.tickUpper,
+            isActive: pos.isActive,
+            fees: pos.fees,
+            // Add additional fields for registration
+            minPrice: pos.tickLower,
+            maxPrice: pos.tickUpper,
+            createdAt: new Date().toISOString()
+          }));
         
         return {
           eligiblePositions,

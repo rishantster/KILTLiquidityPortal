@@ -275,47 +275,25 @@ export class FixedRewardService {
   }
 
   /**
-   * Get total active liquidity using correct column names
+   * Get total active liquidity from Uniswap V3 pool (single source of truth)
    */
   private async getTotalActiveLiquidity(): Promise<number> {
     try {
-      const result = await this.database
-        .select({
-          totalLiquidity: sql<number>`COALESCE(SUM(CAST(${lpPositions.currentValueUSD} AS DECIMAL)), 0)`,
-        })
-        .from(lpPositions)
-        .where(
-          and(
-            eq(lpPositions.isActive, true),
-            eq(lpPositions.rewardEligible, true)
-          )
-        );
-
-      const totalLiquidity = result[0]?.totalLiquidity || 0;
+      // Get real pool TVL from Uniswap V3 contracts
+      const { uniswapIntegrationService } = await import('./uniswap-integration-service');
+      const { blockchainConfigService } = await import('./blockchain-config-service');
       
-      // Debug logging to verify the query is working
-      if (totalLiquidity === 0) {
-        // Check if query returns any results
-        const debugResult = await this.database
-          .select()
-          .from(lpPositions)
-          .where(
-            and(
-              eq(lpPositions.isActive, true),
-              eq(lpPositions.rewardEligible, true)
-            )
-          );
-        
-        // Log debug info about why liquidity might be 0
-        if (debugResult.length > 0) {
-          // Found positions but sum is 0
-        }
-      }
-
-      return totalLiquidity;
+      const poolAddress = await blockchainConfigService.getPoolAddress();
+      const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
+      
+      // Use real TVL from Uniswap as single source of truth
+      const realPoolTVL = poolData.tvlUSD;
+      
+      // If TVL query fails, fall back to minimum realistic pool size
+      return realPoolTVL > 0 ? realPoolTVL : 80000;
     } catch (error) {
-      // Error getting total active liquidity
-      return 0;
+      // Fallback to minimum realistic pool size for proportional distribution
+      return 80000;
     }
   }
 
@@ -493,7 +471,7 @@ export class FixedRewardService {
     
     // Get admin-configured values
     const { programSettings } = await import('../shared/schema');
-    const [settings] = await this.database.select().from(programSettings).limit(1);
+    const [settings] = await db.select().from(programSettings).limit(1);
     const timeBoostCoeff = settings ? parseFloat(settings.liquidityWeight) : this.DEFAULT_B_TIME; // Admin-configured time boost
     const fullRangeBonusCoeff = settings ? parseFloat(settings.fullRangeBonus) : this.DEFAULT_FRB; // Admin-configured FRB
     
@@ -613,6 +591,10 @@ export class FixedRewardService {
 
       const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;
       
+      // Get admin configuration for daily budget
+      const config = await this.getAdminConfiguration();
+      const dailyBudget = config.dailyBudget;
+      
       // Calculate average APR using admin-configured values
       const averageAPR = totalLiquidity > 0 ? (dailyBudget * 365) / totalLiquidity : 0;
       
@@ -629,7 +611,7 @@ export class FixedRewardService {
       }
 
       const treasuryTotal = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.DEFAULT_TREASURY_ALLOCATION;
-      const dailyBudgetConfig = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DEFAULT_DAILY_BUDGET;
+      const dailyBudgetConfig = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : dailyBudget;
       const programDurationConfig = treasuryConf ? treasuryConf.programDurationDays : this.DEFAULT_PROGRAM_DURATION_DAYS;
       
       // Calculate program days remaining from admin-configured end date

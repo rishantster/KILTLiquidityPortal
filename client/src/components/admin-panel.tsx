@@ -29,12 +29,26 @@ interface AdminTreasuryStats {
   programDuration: number;
   dailyRewardsCap: number;
   estimatedAPR: { low: number; average: number; high: number };
+  treasury: {
+    balance: number;
+    address: string;
+  };
+  programAnalytics: {
+    totalLiquidity: number;
+    activeParticipants: number;
+    programDuration: number;
+    daysRemaining: number;
+    isActive: boolean;
+    dailyBudget: number;
+    totalBudget: number;
+    programStartDate: string;
+    programEndDate: string;
+  };
 }
 
 interface TreasuryConfig {
   treasuryWalletAddress: string;
-  totalAllocation: number;
-  dailyRewardsCap: number;
+  programBudget: number;
   programDurationDays: number;
   programStartDate: string;
   programEndDate: string;
@@ -56,7 +70,21 @@ export default function AdminPanel() {
   
   const [adminToken, setAdminToken] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState('program');
+  const [activeTab, setActiveTab] = useState('treasury');
+  
+  // Form states
+  const [treasuryForm, setTreasuryForm] = useState({
+    programBudget: '',
+    programDurationDays: '',
+    treasuryWalletAddress: ''
+  });
+  
+  const [programForm, setProgramForm] = useState({
+    timeBoostCoefficient: '',
+    fullRangeBonus: '',
+    minimumPositionValue: '',
+    lockPeriod: ''
+  });
   
   // Authentication state
   const [loginType, setLoginType] = useState<'wallet' | 'credentials'>('wallet');
@@ -102,6 +130,18 @@ export default function AdminPanel() {
         headers: { Authorization: `Bearer ${adminToken}` }
       });
       if (!response.ok) throw new Error('Failed to fetch treasury stats');
+      return response.json();
+    }
+  });
+
+  // Unified APR calculations (single source of truth)
+  const { data: unifiedAPR, isLoading: aprLoading } = useQuery({
+    queryKey: ['/api/rewards/maximum-apr'],
+    enabled: isAuthenticated && !!adminToken,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const response = await fetch('/api/rewards/maximum-apr');
+      if (!response.ok) throw new Error('Failed to fetch APR calculations');
       return response.json();
     }
   });
@@ -176,11 +216,26 @@ export default function AdminPanel() {
     }
   };
 
-  const handleTreasuryUpdate = (values: Partial<TreasuryConfig>) => {
+  const handleTreasuryUpdate = () => {
+    const values = {
+      programBudget: parseFloat(treasuryForm.programBudget),
+      programDurationDays: parseInt(treasuryForm.programDurationDays),
+      treasuryWalletAddress: treasuryForm.treasuryWalletAddress,
+      programStartDate: new Date().toISOString().split('T')[0],
+      programEndDate: new Date(Date.now() + parseInt(treasuryForm.programDurationDays) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      isActive: true
+    };
     updateTreasuryMutation.mutate(values);
   };
 
-  const handleProgramUpdate = (values: Partial<ProgramSettings>) => {
+  const handleProgramUpdate = () => {
+    const values = {
+      timeBoostCoefficient: parseFloat(programForm.timeBoostCoefficient),
+      fullRangeBonus: parseFloat(programForm.fullRangeBonus),
+      minimumPositionValue: parseFloat(programForm.minimumPositionValue),
+      lockPeriod: parseInt(programForm.lockPeriod),
+      inRangeRequirement: true
+    };
     updateProgramMutation.mutate(values);
   };
 
@@ -283,6 +338,10 @@ export default function AdminPanel() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="treasury" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Treasury
+            </TabsTrigger>
             <TabsTrigger value="program" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Program
@@ -291,11 +350,106 @@ export default function AdminPanel() {
               <Database className="h-4 w-4" />
               Blockchain
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Analytics
-            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="treasury" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Treasury Balance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{treasuryStats?.treasury?.balance?.toLocaleString() || '0'} KILT</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Daily Budget</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{treasuryStats?.programAnalytics?.dailyBudget?.toLocaleString() || '0'} KILT</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Days Remaining</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{treasuryStats?.programAnalytics?.daysRemaining || 0}</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Program Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-emerald-400">
+                    {treasuryStats?.programAnalytics?.isActive ? 'Active' : 'Inactive'}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Treasury Configuration
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="programBudget">Program Budget (KILT)</Label>
+                    <Input
+                      id="programBudget"
+                      value={treasuryForm.programBudget}
+                      onChange={(e) => setTreasuryForm({...treasuryForm, programBudget: e.target.value})}
+                      placeholder="500000"
+                      className="bg-white/5 border-gray-800/30"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="programDurationDays">Program Duration (days)</Label>
+                    <Input
+                      id="programDurationDays"
+                      value={treasuryForm.programDurationDays}
+                      onChange={(e) => setTreasuryForm({...treasuryForm, programDurationDays: e.target.value})}
+                      placeholder="90"
+                      className="bg-white/5 border-gray-800/30"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label htmlFor="treasuryWalletAddress">Treasury Wallet Address</Label>
+                    <Input
+                      id="treasuryWalletAddress"
+                      value={treasuryForm.treasuryWalletAddress}
+                      onChange={(e) => setTreasuryForm({...treasuryForm, treasuryWalletAddress: e.target.value})}
+                      placeholder="0x..."
+                      className="bg-white/5 border-gray-800/30"
+                    />
+                  </div>
+                </div>
+                <Button 
+                  onClick={handleTreasuryUpdate}
+                  disabled={updateTreasuryMutation.isPending}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                >
+                  {updateTreasuryMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Updating Treasury...
+                    </>
+                  ) : (
+                    'Update Treasury Configuration'
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="program" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -319,81 +473,64 @@ export default function AdminPanel() {
               
               <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Treasury Balance</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">Real-time APR Range</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{treasuryStats?.treasuryBalance?.toLocaleString() || '0'} KILT</div>
+                  <div className="text-2xl font-bold text-blue-400">
+                    {aprLoading ? 'Loading...' : `${unifiedAPR?.minAPR || 0}% - ${unifiedAPR?.maxAPR || 0}%`}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Single source of truth</p>
                 </CardContent>
               </Card>
               
               <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Program Duration</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">APR Range Display</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{treasuryStats?.programDuration || 0} days</div>
+                  <div className="text-2xl font-bold text-purple-400">
+                    {aprLoading ? 'Loading...' : unifiedAPR?.aprRange || 'N/A'}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Used across entire app</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
-              <CardHeader>
-                <CardTitle>Treasury Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="totalAllocation">Total Allocation (KILT)</Label>
-                    <Input
-                      id="totalAllocation"
-                      placeholder="500000"
-                      className="bg-white/5 border-gray-800/30"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="programDuration">Program Duration (days)</Label>
-                    <Input
-                      id="programDuration"
-                      placeholder="90"
-                      className="bg-white/5 border-gray-800/30"
-                    />
-                  </div>
-                </div>
-                <Button 
-                  onClick={() => handleTreasuryUpdate({ totalAllocation: 500000, programDurationDays: 90 })}
-                  disabled={updateTreasuryMutation.isPending}
-                  className="w-full"
-                >
-                  {updateTreasuryMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    'Update Treasury Configuration'
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
+
 
             <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
               <CardHeader>
-                <CardTitle>Program Settings</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Reward Formula Parameters
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="bg-gray-800/30 p-3 rounded-lg mb-4">
+                  <p className="text-sm text-gray-300 mb-2">
+                    <strong>Reward Formula:</strong> R_u = (L_u/L_T) × (1 + ((D_u/P)×b_time)) × IRM × FRB × (R/P)
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Changes here affect APR calculations immediately across the entire application
+                  </p>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="timeBoost">Time Boost Coefficient</Label>
+                    <Label htmlFor="timeBoost">Time Boost Coefficient (b_time)</Label>
                     <Input
                       id="timeBoost"
+                      value={programForm.timeBoostCoefficient}
+                      onChange={(e) => setProgramForm({...programForm, timeBoostCoefficient: e.target.value})}
                       placeholder="0.6"
                       className="bg-white/5 border-gray-800/30"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="fullRangeBonus">Full Range Bonus</Label>
+                    <Label htmlFor="fullRangeBonus">Full Range Bonus (FRB)</Label>
                     <Input
                       id="fullRangeBonus"
+                      value={programForm.fullRangeBonus}
+                      onChange={(e) => setProgramForm({...programForm, fullRangeBonus: e.target.value})}
                       placeholder="1.2"
                       className="bg-white/5 border-gray-800/30"
                     />
@@ -402,6 +539,8 @@ export default function AdminPanel() {
                     <Label htmlFor="minimumPosition">Minimum Position Value ($)</Label>
                     <Input
                       id="minimumPosition"
+                      value={programForm.minimumPositionValue}
+                      onChange={(e) => setProgramForm({...programForm, minimumPositionValue: e.target.value})}
                       placeholder="10"
                       className="bg-white/5 border-gray-800/30"
                     />
@@ -410,25 +549,22 @@ export default function AdminPanel() {
                     <Label htmlFor="lockPeriod">Lock Period (days)</Label>
                     <Input
                       id="lockPeriod"
+                      value={programForm.lockPeriod}
+                      onChange={(e) => setProgramForm({...programForm, lockPeriod: e.target.value})}
                       placeholder="7"
                       className="bg-white/5 border-gray-800/30"
                     />
                   </div>
                 </div>
                 <Button 
-                  onClick={() => handleProgramUpdate({ 
-                    timeBoostCoefficient: 0.6, 
-                    fullRangeBonus: 1.2, 
-                    minimumPositionValue: 10, 
-                    lockPeriod: 7 
-                  })}
+                  onClick={handleProgramUpdate}
                   disabled={updateProgramMutation.isPending}
-                  className="w-full"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
                 >
                   {updateProgramMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Updating...
+                      Updating Program...
                     </>
                   ) : (
                     'Update Program Settings'
@@ -469,31 +605,56 @@ export default function AdminPanel() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-6">
+          <TabsContent value="blockchain" className="space-y-6">
             <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
               <CardHeader>
-                <CardTitle>Program Analytics</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5" />
+                  Blockchain Configuration
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-emerald-400">
-                      {treasuryStats?.estimatedAPR?.low || 0}%
-                    </div>
-                    <p className="text-sm text-gray-400">Minimum APR</p>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="kiltToken">KILT Token Address</Label>
+                    <Input
+                      id="kiltToken"
+                      defaultValue="0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"
+                      className="bg-white/5 border-gray-800/30"
+                      readOnly
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Base Network</p>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-400">
-                      {treasuryStats?.estimatedAPR?.average || 0}%
-                    </div>
-                    <p className="text-sm text-gray-400">Average APR</p>
+                  <div>
+                    <Label htmlFor="treasuryWallet">Treasury Wallet Address</Label>
+                    <Input
+                      id="treasuryWallet"
+                      defaultValue={treasuryStats?.treasury?.address || "Not configured"}
+                      className="bg-white/5 border-gray-800/30"
+                      readOnly
+                    />
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-400">
-                      {treasuryStats?.estimatedAPR?.high || 0}%
-                    </div>
-                    <p className="text-sm text-gray-400">Maximum APR</p>
+                  <div>
+                    <Label htmlFor="networkId">Network ID</Label>
+                    <Input
+                      id="networkId"
+                      defaultValue="8453 (Base Mainnet)"
+                      className="bg-white/5 border-gray-800/30"
+                      readOnly
+                    />
                   </div>
+                </div>
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                  <p className="text-amber-400 text-sm">
+                    <AlertCircle className="h-4 w-4 inline mr-1" />
+                    Blockchain addresses are managed through the treasury configuration.
+                  </p>
+                </div>
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+                  <p className="text-emerald-400 text-sm">
+                    <CheckCircle className="h-4 w-4 inline mr-1" />
+                    Network: Base Mainnet (Chain ID: 8453) - Production ready
+                  </p>
                 </div>
               </CardContent>
             </Card>

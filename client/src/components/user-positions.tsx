@@ -103,9 +103,21 @@ export function UserPositions() {
   console.log("Debug - address:", address);
   console.log("Debug - isConnected:", isConnected);
   
+  // CRITICAL: Force re-render when data changes
+  const [forceRender, setForceRender] = useState(0);
+  useEffect(() => {
+    if (kiltEthPositions && kiltEthPositions.length > 0) {
+      console.log("FORCING RE-RENDER - positions found!");
+      setForceRender(prev => prev + 1);
+    }
+  }, [kiltEthPositions]);
+  
   // Force component re-render when kiltEthPositions changes
   useEffect(() => {
     console.log("Effect triggered - kiltEthPositions changed, length:", kiltEthPositions?.length || 0);
+    if (kiltEthPositions && kiltEthPositions.length > 0) {
+      console.log("POSITIONS FOUND! First position:", kiltEthPositions[0].tokenId.toString());
+    }
   }, [kiltEthPositions]);
   
   // Also find any other positions containing KILT token (not just KILT/ETH pool)
@@ -119,11 +131,22 @@ export function UserPositions() {
     return hasKilt && !isMainPool;
   });
   
+  console.log("Debug - otherKiltPositions length:", otherKiltPositions.length);
+  
   // Combine all KILT-related positions
   const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions];
   
   console.log("Debug - allKiltPositions:", allKiltPositions);
   console.log("Debug - allKiltPositions.length:", allKiltPositions.length);
+  
+  // CRITICAL DEBUG: Check if positions are being received but not rendering
+  if (allKiltPositions.length > 0) {
+    console.log("🚨 POSITIONS FOUND BUT NOT RENDERING! Position details:", {
+      tokenId: allKiltPositions[0].tokenId.toString(),
+      liquidity: allKiltPositions[0].liquidity.toString(),
+      currentValueUSD: allKiltPositions[0].currentValueUSD
+    });
+  }
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
@@ -281,7 +304,7 @@ export function UserPositions() {
   return (
     <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
-      <Card className="cluely-card rounded-lg min-h-0">
+      <Card key={`positions-${forceRender}-${kiltEthPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">

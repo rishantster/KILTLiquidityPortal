@@ -1,0 +1,41 @@
+Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 0
+Console.js:61 Hook returning - kiltEthLoading: true
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 API response status: 200
+Console.js:61 Raw positions from API: [{…}]
+Console.js:61 Converted positions count: 1
+Console.js:61 First position tokenId: 3534947
+Console.js:61 Hook returning - kiltEthPositions length: 1
+Console.js:61 Hook returning - kiltEthLoading: false
+Console.js:61 Hook returning - kiltEthError: null
+Console.js:61 Hook returning - kiltEthPositions length: 1
+Console.js:61 Hook returning - kiltEthLoading: false
+Console.js:61 Hook returning - kiltEthError: null

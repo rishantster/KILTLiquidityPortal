@@ -117,13 +117,18 @@ export function UserPositions() {
   const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions];
   
   console.log("Debug - allKiltPositions:", allKiltPositions);
+  console.log("Debug - allKiltPositions.length:", allKiltPositions.length);
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
     ? allKiltPositions 
-    : allKiltPositions.filter(pos => pos.liquidity > 0n);
+    : allKiltPositions.filter(pos => {
+        console.log("Debug - filtering position:", pos.tokenId.toString(), "liquidity:", pos.liquidity.toString());
+        return pos.liquidity > 0n;
+      });
     
   console.log("Debug - kiltPositions after filter:", kiltPositions);
+  console.log("Debug - kiltPositions.length:", kiltPositions.length);
   
   // Count open and closed positions
   const openPositions = allKiltPositions.filter(pos => pos.liquidity > 0n);

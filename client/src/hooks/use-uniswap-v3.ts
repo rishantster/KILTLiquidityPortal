@@ -58,8 +58,8 @@ export function useUniswapV3() {
         liquidity: BigInt(pos.liquidity),
         feeGrowthInside0LastX128: BigInt(0),
         feeGrowthInside1LastX128: BigInt(0),
-        tokensOwed0: BigInt(pos.fees.token0),
-        tokensOwed1: BigInt(pos.fees.token1),
+        tokensOwed0: BigInt(pos.fees.token0 || 0),
+        tokensOwed1: BigInt(pos.fees.token1 || 0),
         // Add custom fields for display
         currentValueUSD: pos.currentValueUSD,
         token0Amount: pos.token0Amount,
@@ -68,7 +68,8 @@ export function useUniswapV3() {
         poolAddress: pos.poolAddress
       }));
       
-      console.log('Converted positions:', converted);
+      console.log('Converted positions count:', converted.length);
+      console.log('First position tokenId:', converted[0]?.tokenId.toString());
       return converted;
     },
     enabled: !!address && isConnected,

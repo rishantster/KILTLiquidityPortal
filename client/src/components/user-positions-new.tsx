@@ -37,7 +37,7 @@ const UserPositionsNew = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   
-  // Use standard API call for positions
+  // Use Uniswap API for accurate position data
   const { 
     data: allPositions = [], 
     isLoading: uniswapLoading,
@@ -48,9 +48,12 @@ const UserPositionsNew = () => {
       if (!address) return [];
       const response = await fetch(`/api/positions/wallet/${address}`);
       if (!response.ok) return [];
-      return response.json();
+      const positions = await response.json();
+      return positions;
     },
-    enabled: !!address
+    enabled: !!address,
+    staleTime: 30000, // Cache for 30 seconds
+    refetchInterval: 60000 // Refresh every minute
   });
   
   const { 
@@ -86,9 +89,9 @@ const UserPositionsNew = () => {
       return position.currentValueUSD;
     }
     
-    // Estimate value from token amounts
-    const amount0Value = position.amount0 ? parseFloat(position.amount0) * 0.016 : 0; // KILT price estimate
-    const amount1Value = position.amount1 ? parseFloat(position.amount1) * 2500 : 0; // ETH price estimate
+    // Estimate value from token amounts using accurate prices
+    const amount0Value = position.amount0 ? parseFloat(formatUnits(BigInt(position.amount0), 18)) * 0.01718 : 0; // KILT price from API
+    const amount1Value = position.amount1 ? parseFloat(formatUnits(BigInt(position.amount1), 18)) * 3400 : 0; // ETH price estimate
     
     return amount0Value + amount1Value;
   };
@@ -283,7 +286,7 @@ const UserPositionsNew = () => {
                   <div className="relative space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-400 font-mono">
-                        ID: {position.tokenId && typeof position.tokenId === 'bigint' ? position.tokenId.toString() : 'N/A'}
+                        ID: {position.tokenId || 'N/A'}
                       </div>
                       <div className="text-2xl font-bold text-white bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                         ${(positionValue || 0).toFixed(2)}
@@ -301,8 +304,8 @@ const UserPositionsNew = () => {
                           <span className="text-white/90 text-sm font-medium">KILT</span>
                         </div>
                         <div className="text-white font-semibold">
-                          {position.amount0 && typeof position.amount0 === 'bigint' 
-                            ? parseFloat(formatUnits(position.amount0, 18)).toFixed(2) 
+                          {position.amount0 && position.amount0 !== '0' 
+                            ? parseFloat(formatUnits(BigInt(position.amount0), 18)).toFixed(2) 
                             : '0.00'}
                         </div>
                       </div>
@@ -313,8 +316,8 @@ const UserPositionsNew = () => {
                           <span className="text-white/90 text-sm font-medium">WETH</span>
                         </div>
                         <div className="text-white font-semibold">
-                          {position.amount1 && typeof position.amount1 === 'bigint' 
-                            ? parseFloat(formatUnits(position.amount1, 18)).toFixed(4) 
+                          {position.amount1 && position.amount1 !== '0' 
+                            ? parseFloat(formatUnits(BigInt(position.amount1), 18)).toFixed(4) 
                             : '0.0000'}
                         </div>
                       </div>

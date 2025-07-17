@@ -1469,13 +1469,41 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get all positions for a user address
+  // Get all positions for a user address with database data
   app.get("/api/positions/wallet/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;
       
-      const positions = await uniswapIntegrationService.getUserPositions(userAddress);
-      res.json(positions);
+      // Get user from database
+      const user = await storage.getUserByAddress(userAddress);
+      if (!user) {
+        res.json([]);
+        return;
+      }
+      
+      // Get positions from database
+      const positions = await storage.getLpPositionsByUserId(user.id);
+      
+      // Format positions for frontend
+      const formattedPositions = positions.map(pos => ({
+        tokenId: pos.nftTokenId,
+        poolAddress: pos.poolAddress,
+        token0: pos.token0Address,
+        token1: pos.token1Address,
+        fee: pos.feeTier,
+        tickLower: pos.tickLower,
+        tickUpper: pos.tickUpper,
+        liquidity: pos.liquidity?.toString() || '0',
+        amount0: pos.token0Amount?.toString() || '0',
+        amount1: pos.token1Amount?.toString() || '0',
+        currentValueUSD: Number(pos.currentValueUSD) || 0,
+        fees: null, // Will be fetched separately if needed
+        poolType: 'KILT/ETH',
+        isKiltPosition: true,
+        isActive: pos.isActive
+      }));
+      
+      res.json(formattedPositions);
     } catch (error) {
       // Error getting user positions
       res.status(500).json({ error: "Failed to get user positions" });
@@ -1492,6 +1520,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       // Error debugging user positions
       res.status(500).json({ error: "Failed to debug user positions" });
+    }
+  });
+
+  // Test endpoint to check individual position data
+  app.get("/api/positions/test/:tokenId", async (req, res) => {
+    try {
+      const { tokenId } = req.params;
+      
+      const position = await uniswapIntegrationService.getFullPositionData(tokenId);
+      res.json(position);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get position data" });
     }
   });
 

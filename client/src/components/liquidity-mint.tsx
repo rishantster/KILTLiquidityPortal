@@ -420,23 +420,23 @@ export function LiquidityMint() {
           Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + 0.3% trading fees
         </p>
         <div className="flex items-center justify-center gap-2 flex-wrap">
-          <div className="text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-1">
+          <div className="theme-badge-warning text-xs rounded-lg px-2 py-1">
             <Info className="h-3 w-3 inline mr-1" />
             Minimum position value: $10 (anti-spam protection)
           </div>
-          <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-0.5 text-xs">
+          <Badge className="theme-badge-success px-2 py-0.5 text-xs">
             0.3% Fee Tier
           </Badge>
-          <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-0.5 text-xs">
+          <Badge className="theme-badge-success px-2 py-0.5 text-xs">
             {poolExists ? 'Pool Active' : 'Pool Not Found'}
           </Badge>
         </div>
       </div>
       {/* Sleek Position Size */}
-      <Card className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-emerald-500/20 rounded-lg">
+      <Card className="theme-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Target className="h-3 w-3 text-emerald-400" />
+            <Target className="h-3 w-3 text-cyan-400" />
             Position Size
           </CardTitle>
           <p className="text-white/60 text-xs">Amount to Provide: {positionSizePercent[0]}% of {selectedEthToken} balance</p>
@@ -460,8 +460,8 @@ export function LiquidityMint() {
                   onClick={() => handlePercentageSelect(percent)}
                   className={`h-8 text-xs font-semibold transition-all duration-300 ${
                     positionSizePercent[0] === percent 
-                      ? 'bg-emerald-500 hover:bg-emerald-600 shadow-lg' 
-                      : 'hover:bg-emerald-500/10 hover:border-emerald-500/50'
+                      ? 'theme-button-primary' 
+                      : 'theme-button-secondary'
                   }`}
                 >
                   {percent}%
@@ -474,7 +474,7 @@ export function LiquidityMint() {
       {/* Sleek Token Input Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Sleek KILT Input */}
-        <Card className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border-pink-500/20 rounded-lg">
+        <Card className="theme-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <img 

@@ -98,14 +98,14 @@ export const UniswapPositionCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="text-sm font-bold text-white">KILT/WETH</div>
-            <div className="text-xs text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/30">
+            <div className="text-xs theme-badge-success px-2 py-1 rounded">
               {position.fee ? `${(position.fee / 10000).toFixed(1)}%` : '0.3%'}
             </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-xs text-white/60">#{position.tokenId}</div>
             {position.isRegistered && (
-              <CheckCircle className="h-3 w-3 text-emerald-400" />
+              <CheckCircle className="h-3 w-3 text-cyan-400" />
             )}
           </div>
         </div>

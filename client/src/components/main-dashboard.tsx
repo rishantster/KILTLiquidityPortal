@@ -460,7 +460,7 @@ export function MainDashboard() {
           <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700/50 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">
@@ -470,7 +470,7 @@ export function MainDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-600 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">
@@ -480,7 +480,7 @@ export function MainDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-600 data-[state=active]:to-yellow-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">
@@ -490,7 +490,7 @@ export function MainDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">

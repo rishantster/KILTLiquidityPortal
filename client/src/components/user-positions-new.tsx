@@ -67,26 +67,37 @@ const UserPositionsNew = () => {
     return isKiltPosition;
   }) || [];
 
-  const openPositions = kiltPositions.filter(position => position.liquidity > 0n);
-  const closedPositions = kiltPositions.filter(position => position.liquidity === 0n);
+  const openPositions = kiltPositions.filter(position => 
+    position.liquidity && typeof position.liquidity === 'bigint' && position.liquidity > 0n
+  );
+  const closedPositions = kiltPositions.filter(position => 
+    !position.liquidity || typeof position.liquidity !== 'bigint' || position.liquidity === 0n
+  );
   const displayPositions = showClosedPositions ? kiltPositions : openPositions;
 
   const calculatePositionValue = (position: UniswapPosition): number => {
-    if (position.currentValueUSD) return position.currentValueUSD;
+    if (position.currentValueUSD && typeof position.currentValueUSD === 'number') {
+      return position.currentValueUSD;
+    }
     
     // Simplified calculation - in real implementation, use actual token prices
-    const amount0Value = position.amount0 ? parseFloat(formatUnits(position.amount0, 18)) * 0.016 : 0; // KILT price estimate
-    const amount1Value = position.amount1 ? parseFloat(formatUnits(position.amount1, 18)) * 2500 : 0; // ETH price estimate
+    const amount0Value = position.amount0 && typeof position.amount0 === 'bigint' 
+      ? parseFloat(formatUnits(position.amount0, 18)) * 0.016 
+      : 0; // KILT price estimate
+    const amount1Value = position.amount1 && typeof position.amount1 === 'bigint' 
+      ? parseFloat(formatUnits(position.amount1, 18)) * 2500 
+      : 0; // ETH price estimate
     
     return amount0Value + amount1Value;
   };
 
   const isPositionInRange = (position: UniswapPosition): boolean => {
     // Simplified range check - in real implementation, check against current pool price
-    return position.liquidity > 0n;
+    return position.liquidity && typeof position.liquidity === 'bigint' ? position.liquidity > 0n : false;
   };
 
   const isPositionRegistered = (position: UniswapPosition): boolean => {
+    if (!position.tokenId || typeof position.tokenId !== 'bigint') return false;
     return registeredPositions.some(
       (registered: any) => registered.nftTokenId === position.tokenId.toString()
     );
@@ -107,13 +118,13 @@ const UserPositionsNew = () => {
       const positionData = {
         userId: null, // Will be resolved by the hook
         userAddress: address,
-        nftTokenId: position.tokenId.toString(),
+        nftTokenId: position.tokenId && typeof position.tokenId === 'bigint' ? position.tokenId.toString() : '0',
         poolAddress: position.poolAddress || '',
-        token0Address: position.token0,
-        token1Address: position.token1,
-        amount0: position.amount0.toString(),
-        amount1: position.amount1.toString(),
-        liquidity: position.liquidity.toString(),
+        token0Address: position.token0 || '',
+        token1Address: position.token1 || '',
+        amount0: position.amount0 && typeof position.amount0 === 'bigint' ? position.amount0.toString() : '0',
+        amount1: position.amount1 && typeof position.amount1 === 'bigint' ? position.amount1.toString() : '0',
+        liquidity: position.liquidity && typeof position.liquidity === 'bigint' ? position.liquidity.toString() : '0',
         currentValueUSD: calculatePositionValue(position),
         feeTier: 3000, // Default fee tier
         originalCreationDate: new Date().toISOString()
@@ -144,37 +155,6 @@ const UserPositionsNew = () => {
       await queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
     } finally {
       setIsRefreshing(false);
-    }
-  };
-
-  const handleRegisterPosition = async (position: UniswapPosition) => {
-    try {
-      const positionData = {
-        nftTokenId: position.tokenId.toString(),
-        poolAddress: position.poolAddress || '',
-        token0Address: position.token0,
-        token1Address: position.token1,
-        amount0: position.amount0?.toString() || '0',
-        amount1: position.amount1?.toString() || '0',
-        minPrice: '0', // Could be calculated from tickLower
-        maxPrice: '0', // Could be calculated from tickUpper
-        liquidity: position.liquidity.toString(),
-        currentValueUSD: position.currentValueUSD || calculatePositionValue(position),
-        feeTier: 3000, // Default fee tier
-        createdAt: new Date(),
-      };
-      
-      await registerPosition(positionData);
-      toast({
-        title: "Success",
-        description: "Position registered for rewards",
-      });
-    } catch (error: unknown) {
-      toast({
-        title: "Error",
-        description: (error as Error)?.message || "Failed to register position",
-        variant: "destructive",
-      });
     }
   };
 
@@ -285,10 +265,10 @@ const UserPositionsNew = () => {
             {displayPositions.map((position) => {
               const positionValue = calculatePositionValue(position);
               const inRange = isPositionInRange(position);
-              const isClosed = position.liquidity === 0n;
+              const isClosed = !position.liquidity || typeof position.liquidity !== 'bigint' || position.liquidity === 0n;
               
               return (
-                <div key={position.tokenId.toString()} className={`group relative ${
+                <div key={position.tokenId && typeof position.tokenId === 'bigint' ? position.tokenId.toString() : Math.random()} className={`group relative ${
                   isClosed 
                     ? 'bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-600/30' 
                     : 'bg-gradient-to-br from-blue-600/10 via-purple-600/10 to-emerald-600/10 border-blue-400/30'
@@ -301,10 +281,10 @@ const UserPositionsNew = () => {
                   <div className="relative space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-400 font-mono">
-                        ID: {position.tokenId.toString()}
+                        ID: {position.tokenId && typeof position.tokenId === 'bigint' ? position.tokenId.toString() : 'N/A'}
                       </div>
                       <div className="text-2xl font-bold text-white bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                        ${positionValue.toFixed(2)}
+                        ${(positionValue || 0).toFixed(2)}
                       </div>
                     </div>
                     
@@ -315,21 +295,25 @@ const UserPositionsNew = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between bg-white/5 rounded-lg p-3">
                         <div className="flex items-center space-x-2">
-                          <TokenLogo symbol="KILT" className="w-5 h-5" />
+                          <TokenLogo token="KILT" className="w-5 h-5" />
                           <span className="text-white/90 text-sm font-medium">KILT</span>
                         </div>
                         <div className="text-white font-semibold">
-                          {position.amount0 ? parseFloat(formatUnits(position.amount0, 18)).toFixed(2) : '0.00'}
+                          {position.amount0 && typeof position.amount0 === 'bigint' 
+                            ? parseFloat(formatUnits(position.amount0, 18)).toFixed(2) 
+                            : '0.00'}
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between bg-white/5 rounded-lg p-3">
                         <div className="flex items-center space-x-2">
-                          <TokenLogo symbol="ETH" className="w-5 h-5" />
+                          <TokenLogo token="ETH" className="w-5 h-5" />
                           <span className="text-white/90 text-sm font-medium">WETH</span>
                         </div>
                         <div className="text-white font-semibold">
-                          {position.amount1 ? parseFloat(formatUnits(position.amount1, 18)).toFixed(4) : '0.0000'}
+                          {position.amount1 && typeof position.amount1 === 'bigint' 
+                            ? parseFloat(formatUnits(position.amount1, 18)).toFixed(4) 
+                            : '0.0000'}
                         </div>
                       </div>
                     </div>

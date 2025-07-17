@@ -15,6 +15,7 @@ import {
   publicClient
 } from '@/lib/uniswap-v3';
 import { useToast } from './use-toast';
+import type { Address } from 'viem';
 
 // Ultra-fast position cache
 const positionCache = new Map<string, UniswapV3Position[]>();
@@ -617,6 +618,9 @@ export function useTokenAllowance(tokenAddress: string | null, owner: string | n
 
 // Export alias for backwards compatibility
 export function useUniswapV3Positions() {
+  const { address } = useWallet();
+  const queryClient = useQueryClient();
+  
   const {
     kiltEthPositions,
     kiltEthLoading,
@@ -625,9 +629,9 @@ export function useUniswapV3Positions() {
   return {
     positions: kiltEthPositions || [],
     isLoading: kiltEthLoading,
-    refetch: () => {
+    refetch: async () => {
       // Trigger refetch through query invalidation
-      // This is a simplified approach - in real implementation you'd have proper refetch
+      await queryClient.invalidateQueries({ queryKey: ['kilt-eth-positions', address] });
       return Promise.resolve();
     }
   };

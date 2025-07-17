@@ -16,6 +16,27 @@ import {
 } from '@/lib/uniswap-v3';
 import { useToast } from './use-toast';
 
+// Ultra-fast position cache
+const positionCache = new Map<string, UniswapV3Position[]>();
+const cacheExpiry = new Map<string, number>();
+const CACHE_DURATION = 30000; // 30 seconds
+
+const getCachedPositions = (address: string): UniswapV3Position[] | null => {
+  const now = Date.now();
+  const expiry = cacheExpiry.get(address);
+  
+  if (expiry && now < expiry) {
+    return positionCache.get(address) || null;
+  }
+  
+  return null;
+};
+
+const setCachedPositions = (address: string, positions: UniswapV3Position[]) => {
+  positionCache.set(address, positions);
+  cacheExpiry.set(address, Date.now() + CACHE_DURATION);
+};
+
 export function useUniswapV3() {
   const { address, isConnected } = useWallet();
   const { toast } = useToast();
@@ -34,11 +55,16 @@ export function useUniswapV3() {
   const { data: kiltEthPositions, isLoading: kiltEthLoading, error: kiltEthError } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
+      // Check cache first for instant response
+      const cached = getCachedPositions(address!);
+      if (cached) {
+        return cached;
+      }
+      
       try {
         const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
         
         if (!response.ok) {
-          // Return empty array instead of throwing
           return [];
         }
         
@@ -67,10 +93,11 @@ export function useUniswapV3() {
           poolAddress: pos.poolAddress
         }));
         
+        // Cache the result for ultra-fast subsequent loads
+        setCachedPositions(address!, converted);
+        
         return converted;
       } catch (error) {
-        // Always return empty array on any error
-        console.warn('Position fetch failed:', error);
         return [];
       }
     },

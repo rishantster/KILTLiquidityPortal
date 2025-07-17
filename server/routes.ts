@@ -51,7 +51,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const { address } = req.params;
       
       // Get wallet positions directly
-      const walletPositions = await uniswapIntegrationService.getWalletPositions(address);
+      const walletPositions = await uniswapIntegrationService.getUserPositions(address);
       
       // Filter for KILT positions only (using hardcoded KILT token address for speed)
       const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";

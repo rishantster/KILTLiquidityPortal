@@ -825,6 +825,143 @@
     filter: brightness(1.2) saturate(1.3) drop-shadow(0 4px 12px rgba(232, 121, 249, 0.3));
   }
 
+  /* Liquid Background Animations */
+  .liquid-bubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 6s ease-in-out infinite;
+    background: linear-gradient(45deg, rgba(0, 255, 255, 0.15), rgba(16, 185, 129, 0.1));
+    filter: blur(1px);
+  }
+
+  .liquid-bubble-1 {
+    width: 80px;
+    height: 80px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+
+  .liquid-bubble-2 {
+    width: 60px;
+    height: 60px;
+    top: 20%;
+    right: 20%;
+    animation-delay: 2s;
+  }
+
+  .liquid-bubble-3 {
+    width: 100px;
+    height: 100px;
+    bottom: 30%;
+    left: 30%;
+    animation-delay: 4s;
+  }
+
+  .liquid-bubble-4 {
+    width: 70px;
+    height: 70px;
+    bottom: 20%;
+    right: 10%;
+    animation-delay: 1s;
+  }
+
+  .liquid-blob {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(16, 185, 129, 0.06));
+    border-radius: 50%;
+    filter: blur(2px);
+    opacity: 0.8;
+  }
+
+  .liquid-blob-1 {
+    width: 300px;
+    height: 200px;
+    top: 15%;
+    left: 5%;
+    animation: morph1 20s ease-in-out infinite;
+  }
+
+  .liquid-blob-2 {
+    width: 250px;
+    height: 180px;
+    top: 40%;
+    right: 10%;
+    animation: morph2 25s ease-in-out infinite;
+  }
+
+  .liquid-blob-3 {
+    width: 200px;
+    height: 150px;
+    bottom: 20%;
+    left: 20%;
+    animation: morph3 18s ease-in-out infinite;
+  }
+
+  .liquid-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 70%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(16, 185, 129, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-20px) rotate(5deg); }
+    66% { transform: translateY(10px) rotate(-3deg); }
+  }
+
+  @keyframes morph1 {
+    0%, 100% { 
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      transform: translate(0, 0) rotate(0deg);
+    }
+    33% { 
+      border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
+      transform: translate(30px, -30px) rotate(120deg);
+    }
+    66% { 
+      border-radius: 30% 70% 70% 30% / 50% 70% 30% 60%;
+      transform: translate(-20px, 20px) rotate(240deg);
+    }
+  }
+
+  @keyframes morph2 {
+    0%, 100% { 
+      border-radius: 30% 70% 50% 50% / 50% 30% 70% 50%;
+      transform: translate(0, 0) rotate(0deg);
+    }
+    50% { 
+      border-radius: 50% 50% 30% 70% / 60% 50% 30% 70%;
+      transform: translate(-40px, 40px) rotate(180deg);
+    }
+  }
+
+  @keyframes morph3 {
+    0%, 100% { 
+      border-radius: 50% 50% 70% 30% / 40% 70% 30% 60%;
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% { 
+      border-radius: 70% 30% 40% 60% / 30% 50% 70% 40%;
+      transform: translate(25px, -25px) rotate(90deg);
+    }
+    50% { 
+      border-radius: 40% 60% 30% 70% / 70% 30% 60% 40%;
+      transform: translate(-30px, 30px) rotate(180deg);
+    }
+    75% { 
+      border-radius: 60% 40% 70% 30% / 50% 70% 30% 50%;
+      transform: translate(15px, -15px) rotate(270deg);
+    }
+  }
+
   /* Staggered Animation Delays for Multiple Logos */
   .logo-reveal-delay-1 {
     animation-delay: 0.1s;

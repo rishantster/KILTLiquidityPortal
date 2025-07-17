@@ -214,12 +214,12 @@ export const UniswapPositionCard = ({
           </Badge>
         </div>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* Action Buttons - Compact Retro Neon */}
+        <div className="grid grid-cols-3 gap-1 mt-2">
           <Button 
             size="sm"
             onClick={() => onAddLiquidity?.(position)}
-            className="h-9 text-xs font-medium theme-button-primary"
+            className="h-7 text-xs font-medium px-2 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white border-none shadow-lg hover:shadow-pink-500/25 transition-all duration-200"
           >
             <Plus className="h-3 w-3 mr-1" />
             Add
@@ -227,7 +227,7 @@ export const UniswapPositionCard = ({
           <Button 
             size="sm"
             onClick={() => onRemoveLiquidity?.(position)}
-            className="h-9 text-xs font-medium theme-button-accent"
+            className="h-7 text-xs font-medium px-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white border-none shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
           >
             <Minus className="h-3 w-3 mr-1" />
             Remove
@@ -235,7 +235,7 @@ export const UniswapPositionCard = ({
           <Button 
             size="sm"
             onClick={() => onCollectFees?.(position)}
-            className="h-9 text-xs font-medium theme-button-secondary"
+            className="h-7 text-xs font-medium px-2 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white border-none shadow-lg hover:shadow-cyan-500/25 transition-all duration-200"
           >
             <DollarSign className="h-3 w-3 mr-1" />
             Collect

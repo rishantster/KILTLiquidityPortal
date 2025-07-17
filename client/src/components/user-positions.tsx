@@ -257,49 +257,73 @@ export function UserPositions() {
     <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
       <Card key={`positions-${kiltEthPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
-              <Layers className="h-3 w-3 text-blue-400" />
-              <span>Your KILT LP Positions</span>
-            </CardTitle>
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.location.reload()}
-                className="border-white/20 hover:border-white/30 text-xs h-6 px-2"
-              >
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Refresh
-              </Button>
-              
-              {/* Position counts and toggle */}
+        <CardHeader className="pb-3 bg-gradient-to-r from-pink-500/5 to-cyan-500/5 border-b border-white/10">
+          <div className="flex flex-col space-y-3">
+            {/* Main Header */}
+            <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 text-xs text-white/60">
-                  <span>{allKiltPositions.length} KILT positions ({openPositions.length} open)</span>
+                <div className="w-8 h-8 bg-gradient-to-br from-pink-500/20 to-cyan-500/20 rounded-lg flex items-center justify-center border border-pink-500/30">
+                  <Layers className="h-4 w-4 text-pink-400" />
                 </div>
-                
-                {closedPositions.length > 0 && (
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-white/60">Display Closed</span>
-                    <button
-                      onClick={() => setShowClosedPositions(!showClosedPositions)}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                        showClosedPositions 
-                          ? 'bg-blue-600' 
-                          : 'bg-white/20'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
-                          showClosedPositions ? 'translate-x-5' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                )}
+                <div>
+                  <CardTitle className="text-white font-heading text-lg bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                    Your KILT LP Positions
+                  </CardTitle>
+                  <p className="text-white/60 text-sm">Real-time Uniswap V3 positions containing KILT token</p>
+                </div>
               </div>
+              <div className="flex items-center space-x-2">
+                <Badge className="bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 text-emerald-400 border-emerald-500/30 px-3 py-1">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse" />
+                  Live
+                </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.reload()}
+                  className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-cyan-500/30 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300 h-8 px-3"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Refresh
+                </Button>
+              </div>
+            </div>
+
+            {/* Position Statistics */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-white/80">
+                  <span className="font-bold text-white">{allKiltPositions.length}</span> KILT positions
+                  <span className="mx-2 text-white/40">•</span>
+                  <span className="font-bold text-emerald-400">{openPositions.length}</span> open
+                  {closedPositions.length > 0 && (
+                    <>
+                      <span className="mx-2 text-white/40">•</span>
+                      <span className="font-bold text-gray-400">{closedPositions.length}</span> closed
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {closedPositions.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-white/60">Show Closed</span>
+                  <button
+                    onClick={() => setShowClosedPositions(!showClosedPositions)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-black ${
+                      showClosedPositions 
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-cyan-500/25' 
+                        : 'bg-white/20 hover:bg-white/30'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-300 ease-in-out shadow-sm ${
+                        showClosedPositions ? 'translate-x-5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </CardHeader>

@@ -333,7 +333,7 @@ export function UserPositions() {
                 const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
                 
                 return (
-                  <div key={position.tokenId.toString()} className={`position-card ${isClosed ? 'bg-gradient-to-br from-gray-500/10 to-gray-600/5 border-gray-400/20' : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 border-blue-400/20'} rounded-lg hover:bg-gradient-to-br hover:from-blue-500/20 hover:via-purple-500/20 hover:to-emerald-500/20 transition-all border p-1 backdrop-blur-sm`}>
+                  <div key={position.tokenId.toString()} className={`position-card ${isClosed ? 'bg-gradient-to-br from-gray-500/10 to-gray-600/5 border-gray-400/20' : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 border-blue-400/20'} rounded hover:bg-gradient-to-br hover:from-blue-500/20 hover:via-purple-500/20 hover:to-emerald-500/20 transition-all border p-1 backdrop-blur-sm`}>
                     <div className="min-w-0 overflow-hidden">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="text-white font-bold tabular-nums text-xs">#{position.tokenId.toString()}</div>

@@ -15,7 +15,7 @@
 /* Force 4-column layout for position cards */
 .position-grid-4 {
   display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-columns: repeat(4, minmax(200px, 1fr)) !important;
   gap: 0.5rem !important;
   width: 100% !important;
   max-width: none !important;
@@ -24,8 +24,18 @@
 
 .position-card {
   width: 100% !important;
-  max-width: none !important;
-  min-width: 0 !important;
+  max-width: 250px !important;
+  min-width: 200px !important;
+  height: auto !important;
+  font-size: 0.75rem !important;
+}
+
+.position-card * {
+  font-size: inherit !important;
+}
+
+.position-card .text-xs {
+  font-size: 0.65rem !important;
 }
 
 /* Standard typography classes */

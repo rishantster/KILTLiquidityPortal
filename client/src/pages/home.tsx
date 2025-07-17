@@ -1,5 +1,5 @@
-import { AppShell } from '@/components/app-shell';
+import { LightningFastShell } from '@/components/lightning-fast-shell';
 
 export default function Home() {
-  return <AppShell />;
+  return <LightningFastShell />;
 }

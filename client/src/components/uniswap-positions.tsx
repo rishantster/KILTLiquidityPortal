@@ -108,43 +108,47 @@ const PositionCard = ({ position }: { position: Position }) => {
   const currentPriceInRange = currentPrice >= minPrice && currentPrice <= maxPrice;
   
   return (
-    <div className="w-full max-w-sm">
-      {/* Exact Uniswap-style card */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-purple-900/40 to-blue-900/40 rounded-2xl border border-gray-600/50 shadow-2xl overflow-hidden">
+    <div className="w-full max-w-sm group">
+      {/* Animated glassmorphism card with glowing edges */}
+      <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-cyan-500/20 hover:border-cyan-500/30 hover:scale-105 hover:bg-white/10">
+        
+        {/* Glowing border animation */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-cyan-500/20 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
         
         {/* Header section */}
-        <div className="p-4 pb-2">
+        <div className="relative p-4 pb-2">
           <div className="flex items-start justify-between">
-            <div>
-              <div className="text-sm text-gray-300 font-mono mb-1">
+            <div className="space-y-1">
+              <div className="text-sm text-gray-400 font-mono animate-pulse">
                 ID: {position.nftTokenId}
               </div>
-              <div className="text-2xl font-bold text-white mb-1">
+              <div className="text-2xl font-bold text-white">
                 KILT/WETH
               </div>
-              <div className="text-lg text-gray-200">
+              <div className="text-lg text-gray-300">
                 {(position.feeTier * 100).toFixed(1)}%
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-white">
+              <div className="text-2xl font-bold text-white tabular-nums">
                 ${formatNumber(position.currentValueUsd || 1989.58)}
               </div>
-              <div className={`text-xs px-2 py-1 rounded-full mt-1 ${currentPriceInRange ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              <div className={`text-xs px-3 py-1 rounded-full mt-1 backdrop-blur-sm border transition-all duration-300 ${currentPriceInRange ? 'bg-emerald-500/20 text-emerald-400 border-emerald-400/30 shadow-emerald-500/20' : 'bg-red-500/20 text-red-400 border-red-400/30 shadow-red-500/20'}`}>
                 {currentPriceInRange ? 'In Range' : 'Out of Range'}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Price range visualization - matching reference */}
-        <div className="relative h-40 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
-          {/* Price curve */}
+        {/* Price range visualization with animations */}
+        <div className="relative h-40 bg-gradient-to-br from-gray-900/30 to-gray-700/30 backdrop-blur-sm">
+          {/* Animated price curve */}
           <svg width="100%" height="100%" viewBox="0 0 300 160" className="absolute inset-0">
             <defs>
               <linearGradient id="priceGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#06B6D4" />
+                <stop offset="0%" stopColor="#6B7280" />
+                <stop offset="50%" stopColor="#9CA3AF" />
+                <stop offset="100%" stopColor="#6B7280" />
               </linearGradient>
             </defs>
             <path
@@ -152,76 +156,79 @@ const PositionCard = ({ position }: { position: Position }) => {
               stroke="url(#priceGradient)"
               strokeWidth="3"
               fill="none"
+              className="transition-all duration-300 group-hover:stroke-cyan-400"
             />
             {/* Min price point */}
-            <circle cx="40" cy="120" r="4" fill="#8B5CF6" />
+            <circle cx="40" cy="120" r="4" fill="#6B7280" className="transition-all duration-300 group-hover:fill-cyan-400 group-hover:r-5" />
             {/* Max price point */}
-            <circle cx="260" cy="120" r="4" fill="#06B6D4" />
-            {/* Current price indicator */}
-            <circle cx="150" cy="60" r="3" fill="#10B981" />
+            <circle cx="260" cy="120" r="4" fill="#6B7280" className="transition-all duration-300 group-hover:fill-cyan-400 group-hover:r-5" />
+            {/* Current price indicator - animated pulse */}
+            <circle cx="150" cy="60" r="3" fill="#10B981" className="animate-pulse transition-all duration-300 group-hover:fill-emerald-400 group-hover:r-4">
+              <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite" />
+            </circle>
           </svg>
           
-          {/* Current price label */}
+          {/* Current price label with glow */}
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-            <div className="text-sm text-green-400 font-mono">
+            <div className="text-sm text-emerald-400 font-mono backdrop-blur-sm bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20 shadow-emerald-500/20">
               ${formatNumber(currentPrice, 4)}
             </div>
           </div>
         </div>
 
-        {/* Bottom section with tick values */}
-        <div className="p-4 pt-2 space-y-3">
+        {/* Bottom section with glassmorphism */}
+        <div className="relative p-4 pt-2 space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gray-800/50 rounded-lg p-3">
+            <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-all duration-300">
               <div className="text-xs text-gray-400 mb-1">Min Tick:</div>
-              <div className="text-sm font-mono text-white">
+              <div className="text-sm font-mono text-white tabular-nums">
                 ${formatNumber(minPrice, 4)}
               </div>
             </div>
-            <div className="bg-gray-800/50 rounded-lg p-3">
+            <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-all duration-300">
               <div className="text-xs text-gray-400 mb-1">Max Tick:</div>
-              <div className="text-sm font-mono text-white">
+              <div className="text-sm font-mono text-white tabular-nums">
                 ${formatNumber(maxPrice, 4)}
               </div>
             </div>
           </div>
 
-          {/* Token amounts */}
+          {/* Token amounts with better logo visibility */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between p-2 bg-blue-900/20 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
-                  <EthereumLogo className="w-3 h-3 text-white" />
+            <div className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                  <EthereumLogo className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-sm font-medium text-white">ETH</span>
               </div>
-              <span className="text-sm font-mono text-white">
+              <span className="text-sm font-mono text-white tabular-nums">
                 {formatNumber(ethAmount || 0.363, 4)}
               </span>
             </div>
             
-            <div className="flex items-center justify-between p-2 bg-pink-900/20 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 bg-gradient-to-br from-pink-500 to-purple-600 rounded-md flex items-center justify-center p-1">
-                  <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+            <div className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center shadow-lg p-1">
+                  <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain filter brightness-0 invert" />
                 </div>
                 <span className="text-sm font-medium text-white">KILT</span>
               </div>
-              <span className="text-sm font-mono text-white">
+              <span className="text-sm font-mono text-white tabular-nums">
                 {formatNumber(kiltAmount || 67630, 0)}
               </span>
             </div>
           </div>
 
-          {/* Action buttons */}
+          {/* Action buttons with subtle animations */}
           <div className="flex space-x-2">
-            <button className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm">
+            <button className="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 text-white font-medium py-2 px-3 rounded-lg transition-all duration-300 text-sm hover:shadow-lg hover:scale-105">
               Increase
             </button>
-            <button className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm">
+            <button className="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 text-white font-medium py-2 px-3 rounded-lg transition-all duration-300 text-sm hover:shadow-lg hover:scale-105">
               Decrease
             </button>
-            <button className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm">
+            <button className="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 text-white font-medium py-2 px-3 rounded-lg transition-all duration-300 text-sm hover:shadow-lg hover:scale-105">
               Collect
             </button>
           </div>

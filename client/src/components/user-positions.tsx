@@ -325,7 +325,7 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-1">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
@@ -333,156 +333,85 @@ export function UserPositions() {
                 const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
                 
                 return (
-                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-xl hover:bg-white/10 transition-all`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-8 h-8 bg-gradient-to-br ${isClosed ? 'from-gray-500 to-gray-600' : 'from-blue-500 to-emerald-500'} rounded-lg flex items-center justify-center`}>
-                            <Award className="h-4 w-4 text-white" />
+                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-md hover:bg-white/10 transition-all`}>
+                    <CardContent className="p-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center space-x-1">
+                          <div className={`w-4 h-4 bg-gradient-to-br ${isClosed ? 'from-gray-500 to-gray-600' : 'from-blue-500 to-emerald-500'} rounded-sm flex items-center justify-center`}>
+                            <Award className="h-2 w-2 text-white" />
                           </div>
                           <div>
-                            <div className="flex items-center space-x-2">
-                              <div className="text-white font-bold tabular-nums">NFT #{position.tokenId.toString()}</div>
-                              {isClosed && (
-                                <Badge variant="secondary" className="bg-gray-500/20 text-gray-400 text-xs">
-                                  CLOSED
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <Badge 
-                                variant={inRange ? "default" : "secondary"}
-                                className={inRange ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}
-                              >
-                                {inRange ? 'In Range' : 'Out of Range'}
+                            <div className="text-white font-bold tabular-nums text-xs">#{position.tokenId.toString()}</div>
+                            {isClosed && (
+                              <Badge variant="secondary" className="bg-gray-500/20 text-gray-400 text-xs px-1 py-0">
+                                CLOSED
                               </Badge>
-                              <Badge 
-                                variant="outline" 
-                                className={isMainPool ? "bg-blue-500/20 text-blue-400 border-blue-500/30" : "bg-purple-500/20 text-purple-400 border-purple-500/30"}
-                              >
-                                {isMainPool ? 'KILT/ETH' : 'Other Pool'}
-                              </Badge>
-                            </div>
+                            )}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-white font-bold tabular-nums text-lg">
-                            ${positionValue.toFixed(2)}
-                          </div>
-                          <div className="text-emerald-400 text-sm font-bold tabular-nums">
-                            {formatTokenAmount(position.liquidity, 18) || '0'} L
+                          <div className="text-white font-bold tabular-nums text-xs">
+                            ${positionValue.toFixed(0)}
                           </div>
                         </div>
                       </div>
                       
-                      <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-center mb-1">
+                        <Badge 
+                          variant={inRange ? "default" : "secondary"}
+                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"} text-xs px-1 py-0`}
+                        >
+                          {inRange ? 'In' : 'Out'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-1 text-xs">
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <EthLogo size="md" />
-                            ETH
+                            <EthLogo size="sm" />
                           </span>
                           <span className="text-white font-bold tabular-nums">
-                            {position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(3) : '0'}
+                            {position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(2) : '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <KiltLogo size="md" />
-                            KILT
+                            <KiltLogo size="sm" />
                           </span>
                           <span className="text-white font-bold tabular-nums">
-                            {position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(4) : '0'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-white/60">Fee Tier</span>
-                          <span className="text-white font-bold tabular-nums">
-                            {position.fee / 10000}%
+                            {position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(0) : '0'}
                           </span>
                         </div>
                         
-                        {/* Panoptic-style Price Range Visualization */}
-                        <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-white/60 text-xs">Range (ETH/KILT)</span>
-                            <span className="text-white/60 text-xs">Current: {(kiltData?.price || 0.0160).toFixed(4)}</span>
-                          </div>
-                          
-                          {/* Curved Range Visualization */}
-                          <div className="relative h-16 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-lg overflow-hidden border border-white/5">
-                            {/* Price range background */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-emerald-900/20"></div>
-                            
-                            {/* Position range visualization */}
-                            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 64">
-                              {/* Background curve */}
-                              <path
-                                d="M 20 50 Q 100 20 180 50"
-                                stroke="rgba(255, 255, 255, 0.1)"
-                                strokeWidth="1"
-                                fill="none"
-                                strokeDasharray="2,2"
-                              />
-                              
+                        {/* Mini Range Visualization */}
+                        <div className="mt-1 p-1 bg-white/5 rounded-sm">
+                          <div className="relative h-4 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-sm overflow-hidden">
+                            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 16">
                               {/* Active position curve */}
                               <path
-                                d="M 40 45 Q 100 15 160 45"
+                                d="M 20 12 Q 50 4 80 12"
                                 stroke={position.liquidity > 0 ? '#10b981' : '#ef4444'}
-                                strokeWidth="3"
+                                strokeWidth="1"
                                 fill="none"
-                                className="drop-shadow-sm"
                               />
                               
-                              {/* Min price marker */}
-                              <circle
-                                cx="40"
-                                cy="45"
-                                r="4"
-                                fill={position.liquidity > 0 ? '#10b981' : '#ef4444'}
-                                className="drop-shadow-sm"
-                              />
-                              
-                              {/* Max price marker */}
-                              <circle
-                                cx="160"
-                                cy="45"
-                                r="4"
-                                fill={position.liquidity > 0 ? '#10b981' : '#ef4444'}
-                                className="drop-shadow-sm"
-                              />
+                              {/* Min/Max markers */}
+                              <circle cx="20" cy="12" r="1" fill={position.liquidity > 0 ? '#10b981' : '#ef4444'} />
+                              <circle cx="80" cy="12" r="1" fill={position.liquidity > 0 ? '#10b981' : '#ef4444'} />
                               
                               {/* Current price indicator */}
-                              <line
-                                x1="100"
-                                y1="10"
-                                x2="100"
-                                y2="54"
-                                stroke="white"
-                                strokeWidth="2"
-                                className="drop-shadow-sm"
-                              />
-                              <circle
-                                cx="100"
-                                cy="30"
-                                r="3"
-                                fill="white"
-                                className="drop-shadow-sm"
-                              />
+                              <line x1="50" y1="2" x2="50" y2="14" stroke="white" strokeWidth="1" />
+                              <circle cx="50" cy="8" r="1" fill="white" />
                             </svg>
-                            
-                            {/* Price labels */}
-                            <div className="absolute bottom-1 left-2 text-xs text-white/60">
-                              Min: {((kiltData?.price || 0.0160) * 0.8).toFixed(4)}
-                            </div>
-                            <div className="absolute bottom-1 right-2 text-xs text-white/60">
-                              Max: {((kiltData?.price || 0.0160) * 1.2).toFixed(4)}
-                            </div>
+                          </div>
+                          <div className="text-xs text-white/60 text-center">
+                            {position.fee / 10000}%
                           </div>
                         </div>
                       </div>
 
-                      {/* Position Management Actions */}
-                      <div className="flex gap-1 mt-4">
+                      {/* Mini Position Management Actions */}
+                      <div className="flex gap-1 mt-1">
                         {!isClosed ? (
                           <>
                             <Button
@@ -492,10 +421,9 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300"
+                              className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300 h-5 px-1"
                             >
-                              <Plus className="h-3 w-3 mr-1" />
-                              Add
+                              <Plus className="h-2 w-2" />
                             </Button>
                             <Button
                               variant="outline"
@@ -504,10 +432,9 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300"
+                              className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300 h-5 px-1"
                             >
-                              <Minus className="h-3 w-3 mr-1" />
-                              Remove
+                              <Minus className="h-2 w-2" />
                             </Button>
                             <Button
                               variant="outline"
@@ -516,15 +443,14 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300"
+                              className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300 h-5 px-1"
                             >
-                              <DollarSign className="h-3 w-3 mr-1" />
-                              Collect
+                              <DollarSign className="h-2 w-2" />
                             </Button>
                           </>
                         ) : (
-                          <div className="flex-1 text-center py-2 text-white/40 text-xs">
-                            Position closed - no actions available
+                          <div className="flex-1 text-center py-1 text-white/40 text-xs">
+                            Closed
                           </div>
                         )}
                       </div>

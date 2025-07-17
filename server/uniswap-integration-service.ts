@@ -149,31 +149,8 @@ export class UniswapIntegrationService {
         poolData.tickCurrent
       );
 
-      // Calculate realistic fee values based on position liquidity
-      const liquidityNumber = Number(liquidity);
-      
-      // Use position value to calculate proportional fees (more realistic approach)
-      const positionValueEth = Number(amount0) / 1e18; // Convert to ETH
-      const positionValueKilt = Number(amount1) / 1e18; // Convert to KILT
-      
-      // Calculate fees as 0.1% of position value (realistic trading fee accumulation)
-      const ethFeeFromValue = Math.floor(positionValueEth * 0.001 * 1e18); // 0.1% of ETH value
-      const kiltFeeFromValue = Math.floor(positionValueKilt * 0.001 * 1e18); // 0.1% of KILT value
-      
-      // Set realistic minimum and maximum fee bounds
-      const minEthFee = 3000000000000000; // 0.003 ETH
-      const maxEthFee = 80000000000000000; // 0.08 ETH
-      const minKiltFee = 15000000000000000000; // 15 KILT
-      const maxKiltFee = 1500000000000000000000; // 1500 KILT
-      
-      const ethFeeAmount = Math.max(minEthFee, Math.min(maxEthFee, ethFeeFromValue));
-      const kiltFeeAmount = Math.max(minKiltFee, Math.min(maxKiltFee, kiltFeeFromValue));
-      
-      // Use calculated fees based on position values for realistic proportional display
-      const fees = {
-        token0: ethFeeAmount.toString(),
-        token1: kiltFeeAmount.toString()
-      };
+      // Get actual fees from Uniswap position using collect simulation
+      const fees = await this.getFeesFromUniswapAPI(tokenId);
 
       // Calculate USD value
       const currentValueUSD = await this.calculatePositionValueUSD(
@@ -283,63 +260,26 @@ export class UniswapIntegrationService {
         this.POSITION_MANAGER_ABI
       );
       
-      // Get position data for liquidity-based fee calculation
-      const positionData = await positionContract.read.positions([BigInt(tokenId)]);
-      const [, , , , , , , liquidity] = positionData;
+      // Use collect simulation to get actual unclaimed fees
+      const collectParams = {
+        tokenId: BigInt(tokenId),
+        recipient: '0x0000000000000000000000000000000000000000', // Zero address for simulation
+        amount0Max: BigInt('340282366920938463463374607431768211455'), // Max uint128
+        amount1Max: BigInt('340282366920938463463374607431768211455')  // Max uint128
+      };
       
-      if (liquidity > 0n) {
-        // Try collect simulation first for actual fees
-        try {
-          const collectParams = [
-            {
-              tokenId: BigInt(tokenId),
-              recipient: '0x0000000000000000000000000000000000000000',
-              amount0Max: BigInt('340282366920938463463374607431768211455'),
-              amount1Max: BigInt('340282366920938463463374607431768211455')
-            }
-          ];
-          
-          const result = await positionContract.simulate.collect(collectParams);
-          const [amount0, amount1] = result.result;
-          
-          // If actual fees exist, return them
-          if (amount0 > 0n || amount1 > 0n) {
-            return {
-              token0: amount0.toString(),
-              token1: amount1.toString()
-            };
-          }
-        } catch (collectError) {
-          // Collect failed, continue to estimation
-        }
-        
-        // Calculate realistic fee estimates based on position liquidity
-        // These represent projected earnings from trading activity
-        const liquidityNumber = Number(liquidity);
-        
-        // Calculate meaningful fee amounts based on position size
-        // Use realistic scaling that produces visible fee amounts
-        const ethFeeWei = Math.floor(liquidityNumber / 50000000000000);  // Scale for ETH (18 decimals)
-        const kiltFeeWei = Math.floor(liquidityNumber / 500000000000);   // Scale for KILT (18 decimals)
-        
-        // Ensure minimum fee amounts for demonstration
-        const minEthFee = '10000000000000000';  // 0.01 ETH
-        const minKiltFee = '50000000000000000000';  // 50 KILT
-        
-        const finalEthFee = ethFeeWei > 0 ? ethFeeWei.toString() : minEthFee;
-        const finalKiltFee = kiltFeeWei > 0 ? kiltFeeWei.toString() : minKiltFee;
-        
-        return {
-          token0: finalEthFee,
-          token1: finalKiltFee
-        };
-      }
+      const result = await positionContract.simulate.collect([collectParams]);
+      const [amount0, amount1] = result.result;
       
-      // Return minimal fees if no liquidity
-      return { token0: '1000000000000000', token1: '50000000000000000000' }; // 0.001 ETH, 50 KILT
+      // Return actual fees from blockchain
+      return {
+        token0: amount0.toString(),
+        token1: amount1.toString()
+      };
+      
     } catch (error) {
-      // On any error, return minimal fees to show functionality
-      return { token0: '1000000000000000', token1: '50000000000000000000' }; // 0.001 ETH, 50 KILT
+      // If collect simulation fails, return zero fees (position may have no fees)
+      return { token0: '0', token1: '0' };
     }
   }
 

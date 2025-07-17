@@ -42,7 +42,7 @@ import { LoadingScreen } from './loading-screen';
 const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
 const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ default: m.RewardsTracking })));
 const AnalyticsDashboard = lazy(() => import('./analytics-dashboard').then(m => ({ default: m.AnalyticsDashboard })));
-const UserPositions = lazy(() => import('./user-positions').then(m => ({ default: m.UserPositions })));
+const BlazingPositions = lazy(() => import('./blazing-positions').then(m => ({ default: m.default })));
 const LiquidityRebalancing = lazy(() => import('./liquidity-rebalancing').then(m => ({ default: m.LiquidityRebalancing })));
 
 // Import optimized loading components
@@ -780,7 +780,7 @@ export function MainDashboard() {
           {/* Positions Tab */}
           <TabsContent value="positions">
             <Suspense fallback={<TabLoadingSpinner />}>
-              <UserPositions />
+              <BlazingPositions />
             </Suspense>
           </TabsContent>
 

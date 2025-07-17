@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Wallet } from 'lucide-react';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 import { performanceCache } from '@/utils/performance-cache';
+import { preloadPositions } from '@/hooks/use-instant-positions';
 
 /**
  * Lightning-fast shell with absolute minimum dependencies
@@ -23,6 +24,8 @@ export function LightningFastShell() {
       setAddress(ethereum.selectedAddress);
       // Preload critical data when connected
       performanceCache.preloadCriticalData().catch(console.error);
+      // Preload positions for instant loading
+      preloadPositions(ethereum.selectedAddress);
       // Show dashboard immediately
       setShowDashboard(true);
     }

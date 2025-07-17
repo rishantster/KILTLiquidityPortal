@@ -40,7 +40,7 @@ import { realTimeDataService } from "./real-time-data-service";
 import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";
-// import { adminSimpleRouter } from "./routes/admin-simple"; // Deprecated - use main admin dashboard
+import { adminSimpleRouter } from "./routes/admin-simple";
 import { systemHealthRouter } from "./routes/system-health";
 import uniswapPositionsRouter from "./routes/uniswap-positions.js";
 
@@ -1857,7 +1857,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.use("/api/positions", uniswapPositionsRouter);
 
   // Admin simple routes (legacy support)
-  // app.use("/api/admin-simple", adminSimpleRouter);
+  app.use("/api/admin-simple", adminSimpleRouter);
 
   // System health and debugging routes
   app.use("/api/system", systemHealthRouter);

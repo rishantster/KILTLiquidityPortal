@@ -55,6 +55,7 @@ app.use((req, res, next) => {
 
 // Application startup
 (async () => {
+  // Register API routes FIRST (before Vite middleware)
   const server = await registerRoutes(app, securityMiddleware);
 
   // Global error handler (must be last)

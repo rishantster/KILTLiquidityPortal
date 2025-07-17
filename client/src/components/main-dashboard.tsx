@@ -430,7 +430,7 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative" style={{
-      background: 'radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), #000000'
+      background: 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 50%), #000000'
     }}>
       {/* Floating Liquid Bubbles */}
       <div className="liquid-bubble liquid-bubble-1"></div>

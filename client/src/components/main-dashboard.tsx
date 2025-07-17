@@ -242,6 +242,11 @@ export function MainDashboard() {
         <div className="liquid-bubble liquid-bubble-3"></div>
         <div className="liquid-bubble liquid-bubble-4"></div>
         
+        {/* Morphing Liquid Blobs */}
+        <div className="liquid-blob liquid-blob-1"></div>
+        <div className="liquid-blob liquid-blob-2"></div>
+        <div className="liquid-blob liquid-blob-3"></div>
+        
         {/* Liquid Wave Glow Effect */}
         <div className="liquid-glow"></div>
 
@@ -431,6 +436,11 @@ export function MainDashboard() {
       <div className="liquid-bubble liquid-bubble-3"></div>
       <div className="liquid-bubble liquid-bubble-4"></div>
       
+      {/* Morphing Liquid Blobs */}
+      <div className="liquid-blob liquid-blob-1"></div>
+      <div className="liquid-blob liquid-blob-2"></div>
+      <div className="liquid-blob liquid-blob-3"></div>
+      
       {/* Liquid Wave Glow Effect */}
       <div className="liquid-glow"></div>
       
@@ -601,7 +611,7 @@ export function MainDashboard() {
               {/* Right Column - Quick Add Liquidity */}
               <div className="h-full">
                 <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2 mb-3">
-                  <Zap className="h-3 w-3 text-emerald-400" />
+                  <Zap className="h-3 w-3 text-cyan-400" />
                   Quick Add Liquidity
                 </h2>
                 <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">

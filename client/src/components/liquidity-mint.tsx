@@ -795,7 +795,7 @@ export function LiquidityMint() {
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
             tokensApproved 
               ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700'
           }`}
         >
           {isApproving ? (
@@ -821,7 +821,7 @@ export function LiquidityMint() {
           disabled={isMinting || !kiltAmount || !ethAmount || !poolExists || !tokensApproved}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
             tokensApproved && kiltAmount && ethAmount && poolExists 
-              ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700' 
+              ? 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700' 
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >

@@ -149,8 +149,8 @@ export class UniswapIntegrationService {
         poolData.tickCurrent
       );
 
-      // Get actual fees using reliable methodology
-      const fees = await this.getReliableFeesFromPosition(
+      // Get actual fees from blockchain using authentic fee calculation
+      const fees = await this.getUnclaimedFeesFromBlockchain(
         tokenId,
         liquidity,
         feeGrowthInside0LastX128,
@@ -261,9 +261,9 @@ export class UniswapIntegrationService {
   }
 
   /**
-   * Get reliable fees using tokensOwed (ready to collect) plus calculated unclaimed fees
+   * Get unclaimed fees using authentic blockchain calculation
    */
-  private async getReliableFeesFromPosition(
+  private async getUnclaimedFeesFromBlockchain(
     tokenId: string,
     liquidity: bigint,
     feeGrowthInside0LastX128: bigint,
@@ -275,15 +275,7 @@ export class UniswapIntegrationService {
     tickUpper: number
   ): Promise<{ token0: string; token1: string }> {
     try {
-      // First priority: Use tokensOwed (fees ready to collect)
-      if (tokensOwed0 > 0n || tokensOwed1 > 0n) {
-        return {
-          token0: tokensOwed0.toString(),
-          token1: tokensOwed1.toString()
-        };
-      }
-
-      // Fallback: Try to calculate unclaimed fees
+      // Calculate total fees = tokensOwed + unclaimed fees from fee growth
       const calculatedFees = await this.calculateUnclaimedFeesFromPosition(
         tokenId,
         liquidity,
@@ -294,9 +286,20 @@ export class UniswapIntegrationService {
         tickUpper
       );
 
-      return calculatedFees;
+      // Convert to bigint for calculation
+      const calculatedToken0 = BigInt(calculatedFees.token0);
+      const calculatedToken1 = BigInt(calculatedFees.token1);
+
+      // Total fees = tokensOwed + calculated unclaimed fees
+      const totalToken0 = tokensOwed0 + calculatedToken0;
+      const totalToken1 = tokensOwed1 + calculatedToken1;
+
+      return {
+        token0: totalToken0.toString(),
+        token1: totalToken1.toString()
+      };
     } catch (error) {
-      // Final fallback: Return tokensOwed even if they're zero
+      // If fee calculation fails, just return tokensOwed (what's ready to collect)
       return {
         token0: tokensOwed0.toString(),
         token1: tokensOwed1.toString()
@@ -416,8 +419,8 @@ export class UniswapIntegrationService {
         token1: unclaimedFees1.toString()
       };
     } catch (error) {
-      // If calculation fails, return 0 fees - no fallback values
-      return { token0: '0', token1: '0' };
+      // If calculation fails, throw error instead of returning hardcoded values
+      throw new Error(`Failed to calculate unclaimed fees for position ${tokenId}: ${error}`);
     }
   }
 

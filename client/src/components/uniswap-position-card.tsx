@@ -52,7 +52,18 @@ export const UniswapPositionCard = ({
   onRemoveLiquidity, 
   onCollectFees 
 }: UniswapPositionCardProps) => {
-  // Convert wei amounts to decimal format
+  // Safeguard: Return early if position data is missing
+  if (!position || !position.tokenId) {
+    return (
+      <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-gray-800/30 rounded-lg overflow-hidden">
+        <CardContent className="p-3 text-center">
+          <div className="text-white/60">Position data unavailable</div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Convert wei amounts to decimal format with safeguards
   const amount0Decimal = position.amount0 ? parseFloat(formatUnits(BigInt(position.amount0), 18)) : 0;
   const amount1Decimal = position.amount1 ? parseFloat(formatUnits(BigInt(position.amount1), 18)) : 0;
   

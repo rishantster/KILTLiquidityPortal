@@ -92,7 +92,7 @@ export const UniswapPositionCard = ({
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
   
   return (
-    <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 rounded-lg overflow-hidden hover:border-white/20 hover:shadow-lg hover:shadow-white/5 transition-all duration-300">
+    <Card className="theme-card overflow-hidden">
       <CardContent className="p-3 space-y-3">
         {/* Header with Pool Info and NFT ID */}
         <div className="flex items-center justify-between">
@@ -158,7 +158,7 @@ export const UniswapPositionCard = ({
         </div>
 
         {/* Fees Earned Section */}
-        <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-3">
+        <div className="theme-card p-3">
           <div className="text-xs text-white/60 mb-1">Fees earned</div>
           <div className="text-lg font-bold text-white">
             ${formatSmallAmount(feesEarned)}
@@ -204,10 +204,10 @@ export const UniswapPositionCard = ({
         <div className="flex items-center justify-center">
           <Badge 
             variant={isInRange ? "default" : "secondary"} 
-            className={`text-xs px-3 py-1 backdrop-blur-sm border ${
+            className={`text-xs px-3 py-1 ${
               isInRange 
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' 
-                : 'bg-red-500/20 text-red-300 border-red-500/30'
+                ? 'theme-badge-success' 
+                : 'theme-badge-danger'
             }`}
           >
             {isInRange ? "In Range" : "Out of Range"}
@@ -219,7 +219,7 @@ export const UniswapPositionCard = ({
           <Button 
             size="sm"
             onClick={() => onAddLiquidity?.(position)}
-            className="h-9 text-xs font-medium bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 hover:from-emerald-500/30 hover:to-emerald-600/30 border border-emerald-500/40 text-emerald-400 rounded-md transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20"
+            className="h-9 text-xs font-medium theme-button-primary"
           >
             <Plus className="h-3 w-3 mr-1" />
             Add
@@ -227,7 +227,7 @@ export const UniswapPositionCard = ({
           <Button 
             size="sm"
             onClick={() => onRemoveLiquidity?.(position)}
-            className="h-9 text-xs font-medium bg-gradient-to-r from-red-500/20 to-red-600/20 hover:from-red-500/30 hover:to-red-600/30 border border-red-500/40 text-red-400 rounded-md transition-all duration-200 hover:shadow-lg hover:shadow-red-500/20"
+            className="h-9 text-xs font-medium theme-button-accent"
           >
             <Minus className="h-3 w-3 mr-1" />
             Remove
@@ -235,7 +235,7 @@ export const UniswapPositionCard = ({
           <Button 
             size="sm"
             onClick={() => onCollectFees?.(position)}
-            className="h-9 text-xs font-medium bg-gradient-to-r from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 border border-blue-500/40 text-blue-400 rounded-md transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/20"
+            className="h-9 text-xs font-medium theme-button-secondary"
           >
             <DollarSign className="h-3 w-3 mr-1" />
             Collect

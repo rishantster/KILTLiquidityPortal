@@ -165,7 +165,7 @@ export function RewardsTracking() {
     <div className="space-y-4">
       {/* Detailed Reward Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="bg-yellow-500/5 border-yellow-500/20 rounded-lg">
+        <Card className="theme-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Total Earned</h3>
@@ -188,7 +188,7 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className="bg-emerald-500/5 border-emerald-500/20 rounded-lg">
+        <Card className="theme-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimable</h3>
@@ -211,7 +211,7 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className="bg-blue-500/5 border-blue-500/20 rounded-lg">
+        <Card className="theme-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Daily Rate</h3>
@@ -229,7 +229,7 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className="bg-purple-500/5 border-purple-500/20 rounded-lg">
+        <Card className="theme-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimed</h3>
@@ -251,7 +251,7 @@ export function RewardsTracking() {
       {/* Enhanced Action Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Enhanced Claim Rewards */}
-        <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 rounded-lg">
+        <Card className="theme-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
               <Award className="h-4 w-4 text-yellow-400" />

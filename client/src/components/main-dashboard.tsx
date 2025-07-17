@@ -505,7 +505,7 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
             {/* Sleek Metrics Display */}
-            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-2 sm:p-3 border border-white/10">
+            <div className="theme-card p-2 sm:p-3">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 {/* KILT Price */}
                 <div className="text-center">
@@ -586,11 +586,11 @@ export function MainDashboard() {
                   <Zap className="h-3 w-3 text-emerald-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-white/5 via-white/3 to-white/5 backdrop-blur-sm border-white/10 rounded-lg h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
+                <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
                   <CardContent className="p-3 flex-1 flex flex-col">
                     <div className="space-y-3 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 backdrop-blur-sm rounded-lg p-3 border border-blue-500/20">
+                      <div className="theme-card p-3">
                         <h4 className="text-white font-medium text-sm mb-3 text-label">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
@@ -629,7 +629,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/20">
+                      <div className="theme-card p-3">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
                           <span className="text-sm text-white/50 text-body">{selectedPercentage}% of wallet</span>
@@ -643,8 +643,8 @@ export function MainDashboard() {
                               onClick={() => setSelectedPercentage(value)}
                               className={`text-xs py-1 px-1 h-6 transition-all duration-200 ${
                                 selectedPercentage === value 
-                                  ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-emerald-500' 
-                                  : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10 backdrop-blur-sm'
+                                  ? 'theme-button-primary' 
+                                  : 'theme-button-secondary'
                               }`}
                             >
                               {label}
@@ -670,7 +670,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="bg-gradient-to-br from-purple-500/10 via-emerald-500/10 to-blue-500/10 backdrop-blur-sm rounded-lg p-3 border border-purple-500/20">
+                      <div className="theme-card p-3">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
                           <span className="text-sm text-white/50 text-body">Balanced strategy</span>
@@ -724,8 +724,8 @@ export function MainDashboard() {
                             disabled={isDisabled}
                             className={`w-full font-semibold py-1.5 h-8 rounded-lg transition-all duration-300 text-sm ${
                               hasInsufficientBalance 
-                                ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
-                                : 'bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                                ? 'theme-badge-danger cursor-not-allowed' 
+                                : 'theme-button-primary'
                             }`}
                           >
                             {isQuickAdding ? (

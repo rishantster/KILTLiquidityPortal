@@ -73,6 +73,33 @@
   --popover-foreground: hsl(210, 40%, 98%);
   --card: hsl(210, 40%, 3%);
   --card-foreground: hsl(210, 40%, 98%);
+  
+  /* Extended theme variables for seamless synchronization */
+  --glassmorphism-bg: rgba(255, 255, 255, 0.05);
+  --glassmorphism-border: rgba(255, 255, 255, 0.1);
+  --glassmorphism-hover: rgba(255, 255, 255, 0.08);
+  --glassmorphism-shadow: rgba(255, 255, 255, 0.05);
+  
+  /* Gradient colors for consistent design */
+  --gradient-primary: linear-gradient(135deg, #10b981 0%, #06d6a0 100%);
+  --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  --gradient-accent: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  
+  /* Enhanced color palette */
+  --emerald-400: #34d399;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --cyan-400: #22d3ee;
+  --cyan-500: #06b6d4;
+  --cyan-600: #0891b2;
+  --pink-500: #ec4899;
+  --rose-400: #fb7185;
+  --purple-500: #8b5cf6;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
   --border: hsl(215, 27%, 18%);
   --input: hsl(215, 27%, 15%);
   --primary: hsl(210, 100%, 50%);
@@ -129,7 +156,106 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     font-variant-numeric: tabular-nums;
   }
+}
 
+@layer components {
+  /* Universal glassmorphism components */
+  .theme-card {
+    background: var(--glassmorphism-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glassmorphism-border);
+    border-radius: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .theme-card:hover {
+    background: var(--glassmorphism-hover);
+    border-color: var(--glassmorphism-border);
+    box-shadow: 0 8px 32px var(--glassmorphism-shadow);
+  }
+  
+  .theme-button-primary {
+    background: var(--gradient-primary);
+    color: white;
+    border: 1px solid var(--glassmorphism-border);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .theme-button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+  }
+  
+  .theme-button-secondary {
+    background: var(--gradient-secondary);
+    color: white;
+    border: 1px solid var(--glassmorphism-border);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .theme-button-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  }
+  
+  .theme-button-accent {
+    background: var(--gradient-accent);
+    color: white;
+    border: 1px solid var(--glassmorphism-border);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .theme-button-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+  }
+  
+  .theme-badge-success {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--emerald-400);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    backdrop-filter: blur(8px);
+  }
+  
+  .theme-badge-warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    backdrop-filter: blur(8px);
+  }
+  
+  .theme-badge-danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    backdrop-filter: blur(8px);
+  }
+  
+  .theme-progress-bar {
+    background: var(--gradient-accent);
+    height: 0.5rem;
+    border-radius: 9999px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .theme-input {
+    background: var(--glassmorphism-bg);
+    border: 1px solid var(--glassmorphism-border);
+    backdrop-filter: blur(8px);
+    color: var(--foreground);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .theme-input:focus {
+    border-color: var(--emerald-500);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+}
+
+@layer utilities {
   body::before {
     content: '';
     position: fixed;

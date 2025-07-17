@@ -23,11 +23,15 @@ interface AnalyticsDashboardProps {
 
 export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDashboardProps) {
   const { address } = useWallet();
+  const { kiltEthPositions } = useUniswapV3();
   
   // Get only essential analytics data
   const { data: positionPerformance } = usePositionPerformance(selectedPositionId || null);
   const { data: positionFees } = usePositionFees(selectedPositionId || null);
 
+  // Check if user has Uniswap positions even if not in database
+  const hasUniswapPositions = kiltEthPositions && kiltEthPositions.length > 0;
+  
   const latestPerformance = positionPerformance?.[0];
   const totalFeesEarned = positionFees?.totals ? parseFloat(positionFees.totals.amountUSD) : 0;
 
@@ -56,14 +60,153 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
       </Card>
 
       {/* Sleek Analytics Content */}
-      {!selectedPositionId ? (
-        <Card className="cluely-card rounded-lg">
-          <CardContent className="p-3">
-            <div className="text-center text-white/60 text-xs">
-              Add a liquidity position to view detailed analytics
-            </div>
-          </CardContent>
-        </Card>
+      {!selectedPositionId && !hasUniswapPositions ? (
+        <div className="space-y-4">
+          {/* Empty State with Better Guidance */}
+          <Card className="cluely-card rounded-lg">
+            <CardContent className="p-6 text-center">
+              <div className="mb-4">
+                <BarChart3 className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                <h3 className="text-white font-heading text-sm mb-2">No Positions Yet</h3>
+                <p className="text-white/60 text-xs mb-4">
+                  Create your first KILT/ETH position to unlock detailed analytics and performance tracking
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center space-x-2 text-xs text-white/50">
+                  <TrendingUp className="h-3 w-3" />
+                  <span>Position performance metrics</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 text-xs text-white/50">
+                  <DollarSign className="h-3 w-3" />
+                  <span>Fee earnings tracking</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 text-xs text-white/50">
+                  <Activity className="h-3 w-3" />
+                  <span>Impermanent loss analysis</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pool Overview - Always Show */}
+          <Card className="cluely-card rounded-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white font-heading text-sm flex items-center gap-2">
+                <TrendingUp className="h-3 w-3 text-blue-400" />
+                KILT/ETH Pool Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 text-xs">Current TVL</span>
+                    <TrendingUp className="h-3 w-3 text-blue-400" />
+                  </div>
+                  <div className="text-white font-bold text-sm">$81.8K</div>
+                </div>
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 text-xs">Fee Tier</span>
+                    <DollarSign className="h-3 w-3 text-emerald-400" />
+                  </div>
+                  <div className="text-white font-bold text-sm">0.3%</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Program Analytics - Always Show */}
+          <Card className="cluely-card rounded-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white font-heading text-sm flex items-center gap-2">
+                <Clock className="h-3 w-3 text-purple-400" />
+                Program Analytics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 text-xs">Treasury APR</span>
+                    <Activity className="h-3 w-3 text-purple-400" />
+                  </div>
+                  <div className="text-white font-bold text-sm">64% - 86%</div>
+                </div>
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 text-xs">Active Users</span>
+                    <TrendingUp className="h-3 w-3 text-emerald-400" />
+                  </div>
+                  <div className="text-white font-bold text-sm">1</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : hasUniswapPositions ? (
+        <div className="space-y-4">
+          {/* Show analytics for Uniswap positions */}
+          <Card className="cluely-card rounded-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white font-heading text-sm flex items-center gap-2">
+                <TrendingUp className="h-3 w-3 text-emerald-400" />
+                Your KILT Positions Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3">
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 text-xs">Total Positions</span>
+                    <Wallet className="h-3 w-3 text-emerald-400" />
+                  </div>
+                  <div className="text-white font-bold text-sm">{kiltEthPositions?.length || 0}</div>
+                </div>
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 text-xs">Pool Fee Tier</span>
+                    <DollarSign className="h-3 w-3 text-blue-400" />
+                  </div>
+                  <div className="text-white font-bold text-sm">0.3%</div>
+                </div>
+              </div>
+              <div className="text-center text-white/60 text-xs">
+                Register positions in Overview tab to unlock detailed analytics and earn treasury rewards
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Position List */}
+          <Card className="cluely-card rounded-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white font-heading text-sm">Position Details</CardTitle>
+            </CardHeader>
+            <CardContent className="p-3">
+              <div className="space-y-2">
+                {kiltEthPositions?.map((position, index) => (
+                  <div key={position.tokenId} className="bg-white/5 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">{index + 1}</span>
+                        </div>
+                        <span className="text-white text-sm">NFT #{position.tokenId}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-white font-bold text-sm">
+                          ${((parseFloat(position.amount0 || '0') * 0.0176) + (parseFloat(position.amount1 || '0') * 2500)).toFixed(2)}
+                        </div>
+                        <div className="text-white/60 text-xs">Estimated Value</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       ) : (
         <div className="space-y-4">
           {/* Position Performance Metrics */}

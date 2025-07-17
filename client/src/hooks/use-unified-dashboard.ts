@@ -184,6 +184,18 @@ export function useUnifiedDashboard() {
     return kiltAmount * kiltData.price + ethAmount * ethPrice;
   };
 
+  // Get database positions for analytics
+  const { data: databasePositions } = useQuery({
+    queryKey: ['databasePositions', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await fetch(`/api/positions/user/${user.id}`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!user?.id
+  });
+
   // Enhanced position data with calculated values
   const enhancedPositions = kiltEthPositions?.map(position => ({
     ...position,
@@ -210,6 +222,8 @@ export function useUnifiedDashboard() {
     kiltData,
     poolData,
     enhancedPositions,
+    positions: databasePositions || [], // Database positions for Analytics component
+    uniswapPositions: enhancedPositions, // Uniswap positions for display
     
     // Wallet data
     address,

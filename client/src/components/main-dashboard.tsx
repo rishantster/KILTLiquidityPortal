@@ -622,6 +622,15 @@ export function MainDashboard() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <EthLogo size="xs" showBackground={true} />
+                              <span className="text-white/70 text-xs text-body">ETH:</span>
+                            </div>
+                            <span className="text-white font-bold text-xs text-numbers">
+                              {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <EthLogo size="xs" showBackground={true} />
                               <span className="text-white/70 text-xs text-body">WETH:</span>
                             </div>
                             <span className="text-white font-bold text-xs text-numbers">

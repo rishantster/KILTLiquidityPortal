@@ -605,39 +605,39 @@ export function MainDashboard() {
                 </h2>
                 <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
                   <CardContent className="p-2 flex-1 flex flex-col">
-                    <div className="space-y-2 flex-1">
+                    <div className="space-y-3 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
-                        <h4 className="text-white font-medium text-xs mb-3 text-label">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <h4 className="text-white font-medium text-sm mb-3 text-label">Wallet Balance</h4>
+                        <div className="grid grid-cols-3 gap-3">
                           {/* KILT Balance Card */}
-                          <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-lg p-2 border border-pink-500/30">
+                          <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-lg p-3 border border-pink-500/30">
                             <div className="flex flex-col items-center text-center">
-                              <KiltLogo size="md" showBackground={true} />
-                              <span className="text-white/70 text-xs font-medium mt-1">KILT</span>
-                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                              <KiltLogo size="lg" showBackground={true} />
+                              <span className="text-white/70 text-sm font-medium mt-2">KILT</span>
+                              <span className="text-white font-bold text-sm text-numbers mt-1">
                                 {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                               </span>
                             </div>
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg p-2 border border-blue-500/30">
+                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg p-3 border border-blue-500/30">
                             <div className="flex flex-col items-center text-center">
-                              <EthLogo size="md" showBackground={true} />
-                              <span className="text-white/70 text-xs font-medium mt-1">ETH</span>
-                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                              <EthLogo size="lg" showBackground={true} />
+                              <span className="text-white/70 text-sm font-medium mt-2">ETH</span>
+                              <span className="text-white font-bold text-sm text-numbers mt-1">
                                 {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
                               </span>
                             </div>
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-lg p-2 border border-emerald-500/30">
+                          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-lg p-3 border border-emerald-500/30">
                             <div className="flex flex-col items-center text-center">
-                              <EthLogo size="md" showBackground={true} />
-                              <span className="text-white/70 text-xs font-medium mt-1">WETH</span>
-                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                              <EthLogo size="lg" showBackground={true} />
+                              <span className="text-white/70 text-sm font-medium mt-2">WETH</span>
+                              <span className="text-white font-bold text-sm text-numbers mt-1">
                                 {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                               </span>
                             </div>
@@ -645,92 +645,104 @@ export function MainDashboard() {
                         </div>
                       </div>
 
-                      {/* Percentage Selector */}
-                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-white/70 text-xs text-label">Balance Usage</span>
-                          <span className="text-xs text-white/50 text-body">{selectedPercentage}% of wallet</span>
-                        </div>
-                        <div className="grid grid-cols-5 gap-1 mb-2">
-                          {LiquidityService.getPercentageOptions().map(({ value, label }) => (
-                            <Button
-                              key={value}
-                              variant={selectedPercentage === value ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setSelectedPercentage(value)}
-                              className={`text-xs py-1 px-1 h-5 transition-all duration-200 ${
-                                selectedPercentage === value 
-                                  ? 'bg-emerald-500 text-white border-emerald-500' 
-                                  : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
-                              }`}
-                            >
-                              {label}
-                            </Button>
-                          ))}
-                        </div>
-                        
-                        {/* Seek Bar Slider */}
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-white/60 text-xs">Precise Control</span>
-                            <span className="text-white/40 text-xs">{selectedPercentage}%</span>
+                      {/* Combined Control Section */}
+                      <div className="grid grid-cols-2 gap-3">
+                        {/* Balance Usage */}
+                        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
+                            <span className="text-sm text-white/50 text-body">{selectedPercentage}%</span>
                           </div>
-                          <Slider
-                            value={[selectedPercentage]}
-                            onValueChange={(value) => setSelectedPercentage(value[0])}
-                            max={100}
-                            min={0}
-                            step={1}
-                            className="w-full"
-                          />
-                          <div className="flex justify-between text-xs text-white/40">
-                            <span>0%</span>
-                            <span>25%</span>
-                            <span>50%</span>
-                            <span>75%</span>
-                            <span>100%</span>
+                          <div className="grid grid-cols-3 gap-1 mb-3">
+                            {LiquidityService.getPercentageOptions().slice(0, 3).map(({ value, label }) => (
+                              <Button
+                                key={value}
+                                variant={selectedPercentage === value ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setSelectedPercentage(value)}
+                                className={`text-xs py-1.5 px-1 h-7 transition-all duration-200 ${
+                                  selectedPercentage === value 
+                                    ? 'bg-emerald-500 text-white border-emerald-500' 
+                                    : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
+                                }`}
+                              >
+                                {label}
+                              </Button>
+                            ))}
                           </div>
-                        </div>
-                      </div>
-
-                      {/* Optimal Amount */}
-                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-white/70 text-xs text-label">Liquidity Amount</span>
-                          <span className="text-xs text-white/50 text-body">Balanced strategy</span>
-                        </div>
-                        {(() => {
-                          const amounts = calculateOptimalAmounts();
-                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                          <div className="grid grid-cols-2 gap-1">
+                            {LiquidityService.getPercentageOptions().slice(3).map(({ value, label }) => (
+                              <Button
+                                key={value}
+                                variant={selectedPercentage === value ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setSelectedPercentage(value)}
+                                className={`text-xs py-1.5 px-1 h-7 transition-all duration-200 ${
+                                  selectedPercentage === value 
+                                    ? 'bg-emerald-500 text-white border-emerald-500' 
+                                    : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
+                                }`}
+                              >
+                                {label}
+                              </Button>
+                            ))}
+                          </div>
                           
-                          if (hasInsufficientBalance) {
+                          {/* Seek Bar Slider */}
+                          <div className="space-y-2 mt-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-white/60 text-xs">Precise Control</span>
+                              <span className="text-white/40 text-xs">{selectedPercentage}%</span>
+                            </div>
+                            <Slider
+                              value={[selectedPercentage]}
+                              onValueChange={(value) => setSelectedPercentage(value[0])}
+                              max={100}
+                              min={0}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Liquidity Amount */}
+                        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
+                            <span className="text-sm text-white/50 text-body">Balanced</span>
+                          </div>
+                          {(() => {
+                            const amounts = calculateOptimalAmounts();
+                            const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                            
+                            if (hasInsufficientBalance) {
+                              return (
+                                <div className="text-center py-4">
+                                  <div className="text-sm font-medium text-red-400 mb-2 text-label">Insufficient Balance</div>
+                                  <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
+                                </div>
+                              );
+                            }
+                            
                             return (
-                              <div className="text-center py-1">
-                                <div className="text-xs font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
-                                <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
+                              <div className="text-center">
+                                <div className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers mb-2">
+                                  ~${amounts.totalValue}
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center justify-center space-x-1 text-white/60 text-xs text-body">
+                                    <KiltLogo size="xs" showBackground={true} />
+                                    <span>{amounts.kiltAmount} KILT</span>
+                                  </div>
+                                  <div className="flex items-center justify-center space-x-1 text-white/60 text-xs text-body">
+                                    <EthLogo size="xs" showBackground={true} />
+                                    <span>{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
+                                  </div>
+                                </div>
                               </div>
                             );
-                          }
-                          
-                          return (
-                            <div>
-                              <div className="text-sm font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers">
-                                ~${amounts.totalValue}
-                              </div>
-                              <div className="flex items-center justify-center space-x-2 text-white/60 text-xs text-body">
-                                <div className="flex items-center space-x-1">
-                                  <KiltLogo size="xs" showBackground={true} />
-                                  <span>{amounts.kiltAmount} KILT</span>
-                                </div>
-                                <span>+</span>
-                                <div className="flex items-center space-x-1">
-                                  <EthLogo size="xs" showBackground={true} />
-                                  <span>{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })()}
+                          })()}
+                        </div>
                       </div>
                     </div>
                     

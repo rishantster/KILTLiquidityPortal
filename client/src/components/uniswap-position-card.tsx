@@ -105,7 +105,7 @@ export const UniswapPositionCard = ({
           <div className="flex items-center gap-2">
             <div className="text-xs text-white/60">#{position.tokenId}</div>
             {position.isRegistered && (
-              <CheckCircle className="h-3 w-3 text-cyan-400" />
+              <CheckCircle className="h-3 w-3 text-blue-400" />
             )}
           </div>
         </div>
@@ -126,14 +126,14 @@ export const UniswapPositionCard = ({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">{ethPercentage.toFixed(1)}%</span>
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full"></div>
             </div>
           </div>
           
           {/* Progress Bar */}
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 transition-all duration-500" 
+              className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-400 transition-all duration-500" 
               style={{ width: '100%' }}
             />
           </div>
@@ -176,7 +176,7 @@ export const UniswapPositionCard = ({
               <span className="text-xs text-white/80">
                 {feesEarned > 0 ? `${((ethFeesEarned * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
               </span>
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full"></div>
             </div>
           </div>
           

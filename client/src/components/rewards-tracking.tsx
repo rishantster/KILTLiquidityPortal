@@ -182,7 +182,7 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               {rewardStats?.activePositions || 0} positions
             </div>
-            <div className="text-xs text-cyan-400 font-medium">
+            <div className="text-xs text-blue-400 font-medium">
               ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
@@ -192,7 +192,7 @@ export function RewardsTracking() {
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimable</h3>
-              <Unlock className="h-4 w-4 text-emerald-400" />
+              <Unlock className="h-4 w-4 text-blue-400" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
               {totalClaimableAmount.toFixed(2)}
@@ -205,7 +205,7 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               Ready to claim
             </div>
-            <div className="text-xs text-emerald-400 font-medium">
+            <div className="text-xs text-blue-400 font-medium">
               ≈ ${(totalClaimableAmount * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
@@ -215,7 +215,7 @@ export function RewardsTracking() {
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Daily Rate</h3>
-              <TrendingUp className="h-4 w-4 text-sky-400" />
+              <TrendingUp className="h-4 w-4 text-indigo-400" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white mb-1">
               {rewardStats?.avgDailyRewards?.toFixed(3) || '0.000'}
@@ -223,7 +223,7 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               Per day avg
             </div>
-            <div className="text-xs text-sky-400 font-medium">
+            <div className="text-xs text-indigo-400 font-medium">
               {((rewardStats?.avgDailyRewards || 0) * 30).toFixed(1)} KILT/month
             </div>
           </CardContent>
@@ -233,7 +233,7 @@ export function RewardsTracking() {
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimed</h3>
-              <CheckCircle className="h-4 w-4 text-teal-400" />
+              <CheckCircle className="h-4 w-4 text-violet-400" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white mb-1">
               {rewardStats?.totalClaimed?.toFixed(2) || '0.00'}
@@ -241,7 +241,7 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               Total claimed
             </div>
-            <div className="text-xs text-teal-400 font-medium">
+            <div className="text-xs text-violet-400 font-medium">
               {rewardStats?.totalClaimed ? `${(((rewardStats.totalClaimed || 0) / (rewardStats.totalAccumulated || 1)) * 100).toFixed(1)}% of earned` : '0% of earned'}
             </div>
           </CardContent>

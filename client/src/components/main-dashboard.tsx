@@ -277,8 +277,8 @@ export function MainDashboard() {
                 {/* Floating Particles */}
                 <div className="absolute -inset-8 pointer-events-none">
                   <div className="absolute top-0 left-1/2 w-2 h-2 bg-blue-400 rounded-full opacity-60 animate-orbit-1"></div>
-                  <div className="absolute top-1/2 right-0 w-1.5 h-1.5 bg-emerald-400 rounded-full opacity-60 animate-orbit-2"></div>
-                  <div className="absolute bottom-0 left-1/2 w-2 h-2 bg-cyan-400 rounded-full opacity-60 animate-orbit-3"></div>
+                  <div className="absolute top-1/2 right-0 w-1.5 h-1.5 bg-indigo-400 rounded-full opacity-60 animate-orbit-2"></div>
+                  <div className="absolute bottom-0 left-1/2 w-2 h-2 bg-blue-400 rounded-full opacity-60 animate-orbit-3"></div>
                   <div className="absolute top-1/2 left-0 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-60 animate-orbit-4"></div>
                 </div>
               </div>
@@ -286,13 +286,13 @@ export function MainDashboard() {
               {/* Main Headline - Enhanced */}
               <h1 className="text-6xl sm:text-7xl font-display text-white mb-6 leading-relaxed animate-slide-up">
                 <span className="block text-white/90">KILT Liquidity</span>
-                <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-shift pb-2">
+                <span className="block bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-shift pb-2">
                   Incentive Program
                 </span>
               </h1>
               
               <p className="text-xl sm:text-2xl text-white/70 font-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
-                Earn <span className="text-emerald-400 font-semibold">up to {unifiedData.maxAPRData?.aprRange || '47%'} APR</span> from the <span className="text-blue-400 font-semibold">{unifiedData.programAnalytics && unifiedData.programAnalytics.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
+                Earn <span className="text-blue-400 font-semibold">up to {unifiedData.maxAPRData?.aprRange || '47%'} APR</span> from the <span className="text-indigo-400 font-semibold">{unifiedData.programAnalytics && unifiedData.programAnalytics.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
 
@@ -329,17 +329,17 @@ export function MainDashboard() {
 
               {/* Treasury Rewards - Diamond Style */}
               <div className="group relative animate-fade-in animate-delay-200">
-                <div className="relative bg-gradient-to-br from-emerald-500/20 via-emerald-600/10 to-transparent backdrop-blur-md border border-emerald-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/30 hover:border-emerald-300/50 h-[200px] flex flex-col">
+                <div className="relative bg-gradient-to-br from-indigo-500/20 via-indigo-600/10 to-transparent backdrop-blur-md border border-indigo-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/30 hover:border-indigo-300/50 h-[200px] flex flex-col">
                   {/* Floating Icon */}
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
+                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
                       <Award className="h-8 w-8 text-white group-hover:rotate-12 transition-transform duration-500" />
                     </div>
                   </div>
                   
                   <div className="pt-8 text-center flex-1 flex flex-col justify-center">
                     <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
-                    <p className="text-emerald-200/80 text-sm leading-relaxed">
+                    <p className="text-indigo-200/80 text-sm leading-relaxed">
                       Receive attractive rewards from KILT treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
@@ -371,7 +371,7 @@ export function MainDashboard() {
               <h2 className="text-3xl font-heading text-white/90 mb-3">
                 Join the
               </h2>
-              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-6 bg-[length:200%_100%] animate-gradient-shift leading-relaxed pb-2">
+              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent mb-6 bg-[length:200%_100%] animate-gradient-shift leading-relaxed pb-2">
                 KILT Ecosystem
               </h1>
               <p className="text-white/70 text-lg font-body max-w-xl mx-auto mb-6 leading-relaxed">

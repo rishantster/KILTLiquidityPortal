@@ -44,7 +44,7 @@ const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ def
 const AnalyticsDashboard = lazy(() => import('./analytics-dashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const NintendoPositions = lazy(() => import('./nintendo-positions').then(m => ({ default: m.default })));
 const LiquidityRebalancing = lazy(() => import('./liquidity-rebalancing').then(m => ({ default: m.LiquidityRebalancing })));
-const UserPositions = lazy(() => import('./user-positions').then(m => ({ default: m.UserPositions })));
+const UniswapPositions = lazy(() => import('./uniswap-positions').then(m => ({ default: m.UniswapPositions })));
 
 // Import optimized loading components
 import { TabLoadingSpinner } from './loading-screen';
@@ -781,7 +781,7 @@ export function MainDashboard() {
           {/* Positions Tab */}
           <TabsContent value="positions">
             <Suspense fallback={<TabLoadingSpinner />}>
-              <UserPositions />
+              <UniswapPositions />
             </Suspense>
           </TabsContent>
 

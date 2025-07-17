@@ -325,7 +325,7 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-2 w-full">
+            <div className="flex flex-wrap gap-2 w-full">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
@@ -333,7 +333,7 @@ export function UserPositions() {
                 const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
                 
                 return (
-                  <div key={position.tokenId.toString()} className={`${isClosed ? 'bg-gradient-to-br from-gray-500/10 to-gray-600/5 border-gray-400/20' : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 border-blue-400/20'} rounded-lg hover:bg-gradient-to-br hover:from-blue-500/20 hover:via-purple-500/20 hover:to-emerald-500/20 transition-all border p-1 min-w-0 backdrop-blur-sm w-full`}>
+                  <div key={position.tokenId.toString()} className={`${isClosed ? 'bg-gradient-to-br from-gray-500/10 to-gray-600/5 border-gray-400/20' : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 border-blue-400/20'} rounded-lg hover:bg-gradient-to-br hover:from-blue-500/20 hover:via-purple-500/20 hover:to-emerald-500/20 transition-all border p-1 min-w-0 backdrop-blur-sm flex-1 basis-[calc(25%-0.5rem)] max-w-[calc(25%-0.5rem)]`}>
                     <div className="min-w-0 overflow-hidden">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="text-white font-bold tabular-nums text-xs">#{position.tokenId.toString()}</div>

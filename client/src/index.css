@@ -1064,49 +1064,7 @@
     }
   }
 
-  @keyframes orbit-1 {
-    0% { transform: translateX(-50%) rotate(0deg) translateY(-50px) rotate(0deg); }
-    100% { transform: translateX(-50%) rotate(360deg) translateY(-50px) rotate(-360deg); }
-  }
-
-  @keyframes orbit-2 {
-    0% { transform: translateY(-50%) rotate(90deg) translateY(-45px) rotate(-90deg); }
-    100% { transform: translateY(-50%) rotate(450deg) translateY(-45px) rotate(-450deg); }
-  }
-
-  @keyframes orbit-3 {
-    0% { transform: translateX(-50%) rotate(180deg) translateY(-50px) rotate(-180deg); }
-    100% { transform: translateX(-50%) rotate(540deg) translateY(-50px) rotate(-540deg); }
-  }
-
-  @keyframes orbit-4 {
-    0% { transform: translateY(-50%) rotate(270deg) translateY(-45px) rotate(-270deg); }
-    100% { transform: translateY(-50%) rotate(630deg) translateY(-45px) rotate(-630deg); }
-  }
-
-  .animate-spin-slow {
-    animation: spin-slow 8s linear infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 3s ease-in-out infinite;
-  }
-
-  .animate-orbit-1 {
-    animation: orbit-1 6s linear infinite;
-  }
-
-  .animate-orbit-2 {
-    animation: orbit-2 8s linear infinite;
-  }
-
-  .animate-orbit-3 {
-    animation: orbit-3 7s linear infinite;
-  }
-
-  .animate-orbit-4 {
-    animation: orbit-4 9s linear infinite;
-  }
+  /* Space theme animations removed - using pure liquid theme */
 
   /* Mobile-First Responsive Enhancements */
   @media (max-width: 768px) {
@@ -1691,41 +1649,7 @@ body, html {
     text-wrap: balance;
   }
 
-  /* Advanced Animation Utilities */
-  .animate-fade-in {
-    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-slide-in-left {
-    animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-scale-in {
-    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-glass-shimmer {
-    animation: glassShimmer 2s ease-in-out infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
-  }
-
-  .animate-floating {
-    animation: floating 3s ease-in-out infinite;
-  }
-
-  /* Staggered Animation Delays */
-  .animate-delay-100 { animation-delay: 100ms; }
-  .animate-delay-200 { animation-delay: 200ms; }
-  .animate-delay-300 { animation-delay: 300ms; }
-  .animate-delay-400 { animation-delay: 400ms; }
-  .animate-delay-500 { animation-delay: 500ms; }
+  /* Pure liquid theme animations only */
 
 /* Keyframe Animations */
 @keyframes fadeIn {

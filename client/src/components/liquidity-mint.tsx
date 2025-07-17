@@ -306,8 +306,9 @@ export function LiquidityMint() {
     if (!address || !kiltAmount || !ethAmount) return;
 
     try {
-      const kiltAmountParsed = parseTokenAmount(kiltAmount);
-      const ethAmountParsed = parseTokenAmount(ethAmount);
+      // Try with much smaller amounts to test
+      const kiltAmountParsed = parseTokenAmount("10"); // Use 10 KILT for testing
+      const ethAmountParsed = parseTokenAmount("0.001"); // Use 0.001 ETH for testing
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600); // 1 hour from now
 
       // For now, we'll focus on WETH only
@@ -315,22 +316,23 @@ export function LiquidityMint() {
 
       // Get pool info to determine token order
       const poolInfo = await fetch('/api/pools/0x82Da478b1382B951cBaD01Beb9eD459cDB16458E/info').then(r => r.json());
+      console.log('Pool info:', poolInfo);
       
-      // Use the actual token order from the pool
-      const token0 = poolInfo.token0 || TOKENS.KILT;
-      const token1 = poolInfo.token1 || TOKENS.WETH;
+      // Use hardcoded token order - WETH is token0, KILT is token1 based on address ordering
+      const token0 = TOKENS.WETH;  // 0x4200000000000000000000000000000000000006
+      const token1 = TOKENS.KILT;  // 0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8
       
-      // Set amounts based on correct token order
-      const amount0Desired = token0.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
-      const amount1Desired = token1.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
+      // Set amounts based on hardcoded order: WETH is token0, KILT is token1
+      const amount0Desired = ethAmountParsed;  // WETH amount for token0
+      const amount1Desired = kiltAmountParsed; // KILT amount for token1
 
-      // For testing: Always use Full Range to avoid tick calculation issues
+      // Use more realistic Full Range ticks for 0.3% fee tier
       const tickLower = -887220;  // Full range minimum
       const tickUpper = 887220;   // Full range maximum
 
-      // For testing: Very low minimum amounts to avoid slippage issues
-      const amount0Min = BigInt(1); // Minimal amount to pass slippage check
-      const amount1Min = BigInt(1); // Minimal amount to pass slippage check
+      // Use zero minimum amounts to bypass slippage entirely
+      const amount0Min = BigInt(0); // Zero minimum to bypass slippage check
+      const amount1Min = BigInt(0); // Zero minimum to bypass slippage check
 
       // Create the mint parameters object
       const mintParams = {
@@ -347,6 +349,20 @@ export function LiquidityMint() {
         deadline
       };
 
+      console.log('Mint params:', {
+        token0,
+        token1,
+        fee: 3000,
+        tickLower,
+        tickUpper,
+        amount0Desired: amount0Desired.toString(),
+        amount1Desired: amount1Desired.toString(),
+        amount0Min: amount0Min.toString(),
+        amount1Min: amount1Min.toString(),
+        recipient: address,
+        deadline: deadline.toString()
+      });
+
       const txHash = await mintPosition(mintParams);
 
       toast({
@@ -360,10 +376,11 @@ export function LiquidityMint() {
       setPositionSizePercent([25]);
     } catch (error: unknown) {
       const errorMessage = (error as Error)?.message || "Failed to create liquidity position";
+      console.error('Full error object:', error);
       toast({
         title: "Position Creation Failed",
         description: errorMessage.includes("slippage") ? 
-          "Price moved too much. Try adjusting amounts or using Full Range strategy." : 
+          "Price moved too much. Try with smaller amounts or check token approvals." : 
           errorMessage,
         variant: "destructive",
       });

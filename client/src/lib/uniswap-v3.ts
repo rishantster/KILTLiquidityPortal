@@ -399,16 +399,27 @@ export class UniswapV3Service {
   async mintPosition(params: MintParams, account: Address): Promise<string> {
     if (!this.walletClient) throw new Error('Wallet not connected');
 
-    const { request } = await this.publicClient.simulateContract({
-      address: UNISWAP_V3_CONTRACTS.NONFUNGIBLE_POSITION_MANAGER,
-      abi: NONFUNGIBLE_POSITION_MANAGER_ABI,
-      functionName: 'mint',
-      args: [params],
-      account,
-      value: 0n // WETH is ERC20, not native ETH, so no value needed
-    });
+    try {
+      const { request } = await this.publicClient.simulateContract({
+        address: UNISWAP_V3_CONTRACTS.NONFUNGIBLE_POSITION_MANAGER,
+        abi: NONFUNGIBLE_POSITION_MANAGER_ABI,
+        functionName: 'mint',
+        args: [params],
+        account,
+        value: 0n // WETH is ERC20, not native ETH, so no value needed
+      });
 
-    return await this.walletClient.writeContract(request);
+      return await this.walletClient.writeContract(request);
+    } catch (error: any) {
+      // Provide more detailed error information
+      const errorMessage = error?.message || 'Unknown error during mint';
+      console.error('Mint simulation failed:', {
+        params,
+        account,
+        error: errorMessage
+      });
+      throw new Error(`Mint simulation failed: ${errorMessage}`);
+    }
   }
 
   async increaseLiquidity(params: IncreaseLiquidityParams, account: Address): Promise<string> {

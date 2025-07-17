@@ -42,6 +42,7 @@ import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";
 // import { adminSimpleRouter } from "./routes/admin-simple"; // Deprecated - use main admin dashboard
 import { systemHealthRouter } from "./routes/system-health";
+import uniswapPositionsRouter from "./routes/uniswap-positions.js";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
@@ -1963,6 +1964,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // Blockchain configuration routes
   app.use("/api/blockchain", blockchainConfigRouter);
+
+  // Real-time Uniswap positions routes
+  app.use("/api/positions", uniswapPositionsRouter);
 
   // Admin simple routes (legacy support)
   // app.use("/api/admin-simple", adminSimpleRouter);

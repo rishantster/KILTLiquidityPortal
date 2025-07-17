@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, RefreshCw, TrendingUp, TrendingDown, Eye, DollarSign, Clock, Activity, ExternalLink } from 'lucide-react';
+import { Coins, RefreshCw, TrendingUp, TrendingDown, Eye, DollarSign, Clock, Activity, ExternalLink, CheckCircle } from 'lucide-react';
 import { useUniswapV3Positions } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { useWallet } from '@/contexts/wallet-context';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { usePositionRegistration } from '@/hooks/use-position-registration';
 import { formatUnits } from 'viem';
@@ -48,6 +48,18 @@ const UserPositionsNew = () => {
     isRegistering 
   } = usePositionRegistration();
 
+  // Get registered positions to check status
+  const { data: registeredPositions = [] } = useQuery({
+    queryKey: ['registered-positions', address],
+    queryFn: async () => {
+      if (!address) return [];
+      const response = await fetch(`/api/positions/wallet/${address}`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!address
+  });
+
   // Filter for KILT positions
   const kiltPositions = allPositions?.filter(position => {
     const isKiltPosition = position.token0?.toLowerCase().includes('5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8') || 
@@ -72,6 +84,57 @@ const UserPositionsNew = () => {
   const isPositionInRange = (position: UniswapPosition): boolean => {
     // Simplified range check - in real implementation, check against current pool price
     return position.liquidity > 0n;
+  };
+
+  const isPositionRegistered = (position: UniswapPosition): boolean => {
+    return registeredPositions.some(
+      (registered: any) => registered.nftTokenId === position.tokenId.toString()
+    );
+  };
+
+  const handleRegisterPosition = async (position: UniswapPosition) => {
+    if (!address) {
+      toast({
+        title: "Error",
+        description: "Please connect your wallet first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Transform the position data to match the expected format
+      const positionData = {
+        userId: null, // Will be resolved by the hook
+        userAddress: address,
+        nftTokenId: position.tokenId.toString(),
+        poolAddress: position.poolAddress || '',
+        token0Address: position.token0,
+        token1Address: position.token1,
+        amount0: position.amount0.toString(),
+        amount1: position.amount1.toString(),
+        liquidity: position.liquidity.toString(),
+        currentValueUSD: calculatePositionValue(position),
+        feeTier: 3000, // Default fee tier
+        originalCreationDate: new Date().toISOString()
+      };
+
+      await registerPosition(positionData);
+      
+      // Refresh the registered positions query
+      queryClient.invalidateQueries({ queryKey: ['registered-positions'] });
+      
+      toast({
+        title: "Success",
+        description: "Position registered successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: error instanceof Error ? error.message : 'Failed to register position',
+        variant: "destructive"
+      });
+    }
   };
 
   const handleRefresh = async () => {
@@ -302,13 +365,23 @@ const UserPositionsNew = () => {
                   
                   {/* Action Buttons */}
                   <div className="flex space-x-3">
-                    <Button
-                      onClick={() => handleRegisterPosition(position)}
-                      disabled={isRegistering}
-                      className="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
-                    >
-                      {isRegistering ? 'Registering...' : 'Register for Rewards'}
-                    </Button>
+                    {isPositionRegistered(position) ? (
+                      <Button
+                        disabled
+                        className="flex-1 h-12 bg-gradient-to-r from-emerald-500/50 to-blue-500/50 text-white font-semibold rounded-lg shadow-lg cursor-not-allowed"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Already Registered
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleRegisterPosition(position)}
+                        disabled={isRegistering}
+                        className="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                      >
+                        {isRegistering ? 'Registering...' : 'Register for Rewards'}
+                      </Button>
+                    )}
                     <Button
                       onClick={() => window.open(`https://app.uniswap.org/pools/${position.tokenId}`, '_blank')}
                       className="h-12 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"

@@ -14,7 +14,8 @@ import {
   Loader2,
   CheckCircle2,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  BarChart3
 } from 'lucide-react';
 
 // Lazy-loaded components for faster initial load

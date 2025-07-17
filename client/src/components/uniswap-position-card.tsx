@@ -5,6 +5,18 @@ import { Plus, Minus, DollarSign, CheckCircle } from 'lucide-react';
 import { TokenLogo } from './ui/token-logo';
 import { formatUnits } from 'viem';
 
+// Helper function to format small amounts with appropriate decimal places
+const formatSmallAmount = (amount: number): string => {
+  if (amount === 0) return '0.00';
+  if (amount >= 1) return amount.toFixed(2);
+  if (amount >= 0.01) return amount.toFixed(2);
+  if (amount >= 0.001) return amount.toFixed(3);
+  if (amount >= 0.0001) return amount.toFixed(4);
+  if (amount >= 0.00001) return amount.toFixed(5);
+  if (amount >= 0.000001) return amount.toFixed(6);
+  return amount.toFixed(8);
+};
+
 interface UniswapPosition {
   tokenId: string;
   liquidity: string;
@@ -137,7 +149,7 @@ export const UniswapPositionCard = ({
         <div className="bg-white/5 rounded-lg p-3">
           <div className="text-xs text-white/60 mb-1">Fees earned</div>
           <div className="text-lg font-bold text-white">
-            {feesEarned > 0 ? `$${feesEarned.toFixed(2)}` : '$0.00'}
+            ${formatSmallAmount(feesEarned)}
           </div>
           
           {/* Fee Breakdown */}
@@ -160,11 +172,11 @@ export const UniswapPositionCard = ({
           <div className="flex justify-between items-center mt-2 text-xs text-white/60">
             <div className="flex items-center gap-1">
               <TokenLogo token="KILT" className="h-3 w-3" />
-              <span>${(kiltFeesEarned * kiltPrice).toFixed(2)}</span>
+              <span>${formatSmallAmount(kiltFeesEarned * kiltPrice)}</span>
             </div>
             <div className="flex items-center gap-1">
               <TokenLogo token="ETH" className="h-3 w-3" />
-              <span>${(ethFeesEarned * ethPrice).toFixed(2)}</span>
+              <span>${formatSmallAmount(ethFeesEarned * ethPrice)}</span>
             </div>
           </div>
         </div>

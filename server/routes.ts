@@ -51,32 +51,36 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const { address } = req.params;
       
-      // Get wallet positions directly
-      const walletPositions = await uniswapIntegrationService.getUserPositions(address);
+      // Get user from database
+      const user = await storage.getUserByAddress(address);
+      if (!user) {
+        res.json([]);
+        return;
+      }
       
-      // Filter for KILT positions only (using hardcoded KILT token address for speed)
-      const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
-      const kiltPositions = walletPositions.filter(position => {
-        const token0 = position.token0?.toLowerCase();
-        const token1 = position.token1?.toLowerCase();
-        const kiltToken = kiltTokenAddress.toLowerCase();
+      // Get user positions from database (fast)
+      const userPositions = await storage.getLpPositionsByUserId(user.id);
+      
+      // Transform to fast format with proper schema mapping
+      const fastPositions = userPositions.map(position => {
+        // Determine if KILT is token0 or token1
+        const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+        const isKiltToken0 = position.token0Address.toLowerCase() === kiltTokenAddress.toLowerCase();
         
-        return token0 === kiltToken || token1 === kiltToken;
+        return {
+          id: position.id,
+          nftTokenId: position.nftTokenId,
+          tokenAmountKilt: isKiltToken0 ? position.token0Amount : position.token1Amount,
+          tokenAmountEth: isKiltToken0 ? position.token1Amount : position.token0Amount,
+          currentValueUsd: parseFloat(position.currentValueUSD),
+          isActive: position.isActive,
+          priceRangeLower: parseFloat(position.minPrice),
+          priceRangeUpper: parseFloat(position.maxPrice),
+          feeTier: position.feeTier / 10000, // Convert to percentage
+          liquidity: position.liquidity,
+          inRange: true // Calculate this later if needed
+        };
       });
-      
-      // Return minimal position data for instant display
-      const fastPositions = kiltPositions.map(position => ({
-        nftTokenId: position.tokenId,
-        tokenAmountKilt: position.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() 
-          ? position.amount0 : position.amount1,
-        tokenAmountEth: position.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() 
-          ? position.amount1 : position.amount0,
-        currentValueUsd: position.currentValueUsd || 0,
-        isActive: position.liquidity && position.liquidity !== '0',
-        priceRangeLower: position.priceRangeLower || 0,
-        priceRangeUpper: position.priceRangeUpper || 0,
-        feeTier: position.feeTier || 3000
-      }));
       
       res.json(fastPositions);
     } catch (error) {

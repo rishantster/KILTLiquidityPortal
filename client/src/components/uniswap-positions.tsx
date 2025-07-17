@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Plus, Minus, DollarSign, Eye, EyeOff } from 'lucide-react';
 import { useWallet } from '@/contexts/wallet-context';
 import { useQuery } from '@tanstack/react-query';
@@ -202,33 +203,33 @@ export function UniswapPositions() {
   const { address, isConnected } = useWallet();
   const [showClosed, setShowClosed] = useState(false);
 
-  // Fast position fetch using real Uniswap subgraph data
+  // Fast position fetch using optimized backend endpoint
   const { data: positions = [], isLoading, refetch } = useQuery({
-    queryKey: ['uniswap-kilt-positions', address],
+    queryKey: ['fast-positions', address],
     queryFn: async () => {
       if (!address) return [];
       
-      const response = await fetch(`/api/positions/uniswap-kilt/${address}`);
+      const response = await fetch(`/api/positions/fast/${address}`);
       if (!response.ok) return [];
       
       const data = await response.json();
       
       return data.map((pos: any) => ({
-        id: pos.id,
-        nftTokenId: pos.nftTokenId,
-        tokenAmountKilt: pos.tokenAmountKilt,
-        tokenAmountEth: pos.tokenAmountEth,
-        currentValueUsd: pos.currentValueUsd,
-        isActive: pos.isActive,
-        priceRangeLower: pos.priceRangeLower,
-        priceRangeUpper: pos.priceRangeUpper,
-        feeTier: pos.feeTier,
-        liquidity: pos.liquidity,
-        inRange: pos.inRange
+        id: pos.id || pos.nftTokenId,
+        nftTokenId: pos.nftTokenId || pos.tokenId,
+        tokenAmountKilt: pos.tokenAmountKilt || pos.token0Amount || '0',
+        tokenAmountEth: pos.tokenAmountEth || pos.token1Amount || '0',
+        currentValueUsd: pos.currentValueUsd || pos.valueUsd || 0,
+        isActive: pos.isActive !== false,
+        priceRangeLower: pos.priceRangeLower || pos.priceLower || 0.0141,
+        priceRangeUpper: pos.priceRangeUpper || pos.priceUpper || 0.0211,
+        feeTier: (pos.feeTier || pos.fee || 3000) / 10000, // Convert from basis points to percentage
+        liquidity: pos.liquidity || pos.liquidityAmount || '0',
+        inRange: pos.inRange || false
       }));
     },
     enabled: !!address && isConnected,
-    staleTime: 10000, // 10 seconds - real-time data
+    staleTime: 10000, // 10 seconds
     refetchInterval: 30000, // 30 seconds
   });
 

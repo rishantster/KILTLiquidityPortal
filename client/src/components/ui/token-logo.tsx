@@ -32,14 +32,13 @@ export function TokenLogo({ token, size = 'md', className = '', showBackground =
   
   const containerClass = `
     ${sizeClass} 
-    ${showBackground ? 'bg-white/10 backdrop-blur-sm rounded-full p-1' : ''}
+    ${showBackground ? 'bg-white/20 backdrop-blur-md rounded-full p-1 border border-white/30 shadow-lg' : ''}
     ${className}
   `;
 
   const logoClass = `
     ${showBackground ? 'w-full h-full' : sizeClass}
     object-contain
-    filter drop-shadow-sm
   `;
 
   if (token === 'KILT') {
@@ -50,7 +49,9 @@ export function TokenLogo({ token, size = 'md', className = '', showBackground =
           alt="KILT" 
           className={logoClass}
           style={{ 
-            filter: showBackground ? 'none' : 'drop-shadow(0 0 2px rgba(255,255,255,0.3))'
+            filter: showBackground 
+              ? 'brightness(1.1) contrast(1.2) drop-shadow(0 0 4px rgba(255,255,255,0.5))' 
+              : 'drop-shadow(0 0 4px rgba(255,255,255,0.6)) brightness(1.2)'
           }}
         />
       </div>
@@ -61,7 +62,7 @@ export function TokenLogo({ token, size = 'md', className = '', showBackground =
     return (
       <div className={containerClass}>
         <EthereumLogo 
-          className={logoClass}
+          className={`${logoClass} ${showBackground ? 'brightness-110 contrast-120' : 'brightness-125'}`}
         />
       </div>
     );

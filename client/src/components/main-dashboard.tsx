@@ -604,14 +604,14 @@ export function MainDashboard() {
                   Quick Add Liquidity
                 </h2>
                 <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[280px] sm:h-[320px] lg:h-[360px] flex flex-col">
-                  <CardContent className="p-2 sm:p-3 flex-1 flex flex-col justify-between">
-                    <div className="space-y-3 sm:space-y-4 flex-1">
+                  <CardContent className="p-2 flex-1 flex flex-col overflow-hidden">
+                    <div className="space-y-2 flex-1 overflow-y-auto">
                       {/* Balance Display */}
-                      <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
-                        <h4 className="text-white font-medium text-xs mb-2 text-label">Wallet Balance</h4>
-                        <div className="space-y-1">
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                        <h4 className="text-white font-medium text-xs mb-1 text-label">Wallet Balance</h4>
+                        <div className="space-y-0.5">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1">
                               <KiltLogo size="xs" showBackground={true} />
                               <span className="text-white/70 text-xs text-body">KILT:</span>
                             </div>
@@ -620,7 +620,7 @@ export function MainDashboard() {
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1">
                               <EthLogo size="xs" showBackground={true} />
                               <span className="text-white/70 text-xs text-body">ETH:</span>
                             </div>
@@ -629,7 +629,7 @@ export function MainDashboard() {
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1">
                               <EthLogo size="xs" showBackground={true} />
                               <span className="text-white/70 text-xs text-body">WETH:</span>
                             </div>
@@ -641,19 +641,19 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                        <div className="flex items-center justify-between mb-1">
                           <span className="text-white/70 text-xs text-label">Balance Usage</span>
                           <span className="text-xs text-white/50 text-body">{selectedPercentage}% of wallet</span>
                         </div>
-                        <div className="grid grid-cols-5 gap-1 mb-3">
+                        <div className="grid grid-cols-5 gap-1 mb-2">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
                               variant={selectedPercentage === value ? "default" : "outline"}
                               size="sm"
                               onClick={() => setSelectedPercentage(value)}
-                              className={`text-xs py-1 px-2 h-6 transition-all duration-200 ${
+                              className={`text-xs py-1 px-1 h-5 transition-all duration-200 ${
                                 selectedPercentage === value 
                                   ? 'bg-emerald-500 text-white border-emerald-500' 
                                   : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
@@ -665,7 +665,7 @@ export function MainDashboard() {
                         </div>
                         
                         {/* Seek Bar Slider */}
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <span className="text-white/60 text-xs">Precise Control</span>
                             <span className="text-white/40 text-xs">{selectedPercentage}%</span>
@@ -689,8 +689,8 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                        <div className="flex items-center justify-between mb-1">
                           <span className="text-white/70 text-xs text-label">Liquidity Amount</span>
                           <span className="text-xs text-white/50 text-body">Balanced strategy</span>
                         </div>
@@ -727,8 +727,6 @@ export function MainDashboard() {
                           );
                         })()}
                       </div>
-
-
                     </div>
                     
                     {/* Action Button and Help Text - Bottom of Card */}

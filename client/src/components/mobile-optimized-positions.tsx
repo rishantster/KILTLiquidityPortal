@@ -18,7 +18,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { formatNumber } from '@/lib/utils';
 import { PositionRangeChart } from './position-range-chart';
 import { EthereumLogo } from './ethereum-logo';

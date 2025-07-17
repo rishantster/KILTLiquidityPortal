@@ -393,15 +393,20 @@ export function LiquidityMint() {
           <h2 className="text-white font-heading text-lg">Add Liquidity to KILT/ETH Pool</h2>
         </div>
         <p className="text-white/70 text-xs max-w-xl mx-auto">
-          Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + trading fees
+          Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + 0.3% trading fees
         </p>
-        <div className="text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-1 inline-block">
-          <Info className="h-3 w-3 inline mr-1" />
-          Minimum position value: $10 (anti-spam protection)
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <div className="text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-1">
+            <Info className="h-3 w-3 inline mr-1" />
+            Minimum position value: $10 (anti-spam protection)
+          </div>
+          <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-0.5 text-xs">
+            0.3% Fee Tier
+          </Badge>
+          <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-0.5 text-xs">
+            {poolExists ? 'Pool Active' : 'Pool Not Found'}
+          </Badge>
         </div>
-        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-0.5 text-xs">
-          {poolExists ? 'Pool Active' : 'Pool Not Found'}
-        </Badge>
       </div>
       {/* Sleek Position Size */}
       <Card className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-emerald-500/20 rounded-lg">

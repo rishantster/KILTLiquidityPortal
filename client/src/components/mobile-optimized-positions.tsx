@@ -111,7 +111,7 @@ const MobilePositionCard = ({ position }: { position: MobilePosition }) => {
         {/* Position Value */}
         <div className="text-center">
           <div className="text-lg font-bold text-white">
-            ${formatNumber(position.currentValueUsd)}
+            ${formatNumber(position.currentValueUsd || 0)}
           </div>
           <div className="text-xs text-white/60">
             NFT #{position.nftTokenId} • {position.feeTier}% fee
@@ -126,7 +126,7 @@ const MobilePositionCard = ({ position }: { position: MobilePosition }) => {
               <span className="text-white/70">KILT</span>
             </div>
             <div className="text-white font-medium">
-              {formatNumber(parseFloat(position.token0Amount))}
+              {formatNumber(parseFloat(position.token0Amount || '0'))}
             </div>
           </div>
           <div className="bg-blue-500/10 border border-blue-500/20 rounded p-1.5">
@@ -135,7 +135,7 @@ const MobilePositionCard = ({ position }: { position: MobilePosition }) => {
               <span className="text-white/70">ETH</span>
             </div>
             <div className="text-white font-medium">
-              {formatNumber(parseFloat(position.token1Amount), 6)}
+              {formatNumber(parseFloat(position.token1Amount || '0'), 6)}
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@ const MobilePositionCard = ({ position }: { position: MobilePosition }) => {
               <div>
                 <div className="text-white/60">Fees Earned</div>
                 <div className="text-emerald-400 font-medium">
-                  ${formatNumber(position.feeEarned)}
+                  ${formatNumber(position.feeEarned || 0)}
                 </div>
               </div>
               <div>
@@ -191,7 +191,7 @@ const MobilePositionCard = ({ position }: { position: MobilePosition }) => {
                 </div>
               </div>
             </div>
-            {position.apr && (
+            {position.apr && typeof position.apr === 'number' && (
               <div className="bg-purple-500/10 border border-purple-500/20 rounded p-1.5">
                 <div className="text-white/70 text-xs">Estimated APR</div>
                 <div className="text-purple-400 font-medium">

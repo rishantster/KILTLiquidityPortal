@@ -277,7 +277,7 @@ export function MainDashboard() {
                 INCENTIVE PROGRAM
               </h2>
               
-              <p className="text-xl sm:text-2xl text-white/70 font-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
+              <p className="maniac-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
                 Earn <span className="text-emerald-400 font-semibold">up to {unifiedData.maxAPRData?.aprRange || '47%'} APR</span> from the <span className="text-blue-400 font-semibold">{unifiedData.programAnalytics && unifiedData.programAnalytics.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>

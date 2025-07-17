@@ -92,13 +92,13 @@ export const UniswapPositionCard = ({
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
   
   return (
-    <div className="position-card maniac-card">
-      <div className="p-3 space-y-3">
+    <div className="maniac-position-card maniac-slide-up">
+      <div className="space-y-3">
         {/* Header with Pool Info and NFT ID */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="maniac-label text-sm">KILT/WETH</div>
-            <div className="maniac-badge-accent">
+            <div className="maniac-badge maniac-badge-accent">
               {position.fee ? `${(position.fee / 10000).toFixed(1)}%` : '0.3%'}
             </div>
           </div>

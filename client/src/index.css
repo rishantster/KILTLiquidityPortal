@@ -3,6 +3,7 @@
 
 /* Import Google Fonts for bold typography */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap');
+@import './maniac-studios.css';
 
 @tailwind base;
 @tailwind components;
@@ -54,6 +55,25 @@ body {
   line-height: 1.4;
   overflow-x: hidden;
   font-weight: 500;
+  position: relative;
+}
+
+/* Grid Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/attached_assets/background_grid_1752770027110.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  opacity: 0.15;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Maniac Studios Typography Classes */
@@ -116,13 +136,14 @@ body {
 
 /* Maniac Studios Component Styles */
 .maniac-card {
-  background: var(--maniac-dark);
+  background: rgba(10, 10, 10, 0.95);
   border: 2px solid var(--maniac-primary);
   border-radius: 0;
   padding: 2rem;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .maniac-card:hover {
@@ -255,13 +276,14 @@ body {
 
 /* Position Cards with Maniac Style */
 .position-card {
-  background: var(--maniac-dark);
+  background: rgba(10, 10, 10, 0.95);
   border: 2px solid var(--maniac-primary);
   border-radius: 0;
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .position-card:hover {

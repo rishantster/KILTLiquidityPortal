@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { 
   TrendingUp, 
   Zap, 
@@ -636,7 +637,7 @@ export function MainDashboard() {
                           <span className="text-white/70 text-xs text-label">Balance Usage</span>
                           <span className="text-xs text-white/50 text-body">{selectedPercentage}% of wallet</span>
                         </div>
-                        <div className="grid grid-cols-5 gap-1 mb-2">
+                        <div className="grid grid-cols-5 gap-1 mb-3">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
@@ -652,6 +653,29 @@ export function MainDashboard() {
                               {label}
                             </Button>
                           ))}
+                        </div>
+                        
+                        {/* Seek Bar Slider */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/60 text-xs">Precise Control</span>
+                            <span className="text-white/40 text-xs">{selectedPercentage}%</span>
+                          </div>
+                          <Slider
+                            value={[selectedPercentage]}
+                            onValueChange={(value) => setSelectedPercentage(value[0])}
+                            max={100}
+                            min={0}
+                            step={1}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-xs text-white/40">
+                            <span>0%</span>
+                            <span>25%</span>
+                            <span>50%</span>
+                            <span>75%</span>
+                            <span>100%</span>
+                          </div>
                         </div>
                       </div>
 

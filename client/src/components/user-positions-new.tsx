@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Coins, RefreshCw, TrendingUp, TrendingDown, Eye, DollarSign, Clock, Activity, ExternalLink, CheckCircle } from 'lucide-react';
-import { useUniswapV3Positions } from '@/hooks/use-uniswap-v3';
+import { useInstantPositions } from '@/hooks/use-instant-positions';
 import { useToast } from '@/hooks/use-toast';
 import { useWallet } from '@/contexts/wallet-context';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
@@ -38,10 +38,10 @@ const UserPositionsNew = () => {
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   
   const { 
-    positions: allPositions, 
+    data: allPositions = [], 
     isLoading: uniswapLoading,
     refetch: refetchPositions 
-  } = useUniswapV3Positions();
+  } = useInstantPositions();
   
   const { 
     registerPosition, 
@@ -60,44 +60,36 @@ const UserPositionsNew = () => {
     enabled: !!address
   });
 
-  // Filter for KILT positions
-  const kiltPositions = allPositions?.filter(position => {
-    const isKiltPosition = position.token0?.toLowerCase().includes('5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8') || 
-                           position.token1?.toLowerCase().includes('5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8');
-    return isKiltPosition;
-  }) || [];
+  // Filter for KILT positions - instant positions are already filtered
+  const kiltPositions = allPositions || [];
 
   const openPositions = kiltPositions.filter(position => 
-    position.liquidity && typeof position.liquidity === 'bigint' && position.liquidity > 0n
+    position.isActive && position.liquidity && parseInt(position.liquidity) > 0
   );
   const closedPositions = kiltPositions.filter(position => 
-    !position.liquidity || typeof position.liquidity !== 'bigint' || position.liquidity === 0n
+    !position.isActive || !position.liquidity || parseInt(position.liquidity) === 0
   );
   const displayPositions = showClosedPositions ? kiltPositions : openPositions;
 
-  const calculatePositionValue = (position: UniswapPosition): number => {
+  const calculatePositionValue = (position: any): number => {
     if (position.currentValueUSD && typeof position.currentValueUSD === 'number') {
       return position.currentValueUSD;
     }
     
-    // Simplified calculation - in real implementation, use actual token prices
-    const amount0Value = position.amount0 && typeof position.amount0 === 'bigint' 
-      ? parseFloat(formatUnits(position.amount0, 18)) * 0.016 
-      : 0; // KILT price estimate
-    const amount1Value = position.amount1 && typeof position.amount1 === 'bigint' 
-      ? parseFloat(formatUnits(position.amount1, 18)) * 2500 
-      : 0; // ETH price estimate
+    // Estimate value from token amounts
+    const amount0Value = position.amount0 ? parseFloat(position.amount0) * 0.016 : 0; // KILT price estimate
+    const amount1Value = position.amount1 ? parseFloat(position.amount1) * 2500 : 0; // ETH price estimate
     
     return amount0Value + amount1Value;
   };
 
-  const isPositionInRange = (position: UniswapPosition): boolean => {
-    // Simplified range check - in real implementation, check against current pool price
-    return position.liquidity && typeof position.liquidity === 'bigint' ? position.liquidity > 0n : false;
+  const isPositionInRange = (position: any): boolean => {
+    // For instant positions, use the isActive field
+    return position.isActive || false;
   };
 
-  const isPositionRegistered = (position: UniswapPosition): boolean => {
-    if (!position.tokenId || typeof position.tokenId !== 'bigint') return false;
+  const isPositionRegistered = (position: any): boolean => {
+    if (!position.tokenId) return false;
     return registeredPositions.some(
       (registered: any) => registered.nftTokenId === position.tokenId.toString()
     );

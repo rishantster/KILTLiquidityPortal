@@ -1,128 +1,94 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useWallet } from '@/contexts/wallet-context';
+import { instantCache } from '@/utils/instant-cache';
+import { uniswapAPI } from '@/lib/uniswap-api';
+import { Address } from 'viem';
 
-interface Position {
-  id: string;
+interface InstantPosition {
+  tokenId: string;
   nftTokenId: string;
-  tokenAmountKilt: string;
-  tokenAmountEth: string;
-  currentValueUsd: number;
-  isActive: boolean;
-  priceRangeLower: number;
-  priceRangeUpper: number;
+  token0Address: string;
+  token1Address: string;
+  amount0: string;
+  amount1: string;
+  liquidity: string;
+  currentValueUSD?: number;
+  poolAddress: string;
   feeTier: number;
+  tickLower: number;
+  tickUpper: number;
+  isActive: boolean;
+  createdAt: string;
+  token0Symbol?: string;
+  token1Symbol?: string;
+  collectedFeesToken0?: string;
+  collectedFeesToken1?: string;
 }
 
-// Global cache for instant access
-const positionCache = new Map<string, Position[]>();
-const loadingStates = new Map<string, boolean>();
-
-/**
- * Instant position loading with zero delay
- * Returns cached data immediately, updates in background
- */
+// Ultra-fast position loading hook using Uniswap API directly
 export function useInstantPositions() {
-  const { address } = useWallet();
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { address, isConnected } = useWallet();
 
-  // Get positions instantly from cache
-  const getInstantPositions = useCallback((userAddress: string): Position[] => {
-    return positionCache.get(userAddress) || [];
-  }, []);
+  return useQuery<InstantPosition[]>({
+    queryKey: ['instant-positions', address],
+    queryFn: async () => {
+      if (!address) return [];
 
-  // Background loader that doesn't block UI
-  const loadInBackground = useCallback(async (userAddress: string) => {
-    if (!userAddress || loadingStates.get(userAddress)) return;
+      // First check instant cache for blazing speed
+      const cached = instantCache.getInstant(`positions-${address}`);
+      if (cached) {
+        return cached;
+      }
 
-    loadingStates.set(userAddress, true);
-
-    try {
-      // Ultra-fast parallel fetch
-      const [walletResponse, userResponse] = await Promise.all([
-        fetch(`/api/positions/wallet/${userAddress}`),
-        fetch(`/api/users/${userAddress}`)
-      ]);
-
-      const [walletPositions, userData] = await Promise.all([
-        walletResponse.json(),
-        userResponse.json()
-      ]);
-
-      // Get user positions if user exists
-      let userPositions: Position[] = [];
-      if (userData?.id) {
-        const userPositionsResponse = await fetch(`/api/positions/user/${userData.id}`);
-        if (userPositionsResponse.ok) {
-          userPositions = await userPositionsResponse.json();
+      try {
+        // Use Uniswap API directly for fastest response
+        const positions = await uniswapAPI.getKiltPositions(address as Address);
+        
+        // Convert to display format
+        const converted = positions.map(pos => uniswapAPI.convertPositionToDisplay(pos));
+        
+        // Cache immediately for instant subsequent loads
+        instantCache.set(`positions-${address}`, converted);
+        
+        return converted;
+      } catch (error) {
+        console.error('Error fetching instant positions:', error);
+        
+        // Fallback to backend API if Uniswap API fails
+        try {
+          const response = await fetch(`/api/positions/wallet/${address.toLowerCase()}`);
+          if (response.ok) {
+            const fallbackPositions = await response.json();
+            instantCache.set(`positions-${address}`, fallbackPositions);
+            return fallbackPositions;
+          }
+        } catch (fallbackError) {
+          console.error('Fallback API also failed:', fallbackError);
         }
+        
+        return [];
       }
-
-      // Combine and dedupe
-      const allPositions = [...walletPositions, ...userPositions];
-      const uniquePositions = allPositions.filter((pos, index, self) => 
-        index === self.findIndex(p => p.nftTokenId === pos.nftTokenId)
-      );
-
-      // Update cache
-      positionCache.set(userAddress, uniquePositions);
-      
-      // Update component state
-      setPositions(uniquePositions);
-      
-    } catch (error) {
-      console.error('Background position loading failed:', error);
-    } finally {
-      loadingStates.set(userAddress, false);
-    }
-  }, []);
-
-  // Initial load - return cached data immediately
-  useEffect(() => {
-    if (address) {
-      // Get cached data instantly
-      const cached = getInstantPositions(address);
-      setPositions(cached);
-      
-      // Only show loading if no cache
-      if (cached.length === 0) {
-        setIsLoading(true);
-      }
-
-      // Load in background
-      loadInBackground(address).then(() => {
-        setIsLoading(false);
-      });
-    }
-  }, [address, getInstantPositions, loadInBackground]);
-
-  return {
-    positions,
-    isLoading,
-    hasPositions: positions.length > 0,
-    refresh: () => address && loadInBackground(address)
-  };
+    },
+    enabled: !!address && isConnected,
+    staleTime: 5000, // 5 seconds for ultra-fresh data
+    refetchInterval: 15000, // 15 seconds
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    retry: 1
+  });
 }
 
-// Preload positions when user connects
+// Preload positions for instant loading
 export function preloadPositions(address: string) {
-  if (!address || positionCache.has(address)) return;
+  if (!address) return;
 
-  // Silent background preload
-  Promise.all([
-    fetch(`/api/positions/wallet/${address}`).then(r => r.json()),
-    fetch(`/api/users/${address}`).then(r => r.json())
-  ]).then(([walletPositions, userData]) => {
-    if (userData?.id) {
-      return fetch(`/api/positions/user/${userData.id}`).then(r => r.json()).then(userPositions => {
-        const allPositions = [...walletPositions, ...userPositions];
-        const uniquePositions = allPositions.filter((pos, index, self) => 
-          index === self.findIndex(p => p.nftTokenId === pos.nftTokenId)
-        );
-        positionCache.set(address, uniquePositions);
-      });
-    } else {
-      positionCache.set(address, walletPositions);
-    }
-  }).catch(console.error);
+  // Background preload
+  fetch(`/api/positions/wallet/${address.toLowerCase()}`)
+    .then(response => response.json())
+    .then(positions => {
+      instantCache.set(`positions-${address}`, positions);
+    })
+    .catch(error => {
+      console.error('Preload positions failed:', error);
+    });
 }

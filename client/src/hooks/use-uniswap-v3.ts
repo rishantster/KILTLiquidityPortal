@@ -44,19 +44,20 @@ export function useUniswapV3() {
   const queryClient = useQueryClient();
   const { data: kiltData } = useKiltTokenData();
 
-  // Query user's NFT positions from Uniswap V3 contracts
+  // Query user's NFT positions (lightweight - just count)
   const { data: userPositions, isLoading: positionsLoading } = useQuery<bigint[]>({
     queryKey: ['uniswap-positions', address],
     queryFn: async () => {
       if (!address) return [];
-      return await uniswapV3Service.getUserPositions(address as Address);
+      // Skip slow contract calls - we get positions from backend API
+      return [];
     },
     enabled: !!address && isConnected,
-    refetchInterval: 30000,
-    retry: 2
+    refetchInterval: 60000,
+    retry: 0
   });
 
-  // Query KILT/ETH positions directly from Uniswap V3 contracts
+  // Query KILT/ETH positions with ultra-fast backend API
   const { data: kiltEthPositions, isLoading: kiltEthLoading, error: kiltEthError } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
@@ -69,36 +70,53 @@ export function useUniswapV3() {
       }
       
       try {
-        // Get blockchain config for dynamic token addresses
-        const configResponse = await fetch('/api/blockchain/config');
-        const config = configResponse.ok ? await configResponse.json() : null;
+        // Use fast backend API instead of slow contract calls
+        const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
         
-        const kiltTokenAddress = config?.kiltTokenAddress || TOKENS.KILT;
-        const wethTokenAddress = config?.wethTokenAddress || TOKENS.WETH;
+        if (!response.ok) {
+          return [];
+        }
         
-        // Fetch positions directly from Uniswap V3 contracts
-        const positions = await uniswapV3Service.getKiltEthPositions(
-          address as Address,
-          kiltTokenAddress as Address,
-          wethTokenAddress as Address
-        );
+        const positions = await response.json();
+        
+        // Convert backend format to frontend format
+        const converted = positions.map((pos: any) => ({
+          tokenId: BigInt(pos.nftTokenId || pos.tokenId || 0),
+          nonce: BigInt(0),
+          operator: '0x0000000000000000000000000000000000000000' as Address,
+          token0: pos.token0Address || pos.token0 || '',
+          token1: pos.token1Address || pos.token1 || '',
+          fee: pos.feeTier || pos.fee || 3000,
+          tickLower: pos.tickLower || 0,
+          tickUpper: pos.tickUpper || 0,
+          liquidity: BigInt(pos.liquidity || 0),
+          feeGrowthInside0LastX128: BigInt(0),
+          feeGrowthInside1LastX128: BigInt(0),
+          tokensOwed0: BigInt(0),
+          tokensOwed1: BigInt(0),
+          // Enhanced fields
+          currentValueUSD: pos.currentValueUSD || 0,
+          amount0: BigInt(pos.amount0 || 0),
+          amount1: BigInt(pos.amount1 || 0),
+          poolAddress: pos.poolAddress || ''
+        }));
         
         // Cache the result for ultra-fast subsequent loads
-        setCachedPositions(address!, positions);
+        setCachedPositions(address!, converted);
         
-        return positions;
+        return converted;
       } catch (error) {
         console.error('Error fetching KILT/ETH positions:', error);
         return [];
       }
     },
     enabled: !!address && isConnected,
-    refetchInterval: 60000, // Reduced frequency
-    retry: 2,
-    staleTime: 30000, // Cache for 30 seconds
+    refetchInterval: 30000, // Faster refresh
+    retry: 1,
+    staleTime: 15000, // Shorter cache
     refetchOnWindowFocus: false,
     refetchOnMount: true,
-    throwOnError: false, // Prevent unhandled rejections
+    throwOnError: false,
     onError: (error) => {
       console.error('KILT/ETH positions query error:', error);
     }

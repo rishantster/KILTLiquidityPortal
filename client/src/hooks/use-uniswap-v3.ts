@@ -249,9 +249,9 @@ export function useUniswapV3() {
 
   // Mint new position
   const mintPositionMutation = useMutation({
-    mutationFn: async (params: MintParams) => {
+    mutationFn: async (params: MintParams & { isNativeETH?: boolean }) => {
       if (!address) throw new Error('Wallet not connected');
-      return await uniswapV3Service.mintPosition(params, address);
+      return await uniswapV3Service.mintPosition(params, address, params.isNativeETH || false);
     },
     onSuccess: (hash) => {
       toast({
@@ -277,11 +277,12 @@ export function useUniswapV3() {
       mintParams: MintParams;
       positionValueUSD: number;
       userId: number;
+      isNativeETH?: boolean;
     }) => {
       if (!address) throw new Error('Wallet not connected');
       
       // First mint the position on-chain
-      const mintResult = await uniswapV3Service.mintPosition(params.mintParams, address);
+      const mintResult = await uniswapV3Service.mintPosition(params.mintParams, address, params.isNativeETH || false);
       
       // Extract NFT ID from transaction receipt (would need proper parsing)
       const nftId = Math.floor(Math.random() * 1000000); // Would get from actual receipt

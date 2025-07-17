@@ -352,6 +352,25 @@ export class UniswapV3Service {
     });
   }
 
+  // Helper method to calculate ETH value for native ETH transactions
+  private calculateEthValue(params: MintParams, isNativeETH: boolean = false): bigint {
+    // Only send ETH value if we're explicitly using native ETH
+    if (!isNativeETH) {
+      return 0n;
+    }
+    
+    // If token0 is WETH and we're using native ETH, send the amount0Desired as value
+    if (params.token0.toLowerCase() === TOKENS.WETH.toLowerCase()) {
+      return params.amount0Desired;
+    }
+    // If token1 is WETH and we're using native ETH, send the amount1Desired as value  
+    if (params.token1.toLowerCase() === TOKENS.WETH.toLowerCase()) {
+      return params.amount1Desired;
+    }
+    // No ETH involved, return 0
+    return 0n;
+  }
+
   // Write Functions (require wallet connection)
 
   async approveToken(tokenAddress: Address, spender: Address, amount: bigint, account: Address): Promise<string> {
@@ -396,7 +415,7 @@ export class UniswapV3Service {
     return await this.walletClient.writeContract(request);
   }
 
-  async mintPosition(params: MintParams, account: Address): Promise<string> {
+  async mintPosition(params: MintParams, account: Address, isNativeETH: boolean = false): Promise<string> {
     if (!this.walletClient) throw new Error('Wallet not connected');
 
     try {
@@ -406,7 +425,7 @@ export class UniswapV3Service {
         functionName: 'mint',
         args: [params],
         account,
-        value: 0n // WETH is ERC20, not native ETH, so no value needed
+        value: this.calculateEthValue(params, isNativeETH) // Send ETH value if using native ETH
       });
 
       return await this.walletClient.writeContract(request);

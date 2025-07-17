@@ -103,30 +103,36 @@ const PositionCard = ({ position }: { position: Position }) => {
   const currentPrice = 0.0176;
   
   return (
-    <div className="bg-gray-900/60 border border-gray-700/40 rounded-xl p-4 hover:border-gray-600/60 transition-all duration-200 backdrop-blur-sm">
-      {/* Clean header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">#{position.nftTokenId}</span>
+    <div className="group relative overflow-hidden bg-gradient-to-br from-slate-900/95 via-gray-900/95 to-slate-800/95 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-5 hover:border-emerald-400/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/25">
+      {/* Sexy gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-cyan-500/5 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Premium header */}
+      <div className="relative flex items-center justify-between mb-5">
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 via-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <span className="text-white font-bold text-sm">#{position.nftTokenId}</span>
+            </div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full animate-pulse" />
           </div>
           <div>
-            <h3 className="text-white font-semibold">NFT #{position.nftTokenId}</h3>
+            <h3 className="text-white font-bold text-lg">NFT #{position.nftTokenId}</h3>
             <div className="flex items-center space-x-2 mt-1">
-              <Badge className={`px-2 py-1 text-xs rounded-md ${position.inRange 
-                ? 'bg-emerald-500/20 text-emerald-400' 
-                : 'bg-red-500/20 text-red-400'
+              <Badge className={`px-3 py-1 text-xs font-medium rounded-full ${position.inRange 
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
+                : 'bg-red-500/20 text-red-400 border border-red-500/40'
               }`}>
                 {position.inRange ? 'In Range' : 'Out of Range'}
               </Badge>
-              <Badge className="px-2 py-1 text-xs rounded-md bg-blue-500/20 text-blue-400">
+              <Badge className="px-3 py-1 text-xs font-medium rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/40">
                 KILT/ETH
               </Badge>
             </div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-white">
+          <div className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
             ${formatNumber(position.currentValueUsd || 1989.58)}
           </div>
           <div className="text-sm text-gray-400 font-mono">
@@ -135,45 +141,45 @@ const PositionCard = ({ position }: { position: Position }) => {
         </div>
       </div>
 
-      {/* Token amounts */}
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800/40">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-              <EthereumLogo className="w-4 h-4 text-white" />
+      {/* Sexy token displays */}
+      <div className="space-y-3 mb-5">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-800/60 to-gray-700/60 border border-gray-600/40 hover:border-blue-500/50 transition-all duration-300 group/eth">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+              <EthereumLogo className="w-5 h-5 text-white" />
             </div>
-            <span className="text-white font-medium">ETH</span>
+            <span className="text-white font-semibold text-lg">ETH</span>
           </div>
-          <span className="text-white font-mono">
+          <span className="text-white font-bold text-xl font-mono group-hover/eth:text-blue-400 transition-colors">
             {formatNumber(ethAmount || 0.363, 6)}
           </span>
         </div>
         
-        <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800/40">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center">
-              <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
+        <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-800/60 to-gray-700/60 border border-gray-600/40 hover:border-pink-500/50 transition-all duration-300 group/kilt">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg flex items-center justify-center shadow-lg shadow-pink-500/30">
+              <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
             </div>
-            <span className="text-white font-medium">KILT</span>
+            <span className="text-white font-semibold text-lg">KILT</span>
           </div>
-          <span className="text-white font-mono">
+          <span className="text-white font-bold text-xl font-mono group-hover/kilt:text-pink-400 transition-colors">
             {formatNumber(kiltAmount || 67630, 0)}
           </span>
         </div>
       </div>
 
       {/* Fee tier */}
-      <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800/40 mb-4">
-        <span className="text-gray-300">Fee Tier</span>
-        <span className="text-white font-bold">
+      <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-800/60 to-gray-700/60 border border-gray-600/40 mb-5">
+        <span className="text-gray-300 font-medium text-lg">Fee Tier</span>
+        <span className="text-white font-bold text-xl">
           {(position.feeTier * 100).toFixed(1)}%
         </span>
       </div>
 
       {/* Range visualization */}
-      <div className="mb-4">
-        <div className="text-sm text-gray-400 mb-2">Range (ETH/KILT)</div>
-        <div className="p-3 rounded-lg bg-gray-800/40">
+      <div className="mb-5">
+        <div className="text-sm text-gray-400 mb-3 font-medium">Range (ETH/KILT)</div>
+        <div className="p-4 rounded-xl bg-gradient-to-br from-gray-800/70 to-gray-700/70 border border-gray-600/40">
           <RangeVisualization
             minPrice={position.priceRangeLower || 0.0141}
             maxPrice={position.priceRangeUpper || 0.0211}
@@ -183,27 +189,27 @@ const PositionCard = ({ position }: { position: Position }) => {
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex space-x-2">
+      {/* Sexy action buttons */}
+      <div className="flex space-x-3">
         <Button 
-          size="sm" 
-          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+          size="lg" 
+          className="flex-1 h-12 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 transform hover:scale-105"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4 mr-2" />
           Add
         </Button>
         <Button 
-          size="sm" 
-          className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          size="lg" 
+          className="flex-1 h-12 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105"
         >
-          <Minus className="w-4 h-4 mr-1" />
+          <Minus className="w-4 h-4 mr-2" />
           Remove
         </Button>
         <Button 
-          size="sm" 
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+          size="lg" 
+          className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
         >
-          <DollarSign className="w-4 h-4 mr-1" />
+          <DollarSign className="w-4 h-4 mr-2" />
           Collect
         </Button>
       </div>

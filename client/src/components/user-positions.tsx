@@ -325,7 +325,7 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="grid gap-1 w-full auto-rows-fr" style={{gridTemplateColumns: 'repeat(3, 1fr)'}}>
+            <div className="grid grid-cols-3 gap-1 w-full">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
@@ -333,8 +333,8 @@ export function UserPositions() {
                 const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
                 
                 return (
-                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-sm hover:bg-white/10 transition-all min-w-0 max-w-full`}>
-                    <CardContent className="p-1 min-w-0 overflow-hidden">
+                  <div key={position.tokenId.toString()} className={`${isClosed ? 'bg-gradient-to-br from-gray-500/10 to-gray-600/5 border-gray-400/20' : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 border-blue-400/20'} rounded-sm hover:bg-gradient-to-br hover:from-blue-500/20 hover:via-purple-500/20 hover:to-emerald-500/20 transition-all border p-1 min-w-0 max-w-full overflow-hidden backdrop-blur-sm`}>
+                    <div className="min-w-0 overflow-hidden">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center space-x-1">
                           <div className={`w-3 h-3 bg-gradient-to-br ${isClosed ? 'from-gray-500 to-gray-600' : 'from-blue-500 to-emerald-500'} rounded-sm flex items-center justify-center`}>
@@ -414,7 +414,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300 h-4 px-1"
+                              className="flex-1 text-xs bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border-emerald-400/30 hover:border-emerald-400/60 text-emerald-400 hover:text-emerald-300 hover:bg-gradient-to-br hover:from-emerald-500/20 hover:to-emerald-600/10 h-4 px-1"
                             >
                               <Plus className="h-2 w-2" />
                             </Button>
@@ -425,7 +425,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300 h-4 px-1"
+                              className="flex-1 text-xs bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-400/30 hover:border-red-400/60 text-red-400 hover:text-red-300 hover:bg-gradient-to-br hover:from-red-500/20 hover:to-red-600/10 h-4 px-1"
                             >
                               <Minus className="h-2 w-2" />
                             </Button>
@@ -436,7 +436,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300 h-4 px-1"
+                              className="flex-1 text-xs bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-400/30 hover:border-blue-400/60 text-blue-400 hover:text-blue-300 hover:bg-gradient-to-br hover:from-blue-500/20 hover:to-blue-600/10 h-4 px-1"
                             >
                               <DollarSign className="h-2 w-2" />
                             </Button>
@@ -447,8 +447,8 @@ export function UserPositions() {
                           </div>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })}
             </div>

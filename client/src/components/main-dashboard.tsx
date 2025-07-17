@@ -502,7 +502,7 @@ export function MainDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 {/* KILT Price */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 logo-container logo-shimmer">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-pink-500/20 to-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 logo-container logo-shimmer border border-pink-400/30">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
@@ -518,8 +518,8 @@ export function MainDashboard() {
 
                 {/* Market Cap */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                    <Coins className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-blue-400/30">
+                    <Coins className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">Market Cap</p>
                   <p className="text-white font-bold text-sm sm:text-lg text-numbers">
@@ -530,8 +530,8 @@ export function MainDashboard() {
 
                 {/* Your Reward APR */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-purple-400/30">
+                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400" />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">Your Reward APR</p>
                   <div className="text-white font-bold text-sm sm:text-lg text-numbers">
@@ -548,8 +548,8 @@ export function MainDashboard() {
 
                 {/* Maximum APR */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-amber-400/30">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">Current APR</p>
                   <p className="text-white font-bold text-sm sm:text-lg text-numbers">

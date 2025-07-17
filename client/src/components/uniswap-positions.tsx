@@ -198,7 +198,10 @@ const PositionCard = ({ position }: { position: Position }) => {
             <div className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-300">
               <div className="flex items-center space-x-3">
                 <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
-                  <EthereumLogo className="w-4 h-4 text-white" />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L5 12.5L12 16.5L19 12.5L12 2Z" fill="white"/>
+                    <path d="M12 18L5 13.5L12 22L19 13.5L12 18Z" fill="white"/>
+                  </svg>
                 </div>
                 <span className="text-sm font-medium text-white">ETH</span>
               </div>
@@ -210,7 +213,7 @@ const PositionCard = ({ position }: { position: Position }) => {
             <div className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-300">
               <div className="flex items-center space-x-3">
                 <div className="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center shadow-lg p-1">
-                  <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain filter brightness-0 invert" />
+                  <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain brightness-0 invert" />
                 </div>
                 <span className="text-sm font-medium text-white">KILT</span>
               </div>

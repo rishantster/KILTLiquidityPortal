@@ -229,26 +229,25 @@ export function MainDashboard() {
   if (!isConnected) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
-        {/* Galaxy Background Elements */}
+        {/* Pure Liquid Background */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-floating"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-slate-500/8 rounded-full blur-3xl animate-floating" style={{animationDelay: '1s'}}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-floating" style={{animationDelay: '2s'}}></div>
+          <div className="liquid-glow"></div>
         </div>
         
-        {/* Floating Liquid Bubbles */}
+        {/* Enhanced Floating Liquid Bubbles */}
         <div className="liquid-bubble liquid-bubble-1"></div>
         <div className="liquid-bubble liquid-bubble-2"></div>
         <div className="liquid-bubble liquid-bubble-3"></div>
         <div className="liquid-bubble liquid-bubble-4"></div>
+        <div className="liquid-bubble liquid-bubble-5"></div>
+        <div className="liquid-bubble liquid-bubble-6"></div>
         
-        {/* Morphing Liquid Blobs */}
+        {/* Enhanced Morphing Liquid Blobs */}
         <div className="liquid-blob liquid-blob-1"></div>
         <div className="liquid-blob liquid-blob-2"></div>
         <div className="liquid-blob liquid-blob-3"></div>
-        
-        {/* Liquid Wave Glow Effect */}
-        <div className="liquid-glow"></div>
+        <div className="liquid-blob liquid-blob-4"></div>
+        <div className="liquid-blob liquid-blob-5"></div>
 
         <div className="max-w-5xl mx-auto">
           <div className="text-center pt-16 pb-8">
@@ -432,16 +431,20 @@ export function MainDashboard() {
     <div className="min-h-screen text-white overflow-x-hidden relative" style={{
       background: 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 50%), #000000'
     }}>
-      {/* Floating Liquid Bubbles */}
+      {/* Enhanced Floating Liquid Bubbles */}
       <div className="liquid-bubble liquid-bubble-1"></div>
       <div className="liquid-bubble liquid-bubble-2"></div>
       <div className="liquid-bubble liquid-bubble-3"></div>
       <div className="liquid-bubble liquid-bubble-4"></div>
+      <div className="liquid-bubble liquid-bubble-5"></div>
+      <div className="liquid-bubble liquid-bubble-6"></div>
       
-      {/* Morphing Liquid Blobs */}
+      {/* Enhanced Morphing Liquid Blobs */}
       <div className="liquid-blob liquid-blob-1"></div>
       <div className="liquid-blob liquid-blob-2"></div>
       <div className="liquid-blob liquid-blob-3"></div>
+      <div className="liquid-blob liquid-blob-4"></div>
+      <div className="liquid-blob liquid-blob-5"></div>
       
       {/* Liquid Wave Glow Effect */}
       <div className="liquid-glow"></div>

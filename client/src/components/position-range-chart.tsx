@@ -1,27 +1,36 @@
 import React from 'react';
 
 interface PositionRangeChartProps {
-  currentPrice: number;
-  minPrice: number;
-  maxPrice: number;
-  isActive: boolean;
+  tickLower: number;
+  tickUpper: number;
+  currentTick: number;
   height?: number;
   showLabels?: boolean;
   className?: string;
 }
 
 export const PositionRangeChart: React.FC<PositionRangeChartProps> = ({
-  currentPrice,
-  minPrice,
-  maxPrice,
-  isActive,
+  tickLower,
+  tickUpper,
+  currentTick,
   height = 64,
   showLabels = true,
   className = ''
 }) => {
-  // Calculate percentages for positioning
-  const priceRange = maxPrice - minPrice;
-  const currentPricePercent = Math.min(Math.max(((currentPrice - minPrice) / priceRange) * 100, 0), 100);
+  // Convert ticks to prices (simplified - for display purposes)
+  // In production, you'd use actual tick-to-price conversion
+  const safeTickLower = tickLower || 0;
+  const safeTickUpper = tickUpper || 0;
+  const safeCurrentTick = currentTick || 0;
+  
+  // Calculate tick percentages for positioning
+  const tickRange = safeTickUpper - safeTickLower;
+  const currentTickPercent = tickRange > 0 
+    ? Math.min(Math.max(((safeCurrentTick - safeTickLower) / tickRange) * 100, 0), 100)
+    : 50; // Default to middle if no range
+  
+  // Determine if position is active (in range)
+  const isActive = safeCurrentTick >= safeTickLower && safeCurrentTick <= safeTickUpper;
   
   // Calculate SVG positions (assuming 20px padding on each side)
   const svgWidth = 200;
@@ -29,7 +38,7 @@ export const PositionRangeChart: React.FC<PositionRangeChartProps> = ({
   const activeWidth = svgWidth - (padding * 2);
   const minX = padding;
   const maxX = svgWidth - padding;
-  const currentX = minX + (activeWidth * currentPricePercent / 100);
+  const currentX = minX + (activeWidth * currentTickPercent / 100);
   
   // Curve control points
   const midX = (minX + maxX) / 2;
@@ -107,21 +116,21 @@ export const PositionRangeChart: React.FC<PositionRangeChartProps> = ({
           fontWeight="bold"
           className="drop-shadow-sm"
         >
-          {currentPrice >= minPrice && currentPrice <= maxPrice ? 'In Range' : 'Out of Range'}
+          {isActive ? 'In Range' : 'Out of Range'}
         </text>
       </svg>
       
-      {/* Price labels */}
+      {/* Tick labels */}
       {showLabels && (
         <>
           <div className="absolute bottom-1 left-2 text-xs text-white/60">
-            Min: {minPrice.toFixed(4)}
+            Min: {safeTickLower}
           </div>
           <div className="absolute bottom-1 right-2 text-xs text-white/60">
-            Max: {maxPrice.toFixed(4)}
+            Max: {safeTickUpper}
           </div>
           <div className="absolute top-1 left-1/2 transform -translate-x-1/2 text-xs text-white/60">
-            Current: {currentPrice.toFixed(4)}
+            Current: {safeCurrentTick}
           </div>
         </>
       )}

@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, TrendingUp, TrendingDown, DollarSign, Activity, Clock } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, DollarSign, Activity, Clock, Wallet } from 'lucide-react';
 import { usePositionPerformance, usePositionFees } from '@/hooks/use-analytics';
 import { useWallet } from '@/contexts/wallet-context';
+import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum logo component

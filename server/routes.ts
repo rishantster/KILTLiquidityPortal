@@ -1487,72 +1487,36 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      // Step 2: Get live Uniswap data for registered positions with fallback to database
+      // Step 2: Get live Uniswap data for registered positions with enhanced blockchain retrieval
       const livePositions = await Promise.all(
         registeredPositions.map(async (dbPos) => {
           try {
-            const liveData = await uniswapIntegrationService.getPositionData(dbPos.nftTokenId);
-            if (liveData) {
-              // Use live blockchain data
-              return {
-                tokenId: dbPos.nftTokenId,
-                poolAddress: liveData.poolAddress,
-                token0: liveData.token0,
-                token1: liveData.token1,
-                fee: liveData.feeTier,
-                tickLower: liveData.tickLower,
-                tickUpper: liveData.tickUpper,
-                liquidity: liveData.liquidity,
-                amount0: liveData.token0Amount,
-                amount1: liveData.token1Amount,
-                currentValueUSD: liveData.currentValueUSD,
-                fees: liveData.fees,
-                poolType: 'KILT/ETH',
-                isKiltPosition: true,
-                isActive: liveData.isActive,
-                isRegistered: true
-              };
-            } else {
-              // Fallback to database data if blockchain call fails
-              return {
-                tokenId: dbPos.nftTokenId,
-                poolAddress: dbPos.poolAddress,
-                token0: dbPos.token0Address,
-                token1: dbPos.token1Address,
-                fee: dbPos.feeTier,
-                tickLower: dbPos.tickLower,
-                tickUpper: dbPos.tickUpper,
-                liquidity: dbPos.liquidity,
-                amount0: dbPos.token0Amount,
-                amount1: dbPos.token1Amount,
-                currentValueUSD: Number(dbPos.currentValueUSD),
-                fees: null,
-                poolType: 'KILT/ETH',
-                isKiltPosition: true,
-                isActive: dbPos.isActive,
-                isRegistered: true
-              };
+            const liveData = await uniswapIntegrationService.getPositionDataWithRetry(dbPos.nftTokenId);
+            if (!liveData) {
+              return null; // Skip positions that fail to fetch
             }
-          } catch (error) {
-            // Last resort: use database data
+            
             return {
               tokenId: dbPos.nftTokenId,
-              poolAddress: dbPos.poolAddress,
-              token0: dbPos.token0Address,
-              token1: dbPos.token1Address,
-              fee: dbPos.feeTier,
-              tickLower: dbPos.tickLower,
-              tickUpper: dbPos.tickUpper,
-              liquidity: dbPos.liquidity,
-              amount0: dbPos.token0Amount,
-              amount1: dbPos.token1Amount,
-              currentValueUSD: Number(dbPos.currentValueUSD),
-              fees: null,
+              poolAddress: liveData.poolAddress,
+              token0: liveData.token0,
+              token1: liveData.token1,
+              fee: liveData.feeTier,
+              tickLower: liveData.tickLower,
+              tickUpper: liveData.tickUpper,
+              liquidity: liveData.liquidity,
+              amount0: liveData.token0Amount,
+              amount1: liveData.token1Amount,
+              currentValueUSD: liveData.currentValueUSD,
+              fees: liveData.fees,
               poolType: 'KILT/ETH',
               isKiltPosition: true,
-              isActive: dbPos.isActive,
+              isActive: liveData.isActive,
               isRegistered: true
             };
+          } catch (error) {
+            // Skip positions that fail to fetch
+            return null;
           }
         })
       );
@@ -1562,7 +1526,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(validPositions);
     } catch (error) {
-      res.status(500).json({ error: "Failed to get user positions" });
+      console.error('Error in positions endpoint:', error);
+      res.status(500).json({ error: "Failed to get user positions", details: error.message });
     }
   });
 

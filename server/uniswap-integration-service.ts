@@ -162,18 +162,21 @@ export class UniswapIntegrationService {
       );
 
       const position: UniswapV3Position = {
-        tokenId: BigInt(tokenId),
+        tokenId: tokenId,
         owner: operator,
         token0,
         token1,
         fee,
         tickLower,
         tickUpper,
-        liquidity,
-        amount0,
-        amount1,
+        liquidity: liquidity.toString(),
+        amount0: amount0.toString(),
+        amount1: amount1.toString(),
         poolAddress,
-        fees,
+        fees: {
+          token0: fees.token0.toString(),
+          token1: fees.token1.toString()
+        },
         currentValueUSD,
         isKiltPosition: await this.isKiltPosition(token0, token1),
         poolType: this.determinePoolType(token0, token1)
@@ -249,7 +252,7 @@ export class UniswapIntegrationService {
   /**
    * Get unclaimed fees for a position
    */
-  private async getUnclaimedFees(tokenId: string): Promise<{ token0: bigint; token1: bigint }> {
+  private async getUnclaimedFees(tokenId: string): Promise<{ token0: string; token1: string }> {
     try {
       const feesData = await this.client.readContract({
         address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
@@ -270,9 +273,9 @@ export class UniswapIntegrationService {
       });
 
       const [amount0, amount1] = feesData as [bigint, bigint];
-      return { token0: amount0, token1: amount1 };
+      return { token0: amount0.toString(), token1: amount1.toString() };
     } catch (error) {
-      return { token0: 0n, token1: 0n };
+      return { token0: '0', token1: '0' };
     }
   }
 

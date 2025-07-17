@@ -12,6 +12,7 @@ import { usePositionRegistration } from '@/hooks/use-position-registration';
 import { formatUnits } from 'viem';
 import { PositionRangeChart } from './position-range-chart';
 import { TokenLogo } from './ui/token-logo';
+import { UniswapPositionCard } from './uniswap-position-card';
 
 interface UniswapPosition {
   tokenId: string;
@@ -46,19 +47,29 @@ const UserPositionsNew = () => {
   const { 
     data: allPositions = [], 
     isLoading: uniswapLoading,
-    refetch: refetchPositions 
+    refetch: refetchPositions,
+    error: positionsError 
   } = useQuery({
     queryKey: ['uniswap-positions', address],
     queryFn: async () => {
       if (!address) return [];
-      const response = await fetch(`/api/positions/wallet/${address}`);
-      if (!response.ok) return [];
-      const positions = await response.json();
-      return positions;
+      try {
+        const response = await fetch(`/api/positions/wallet/${address}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch positions: ${response.status}`);
+        }
+        const positions = await response.json();
+        return positions || [];
+      } catch (error) {
+        console.error('Error fetching KILT/ETH positions:', error);
+        throw error;
+      }
     },
     enabled: !!address,
     staleTime: 30000, // Cache for 30 seconds
-    refetchInterval: 60000 // Refresh every minute
+    refetchInterval: 60000, // Refresh every minute
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
   });
   
   const { 
@@ -66,17 +77,7 @@ const UserPositionsNew = () => {
     isRegistering 
   } = usePositionRegistration();
 
-  // Get registered positions to check status
-  const { data: registeredPositions = [] } = useQuery({
-    queryKey: ['registered-positions', address],
-    queryFn: async () => {
-      if (!address) return [];
-      const response = await fetch(`/api/positions/wallet/${address}`);
-      if (!response.ok) return [];
-      return response.json();
-    },
-    enabled: !!address
-  });
+  // No need for separate registered positions query - included in main query
 
   // Filter for KILT positions - instant positions are already filtered
   const kiltPositions = allPositions || [];
@@ -107,10 +108,8 @@ const UserPositionsNew = () => {
   };
 
   const isPositionRegistered = (position: any): boolean => {
-    if (!position.tokenId) return false;
-    return registeredPositions.some(
-      (registered: any) => registered.nftTokenId === position.tokenId.toString()
-    );
+    // Use the isRegistered field directly from the enhanced API response
+    return position.isRegistered || false;
   };
 
   const handleRegisterPosition = async (position: UniswapPosition) => {
@@ -142,8 +141,8 @@ const UserPositionsNew = () => {
 
       await registerPosition(positionData);
       
-      // Refresh the registered positions query
-      queryClient.invalidateQueries({ queryKey: ['registered-positions'] });
+      // Refresh the positions query
+      queryClient.invalidateQueries({ queryKey: ['uniswap-positions'] });
       
       toast({
         title: "Success",
@@ -272,120 +271,30 @@ const UserPositionsNew = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {displayPositions.map((position) => {
-              const positionValue = calculatePositionValue(position);
-              const inRange = isPositionInRange(position);
-              const isClosed = !position.liquidity || Number(position.liquidity) === 0;
-              
-              return (
-                <div key={position.tokenId || Math.random()} className={`group relative ${
-                  isClosed 
-                    ? 'bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-600/30' 
-                    : 'bg-gradient-to-br from-blue-600/10 via-purple-600/10 to-emerald-600/10 border-blue-400/30'
-                } rounded-2xl border backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 hover:scale-105 hover:border-cyan-400/50 p-6 overflow-hidden`}>
-                  
-                  {/* Glowing border animation */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-cyan-500/20 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
-                  
-                  {/* Header section */}
-                  <div className="relative space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-400 font-mono">
-                        ID: {position.tokenId || 'N/A'}
-                      </div>
-                      <div className="text-2xl font-bold text-white bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                        ${(positionValue || 0).toFixed(2)}
-                      </div>
-                    </div>
-                    
-                    <div className="text-xl font-bold text-white mb-4">
-                      KILT/WETH
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between bg-white/5 rounded-lg p-3">
-                        <div className="flex items-center space-x-2">
-                          <TokenLogo token="KILT" className="w-5 h-5" />
-                          <span className="text-white/90 text-sm font-medium">KILT</span>
-                        </div>
-                        <div className="text-white font-semibold">
-                          {position.amount0 && position.amount0 !== '0' 
-                            ? parseFloat(position.amount0).toFixed(2) 
-                            : '0.00'}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between bg-white/5 rounded-lg p-3">
-                        <div className="flex items-center space-x-2">
-                          <TokenLogo token="ETH" className="w-5 h-5" />
-                          <span className="text-white/90 text-sm font-medium">WETH</span>
-                        </div>
-                        <div className="text-white font-semibold">
-                          {position.amount1 && position.amount1 !== '0' 
-                            ? parseFloat(position.amount1).toFixed(4) 
-                            : '0.0000'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Range Visualization */}
-                  <div className="my-4">
-                    <div className="text-sm text-gray-400 mb-2">Price Range</div>
-                    <PositionRangeChart
-                      tickLower={position.tickLower}
-                      tickUpper={position.tickUpper}
-                      currentTick={0}
-                      height={64}
-                      showLabels={false}
-                    />
-                  </div>
-                  
-                  {/* Status Badges */}
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge 
-                      variant={inRange ? "default" : "secondary"} 
-                      className={`text-sm px-3 py-1 ${inRange ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-gray-500/20 text-gray-300 border-gray-500/30'}`}
-                    >
-                      {inRange ? "In Range" : "Out of Range"}
-                    </Badge>
-                    <Badge 
-                      variant={isClosed ? "outline" : "default"} 
-                      className={`text-sm px-3 py-1 ${isClosed ? 'bg-red-500/20 text-red-300 border-red-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'}`}
-                    >
-                      {isClosed ? "Closed" : "Active"}
-                    </Badge>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex space-x-3">
-                    {isPositionRegistered(position) ? (
-                      <Button
-                        disabled
-                        className="flex-1 h-12 bg-gradient-to-r from-emerald-500/50 to-blue-500/50 text-white font-semibold rounded-lg shadow-lg cursor-not-allowed"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Already Registered
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => handleRegisterPosition(position)}
-                        disabled={isRegistering}
-                        className="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
-                      >
-                        {isRegistering ? 'Registering...' : 'Register for Rewards'}
-                      </Button>
-                    )}
-                    <Button
-                      onClick={() => window.open(`https://app.uniswap.org/pools/${position.tokenId}`, '_blank')}
-                      className="h-12 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+            {displayPositions.map((position) => (
+              <UniswapPositionCard 
+                key={position.tokenId || Math.random()}
+                position={position}
+                onAddLiquidity={(pos) => {
+                  toast({
+                    title: "Add Liquidity",
+                    description: `Adding liquidity to position #${pos.tokenId}`,
+                  });
+                }}
+                onRemoveLiquidity={(pos) => {
+                  toast({
+                    title: "Remove Liquidity", 
+                    description: `Removing liquidity from position #${pos.tokenId}`,
+                  });
+                }}
+                onCollectFees={(pos) => {
+                  toast({
+                    title: "Collect Fees",
+                    description: `Collecting fees from position #${pos.tokenId}`,
+                  });
+                }}
+              />
+            ))}
           </div>
         )}
       </div>

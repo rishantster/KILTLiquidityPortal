@@ -1469,65 +1469,103 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get all positions for a user address with real-time Uniswap data
+  // SUPER EFFICIENT: Uniswap-first with database cross-check
   app.get("/api/positions/wallet/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;
       
-      // Step 1: Get user from database and their registered positions
-      const user = await storage.getUserByAddress(userAddress);
-      if (!user) {
-        res.json([]);
-        return;
-      }
+      // Parallel execution for maximum efficiency
+      const [uniswapPositions, blockchainConfig, user] = await Promise.all([
+        uniswapIntegrationService.getUserPositions(userAddress),
+        blockchainConfigService.getConfiguration(),
+        storage.getUserByAddress(userAddress)
+      ]);
       
-      const registeredPositions = await storage.getLpPositionsByUserId(user.id);
-      if (registeredPositions.length === 0) {
-        res.json([]);
-        return;
-      }
+      // Filter for KILT positions only
+      const kiltTokenAddress = blockchainConfig.kiltTokenAddress.toLowerCase();
+      const kiltPositions = uniswapPositions.filter(pos => {
+        const token0Lower = pos.token0.toLowerCase();
+        const token1Lower = pos.token1.toLowerCase();
+        return token0Lower === kiltTokenAddress || token1Lower === kiltTokenAddress;
+      });
       
-      // Step 2: Get live Uniswap data for registered positions with enhanced blockchain retrieval
-      const livePositions = await Promise.all(
-        registeredPositions.map(async (dbPos) => {
-          try {
-            const liveData = await uniswapIntegrationService.getPositionDataWithRetry(dbPos.nftTokenId);
-            if (!liveData) {
-              return null; // Skip positions that fail to fetch
-            }
-            
-            return {
-              tokenId: dbPos.nftTokenId,
-              poolAddress: liveData.poolAddress,
-              token0: liveData.token0,
-              token1: liveData.token1,
-              fee: liveData.feeTier,
-              tickLower: liveData.tickLower,
-              tickUpper: liveData.tickUpper,
-              liquidity: liveData.liquidity,
-              amount0: liveData.token0Amount,
-              amount1: liveData.token1Amount,
-              currentValueUSD: liveData.currentValueUSD,
-              fees: liveData.fees,
-              poolType: 'KILT/ETH',
-              isKiltPosition: true,
-              isActive: liveData.isActive,
-              isRegistered: true
-            };
-          } catch (error) {
-            // Skip positions that fail to fetch
-            return null;
+      // Get registered positions for cross-checking (parallel with above)
+      const registeredTokenIds = new Set();
+      const appCreatedTokenIds = new Set();
+      
+      if (user) {
+        const registeredPositions = await storage.getLpPositionsByUserId(user.id);
+        registeredPositions.forEach(pos => {
+          registeredTokenIds.add(pos.nftTokenId);
+          if (pos.createdViaApp) {
+            appCreatedTokenIds.add(pos.nftTokenId);
           }
-        })
-      );
+        });
+      }
       
-      // Filter out null results
-      const validPositions = livePositions.filter(pos => pos !== null);
+      // Helper function to serialize BigInt values
+      const serializeBigInt = (obj: any): any => {
+        if (typeof obj === 'bigint') {
+          return obj.toString();
+        }
+        if (Array.isArray(obj)) {
+          return obj.map(serializeBigInt);
+        }
+        if (obj && typeof obj === 'object') {
+          const serialized: any = {};
+          for (const key in obj) {
+            serialized[key] = serializeBigInt(obj[key]);
+          }
+          return serialized;
+        }
+        return obj;
+      };
+
+      // Enhanced positions with registration and app-created status (BigInt safe)
+      const enhancedPositions = kiltPositions.map(pos => ({
+        tokenId: pos.tokenId,
+        poolAddress: pos.poolAddress,
+        token0: pos.token0,
+        token1: pos.token1,
+        fee: pos.feeTier,
+        tickLower: pos.tickLower,
+        tickUpper: pos.tickUpper,
+        liquidity: typeof pos.liquidity === 'bigint' ? pos.liquidity.toString() : pos.liquidity,
+        amount0: typeof pos.token0Amount === 'bigint' ? pos.token0Amount.toString() : pos.token0Amount,
+        amount1: typeof pos.token1Amount === 'bigint' ? pos.token1Amount.toString() : pos.token1Amount,
+        currentValueUSD: pos.currentValueUSD,
+        fees: pos.fees ? {
+          token0: typeof pos.fees.token0 === 'bigint' ? pos.fees.token0.toString() : pos.fees.token0,
+          token1: typeof pos.fees.token1 === 'bigint' ? pos.fees.token1.toString() : pos.fees.token1
+        } : { token0: '0', token1: '0' },
+        poolType: 'KILT/ETH',
+        isKiltPosition: true,
+        isActive: pos.isActive,
+        isRegistered: registeredTokenIds.has(pos.tokenId),
+        createdViaApp: appCreatedTokenIds.has(pos.tokenId)
+      }));
       
-      res.json(validPositions);
+      // Apply comprehensive BigInt serialization
+      const serializedPositions = serializeBigInt(enhancedPositions);
+      
+      // Use JSON.stringify with BigInt replacer to ensure safe serialization
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(serializedPositions, (key, value) => {
+        if (typeof value === 'bigint') {
+          return value.toString();
+        }
+        return value;
+      }));
     } catch (error) {
       console.error('Error in positions endpoint:', error);
-      res.status(500).json({ error: "Failed to get user positions", details: error.message });
+      
+      // Serialize error details safely
+      const errorDetails = error instanceof Error ? error.message : String(error);
+      
+      res.status(500).json({ 
+        error: "Failed to get user positions", 
+        details: errorDetails 
+      });
     }
   });
 

@@ -29,6 +29,7 @@ import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useAppSession } from '@/hooks/use-app-session';
 import { useRealTimeDashboard } from '@/hooks/use-real-time-data';
 import { useToast } from '@/hooks/use-toast';
+import { queryClient } from '@/lib/queryClient';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';

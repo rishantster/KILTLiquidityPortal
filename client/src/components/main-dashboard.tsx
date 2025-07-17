@@ -270,14 +270,14 @@ export function MainDashboard() {
               </div>
               
               {/* Main Headline - Enhanced */}
-              <h1 className="maniac-hero maniac-slide-up mb-6">
-                KILT LIQUIDITY
+              <h1 className="text-6xl sm:text-7xl font-display text-white mb-6 leading-relaxed animate-slide-up">
+                <span className="block text-white/90">KILT Liquidity</span>
+                <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-shift pb-2">
+                  Incentive Program
+                </span>
               </h1>
-              <h2 className="maniac-subtitle maniac-slide-up mb-6">
-                INCENTIVE PROGRAM
-              </h2>
               
-              <p className="maniac-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
+              <p className="text-xl sm:text-2xl text-white/70 font-body max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in animate-delay-200">
                 Earn <span className="text-emerald-400 font-semibold">up to {unifiedData.maxAPRData?.aprRange || '47%'} APR</span> from the <span className="text-blue-400 font-semibold">{unifiedData.programAnalytics && unifiedData.programAnalytics.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
@@ -357,8 +357,8 @@ export function MainDashboard() {
               <h2 className="text-3xl font-heading text-white/90 mb-3">
                 Join the
               </h2>
-              <h1 className="maniac-title mb-6">
-                KILT ECOSYSTEM
+              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-6 bg-[length:200%_100%] animate-gradient-shift leading-relaxed pb-2">
+                KILT Ecosystem
               </h1>
               <p className="text-white/70 text-lg font-body max-w-xl mx-auto mb-6 leading-relaxed">
                 Join thousands earning massive rewards while supporting the future of decentralized identity. Limited treasury - act now!
@@ -415,16 +415,16 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="maniac-container">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
       <div className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="maniac-logo-container">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
               <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
             </div>
             <div className="min-w-0">
-              <h1 className="maniac-label text-xl sm:text-2xl">KILT LIQUIDITY PORTAL</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">KILT Liquidity Portal</h1>
             </div>
           </div>
           

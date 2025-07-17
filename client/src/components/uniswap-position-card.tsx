@@ -92,18 +92,18 @@ export const UniswapPositionCard = ({
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
   
   return (
-    <div className="maniac-position-card maniac-slide-up">
-      <div className="space-y-3">
+    <Card className="theme-card overflow-hidden">
+      <CardContent className="p-3 space-y-3">
         {/* Header with Pool Info and NFT ID */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="maniac-label text-sm">KILT/WETH</div>
-            <div className="maniac-badge maniac-badge-accent">
+            <div className="text-sm font-bold text-white">KILT/WETH</div>
+            <div className="text-xs text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/30">
               {position.fee ? `${(position.fee / 10000).toFixed(1)}%` : '0.3%'}
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="maniac-label text-xs">#{position.tokenId}</div>
+            <div className="text-xs text-white/60">#{position.tokenId}</div>
             {position.isRegistered && (
               <CheckCircle className="h-3 w-3 text-emerald-400" />
             )}
@@ -112,8 +112,8 @@ export const UniswapPositionCard = ({
 
         {/* Position Value - Large Display */}
         <div className="text-center py-2">
-          <div className="maniac-number text-xl">${positionValue.toFixed(2)}</div>
-          <div className="maniac-label text-xs">POSITION</div>
+          <div className="text-xl font-bold text-white">${positionValue.toFixed(2)}</div>
+          <div className="text-xs text-white/60">Position</div>
         </div>
 
         {/* Token Breakdown with Percentages */}
@@ -202,40 +202,46 @@ export const UniswapPositionCard = ({
 
         {/* Range Status */}
         <div className="flex items-center justify-center">
-          <div className={`maniac-badge ${
-            isInRange 
-              ? 'maniac-badge-primary' 
-              : 'bg-red-500 text-white'
-          }`}>
-            {isInRange ? "IN RANGE" : "OUT OF RANGE"}
-          </div>
+          <Badge 
+            variant={isInRange ? "default" : "secondary"} 
+            className={`text-xs px-3 py-1 ${
+              isInRange 
+                ? 'theme-badge-success' 
+                : 'theme-badge-danger'
+            }`}
+          >
+            {isInRange ? "In Range" : "Out of Range"}
+          </Badge>
         </div>
 
         {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-2">
-          <button 
+          <Button 
+            size="sm"
             onClick={() => onAddLiquidity?.(position)}
-            className="maniac-button-secondary h-9 text-xs font-medium"
+            className="h-9 text-xs font-medium theme-button-primary"
           >
             <Plus className="h-3 w-3 mr-1" />
-            ADD
-          </button>
-          <button 
+            Add
+          </Button>
+          <Button 
+            size="sm"
             onClick={() => onRemoveLiquidity?.(position)}
-            className="maniac-button-secondary h-9 text-xs font-medium"
+            className="h-9 text-xs font-medium theme-button-accent"
           >
             <Minus className="h-3 w-3 mr-1" />
-            REMOVE
-          </button>
-          <button 
+            Remove
+          </Button>
+          <Button 
+            size="sm"
             onClick={() => onCollectFees?.(position)}
-            className="maniac-button h-9 text-xs font-medium"
+            className="h-9 text-xs font-medium theme-button-secondary"
           >
             <DollarSign className="h-3 w-3 mr-1" />
-            COLLECT
-          </button>
+            Collect
+          </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

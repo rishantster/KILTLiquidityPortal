@@ -40,7 +40,7 @@ import { LoadingScreen } from './loading-screen';
 // Lazy load heavy components
 const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
 const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ default: m.RewardsTracking })));
-const UniswapPositions = lazy(() => import('./uniswap-positions').then(m => ({ default: m.UniswapPositions })));
+const UserPositions = lazy(() => import('./user-positions-new').then(m => ({ default: m.default })));
 
 // Import optimized loading components
 import { TabLoadingSpinner } from './loading-screen';
@@ -772,7 +772,7 @@ export function MainDashboard() {
           {/* Positions Tab */}
           <TabsContent value="positions">
             <Suspense fallback={<TabLoadingSpinner />}>
-              <UniswapPositions />
+              <UserPositions />
             </Suspense>
           </TabsContent>
 

@@ -44,18 +44,24 @@ export function useUniswapV3() {
   const queryClient = useQueryClient();
   const { data: kiltData } = useKiltTokenData();
 
-  // Query user's NFT positions
+  // Query user's NFT positions from Uniswap V3 contracts
   const { data: userPositions, isLoading: positionsLoading } = useQuery<bigint[]>({
     queryKey: ['uniswap-positions', address],
-    queryFn: () => uniswapV3Service.getUserPositions(address!),
+    queryFn: async () => {
+      if (!address) return [];
+      return await uniswapV3Service.getUserPositions(address as Address);
+    },
     enabled: !!address && isConnected,
-    refetchInterval: 30000
+    refetchInterval: 30000,
+    retry: 2
   });
 
-  // Query KILT/ETH positions with comprehensive error handling
+  // Query KILT/ETH positions directly from Uniswap V3 contracts
   const { data: kiltEthPositions, isLoading: kiltEthLoading, error: kiltEthError } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
+      if (!address) return [];
+      
       // Check cache first for instant response
       const cached = getCachedPositions(address!);
       if (cached) {
@@ -63,54 +69,38 @@ export function useUniswapV3() {
       }
       
       try {
-        const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
+        // Get blockchain config for dynamic token addresses
+        const configResponse = await fetch('/api/blockchain/config');
+        const config = configResponse.ok ? await configResponse.json() : null;
         
-        if (!response.ok) {
-          return [];
-        }
+        const kiltTokenAddress = config?.kiltTokenAddress || TOKENS.KILT;
+        const wethTokenAddress = config?.wethTokenAddress || TOKENS.WETH;
         
-        const positions = await response.json();
-        
-        // Convert backend format to frontend format
-        const converted = positions.map((pos: any) => ({
-          tokenId: BigInt(pos.tokenId),
-          nonce: BigInt(0), // Not needed for display
-          operator: '0x0000000000000000000000000000000000000000',
-          token0: pos.token0,
-          token1: pos.token1,
-          fee: pos.feeTier,
-          tickLower: pos.tickLower,
-          tickUpper: pos.tickUpper,
-          liquidity: BigInt(pos.liquidity),
-          feeGrowthInside0LastX128: BigInt(0),
-          feeGrowthInside1LastX128: BigInt(0),
-          tokensOwed0: BigInt(pos.fees.token0 || 0),
-          tokensOwed1: BigInt(pos.fees.token1 || 0),
-          // Add custom fields for display
-          currentValueUSD: pos.currentValueUSD,
-          token0Amount: pos.token0Amount,
-          token1Amount: pos.token1Amount,
-          isActive: pos.isActive,
-          poolAddress: pos.poolAddress
-        }));
+        // Fetch positions directly from Uniswap V3 contracts
+        const positions = await uniswapV3Service.getKiltEthPositions(
+          address as Address,
+          kiltTokenAddress as Address,
+          wethTokenAddress as Address
+        );
         
         // Cache the result for ultra-fast subsequent loads
-        setCachedPositions(address!, converted);
+        setCachedPositions(address!, positions);
         
-        return converted;
+        return positions;
       } catch (error) {
+        console.error('Error fetching KILT/ETH positions:', error);
         return [];
       }
     },
     enabled: !!address && isConnected,
     refetchInterval: 60000, // Reduced frequency
-    retry: 0, // No retries to prevent cascading errors
+    retry: 2,
     staleTime: 30000, // Cache for 30 seconds
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     throwOnError: false, // Prevent unhandled rejections
-    onError: () => {
-      // Silent error handling - no logging needed since queryFn handles it
+    onError: (error) => {
+      console.error('KILT/ETH positions query error:', error);
     }
   });
 
@@ -632,6 +622,7 @@ export function useUniswapV3Positions() {
     refetch: async () => {
       // Trigger refetch through query invalidation
       await queryClient.invalidateQueries({ queryKey: ['kilt-eth-positions', address] });
+      await queryClient.invalidateQueries({ queryKey: ['uniswap-positions', address] });
       return Promise.resolve();
     }
   };

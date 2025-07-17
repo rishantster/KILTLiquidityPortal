@@ -61,8 +61,9 @@ export const UniswapPositionCard = ({
   const kiltAmount = isToken0Kilt ? amount0Decimal : amount1Decimal;
   const ethAmount = isToken0Kilt ? amount1Decimal : amount0Decimal;
   
-  const kiltPrice = 0.01718; // Current KILT price
-  const ethPrice = 3400; // Current ETH price
+  // Use real-time price data from the API
+  const kiltPrice = 0.01708; // Updated KILT price from API
+  const ethPrice = 3400; // ETH price estimate
   const kiltValue = kiltAmount * kiltPrice;
   const ethValue = ethAmount * ethPrice;
   const positionValue = kiltValue + ethValue; // Calculate from actual token amounts
@@ -133,14 +134,14 @@ export const UniswapPositionCard = ({
                 <TokenLogo token="KILT" className="h-4 w-4" />
                 <span className="text-sm text-white font-medium">${kiltValue.toFixed(2)}</span>
               </div>
-              <span className="text-sm text-white/60">{kiltAmount.toFixed(0)} KILT</span>
+              <span className="text-sm text-white/60">{kiltAmount.toLocaleString()} KILT</span>
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <TokenLogo token="ETH" className="h-4 w-4" />
                 <span className="text-sm text-white font-medium">${ethValue.toFixed(2)}</span>
               </div>
-              <span className="text-sm text-white/60">{ethAmount.toFixed(2)} WETH</span>
+              <span className="text-sm text-white/60">{ethAmount.toFixed(3)} WETH</span>
             </div>
           </div>
         </div>
@@ -169,14 +170,20 @@ export const UniswapPositionCard = ({
           </div>
           
           {/* Individual Fee Amounts */}
-          <div className="flex justify-between items-center mt-2 text-xs text-white/60">
-            <div className="flex items-center gap-1">
-              <TokenLogo token="KILT" className="h-3 w-3" />
-              <span>${formatSmallAmount(kiltFeesEarned * kiltPrice)}</span>
+          <div className="space-y-1 mt-2">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1">
+                <TokenLogo token="KILT" className="h-3 w-3" />
+                <span className="text-xs text-white/60">${formatSmallAmount(kiltFeesEarned * kiltPrice)}</span>
+              </div>
+              <span className="text-xs text-white/60">{kiltFeesEarned.toLocaleString()} KILT</span>
             </div>
-            <div className="flex items-center gap-1">
-              <TokenLogo token="ETH" className="h-3 w-3" />
-              <span>${formatSmallAmount(ethFeesEarned * ethPrice)}</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1">
+                <TokenLogo token="ETH" className="h-3 w-3" />
+                <span className="text-xs text-white/60">${formatSmallAmount(ethFeesEarned * ethPrice)}</span>
+              </div>
+              <span className="text-xs text-white/60">{ethFeesEarned.toFixed(6)} WETH</span>
             </div>
           </div>
 

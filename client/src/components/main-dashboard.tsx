@@ -7,8 +7,6 @@ import { Slider } from '@/components/ui/slider';
 import { 
   TrendingUp, 
   Zap, 
-  Settings, 
-  BarChart3, 
   Coins, 
   Award,
   Wallet,
@@ -16,8 +14,7 @@ import {
   Loader2,
   CheckCircle2,
   ArrowRight,
-  ExternalLink,
-  Target
+  ExternalLink
 } from 'lucide-react';
 
 // Lazy-loaded components for faster initial load
@@ -42,9 +39,6 @@ import { LoadingScreen } from './loading-screen';
 // Lazy load heavy components
 const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
 const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ default: m.RewardsTracking })));
-const AnalyticsDashboard = lazy(() => import('./analytics-dashboard').then(m => ({ default: m.AnalyticsDashboard })));
-const NintendoPositions = lazy(() => import('./nintendo-positions').then(m => ({ default: m.default })));
-const LiquidityRebalancing = lazy(() => import('./liquidity-rebalancing').then(m => ({ default: m.LiquidityRebalancing })));
 const UniswapPositions = lazy(() => import('./uniswap-positions').then(m => ({ default: m.UniswapPositions })));
 
 // Import optimized loading components
@@ -455,10 +449,10 @@ export function MainDashboard() {
 
         {/* Clean Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
+          <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700/50 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">
@@ -468,7 +462,7 @@ export function MainDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-600 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">
@@ -478,7 +472,7 @@ export function MainDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-600 data-[state=active]:to-yellow-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">
@@ -488,7 +482,7 @@ export function MainDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-heading truncate leading-tight">
@@ -496,26 +490,7 @@ export function MainDashboard() {
                 <span className="sm:hidden">Pos</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="analytics" 
-              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
-            >
-              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
-                <span className="hidden sm:inline">Analytics</span>
-                <span className="sm:hidden">Ana</span>
-              </span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="rebalancing" 
-              className="data-[state=active]:bg-orange-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
-            >
-              <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
-                <span className="hidden sm:inline">Rebalance</span>
-                <span className="sm:hidden">Bal</span>
-              </span>
-            </TabsTrigger>
+
 
           </TabsList>
 
@@ -800,22 +775,7 @@ export function MainDashboard() {
             </Suspense>
           </TabsContent>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            <Suspense fallback={<TabLoadingSpinner />}>
-              <AnalyticsDashboard 
-                userId={unifiedData.user?.id || null}
-                selectedPositionId={unifiedData.positions?.[0]?.id || null}
-              />
-            </Suspense>
-          </TabsContent>
 
-          {/* Rebalancing Tab */}
-          <TabsContent value="rebalancing">
-            <Suspense fallback={<TabLoadingSpinner />}>
-              <LiquidityRebalancing />
-            </Suspense>
-          </TabsContent>
 
 
         </Tabs>

@@ -5,8 +5,6 @@ import {
   dailyRewards, 
   lpPositions, 
   users,
-  positionSnapshots,
-  performanceMetrics,
   type InsertReward,
   type InsertDailyReward,
   type Reward,
@@ -179,7 +177,7 @@ export class FixedRewardService {
   private async getInRangeMultiplier(nftTokenId: string): Promise<number> {
     try {
       // Get the position details to check if it's full range
-      const [position] = await this.database
+      const [position] = await db
         .select()
         .from(lpPositions)
         .where(eq(lpPositions.nftTokenId, nftTokenId))
@@ -202,21 +200,9 @@ export class FixedRewardService {
         return 1.0;
       }
 
-      // For concentrated positions, check actual in-range performance
-      const [performanceData] = await this.database
-        .select()
-        .from(performanceMetrics)
-        .where(eq(performanceMetrics.positionId, position.id))
-        .orderBy(desc(performanceMetrics.date))
-        .limit(1);
-
-      if (performanceData && performanceData.timeInRange) {
-        const timeInRange = parseFloat(performanceData.timeInRange.toString());
-        return Math.max(0.1, timeInRange); // Minimum 10% for concentrated positions
-      }
-
-      // Default to 50% for concentrated positions without performance data
-      return 0.5;
+      // For concentrated positions, assume 70% in-range performance
+      // This is a reasonable default for active liquidity positions
+      return 0.7;
     } catch (error) {
       // Error calculating in-range multiplier
       return 0.5;

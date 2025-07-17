@@ -405,8 +405,7 @@ export class UniswapV3Service {
       functionName: 'mint',
       args: [params],
       account,
-      value: params.token0 === TOKENS.WETH || params.token1 === TOKENS.WETH ? 
-        (params.token0 === TOKENS.WETH ? params.amount0Desired : params.amount1Desired) : 0n
+      value: 0n // WETH is ERC20, not native ETH, so no value needed
     });
 
     return await this.walletClient.writeContract(request);

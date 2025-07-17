@@ -60,7 +60,7 @@ export function LiquidityMint() {
 
   const [kiltAmount, setKiltAmount] = useState('');
   const [ethAmount, setEthAmount] = useState('');
-  const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('ETH');
+  const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('WETH');
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
   const [selectedStrategy, setSelectedStrategy] = useState('balanced');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
@@ -278,7 +278,7 @@ export function LiquidityMint() {
       await approveToken({ tokenAddress: TOKENS.KILT as `0x${string}`, amount: maxUint256 });
       setIsKiltApproved(true);
       
-      // Approve WETH
+      // Always approve WETH (needed for both ETH and WETH)
       await approveToken({ tokenAddress: TOKENS.WETH as `0x${string}`, amount: maxUint256 });
       setIsEthApproved(true);
       
@@ -293,6 +293,7 @@ export function LiquidityMint() {
         description: "KILT and WETH have been approved for the Position Manager",
       });
     } catch (error: unknown) {
+      console.error('Approval error:', error);
       toast({
         title: "Approval Failed",
         description: (error as Error)?.message || "Failed to approve tokens",
@@ -309,33 +310,55 @@ export function LiquidityMint() {
       const ethAmountParsed = parseTokenAmount(ethAmount);
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600); // 1 hour from now
 
+      // For now, we'll focus on WETH only
+      // ETH wrapping would require additional smart contract calls
+
+      // Get pool info to determine token order
+      const poolInfo = await fetch('/api/pools/0x82Da478b1382B951cBaD01Beb9eD459cDB16458E/info').then(r => r.json());
+      
+      // Determine correct token order (token0 < token1 by address)
+      const token0 = TOKENS.KILT.toLowerCase() < TOKENS.WETH.toLowerCase() ? TOKENS.KILT : TOKENS.WETH;
+      const token1 = TOKENS.KILT.toLowerCase() < TOKENS.WETH.toLowerCase() ? TOKENS.WETH : TOKENS.KILT;
+      
+      // Set amounts based on correct token order
+      const amount0Desired = token0 === TOKENS.KILT ? kiltAmountParsed : ethAmountParsed;
+      const amount1Desired = token1 === TOKENS.KILT ? kiltAmountParsed : ethAmountParsed;
+
       // Convert price range to ticks based on selected strategy
       const strategy = getSelectedStrategy();
       let tickLower, tickUpper;
       
       if (strategy.id === 'full') {
-        // Full range: approximately -887220 to 887220
+        // Full range: use actual pool bounds
         tickLower = -887220;
         tickUpper = 887220;
       } else {
-        // Calculate ticks based on percentage range
-        // This is simplified - real implementation would use proper tick math
-        const baseSpacing = 60; // For 0.3% fee tier
-        const rangeInTicks = Math.floor(strategy.range * 1000 / baseSpacing) * baseSpacing;
-        tickLower = -rangeInTicks;
-        tickUpper = rangeInTicks;
+        // Calculate ticks based on current price and strategy
+        // Get current tick from pool
+        const currentTick = poolInfo.currentTick || 0;
+        const tickSpacing = 60; // For 0.3% fee tier
+        
+        // Calculate tick range based on strategy
+        const tickRange = Math.floor(strategy.range * 10000 / tickSpacing) * tickSpacing;
+        tickLower = Math.floor((currentTick - tickRange) / tickSpacing) * tickSpacing;
+        tickUpper = Math.floor((currentTick + tickRange) / tickSpacing) * tickSpacing;
       }
 
+      // Add slippage protection (5% minimum)
+      const slippage = 0.05; // 5%
+      const amount0Min = BigInt(Math.floor(Number(amount0Desired) * (1 - slippage)));
+      const amount1Min = BigInt(Math.floor(Number(amount1Desired) * (1 - slippage)));
+
       await mintPosition({
-        token0: TOKENS.KILT as `0x${string}`,
-        token1: TOKENS.WETH as `0x${string}`,
+        token0: token0 as `0x${string}`,
+        token1: token1 as `0x${string}`,
         fee: 3000,
         tickLower,
         tickUpper,
-        amount0Desired: kiltAmountParsed,
-        amount1Desired: ethAmountParsed,
-        amount0Min: BigInt(0),
-        amount1Min: BigInt(0),
+        amount0Desired,
+        amount1Desired,
+        amount0Min,
+        amount1Min,
         recipient: address as `0x${string}`,
         deadline
       });
@@ -350,6 +373,7 @@ export function LiquidityMint() {
       setEthAmount('');
       setPositionSizePercent([25]);
     } catch (error: unknown) {
+      console.error('Mint position error:', error);
       toast({
         title: "Position Creation Failed",
         description: (error as Error)?.message || "Failed to create liquidity position",
@@ -770,7 +794,7 @@ export function LiquidityMint() {
           ) : (
             <>
               <CheckCircle2 className="h-4 w-4 mr-2" />
-              Approve KILT + {selectedEthToken}
+              Approve KILT + WETH
             </>
           )}
         </Button>

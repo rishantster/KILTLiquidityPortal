@@ -76,6 +76,8 @@ export const UniswapPositionCard = ({
   const ethFeesEarned = isToken0Kilt ? fees1Decimal : fees0Decimal;
   const feesEarned = (kiltFeesEarned * kiltPrice) + (ethFeesEarned * ethPrice);
   
+
+  
   // Determine if position is in range
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
   
@@ -179,6 +181,7 @@ export const UniswapPositionCard = ({
               <span>${formatSmallAmount(ethFeesEarned * ethPrice)}</span>
             </div>
           </div>
+
         </div>
 
         {/* Range Status */}

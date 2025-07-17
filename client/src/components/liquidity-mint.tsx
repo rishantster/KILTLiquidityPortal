@@ -65,6 +65,11 @@ export function LiquidityMint() {
   const [selectedStrategy, setSelectedStrategy] = useState('balanced');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isManualInput, setIsManualInput] = useState(false);
+  
+  // Approval state tracking
+  const [isKiltApproved, setIsKiltApproved] = useState(false);
+  const [isEthApproved, setIsEthApproved] = useState(false);
+  const [tokensApproved, setTokensApproved] = useState(false);
 
   // Logo animation timing
   useEffect(() => {

@@ -45,6 +45,45 @@ import { systemHealthRouter } from "./routes/system-health";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
+  // Ultra-fast position endpoint for instant loading
+  app.get("/api/positions/fast/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      
+      // Get wallet positions directly
+      const walletPositions = await uniswapIntegrationService.getWalletPositions(address);
+      
+      // Filter for KILT positions only (using hardcoded KILT token address for speed)
+      const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+      const kiltPositions = walletPositions.filter(position => {
+        const token0 = position.token0?.toLowerCase();
+        const token1 = position.token1?.toLowerCase();
+        const kiltToken = kiltTokenAddress.toLowerCase();
+        
+        return token0 === kiltToken || token1 === kiltToken;
+      });
+      
+      // Return minimal position data for instant display
+      const fastPositions = kiltPositions.map(position => ({
+        nftTokenId: position.tokenId,
+        tokenAmountKilt: position.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() 
+          ? position.amount0 : position.amount1,
+        tokenAmountEth: position.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() 
+          ? position.amount1 : position.amount0,
+        currentValueUsd: position.currentValueUsd || 0,
+        isActive: position.liquidity && position.liquidity !== '0',
+        priceRangeLower: position.priceRangeLower || 0,
+        priceRangeUpper: position.priceRangeUpper || 0,
+        feeTier: position.feeTier || 3000
+      }));
+      
+      res.json(fastPositions);
+    } catch (error) {
+      console.error('Fast position fetch failed:', error);
+      res.status(500).json({ error: 'Failed to fetch positions' });
+    }
+  });
+
   // User routes
   app.post("/api/users", security.validateUserCreation, async (req, res) => {
     try {

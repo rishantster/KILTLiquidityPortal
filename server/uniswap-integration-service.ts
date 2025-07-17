@@ -149,13 +149,8 @@ export class UniswapIntegrationService {
         poolData.tickCurrent
       );
 
-      // For position 3534947, use the known fee values from Uniswap
-      const fees = tokenId === '3534947' 
-        ? { 
-            token0: '1000000000000000', // ~0.001 WETH ($3.80)
-            token1: '231560000000000000000' // ~231.56 KILT ($3.95)
-          }
-        : { token0: '0', token1: '0' };
+      // Get fees from Uniswap API directly
+      const fees = await this.getFeesFromUniswapAPI(tokenId);
 
       // Calculate USD value
       const currentValueUSD = await this.calculatePositionValueUSD(
@@ -251,6 +246,143 @@ export class UniswapIntegrationService {
   private tickToSqrtPrice(tick: number): bigint {
     return BigInt(Math.floor(Math.sqrt(1.0001 ** tick) * (2 ** 96)));
   }
+
+  /**
+   * Get fees from Uniswap subgraph - Base network
+   */
+  private async getFeesFromUniswapAPI(tokenId: string): Promise<{ token0: string; token1: string }> {
+    try {
+      // Use Uniswap V3 subgraph for Base network
+      const response = await fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3-base', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+            query GetPositionFees($tokenId: String!) {
+              position(id: $tokenId) {
+                id
+                collectedFeesToken0
+                collectedFeesToken1
+                feeGrowthInside0LastX128
+                feeGrowthInside1LastX128
+                liquidity
+                pool {
+                  feeGrowthGlobal0X128
+                  feeGrowthGlobal1X128
+                }
+                tickLower {
+                  feeGrowthOutside0X128
+                  feeGrowthOutside1X128
+                }
+                tickUpper {
+                  feeGrowthOutside0X128
+                  feeGrowthOutside1X128
+                }
+              }
+            }
+          `,
+          variables: { tokenId }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Subgraph request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const position = data.data?.position;
+
+      if (!position) {
+        return { token0: '0', token1: '0' };
+      }
+
+      // Return collected fees from subgraph
+      return {
+        token0: position.collectedFeesToken0 || '0',
+        token1: position.collectedFeesToken1 || '0'
+      };
+    } catch (error) {
+      return { token0: '0', token1: '0' };
+    }
+  }
+
+  /**
+   * Calculate unclaimed fees using the Stack Overflow methodology
+   */
+  private async calculateUnclaimedFeesFromPosition(
+    tokenId: string,
+    liquidity: bigint,
+    feeGrowthInside0LastX128: bigint,
+    feeGrowthInside1LastX128: bigint,
+    tickCurrent: number,
+    tickLower: number,
+    tickUpper: number
+  ): Promise<{ token0: string; token1: string }> {
+    try {
+      // Get pool fee growth values from the contract
+      const poolContract = getContract({
+        address: this.poolAddress as `0x${string}`,
+        abi: poolABI,
+        client: this.publicClient,
+      });
+
+      // Get global fee growth values
+      const [feeGrowthGlobal0X128, feeGrowthGlobal1X128] = await Promise.all([
+        poolContract.read.feeGrowthGlobal0X128(),
+        poolContract.read.feeGrowthGlobal1X128(),
+      ]);
+
+      // Get tick data for lower and upper bounds
+      const [lowerTick, upperTick] = await Promise.all([
+        poolContract.read.ticks([tickLower]),
+        poolContract.read.ticks([tickUpper]),
+      ]);
+
+      // Extract fee growth outside values from tick data  
+      const feeGrowthOutside0Lower = lowerTick[2]; // feeGrowthOutside0X128
+      const feeGrowthOutside1Lower = lowerTick[3]; // feeGrowthOutside1X128
+      const feeGrowthOutside0Upper = upperTick[2]; // feeGrowthOutside0X128
+      const feeGrowthOutside1Upper = upperTick[3]; // feeGrowthOutside1X128
+
+      // Calculate fee growth inside the range using the Stack Overflow methodology
+      let feeGrowthInside0X128: bigint;
+      let feeGrowthInside1X128: bigint;
+
+      if (tickCurrent >= tickUpper) {
+        // Current tick is above the position
+        feeGrowthInside0X128 = feeGrowthOutside0Lower - feeGrowthOutside0Upper;
+        feeGrowthInside1X128 = feeGrowthOutside1Lower - feeGrowthOutside1Upper;
+      } else if (tickCurrent >= tickLower) {
+        // Current tick is inside the position
+        feeGrowthInside0X128 = feeGrowthGlobal0X128 - feeGrowthOutside0Lower - feeGrowthOutside0Upper;
+        feeGrowthInside1X128 = feeGrowthGlobal1X128 - feeGrowthOutside1Lower - feeGrowthOutside1Upper;
+      } else {
+        // Current tick is below the position
+        feeGrowthInside0X128 = feeGrowthOutside0Upper - feeGrowthOutside0Lower;
+        feeGrowthInside1X128 = feeGrowthOutside1Upper - feeGrowthOutside1Lower;
+      }
+
+      // Calculate unclaimed fees using the difference from last known fee growth
+      const feeGrowthDelta0 = feeGrowthInside0X128 - feeGrowthInside0LastX128;
+      const feeGrowthDelta1 = feeGrowthInside1X128 - feeGrowthInside1LastX128;
+
+      // Calculate fees earned - ensure we handle potential negative values
+      const unclaimedFees0 = feeGrowthDelta0 > 0n ? (liquidity * feeGrowthDelta0) / (2n ** 128n) : 0n;
+      const unclaimedFees1 = feeGrowthDelta1 > 0n ? (liquidity * feeGrowthDelta1) / (2n ** 128n) : 0n;
+
+      return {
+        token0: unclaimedFees0.toString(),
+        token1: unclaimedFees1.toString()
+      };
+    } catch (error) {
+      // If calculation fails, return 0 fees - no fallback values
+      return { token0: '0', token1: '0' };
+    }
+  }
+
+
 
   /**
    * Calculate unclaimed fees for a position

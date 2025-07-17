@@ -129,7 +129,7 @@ export const UniswapPositionCard = ({
                 <TokenLogo token="ETH" className="h-4 w-4" />
                 <span className="text-sm text-white font-medium">${ethValue.toFixed(2)}</span>
               </div>
-              <span className="text-sm text-white/60">{ethAmount.toFixed(4)} WETH</span>
+              <span className="text-sm text-white/60">{ethAmount.toFixed(2)} WETH</span>
             </div>
           </div>
         </div>
@@ -138,7 +138,7 @@ export const UniswapPositionCard = ({
         <div className="bg-white/5 rounded-lg p-3">
           <div className="text-xs text-white/60 mb-1">Fees earned</div>
           <div className="text-lg font-bold text-white">
-            {feesEarned > 0 ? `$${feesEarned.toFixed(6)}` : 'No fees yet'}
+            {feesEarned > 0 ? `$${feesEarned.toFixed(2)}` : '$0.00'}
           </div>
           
           {/* Fee Breakdown */}
@@ -161,11 +161,11 @@ export const UniswapPositionCard = ({
           <div className="flex justify-between items-center mt-2 text-xs text-white/60">
             <div className="flex items-center gap-1">
               <TokenLogo token="KILT" className="h-3 w-3" />
-              <span>${(kiltFeesEarned * kiltPrice).toFixed(6)}</span>
+              <span>${(kiltFeesEarned * kiltPrice).toFixed(2)}</span>
             </div>
             <div className="flex items-center gap-1">
               <TokenLogo token="ETH" className="h-3 w-3" />
-              <span>${(ethFeesEarned * ethPrice).toFixed(6)}</span>
+              <span>${(ethFeesEarned * ethPrice).toFixed(2)}</span>
             </div>
           </div>
         </div>

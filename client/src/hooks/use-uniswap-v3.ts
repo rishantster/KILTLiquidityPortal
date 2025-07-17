@@ -30,48 +30,62 @@ export function useUniswapV3() {
     refetchInterval: 30000
   });
 
-  // Query KILT/ETH positions specifically using backend API
+  // Query KILT/ETH positions specifically using backend API with timeout
   const { data: kiltEthPositions, isLoading: kiltEthLoading, error: kiltEthError } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
-      const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch KILT positions');
+      try {
+        const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch KILT positions');
+        }
+        
+        const positions = await response.json();
+        
+        // Convert backend format to frontend format
+        const converted = positions.map((pos: any) => ({
+          tokenId: BigInt(pos.tokenId),
+          nonce: BigInt(0), // Not needed for display
+          operator: '0x0000000000000000000000000000000000000000',
+          token0: pos.token0,
+          token1: pos.token1,
+          fee: pos.feeTier,
+          tickLower: pos.tickLower,
+          tickUpper: pos.tickUpper,
+          liquidity: BigInt(pos.liquidity),
+          feeGrowthInside0LastX128: BigInt(0),
+          feeGrowthInside1LastX128: BigInt(0),
+          tokensOwed0: BigInt(pos.fees.token0 || 0),
+          tokensOwed1: BigInt(pos.fees.token1 || 0),
+          // Add custom fields for display
+          currentValueUSD: pos.currentValueUSD,
+          token0Amount: pos.token0Amount,
+          token1Amount: pos.token1Amount,
+          isActive: pos.isActive,
+          poolAddress: pos.poolAddress
+        }));
+        
+        return converted;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          throw new Error('Position fetch timed out');
+        }
+        throw error;
       }
-      
-      const positions = await response.json();
-      
-      // Convert backend format to frontend format
-      const converted = positions.map((pos: any) => ({
-        tokenId: BigInt(pos.tokenId),
-        nonce: BigInt(0), // Not needed for display
-        operator: '0x0000000000000000000000000000000000000000',
-        token0: pos.token0,
-        token1: pos.token1,
-        fee: pos.feeTier,
-        tickLower: pos.tickLower,
-        tickUpper: pos.tickUpper,
-        liquidity: BigInt(pos.liquidity),
-        feeGrowthInside0LastX128: BigInt(0),
-        feeGrowthInside1LastX128: BigInt(0),
-        tokensOwed0: BigInt(pos.fees.token0 || 0),
-        tokensOwed1: BigInt(pos.fees.token1 || 0),
-        // Add custom fields for display
-        currentValueUSD: pos.currentValueUSD,
-        token0Amount: pos.token0Amount,
-        token1Amount: pos.token1Amount,
-        isActive: pos.isActive,
-        poolAddress: pos.poolAddress
-      }));
-      
-      return converted;
     },
     enabled: !!address && isConnected,
-    refetchInterval: 30000,
-    retry: 3,
-    staleTime: 0, // Always fresh data
-    refetchOnWindowFocus: true,
+    refetchInterval: 60000, // Reduced frequency to avoid timeouts
+    retry: 1, // Reduced retries
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnWindowFocus: false,
     refetchOnMount: true
   });
 

@@ -24,7 +24,7 @@ interface AnalyticsDashboardProps {
 
 export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDashboardProps) {
   const { address } = useWallet();
-  const { kiltEthPositions } = useUniswapV3();
+  const { kiltEthPositions, kiltEthLoading, kiltEthError } = useUniswapV3();
   
   // Get only essential analytics data
   const { data: positionPerformance } = usePositionPerformance(selectedPositionId || null);
@@ -45,6 +45,57 @@ export function AnalyticsDashboard({ selectedPositionId, userId }: AnalyticsDash
           </div>
         </CardContent>
       </Card>
+    );
+  }
+
+  // Show loading state while fetching positions
+  if (kiltEthLoading) {
+    return (
+      <Card className="cluely-card rounded-lg">
+        <CardContent className="p-3">
+          <div className="text-center text-white/60 text-xs">
+            <div className="animate-spin w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+            Scanning for positions...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show error state with basic fallback information
+  if (kiltEthError) {
+    return (
+      <div className="space-y-4">
+        <Card className="cluely-card rounded-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white font-heading text-sm flex items-center gap-2">
+              <BarChart3 className="h-3 w-3 text-emerald-400" />
+              Position Analytics
+            </CardTitle>
+          </CardHeader>
+        </Card>
+        
+        <Card className="cluely-card rounded-lg">
+          <CardContent className="p-3">
+            <div className="text-center text-white/60 text-xs">
+              <div className="text-red-400 mb-2">
+                {kiltEthError.message === 'Position fetch timed out' 
+                  ? 'Position scan timed out. Network may be slow.' 
+                  : 'Unable to fetch positions'}
+              </div>
+              <div className="text-white/40 text-xs mb-3">
+                Try refreshing the page or check your network connection
+              </div>
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                <div className="text-blue-400 text-xs font-semibold mb-1">Alternative Access</div>
+                <div className="text-white/60 text-xs">
+                  Visit the Overview or Positions tab to register existing positions manually
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

@@ -41,7 +41,7 @@ export function useInstantPositions() {
       }
 
       try {
-        // Use Uniswap API directly for fastest response
+        // Use Uniswap API directly for blazing fast response
         const positions = await uniswapAPI.getKiltPositions(address as Address);
         
         // Convert to display format
@@ -53,19 +53,6 @@ export function useInstantPositions() {
         return converted;
       } catch (error) {
         console.error('Error fetching instant positions:', error);
-        
-        // Fallback to backend API if Uniswap API fails
-        try {
-          const response = await fetch(`/api/positions/wallet/${address.toLowerCase()}`);
-          if (response.ok) {
-            const fallbackPositions = await response.json();
-            instantCache.set(`positions-${address}`, fallbackPositions);
-            return fallbackPositions;
-          }
-        } catch (fallbackError) {
-          console.error('Fallback API also failed:', fallbackError);
-        }
-        
         return [];
       }
     },
@@ -78,15 +65,15 @@ export function useInstantPositions() {
   });
 }
 
-// Preload positions for instant loading
+// Preload positions for instant loading using Uniswap API
 export function preloadPositions(address: string) {
   if (!address) return;
 
-  // Background preload
-  fetch(`/api/positions/wallet/${address.toLowerCase()}`)
-    .then(response => response.json())
+  // Background preload using Uniswap API
+  uniswapAPI.getKiltPositions(address as Address)
     .then(positions => {
-      instantCache.set(`positions-${address}`, positions);
+      const converted = positions.map(pos => uniswapAPI.convertPositionToDisplay(pos));
+      instantCache.set(`positions-${address}`, converted);
     })
     .catch(error => {
       console.error('Preload positions failed:', error);

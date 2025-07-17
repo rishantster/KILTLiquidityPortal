@@ -1,7 +1,7 @@
 // Direct Uniswap API integration for blazing fast position loading
 import { Address } from 'viem';
 
-const UNISWAP_V3_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3';
+// Use the correct Base network subgraph endpoint
 const BASE_SUBGRAPH_URL = 'https://api.studio.thegraph.com/query/48211/uniswap-v3-base/version/latest';
 
 export interface UniswapPosition {
@@ -52,12 +52,20 @@ export class UniswapAPIService {
             owner: $owner
             liquidity_gt: "0"
           }
-          orderBy: transaction__timestamp
+          first: 100
+          orderBy: tokenId
           orderDirection: desc
         ) {
           id
           tokenId
           owner
+          liquidity
+          depositedToken0
+          depositedToken1
+          withdrawnToken0
+          withdrawnToken1
+          collectedFeesToken0
+          collectedFeesToken1
           pool {
             id
             token0 {
@@ -78,13 +86,6 @@ export class UniswapAPIService {
           tickUpper {
             tickIdx
           }
-          liquidity
-          depositedToken0
-          depositedToken1
-          withdrawnToken0
-          withdrawnToken1
-          collectedFeesToken0
-          collectedFeesToken1
           transaction {
             timestamp
           }
@@ -92,11 +93,15 @@ export class UniswapAPIService {
       }
     `;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
     try {
       const response = await fetch(BASE_SUBGRAPH_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({
           query,
@@ -104,7 +109,10 @@ export class UniswapAPIService {
             owner: walletAddress.toLowerCase(),
           },
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -113,27 +121,119 @@ export class UniswapAPIService {
       const data = await response.json();
       
       if (data.errors) {
+        console.error('GraphQL errors:', data.errors);
         throw new Error(`GraphQL error: ${data.errors[0].message}`);
       }
 
       return data.data.positions || [];
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Error fetching positions from Uniswap API:', error);
       return [];
     }
   }
 
   async getKiltPositions(walletAddress: Address): Promise<UniswapPosition[]> {
-    const allPositions = await this.getUserPositions(walletAddress);
-    
-    // Filter for KILT positions only
-    return allPositions.filter(position => {
-      const token0 = position.pool.token0.id.toLowerCase();
-      const token1 = position.pool.token1.id.toLowerCase();
-      const kilt = this.KILT_TOKEN.toLowerCase();
+    // Optimized query to get KILT positions directly
+    const query = `
+      query GetKiltPositions($owner: String!) {
+        positions(
+          where: {
+            owner: $owner
+            liquidity_gt: "0"
+          }
+          first: 100
+          orderBy: tokenId
+          orderDirection: desc
+        ) {
+          id
+          tokenId
+          owner
+          liquidity
+          depositedToken0
+          depositedToken1
+          withdrawnToken0
+          withdrawnToken1
+          collectedFeesToken0
+          collectedFeesToken1
+          pool {
+            id
+            token0 {
+              id
+              symbol
+              decimals
+            }
+            token1 {
+              id
+              symbol
+              decimals
+            }
+            feeTier
+          }
+          tickLower {
+            tickIdx
+          }
+          tickUpper {
+            tickIdx
+          }
+          transaction {
+            timestamp
+          }
+        }
+      }
+    `;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+    try {
+      const response = await fetch(BASE_SUBGRAPH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          variables: {
+            owner: walletAddress.toLowerCase(),
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       
-      return token0 === kilt || token1 === kilt;
-    });
+      if (data.errors) {
+        console.error('GraphQL errors:', data.errors);
+        throw new Error(`GraphQL error: ${data.errors[0].message}`);
+      }
+
+      const positions = data.data.positions || [];
+      
+      // Filter for KILT positions
+      return positions.filter((position: any) => {
+        const token0 = position.pool.token0.id.toLowerCase();
+        const token1 = position.pool.token1.id.toLowerCase();
+        const kilt = this.KILT_TOKEN.toLowerCase();
+        
+        return token0 === kilt || token1 === kilt;
+      });
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error) {
+        console.error('Error fetching KILT positions from Uniswap API:', error.message);
+      } else {
+        console.error('Error fetching KILT positions from Uniswap API:', error);
+      }
+      return [];
+    }
   }
 
   async getPoolInfo(poolAddress: Address) {

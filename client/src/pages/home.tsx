@@ -1,5 +1,5 @@
-import { LightningFastShell } from '@/components/lightning-fast-shell';
+import { MainDashboard } from '@/components/main-dashboard';
 
 export default function Home() {
-  return <LightningFastShell />;
+  return <MainDashboard />;
 }

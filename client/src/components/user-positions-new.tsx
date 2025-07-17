@@ -37,11 +37,21 @@ const UserPositionsNew = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   
+  // Use standard API call for positions
   const { 
     data: allPositions = [], 
     isLoading: uniswapLoading,
     refetch: refetchPositions 
-  } = useInstantPositions();
+  } = useQuery({
+    queryKey: ['uniswap-positions', address],
+    queryFn: async () => {
+      if (!address) return [];
+      const response = await fetch(`/api/positions/wallet/${address}`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!address
+  });
   
   const { 
     registerPosition, 

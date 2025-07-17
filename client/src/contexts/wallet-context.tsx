@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { preloadPositions } from '@/hooks/use-instant-positions';
+
 
 interface WalletContextType {
   address: string | null;
@@ -96,8 +96,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           setAddress(accounts[0]);
           setIsConnected(true);
           
-          // Preload positions for instant loading
-          preloadPositions(accounts[0]);
+          // Wallet connected successfully
           
           // Check if we're on Base mainnet and switch if needed
           const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
@@ -145,8 +144,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setIsConnected(true);
         setManuallyDisconnected(false); // Reset flag when switching accounts
         
-        // Preload positions for instant loading
-        preloadPositions(newAddress);
+        // Account switched successfully
         
         // Clear all user-specific cache for the previous account
         queryClient.removeQueries({ queryKey: ['user-positions'] });
@@ -248,8 +246,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setIsConnected(true);
         setManuallyDisconnected(false); // Reset flag when manually connecting
         
-        // Preload positions for instant loading
-        preloadPositions(connectedAddress);
+        // Connected to wallet successfully
         
         // Force switch to Base mainnet
         await switchToBase();

@@ -120,11 +120,14 @@ export function PositionRegistration() {
         
         const registeredResponse = await fetch(`/api/positions/user/${userId}`);
         const registeredPositions = registeredResponse.ok ? await registeredResponse.json() : [];
-        const registeredNftIds = new Set(registeredPositions.map((p: any) => p.nftTokenId));
         
-        // Filter out already registered positions and transform data format
+        // Get both app-created and manually registered positions
+        const appCreatedNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === true).map((p: any) => p.nftTokenId));
+        const manuallyRegisteredNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === false).map((p: any) => p.nftTokenId));
+        
+        // Filter out app-created positions (they're automatically enrolled) and manually registered positions
         const eligiblePositions = walletPositions
-          .filter((pos: any) => !registeredNftIds.has(pos.tokenId.toString()))
+          .filter((pos: any) => !appCreatedNftIds.has(pos.tokenId.toString()) && !manuallyRegisteredNftIds.has(pos.tokenId.toString()))
           .map((pos: any) => ({
             nftTokenId: pos.tokenId.toString(),
             poolAddress: pos.poolAddress,
@@ -148,6 +151,8 @@ export function PositionRegistration() {
         return {
           eligiblePositions,
           totalPositions: walletPositions.length,
+          appCreatedCount: appCreatedNftIds.size,
+          manuallyRegisteredCount: manuallyRegisteredNftIds.size,
           message: eligiblePositions.length > 0 ? `Found ${eligiblePositions.length} unregistered positions` : ''
         };
       } catch (error) {

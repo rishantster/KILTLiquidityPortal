@@ -415,12 +415,12 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="maniac-container">
       <div className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
+            <div className="maniac-logo-container">
               <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
             </div>
             <div className="min-w-0">

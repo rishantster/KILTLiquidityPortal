@@ -58,8 +58,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Grid Background */
-body::before {
+/* Main Container with Grid Background */
+.maniac-container {
+  min-height: 100vh;
+  background: var(--maniac-black);
+  color: var(--maniac-white);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.maniac-container::before {
   content: '';
   position: fixed;
   top: 0;

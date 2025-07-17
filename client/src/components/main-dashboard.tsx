@@ -592,7 +592,7 @@ export function MainDashboard() {
                   <Plus className="h-3 w-3 text-emerald-400" />
                   Register Existing Positions
                 </h2>
-                <div className="h-[280px] sm:h-[320px] lg:h-[360px] flex flex-col">
+                <div className="h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
@@ -603,9 +603,9 @@ export function MainDashboard() {
                   <Zap className="h-3 w-3 text-emerald-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[280px] sm:h-[320px] lg:h-[360px] flex flex-col">
-                  <CardContent className="p-2 flex-1 flex flex-col overflow-hidden">
-                    <div className="space-y-2 flex-1 overflow-y-auto">
+                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
+                  <CardContent className="p-2 flex-1 flex flex-col">
+                    <div className="space-y-2 flex-1">
                       {/* Balance Display */}
                       <div className="bg-white/5 rounded-lg p-2 border border-white/10">
                         <h4 className="text-white font-medium text-xs mb-1 text-label">Wallet Balance</h4>

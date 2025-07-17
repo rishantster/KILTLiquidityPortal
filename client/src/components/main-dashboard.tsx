@@ -236,14 +236,14 @@ export function MainDashboard() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-floating" style={{animationDelay: '2s'}}></div>
         </div>
         
-        {/* Floating Space Objects */}
-        <div className="space-object space-object-1"></div>
-        <div className="space-object space-object-2"></div>
-        <div className="space-object space-object-3"></div>
-        <div className="space-object space-object-4"></div>
+        {/* Floating Liquid Bubbles */}
+        <div className="liquid-bubble liquid-bubble-1"></div>
+        <div className="liquid-bubble liquid-bubble-2"></div>
+        <div className="liquid-bubble liquid-bubble-3"></div>
+        <div className="liquid-bubble liquid-bubble-4"></div>
         
-        {/* Nebula Glow Effect */}
-        <div className="nebula-glow"></div>
+        {/* Liquid Wave Glow Effect */}
+        <div className="liquid-glow"></div>
 
         <div className="max-w-5xl mx-auto">
           <div className="text-center pt-16 pb-8">
@@ -425,14 +425,14 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
-      {/* Floating Space Objects */}
-      <div className="space-object space-object-1"></div>
-      <div className="space-object space-object-2"></div>
-      <div className="space-object space-object-3"></div>
-      <div className="space-object space-object-4"></div>
+      {/* Floating Liquid Bubbles */}
+      <div className="liquid-bubble liquid-bubble-1"></div>
+      <div className="liquid-bubble liquid-bubble-2"></div>
+      <div className="liquid-bubble liquid-bubble-3"></div>
+      <div className="liquid-bubble liquid-bubble-4"></div>
       
-      {/* Nebula Glow Effect */}
-      <div className="nebula-glow"></div>
+      {/* Liquid Wave Glow Effect */}
+      <div className="liquid-glow"></div>
       
       <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">
         {/* Clean Professional Header */}

@@ -325,7 +325,7 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-3 w-full">
+            <div className="grid gap-1 w-full auto-rows-fr" style={{gridTemplateColumns: 'repeat(3, 1fr)'}}>
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
@@ -333,21 +333,14 @@ export function UserPositions() {
                 const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
                 
                 return (
-                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-md hover:bg-white/10 transition-all w-full`}>
-                    <CardContent className="p-1">
+                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-sm hover:bg-white/10 transition-all min-w-0 max-w-full`}>
+                    <CardContent className="p-1 min-w-0 overflow-hidden">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center space-x-1">
-                          <div className={`w-4 h-4 bg-gradient-to-br ${isClosed ? 'from-gray-500 to-gray-600' : 'from-blue-500 to-emerald-500'} rounded-sm flex items-center justify-center`}>
-                            <Award className="h-2 w-2 text-white" />
+                          <div className={`w-3 h-3 bg-gradient-to-br ${isClosed ? 'from-gray-500 to-gray-600' : 'from-blue-500 to-emerald-500'} rounded-sm flex items-center justify-center`}>
+                            <Award className="h-1.5 w-1.5 text-white" />
                           </div>
-                          <div>
-                            <div className="text-white font-bold tabular-nums text-xs">#{position.tokenId.toString()}</div>
-                            {isClosed && (
-                              <Badge variant="secondary" className="bg-gray-500/20 text-gray-400 text-xs px-1 py-0">
-                                CLOSED
-                              </Badge>
-                            )}
-                          </div>
+                          <div className="text-white font-bold tabular-nums text-xs">#{position.tokenId.toString()}</div>
                         </div>
                         <div className="text-right">
                           <div className="text-white font-bold tabular-nums text-xs">
@@ -421,7 +414,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300 h-5 px-1"
+                              className="flex-1 text-xs border-white/20 hover:border-emerald-400 text-emerald-400 hover:text-emerald-300 h-4 px-1"
                             >
                               <Plus className="h-2 w-2" />
                             </Button>
@@ -432,7 +425,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300 h-5 px-1"
+                              className="flex-1 text-xs border-white/20 hover:border-red-400 text-red-400 hover:text-red-300 h-4 px-1"
                             >
                               <Minus className="h-2 w-2" />
                             </Button>
@@ -443,7 +436,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300 h-5 px-1"
+                              className="flex-1 text-xs border-white/20 hover:border-blue-400 text-blue-400 hover:text-blue-300 h-4 px-1"
                             >
                               <DollarSign className="h-2 w-2" />
                             </Button>

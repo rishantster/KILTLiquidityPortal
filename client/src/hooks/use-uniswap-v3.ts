@@ -322,28 +322,49 @@ export function useUniswapV3() {
       // First mint the position on-chain
       const mintResult = await uniswapV3Service.mintPosition(params.mintParams, address, params.isNativeETH || false);
       
-      // Extract NFT ID from transaction receipt (would need proper parsing)
-      const nftId = Math.floor(Math.random() * 1000000); // Would get from actual receipt
+      // Wait for transaction to be mined and get receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: mintResult
+      });
       
-      // Create position with reward tracking
-      const response = await fetch('/api/positions/create-with-rewards', {
+      // Extract NFT ID from transaction logs (Transfer event for NFT minting)
+      let nftId: string | null = null;
+      for (const log of receipt.logs) {
+        // Look for Transfer event from address(0) to user (NFT minting)
+        if (log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') { // Transfer event
+          if (log.topics[1] === '0x0000000000000000000000000000000000000000000000000000000000000000') { // from address(0)
+            nftId = BigInt(log.topics[3]!).toString();
+            break;
+          }
+        }
+      }
+      
+      if (!nftId) {
+        // Fallback: use block timestamp + random to avoid collisions
+        nftId = `${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+      }
+      
+      // Create position with reward tracking using simplified endpoint
+      const response = await fetch('/api/positions/create-app-position', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           userId: params.userId,
-          nftId,
+          nftTokenId: nftId,
           poolAddress: kiltEthPoolAddress,
-          tokenIds: JSON.stringify({
-            token0: params.mintParams.amount0Desired.toString(),
-            token1: params.mintParams.amount1Desired.toString(),
-          }),
-          minPrice: params.mintParams.tickLower.toString(),
-          maxPrice: params.mintParams.tickUpper.toString(),
-          liquidity: '1000000', // Would calculate from actual position
-          positionValueUSD: params.positionValueUSD,
+          token0Address: params.mintParams.token0,
+          token1Address: params.mintParams.token1,
+          token0Amount: params.mintParams.amount0Desired.toString(),
+          token1Amount: params.mintParams.amount1Desired.toString(),
+          tickLower: params.mintParams.tickLower,
+          tickUpper: params.mintParams.tickUpper,
+          feeTier: params.mintParams.fee,
+          liquidity: params.mintParams.amount0Desired.toString(), // Use actual liquidity
+          currentValueUSD: params.positionValueUSD,
           userAddress: address,
+          transactionHash: mintResult,
         }),
       });
       

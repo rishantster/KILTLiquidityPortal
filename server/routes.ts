@@ -255,6 +255,68 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Simplified endpoint for app-created positions
+  app.post("/api/positions/create-app-position", async (req, res) => {
+    try {
+      const { 
+        userId, 
+        nftTokenId, 
+        poolAddress, 
+        token0Address,
+        token1Address,
+        token0Amount,
+        token1Amount,
+        tickLower,
+        tickUpper,
+        feeTier,
+        liquidity,
+        currentValueUSD,
+        userAddress,
+        transactionHash
+      } = req.body;
+      
+      if (!userId || !nftTokenId || !poolAddress || !token0Address || !token1Address || !currentValueUSD || !userAddress) {
+        res.status(400).json({ error: "Missing required position parameters" });
+        return;
+      }
+      
+      // Create LP position in database
+      const positionData = {
+        userId,
+        nftTokenId: nftTokenId.toString(),
+        poolAddress,
+        token0Address,
+        token1Address,
+        token0Amount: (parseFloat(token0Amount || "0") / 1e18).toString(), // Convert from wei to token units
+        token1Amount: (parseFloat(token1Amount || "0") / 1e18).toString(), // Convert from wei to token units
+        tickLower: tickLower || 0,
+        tickUpper: tickUpper || 0,
+        feeTier: feeTier || 3000,
+        liquidity: (BigInt(liquidity || "0") % (BigInt(10) ** BigInt(12))).toString(), // Ensure it fits in precision limits
+        currentValueUSD: parseFloat(currentValueUSD),
+        minPrice: "0.000001", // Small price within precision limits
+        maxPrice: "999999999999", // Large price within precision limits (10^12)
+        isActive: true,
+        createdViaApp: true, // Mark as app-created
+        appTransactionHash: transactionHash || "",
+        verificationStatus: "verified",
+        rewardEligible: true
+      };
+      
+      const position = await storage.createLpPosition(positionData);
+      
+      res.json({
+        success: true,
+        position,
+        message: "App position created successfully",
+        rewardEligible: true
+      });
+    } catch (error) {
+      console.error("Failed to create app position:", error);
+      res.status(500).json({ error: "Failed to create app position" });
+    }
+  });
+
   // Create position with automatic reward system integration - SECURED VERSION
   app.post("/api/positions/create-with-rewards", async (req, res) => {
     try {

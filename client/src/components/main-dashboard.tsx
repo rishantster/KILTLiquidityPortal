@@ -44,6 +44,7 @@ const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ def
 const AnalyticsDashboard = lazy(() => import('./analytics-dashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const NintendoPositions = lazy(() => import('./nintendo-positions').then(m => ({ default: m.default })));
 const LiquidityRebalancing = lazy(() => import('./liquidity-rebalancing').then(m => ({ default: m.LiquidityRebalancing })));
+const MobileOptimizedPositions = lazy(() => import('./mobile-optimized-positions').then(m => ({ default: m.MobileOptimizedPositions })));
 
 // Import optimized loading components
 import { TabLoadingSpinner } from './loading-screen';
@@ -551,19 +552,19 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
             {/* Sleek Metrics Display */}
-            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-3 border border-white/10">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-lg p-2 sm:p-3 border border-white/10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 {/* KILT Price */}
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center mx-auto mb-2 logo-container logo-shimmer">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 logo-container logo-shimmer">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
-                      className={`w-6 h-6 logo-hover ${!logoAnimationComplete ? 'logo-reveal' : 'logo-pulse'}`}
+                      className={`w-4 h-4 sm:w-6 sm:h-6 logo-hover ${!logoAnimationComplete ? 'logo-reveal' : 'logo-pulse'}`}
                     />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">KILT Price</p>
-                  <p className="text-white font-bold text-lg text-numbers">
+                  <p className="text-white font-bold text-sm sm:text-lg text-numbers">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
                   <p className="text-emerald-300 text-xs text-body">+0.50%</p>
@@ -571,11 +572,11 @@ export function MainDashboard() {
 
                 {/* Market Cap */}
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Coins className="h-5 w-5 text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                    <Coins className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">Market Cap</p>
-                  <p className="text-white font-bold text-lg text-numbers">
+                  <p className="text-white font-bold text-sm sm:text-lg text-numbers">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
                   <p className="text-blue-300 text-xs text-body">276.97M circulating</p>
@@ -583,11 +584,11 @@ export function MainDashboard() {
 
                 {/* Your Reward APR */}
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Award className="h-5 w-5 text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">Your Reward APR</p>
-                  <div className="text-white font-bold text-lg text-numbers">
+                  <div className="text-white font-bold text-sm sm:text-lg text-numbers">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
@@ -601,11 +602,11 @@ export function MainDashboard() {
 
                 {/* Maximum APR */}
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <TrendingUp className="h-5 w-5 text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">Current APR</p>
-                  <p className="text-white font-bold text-lg text-numbers">
+                  <p className="text-white font-bold text-sm sm:text-lg text-numbers">
                     {unifiedData?.maxAPRData?.aprRange || '31%'}
                   </p>
                   <p className="text-amber-300 text-xs text-body">High yields available!</p>
@@ -634,9 +635,9 @@ export function MainDashboard() {
                 </h2>
                 <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[280px] sm:h-[320px] lg:h-[360px] flex flex-col">
                   <CardContent className="p-2 sm:p-3 flex-1 flex flex-col justify-between">
-                    <div className="space-y-4 flex-1">
+                    <div className="space-y-3 sm:space-y-4 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
                         <h4 className="text-white font-medium text-xs mb-2 text-label">Wallet Balance</h4>
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
@@ -665,7 +666,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-xs text-label">Optimal Amount</span>
                           <span className="text-xs text-white/50 text-body">80% balance</span>
@@ -780,7 +781,12 @@ export function MainDashboard() {
           {/* Positions Tab */}
           <TabsContent value="positions">
             <Suspense fallback={<TabLoadingSpinner />}>
-              <NintendoPositions />
+              <div className="block sm:hidden">
+                <MobileOptimizedPositions />
+              </div>
+              <div className="hidden sm:block">
+                <NintendoPositions />
+              </div>
             </Suspense>
           </TabsContent>
 

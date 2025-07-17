@@ -92,13 +92,13 @@ export const UniswapPositionCard = ({
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
   
   return (
-    <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-gray-800/30 rounded-lg overflow-hidden hover:border-gray-700/50 transition-all duration-300">
+    <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 rounded-lg overflow-hidden hover:border-white/20 hover:shadow-lg hover:shadow-white/5 transition-all duration-300">
       <CardContent className="p-3 space-y-3">
         {/* Header with Pool Info and NFT ID */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="text-sm font-bold text-white">KILT/WETH</div>
-            <div className="text-xs text-gray-300 bg-gray-700/30 px-2 py-1 rounded">
+            <div className="text-xs text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/30">
               {position.fee ? `${(position.fee / 10000).toFixed(1)}%` : '0.3%'}
             </div>
           </div>
@@ -121,19 +121,19 @@ export const UniswapPositionCard = ({
           {/* Percentage Display */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-gradient-to-r from-pink-500 to-rose-400 rounded-full"></div>
               <span className="text-sm font-medium text-white">{kiltPercentage.toFixed(1)}%</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">{ethPercentage.toFixed(1)}%</span>
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"></div>
             </div>
           </div>
           
           {/* Progress Bar */}
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-pink-500 to-blue-500 transition-all duration-500" 
+              className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 transition-all duration-500" 
               style={{ width: '100%' }}
             />
           </div>
@@ -158,7 +158,7 @@ export const UniswapPositionCard = ({
         </div>
 
         {/* Fees Earned Section */}
-        <div className="bg-white/5 rounded-lg p-3">
+        <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-3">
           <div className="text-xs text-white/60 mb-1">Fees earned</div>
           <div className="text-lg font-bold text-white">
             ${formatSmallAmount(feesEarned)}
@@ -167,7 +167,7 @@ export const UniswapPositionCard = ({
           {/* Fee Breakdown */}
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-gradient-to-r from-pink-500 to-rose-400 rounded-full"></div>
               <span className="text-xs text-white/80">
                 {feesEarned > 0 ? `${((kiltFeesEarned * kiltPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
               </span>
@@ -176,7 +176,7 @@ export const UniswapPositionCard = ({
               <span className="text-xs text-white/80">
                 {feesEarned > 0 ? `${((ethFeesEarned * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
               </span>
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"></div>
             </div>
           </div>
           
@@ -204,10 +204,10 @@ export const UniswapPositionCard = ({
         <div className="flex items-center justify-center">
           <Badge 
             variant={isInRange ? "default" : "secondary"} 
-            className={`text-xs px-3 py-1 ${
+            className={`text-xs px-3 py-1 backdrop-blur-sm border ${
               isInRange 
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
-                : 'bg-red-500/20 text-red-400 border-red-500/30'
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' 
+                : 'bg-red-500/20 text-red-300 border-red-500/30'
             }`}
           >
             {isInRange ? "In Range" : "Out of Range"}

@@ -30,21 +30,16 @@ export function useUniswapV3() {
     refetchInterval: 30000
   });
 
-  // Query KILT/ETH positions specifically using backend API with timeout
+  // Query KILT/ETH positions with comprehensive error handling
   const { data: kiltEthPositions, isLoading: kiltEthLoading, error: kiltEthError } = useQuery<UniswapV3Position[]>({
     queryKey: ['kilt-eth-positions', address],
     queryFn: async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
       try {
-        const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`, {
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
+        const response = await fetch(`/api/positions/wallet/${address?.toLowerCase()}`);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch KILT positions');
+          // Return empty array instead of throwing
+          return [];
         }
         
         const positions = await response.json();
@@ -73,26 +68,22 @@ export function useUniswapV3() {
         }));
         
         return converted;
-      } catch (error: any) {
-        clearTimeout(timeoutId);
-        
-        // Handle timeout gracefully by returning empty array
-        if (error.name === 'AbortError') {
-          console.warn('Position fetch timed out after 10 seconds');
-          return [];
-        }
-        
-        // Handle other errors gracefully
-        console.warn('Failed to fetch positions:', error.message);
+      } catch (error) {
+        // Always return empty array on any error
+        console.warn('Position fetch failed:', error);
         return [];
       }
     },
     enabled: !!address && isConnected,
-    refetchInterval: 60000, // Reduced frequency to avoid timeouts
-    retry: 1, // Reduced retries
+    refetchInterval: 60000, // Reduced frequency
+    retry: 0, // No retries to prevent cascading errors
     staleTime: 30000, // Cache for 30 seconds
     refetchOnWindowFocus: false,
-    refetchOnMount: true
+    refetchOnMount: true,
+    throwOnError: false, // Prevent unhandled rejections
+    onError: () => {
+      // Silent error handling - no logging needed since queryFn handles it
+    }
   });
 
   // Query KILT/ETH pool address from blockchain config

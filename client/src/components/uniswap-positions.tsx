@@ -108,79 +108,78 @@ const PositionCard = ({ position }: { position: Position }) => {
   const currentPriceInRange = currentPrice >= minPrice && currentPrice <= maxPrice;
   
   return (
-    <div className="group relative">
-      {/* Uniswap-style card with gradient background */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-purple-900/20 to-blue-900/20 rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden">
+    <div className="w-full max-w-sm">
+      {/* Exact Uniswap-style card */}
+      <div className="relative bg-gradient-to-br from-gray-900 via-purple-900/40 to-blue-900/40 rounded-2xl border border-gray-600/50 shadow-2xl overflow-hidden">
         
-        {/* Header with position info */}
-        <div className="p-4 border-b border-gray-700/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="text-white">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">
-                  {position.nftTokenId}
-                </div>
-                <div className="text-xl font-bold">KILT/WETH</div>
-                <div className="text-lg text-gray-300">
-                  {(position.feeTier * 100).toFixed(1)}%
-                </div>
+        {/* Header section */}
+        <div className="p-4 pb-2">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="text-sm text-gray-300 font-mono mb-1">
+                ID: {position.nftTokenId}
+              </div>
+              <div className="text-2xl font-bold text-white mb-1">
+                KILT/WETH
+              </div>
+              <div className="text-lg text-gray-200">
+                {(position.feeTier * 100).toFixed(1)}%
               </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-white">
                 ${formatNumber(position.currentValueUsd || 1989.58)}
               </div>
-              <div className={`text-xs px-2 py-1 rounded-full ${currentPriceInRange ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              <div className={`text-xs px-2 py-1 rounded-full mt-1 ${currentPriceInRange ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                 {currentPriceInRange ? 'In Range' : 'Out of Range'}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Price range visualization */}
-        <div className="relative h-32 bg-gradient-to-br from-purple-900/30 to-blue-900/30 flex items-center justify-center">
-          {/* Price range curve */}
-          <svg width="200" height="80" viewBox="0 0 200 80" className="absolute">
+        {/* Price range visualization - matching reference */}
+        <div className="relative h-40 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
+          {/* Price curve */}
+          <svg width="100%" height="100%" viewBox="0 0 300 160" className="absolute inset-0">
             <defs>
-              <linearGradient id="rangeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient id="priceGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#8B5CF6" />
                 <stop offset="100%" stopColor="#06B6D4" />
               </linearGradient>
             </defs>
             <path
-              d="M 20 60 Q 100 20 180 60"
-              stroke="url(#rangeGradient)"
+              d="M 40 120 Q 150 40 260 120"
+              stroke="url(#priceGradient)"
               strokeWidth="3"
               fill="none"
             />
             {/* Min price point */}
-            <circle cx="20" cy="60" r="4" fill="#8B5CF6" />
+            <circle cx="40" cy="120" r="4" fill="#8B5CF6" />
             {/* Max price point */}
-            <circle cx="180" cy="60" r="4" fill="#06B6D4" />
+            <circle cx="260" cy="120" r="4" fill="#06B6D4" />
             {/* Current price indicator */}
-            <circle cx="100" cy="35" r="3" fill="#10B981" />
+            <circle cx="150" cy="60" r="3" fill="#10B981" />
           </svg>
           
-          {/* Current price indicator */}
-          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
-            <div className="text-xs text-green-400 font-mono">
+          {/* Current price label */}
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+            <div className="text-sm text-green-400 font-mono">
               ${formatNumber(currentPrice, 4)}
             </div>
           </div>
         </div>
 
-        {/* Position details */}
-        <div className="p-4 space-y-3">
-          {/* Price range */}
+        {/* Bottom section with tick values */}
+        <div className="p-4 pt-2 space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-purple-900/30 rounded-lg p-3">
-              <div className="text-xs text-gray-400 uppercase tracking-wider">Min Price</div>
+            <div className="bg-gray-800/50 rounded-lg p-3">
+              <div className="text-xs text-gray-400 mb-1">Min Tick:</div>
               <div className="text-sm font-mono text-white">
                 ${formatNumber(minPrice, 4)}
               </div>
             </div>
-            <div className="bg-blue-900/30 rounded-lg p-3">
-              <div className="text-xs text-gray-400 uppercase tracking-wider">Max Price</div>
+            <div className="bg-gray-800/50 rounded-lg p-3">
+              <div className="text-xs text-gray-400 mb-1">Max Tick:</div>
               <div className="text-sm font-mono text-white">
                 ${formatNumber(maxPrice, 4)}
               </div>
@@ -191,7 +190,7 @@ const PositionCard = ({ position }: { position: Position }) => {
           <div className="space-y-2">
             <div className="flex items-center justify-between p-2 bg-blue-900/20 rounded-lg">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
+                <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
                   <EthereumLogo className="w-3 h-3 text-white" />
                 </div>
                 <span className="text-sm font-medium text-white">ETH</span>
@@ -203,7 +202,7 @@ const PositionCard = ({ position }: { position: Position }) => {
             
             <div className="flex items-center justify-between p-2 bg-pink-900/20 rounded-lg">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-pink-500 to-purple-600 rounded-md flex items-center justify-center p-1">
+                <div className="w-5 h-5 bg-gradient-to-br from-pink-500 to-purple-600 rounded-md flex items-center justify-center p-1">
                   <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
                 </div>
                 <span className="text-sm font-medium text-white">KILT</span>
@@ -215,7 +214,7 @@ const PositionCard = ({ position }: { position: Position }) => {
           </div>
 
           {/* Action buttons */}
-          <div className="flex space-x-2 pt-2">
+          <div className="flex space-x-2">
             <button className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm">
               Increase
             </button>

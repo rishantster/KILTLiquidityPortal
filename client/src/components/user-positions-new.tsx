@@ -43,39 +43,45 @@ const UserPositionsNew = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   
-  // Use Uniswap API for accurate position data
+  // Use Uniswap API for accurate position data - auto-load when wallet connected
   const { 
     data: allPositions = [], 
     isLoading: uniswapLoading,
     refetch: refetchPositions,
-    error: positionsError 
+    error: positionsError,
+    isFetching
   } = useQuery({
-    queryKey: ['uniswap-positions', address],
+    queryKey: ['wallet-positions', address],
     queryFn: async () => {
       if (!address) return [];
-      try {
-        const response = await fetch(`/api/positions/wallet/${address}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch positions: ${response.status}`);
-        }
-        const positions = await response.json();
-        return positions || [];
-      } catch (error) {
-        console.error('Error fetching KILT/ETH positions:', error);
-        throw error;
+      const response = await fetch(`/api/positions/wallet/${address}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch positions: ${response.status}`);
       }
+      const positions = await response.json();
+      return positions || [];
     },
-    enabled: !!address,
-    staleTime: 30000, // Cache for 30 seconds
-    refetchInterval: 60000, // Refresh every minute
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+    enabled: !!address && !!isConnected,
+    staleTime: 5000, // Cache for 5 seconds
+    refetchInterval: 20000, // Refresh every 20 seconds
+    refetchOnMount: true, // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnReconnect: true, // Refetch when reconnecting
+    retry: 2,
+    retryDelay: 1000
   });
   
   const { 
     registerPosition, 
     isRegistering 
   } = usePositionRegistration();
+
+  // Invalidate cache when wallet connection changes to ensure fresh data
+  useEffect(() => {
+    if (isConnected && address) {
+      queryClient.invalidateQueries({ queryKey: ['wallet-positions', address] });
+    }
+  }, [address, isConnected, queryClient]);
 
   // No need for separate registered positions query - included in main query
 
@@ -95,9 +101,13 @@ const UserPositionsNew = () => {
       return position.currentValueUSD;
     }
     
-    // Estimate value from token amounts using accurate prices
-    const amount0Value = position.amount0 ? parseFloat(position.amount0) * 0.01718 : 0; // KILT price from API
-    const amount1Value = position.amount1 ? parseFloat(position.amount1) * 3400 : 0; // ETH price estimate
+    // Convert wei to readable format and calculate value
+    const amount0Decimal = position.amount0 ? parseFloat(formatUnits(BigInt(position.amount0), 18)) : 0; // ETH has 18 decimals
+    const amount1Decimal = position.amount1 ? parseFloat(formatUnits(BigInt(position.amount1), 18)) : 0; // KILT has 18 decimals
+    
+    // Calculate USD value using current prices
+    const amount0Value = amount0Decimal * 3400; // ETH price estimate
+    const amount1Value = amount1Decimal * 0.01718; // KILT price from API
     
     return amount0Value + amount1Value;
   };
@@ -161,7 +171,18 @@ const UserPositionsNew = () => {
     setIsRefreshing(true);
     try {
       await refetchPositions();
-      await queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
+      queryClient.invalidateQueries({ queryKey: ['wallet-positions', address] });
+      toast({
+        title: "Positions Refreshed",
+        description: `Found ${allPositions.length} positions`,
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh positions",
+        variant: "destructive"
+      });
     } finally {
       setIsRefreshing(false);
     }

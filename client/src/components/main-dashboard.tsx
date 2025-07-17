@@ -449,7 +449,13 @@ export function MainDashboard() {
         </div>
 
         {/* Clean Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => {
+          setActiveTab(value);
+          // Invalidate positions cache when switching to positions tab
+          if (value === 'positions') {
+            queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
+          }
+        }} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700/50 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
             <TabsTrigger 
               value="overview" 

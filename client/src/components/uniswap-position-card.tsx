@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Minus, DollarSign, CheckCircle } from 'lucide-react';
 import { TokenLogo } from './ui/token-logo';
+import { formatUnits } from 'viem';
 
 interface UniswapPosition {
   tokenId: string;
@@ -39,25 +40,29 @@ export const UniswapPositionCard = ({
   onRemoveLiquidity, 
   onCollectFees 
 }: UniswapPositionCardProps) => {
-  // Calculate position value and token amounts
-  const positionValue = position.currentValueUSD || 0;
-  const kiltAmount = position.token0 && position.token0.toLowerCase().includes('5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8') 
-    ? parseFloat(position.amount0 || '0')
-    : parseFloat(position.amount1 || '0');
-  const ethAmount = position.token0 && position.token0.toLowerCase().includes('5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8') 
-    ? parseFloat(position.amount1 || '0')
-    : parseFloat(position.amount0 || '0');
+  // Convert wei amounts to decimal format
+  const amount0Decimal = position.amount0 ? parseFloat(formatUnits(BigInt(position.amount0), 18)) : 0;
+  const amount1Decimal = position.amount1 ? parseFloat(formatUnits(BigInt(position.amount1), 18)) : 0;
+  
+  // Determine which token is KILT and which is ETH based on token addresses
+  const isToken0Kilt = position.token0 && position.token0.toLowerCase().includes('5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8');
+  const kiltAmount = isToken0Kilt ? amount0Decimal : amount1Decimal;
+  const ethAmount = isToken0Kilt ? amount1Decimal : amount0Decimal;
   
   const kiltPrice = 0.01718; // Current KILT price
   const ethPrice = 3400; // Current ETH price
   const kiltValue = kiltAmount * kiltPrice;
   const ethValue = ethAmount * ethPrice;
+  const positionValue = position.currentValueUSD || (kiltValue + ethValue);
   const kiltPercentage = positionValue > 0 ? (kiltValue / positionValue) * 100 : 50;
   const ethPercentage = positionValue > 0 ? (ethValue / positionValue) * 100 : 50;
   
-  // Calculate fees earned
-  const feesEarned = position.fees ? 
-    (parseFloat(position.fees.token0 || '0') * kiltPrice) + (parseFloat(position.fees.token1 || '0') * ethPrice) : 0;
+  // Calculate fees earned from wei format
+  const fees0Decimal = position.fees?.token0 ? parseFloat(formatUnits(BigInt(position.fees.token0), 18)) : 0;
+  const fees1Decimal = position.fees?.token1 ? parseFloat(formatUnits(BigInt(position.fees.token1), 18)) : 0;
+  const feesEarned = isToken0Kilt ? 
+    (fees0Decimal * kiltPrice) + (fees1Decimal * ethPrice) : 
+    (fees1Decimal * kiltPrice) + (fees0Decimal * ethPrice);
   
   // Determine if position is in range
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
@@ -139,11 +144,11 @@ export const UniswapPositionCard = ({
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
               <span className="text-xs text-white/80">
-                {feesEarned > 0 ? `${((parseFloat(position.fees?.token0 || '0') * kiltPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
+                {feesEarned > 0 ? `${((fees0Decimal * kiltPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
               </span>
             </div>
             <span className="text-xs text-white/80">
-              {feesEarned > 0 ? `${((parseFloat(position.fees?.token1 || '0') * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
+              {feesEarned > 0 ? `${((fees1Decimal * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
             </span>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -154,11 +159,11 @@ export const UniswapPositionCard = ({
           <div className="flex justify-between items-center mt-2 text-xs text-white/60">
             <div className="flex items-center gap-1">
               <TokenLogo token="KILT" className="h-3 w-3" />
-              <span>${(parseFloat(position.fees?.token0 || '0') * kiltPrice).toFixed(6)}</span>
+              <span>${(fees0Decimal * kiltPrice).toFixed(6)}</span>
             </div>
             <div className="flex items-center gap-1">
               <TokenLogo token="ETH" className="h-3 w-3" />
-              <span>${(parseFloat(position.fees?.token1 || '0') * ethPrice).toFixed(6)}</span>
+              <span>${(fees1Decimal * ethPrice).toFixed(6)}</span>
             </div>
           </div>
         </div>

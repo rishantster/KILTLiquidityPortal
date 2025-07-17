@@ -103,62 +103,81 @@ const PositionCard = ({ position }: { position: Position }) => {
   const currentPrice = 0.0176;
   
   return (
-    <div className="bg-gray-800/40 border border-gray-700/50 rounded-lg p-3 hover:bg-gray-800/60 transition-colors duration-200">
-      {/* Compact header */}
+    <div className="group relative bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 hover:border-emerald-400/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/30 hover:scale-105 animate-pulse-slow">
+      {/* Glowing outline */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm -z-10" />
+      
+      {/* Shimmering overlay */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer" />
+      
+      {/* Compact header with glow */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className="flex items-center -space-x-1">
-            <div className="w-4 h-4 bg-pink-500 rounded-full flex items-center justify-center">
-              <img src={kiltLogo} alt="KILT" className="w-2.5 h-2.5" />
+            <div className="w-5 h-5 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-pink-500/50 animate-pulse">
+              <img src={kiltLogo} alt="KILT" className="w-3 h-3 animate-spin-slow" />
             </div>
-            <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
-              <EthereumLogo className="w-2.5 h-2.5 text-white" />
+            <div className="w-5 h-5 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/50 animate-pulse">
+              <EthereumLogo className="w-3 h-3 text-white animate-bounce-slow" />
             </div>
           </div>
           <div>
-            <h3 className="text-white font-medium text-sm">KILT/ETH</h3>
-            <div className="text-xs text-gray-400">
+            <h3 className="text-white font-medium text-sm bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              KILT/ETH
+            </h3>
+            <div className="text-xs text-gray-400 animate-fade-in">
               #{position.nftTokenId} • {(position.feeTier * 100).toFixed(1)}%
             </div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-white font-medium text-sm">
+          <div className="text-white font-semibold text-base bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent animate-glow">
             ${formatNumber(position.currentValueUsd || 1989.58)}
           </div>
-          <div className={`text-xs ${position.inRange ? 'text-green-400' : 'text-red-400'}`}>
+          <div className={`text-xs font-medium ${position.inRange ? 'text-green-400 animate-pulse' : 'text-red-400 animate-pulse'}`}>
             {position.inRange ? 'In range' : 'Out of range'}
           </div>
         </div>
       </div>
 
-      {/* Compact token amounts */}
-      <div className="space-y-1 mb-3">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-400">ETH</span>
-          <span className="text-white font-mono">
+      {/* Fancy token amounts */}
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-gray-800/60 to-gray-700/60 border border-gray-600/40 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-md shadow-blue-500/40">
+              <EthereumLogo className="w-2.5 h-2.5 text-white" />
+            </div>
+            <span className="text-gray-300 font-medium">ETH</span>
+          </div>
+          <span className="text-white font-mono font-semibold hover:text-blue-400 transition-colors">
             {formatNumber(ethAmount || 0.363, 4)}
           </span>
         </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-400">KILT</span>
-          <span className="text-white font-mono">
+        
+        <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-gray-800/60 to-gray-700/60 border border-gray-600/40 hover:border-pink-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/20">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-md shadow-pink-500/40">
+              <img src={kiltLogo} alt="KILT" className="w-2.5 h-2.5" />
+            </div>
+            <span className="text-gray-300 font-medium">KILT</span>
+          </div>
+          <span className="text-white font-mono font-semibold hover:text-pink-400 transition-colors">
             {formatNumber(kiltAmount || 67630, 0)}
           </span>
         </div>
       </div>
 
-      {/* Compact buttons */}
-      <div className="flex space-x-1">
+      {/* Glowing buttons */}
+      <div className="flex space-x-2">
         <Button 
           size="sm" 
-          className="flex-1 h-7 bg-gray-700 hover:bg-gray-600 text-white border-0 text-xs"
+          className="flex-1 h-8 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white border-0 text-xs font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 transform hover:scale-105 hover:animate-pulse"
         >
           Add
         </Button>
         <Button 
           size="sm" 
-          className="flex-1 h-7 bg-gray-700 hover:bg-gray-600 text-white border-0 text-xs"
+          className="flex-1 h-8 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white border-0 text-xs font-semibold shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 hover:animate-pulse"
         >
           Remove
         </Button>

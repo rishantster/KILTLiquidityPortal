@@ -103,113 +103,92 @@ const PositionCard = ({ position }: { position: Position }) => {
   const currentPrice = 0.0176;
   
   return (
-    <div className="group relative overflow-hidden">
-      {/* Gaming card outer frame */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-black to-gray-900 p-[2px] rounded-2xl">
-        {/* Animated neon border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm animate-spin-slow" />
+    <div className="w-full max-w-md mx-auto">
+      {/* Card container with premium border */}
+      <div className="relative p-0.5 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-3xl shadow-2xl shadow-violet-500/25 group hover:shadow-violet-500/50 transition-all duration-500">
         
-        {/* Main card body */}
-        <div className="relative bg-gradient-to-br from-gray-900/95 via-gray-800/90 to-black/95 backdrop-blur-xl rounded-2xl p-6 h-full">
-          {/* Top geometric accent */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500" />
+        {/* Inner card */}
+        <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-3xl p-6 h-full overflow-hidden">
           
-          {/* Holographic overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          {/* Animated background pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full blur-3xl animate-pulse-slow" />
+            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full blur-2xl animate-pulse-slow" style={{animationDelay: '1s'}} />
+          </div>
           
-          {/* NFT-style header */}
-          <div className="relative z-10 flex items-start justify-between mb-6">
+          {/* Header section */}
+          <div className="relative z-10 flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              {/* Gaming-style logo cluster */}
+              {/* Token pair display */}
               <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-2xl shadow-pink-500/40 ring-2 ring-pink-400/30 p-2">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-xl shadow-pink-500/40 p-3">
                   <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
                 </div>
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/50 ring-1 ring-blue-400/30">
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/50">
                   <EthereumLogo className="w-4 h-4 text-white" />
                 </div>
               </div>
               
               <div>
-                <h3 className="text-white font-black text-xl tracking-wider bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  KILT/ETH
-                </h3>
-                <div className="text-sm text-gray-400 font-bold tracking-wide">
+                <h2 className="text-2xl font-bold text-white mb-1">KILT/ETH</h2>
+                <div className="text-sm text-gray-400 font-medium">
                   #{position.nftTokenId} • {(position.feeTier * 100).toFixed(1)}%
                 </div>
               </div>
             </div>
             
-            {/* Gaming-style value display */}
+            {/* Status indicator */}
             <div className="text-right">
-              <div className="text-white font-black text-3xl tracking-tight bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+              <div className="text-3xl font-bold text-white mb-1">
                 ${formatNumber(position.currentValueUsd || 1989.58)}
               </div>
-              <div className={`text-sm font-bold uppercase tracking-wider ${position.inRange ? 'text-green-400' : 'text-red-400'}`}>
-                {position.inRange ? '◉ ACTIVE' : '◯ INACTIVE'}
+              <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${position.inRange ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
+                {position.inRange ? '● In Range' : '● Out of Range'}
               </div>
             </div>
           </div>
 
-          {/* Gaming-style token stats */}
+          {/* Token amounts section */}
           <div className="space-y-4 mb-6">
-            {/* ETH section */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-xl blur-sm" />
-              <div className="relative bg-gradient-to-r from-gray-800/80 to-gray-900/80 border border-blue-500/30 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/40 ring-1 ring-blue-400/30">
-                      <EthereumLogo className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="text-blue-200 font-bold text-lg tracking-wide">ETH</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-white font-black text-xl tracking-tight">
-                      {formatNumber(ethAmount || 0.363, 4)}
-                    </div>
-                    <div className="text-blue-300 text-sm font-medium">
-                      Ethereum
-                    </div>
-                  </div>
+            {/* ETH row */}
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <EthereumLogo className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-lg font-semibold text-white">ETH</span>
+              </div>
+              <div className="text-right">
+                <div className="text-xl font-bold text-white">
+                  {formatNumber(ethAmount || 0.363, 4)}
                 </div>
               </div>
             </div>
             
-            {/* KILT section */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-600/20 to-rose-600/20 rounded-xl blur-sm" />
-              <div className="relative bg-gradient-to-r from-gray-800/80 to-gray-900/80 border border-pink-500/30 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center shadow-lg shadow-pink-500/40 ring-1 ring-pink-400/30 p-2">
-                      <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
-                    </div>
-                    <span className="text-pink-200 font-bold text-lg tracking-wide">KILT</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-white font-black text-xl tracking-tight">
-                      {formatNumber(kiltAmount || 67630, 0)}
-                    </div>
-                    <div className="text-pink-300 text-sm font-medium">
-                      Protocol
-                    </div>
-                  </div>
+            {/* KILT row */}
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-pink-500/10 to-rose-600/10 rounded-2xl border border-pink-500/20 backdrop-blur-sm">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-pink-500/30 p-2">
+                  <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+                </div>
+                <span className="text-lg font-semibold text-white">KILT</span>
+              </div>
+              <div className="text-right">
+                <div className="text-xl font-bold text-white">
+                  {formatNumber(kiltAmount || 67630, 0)}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Gaming-style action buttons */}
+          {/* Action buttons */}
           <div className="flex space-x-3">
-            <Button className="flex-1 h-14 bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-500 hover:via-green-500 hover:to-emerald-600 text-white border-0 text-sm font-black uppercase tracking-wider shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/60 transition-all duration-300 transform hover:scale-105 rounded-xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 animate-shimmer" />
-              <span className="relative z-10">ADD LIQUIDITY</span>
-            </Button>
-            <Button className="flex-1 h-14 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:via-rose-500 hover:to-red-600 text-white border-0 text-sm font-black uppercase tracking-wider shadow-2xl shadow-red-500/40 hover:shadow-red-500/60 transition-all duration-300 transform hover:scale-105 rounded-xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 animate-shimmer" />
-              <span className="relative z-10">REMOVE</span>
-            </Button>
+            <button className="flex-1 h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95">
+              Add
+            </button>
+            <button className="flex-1 h-12 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95">
+              Remove
+            </button>
           </div>
         </div>
       </div>

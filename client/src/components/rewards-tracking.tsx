@@ -38,7 +38,7 @@ interface ProgramAnalytics {
   activeParticipants: number;
   estimatedAPR: { low: number; average: number; high: number };
   treasuryRemaining: number;
-  treasuryTotal: number;
+  totalBudget: number;
   programDuration: number;
   programDaysRemaining: number;
   avgUserLiquidity: number;
@@ -401,7 +401,7 @@ export function RewardsTracking() {
               <div className="text-center p-2 bg-purple-500/10 rounded border border-purple-500/20">
                 <div className="text-purple-400 text-xs mb-1">Program Budget</div>
                 <div className="text-sm font-bold text-white flex items-center justify-center gap-2">
-                  {((programAnalytics?.treasuryTotal || 500000) / 1000000).toFixed(1)}M <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
+                  {((programAnalytics?.totalBudget || 500000) / 1000000).toFixed(1)}M <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
                 </div>
               </div>
               
@@ -410,10 +410,10 @@ export function RewardsTracking() {
                   <span className="text-white/60">Remaining:</span>
                   <span className="text-white">{(programAnalytics?.treasuryRemaining || 500000).toLocaleString()} KILT</span>
                 </div>
-                <Progress value={((programAnalytics?.treasuryTotal || 500000) - (programAnalytics?.treasuryRemaining || 500000)) / (programAnalytics?.treasuryTotal || 500000) * 100} className="h-2 rounded-full" />
+                <Progress value={((programAnalytics?.totalBudget || 500000) - (programAnalytics?.treasuryRemaining || 500000)) / (programAnalytics?.totalBudget || 500000) * 100} className="h-2 rounded-full" />
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Distributed:</span>
-                  <span className="text-white">{((programAnalytics?.treasuryTotal || 500000) - (programAnalytics?.treasuryRemaining || 500000)).toLocaleString()} KILT</span>
+                  <span className="text-white">{((programAnalytics?.totalBudget || 500000) - (programAnalytics?.treasuryRemaining || 500000)).toLocaleString()} KILT</span>
                 </div>
               </div>
               

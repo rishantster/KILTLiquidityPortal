@@ -248,6 +248,11 @@ export function MainDashboard() {
         <div className="liquid-blob liquid-blob-3"></div>
         <div className="liquid-blob liquid-blob-4"></div>
         <div className="liquid-blob liquid-blob-5"></div>
+        
+        {/* Liquid Ripple Effects */}
+        <div className="liquid-ripple liquid-ripple-1"></div>
+        <div className="liquid-ripple liquid-ripple-2"></div>
+        <div className="liquid-ripple liquid-ripple-3"></div>
 
         <div className="max-w-5xl mx-auto">
           <div className="text-center pt-16 pb-8">

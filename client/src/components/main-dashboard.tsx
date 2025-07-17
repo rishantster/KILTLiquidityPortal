@@ -608,34 +608,39 @@ export function MainDashboard() {
                     <div className="space-y-2 flex-1">
                       {/* Balance Display */}
                       <div className="bg-white/5 rounded-lg p-2 border border-white/10">
-                        <h4 className="text-white font-medium text-xs mb-1 text-label">Wallet Balance</h4>
-                        <div className="space-y-0.5">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-1">
-                              <KiltLogo size="xs" showBackground={true} />
-                              <span className="text-white/70 text-xs text-body">KILT:</span>
+                        <h4 className="text-white font-medium text-xs mb-3 text-label">Wallet Balance</h4>
+                        <div className="grid grid-cols-3 gap-2">
+                          {/* KILT Balance Card */}
+                          <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-lg p-2 border border-pink-500/30">
+                            <div className="flex flex-col items-center text-center">
+                              <KiltLogo size="md" showBackground={true} />
+                              <span className="text-white/70 text-xs font-medium mt-1">KILT</span>
+                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                                {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
+                              </span>
                             </div>
-                            <span className="text-white font-bold text-xs text-numbers">
-                              {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
-                            </span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-1">
-                              <EthLogo size="xs" showBackground={true} />
-                              <span className="text-white/70 text-xs text-body">ETH:</span>
+                          
+                          {/* ETH Balance Card */}
+                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg p-2 border border-blue-500/30">
+                            <div className="flex flex-col items-center text-center">
+                              <EthLogo size="md" showBackground={true} />
+                              <span className="text-white/70 text-xs font-medium mt-1">ETH</span>
+                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                                {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
+                              </span>
                             </div>
-                            <span className="text-white font-bold text-xs text-numbers">
-                              {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
-                            </span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-1">
-                              <EthLogo size="xs" showBackground={true} />
-                              <span className="text-white/70 text-xs text-body">WETH:</span>
+                          
+                          {/* WETH Balance Card */}
+                          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-lg p-2 border border-emerald-500/30">
+                            <div className="flex flex-col items-center text-center">
+                              <EthLogo size="md" showBackground={true} />
+                              <span className="text-white/70 text-xs font-medium mt-1">WETH</span>
+                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                                {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
+                              </span>
                             </div>
-                            <span className="text-white font-bold text-xs text-numbers">
-                              {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
-                            </span>
                           </div>
                         </div>
                       </div>

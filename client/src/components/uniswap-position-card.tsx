@@ -53,28 +53,28 @@ export const UniswapPositionCard = ({
   const ethPrice = 3400; // Current ETH price
   const kiltValue = kiltAmount * kiltPrice;
   const ethValue = ethAmount * ethPrice;
-  const positionValue = position.currentValueUSD || (kiltValue + ethValue);
+  const positionValue = kiltValue + ethValue; // Calculate from actual token amounts
   const kiltPercentage = positionValue > 0 ? (kiltValue / positionValue) * 100 : 50;
   const ethPercentage = positionValue > 0 ? (ethValue / positionValue) * 100 : 50;
   
   // Calculate fees earned from wei format
   const fees0Decimal = position.fees?.token0 ? parseFloat(formatUnits(BigInt(position.fees.token0), 18)) : 0;
   const fees1Decimal = position.fees?.token1 ? parseFloat(formatUnits(BigInt(position.fees.token1), 18)) : 0;
-  const feesEarned = isToken0Kilt ? 
-    (fees0Decimal * kiltPrice) + (fees1Decimal * ethPrice) : 
-    (fees1Decimal * kiltPrice) + (fees0Decimal * ethPrice);
+  const kiltFeesEarned = isToken0Kilt ? fees0Decimal : fees1Decimal;
+  const ethFeesEarned = isToken0Kilt ? fees1Decimal : fees0Decimal;
+  const feesEarned = (kiltFeesEarned * kiltPrice) + (ethFeesEarned * ethPrice);
   
   // Determine if position is in range
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
   
   return (
-    <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur-sm border border-purple-500/30 rounded-lg overflow-hidden hover:border-purple-400/50 transition-all duration-300">
-      <CardContent className="p-4 space-y-4">
+    <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-gray-800/30 rounded-lg overflow-hidden hover:border-gray-700/50 transition-all duration-300">
+      <CardContent className="p-3 space-y-3">
         {/* Header with Pool Info and NFT ID */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="text-sm font-bold text-white">KILT/WETH</div>
-            <div className="text-xs text-purple-300 bg-purple-500/20 px-2 py-1 rounded">
+            <div className="text-xs text-gray-300 bg-gray-700/30 px-2 py-1 rounded">
               {position.fee ? `${(position.fee / 10000).toFixed(1)}%` : '0.3%'}
             </div>
           </div>
@@ -88,7 +88,7 @@ export const UniswapPositionCard = ({
 
         {/* Position Value - Large Display */}
         <div className="text-center py-2">
-          <div className="text-2xl font-bold text-white">${positionValue.toFixed(2)}</div>
+          <div className="text-xl font-bold text-white">${positionValue.toFixed(2)}</div>
           <div className="text-xs text-white/60">Position</div>
         </div>
 
@@ -137,18 +137,20 @@ export const UniswapPositionCard = ({
         {/* Fees Earned Section */}
         <div className="bg-white/5 rounded-lg p-3">
           <div className="text-xs text-white/60 mb-1">Fees earned</div>
-          <div className="text-lg font-bold text-white">${feesEarned.toFixed(6)}</div>
+          <div className="text-lg font-bold text-white">
+            {feesEarned > 0 ? `$${feesEarned.toFixed(6)}` : 'No fees yet'}
+          </div>
           
           {/* Fee Breakdown */}
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
               <span className="text-xs text-white/80">
-                {feesEarned > 0 ? `${((fees0Decimal * kiltPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
+                {feesEarned > 0 ? `${((kiltFeesEarned * kiltPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
               </span>
             </div>
             <span className="text-xs text-white/80">
-              {feesEarned > 0 ? `${((fees1Decimal * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
+              {feesEarned > 0 ? `${((ethFeesEarned * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
             </span>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -159,11 +161,11 @@ export const UniswapPositionCard = ({
           <div className="flex justify-between items-center mt-2 text-xs text-white/60">
             <div className="flex items-center gap-1">
               <TokenLogo token="KILT" className="h-3 w-3" />
-              <span>${(fees0Decimal * kiltPrice).toFixed(6)}</span>
+              <span>${(kiltFeesEarned * kiltPrice).toFixed(6)}</span>
             </div>
             <div className="flex items-center gap-1">
               <TokenLogo token="ETH" className="h-3 w-3" />
-              <span>${(fees1Decimal * ethPrice).toFixed(6)}</span>
+              <span>${(ethFeesEarned * ethPrice).toFixed(6)}</span>
             </div>
           </div>
         </div>

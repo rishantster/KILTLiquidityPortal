@@ -34,13 +34,13 @@
   --retro-font-display: 'Orbitron', monospace;
   --retro-font-body: 'Rajdhani', sans-serif;
   
-  /* Spacing */
-  --retro-space-xs: 0.25rem;
-  --retro-space-sm: 0.5rem;
-  --retro-space-md: 1rem;
-  --retro-space-lg: 1.5rem;
-  --retro-space-xl: 2rem;
-  --retro-space-2xl: 3rem;
+  /* Compact Spacing */
+  --retro-space-xs: 0.125rem;
+  --retro-space-sm: 0.25rem;
+  --retro-space-md: 0.5rem;
+  --retro-space-lg: 0.75rem;
+  --retro-space-xl: 1rem;
+  --retro-space-2xl: 1.5rem;
   
   /* Shadows & Glows */
   --retro-glow-sm: 0 0 5px currentColor;
@@ -123,6 +123,28 @@ body::before {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
+}
+
+@keyframes retro-slide-in {
+  0% { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes retro-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes retro-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+@keyframes retro-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
 /* ===== RETRO CONTAINER SYSTEM ===== */

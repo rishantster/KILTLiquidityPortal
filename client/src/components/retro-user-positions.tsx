@@ -369,14 +369,21 @@ export default function RetroUserPositions() {
           )}
         </div>
       ) : (
-        <div className="retro-grid retro-grid-cols-1 md:retro-grid-cols-2 lg:retro-grid-cols-3 xl:retro-grid-cols-4 retro-gap-lg">
-          {filteredPositions.map((position: Position) => (
-            <RetroPositionCard
+        <div className="retro-grid retro-grid-cols-1 md:retro-grid-cols-2 lg:retro-grid-cols-3 xl:retro-grid-cols-4 retro-gap-sm">
+          {filteredPositions.map((position: Position, index: number) => (
+            <div
               key={position.tokenId}
-              position={position}
-              onManage={handleManagePosition}
-              isLoading={managingPosition === position.tokenId}
-            />
+              style={{
+                animationDelay: `${index * 0.1}s`,
+                animation: `retro-slide-in 0.5s ease-out ${index * 0.1}s both`
+              }}
+            >
+              <RetroPositionCard
+                position={position}
+                onManage={handleManagePosition}
+                isLoading={managingPosition === position.tokenId}
+              />
+            </div>
           ))}
         </div>
       )}

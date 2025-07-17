@@ -80,17 +80,17 @@ const RetroLandingPage = () => {
         </div>
       </div>
 
-      <div className="retro-p-2xl">
-        <div className="retro-text-center retro-mb-2xl">
-          <h2 className="retro-title retro-mb-lg">
+      <div className="retro-p-lg">
+        <div className="retro-text-center retro-mb-lg">
+          <h2 className="retro-title retro-mb-sm" style={{ fontSize: '2rem' }}>
             Welcome to the Future of DeFi
           </h2>
-          <p className="retro-text retro-mb-xl">
+          <p className="retro-text retro-mb-md" style={{ fontSize: '0.9rem' }}>
             Join the KILT liquidity program and earn rewards for providing liquidity to the KILT/ETH pool on Base network.
           </p>
         </div>
 
-        <div className="retro-grid retro-grid-cols-1 md:retro-grid-cols-3 retro-gap-lg retro-mb-2xl">
+        <div className="retro-grid retro-grid-cols-1 md:retro-grid-cols-3 retro-gap-md retro-mb-lg">
           <div className="retro-card retro-text-center">
             <div className="retro-card-icon">
               <Zap className="retro-w-8 retro-h-8" />
@@ -122,13 +122,13 @@ const RetroLandingPage = () => {
           </div>
         </div>
 
-        <div className="retro-text-center retro-mb-2xl">
+        <div className="retro-text-center retro-mb-md">
           <WalletConnect />
         </div>
 
-        <div className="retro-card retro-text-center retro-mb-2xl">
-          <h3 className="retro-subtitle retro-mb-lg">Program Features</h3>
-          <div className="retro-grid retro-grid-cols-1 md:retro-grid-cols-2 retro-gap-md">
+        <div className="retro-card retro-text-center retro-mb-md">
+          <h3 className="retro-subtitle retro-mb-sm" style={{ fontSize: '1.2rem' }}>Program Features</h3>
+          <div className="retro-grid retro-grid-cols-1 md:retro-grid-cols-2 retro-gap-sm">
             <div className="retro-flex retro-items-center retro-gap-md">
               <Star className="retro-w-6 retro-h-6 retro-text-accent" />
               <span className="retro-text">Treasury-backed rewards</span>

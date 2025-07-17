@@ -107,22 +107,29 @@ export function RetroPositionCard({ position, onManage, isLoading }: RetroPositi
       className={`retro-position-card ${isHovered ? 'retro-zoom-hover' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{ 
+        padding: '0.75rem',
+        minHeight: '220px',
+        maxWidth: '100%',
+        animation: `retro-fade-in 0.5s ease-out`,
+        transition: 'all 0.3s ease-in-out'
+      }}
     >
       {/* Header */}
-      <div className="retro-flex retro-items-center retro-justify-between retro-mb-md">
-        <div className="retro-flex retro-items-center retro-gap-sm">
+      <div className="retro-flex retro-items-center retro-justify-between retro-mb-sm">
+        <div className="retro-flex retro-items-center retro-gap-xs">
           <div className="retro-flex retro-items-center retro-gap-xs">
-            <KiltLogo className="retro-w-6 retro-h-6 retro-float" />
-            <span className="retro-text retro-text-accent">KILT</span>
+            <KiltLogo className="retro-w-4 retro-h-4 retro-float" />
+            <span className="retro-text retro-text-accent" style={{ fontSize: '0.8rem' }}>KILT</span>
           </div>
           <span className="retro-text retro-text-secondary">/</span>
           <div className="retro-flex retro-items-center retro-gap-xs">
-            <EthLogo className="retro-w-6 retro-h-6 retro-float" />
-            <span className="retro-text retro-text-accent">ETH</span>
+            <EthLogo className="retro-w-4 retro-h-4 retro-float" />
+            <span className="retro-text retro-text-accent" style={{ fontSize: '0.8rem' }}>ETH</span>
           </div>
         </div>
         
-        <div className="retro-flex retro-items-center retro-gap-sm">
+        <div className="retro-flex retro-items-center retro-gap-xs">
           <div className={`retro-badge ${status.color}`}>
             {status.icon}
             <span className="retro-ml-xs">{status.label}</span>
@@ -135,21 +142,21 @@ export function RetroPositionCard({ position, onManage, isLoading }: RetroPositi
       </div>
 
       {/* Position Value */}
-      <div className="retro-text-center retro-mb-md">
-        <div className="retro-position-value retro-text-glow retro-mb-xs">
+      <div className="retro-text-center retro-mb-sm">
+        <div className="retro-position-value retro-text-glow retro-mb-xs" style={{ fontSize: '1.2rem' }}>
           {getPositionValue()}
         </div>
-        <div className="retro-text retro-text-secondary">
+        <div className="retro-text retro-text-secondary" style={{ fontSize: '0.7rem' }}>
           NFT #{position.tokenId}
         </div>
       </div>
 
       {/* Token Amounts */}
-      <div className="retro-position-tokens retro-mb-md">
+      <div className="retro-position-tokens retro-mb-sm">
         <div className="retro-token-display">
           <KiltLogo className="retro-token-logo" />
           <div className="retro-flex retro-flex-col">
-            <span className="retro-token-amount">
+            <span className="retro-token-amount" style={{ fontSize: '0.8rem' }}>
               {formatTokenAmount(position.token0Amount, 18)}
             </span>
             <span className="retro-text retro-text-secondary retro-text-xs">KILT</span>
@@ -159,7 +166,7 @@ export function RetroPositionCard({ position, onManage, isLoading }: RetroPositi
         <div className="retro-token-display">
           <EthLogo className="retro-token-logo" />
           <div className="retro-flex retro-flex-col">
-            <span className="retro-token-amount">
+            <span className="retro-token-amount" style={{ fontSize: '0.8rem' }}>
               {formatTokenAmount(position.token1Amount, 18)}
             </span>
             <span className="retro-text retro-text-secondary retro-text-xs">ETH</span>
@@ -168,21 +175,21 @@ export function RetroPositionCard({ position, onManage, isLoading }: RetroPositi
       </div>
 
       {/* Fees Earned */}
-      <div className="retro-card retro-bg-primary retro-p-sm retro-mb-md">
+      <div className="retro-card retro-bg-primary retro-p-xs retro-mb-sm">
         <div className="retro-flex retro-items-center retro-justify-between retro-mb-xs">
-          <span className="retro-text retro-text-secondary retro-text-xs">Fees Earned</span>
+          <span className="retro-text retro-text-secondary" style={{ fontSize: '0.65rem' }}>Fees Earned</span>
           <Star className="retro-w-3 retro-h-3 retro-text-accent retro-pulse" />
         </div>
-        <div className="retro-flex retro-items-center retro-gap-md">
+        <div className="retro-flex retro-items-center retro-gap-sm">
           <div className="retro-flex retro-items-center retro-gap-xs">
-            <KiltLogo className="retro-w-4 retro-h-4" />
-            <span className="retro-text retro-text-accent retro-text-xs">
+            <KiltLogo className="retro-w-3 retro-h-3" />
+            <span className="retro-text retro-text-accent" style={{ fontSize: '0.65rem' }}>
               {formatFeeAmount(position.tokensOwed0, 18)}
             </span>
           </div>
           <div className="retro-flex retro-items-center retro-gap-xs">
-            <EthLogo className="retro-w-4 retro-h-4" />
-            <span className="retro-text retro-text-accent retro-text-xs">
+            <EthLogo className="retro-w-3 retro-h-3" />
+            <span className="retro-text retro-text-accent" style={{ fontSize: '0.65rem' }}>
               {formatFeeAmount(position.tokensOwed1, 18)}
             </span>
           </div>
@@ -204,11 +211,12 @@ export function RetroPositionCard({ position, onManage, isLoading }: RetroPositi
       </div>
 
       {/* Management Actions */}
-      <div className="retro-flex retro-gap-sm">
+      <div className="retro-flex retro-gap-xs">
         <button
           onClick={() => onManage?.('add', position.tokenId)}
           disabled={isLoading}
-          className="retro-button retro-button-success retro-flex-1 retro-text-xs retro-p-sm"
+          className="retro-button retro-button-success retro-flex-1 retro-text-xs"
+          style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
         >
           <Plus className="retro-w-3 retro-h-3" />
           <span className="retro-ml-xs">Add</span>
@@ -217,7 +225,8 @@ export function RetroPositionCard({ position, onManage, isLoading }: RetroPositi
         <button
           onClick={() => onManage?.('remove', position.tokenId)}
           disabled={isLoading}
-          className="retro-button retro-button-warning retro-flex-1 retro-text-xs retro-p-sm"
+          className="retro-button retro-button-warning retro-flex-1 retro-text-xs"
+          style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
         >
           <Minus className="retro-w-3 retro-h-3" />
           <span className="retro-ml-xs">Remove</span>
@@ -226,7 +235,8 @@ export function RetroPositionCard({ position, onManage, isLoading }: RetroPositi
         <button
           onClick={() => onManage?.('collect', position.tokenId)}
           disabled={isLoading}
-          className="retro-button retro-button-primary retro-flex-1 retro-text-xs retro-p-sm"
+          className="retro-button retro-button-primary retro-flex-1 retro-text-xs"
+          style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
         >
           <DollarSign className="retro-w-3 retro-h-3" />
           <span className="retro-ml-xs">Collect</span>

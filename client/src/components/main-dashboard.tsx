@@ -458,7 +458,7 @@ export function MainDashboard() {
               <BaseLogo className="w-4 h-4 mr-1.5" />
               Base Network
               {isConnected && isBaseNetworkConnected && (
-                <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" />
+                <div className="w-2 h-2 bg-green-500 rounded-full ml-2" />
               )}
             </Badge>
 

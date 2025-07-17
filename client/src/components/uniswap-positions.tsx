@@ -103,68 +103,72 @@ const PositionCard = ({ position }: { position: Position }) => {
   const currentPrice = 0.0176;
   
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center p-2">
-              <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
-              <EthereumLogo className="w-3 h-3 text-white" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">KILT/ETH</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">#{position.nftTokenId} • {(position.feeTier * 100).toFixed(1)}%</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            ${formatNumber(position.currentValueUsd || 1989.58)}
-          </p>
-          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${position.inRange ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'}`}>
-            {position.inRange ? 'In Range' : 'Out of Range'}
-          </div>
-        </div>
-      </div>
-
-      {/* Token amounts */}
-      <div className="space-y-4 mb-6">
-        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
-              <EthereumLogo className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-medium text-gray-900 dark:text-white">ETH</span>
-          </div>
-          <span className="font-semibold text-gray-900 dark:text-white">
-            {formatNumber(ethAmount || 0.363, 4)}
-          </span>
-        </div>
+    <div className="group relative">
+      {/* Glassmorphism card with proper backdrop blur */}
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-white/20 p-4">
         
-        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-pink-600 rounded-md flex items-center justify-center p-1">
-              <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center p-2 shadow-lg">
+                <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center shadow-md">
+                <EthereumLogo className="w-3 h-3 text-white" />
+              </div>
             </div>
-            <span className="font-medium text-gray-900 dark:text-white">KILT</span>
+            <div>
+              <h3 className="text-lg font-semibold text-white">KILT/ETH</h3>
+              <p className="text-sm text-gray-400">#{position.nftTokenId} • {(position.feeTier * 100).toFixed(1)}%</p>
+            </div>
           </div>
-          <span className="font-semibold text-gray-900 dark:text-white">
-            {formatNumber(kiltAmount || 67630, 0)}
-          </span>
+          <div className="text-right">
+            <p className="text-2xl font-bold text-white">
+              ${formatNumber(position.currentValueUsd || 1989.58)}
+            </p>
+            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${position.inRange ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/30' : 'bg-red-500/20 text-red-400 border border-red-400/30'}`}>
+              {position.inRange ? 'In Range' : 'Out of Range'}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Action buttons */}
-      <div className="flex space-x-3">
-        <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-          Add Liquidity
-        </button>
-        <button className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-          Remove Liquidity
-        </button>
+        {/* Token amounts */}
+        <div className="space-y-3 mb-4">
+          <div className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center shadow-md">
+                <EthereumLogo className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-medium text-white">ETH</span>
+            </div>
+            <span className="font-semibold text-white tabular-nums">
+              {formatNumber(ethAmount || 0.363, 4)}
+            </span>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-md flex items-center justify-center p-1 shadow-md">
+                <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-medium text-white">KILT</span>
+            </div>
+            <span className="font-semibold text-white tabular-nums">
+              {formatNumber(kiltAmount || 67630, 0)}
+            </span>
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex space-x-3">
+          <button className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-emerald-500/25">
+            Add Liquidity
+          </button>
+          <button className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/25">
+            Remove Liquidity
+          </button>
+        </div>
       </div>
     </div>
   );

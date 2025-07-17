@@ -103,76 +103,88 @@ const PositionCard = ({ position }: { position: Position }) => {
   const currentPrice = 0.0176;
   
   return (
-    <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 border-purple-500/50 rounded-3xl p-6 shadow-2xl shadow-purple-500/20 hover:shadow-purple-500/40 transition-all duration-500 group">
-      {/* Card header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          {/* Token logos */}
-          <div className="relative">
-            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-xl shadow-pink-500/40 p-3">
-              <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain brightness-110" />
+    <div className="relative group transform hover:scale-105 transition-all duration-300">
+      {/* Chaotic background effects */}
+      <div className="absolute -inset-2 bg-gradient-to-br from-purple-600 via-pink-600 to-yellow-500 rounded-3xl blur-lg opacity-60 group-hover:opacity-100 animate-pulse"></div>
+      <div className="absolute -inset-1 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 rounded-2xl blur opacity-40 group-hover:opacity-80 animate-spin-slow"></div>
+      
+      {/* Main card */}
+      <div className="relative bg-black rounded-2xl p-5 border-2 border-purple-500 shadow-2xl shadow-purple-500/50 group-hover:shadow-purple-500/80 transition-all duration-300">
+        
+        {/* Degen header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            {/* Wild token logos */}
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl shadow-pink-500/60 p-2 animate-bounce">
+                <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain brightness-150" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/70 animate-pulse">
+                <EthereumLogo className="w-3 h-3 text-white" />
+              </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/50">
-              <EthereumLogo className="w-4 h-4 text-white" />
+            
+            <div>
+              <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-yellow-400 to-pink-400 animate-pulse">
+                KILT/ETH
+              </h2>
+              <div className="text-xs text-gray-400 font-mono">
+                #{position.nftTokenId} • {(position.feeTier * 100).toFixed(1)}%
+              </div>
             </div>
           </div>
           
-          <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">KILT/ETH</h2>
-            <div className="text-sm text-gray-400 font-medium">
-              #{position.nftTokenId} • {(position.feeTier * 100).toFixed(1)}%
+          {/* Value display */}
+          <div className="text-right">
+            <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-yellow-400 animate-pulse">
+              ${formatNumber(position.currentValueUsd || 1989.58)}
+            </div>
+            <div className={`text-xs font-bold uppercase tracking-wider ${position.inRange ? 'text-green-400' : 'text-red-400'} animate-pulse`}>
+              {position.inRange ? '🟢 PRINTING' : '🔴 REKT'}
             </div>
           </div>
         </div>
-        
-        {/* Value and status */}
-        <div className="text-right">
-          <div className="text-3xl font-bold text-white mb-1">
-            ${formatNumber(position.currentValueUsd || 1989.58)}
-          </div>
-          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${position.inRange ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
-            ● {position.inRange ? 'IN RANGE' : 'OUT OF RANGE'}
-          </div>
-        </div>
-      </div>
 
-      {/* Token amounts - exact match to reference */}
-      <div className="space-y-3 mb-6">
-        {/* ETH section */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-900/40 to-blue-800/40 rounded-2xl border border-blue-500/30">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <EthereumLogo className="w-5 h-5 text-white" />
+        {/* Token amounts - degen style */}
+        <div className="space-y-2 mb-4">
+          {/* ETH */}
+          <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-900/80 to-blue-800/80 rounded-xl border border-blue-400/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-transparent animate-pulse"></div>
+            <div className="flex items-center space-x-2 relative z-10">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/50">
+                <EthereumLogo className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-lg font-bold text-white">ETH</span>
             </div>
-            <span className="text-xl font-semibold text-white">ETH</span>
+            <div className="text-lg font-black text-white relative z-10">
+              {formatNumber(ethAmount || 0.363, 4)}
+            </div>
           </div>
-          <div className="text-2xl font-bold text-white">
-            {formatNumber(ethAmount || 0.363, 4)}
+          
+          {/* KILT */}
+          <div className="flex items-center justify-between p-3 bg-gradient-to-r from-pink-900/80 to-rose-800/80 rounded-xl border border-pink-400/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-transparent animate-pulse"></div>
+            <div className="flex items-center space-x-2 relative z-10">
+              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center shadow-lg shadow-pink-500/50 p-1">
+                <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain brightness-150" />
+              </div>
+              <span className="text-lg font-bold text-white">KILT</span>
+            </div>
+            <div className="text-lg font-black text-white relative z-10">
+              {formatNumber(kiltAmount || 67630, 0)}
+            </div>
           </div>
         </div>
-        
-        {/* KILT section */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-pink-900/40 to-rose-800/40 rounded-2xl border border-pink-500/30">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-pink-500/30 p-2">
-              <img src={kiltLogo} alt="KILT" className="w-full h-full object-contain brightness-110" />
-            </div>
-            <span className="text-xl font-semibold text-white">KILT</span>
-          </div>
-          <div className="text-2xl font-bold text-white">
-            {formatNumber(kiltAmount || 67630, 0)}
-          </div>
-        </div>
-      </div>
 
-      {/* Action buttons - exact match to reference */}
-      <div className="flex space-x-3">
-        <button className="flex-1 h-14 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold text-lg rounded-2xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95">
-          Add
-        </button>
-        <button className="flex-1 h-14 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-lg rounded-2xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95">
-          Remove
-        </button>
+        {/* Degen action buttons */}
+        <div className="flex space-x-2">
+          <button className="flex-1 h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-black text-sm rounded-xl shadow-lg shadow-green-500/40 hover:shadow-green-500/60 transition-all duration-300 transform hover:scale-110 active:scale-95 border border-green-400/50 uppercase tracking-wider">
+            🚀 APE IN
+          </button>
+          <button className="flex-1 h-12 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-sm rounded-xl shadow-lg shadow-red-500/40 hover:shadow-red-500/60 transition-all duration-300 transform hover:scale-110 active:scale-95 border border-red-400/50 uppercase tracking-wider">
+            💀 DUMP IT
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -645,104 +645,85 @@ export function MainDashboard() {
                         </div>
                       </div>
 
-                      {/* Combined Control Section */}
-                      <div className="grid grid-cols-2 gap-3">
-                        {/* Balance Usage */}
-                        <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
-                            <span className="text-sm text-white/50 text-body">{selectedPercentage}%</span>
-                          </div>
-                          <div className="grid grid-cols-3 gap-1 mb-2">
-                            {LiquidityService.getPercentageOptions().slice(0, 3).map(({ value, label }) => (
-                              <Button
-                                key={value}
-                                variant={selectedPercentage === value ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setSelectedPercentage(value)}
-                                className={`text-xs py-1 px-1 h-6 transition-all duration-200 ${
-                                  selectedPercentage === value 
-                                    ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-emerald-500' 
-                                    : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10 backdrop-blur-sm'
-                                }`}
-                              >
-                                {label}
-                              </Button>
-                            ))}
-                          </div>
-                          <div className="grid grid-cols-2 gap-1 mb-2">
-                            {LiquidityService.getPercentageOptions().slice(3).map(({ value, label }) => (
-                              <Button
-                                key={value}
-                                variant={selectedPercentage === value ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setSelectedPercentage(value)}
-                                className={`text-xs py-1 px-1 h-6 transition-all duration-200 ${
-                                  selectedPercentage === value 
-                                    ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-emerald-500' 
-                                    : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10 backdrop-blur-sm'
-                                }`}
-                              >
-                                {label}
-                              </Button>
-                            ))}
-                          </div>
-                          
-                          {/* Seek Bar Slider */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-white/60 text-xs">Precise Control</span>
-                              <span className="text-white/40 text-xs">{selectedPercentage}%</span>
-                            </div>
-                            <Slider
-                              value={[selectedPercentage]}
-                              onValueChange={(value) => setSelectedPercentage(value[0])}
-                              max={100}
-                              min={0}
-                              step={1}
-                              className="w-full"
-                            />
-                          </div>
+                      {/* Percentage Selector */}
+                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
+                          <span className="text-sm text-white/50 text-body">{selectedPercentage}% of wallet</span>
                         </div>
-
-                        {/* Liquidity Amount */}
-                        <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
-                            <span className="text-sm text-white/50 text-body">Balanced</span>
+                        <div className="grid grid-cols-5 gap-1 mb-2">
+                          {LiquidityService.getPercentageOptions().map(({ value, label }) => (
+                            <Button
+                              key={value}
+                              variant={selectedPercentage === value ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setSelectedPercentage(value)}
+                              className={`text-xs py-1 px-1 h-6 transition-all duration-200 ${
+                                selectedPercentage === value 
+                                  ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-emerald-500' 
+                                  : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10 backdrop-blur-sm'
+                              }`}
+                            >
+                              {label}
+                            </Button>
+                          ))}
+                        </div>
+                        
+                        {/* Seek Bar Slider */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/60 text-xs">Precise Control</span>
+                            <span className="text-white/40 text-xs">{selectedPercentage}%</span>
                           </div>
-                          {(() => {
-                            const amounts = calculateOptimalAmounts();
-                            const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
-                            
-                            if (hasInsufficientBalance) {
-                              return (
-                                <div className="text-center py-4">
-                                  <div className="text-sm font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
-                                  <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
-                                </div>
-                              );
-                            }
-                            
+                          <Slider
+                            value={[selectedPercentage]}
+                            onValueChange={(value) => setSelectedPercentage(value[0])}
+                            max={100}
+                            min={0}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Optimal Amount */}
+                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
+                          <span className="text-sm text-white/50 text-body">Balanced strategy</span>
+                        </div>
+                        {(() => {
+                          const amounts = calculateOptimalAmounts();
+                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                          
+                          if (hasInsufficientBalance) {
                             return (
                               <div className="text-center py-2">
-                                <div className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers mb-3">
-                                  ~${amounts.totalValue}
-                                </div>
-                                <div className="space-y-1">
-                                  <div className="flex items-center justify-center space-x-1 text-white/60 text-xs text-body">
-                                    <KiltLogo size="xs" showBackground={true} />
-                                    <span>{amounts.kiltAmount} KILT</span>
-                                  </div>
-                                  <div className="flex items-center justify-center space-x-1 text-white/60 text-xs text-body">
-                                    <EthLogo size="xs" showBackground={true} />
-                                    <span>{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
-                                  </div>
-                                </div>
+                                <div className="text-sm font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
+                                <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
                               </div>
                             );
-                          })()}
-                        </div>
+                          }
+                          
+                          return (
+                            <div>
+                              <div className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers mb-2">
+                                ~${amounts.totalValue}
+                              </div>
+                              <div className="flex items-center justify-center space-x-4 text-white/60 text-xs text-body">
+                                <div className="flex items-center space-x-1">
+                                  <KiltLogo size="xs" showBackground={true} />
+                                  <span>{amounts.kiltAmount} KILT</span>
+                                </div>
+                                <span>+</span>
+                                <div className="flex items-center space-x-1">
+                                  <EthLogo size="xs" showBackground={true} />
+                                  <span>{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                     

@@ -739,19 +739,27 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get program analytics (open participation) - USE UNIFIED SERVICE
+  // Get program analytics (open participation) - PARALLEL PROCESSING FOR BLAZING SPEED
   app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
-      const { unifiedAPRService } = await import('./unified-apr-service.js');
-      const aprData = await unifiedAPRService.getUnifiedAPRCalculation();
-      
-      // Get basic analytics from fixedRewardService
-      const analytics = await fixedRewardService.getProgramAnalytics();
-      
-      // Get admin configuration for real-time program data
-      const { treasuryConfig, programSettings } = await import('../shared/schema');
-      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
-      const [settingsConf] = await db.select().from(programSettings).limit(1);
+      // PARALLEL PROCESSING - Execute all calls simultaneously
+      const [aprData, analytics, treasuryConf, settingsConf] = await Promise.all([
+        (async () => {
+          const { unifiedAPRService } = await import('./unified-apr-service.js');
+          return unifiedAPRService.getUnifiedAPRCalculation();
+        })(),
+        fixedRewardService.getProgramAnalytics(),
+        (async () => {
+          const { treasuryConfig } = await import('../shared/schema');
+          const [conf] = await db.select().from(treasuryConfig).limit(1);
+          return conf;
+        })(),
+        (async () => {
+          const { programSettings } = await import('../shared/schema');
+          const [conf] = await db.select().from(programSettings).limit(1);
+          return conf;
+        })()
+      ]);
       
       // Calculate days remaining based on admin configuration
       const programEndDate = treasuryConf?.program_end_date ? new Date(treasuryConf.program_end_date) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);

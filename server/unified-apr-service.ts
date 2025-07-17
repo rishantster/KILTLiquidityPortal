@@ -41,9 +41,15 @@ class UnifiedAPRService {
     }
 
     try {
-      // Get admin-configured treasury values (single source of truth)
-      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
-      const [settingsConf] = await db.select().from(programSettings).limit(1);
+      // PARALLEL PROCESSING - Execute all database calls simultaneously
+      const [treasuryConf, settingsConf, kiltPrice] = await Promise.all([
+        db.select().from(treasuryConfig).limit(1).then(results => results[0]),
+        db.select().from(programSettings).limit(1).then(results => results[0]),
+        (async () => {
+          const { kiltPriceService } = await import('./kilt-price-service.js');
+          return kiltPriceService.getCurrentPrice();
+        })()
+      ]);
 
       // Admin panel is the ONLY source of truth - no fallbacks allowed
       if (!treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays || !treasuryConf?.dailyRewardsCap) {
@@ -63,10 +69,6 @@ class UnifiedAPRService {
       // Clear cache to force recalculation
       this.aprCache = null;
 
-      // Get REAL-TIME KILT price from kiltPriceService
-      const { kiltPriceService } = await import('./kilt-price-service.js');
-      const kiltPrice = kiltPriceService.getCurrentPrice();
-      
       // Use REAL TVL data from DexScreener verification
       const poolTVL = 80000; // Real $80K TVL from DexScreener
       let actualPositionValue = 1000; // Realistic $1K position size

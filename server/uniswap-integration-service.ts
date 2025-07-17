@@ -225,92 +225,97 @@ export class UniswapIntegrationService {
   }
 
   /**
-   * Get comprehensive pool data
+   * Get comprehensive pool data with parallel processing and caching
    */
+  private poolDataCache = new Map<string, { data: PoolData; timestamp: number }>();
+  private readonly POOL_DATA_CACHE_DURATION = 60000; // 1 minute cache
+
   async getPoolData(poolAddress: string): Promise<PoolData> {
+    // Check cache first for instant response
+    const cached = this.poolDataCache.get(poolAddress);
+    if (cached && Date.now() - cached.timestamp < this.POOL_DATA_CACHE_DURATION) {
+      return cached.data;
+    }
+
     try {
-      // Get pool slot0 data
-      const slot0Data = await this.client.readContract({
-        address: poolAddress as `0x${string}`,
-        abi: [
-          {
-            inputs: [],
-            name: 'slot0',
-            outputs: [
-              { internalType: 'uint160', name: 'sqrtPriceX96', type: 'uint160' },
-              { internalType: 'int24', name: 'tick', type: 'int24' },
-              { internalType: 'uint16', name: 'observationIndex', type: 'uint16' },
-              { internalType: 'uint16', name: 'observationCardinality', type: 'uint16' },
-              { internalType: 'uint16', name: 'observationCardinalityNext', type: 'uint16' },
-              { internalType: 'uint8', name: 'feeProtocol', type: 'uint8' },
-              { internalType: 'bool', name: 'unlocked', type: 'bool' },
-            ],
-            stateMutability: 'view',
-            type: 'function',
-          },
-        ],
-        functionName: 'slot0',
-      });
+      // PARALLEL PROCESSING - Execute all blockchain calls simultaneously
+      const [slot0Data, liquidity, token0, token1, fee] = await Promise.all([
+        this.client.readContract({
+          address: poolAddress as `0x${string}`,
+          abi: [
+            {
+              inputs: [],
+              name: 'slot0',
+              outputs: [
+                { internalType: 'uint160', name: 'sqrtPriceX96', type: 'uint160' },
+                { internalType: 'int24', name: 'tick', type: 'int24' },
+                { internalType: 'uint16', name: 'observationIndex', type: 'uint16' },
+                { internalType: 'uint16', name: 'observationCardinality', type: 'uint16' },
+                { internalType: 'uint16', name: 'observationCardinalityNext', type: 'uint16' },
+                { internalType: 'uint8', name: 'feeProtocol', type: 'uint8' },
+                { internalType: 'bool', name: 'unlocked', type: 'bool' },
+              ],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          functionName: 'slot0',
+        }),
+        this.client.readContract({
+          address: poolAddress as `0x${string}`,
+          abi: [
+            {
+              inputs: [],
+              name: 'liquidity',
+              outputs: [{ internalType: 'uint128', name: '', type: 'uint128' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          functionName: 'liquidity',
+        }),
+        this.client.readContract({
+          address: poolAddress as `0x${string}`,
+          abi: [
+            {
+              inputs: [],
+              name: 'token0',
+              outputs: [{ internalType: 'address', name: '', type: 'address' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          functionName: 'token0',
+        }),
+        this.client.readContract({
+          address: poolAddress as `0x${string}`,
+          abi: [
+            {
+              inputs: [],
+              name: 'token1',
+              outputs: [{ internalType: 'address', name: '', type: 'address' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          functionName: 'token1',
+        }),
+        this.client.readContract({
+          address: poolAddress as `0x${string}`,
+          abi: [
+            {
+              inputs: [],
+              name: 'fee',
+              outputs: [{ internalType: 'uint24', name: '', type: 'uint24' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          functionName: 'fee',
+        })
+      ]);
 
       const [sqrtPriceX96, tick] = slot0Data as [bigint, number];
-
-      // Get pool liquidity
-      const liquidity = await this.client.readContract({
-        address: poolAddress as `0x${string}`,
-        abi: [
-          {
-            inputs: [],
-            name: 'liquidity',
-            outputs: [{ internalType: 'uint128', name: '', type: 'uint128' }],
-            stateMutability: 'view',
-            type: 'function',
-          },
-        ],
-        functionName: 'liquidity',
-      });
-
-      // Get token addresses and fee
-      const token0 = await this.client.readContract({
-        address: poolAddress as `0x${string}`,
-        abi: [
-          {
-            inputs: [],
-            name: 'token0',
-            outputs: [{ internalType: 'address', name: '', type: 'address' }],
-            stateMutability: 'view',
-            type: 'function',
-          },
-        ],
-        functionName: 'token0',
-      });
-
-      const token1 = await this.client.readContract({
-        address: poolAddress as `0x${string}`,
-        abi: [
-          {
-            inputs: [],
-            name: 'token1',
-            outputs: [{ internalType: 'address', name: '', type: 'address' }],
-            stateMutability: 'view',
-            type: 'function',
-          },
-        ],
-        functionName: 'token1',
-      });
-
-      const fee = await this.client.readContract({
-        address: poolAddress as `0x${string}`,
-        abi: [
-          {
-            inputs: [],
-            name: 'fee',
-            outputs: [{ internalType: 'uint24', name: '', type: 'uint24' }],
-            stateMutability: 'view',
-            type: 'function',
-          },
-        ],
-        functionName: 'fee',
-      });
 
       // Calculate prices
       const { token0Price, token1Price } = this.calculatePricesFromSqrtPriceX96(
@@ -322,7 +327,7 @@ export class UniswapIntegrationService {
       const volume24hUSD = 0; // Placeholder - would need historical data
       const feesUSD24h = 0; // Placeholder - would need historical data
 
-      return {
+      const poolData = {
         address: poolAddress,
         token0: token0 as string,
         token1: token1 as string,
@@ -336,6 +341,11 @@ export class UniswapIntegrationService {
         volume24hUSD,
         feesUSD24h,
       };
+
+      // Cache the result
+      this.poolDataCache.set(poolAddress, { data: poolData, timestamp: Date.now() });
+
+      return poolData;
     } catch (error) {
       // Error getting pool data
       throw error;

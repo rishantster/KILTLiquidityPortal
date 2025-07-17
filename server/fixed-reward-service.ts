@@ -249,7 +249,15 @@ export class FixedRewardService {
   /**
    * Get total active liquidity from Uniswap V3 pool (single source of truth)
    */
+  private liquidityCache: { value: number; timestamp: number } | null = null;
+  private readonly LIQUIDITY_CACHE_DURATION = 60000; // 1 minute cache for TVL
+
   private async getTotalActiveLiquidity(): Promise<number> {
+    // Check cache first for fast response
+    if (this.liquidityCache && Date.now() - this.liquidityCache.timestamp < this.LIQUIDITY_CACHE_DURATION) {
+      return this.liquidityCache.value;
+    }
+
     try {
       // Get real pool TVL from Uniswap V3 contracts
       const { uniswapIntegrationService } = await import('./uniswap-integration-service');
@@ -260,12 +268,17 @@ export class FixedRewardService {
       
       // Use real TVL from Uniswap as single source of truth
       const realPoolTVL = poolData.tvlUSD;
+      const finalTVL = realPoolTVL > 0 ? realPoolTVL : 80000;
       
-      // If TVL query fails, fall back to minimum realistic pool size
-      return realPoolTVL > 0 ? realPoolTVL : 80000;
+      // Cache the result
+      this.liquidityCache = { value: finalTVL, timestamp: Date.now() };
+      
+      return finalTVL;
     } catch (error) {
       // Fallback to minimum realistic pool size for proportional distribution
-      return 80000;
+      const fallbackTVL = 80000;
+      this.liquidityCache = { value: fallbackTVL, timestamp: Date.now() };
+      return fallbackTVL;
     }
   }
 
@@ -563,20 +576,20 @@ export class FixedRewardService {
     };
   }> {
     try {
-      const totalLiquidity = await this.getTotalActiveLiquidity();
-      const activeParticipants = await this.getAllActiveParticipants();
-      
-      // Calculate total distributed rewards
-      const totalDistributedResult = await this.database
-        .select({
-          totalDistributed: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
-        })
-        .from(rewards);
+      // PARALLEL PROCESSING - Execute all calls simultaneously for blazing speed
+      const [totalLiquidity, activeParticipants, totalDistributedResult, config, aprData] = await Promise.all([
+        this.getTotalActiveLiquidity(),
+        this.getAllActiveParticipants(),
+        this.database
+          .select({
+            totalDistributed: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
+          })
+          .from(rewards),
+        this.getAdminConfiguration(),
+        this.calculateMaximumTheoreticalAPR().catch(() => ({ minAPR: 29.46, maxAPR: 46.55 }))
+      ]);
 
       const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;
-      
-      // Get admin configuration
-      const config = await this.getAdminConfiguration();
       const dailyBudget = config.dailyBudget;
       const treasuryTotal = config.treasuryTotal;
       const programDuration = config.programDurationDays;
@@ -587,15 +600,6 @@ export class FixedRewardService {
       // Calculate program days remaining using admin configuration
       const programEndDate = new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000);
       const programDaysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-
-      // Get realistic APR range - use direct values if calculation fails
-      let aprData;
-      try {
-        aprData = await this.calculateMaximumTheoreticalAPR();
-      } catch (error) {
-        // Use fallback APR data
-        aprData = { minAPR: 29.46, maxAPR: 46.55 };
-      }
       
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100,

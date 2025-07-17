@@ -235,7 +235,7 @@ export function TreasuryManagement() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/70">Total Allocation:</span>
               <span className="text-sm font-bold text-white">
-                {formatKiltAmount(treasuryStats?.totalAllocation || 500000)} KILT
+                {treasuryStats?.totalAllocation ? formatKiltAmount(treasuryStats.totalAllocation) : '...'} KILT
               </span>
             </div>
             
@@ -249,14 +249,14 @@ export function TreasuryManagement() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/70">Remaining:</span>
               <span className="text-sm font-bold text-white">
-                {formatKiltAmount(treasuryStats?.remainingBudget || 500000)} KILT
+                {treasuryStats?.remainingBudget ? formatKiltAmount(treasuryStats.remainingBudget) : '...'} KILT
               </span>
             </div>
             
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/70">Annual Budget:</span>
               <span className="text-sm font-bold text-white">
-                {((treasuryStats?.totalBudget || 500000)).toLocaleString()} KILT
+                {treasuryStats?.totalBudget ? treasuryStats.totalBudget.toLocaleString() : '...'} KILT
               </span>
             </div>
           </CardContent>

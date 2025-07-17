@@ -607,11 +607,11 @@ export function MainDashboard() {
                   <CardContent className="p-3 flex-1 flex flex-col">
                     <div className="space-y-3 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                      <div className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 backdrop-blur-sm rounded-lg p-3 border border-blue-500/20">
                         <h4 className="text-white font-medium text-sm mb-3 text-label">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
-                          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                          <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-3 border border-pink-500/30">
                             <div className="flex flex-col items-center text-center">
                               <KiltLogo size="md" showBackground={true} />
                               <span className="text-white/70 text-xs font-medium mt-1">KILT</span>
@@ -622,7 +622,7 @@ export function MainDashboard() {
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-lg p-3 border border-blue-500/30">
                             <div className="flex flex-col items-center text-center">
                               <EthLogo size="md" showBackground={true} />
                               <span className="text-white/70 text-xs font-medium mt-1">ETH</span>
@@ -633,7 +633,7 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/30">
                             <div className="flex flex-col items-center text-center">
                               <EthLogo size="md" showBackground={true} />
                               <span className="text-white/70 text-xs font-medium mt-1">WETH</span>
@@ -646,7 +646,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                      <div className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/20">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
                           <span className="text-sm text-white/50 text-body">{selectedPercentage}% of wallet</span>
@@ -687,7 +687,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                      <div className="bg-gradient-to-br from-purple-500/10 via-emerald-500/10 to-blue-500/10 backdrop-blur-sm rounded-lg p-3 border border-purple-500/20">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
                           <span className="text-sm text-white/50 text-body">Balanced strategy</span>

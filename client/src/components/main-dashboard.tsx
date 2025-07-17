@@ -229,12 +229,21 @@ export function MainDashboard() {
   if (!isConnected) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
-        {/* Background Elements */}
+        {/* Galaxy Background Elements */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-floating"></div>
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-slate-500/8 rounded-full blur-3xl animate-floating" style={{animationDelay: '1s'}}></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-floating" style={{animationDelay: '2s'}}></div>
         </div>
+        
+        {/* Floating Space Objects */}
+        <div className="space-object space-object-1"></div>
+        <div className="space-object space-object-2"></div>
+        <div className="space-object space-object-3"></div>
+        <div className="space-object space-object-4"></div>
+        
+        {/* Nebula Glow Effect */}
+        <div className="nebula-glow"></div>
 
         <div className="max-w-5xl mx-auto">
           <div className="text-center pt-16 pb-8">
@@ -415,8 +424,17 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
+      {/* Floating Space Objects */}
+      <div className="space-object space-object-1"></div>
+      <div className="space-object space-object-2"></div>
+      <div className="space-object space-object-3"></div>
+      <div className="space-object space-object-4"></div>
+      
+      {/* Nebula Glow Effect */}
+      <div className="nebula-glow"></div>
+      
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">

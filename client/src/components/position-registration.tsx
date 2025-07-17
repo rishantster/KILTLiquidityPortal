@@ -125,6 +125,12 @@ export function PositionRegistration() {
         const appCreatedNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === true).map((p: any) => p.nftTokenId));
         const manuallyRegisteredNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === false).map((p: any) => p.nftTokenId));
         
+        // Debug: Log what we're filtering
+        console.log('Registered positions:', registeredPositions);
+        console.log('App-created NFT IDs:', Array.from(appCreatedNftIds));
+        console.log('Manually registered NFT IDs:', Array.from(manuallyRegisteredNftIds));
+        console.log('Wallet positions:', walletPositions.map((p: any) => p.tokenId));
+        
         // Filter out app-created positions (they're automatically enrolled) and manually registered positions
         const eligiblePositions = walletPositions
           .filter((pos: any) => !appCreatedNftIds.has(pos.tokenId.toString()) && !manuallyRegisteredNftIds.has(pos.tokenId.toString()))

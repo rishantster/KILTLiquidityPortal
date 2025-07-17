@@ -100,9 +100,8 @@ export const UniswapPositionCard = ({
               <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
               <span className="text-sm font-medium text-white">{kiltPercentage.toFixed(1)}%</span>
             </div>
-            <span className="text-sm font-medium text-white">{ethPercentage.toFixed(1)}%</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white"></span>
+              <span className="text-sm font-medium text-white">{ethPercentage.toFixed(1)}%</span>
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
             </div>
           </div>
@@ -149,10 +148,10 @@ export const UniswapPositionCard = ({
                 {feesEarned > 0 ? `${((kiltFeesEarned * kiltPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
               </span>
             </div>
-            <span className="text-xs text-white/80">
-              {feesEarned > 0 ? `${((ethFeesEarned * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
-            </span>
             <div className="flex items-center gap-2">
+              <span className="text-xs text-white/80">
+                {feesEarned > 0 ? `${((ethFeesEarned * ethPrice / feesEarned) * 100).toFixed(1)}%` : '0%'}
+              </span>
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
             </div>
           </div>
@@ -185,11 +184,11 @@ export const UniswapPositionCard = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <Button 
             size="sm"
             onClick={() => onAddLiquidity?.(position)}
-            className="flex-1 h-8 text-xs bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400"
+            className="h-9 text-xs font-medium bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 hover:from-emerald-500/30 hover:to-emerald-600/30 border border-emerald-500/40 text-emerald-400 rounded-md transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20"
           >
             <Plus className="h-3 w-3 mr-1" />
             Add
@@ -197,7 +196,7 @@ export const UniswapPositionCard = ({
           <Button 
             size="sm"
             onClick={() => onRemoveLiquidity?.(position)}
-            className="flex-1 h-8 text-xs bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400"
+            className="h-9 text-xs font-medium bg-gradient-to-r from-red-500/20 to-red-600/20 hover:from-red-500/30 hover:to-red-600/30 border border-red-500/40 text-red-400 rounded-md transition-all duration-200 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Minus className="h-3 w-3 mr-1" />
             Remove
@@ -205,7 +204,7 @@ export const UniswapPositionCard = ({
           <Button 
             size="sm"
             onClick={() => onCollectFees?.(position)}
-            className="flex-1 h-8 text-xs bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-400"
+            className="h-9 text-xs font-medium bg-gradient-to-r from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 border border-blue-500/40 text-blue-400 rounded-md transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/20"
           >
             <DollarSign className="h-3 w-3 mr-1" />
             Collect

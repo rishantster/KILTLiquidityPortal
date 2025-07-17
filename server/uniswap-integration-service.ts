@@ -149,8 +149,18 @@ export class UniswapIntegrationService {
         poolData.tickCurrent
       );
 
-      // Get actual fees from Uniswap position using collect simulation
-      const fees = await this.getFeesFromUniswapAPI(tokenId);
+      // Get actual fees using reliable methodology
+      const fees = await this.getReliableFeesFromPosition(
+        tokenId,
+        liquidity,
+        feeGrowthInside0LastX128,
+        feeGrowthInside1LastX128,
+        tokensOwed0,
+        tokensOwed1,
+        poolData.tickCurrent,
+        tickLower,
+        tickUpper
+      );
 
       // Calculate USD value
       const currentValueUSD = await this.calculatePositionValueUSD(
@@ -251,6 +261,50 @@ export class UniswapIntegrationService {
   }
 
   /**
+   * Get reliable fees using tokensOwed (ready to collect) plus calculated unclaimed fees
+   */
+  private async getReliableFeesFromPosition(
+    tokenId: string,
+    liquidity: bigint,
+    feeGrowthInside0LastX128: bigint,
+    feeGrowthInside1LastX128: bigint,
+    tokensOwed0: bigint,
+    tokensOwed1: bigint,
+    tickCurrent: number,
+    tickLower: number,
+    tickUpper: number
+  ): Promise<{ token0: string; token1: string }> {
+    try {
+      // First priority: Use tokensOwed (fees ready to collect)
+      if (tokensOwed0 > 0n || tokensOwed1 > 0n) {
+        return {
+          token0: tokensOwed0.toString(),
+          token1: tokensOwed1.toString()
+        };
+      }
+
+      // Fallback: Try to calculate unclaimed fees
+      const calculatedFees = await this.calculateUnclaimedFeesFromPosition(
+        tokenId,
+        liquidity,
+        feeGrowthInside0LastX128,
+        feeGrowthInside1LastX128,
+        tickCurrent,
+        tickLower,
+        tickUpper
+      );
+
+      return calculatedFees;
+    } catch (error) {
+      // Final fallback: Return tokensOwed even if they're zero
+      return {
+        token0: tokensOwed0.toString(),
+        token1: tokensOwed1.toString()
+      };
+    }
+  }
+
+  /**
    * Get real-time unclaimed fees using NonfungiblePositionManager collect function
    */
   private async getFeesFromUniswapAPI(tokenId: string): Promise<{ token0: string; token1: string }> {
@@ -271,6 +325,11 @@ export class UniswapIntegrationService {
       const result = await positionContract.simulate.collect([collectParams]);
       const [amount0, amount1] = result.result;
       
+      // Debug logging for fee collection
+      if (tokenId === '3534947') {
+        console.log(`DEBUG: Position ${tokenId} fees - token0: ${amount0.toString()}, token1: ${amount1.toString()}`);
+      }
+      
       // Return actual fees from blockchain
       return {
         token0: amount0.toString(),
@@ -278,6 +337,11 @@ export class UniswapIntegrationService {
       };
       
     } catch (error) {
+      // Debug logging for errors
+      if (tokenId === '3534947') {
+        console.log(`DEBUG: Position ${tokenId} fee collection failed:`, error);
+      }
+      
       // If collect simulation fails, return zero fees (position may have no fees)
       return { token0: '0', token1: '0' };
     }

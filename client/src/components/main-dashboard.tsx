@@ -484,63 +484,63 @@ export function MainDashboard() {
 
         {/* Clean Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-1 rounded-xl mb-6 h-12 sm:h-14 gap-1">
+          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50 border border-gray-700/50 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all mobile-tab-compact flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate">
+              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
                 <span className="hidden sm:inline">Overview</span>
                 <span className="sm:hidden">Over</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all mobile-tab-compact flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate">
+              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
                 <span className="hidden sm:inline">Add Liquidity</span>
                 <span className="sm:hidden">Add</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all mobile-tab-compact flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate">
+              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
                 <span className="hidden sm:inline">Rewards</span>
                 <span className="sm:hidden">Rwd</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all mobile-tab-compact flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate">
+              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
                 <span className="hidden sm:inline">Positions</span>
                 <span className="sm:hidden">Pos</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all mobile-tab-compact flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate">
+              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
                 <span className="hidden sm:inline">Analytics</span>
                 <span className="sm:hidden">Ana</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="rebalancing" 
-              className="data-[state=active]:bg-orange-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all mobile-tab-compact flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-orange-600 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
             >
               <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate">
+              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
                 <span className="hidden sm:inline">Rebalance</span>
                 <span className="sm:hidden">Bal</span>
               </span>
@@ -614,26 +614,26 @@ export function MainDashboard() {
             </div>
 
             {/* Two Column Layout - Mobile Responsive */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {/* Left Column - Position Registration */}
               <div className="h-full">
-                <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
+                <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2 mb-3">
                   <Plus className="h-3 w-3 text-emerald-400" />
                   Register Existing Positions
                 </h2>
-                <div className="h-[300px] lg:h-[360px] flex flex-col">
+                <div className="h-[280px] sm:h-[320px] lg:h-[360px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
               <div className="h-full">
-                <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
+                <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2 mb-3">
                   <Zap className="h-3 w-3 text-emerald-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[300px] lg:h-[360px] flex flex-col">
-                  <CardContent className="p-3 flex-1 flex flex-col justify-between">
+                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[280px] sm:h-[320px] lg:h-[360px] flex flex-col">
+                  <CardContent className="p-2 sm:p-3 flex-1 flex flex-col justify-between">
                     <div className="space-y-4 flex-1">
                       {/* Balance Display */}
                       <div className="bg-white/5 rounded-lg p-3 border border-white/10">

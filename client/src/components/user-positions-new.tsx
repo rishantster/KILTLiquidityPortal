@@ -63,8 +63,8 @@ const UserPositionsNew = () => {
     if (position.currentValueUSD) return position.currentValueUSD;
     
     // Simplified calculation - in real implementation, use actual token prices
-    const amount0Value = parseFloat(formatUnits(position.amount0, 18)) * 0.016; // KILT price estimate
-    const amount1Value = parseFloat(formatUnits(position.amount1, 18)) * 2500; // ETH price estimate
+    const amount0Value = position.amount0 ? parseFloat(formatUnits(position.amount0, 18)) * 0.016 : 0; // KILT price estimate
+    const amount1Value = position.amount1 ? parseFloat(formatUnits(position.amount1, 18)) * 2500 : 0; // ETH price estimate
     
     return amount0Value + amount1Value;
   };
@@ -86,7 +86,22 @@ const UserPositionsNew = () => {
 
   const handleRegisterPosition = async (position: UniswapPosition) => {
     try {
-      await registerPosition(position.tokenId.toString());
+      const positionData = {
+        nftTokenId: position.tokenId.toString(),
+        poolAddress: position.poolAddress || '',
+        token0Address: position.token0,
+        token1Address: position.token1,
+        amount0: position.amount0?.toString() || '0',
+        amount1: position.amount1?.toString() || '0',
+        minPrice: '0', // Could be calculated from tickLower
+        maxPrice: '0', // Could be calculated from tickUpper
+        liquidity: position.liquidity.toString(),
+        currentValueUSD: position.currentValueUSD || calculatePositionValue(position),
+        feeTier: 3000, // Default fee tier
+        createdAt: new Date(),
+      };
+      
+      await registerPosition(positionData);
       toast({
         title: "Success",
         description: "Position registered for rewards",
@@ -227,7 +242,7 @@ const UserPositionsNew = () => {
                       <span className="text-white/80 text-xs font-medium">KILT</span>
                     </div>
                     <div className="text-white/80 text-xs">
-                      {parseFloat(formatUnits(position.amount0, 18)).toFixed(2)}
+                      {position.amount0 ? parseFloat(formatUnits(position.amount0, 18)).toFixed(2) : '0.00'}
                     </div>
                   </div>
                   
@@ -237,7 +252,7 @@ const UserPositionsNew = () => {
                       <span className="text-white/80 text-xs font-medium">ETH</span>
                     </div>
                     <div className="text-white/80 text-xs">
-                      {parseFloat(formatUnits(position.amount1, 18)).toFixed(4)}
+                      {position.amount1 ? parseFloat(formatUnits(position.amount1, 18)).toFixed(4) : '0.0000'}
                     </div>
                   </div>
                   

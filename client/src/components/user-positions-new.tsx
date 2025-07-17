@@ -218,75 +218,102 @@ const UserPositionsNew = () => {
             <p className="text-white/40 text-sm">Add liquidity to pools containing KILT token to get started</p>
           </div>
         ) : (
-          <div className="position-grid-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {displayPositions.map((position) => {
               const positionValue = calculatePositionValue(position);
               const inRange = isPositionInRange(position);
               const isClosed = position.liquidity === 0n;
               
               return (
-                <div key={position.tokenId.toString()} className={`position-card ${
+                <div key={position.tokenId.toString()} className={`group relative ${
                   isClosed 
-                    ? 'bg-gradient-to-br from-gray-500/10 to-gray-600/5 border-gray-400/20' 
-                    : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 border-blue-400/20'
-                } rounded border p-2 backdrop-blur-sm hover:bg-gradient-to-br hover:from-blue-500/20 hover:via-purple-500/20 hover:to-emerald-500/20 transition-all`}>
+                    ? 'bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-600/30' 
+                    : 'bg-gradient-to-br from-blue-600/10 via-purple-600/10 to-emerald-600/10 border-blue-400/30'
+                } rounded-2xl border backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 hover:scale-105 hover:border-cyan-400/50 p-6 overflow-hidden`}>
                   
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-white font-bold text-xs">#{position.tokenId.toString()}</div>
-                    <div className="text-white font-bold text-xs">${positionValue.toFixed(2)}</div>
+                  {/* Glowing border animation */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-cyan-500/20 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                  
+                  {/* Header section */}
+                  <div className="relative space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-400 font-mono">
+                        ID: {position.tokenId.toString()}
+                      </div>
+                      <div className="text-2xl font-bold text-white bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                        ${positionValue.toFixed(2)}
+                      </div>
+                    </div>
+                    
+                    <div className="text-xl font-bold text-white mb-4">
+                      KILT/WETH
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between bg-white/5 rounded-lg p-3">
+                        <div className="flex items-center space-x-2">
+                          <TokenLogo symbol="KILT" className="w-5 h-5" />
+                          <span className="text-white/90 text-sm font-medium">KILT</span>
+                        </div>
+                        <div className="text-white font-semibold">
+                          {position.amount0 ? parseFloat(formatUnits(position.amount0, 18)).toFixed(2) : '0.00'}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between bg-white/5 rounded-lg p-3">
+                        <div className="flex items-center space-x-2">
+                          <TokenLogo symbol="ETH" className="w-5 h-5" />
+                          <span className="text-white/90 text-sm font-medium">WETH</span>
+                        </div>
+                        <div className="text-white font-semibold">
+                          {position.amount1 ? parseFloat(formatUnits(position.amount1, 18)).toFixed(4) : '0.0000'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-1">
-                      <TokenLogo symbol="KILT" className="w-3 h-3" />
-                      <span className="text-white/80 text-xs font-medium">KILT</span>
-                    </div>
-                    <div className="text-white/80 text-xs">
-                      {position.amount0 ? parseFloat(formatUnits(position.amount0, 18)).toFixed(2) : '0.00'}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-1">
-                      <TokenLogo symbol="ETH" className="w-3 h-3" />
-                      <span className="text-white/80 text-xs font-medium">ETH</span>
-                    </div>
-                    <div className="text-white/80 text-xs">
-                      {position.amount1 ? parseFloat(formatUnits(position.amount1, 18)).toFixed(4) : '0.0000'}
-                    </div>
-                  </div>
-                  
-                  <div className="mb-2">
+                  {/* Range Visualization */}
+                  <div className="my-4">
+                    <div className="text-sm text-gray-400 mb-2">Price Range</div>
                     <PositionRangeChart
                       tickLower={position.tickLower}
                       tickUpper={position.tickUpper}
                       currentTick={0}
-                      height={32}
+                      height={64}
+                      showLabels={false}
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant={inRange ? "default" : "secondary"} className="text-xs px-1 py-0">
-                      {inRange ? "In" : "Out"}
+                  {/* Status Badges */}
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge 
+                      variant={inRange ? "default" : "secondary"} 
+                      className={`text-sm px-3 py-1 ${inRange ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-gray-500/20 text-gray-300 border-gray-500/30'}`}
+                    >
+                      {inRange ? "In Range" : "Out of Range"}
                     </Badge>
-                    <Badge variant={isClosed ? "outline" : "default"} className="text-xs px-1 py-0">
-                      {isClosed ? "Closed" : "Open"}
+                    <Badge 
+                      variant={isClosed ? "outline" : "default"} 
+                      className={`text-sm px-3 py-1 ${isClosed ? 'bg-red-500/20 text-red-300 border-red-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'}`}
+                    >
+                      {isClosed ? "Closed" : "Active"}
                     </Badge>
                   </div>
                   
-                  <div className="flex space-x-1">
+                  {/* Action Buttons */}
+                  <div className="flex space-x-3">
                     <Button
                       onClick={() => handleRegisterPosition(position)}
                       disabled={isRegistering}
-                      className="flex-1 h-6 px-2 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white text-xs"
+                      className="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                     >
-                      Register
+                      {isRegistering ? 'Registering...' : 'Register for Rewards'}
                     </Button>
                     <Button
                       onClick={() => window.open(`https://app.uniswap.org/pools/${position.tokenId}`, '_blank')}
-                      className="h-6 px-2 bg-white/10 hover:bg-white/20 text-white text-xs"
+                      className="h-12 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

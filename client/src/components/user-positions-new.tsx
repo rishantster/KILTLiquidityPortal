@@ -83,10 +83,10 @@ const UserPositionsNew = () => {
   const kiltPositions = allPositions || [];
 
   const openPositions = kiltPositions.filter(position => 
-    position.isActive && position.liquidity && Number(position.liquidity) > 0
+    position.liquidity && Number(position.liquidity) > 0
   );
   const closedPositions = kiltPositions.filter(position => 
-    !position.isActive || !position.liquidity || Number(position.liquidity) === 0
+    !position.liquidity || Number(position.liquidity) === 0
   );
   const displayPositions = showClosedPositions ? kiltPositions : openPositions;
 
@@ -103,8 +103,8 @@ const UserPositionsNew = () => {
   };
 
   const isPositionInRange = (position: any): boolean => {
-    // For instant positions, use the isActive field
-    return position.isActive || false;
+    // Position is in range if it has liquidity
+    return position.liquidity && Number(position.liquidity) > 0;
   };
 
   const isPositionRegistered = (position: any): boolean => {

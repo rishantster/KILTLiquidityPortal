@@ -163,23 +163,21 @@ export class UniswapIntegrationService {
 
       const position: UniswapV3Position = {
         tokenId: tokenId,
-        owner: operator,
+        poolAddress,
         token0,
         token1,
-        fee,
+        token0Amount: amount0.toString(),
+        token1Amount: amount1.toString(),
+        liquidity: liquidity.toString(),
         tickLower,
         tickUpper,
-        liquidity: liquidity.toString(),
-        amount0: amount0.toString(),
-        amount1: amount1.toString(),
-        poolAddress,
+        feeTier: fee,
+        isActive: poolData.tickCurrent >= tickLower && poolData.tickCurrent < tickUpper,
+        currentValueUSD,
         fees: {
           token0: fees.token0.toString(),
           token1: fees.token1.toString()
-        },
-        currentValueUSD,
-        isKiltPosition: await this.isKiltPosition(token0, token1),
-        poolType: this.determinePoolType(token0, token1)
+        }
       };
 
       // Cache the result

@@ -1,9 +1,5 @@
-import { MainDashboard } from '@/components/main-dashboard';
+import { AppShell } from '@/components/app-shell';
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <MainDashboard />
-    </div>
-  );
+  return <AppShell />;
 }

@@ -19,16 +19,8 @@ import {
   Target
 } from 'lucide-react';
 
-// Components
-import { LiquidityMint } from './liquidity-mint';
-import { RewardsTracking } from './rewards-tracking';
-import { AnalyticsDashboard } from './analytics-dashboard';
-import { UserPositions } from './user-positions';
-import { UserPersonalAPR } from './user-personal-apr';
-import { WalletConnect } from './wallet-connect';
-import { GasEstimationCard } from './gas-estimation-card';
-import { LiquidityRebalancing } from './liquidity-rebalancing';
-import { PositionRegistration } from './position-registration';
+// Lazy-loaded components for faster initial load
+import { lazy, Suspense } from 'react';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
@@ -36,8 +28,25 @@ import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useAppSession } from '@/hooks/use-app-session';
-import { useToast } from '@/hooks/use-toast';
 import { useRealTimeDashboard } from '@/hooks/use-real-time-data';
+import { useToast } from '@/hooks/use-toast';
+
+// Lightweight components
+import { UserPersonalAPR } from './user-personal-apr';
+import { WalletConnect } from './wallet-connect';
+import { GasEstimationCard } from './gas-estimation-card';
+import { PositionRegistration } from './position-registration';
+import { LoadingScreen } from './loading-screen';
+
+// Lazy load heavy components
+const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
+const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ default: m.RewardsTracking })));
+const AnalyticsDashboard = lazy(() => import('./analytics-dashboard').then(m => ({ default: m.AnalyticsDashboard })));
+const UserPositions = lazy(() => import('./user-positions').then(m => ({ default: m.UserPositions })));
+const LiquidityRebalancing = lazy(() => import('./liquidity-rebalancing').then(m => ({ default: m.LiquidityRebalancing })));
+
+// Import optimized loading components
+import { TabLoadingSpinner } from './loading-screen';
 
 // Assets and icons
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -756,30 +765,40 @@ export function MainDashboard() {
 
           {/* Add Liquidity Tab */}
           <TabsContent value="liquidity">
-            <LiquidityMint />
+            <Suspense fallback={<TabLoadingSpinner />}>
+              <LiquidityMint />
+            </Suspense>
           </TabsContent>
 
           {/* Rewards Tab */}
           <TabsContent value="rewards">
-            <RewardsTracking />
+            <Suspense fallback={<TabLoadingSpinner />}>
+              <RewardsTracking />
+            </Suspense>
           </TabsContent>
 
           {/* Positions Tab */}
           <TabsContent value="positions">
-            <UserPositions />
+            <Suspense fallback={<TabLoadingSpinner />}>
+              <UserPositions />
+            </Suspense>
           </TabsContent>
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <AnalyticsDashboard 
-              userId={unifiedData.user?.id || null}
-              selectedPositionId={unifiedData.positions?.[0]?.id || null}
-            />
+            <Suspense fallback={<TabLoadingSpinner />}>
+              <AnalyticsDashboard 
+                userId={unifiedData.user?.id || null}
+                selectedPositionId={unifiedData.positions?.[0]?.id || null}
+              />
+            </Suspense>
           </TabsContent>
 
           {/* Rebalancing Tab */}
           <TabsContent value="rebalancing">
-            <LiquidityRebalancing />
+            <Suspense fallback={<TabLoadingSpinner />}>
+              <LiquidityRebalancing />
+            </Suspense>
           </TabsContent>
 
 

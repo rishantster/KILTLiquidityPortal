@@ -303,7 +303,7 @@ export function UserPositions() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-3">
+        <CardContent className="p-3 w-full">
           {!kiltPositions || kiltPositions.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>
@@ -325,7 +325,7 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3 w-full">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
@@ -333,7 +333,7 @@ export function UserPositions() {
                 const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
                 
                 return (
-                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-md hover:bg-white/10 transition-all`}>
+                  <Card key={position.tokenId.toString()} className={`${isClosed ? 'bg-white/3 border-white/5' : 'bg-white/5 border-white/10'} rounded-md hover:bg-white/10 transition-all w-full`}>
                     <CardContent className="p-1">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center space-x-1">

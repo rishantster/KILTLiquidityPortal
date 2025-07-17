@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Coins, RefreshCw, TrendingUp, TrendingDown, Eye, DollarSign, Clock, Activity, ExternalLink } from 'lucide-react';
 import { useUniswapV3Positions } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/wallet-context';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { usePositionRegistration } from '@/hooks/use-position-registration';

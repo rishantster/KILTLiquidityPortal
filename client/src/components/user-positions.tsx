@@ -29,19 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
-import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
-
-// Ethereum logo component
-const EthereumLogo = ({ className = "w-5 h-5" }) => (
-  <svg className={className} viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#343434"/>
-    <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
-    <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
-    <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
-    <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141114"/>
-    <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
-  </svg>
-);
+import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
 export function UserPositions() {
@@ -390,7 +378,7 @@ export function UserPositions() {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <EthereumLogo className="w-5 h-5" />
+                            <EthLogo size="md" />
                             ETH
                           </span>
                           <span className="text-white font-bold tabular-nums">
@@ -399,7 +387,7 @@ export function UserPositions() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-white/60 flex items-center gap-1">
-                            <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                            <KiltLogo size="md" />
                             KILT
                           </span>
                           <span className="text-white font-bold tabular-nums">
@@ -563,7 +551,7 @@ export function UserPositions() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-white/60 flex items-center gap-1">
-                    <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
+                    <KiltLogo size="sm" />
                     KILT
                   </Label>
                   <Input
@@ -579,7 +567,7 @@ export function UserPositions() {
                 </div>
                 <div>
                   <Label className="text-white/60 flex items-center gap-1">
-                    <EthereumLogo className="w-4 h-4" />
+                    <EthLogo size="sm" />
                     ETH
                   </Label>
                   <Input

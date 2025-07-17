@@ -1,0 +1,197 @@
+import { TOKENS } from '@/lib/uniswap-v3';
+
+export interface LiquidityParams {
+  kiltAmount: string;
+  ethAmount: string;
+  useNativeEth: boolean;
+  strategy: 'balanced' | 'wide' | 'narrow' | 'full';
+  slippage?: number;
+}
+
+export interface LiquidityCalculation {
+  kiltAmount: string;
+  ethAmount: string;
+  totalValue: string;
+  selectedToken: string;
+  useNativeEth: boolean;
+}
+
+export class LiquidityService {
+  static calculateOptimalAmounts(
+    kiltBalance: bigint | undefined,
+    wethBalance: bigint | undefined,
+    ethBalance: bigint | undefined,
+    kiltPrice: number,
+    percentage: number = 80,
+    formatTokenBalance: (balance: bigint | undefined) => string
+  ): LiquidityCalculation {
+    if (!kiltBalance || !kiltPrice) {
+      return { 
+        kiltAmount: '0', 
+        ethAmount: '0', 
+        totalValue: '0', 
+        selectedToken: 'KILT', 
+        useNativeEth: false 
+      };
+    }
+
+    const ethPrice = 2500; // Approximate ETH price
+    
+    // Convert balances to numbers
+    const availableKilt = parseFloat(formatTokenBalance(kiltBalance));
+    const availableWeth = parseFloat(formatTokenBalance(wethBalance));
+    const availableEth = parseFloat(formatTokenBalance(ethBalance));
+    
+    // Calculate total value of each token in USD
+    const kiltValueUSD = availableKilt * kiltPrice;
+    const wethValueUSD = availableWeth * ethPrice;
+    const ethValueUSD = availableEth * ethPrice;
+    
+    // Select higher value token as base (preference to ETH over WETH)
+    const useEthNotWeth = ethValueUSD >= wethValueUSD;
+    const ethTokenValue = useEthNotWeth ? ethValueUSD : wethValueUSD;
+    const availableEthToken = useEthNotWeth ? availableEth : availableWeth;
+    
+    // Determine which token has higher value
+    const selectedToken = kiltValueUSD >= ethTokenValue ? 'KILT' : (useEthNotWeth ? 'ETH' : 'WETH');
+    
+    // Calculate amounts using the selected percentage
+    const safetyBuffer = percentage / 100;
+    const maxKiltForBalance = availableKilt * safetyBuffer;
+    const maxEthForBalance = availableEthToken * safetyBuffer;
+    
+    // Calculate equivalent amounts for balanced liquidity
+    const kiltValueInEth = maxKiltForBalance * kiltPrice / ethPrice;
+    const ethValueInKilt = maxEthForBalance * ethPrice / kiltPrice;
+    
+    let optimalKilt, optimalEth;
+    
+    if (kiltValueInEth <= maxEthForBalance) {
+      // KILT is the limiting factor
+      optimalKilt = maxKiltForBalance;
+      optimalEth = kiltValueInEth;
+    } else {
+      // ETH is the limiting factor
+      optimalKilt = ethValueInKilt;
+      optimalEth = maxEthForBalance;
+    }
+    
+    const totalValue = (optimalKilt * kiltPrice + optimalEth * ethPrice);
+    
+    return {
+      kiltAmount: optimalKilt.toFixed(2),
+      ethAmount: optimalEth.toFixed(6),
+      totalValue: totalValue.toFixed(2),
+      selectedToken,
+      useNativeEth: useEthNotWeth
+    };
+  }
+
+  static async executeQuickAddLiquidity(
+    params: LiquidityParams,
+    mintPosition: (params: any) => Promise<any>,
+    approveToken: (tokenAddress: string, amount: string) => Promise<boolean>,
+    parseTokenAmount: (amount: string) => bigint,
+    toast: any,
+    sessionId: string | null,
+    createAppSession: () => Promise<string>,
+    recordAppTransaction: (transactionHash: string, type: string, details: any) => Promise<void>
+  ): Promise<boolean> {
+    try {
+      // Ensure we have a session
+      let currentSessionId = sessionId;
+      if (!currentSessionId) {
+        currentSessionId = await createAppSession();
+      }
+
+      // Step 1: Approve tokens
+      const maxUint256 = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+      
+      toast({
+        title: "Approving Tokens",
+        description: "Approving KILT and ETH for liquidity provision...",
+      });
+
+      // Approve KILT
+      const kiltApproved = await approveToken(TOKENS.KILT, maxUint256);
+      if (!kiltApproved) {
+        throw new Error('Failed to approve KILT token');
+      }
+
+      // Approve ETH/WETH
+      const ethTokenAddress = params.useNativeEth ? TOKENS.ETH : TOKENS.WETH;
+      const ethApproved = await approveToken(ethTokenAddress, maxUint256);
+      if (!ethApproved) {
+        throw new Error('Failed to approve ETH token');
+      }
+
+      toast({
+        title: "Tokens Approved",
+        description: "Creating liquidity position...",
+      });
+
+      // Step 2: Create liquidity position
+      const mintParams = {
+        token0: TOKENS.KILT,
+        token1: params.useNativeEth ? TOKENS.ETH : TOKENS.WETH,
+        fee: 3000, // 0.3% fee tier
+        tickLower: -887220, // Full range for simplicity
+        tickUpper: 887220,
+        amount0Desired: parseTokenAmount(params.kiltAmount),
+        amount1Desired: parseTokenAmount(params.ethAmount),
+        amount0Min: parseTokenAmount((parseFloat(params.kiltAmount) * 0.95).toString()),
+        amount1Min: parseTokenAmount((parseFloat(params.ethAmount) * 0.95).toString()),
+        recipient: TOKENS.KILT, // Will be replaced with actual address
+        deadline: Math.floor(Date.now() / 1000) + 1800, // 30 minutes
+        slippage: params.slippage || 5,
+        strategy: params.strategy,
+        isNativeETH: params.useNativeEth
+      };
+
+      const result = await mintPosition(mintParams);
+      
+      if (result.success && result.transactionHash) {
+        // Record transaction for reward eligibility
+        await recordAppTransaction(result.transactionHash, 'MINT_POSITION', {
+          kiltAmount: params.kiltAmount,
+          ethAmount: params.ethAmount,
+          strategy: params.strategy,
+          useNativeEth: params.useNativeEth
+        });
+
+        toast({
+          title: "Liquidity Added Successfully!",
+          description: `Position created with ${params.kiltAmount} KILT + ${params.ethAmount} ${params.useNativeEth ? 'ETH' : 'WETH'}`,
+        });
+
+        return true;
+      } else {
+        throw new Error(result.error || 'Failed to create position');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Quick Add Failed",
+        description: error.message || "Failed to add liquidity automatically",
+        variant: "destructive",
+      });
+      return false;
+    }
+  }
+
+  static getPercentageOptions(): Array<{value: number, label: string}> {
+    return [
+      { value: 0, label: '0%' },
+      { value: 25, label: '25%' },
+      { value: 50, label: '50%' },
+      { value: 75, label: '75%' },
+      { value: 100, label: '100%' }
+    ];
+  }
+
+  static estimateGasForQuickAdd(kiltAmount: string, ethAmount: string): number {
+    // Estimate gas for approval + minting
+    const approvalGas = 50000; // ~50k gas per approval
+    const mintGas = 200000; // ~200k gas for minting
+    return (approvalGas * 2) + mintGas; // Two approvals + mint
+  }
+}

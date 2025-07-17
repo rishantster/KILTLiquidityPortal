@@ -53,6 +53,12 @@ import { TabLoadingSpinner } from './loading-screen';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
 
+// Services
+import { LiquidityService } from '@/services/liquidity-service';
+
+// Universal logo components
+import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
+
 // Base logo component
 const BaseLogo = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -60,22 +66,20 @@ const BaseLogo = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
-// Ethereum logo component
-const EthereumLogo = ({ className = "w-5 h-5" }) => (
-  <svg className={className} viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#343434"/>
-    <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
-    <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
-    <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
-    <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141414"/>
-    <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
-  </svg>
-);
-
 export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
-  const { kiltBalance, wethBalance } = useUniswapV3();
+  const { 
+    kiltBalance, 
+    wethBalance, 
+    ethBalance,
+    mintPosition,
+    approveToken,
+    isMinting,
+    isApproving,
+    formatTokenAmount,
+    parseTokenAmount 
+  } = useUniswapV3();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
   const realTimeData = useRealTimeDashboard(address, unifiedData.user?.id);
@@ -83,6 +87,7 @@ export function MainDashboard() {
   const [isQuickAdding, setIsQuickAdding] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
+  const [selectedPercentage, setSelectedPercentage] = useState(80);
   const { toast } = useToast();
 
   // Navigation function for components to use
@@ -151,94 +156,58 @@ export function MainDashboard() {
     return cleanFractional ? `${wholePart.toString()}.${cleanFractional}` : wholePart.toString();
   };
 
-  // Calculate optimal amounts based on wallet balances
-  const calculateOptimalAmounts = () => {
-    if (!kiltBalance || !wethBalance || !kiltData?.price) {
-      return { kiltAmount: '0', wethAmount: '0', totalValue: '0' };
-    }
-
-    const currentPrice = kiltData.price;
-    // Convert bigint balances to numbers (divide by 10^18)
-    const availableKilt = parseFloat(formatTokenBalance(kiltBalance));
-    const availableWeth = parseFloat(formatTokenBalance(wethBalance));
-    
-    // Calculate balanced amounts using 80% of available balances for safety
-    const safetyBuffer = 0.8;
-    const maxKiltForBalance = availableKilt * safetyBuffer;
-    const maxWethForBalance = availableWeth * safetyBuffer;
-    
-    // Calculate equivalent amounts for balanced liquidity
-    const kiltValueInWeth = maxKiltForBalance * currentPrice;
-    const wethValueInKilt = maxWethForBalance / currentPrice;
-    
-    let optimalKilt, optimalWeth;
-    
-    if (kiltValueInWeth <= maxWethForBalance) {
-      // KILT is the limiting factor
-      optimalKilt = maxKiltForBalance;
-      optimalWeth = kiltValueInWeth;
-    } else {
-      // WETH is the limiting factor
-      optimalKilt = wethValueInKilt;
-      optimalWeth = maxWethForBalance;
-    }
-    
-    const totalValue = (optimalKilt * currentPrice + optimalWeth) * 2500; // Assuming ETH ~$2500
-    
-    return {
-      kiltAmount: optimalKilt.toFixed(2),
-      wethAmount: optimalWeth.toFixed(6),
-      totalValue: totalValue.toFixed(2)
-    };
+  // Calculate optimal amounts using universal LiquidityService
+  const calculateOptimalAmounts = (percentage = selectedPercentage) => {
+    return LiquidityService.calculateOptimalAmounts(
+      kiltBalance,
+      wethBalance,
+      ethBalance,
+      kiltData?.price || 0.0160,
+      percentage,
+      formatTokenBalance
+    );
   };
 
-  // One-click liquidity addition with optimal settings
+  // One-click liquidity addition using universal LiquidityService
   const handleQuickAddLiquidity = async () => {
     if (!address) return;
     
     setIsQuickAdding(true);
     
     try {
-      // Optimal settings for one-click liquidity
-      const TOKENS = {
-        KILT: '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8',
-        WETH: '0x4200000000000000000000000000000000000006'
+      // Calculate optimal amounts based on selected percentage
+      const { kiltAmount, ethAmount, useNativeEth } = calculateOptimalAmounts(selectedPercentage);
+      
+      // Prepare liquidity parameters
+      const liquidityParams = {
+        kiltAmount,
+        ethAmount,
+        useNativeEth,
+        strategy: 'balanced' as const,
+        slippage: 5
       };
       
-      // Use balanced price range strategy (±50% from current price)
-      const currentPrice = kiltData?.price || 0.0160;
-      const balancedRange = 0.5; // 50% range
-      
-      // Calculate optimal amounts based on actual wallet balances
-      const { kiltAmount, wethAmount } = calculateOptimalAmounts();
-      
       toast({
-        title: "Starting One-Click Liquidity Addition",
-        description: `Adding ${kiltAmount} KILT + ${wethAmount} WETH with balanced range strategy`,
+        title: "Starting Quick Add Liquidity",
+        description: `Adding ${kiltAmount} KILT + ${ethAmount} ${useNativeEth ? 'ETH' : 'WETH'} (${selectedPercentage}% of balance)`,
       });
       
-      // Step 1: Approve tokens
-      const maxUint256 = BigInt('115792089237316195423570985008687907853269984665640564039457584007913129639935');
+      // Execute liquidity addition using universal service
+      const success = await LiquidityService.executeQuickAddLiquidity(
+        liquidityParams,
+        mintPosition,
+        approveToken,
+        parseTokenAmount,
+        toast,
+        appSession.sessionId,
+        appSession.createAppSession,
+        appSession.recordAppTransaction
+      );
       
-      // Note: This is a simplified implementation for demo
-      // In production, these would be actual blockchain transactions
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate approval
-      
-      toast({
-        title: "Tokens Approved",
-        description: "KILT and WETH approved for Position Manager",
-      });
-      
-      // Step 2: Add liquidity with balanced range
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate liquidity addition
-      
-      toast({
-        title: "Liquidity Added Successfully!",
-        description: `Position created with ${kiltAmount} KILT + ${wethAmount} WETH`,
-      });
-      
-      // Switch to positions tab to show the new position
-      setActiveTab('positions');
+      if (success) {
+        // Switch to positions tab to show the new position
+        setActiveTab('positions');
+      }
       
     } catch (error: any) {
       toast({
@@ -642,11 +611,7 @@ export function MainDashboard() {
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              <img 
-                                src={kiltLogo} 
-                                alt="KILT" 
-                                className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
-                              />
+                              <KiltLogo size="xs" showBackground={true} />
                               <span className="text-white/70 text-xs text-body">KILT:</span>
                             </div>
                             <span className="text-white font-bold text-xs text-numbers">
@@ -655,7 +620,7 @@ export function MainDashboard() {
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              <EthereumLogo className="w-3 h-3" />
+                              <EthLogo size="xs" showBackground={true} />
                               <span className="text-white/70 text-xs text-body">WETH:</span>
                             </div>
                             <span className="text-white font-bold text-xs text-numbers">
@@ -665,11 +630,36 @@ export function MainDashboard() {
                         </div>
                       </div>
 
+                      {/* Percentage Selector */}
+                      <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/70 text-xs text-label">Balance Usage</span>
+                          <span className="text-xs text-white/50 text-body">{selectedPercentage}% of wallet</span>
+                        </div>
+                        <div className="grid grid-cols-5 gap-1 mb-2">
+                          {LiquidityService.getPercentageOptions().map(({ value, label }) => (
+                            <Button
+                              key={value}
+                              variant={selectedPercentage === value ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setSelectedPercentage(value)}
+                              className={`text-xs py-1 px-2 h-6 transition-all duration-200 ${
+                                selectedPercentage === value 
+                                  ? 'bg-emerald-500 text-white border-emerald-500' 
+                                  : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
+                              }`}
+                            >
+                              {label}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
                       {/* Optimal Amount */}
                       <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-white/70 text-xs text-label">Optimal Amount</span>
-                          <span className="text-xs text-white/50 text-body">80% balance</span>
+                          <span className="text-white/70 text-xs text-label">Liquidity Amount</span>
+                          <span className="text-xs text-white/50 text-body">Balanced strategy</span>
                         </div>
                         {(() => {
                           const amounts = calculateOptimalAmounts();
@@ -691,17 +681,13 @@ export function MainDashboard() {
                               </div>
                               <div className="flex items-center justify-center space-x-2 text-white/60 text-xs text-body">
                                 <div className="flex items-center space-x-1">
-                                  <img 
-                                    src={kiltLogo} 
-                                    alt="KILT" 
-                                    className={`w-3 h-3 align-middle logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
-                                  />
+                                  <KiltLogo size="xs" showBackground={true} />
                                   <span>{amounts.kiltAmount} KILT</span>
                                 </div>
                                 <span>+</span>
                                 <div className="flex items-center space-x-1">
-                                  <EthereumLogo className="w-3 h-3" />
-                                  <span>{amounts.wethAmount} WETH</span>
+                                  <EthLogo size="xs" showBackground={true} />
+                                  <span>{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
                                 </div>
                               </div>
                             </div>

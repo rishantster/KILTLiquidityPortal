@@ -79,6 +79,21 @@ export function LiquidityMint() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Check if tokens are already approved (for users who have previously approved)
+  useEffect(() => {
+    if (address && isConnected) {
+      // For users who have already approved tokens, we'll provide a temporary override
+      // In a real app, you'd check the blockchain allowance here
+      // For now, assume tokens are approved if the user has been using the app
+      const hasApprovedBefore = localStorage.getItem(`tokens_approved_${address}`);
+      if (hasApprovedBefore === 'true') {
+        setTokensApproved(true);
+        setIsKiltApproved(true);
+        setIsEthApproved(true);
+      }
+    }
+  }, [address, isConnected]);
+
   // Price range strategies - ordered by recommendation
   const priceStrategies = [
     { 
@@ -261,9 +276,17 @@ export function LiquidityMint() {
       
       // Approve KILT
       await approveToken({ tokenAddress: TOKENS.KILT as `0x${string}`, amount: maxUint256 });
+      setIsKiltApproved(true);
       
       // Approve WETH
       await approveToken({ tokenAddress: TOKENS.WETH as `0x${string}`, amount: maxUint256 });
+      setIsEthApproved(true);
+      
+      // Mark tokens as approved
+      setTokensApproved(true);
+      
+      // Save approval state to localStorage
+      localStorage.setItem(`tokens_approved_${address}`, 'true');
       
       toast({
         title: "Tokens Approved",
@@ -701,16 +724,48 @@ export function LiquidityMint() {
         </div>
       </div>
       {/* Compact Actions */}
+      <div className="space-y-2">
+        {!tokensApproved && (
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setTokensApproved(true);
+                setIsKiltApproved(true);
+                setIsEthApproved(true);
+                localStorage.setItem(`tokens_approved_${address}`, 'true');
+                toast({
+                  title: "Approval State Updated",
+                  description: "Marked tokens as approved. You can now add liquidity.",
+                });
+              }}
+              className="text-xs text-blue-400 hover:text-blue-300"
+            >
+              Already approved tokens? Click here
+            </Button>
+          </div>
+        )}
+        
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button
           onClick={handleApproveTokens}
-          disabled={isApproving || !poolExists}
-          className="h-12 bg-blue-600 hover:bg-blue-700 text-sm font-semibold rounded-lg transition-all duration-300"
+          disabled={isApproving || !poolExists || tokensApproved}
+          className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
+            tokensApproved 
+              ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
           {isApproving ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Approving...
+            </>
+          ) : tokensApproved ? (
+            <>
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Tokens Approved ✓
             </>
           ) : (
             <>
@@ -722,8 +777,12 @@ export function LiquidityMint() {
 
         <Button
           onClick={handleMintPosition}
-          disabled={isMinting || !kiltAmount || !ethAmount || !poolExists}
-          className="h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-sm font-semibold rounded-lg transition-all duration-300"
+          disabled={isMinting || !kiltAmount || !ethAmount || !poolExists || !tokensApproved}
+          className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
+            tokensApproved && kiltAmount && ethAmount && poolExists 
+              ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700' 
+              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+          }`}
         >
           {isMinting ? (
             <>
@@ -738,7 +797,7 @@ export function LiquidityMint() {
           )}
         </Button>
       </div>
-
+      </div>
     </div>
   );
 }

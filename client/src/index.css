@@ -145,7 +145,13 @@
   body {
     @apply antialiased bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 35%, #16213e 100%);
+    background: 
+      /* Mars atmosphere layers */
+      radial-gradient(ellipse at 20% 10%, rgba(255, 165, 0, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(255, 69, 0, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 50%, rgba(139, 69, 19, 0.08) 0%, transparent 60%),
+      /* Deep space background */
+      linear-gradient(135deg, #0a0a0a 0%, #1a0f1a 25%, #2d1b30 50%, #1a0f1a 75%, #0a0a0a 100%);
     min-height: 100vh;
     letter-spacing: -0.01em;
     font-weight: 400;
@@ -155,6 +161,62 @@
     text-rendering: optimizeLegibility;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     font-variant-numeric: tabular-nums;
+    position: relative;
+  }
+  
+  /* Mars space stars animation */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+      radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+      radial-gradient(2px 2px at 160px 30px, #eee, transparent),
+      radial-gradient(1px 1px at 200px 90px, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1px 1px at 230px 50px, #fff, transparent),
+      radial-gradient(2px 2px at 270px 110px, rgba(255,255,255,0.6), transparent);
+    background-repeat: repeat;
+    background-size: 300px 200px;
+    animation: mars-stars 20s linear infinite;
+  }
+  
+  /* Mars dust particles */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    background-image: 
+      radial-gradient(1px 1px at 10px 20px, rgba(255, 165, 0, 0.3), transparent),
+      radial-gradient(1px 1px at 50px 60px, rgba(255, 69, 0, 0.2), transparent),
+      radial-gradient(1px 1px at 80px 90px, rgba(139, 69, 19, 0.4), transparent),
+      radial-gradient(1px 1px at 120px 30px, rgba(255, 165, 0, 0.2), transparent),
+      radial-gradient(1px 1px at 150px 70px, rgba(255, 69, 0, 0.3), transparent);
+    background-repeat: repeat;
+    background-size: 200px 150px;
+    animation: mars-dust 15s linear infinite reverse;
+  }
+  
+  @keyframes mars-stars {
+    0% { transform: translateY(0px) translateX(0px); }
+    100% { transform: translateY(-200px) translateX(-100px); }
+  }
+  
+  @keyframes mars-dust {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+    100% { transform: translateY(-150px) translateX(50px); opacity: 0.1; }
   }
 }
 
@@ -243,10 +305,108 @@
   
   .theme-input {
     background: var(--glassmorphism-bg);
-    border: 1px solid var(--glassmorphism-border);
-    backdrop-filter: blur(8px);
-    color: var(--foreground);
+  }
+  
+  /* Mars-themed position cards */
+  .mars-position-card {
+    background: linear-gradient(135deg, 
+      rgba(255, 140, 0, 0.1) 0%, 
+      rgba(255, 69, 0, 0.08) 30%, 
+      rgba(139, 69, 19, 0.05) 70%,
+      rgba(160, 82, 45, 0.03) 100%);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 140, 0, 0.2);
+    border-radius: 0.5rem;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 
+      0 4px 16px rgba(255, 140, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: mars-float 4s ease-in-out infinite;
+  }
+  
+  .mars-position-card:hover {
+    background: linear-gradient(135deg, 
+      rgba(255, 140, 0, 0.15) 0%, 
+      rgba(255, 69, 0, 0.12) 30%, 
+      rgba(139, 69, 19, 0.08) 70%,
+      rgba(160, 82, 45, 0.05) 100%);
+    border-color: rgba(255, 140, 0, 0.3);
+    box-shadow: 
+      0 8px 32px rgba(255, 140, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  @keyframes mars-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-3px); }
+  }
+  
+  /* Mars-themed buttons */
+  .mars-button-primary {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff4500 100%);
+    color: white;
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 
+      0 4px 16px rgba(255, 140, 0, 0.3),
+      0 8px 32px rgba(255, 140, 0, 0.15);
+  }
+  
+  .mars-button-primary:hover {
+    background: linear-gradient(135deg, #ff7700 0%, #ff3300 100%);
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 24px rgba(255, 140, 0, 0.4),
+      0 16px 48px rgba(255, 140, 0, 0.2);
+  }
+  
+  /* Mars-themed theme overrides */
+  .theme-card {
+    background: linear-gradient(135deg, 
+      rgba(255, 140, 0, 0.05) 0%, 
+      rgba(255, 69, 0, 0.03) 30%, 
+      rgba(139, 69, 19, 0.02) 70%,
+      rgba(160, 82, 45, 0.01) 100%);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 140, 0, 0.15);
+    border-radius: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 
+      0 4px 16px rgba(255, 140, 0, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .theme-card:hover {
+    background: linear-gradient(135deg, 
+      rgba(255, 140, 0, 0.08) 0%, 
+      rgba(255, 69, 0, 0.05) 30%, 
+      rgba(139, 69, 19, 0.03) 70%,
+      rgba(160, 82, 45, 0.02) 100%);
+    border-color: rgba(255, 140, 0, 0.2);
+    box-shadow: 
+      0 8px 32px rgba(255, 140, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .theme-button-primary {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff4500 100%);
+    color: white;
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 
+      0 4px 16px rgba(255, 140, 0, 0.3),
+      0 8px 32px rgba(255, 140, 0, 0.15);
+  }
+  
+  .theme-button-primary:hover {
+    background: linear-gradient(135deg, #ff7700 0%, #ff3300 100%);
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 24px rgba(255, 140, 0, 0.4),
+      0 16px 48px rgba(255, 140, 0, 0.2);
   }
   
   .theme-input:focus {

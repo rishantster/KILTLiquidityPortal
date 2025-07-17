@@ -62,9 +62,9 @@ const UserPositionsNew = () => {
       return positions || [];
     },
     enabled: !!address && !!isConnected,
-    staleTime: 5000, // Cache for 5 seconds
-    refetchInterval: 20000, // Refresh every 20 seconds
-    refetchOnMount: true, // Always refetch when component mounts
+    staleTime: 0, // No cache - always fetch fresh data
+    refetchInterval: 15000, // Refresh every 15 seconds for fee updates
+    refetchOnMount: 'always', // Always refetch when component mounts
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnReconnect: true, // Refetch when reconnecting
     retry: 2,
@@ -170,8 +170,9 @@ const UserPositionsNew = () => {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await refetchPositions();
+      // Force refresh by invalidating cache first
       queryClient.invalidateQueries({ queryKey: ['wallet-positions', address] });
+      await refetchPositions();
       toast({
         title: "Positions Refreshed",
         description: `Found ${allPositions.length} positions`,

@@ -76,33 +76,6 @@ export const UniswapPositionCard = ({
   const ethFeesEarned = isToken0Kilt ? fees1Decimal : fees0Decimal;
   const feesEarned = (kiltFeesEarned * kiltPrice) + (ethFeesEarned * ethPrice);
   
-  // Debug: Show real fee values for all positions
-  console.log(`Position #${position.tokenId} Real Fee Values:`, {
-    tokenId: position.tokenId,
-    rawFees: {
-      token0Wei: position.fees?.token0 || '0',
-      token1Wei: position.fees?.token1 || '0'
-    },
-    decimalFees: {
-      token0: fees0Decimal,
-      token1: fees1Decimal
-    },
-    tokenAmounts: {
-      kiltFees: kiltFeesEarned,
-      ethFees: ethFeesEarned
-    },
-    usdValues: {
-      kiltFeesUSD: kiltFeesEarned * kiltPrice,
-      ethFeesUSD: ethFeesEarned * ethPrice,
-      totalFeesUSD: feesEarned
-    },
-    formatted: {
-      totalFormatted: formatSmallAmount(feesEarned),
-      kiltFormatted: formatSmallAmount(kiltFeesEarned * kiltPrice),
-      ethFormatted: formatSmallAmount(ethFeesEarned * ethPrice)
-    }
-  });
-  
   // Determine if position is in range
   const isInRange = position.isActive && parseFloat(position.liquidity) > 0;
   

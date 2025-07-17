@@ -56,7 +56,8 @@ export class UniswapIntegrationService {
   private client = baseClient;
   private positionCache = new Map<string, { data: UniswapV3Position, timestamp: number }>();
   private poolAddressCache = new Map<string, string>();
-  private readonly CACHE_DURATION = 30000; // 30 seconds
+  private readonly CACHE_DURATION = 10000; // 10 seconds for more frequent updates
+  private readonly FORCE_FEE_REFRESH = true; // Always refresh fees for latest data
 
   /**
    * Get all Uniswap V3 positions for a user address using direct Uniswap API approach

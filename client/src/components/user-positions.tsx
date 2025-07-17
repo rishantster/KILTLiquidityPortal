@@ -303,7 +303,7 @@ export function UserPositions() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-3 w-full">
+        <CardContent className="p-0 w-full">
           {!kiltPositions || kiltPositions.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>
@@ -325,7 +325,7 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="position-grid-4">
+            <div className="position-grid-4 p-3">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);

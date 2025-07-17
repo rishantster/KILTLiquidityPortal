@@ -18,6 +18,8 @@
   grid-template-columns: repeat(4, 1fr) !important;
   gap: 0.5rem !important;
   width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
 }
 
 .position-card {

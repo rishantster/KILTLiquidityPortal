@@ -604,15 +604,15 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Two Column Layout - Compact */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Two Column Layout - Mobile Responsive */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
               <div className="h-full">
                 <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-3">
                   <Plus className="h-3 w-3 text-emerald-400" />
                   Register Existing Positions
                 </h2>
-                <div className="h-[360px] flex flex-col">
+                <div className="h-[300px] lg:h-[360px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
@@ -623,7 +623,7 @@ export function MainDashboard() {
                   <Zap className="h-3 w-3 text-emerald-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[360px] flex flex-col">
+                <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/20 rounded-lg h-[300px] lg:h-[360px] flex flex-col">
                   <CardContent className="p-3 flex-1 flex flex-col justify-between">
                     <div className="space-y-4 flex-1">
                       {/* Balance Display */}

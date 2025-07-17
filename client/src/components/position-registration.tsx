@@ -376,29 +376,30 @@ export function PositionRegistration() {
               )}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {unregisteredPositions.map((position) => (
                 <div 
                   key={position.nftTokenId}
-                  className="border border-white/10 rounded-xl p-4 bg-white/5 hover:bg-white/10 transition-colors"
+                  className="border border-white/10 rounded-lg p-3 bg-white/5 hover:bg-white/10 transition-colors"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                  {/* Mobile-first responsive layout */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-start space-x-3">
                       <input
                         type="checkbox"
                         checked={selectedPositions.includes(position.nftTokenId)}
                         onChange={() => handleToggleSelection(position.nftTokenId)}
-                        className="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"
+                        className="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 mt-0.5"
                       />
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
-                          <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
-                          <span className="text-white font-semibold">KILT/ETH Position</span>
+                          <img src={kiltLogo} alt="KILT" className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-white font-semibold text-sm">KILT/ETH Position</span>
                           <Badge variant="outline" className="text-xs">
                             NFT #{position.nftTokenId}
                           </Badge>
                         </div>
-                        <div className="text-sm text-white/60">
+                        <div className="text-xs text-white/60 break-words">
                           Value: ${position.currentValueUSD.toLocaleString()} • 
                           Created: {new Date(position.createdAt).toLocaleDateString()} • 
                           Fee Tier: {(position.feeTier / 10000)}%
@@ -406,9 +407,9 @@ export function PositionRegistration() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center justify-between sm:justify-end space-x-3">
                       <div className="text-right">
-                        <div className="text-white font-bold tabular-nums">
+                        <div className="text-white font-bold tabular-nums text-sm">
                           ${position.currentValueUSD.toLocaleString()}
                         </div>
                         <div className="text-xs text-emerald-400">
@@ -425,7 +426,7 @@ export function PositionRegistration() {
                         size="sm"
                         onClick={() => registerMutation.mutate(position)}
                         disabled={registerMutation.isPending}
-                        className="bg-emerald-600 hover:bg-emerald-700"
+                        className="bg-emerald-600 hover:bg-emerald-700 flex-shrink-0"
                       >
                         {registerMutation.isPending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

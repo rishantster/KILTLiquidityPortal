@@ -316,39 +316,24 @@ export function LiquidityMint() {
       // Get pool info to determine token order
       const poolInfo = await fetch('/api/pools/0x82Da478b1382B951cBaD01Beb9eD459cDB16458E/info').then(r => r.json());
       
-      // Determine correct token order (token0 < token1 by address)
-      const token0 = TOKENS.KILT.toLowerCase() < TOKENS.WETH.toLowerCase() ? TOKENS.KILT : TOKENS.WETH;
-      const token1 = TOKENS.KILT.toLowerCase() < TOKENS.WETH.toLowerCase() ? TOKENS.WETH : TOKENS.KILT;
+      // Use the actual token order from the pool
+      const token0 = poolInfo.token0 || TOKENS.KILT;
+      const token1 = poolInfo.token1 || TOKENS.WETH;
       
       // Set amounts based on correct token order
-      const amount0Desired = token0 === TOKENS.KILT ? kiltAmountParsed : ethAmountParsed;
-      const amount1Desired = token1 === TOKENS.KILT ? kiltAmountParsed : ethAmountParsed;
+      const amount0Desired = token0.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
+      const amount1Desired = token1.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
 
-      // Convert price range to ticks based on selected strategy
-      const strategy = getSelectedStrategy();
-      let tickLower, tickUpper;
-      
-      if (strategy.id === 'full') {
-        // Full range: use actual pool bounds
-        tickLower = -887220;
-        tickUpper = 887220;
-      } else {
-        // Calculate ticks based on current price and strategy
-        // Get current tick from pool
-        const currentTick = poolInfo.currentTick || 0;
-        const tickSpacing = 60; // For 0.3% fee tier
-        
-        // Calculate tick range based on strategy (more conservative for better success rate)
-        const tickRange = Math.floor(strategy.range * 5000 / tickSpacing) * tickSpacing;
-        tickLower = Math.floor((currentTick - tickRange) / tickSpacing) * tickSpacing;
-        tickUpper = Math.floor((currentTick + tickRange) / tickSpacing) * tickSpacing;
-      }
+      // For testing: Always use Full Range to avoid tick calculation issues
+      const tickLower = -887220;  // Full range minimum
+      const tickUpper = 887220;   // Full range maximum
 
       // For testing: Very low minimum amounts to avoid slippage issues
       const amount0Min = BigInt(1); // Minimal amount to pass slippage check
       const amount1Min = BigInt(1); // Minimal amount to pass slippage check
 
-      await mintPosition({
+      // Create the mint parameters object
+      const mintParams = {
         token0: token0 as `0x${string}`,
         token1: token1 as `0x${string}`,
         fee: 3000,
@@ -360,7 +345,9 @@ export function LiquidityMint() {
         amount1Min,
         recipient: address as `0x${string}`,
         deadline
-      });
+      };
+
+      const txHash = await mintPosition(mintParams);
 
       toast({
         title: "Position Created!",

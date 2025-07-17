@@ -315,7 +315,7 @@ export class UniswapIntegrationService {
    * Check if position contains KILT token
    */
   private async isKiltPosition(token0: string, token1: string): Promise<boolean> {
-    const config = await blockchainConfigService.getBlockchainConfig();
+    const config = await blockchainConfigService.getConfiguration();
     const kiltAddress = config.kiltTokenAddress;
     return token0.toLowerCase() === kiltAddress.toLowerCase() || 
            token1.toLowerCase() === kiltAddress.toLowerCase();
@@ -402,7 +402,7 @@ export class UniswapIntegrationService {
         tickLower,
         tickUpper,
         feeTier: fee,
-        isActive: liquidity > 0,
+        isActive: liquidity > 0n,
         currentValueUSD,
         fees: {
           token0: tokensOwed0.toString(),
@@ -418,7 +418,7 @@ export class UniswapIntegrationService {
    * Get specific position data by NFT token ID (Uses optimized fast method)
    */
   async getPositionData(tokenId: string): Promise<UniswapV3Position | null> {
-    return this.getPositionDataCached(tokenId);
+    return this.getPositionDataFast(tokenId);
   }
 
   /**

@@ -1469,43 +1469,99 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get all positions for a user address with database data
+  // Get all positions for a user address with real-time Uniswap data
   app.get("/api/positions/wallet/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;
       
-      // Get user from database
+      // Step 1: Get user from database and their registered positions
       const user = await storage.getUserByAddress(userAddress);
       if (!user) {
         res.json([]);
         return;
       }
       
-      // Get positions from database
-      const positions = await storage.getLpPositionsByUserId(user.id);
+      const registeredPositions = await storage.getLpPositionsByUserId(user.id);
+      if (registeredPositions.length === 0) {
+        res.json([]);
+        return;
+      }
       
-      // Format positions for frontend
-      const formattedPositions = positions.map(pos => ({
-        tokenId: pos.nftTokenId,
-        poolAddress: pos.poolAddress,
-        token0: pos.token0Address,
-        token1: pos.token1Address,
-        fee: pos.feeTier,
-        tickLower: pos.tickLower,
-        tickUpper: pos.tickUpper,
-        liquidity: pos.liquidity?.toString() || '0',
-        amount0: pos.token0Amount?.toString() || '0',
-        amount1: pos.token1Amount?.toString() || '0',
-        currentValueUSD: Number(pos.currentValueUSD) || 0,
-        fees: null, // Will be fetched separately if needed
-        poolType: 'KILT/ETH',
-        isKiltPosition: true,
-        isActive: pos.isActive
-      }));
+      // Step 2: Get live Uniswap data for registered positions with fallback to database
+      const livePositions = await Promise.all(
+        registeredPositions.map(async (dbPos) => {
+          try {
+            const liveData = await uniswapIntegrationService.getPositionData(dbPos.nftTokenId);
+            if (liveData) {
+              // Use live blockchain data
+              return {
+                tokenId: dbPos.nftTokenId,
+                poolAddress: liveData.poolAddress,
+                token0: liveData.token0,
+                token1: liveData.token1,
+                fee: liveData.feeTier,
+                tickLower: liveData.tickLower,
+                tickUpper: liveData.tickUpper,
+                liquidity: liveData.liquidity,
+                amount0: liveData.token0Amount,
+                amount1: liveData.token1Amount,
+                currentValueUSD: liveData.currentValueUSD,
+                fees: liveData.fees,
+                poolType: 'KILT/ETH',
+                isKiltPosition: true,
+                isActive: liveData.isActive,
+                isRegistered: true
+              };
+            } else {
+              // Fallback to database data if blockchain call fails
+              return {
+                tokenId: dbPos.nftTokenId,
+                poolAddress: dbPos.poolAddress,
+                token0: dbPos.token0Address,
+                token1: dbPos.token1Address,
+                fee: dbPos.feeTier,
+                tickLower: dbPos.tickLower,
+                tickUpper: dbPos.tickUpper,
+                liquidity: dbPos.liquidity,
+                amount0: dbPos.token0Amount,
+                amount1: dbPos.token1Amount,
+                currentValueUSD: Number(dbPos.currentValueUSD),
+                fees: null,
+                poolType: 'KILT/ETH',
+                isKiltPosition: true,
+                isActive: dbPos.isActive,
+                isRegistered: true
+              };
+            }
+          } catch (error) {
+            // Last resort: use database data
+            return {
+              tokenId: dbPos.nftTokenId,
+              poolAddress: dbPos.poolAddress,
+              token0: dbPos.token0Address,
+              token1: dbPos.token1Address,
+              fee: dbPos.feeTier,
+              tickLower: dbPos.tickLower,
+              tickUpper: dbPos.tickUpper,
+              liquidity: dbPos.liquidity,
+              amount0: dbPos.token0Amount,
+              amount1: dbPos.token1Amount,
+              currentValueUSD: Number(dbPos.currentValueUSD),
+              fees: null,
+              poolType: 'KILT/ETH',
+              isKiltPosition: true,
+              isActive: dbPos.isActive,
+              isRegistered: true
+            };
+          }
+        })
+      );
       
-      res.json(formattedPositions);
+      // Filter out null results
+      const validPositions = livePositions.filter(pos => pos !== null);
+      
+      res.json(validPositions);
     } catch (error) {
-      // Error getting user positions
       res.status(500).json({ error: "Failed to get user positions" });
     }
   });

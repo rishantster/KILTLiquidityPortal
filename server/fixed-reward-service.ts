@@ -58,17 +58,8 @@ export interface ClaimRewardResult {
 export class FixedRewardService {
   constructor(private database: any) {}
 
-  // Default fallback values (only used when admin config is unavailable)
-  private readonly DEFAULT_TREASURY_ALLOCATION = 500000; // Admin-configured default
-  private readonly DEFAULT_PROGRAM_DURATION_DAYS = 90; // Admin-configured default
-  private readonly DEFAULT_DAILY_BUDGET = 5555.56; // Admin-configured default
-  private readonly DEFAULT_LOCK_PERIOD_DAYS = 7; // 7 days from liquidity addition
-  private readonly DEFAULT_MIN_POSITION_VALUE = 10; // $10 minimum position value to prevent spam
-  
-  // Default Formula Parameters: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-  // These are overridden by admin configuration
-  private readonly DEFAULT_B_TIME = 0.6; // Time boost coefficient (b_time)
-  private readonly DEFAULT_FRB = 1.2; // Full Range Bonus (FRB) - 20% boost for full range positions
+  // NO DEFAULT VALUES - Admin panel is the only source of truth
+  // All configuration must come from admin panel database
 
   /**
    * Get admin configuration values (single source of truth)
@@ -82,45 +73,40 @@ export class FixedRewardService {
     timeBoostCoefficient: number;
     fullRangeBonus: number;
   }> {
-    try {
-      // Import schema tables
-      const { treasuryConfig, programSettings } = await import('@shared/schema');
-      
-      // Get admin-configured values
-      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
-      const [settingsConf] = await db.select().from(programSettings).limit(1);
-      
-      // Use admin values with fallback to defaults (snake_case from database)
-      const treasuryAllocation = treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : this.DEFAULT_TREASURY_ALLOCATION;
-      const programDurationDays = treasuryConf?.programDurationDays || this.DEFAULT_PROGRAM_DURATION_DAYS;
-      const dailyBudget = treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : (treasuryAllocation / programDurationDays);
-      
-      const lockPeriodDays = settingsConf?.lockPeriod || this.DEFAULT_LOCK_PERIOD_DAYS;
-      const minimumPositionValue = settingsConf?.minimumPositionValue || this.DEFAULT_MIN_POSITION_VALUE;
-      const timeBoostCoefficient = settingsConf?.timeBoostCoefficient || this.DEFAULT_B_TIME;
-      const fullRangeBonus = settingsConf?.fullRangeBonus || this.DEFAULT_FRB;
-      
-      return {
-        treasuryAllocation,
-        programDurationDays,
-        dailyBudget,
-        lockPeriodDays,
-        minimumPositionValue,
-        timeBoostCoefficient,
-        fullRangeBonus
-      };
-    } catch (error) {
-      // Admin configuration not available - use defaults
-      return {
-        treasuryAllocation: this.DEFAULT_TREASURY_ALLOCATION,
-        programDurationDays: this.DEFAULT_PROGRAM_DURATION_DAYS,
-        dailyBudget: this.DEFAULT_DAILY_BUDGET,
-        lockPeriodDays: this.DEFAULT_LOCK_PERIOD_DAYS,
-        minimumPositionValue: this.DEFAULT_MIN_POSITION_VALUE,
-        timeBoostCoefficient: this.DEFAULT_B_TIME,
-        fullRangeBonus: this.DEFAULT_FRB
-      };
+    // Import schema tables
+    const { treasuryConfig, programSettings } = await import('@shared/schema');
+    
+    // Get admin-configured values
+    const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+    const [settingsConf] = await db.select().from(programSettings).limit(1);
+    
+    // Admin panel is the ONLY source of truth - no fallbacks allowed
+    if (!treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays || !treasuryConf?.dailyRewardsCap) {
+      throw new Error('Treasury configuration required - admin panel must be configured');
     }
+    
+    if (!settingsConf?.lockPeriod || !settingsConf?.minimumPositionValue || !settingsConf?.timeBoostCoefficient || !settingsConf?.fullRangeBonus) {
+      throw new Error('Program settings required - admin panel must be configured');
+    }
+    
+    const treasuryAllocation = parseFloat(treasuryConf.totalAllocation);
+    const programDurationDays = treasuryConf.programDurationDays;
+    const dailyBudget = parseFloat(treasuryConf.dailyRewardsCap);
+    
+    const lockPeriodDays = settingsConf.lockPeriod;
+    const minimumPositionValue = settingsConf.minimumPositionValue;
+    const timeBoostCoefficient = settingsConf.timeBoostCoefficient;
+    const fullRangeBonus = settingsConf.fullRangeBonus;
+    
+    return {
+      treasuryAllocation,
+      programDurationDays,
+      dailyBudget,
+      lockPeriodDays,
+      minimumPositionValue,
+      timeBoostCoefficient,
+      fullRangeBonus
+    };
   }
 
   /**
@@ -446,20 +432,31 @@ export class FixedRewardService {
     
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     
-    // Use admin-configured treasury values with fallback to defaults
-    const dailyBudget = treasuryConf ? parseFloat(treasuryConf.dailyRewardsCap) : this.DEFAULT_DAILY_BUDGET;
-    const totalAllocation = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : this.DEFAULT_TREASURY_ALLOCATION;
-    const programDuration = treasuryConf ? (treasuryConf.programDurationDays || this.DEFAULT_PROGRAM_DURATION_DAYS) : this.DEFAULT_PROGRAM_DURATION_DAYS;
+    // Admin panel is the ONLY source of truth - no fallbacks allowed
+    if (!treasuryConf?.dailyRewardsCap || !treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays) {
+      throw new Error('Treasury configuration required - admin panel must be configured');
+    }
+    
+    const dailyBudget = parseFloat(treasuryConf.dailyRewardsCap);
+    const totalAllocation = parseFloat(treasuryConf.totalAllocation);
+    const programDuration = treasuryConf.programDurationDays;
     
     // APR calculation parameters - realistic pool lifecycle progression
     const inRangeMultiplier = 1.0; // Always in-range
-    const kiltPrice = 0.01602; // Current KILT price
+    
+    // Get real-time KILT price from service
+    const kiltPrice = kiltPriceService.getCurrentPrice();
     
     // Get admin-configured values
     const { programSettings } = await import('../shared/schema');
     const [settings] = await db.select().from(programSettings).limit(1);
-    const timeBoostCoeff = settings ? parseFloat(settings.liquidityWeight) : this.DEFAULT_B_TIME; // Admin-configured time boost
-    const fullRangeBonusCoeff = settings ? parseFloat(settings.fullRangeBonus) : this.DEFAULT_FRB; // Admin-configured FRB
+    
+    if (!settings?.timeBoostCoefficient || !settings?.fullRangeBonus) {
+      throw new Error('Program settings required - admin panel must be configured');
+    }
+    
+    const timeBoostCoeff = parseFloat(settings.timeBoostCoefficient);
+    const fullRangeBonusCoeff = parseFloat(settings.fullRangeBonus);
     
     // Get REAL pool data from blockchain instead of assumptions
     let currentPoolTVL = 0;

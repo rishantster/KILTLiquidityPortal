@@ -344,47 +344,11 @@ export class AdminService {
         };
       }
       
-      // Return default settings if no database record exists
-      return {
-        // Core formula parameters
-        maxLiquidityBoost: 0.6,
-        baseLiquidityWeight: 1.0,
-        timeBoostCoefficient: 1.0,
-        inRangeMultiplier: 1.0,
-        poolFactor: 1.0,
-        concentrationBonus: 1.0,
-        
-        // Position requirements
-        minimumPositionValue: 10,
-        lockPeriod: 7,
-        inRangeRequirement: true,
-        fullRangeBonus: 1.2,
-        
-        // Performance thresholds
-        minimumTimeInRange: 0.8,
-        performanceThreshold: 0.5
-      };
+      // No fallback values allowed - admin panel must be configured
+      throw new Error('Program settings required - admin panel must be configured');
     } catch (error) {
-      // Return default settings if database query fails
-      return {
-        // Core formula parameters
-        maxLiquidityBoost: 0.6,
-        baseLiquidityWeight: 1.0,
-        timeBoostCoefficient: 1.0,
-        inRangeMultiplier: 1.0,
-        poolFactor: 1.0,
-        concentrationBonus: 1.0,
-        
-        // Position requirements
-        minimumPositionValue: 10,
-        lockPeriod: 7,
-        inRangeRequirement: true,
-        fullRangeBonus: 1.2,
-        
-        // Performance thresholds
-        minimumTimeInRange: 0.8,
-        performanceThreshold: 0.5
-      };
+      // No fallback values allowed - admin panel must be configured
+      throw new Error('Program settings required - admin panel must be configured');
     }
   }
 
@@ -447,35 +411,8 @@ export class AdminService {
         operationHistory: await this.getOperationHistory(10)
       };
     } catch (error) {
-      // Admin service error in getAdminTreasuryStats
-      
-      // Get real-time KILT price even in error case
-      let kiltPrice = 0.016;
-      try {
-        const { kiltPriceService } = await import('./kilt-price-service.js');
-        kiltPrice = kiltPriceService.getCurrentPrice();
-      } catch (priceError) {
-        // Error getting KILT price
-      }
-      
-      return {
-        treasury: { 
-          balance: 0,
-          programBudget: 750000, 
-          address: '0x0000000000000000000000000000000000000000',
-          dailyRewardsCap: 6250,
-          programDuration: 120,
-          programEndDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000),
-          programStartDate: new Date(),
-          isActive: true,
-          totalDistributed: 0,
-          treasuryRemaining: 750000,
-          kiltPrice: kiltPrice,
-          aprData: { minAPR: 31, maxAPR: 47, aprRange: '31% - 47%' }
-        },
-        settings: await this.getCurrentProgramSettings(),
-        operationHistory: []
-      };
+      // No fallback values allowed - admin panel must be configured
+      throw new Error('Admin configuration required - admin panel must be configured');
     }
   }
 

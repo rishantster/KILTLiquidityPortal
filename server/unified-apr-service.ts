@@ -45,12 +45,20 @@ class UnifiedAPRService {
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       const [settingsConf] = await db.select().from(programSettings).limit(1);
 
-      // Use admin configuration as primary source with correct column names (camelCase from Drizzle schema)
-      const treasuryAllocation = treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : 750000;
-      const programDuration = treasuryConf?.programDurationDays || 90;
-      const dailyBudget = treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : (treasuryAllocation / programDuration);
-      const timeBoost = settingsConf?.timeBoostCoefficient ? parseFloat(settingsConf.timeBoostCoefficient) : 0.6;
-      const fullRangeBonus = settingsConf?.fullRangeBonus ? parseFloat(settingsConf.fullRangeBonus) : 1.2;
+      // Admin panel is the ONLY source of truth - no fallbacks allowed
+      if (!treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays || !treasuryConf?.dailyRewardsCap) {
+        throw new Error('Admin configuration required - no fallback values allowed');
+      }
+      
+      if (!settingsConf?.timeBoostCoefficient || !settingsConf?.fullRangeBonus) {
+        throw new Error('Program settings required - no fallback values allowed');
+      }
+      
+      const treasuryAllocation = parseFloat(treasuryConf.totalAllocation);
+      const programDuration = treasuryConf.programDurationDays;
+      const dailyBudget = parseFloat(treasuryConf.dailyRewardsCap);
+      const timeBoost = parseFloat(settingsConf.timeBoostCoefficient);
+      const fullRangeBonus = parseFloat(settingsConf.fullRangeBonus);
       
       // Clear cache to force recalculation
       this.aprCache = null;
@@ -156,34 +164,8 @@ class UnifiedAPRService {
       return result;
 
     } catch (error) {
-      // Error in unified APR calculation, using fallback
-      
-      // Use synchronous fallback price instead of async import
-      const fallbackKiltPrice = 0.01683; // Current KILT price fallback
-      
-      const fallbackResult = {
-        minAPR: 31,
-        maxAPR: 31,
-        aprRange: '31%',
-        calculationDetails: {
-          treasuryAllocation: 500000,
-          programDuration: 90,
-          dailyBudget: 5555.56,
-          dailyBudgetUSD: 5555.56 * fallbackKiltPrice,
-          kiltPrice: fallbackKiltPrice,
-          timeBoost: 0.6,
-          fullRangeBonus: 1.2,
-          baseAPR: 31,
-          dataSource: 'fallback'
-        }
-      };
-
-      this.aprCache = {
-        value: fallbackResult,
-        timestamp: Date.now()
-      };
-
-      return fallbackResult;
+      // No fallback values allowed - admin panel must be configured
+      throw new Error('UnifiedAPRService requires admin configuration - no fallback values allowed');
     }
   }
 

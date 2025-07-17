@@ -768,13 +768,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         aprRange: aprData.aprRange,
         calculationDetails: aprData.calculationDetails,
         // Override with admin-configured values (snake_case from database)
-        totalBudget: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : analytics.totalBudget,
-        dailyBudget: treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : analytics.dailyBudget,
-        programDuration: treasuryConf?.programDurationDays || analytics.programDuration,
+        totalBudget: treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : analytics.totalBudget,
+        dailyBudget: treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : analytics.dailyBudget,
+        programDuration: treasuryConf?.program_duration_days || analytics.programDuration,
         daysRemaining: daysRemaining,
-        programStartDate: treasuryConf?.programStartDate || analytics.programStartDate,
-        programEndDate: treasuryConf?.programEndDate || analytics.programEndDate,
-        isActive: treasuryConf?.isActive !== undefined ? treasuryConf.isActive : analytics.isActive
+        programStartDate: treasuryConf?.program_start_date || analytics.programStartDate,
+        programEndDate: treasuryConf?.program_end_date || analytics.programEndDate,
+        isActive: treasuryConf?.is_active !== undefined ? treasuryConf.is_active : analytics.isActive,
+        // Calculate treasuryRemaining from admin configuration
+        treasuryRemaining: treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) - (analytics.totalDistributed || 0) : analytics.treasuryRemaining
       };
       
       res.json(unifiedAnalytics);

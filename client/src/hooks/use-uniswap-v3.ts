@@ -73,12 +73,18 @@ export function useUniswapV3() {
         }));
         
         return converted;
-      } catch (error) {
+      } catch (error: any) {
         clearTimeout(timeoutId);
+        
+        // Handle timeout gracefully by returning empty array
         if (error.name === 'AbortError') {
-          throw new Error('Position fetch timed out');
+          console.warn('Position fetch timed out after 10 seconds');
+          return [];
         }
-        throw error;
+        
+        // Handle other errors gracefully
+        console.warn('Failed to fetch positions:', error.message);
+        return [];
       }
     },
     enabled: !!address && isConnected,

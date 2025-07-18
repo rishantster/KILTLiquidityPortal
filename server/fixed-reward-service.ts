@@ -73,19 +73,20 @@ export class FixedRewardService {
     timeBoostCoefficient: number;
     fullRangeBonus: number;
   }> {
-    // Import schema tables
+    // Import schema tables and db instance
     const { treasuryConfig, programSettings } = await import('@shared/schema');
+    const { db } = await import('./db');
     
     // Get admin-configured values
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     const [settingsConf] = await db.select().from(programSettings).limit(1);
     
     // Admin panel is the only source of truth - no fallbacks allowed
-    if (!treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays) {
-      throw new Error('Treasury configuration required - admin panel must be configured with total allocation and program duration');
+    if (!treasuryConf || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null) {
+      throw new Error(`Treasury configuration required - admin panel must be configured with total allocation and program duration. Found: ${JSON.stringify(treasuryConf)}`);
     }
     
-    if (!settingsConf?.lockPeriod || !settingsConf?.timeBoostCoefficient || !settingsConf?.fullRangeBonus) {
+    if (!settingsConf || settingsConf.lockPeriod == null || settingsConf.timeBoostCoefficient == null || settingsConf.fullRangeBonus == null) {
       throw new Error('Program settings required - admin panel must be configured with lock period, time boost coefficient, and full range bonus');
     }
     
@@ -446,7 +447,7 @@ export class FixedRewardService {
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     
     // Admin panel is the ONLY source of truth - no fallbacks allowed
-    if (!treasuryConf?.dailyRewardsCap || !treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays) {
+    if (!treasuryConf || treasuryConf.dailyRewardsCap == null || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null) {
       throw new Error('Treasury configuration required - admin panel must be configured');
     }
     
@@ -464,7 +465,7 @@ export class FixedRewardService {
     const { programSettings } = await import('../shared/schema');
     const [settings] = await db.select().from(programSettings).limit(1);
     
-    if (!settings?.timeBoostCoefficient || !settings?.fullRangeBonus) {
+    if (!settings || settings.timeBoostCoefficient == null || settings.fullRangeBonus == null) {
       throw new Error('Program settings required - admin panel must be configured');
     }
     

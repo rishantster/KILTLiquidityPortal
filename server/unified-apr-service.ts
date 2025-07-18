@@ -52,11 +52,11 @@ class UnifiedAPRService {
       ]);
 
       // Admin panel is the ONLY source of truth - no fallbacks allowed
-      if (!treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays || !treasuryConf?.dailyRewardsCap) {
+      if (!treasuryConf || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null || treasuryConf.dailyRewardsCap == null) {
         throw new Error('Admin configuration required - no fallback values allowed');
       }
       
-      if (!settingsConf?.timeBoostCoefficient || !settingsConf?.fullRangeBonus) {
+      if (!settingsConf || settingsConf.timeBoostCoefficient == null || settingsConf.fullRangeBonus == null) {
         throw new Error('Program settings required - no fallback values allowed');
       }
       

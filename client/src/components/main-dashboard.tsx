@@ -673,18 +673,18 @@ export function MainDashboard() {
                           
                           return (
                             <div>
-                              <div className="text-lg font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent text-numbers mb-2">
+                              <div className="text-2xl font-bold text-matrix-green text-numbers mb-2" style={{ textShadow: '0 0 20px rgba(0, 255, 0, 0.6)' }}>
                                 ~${amounts.totalValue}
                               </div>
-                              <div className="flex items-center justify-center space-x-4 text-white/60 text-xs text-body">
+                              <div className="flex items-center justify-center space-x-4 text-white/90 text-sm text-body">
                                 <div className="flex items-center space-x-1">
                                   <KiltLogo size="xs" showBackground={true} />
-                                  <span>{amounts.kiltAmount} KILT</span>
+                                  <span className="font-medium">{amounts.kiltAmount} KILT</span>
                                 </div>
-                                <span>+</span>
+                                <span className="text-matrix-green">+</span>
                                 <div className="flex items-center space-x-1">
                                   <EthLogo size="xs" showBackground={true} />
-                                  <span>{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
+                                  <span className="font-medium">{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
                                 </div>
                               </div>
                             </div>

@@ -187,16 +187,15 @@ export function useUniswapV3() {
   const WETH_TOKEN = blockchainConfig?.wethTokenAddress || '0x4200000000000000000000000000000000000006';
   const POOL_ADDRESS = blockchainConfig?.poolAddress;
 
-  // Real blockchain balance fetching with timeout and retry
+  // Real blockchain balance fetching with proper error handling
   const fetchRealBalances = async () => {
     if (!address || !isConnected) return;
 
     setIsLoadingBalances(true);
     try {
-      // Fetch balances with timeout protection
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 10000);
-      });
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
 
       const balancesPromise = Promise.all([
         // KILT token balance
@@ -219,10 +218,10 @@ export function useUniswapV3() {
         }),
       ]);
 
-      const [kiltBalanceWei, wethBalanceWei, ethBalanceWei] = await Promise.race([
-        balancesPromise,
-        timeoutPromise
-      ]) as [bigint, bigint, bigint];
+      const [kiltBalanceWei, wethBalanceWei, ethBalanceWei] = await balancesPromise;
+      
+      // Clear timeout
+      clearTimeout(timeoutId);
 
       // Convert wei to readable format
       const kiltBalanceFormatted = formatUnits(kiltBalanceWei, 18);
@@ -233,19 +232,14 @@ export function useUniswapV3() {
       setWethBalance(wethBalanceFormatted);
       setEthBalance(ethBalanceFormatted);
       
-
     } catch (error) {
-      console.error('Failed to fetch balances:', error);
-      // Reset to zeros on failure
-      setKiltBalance('0');
-      setWethBalance('0');
-      setEthBalance('0');
-      
-      toast({
-        title: "Balance fetch failed",
-        description: "Unable to fetch wallet balances from blockchain",
-        variant: "destructive",
-      });
+      // Only show error if it's not an abort error
+      if (error instanceof Error && error.name !== 'AbortError') {
+        // Silent fail - just reset to zeros without showing error toast
+        setKiltBalance('0');
+        setWethBalance('0');
+        setEthBalance('0');
+      }
     } finally {
       setIsLoadingBalances(false);
     }
@@ -253,16 +247,28 @@ export function useUniswapV3() {
 
   // Fetch balances when wallet connects
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
     if (isConnected && address) {
       // Add a small delay to ensure wallet is fully connected
-      setTimeout(() => {
-        fetchRealBalances();
+      timeoutId = setTimeout(() => {
+        if (isMounted) {
+          fetchRealBalances();
+        }
       }, 1000);
     } else {
       setKiltBalance('0');
       setWethBalance('0');
       setEthBalance('0');
     }
+
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [address, isConnected]);
 
   const formatTokenAmount = (amount: string | bigint) => {

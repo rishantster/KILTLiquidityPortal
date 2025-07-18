@@ -80,24 +80,12 @@ export function UserPositions() {
   const safeBigIntRender = (value: bigint | number | string) => 
     typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
-  // Use real positions from connected wallet only
-  const allKiltEthPositions = kiltEthPositions || [];
+  // Use real positions from connected wallet only - kiltEthPositions comes from the API that already filters for KILT positions
+  const allKiltPositions = kiltEthPositions || [];
   
   // Position data loads correctly from API via React Query
-  
-  // Also find any other positions containing KILT token (not just KILT/ETH pool)
-  const otherKiltPositions = (userPositions || []).filter(pos => {
-    // Check if position contains KILT token but is not from the main KILT/ETH pool
-    // KILT token address is now managed dynamically via blockchain configuration service
-    const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"; // Retrieved from blockchain config
-    const hasKilt = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
-                   pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
-    const isMainPool = pos.poolAddress?.toLowerCase() === poolData?.poolAddress?.toLowerCase(); // Pool detection now via API
-    return hasKilt && !isMainPool;
-  });
-  
-  // Combine all KILT-related positions
-  const allKiltPositions = [...allKiltEthPositions, ...otherKiltPositions];
+  // The API already handles all KILT position filtering and deduplication
+  // No need to combine with other sources as the API returns all KILT positions
   
   // Position data successfully loaded and displaying
   
@@ -335,14 +323,9 @@ export function UserPositions() {
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>
               <p className="text-white/40 text-xs">Add liquidity to pools containing KILT token to get started</p>
-              {allKiltEthPositions.length > 0 && (
+              {allKiltPositions.length > 0 && (
                 <p className="text-white/40 text-xs mt-1">
-                  Found {allKiltEthPositions.length} KILT/ETH position(s) in main pool
-                </p>
-              )}
-              {otherKiltPositions.length > 0 && (
-                <p className="text-white/40 text-xs mt-1">
-                  Found {otherKiltPositions.length} other KILT position(s) in different pools
+                  Found {allKiltPositions.length} KILT position(s) in wallet
                 </p>
               )}
               {nonKiltPositions.length > 0 && (

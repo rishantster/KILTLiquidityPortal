@@ -7,6 +7,7 @@ import { WalletProvider } from "@/contexts/wallet-context";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
+import { useEffect, useRef } from "react";
 
 function Router() {
   return (
@@ -18,24 +19,67 @@ function Router() {
   );
 }
 
+function CyberpunkVideoBackground() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      // Force video to play
+      video.play().catch(error => {
+        console.log('Video autoplay failed:', error);
+      });
+    }
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      className="video-background"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: -10,
+        objectFit: 'cover',
+        opacity: 0.6,
+        filter: 'brightness(0.08) contrast(3.0) saturate(0.05) hue-rotate(180deg) blur(0.3px)'
+      }}
+      onError={(e) => {
+        console.log('Video failed to load:', e);
+        // Hide video on error
+        (e.target as HTMLVideoElement).style.display = 'none';
+      }}
+      onCanPlay={() => {
+        console.log('Video can play');
+      }}
+    >
+      <source
+        src="/attached_assets/678a7b5f9cfe257413b8e490_6798d33994ec593b001fae82_32 Compressed-transcode_1752818424149.mp4"
+        type="video/mp4"
+      />
+      <source
+        src="/attached_assets/678a7b5f9cfe257413b8e490_6798d33994ec593b001fae82_32 Compressed-transcode_1752818096839.mp4"
+        type="video/mp4"
+      />
+    </video>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WalletProvider>
         <TooltipProvider>
           {/* CYBERPUNK VIDEO BACKGROUND */}
-          <video
-            className="video-background"
-            autoPlay
-            loop
-            muted
-            playsInline
-          >
-            <source
-              src="/attached_assets/678a7b5f9cfe257413b8e490_6798d33994ec593b001fae82_32 Compressed-transcode_1752818096839.mp4"
-              type="video/mp4"
-            />
-          </video>
+          <CyberpunkVideoBackground />
           <Toaster />
           <Router />
         </TooltipProvider>

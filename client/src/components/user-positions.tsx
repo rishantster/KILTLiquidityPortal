@@ -548,99 +548,225 @@ export function UserPositions() {
           )}
         </CardContent>
       </Card>
-      {/* Position Management Modal */}
+      {/* Position Management Modal - Uniswap Style */}
       {selectedPosition && managementMode && (
-        <Card className="cluely-card rounded-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-white font-heading">
-              <Settings className="h-5 w-5 text-blue-400" />
-              <span>Manage Position #{selectedPosition.toString()}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {managementMode === 'increase' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-white/60 flex items-center gap-1">
-                    <KiltLogo size="sm" />
-                    KILT
-                  </Label>
-                  <Input
-                    type="number"
-                    value={amount0}
-                    onChange={(e) => setAmount0(e.target.value)}
-                    placeholder="0.0"
-                    className="bg-white/5 border-white/20 text-white"
-                  />
-                  <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount(kiltBalance, 18) || '0'} KILT
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="cluely-card rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center justify-between text-white font-heading">
+                <span>
+                  {managementMode === 'increase' && 'Add Liquidity'}
+                  {managementMode === 'decrease' && 'Remove Liquidity'}
+                  {managementMode === 'collect' && 'Collect Fees'}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedPosition(null);
+                    setManagementMode(null);
+                    setAmount0('');
+                    setAmount1('');
+                    setLiquidityAmount('');
+                  }}
+                  className="text-white/60 hover:text-white p-2"
+                >
+                  ×
+                </Button>
+              </CardTitle>
+              <p className="text-white/60 text-sm">Position #{selectedPosition}</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {managementMode === 'decrease' && (
+                <div className="space-y-4">
+                  {/* Amount to Remove */}
+                  <div>
+                    <Label className="text-white/80 text-sm font-medium">Amount</Label>
+                    <div className="mt-2 bg-white/5 border border-white/20 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-white/60 text-sm">% of Position</span>
+                        <span className="text-white/60 text-sm">Max</span>
+                      </div>
+                      <Input
+                        type="number"
+                        value={liquidityAmount}
+                        onChange={(e) => setLiquidityAmount(e.target.value)}
+                        placeholder="0"
+                        className="bg-transparent border-0 text-white text-2xl font-bold p-0 h-auto focus:ring-0"
+                        style={{ boxShadow: 'none' }}
+                      />
+                      
+                      {/* Percentage Buttons */}
+                      <div className="flex gap-2 mt-4">
+                        {[25, 50, 75, 100].map((percentage) => (
+                          <Button
+                            key={percentage}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setLiquidityAmount(percentage.toString())}
+                            className="flex-1 border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
+                          >
+                            {percentage}%
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* You'll Receive */}
+                  <div>
+                    <Label className="text-white/80 text-sm font-medium">You'll Receive</Label>
+                    <div className="mt-2 space-y-2">
+                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">Ξ</span>
+                            </div>
+                            <span className="text-white font-medium">ETH</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-white font-medium">0.000</div>
+                            <div className="text-white/60 text-xs">$0.00</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">K</span>
+                            </div>
+                            <span className="text-white font-medium">KILT</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-white font-medium">0</div>
+                            <div className="text-white/60 text-xs">$0.00</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <Label className="text-white/60 flex items-center gap-1">
-                    <EthLogo size="sm" />
-                    ETH
-                  </Label>
-                  <Input
-                    type="number"
-                    value={amount1}
-                    onChange={(e) => setAmount1(e.target.value)}
-                    placeholder="0.0"
-                    className="bg-white/5 border-white/20 text-white"
-                  />
-                  <div className="text-xs text-white/40 mt-1">
-                    Balance: {formatTokenAmount(wethBalance, 18) || '0'} ETH
+              )}
+              
+              {managementMode === 'increase' && (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-white/80 text-sm font-medium">Add Liquidity</Label>
+                    <div className="mt-2 space-y-2">
+                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">Ξ</span>
+                            </div>
+                            <span className="text-white font-medium">ETH</span>
+                          </div>
+                          <span className="text-white/60 text-xs">Balance: {formatTokenAmount(wethBalance, 18) || '0'}</span>
+                        </div>
+                        <Input
+                          type="number"
+                          value={amount1}
+                          onChange={(e) => setAmount1(e.target.value)}
+                          placeholder="0.0"
+                          className="bg-transparent border-0 text-white text-xl font-bold p-0 h-auto focus:ring-0"
+                          style={{ boxShadow: 'none' }}
+                        />
+                      </div>
+                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">K</span>
+                            </div>
+                            <span className="text-white font-medium">KILT</span>
+                          </div>
+                          <span className="text-white/60 text-xs">Balance: {formatTokenAmount(kiltBalance, 18) || '0'}</span>
+                        </div>
+                        <Input
+                          type="number"
+                          value={amount0}
+                          onChange={(e) => setAmount0(e.target.value)}
+                          placeholder="0.0"
+                          className="bg-transparent border-0 text-white text-xl font-bold p-0 h-auto focus:ring-0"
+                          style={{ boxShadow: 'none' }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {managementMode === 'decrease' && (
-              <div>
-                <Label className="text-white/60">Liquidity Amount</Label>
-                <Input
-                  type="number"
-                  value={liquidityAmount}
-                  onChange={(e) => setLiquidityAmount(e.target.value)}
-                  placeholder="0.0"
-                  className="bg-white/5 border-white/20 text-white"
-                />
-              </div>
-            )}
-
-            {managementMode === 'collect' && (
-              <div className="text-center py-4">
-                <p className="text-white/60">Collect all earned fees for this position</p>
-              </div>
-            )}
-
-            <div className="flex gap-3">
+              )}
+              
+              {managementMode === 'collect' && (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-white/80 text-sm font-medium">Collect Fees</Label>
+                    <div className="mt-2 space-y-2">
+                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">Ξ</span>
+                            </div>
+                            <span className="text-white font-medium">ETH</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-white font-medium">0.001</div>
+                            <div className="text-white/60 text-xs">$3.64</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">K</span>
+                            </div>
+                            <span className="text-white font-medium">KILT</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-white font-medium">234</div>
+                            <div className="text-white/60 text-xs">$4.22</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5" />
+                      <div className="text-sm">
+                        <div className="text-yellow-500 font-medium">Collect fees</div>
+                        <div className="text-white/60">Collecting fees will not remove your liquidity.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Action Button */}
               <Button
-                onClick={handleLiquidityManagement}
+                onClick={handlePositionManagement}
                 disabled={isProcessing}
-                className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066]"
+                className="w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-medium py-3 text-base"
               >
-                {isProcessing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {managementMode === 'increase' && 'Add Liquidity'}
-                {managementMode === 'decrease' && 'Remove Liquidity'}
-                {managementMode === 'collect' && 'Collect Fees'}
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    {managementMode === 'increase' && 'Add Liquidity'}
+                    {managementMode === 'decrease' && 'Remove Liquidity'}
+                    {managementMode === 'collect' && 'Collect Fees'}
+                  </>
+                )}
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setManagementMode(null);
-                  setSelectedPosition(null);
-                  setAmount0('');
-                  setAmount1('');
-                  setLiquidityAmount('');
-                }}
-                className="border-white/20 hover:border-white/30"
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
       {/* Rewards Summary */}
       {totalUnclaimed > 0 && (

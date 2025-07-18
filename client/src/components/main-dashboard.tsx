@@ -632,7 +632,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 cluely-card">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium">Balance Usage</span>
                           <span className="text-sm text-white/50">{selectedPercentage}% of wallet</span>
@@ -673,7 +673,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="theme-card p-2">
+                      <div className="theme-card p-2 cluely-card">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
                           <span className="text-sm text-white/50 text-body">Balanced strategy</span>

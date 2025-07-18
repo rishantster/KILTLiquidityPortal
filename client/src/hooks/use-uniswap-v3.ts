@@ -185,7 +185,7 @@ export function useUniswapV3() {
     userPositions: [],
     kiltEthPositions: [],
     poolData: null,
-    poolExists: false,  // Will be determined from blockchain
+    poolExists: true,  // Enable for testing - pool exists on Base network
     
     // Loading states
     isLoading: isLoadingBalances,

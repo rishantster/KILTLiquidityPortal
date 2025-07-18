@@ -37,6 +37,7 @@ import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";
 import { adminSimpleRouter } from "./routes/admin-simple";
+import rewardDistributionRoutes from "./routes/reward-distribution";
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes
 
@@ -54,7 +55,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         columnNames: Object.keys(treasuryConf || {}),
         values: {
           daily_rewards_cap: treasuryConf?.daily_rewards_cap,
-          total_allocation: treasuryConf?.total_allocation,
+          totalAllocation: treasuryConf?.totalAllocation,
           program_duration_days: treasuryConf?.program_duration_days
         }
       });
@@ -794,7 +795,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         aprRange: aprData.aprRange,
         calculationDetails: aprData.calculationDetails,
         // Override with admin-configured values (snake_case from database)
-        totalBudget: treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) : analytics.totalBudget,
+        totalBudget: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : analytics.totalBudget,
         dailyBudget: treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : analytics.dailyBudget,
         programDuration: treasuryConf?.program_duration_days || analytics.programDuration,
         daysRemaining: daysRemaining,
@@ -802,7 +803,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         programEndDate: treasuryConf?.program_end_date || analytics.programEndDate,
         isActive: treasuryConf?.is_active !== undefined ? treasuryConf.is_active : analytics.isActive,
         // Calculate treasuryRemaining from admin configuration
-        treasuryRemaining: treasuryConf?.total_allocation ? parseFloat(treasuryConf.total_allocation) - (analytics.totalDistributed || 0) : analytics.treasuryRemaining
+        treasuryRemaining: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analytics.totalDistributed || 0) : analytics.treasuryRemaining
       };
       
       res.json(unifiedAnalytics);
@@ -2036,6 +2037,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.status(500).json({ error: 'Failed to log admin operation' });
     }
   });
+
+  // Reward distribution routes
+  app.use("/api/reward-distribution", rewardDistributionRoutes);
 
   // System health and debugging routes
   // Removed systemHealthRouter - consolidated into main routes

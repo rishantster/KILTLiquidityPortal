@@ -97,14 +97,26 @@ export class MemStorage implements IStorage {
     const position: LpPosition = {
       id: this.positionIdCounter++,
       userId: insertPosition.userId || null,
-      nftId: insertPosition.nftId,
+      nftTokenId: insertPosition.nftTokenId,
       poolAddress: insertPosition.poolAddress,
-      tokenIds: insertPosition.tokenIds,
+      token0Address: insertPosition.token0Address,
+      token1Address: insertPosition.token1Address,
+      token0Amount: insertPosition.token0Amount,
+      token1Amount: insertPosition.token1Amount,
       minPrice: insertPosition.minPrice,
       maxPrice: insertPosition.maxPrice,
+      tickLower: insertPosition.tickLower,
+      tickUpper: insertPosition.tickUpper,
       liquidity: insertPosition.liquidity,
+      currentValueUSD: insertPosition.currentValueUSD || '0',
+      feeTier: insertPosition.feeTier || 3000,
       isActive: true,
       createdAt: new Date(),
+      createdViaApp: insertPosition.createdViaApp || false,
+      rewardEligible: insertPosition.rewardEligible || false,
+      appTransactionHash: insertPosition.appTransactionHash || '',
+      appSessionId: insertPosition.appSessionId || '',
+      verificationStatus: insertPosition.verificationStatus || 'pending',
     };
     this.lpPositions.set(position.id, position);
     return position;
@@ -145,9 +157,18 @@ export class MemStorage implements IStorage {
     const reward: Reward = {
       id: this.rewardIdCounter++,
       userId: insertReward.userId || null,
+      nftTokenId: insertReward.nftTokenId,
       positionId: insertReward.positionId || null,
-      amount: insertReward.amount,
+      positionValueUSD: insertReward.positionValueUSD,
+      dailyRewardAmount: insertReward.dailyRewardAmount,
+      accumulatedAmount: insertReward.accumulatedAmount,
+      liquidityAddedAt: insertReward.liquidityAddedAt,
+      stakingStartDate: insertReward.stakingStartDate || new Date(),
+      lockPeriodDays: 7, // Fixed 7-day lock period
       claimedAt: null,
+      claimedAmount: '0',
+      lastRewardCalculation: new Date(),
+      isEligibleForClaim: false,
       createdAt: new Date(),
     };
     this.rewards.set(reward.id, reward);
@@ -163,6 +184,49 @@ export class MemStorage implements IStorage {
       reward.claimedAt = new Date();
       this.rewards.set(reward.id, reward);
     });
+  }
+
+  async getClaimableRewards(): Promise<Array<{
+    userAddress: string;
+    accumulatedAmount: string;
+    nftTokenId: string;
+  }>> {
+    // Get all rewards that are eligible for claiming (lock period expired)
+    const now = new Date();
+    const claimableRewards = Array.from(this.rewards.values()).filter(reward => {
+      if (reward.claimedAt) return false; // Already claimed
+      
+      const lockExpiry = new Date(reward.stakingStartDate);
+      lockExpiry.setDate(lockExpiry.getDate() + reward.lockPeriodDays);
+      
+      return now >= lockExpiry;
+    });
+
+    // Group by user and combine rewards
+    const userRewards = new Map<string, {
+      userAddress: string;
+      accumulatedAmount: number;
+      nftTokenId: string;
+    }>();
+
+    for (const reward of claimableRewards) {
+      const user = await this.getUser(reward.userId!);
+      if (!user) continue;
+
+      const existing = userRewards.get(user.address) || {
+        userAddress: user.address,
+        accumulatedAmount: 0,
+        nftTokenId: reward.nftTokenId
+      };
+
+      existing.accumulatedAmount += parseFloat(reward.accumulatedAmount);
+      userRewards.set(user.address, existing);
+    }
+
+    return Array.from(userRewards.values()).map(reward => ({
+      ...reward,
+      accumulatedAmount: reward.accumulatedAmount.toString()
+    }));
   }
 
   async getPoolStats(poolAddress: string): Promise<PoolStats | undefined> {

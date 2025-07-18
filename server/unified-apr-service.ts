@@ -68,30 +68,30 @@ class UnifiedAPRService {
         settingsFields: settingsConf ? Object.keys(settingsConf) : []
       });
       
-      if (!treasuryConf || treasuryConf.total_allocation == null || treasuryConf.program_duration_days == null || treasuryConf.daily_rewards_cap == null) {
-        console.error('Treasury configuration missing:', {
+      if (!treasuryConf || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null || treasuryConf.dailyRewardsCap == null) {
+        console.error('Treasury configuration missing - fixed field names:', {
           treasuryConf: !!treasuryConf,
-          total_allocation: treasuryConf?.total_allocation,
-          program_duration_days: treasuryConf?.program_duration_days,
-          daily_rewards_cap: treasuryConf?.daily_rewards_cap
+          totalAllocation: treasuryConf?.totalAllocation,
+          programDurationDays: treasuryConf?.programDurationDays,
+          dailyRewardsCap: treasuryConf?.dailyRewardsCap
         });
         throw new Error('Admin configuration required - no fallback values allowed');
       }
       
-      if (!settingsConf || settingsConf.time_boost_coefficient == null || settingsConf.full_range_bonus == null) {
+      if (!settingsConf || settingsConf.timeBoostCoefficient == null || settingsConf.fullRangeBonus == null) {
         console.error('Program settings missing:', {
           settingsConf: !!settingsConf,
-          time_boost_coefficient: settingsConf?.time_boost_coefficient,
-          full_range_bonus: settingsConf?.full_range_bonus
+          timeBoostCoefficient: settingsConf?.timeBoostCoefficient,
+          fullRangeBonus: settingsConf?.fullRangeBonus
         });
         throw new Error('Program settings required - no fallback values allowed');
       }
       
-      const treasuryAllocation = parseFloat(treasuryConf.total_allocation);
-      const programDuration = treasuryConf.program_duration_days;
-      const dailyBudget = parseFloat(treasuryConf.daily_rewards_cap);
-      const timeBoost = parseFloat(settingsConf.time_boost_coefficient);
-      const fullRangeBonus = parseFloat(settingsConf.full_range_bonus);
+      const treasuryAllocation = parseFloat(treasuryConf.totalAllocation);
+      const programDuration = treasuryConf.programDurationDays;
+      const dailyBudget = parseFloat(treasuryConf.dailyRewardsCap);
+      const timeBoost = parseFloat(settingsConf.timeBoostCoefficient);
+      const fullRangeBonus = parseFloat(settingsConf.fullRangeBonus);
       
       // Clear cache to force recalculation
       this.aprCache = null;

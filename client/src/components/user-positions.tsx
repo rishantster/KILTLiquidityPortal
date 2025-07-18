@@ -173,8 +173,8 @@ export function UserPositions() {
             tokenId: selectedPosition,
             amount0Desired: parseTokenAmount(amount0, 18),
             amount1Desired: parseTokenAmount(amount1, 18),
-            amount0Min: BigInt("0"),
-            amount1Min: BigInt("0"),
+            amount0Min: 0n,
+            amount1Min: 0n,
             deadline: BigInt(Math.floor(Date.now() / 1000) + 3600)
           });
           break;
@@ -182,8 +182,8 @@ export function UserPositions() {
           await decreaseLiquidity({
             tokenId: selectedPosition,
             liquidity: parseTokenAmount(liquidityAmount, 18),
-            amount0Min: BigInt("0"),
-            amount1Min: BigInt("0"),
+            amount0Min: 0n,
+            amount1Min: 0n,
             deadline: BigInt(Math.floor(Date.now() / 1000) + 3600)
           });
           break;

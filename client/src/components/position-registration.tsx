@@ -309,9 +309,19 @@ export function PositionRegistration() {
             <Gift className="h-3 w-3 text-emerald-400" />
             <AlertDescription className="text-emerald-100 text-xs">
               Already have KILT liquidity positions on Uniswap? Register them here to start earning treasury rewards!
-              <div className="mt-1.5 text-xs text-emerald-200/80">
-                <div>• Immediate reward accrual • Smart contract security • Historical validation</div>
-                <div>• Auto-validation for full range positions • Historical verification</div>
+              <div className="mt-2 space-y-1 text-xs text-emerald-200/90">
+                <div className="flex items-center gap-2">
+                  <span>• Immediate reward accrual upon registration</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>• Smart contract security with historical validation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>• Auto-validation for full range positions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>• Complete transaction history verification</span>
+                </div>
               </div>
             </AlertDescription>
           </Alert>

@@ -658,7 +658,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="theme-card p-3">
+                      <div className="theme-card p-3 mt-[0px] mb-[0px]">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
                           <span className="text-sm text-white/50 text-body">Balanced strategy</span>

@@ -248,27 +248,28 @@ export function MainDashboard() {
             {/* Hero Section */}
             <div className="mb-12">
               <div className="relative w-32 h-32 mx-auto mb-8">
-                {/* Simple Logo Container */}
-                <div className="absolute inset-3 bg-white rounded-full flex items-center justify-center shadow-2xl">
-                  {/* KILT Logo - Simple and Clean */}
+                {/* Matrix Green Glow Container */}
+                <div className="absolute inset-0 bg-matrix-green/20 rounded-full blur-xl animate-pulse"></div>
+                <div className="absolute inset-2 bg-black rounded-full flex items-center justify-center shadow-2xl border-2 border-matrix-green/40">
+                  {/* KILT Logo with Matrix Green Border */}
                   <img 
                     src={kiltLogo} 
                     alt="KILT" 
-                    className="w-20 h-20 object-contain" 
+                    className="w-20 h-20 object-contain drop-shadow-lg" 
                   />
                 </div>
               </div>
               
-              {/* Main Headline - Enhanced Typography */}
-              <h1 className="text-7xl sm:text-8xl font-bold text-white mb-6 leading-tight tracking-tight">
+              {/* Main Headline - Clean Typography */}
+              <h1 className="text-6xl sm:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
                 <span className="block text-white">KILT Liquidity</span>
-                <span className="block text-white/90 text-6xl sm:text-7xl font-normal">
+                <span className="block text-white/90 text-5xl sm:text-6xl font-normal">
                   Incentive Program
                 </span>
               </h1>
               
-              <p className="text-2xl sm:text-3xl text-white font-medium max-w-4xl mx-auto mb-8 leading-relaxed">
-                Earn <span className="text-pink-400 font-bold">up to {unifiedData.maxAPRData?.aprRange || '67% - 89%'} APR</span> from the <span className="text-pink-400 font-bold">{unifiedData.programAnalytics && unifiedData.programAnalytics.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
+              <p className="text-xl sm:text-2xl text-white/90 font-medium max-w-4xl mx-auto mb-8 leading-relaxed">
+                Earn <span className="text-matrix-green font-bold">up to {unifiedData.maxAPRData?.aprRange || '67% - 89%'} APR</span> from the <span className="text-pink-400 font-bold">500K KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
 
@@ -282,59 +283,47 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Modern Hexagonal Feature Grid */}
+            {/* Clean Feature Grid */}
             <div className="grid md:grid-cols-3 gap-6 mb-16">
-              {/* KILT/ETH Pool - Streamlined */}
+              {/* KILT/ETH Pool */}
               <div className="group relative animate-fade-in animate-delay-100">
-                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-4 transition-all duration-300 hover:border-pink-500/40 h-[220px] flex flex-col">
-                  {/* Simple Icon */}
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg bg-[#f90263]">
-                      <TrendingUp className="h-7 w-7 text-white drop-shadow-lg" />
-                    </div>
+                <div className="relative bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-4 transition-all duration-300 hover:border-matrix-green/40 h-[160px] flex flex-col">
+                  <div className="flex items-center mb-3">
+                    <TrendingUp className="h-5 w-5 text-matrix-green mr-2" />
+                    <h3 className="text-white font-semibold text-base">KILT/ETH Pool</h3>
                   </div>
-                  
-                  <div className="pt-8 text-center flex-1 flex flex-col justify-center px-2">
-                    <h3 className="text-white font-bold text-lg mb-2">KILT/ETH Pool</h3>
-                    <p className="text-gray-200 text-sm leading-relaxed font-medium">
+                  <div className="flex-1 flex flex-col justify-center">
+                    <p className="text-gray-300 text-sm leading-relaxed">
                       Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Treasury Rewards - Streamlined */}
+              {/* Treasury Rewards */}
               <div className="group relative animate-fade-in animate-delay-200">
-                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-4 transition-all duration-300 hover:border-pink-500/40 h-[220px] flex flex-col">
-                  {/* Simple Icon */}
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="w-12 h-12 from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg border-2 border-white/20 bg-[#f90263]">
-                      <Award className="h-7 w-7 text-white drop-shadow-lg" />
-                    </div>
+                <div className="relative bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-4 transition-all duration-300 hover:border-pink-500/40 h-[160px] flex flex-col">
+                  <div className="flex items-center mb-3">
+                    <Award className="h-5 w-5 text-pink-400 mr-2" />
+                    <h3 className="text-white font-semibold text-base">Treasury Rewards</h3>
                   </div>
-                  
-                  <div className="pt-8 text-center flex-1 flex flex-col justify-center px-2">
-                    <h3 className="text-white font-bold text-lg mb-2">Treasury Rewards</h3>
-                    <p className="text-gray-200 text-sm leading-relaxed font-medium">
-                      Receive attractive rewards from KILT treasury allocation with secure smart contract distribution.
+                  <div className="flex-1 flex flex-col justify-center">
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Receive attractive rewards from <span className="text-pink-400">500K KILT</span> treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Program Analytics - Streamlined */}
+              {/* Program Analytics */}
               <div className="group relative animate-fade-in animate-delay-300">
-                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-4 transition-all duration-300 hover:border-pink-500/40 h-[220px] flex flex-col">
-                  {/* Simple Icon */}
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="w-12 h-12 from-pink-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg border-2 border-white/20 bg-[#f40261]">
-                      <BarChart3 className="h-7 w-7 text-white drop-shadow-lg" />
-                    </div>
+                <div className="relative bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-4 transition-all duration-300 hover:border-matrix-green/40 h-[160px] flex flex-col">
+                  <div className="flex items-center mb-3">
+                    <BarChart3 className="h-5 w-5 text-matrix-green mr-2" />
+                    <h3 className="text-white font-semibold text-base">Program Analytics</h3>
                   </div>
-                  
-                  <div className="pt-8 text-center flex-1 flex flex-col justify-center px-2">
-                    <h3 className="text-white font-bold text-lg mb-2">Program Analytics</h3>
-                    <p className="text-gray-200 text-sm leading-relaxed font-medium">
+                  <div className="flex-1 flex flex-col justify-center">
+                    <p className="text-gray-300 text-sm leading-relaxed">
                       Track your position performance, rewards earned, and program progress with detailed analytics.
                     </p>
                   </div>
@@ -342,60 +331,57 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Streamlined Bottom CTA */}
+            {/* Clean Bottom CTA */}
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-white mb-3">
-                Join the
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Join the KILT Ecosystem
               </h2>
-              <h1 className="text-6xl font-bold text-pink-400 mb-6 leading-tight">
-                KILT Ecosystem
-              </h1>
-              <p className="text-white text-xl font-medium max-w-2xl mx-auto mb-6 leading-relaxed">
-                Join thousands earning massive rewards while supporting the future of decentralized identity. Limited treasury - act now!
+              <p className="text-white/80 text-lg font-medium max-w-2xl mx-auto mb-6 leading-relaxed">
+                Connect with the KILT Protocol community and stay updated on the latest developments.
               </p>
             </div>
 
-            {/* Enhanced Social Media Links */}
-            <div className="flex justify-center items-center gap-4">
+            {/* Clean Social Media Links */}
+            <div className="flex justify-center items-center gap-3">
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiX className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
+                <SiX className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
               </a>
               <a 
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiGithub className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
+                <SiGithub className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
               </a>
               <a 
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiDiscord className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
+                <SiDiscord className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
               </a>
               <a 
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiTelegram className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
+                <SiTelegram className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
               </a>
               <a 
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiMedium className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
+                <SiMedium className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
               </a>
             </div>
           </div>

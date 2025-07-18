@@ -430,15 +430,13 @@ export function MainDashboard() {
         playsInline
         preload="auto"
         className="video-background"
-        style={{ zIndex: -20 }}
+        style={{ zIndex: -50 }}
       >
         <source src={backgroundVideo} type="video/mp4" />
       </video>
       
-      {/* Clean Changing Gradient Background */}
-      <div className="absolute inset-0" style={{ zIndex: -15 }}>
-        <div className="gradient-background"></div>
-      </div>
+      {/* Semi-transparent overlay for readability */}
+      <div className="absolute inset-0 bg-black/20" style={{ zIndex: -40 }}></div>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">

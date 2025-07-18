@@ -275,57 +275,57 @@ export function MainDashboard() {
 
             {/* Modern Hexagonal Feature Grid */}
             <div className="grid md:grid-cols-3 gap-6 mb-16">
-              {/* KILT/ETH Pool - Hexagon Style */}
+              {/* KILT/ETH Pool - Streamlined */}
               <div className="group relative animate-fade-in animate-delay-100">
-                <div className="relative bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-transparent backdrop-blur-md border border-blue-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 hover:border-blue-300/50 h-[200px] flex flex-col">
-                  {/* Floating Icon */}
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl rotate-45 flex items-center justify-center shadow-lg group-hover:rotate-90 transition-transform duration-500">
-                      <TrendingUp className="h-8 w-8 text-white -rotate-45 group-hover:-rotate-90 transition-transform duration-500" />
+                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-6 transition-all duration-300 hover:border-pink-500/40 h-[180px] flex flex-col">
+                  {/* Simple Icon */}
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center shadow-lg">
+                      <TrendingUp className="h-6 w-6 text-white" />
                     </div>
                   </div>
                   
-                  <div className="pt-8 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-bold text-xl mb-3">KILT/ETH Pool</h3>
-                    <p className="text-blue-200/80 text-sm leading-relaxed">
+                  <div className="pt-6 text-center flex-1 flex flex-col justify-center">
+                    <h3 className="text-white font-semibold text-lg mb-2">KILT/ETH Pool</h3>
+                    <p className="text-gray-300/70 text-sm leading-relaxed">
                       Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Treasury Rewards - Diamond Style */}
+              {/* Treasury Rewards - Streamlined */}
               <div className="group relative animate-fade-in animate-delay-200">
-                <div className="relative bg-gradient-to-br from-indigo-500/20 via-indigo-600/10 to-transparent backdrop-blur-md border border-indigo-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/30 hover:border-indigo-300/50 h-[200px] flex flex-col">
-                  {/* Floating Icon */}
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
-                      <Award className="h-8 w-8 text-white group-hover:rotate-12 transition-transform duration-500" />
+                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-6 transition-all duration-300 hover:border-pink-500/40 h-[180px] flex flex-col">
+                  {/* Simple Icon */}
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center shadow-lg">
+                      <Award className="h-6 w-6 text-white" />
                     </div>
                   </div>
                   
-                  <div className="pt-8 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
-                    <p className="text-indigo-200/80 text-sm leading-relaxed">
+                  <div className="pt-6 text-center flex-1 flex flex-col justify-center">
+                    <h3 className="text-white font-semibold text-lg mb-2">Treasury Rewards</h3>
+                    <p className="text-gray-300/70 text-sm leading-relaxed">
                       Receive attractive rewards from KILT treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Program Analytics - Octagon Style */}
+              {/* Program Analytics - Streamlined */}
               <div className="group relative animate-fade-in animate-delay-300">
-                <div className="relative bg-gradient-to-br from-purple-500/20 via-purple-600/10 to-transparent backdrop-blur-md border border-purple-400/30 rounded-3xl p-6 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 hover:border-purple-300/50 h-[200px] flex flex-col">
-                  {/* Floating Icon */}
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl transform rotate-12 flex items-center justify-center shadow-lg group-hover:rotate-45 transition-transform duration-500">
-                      <BarChart3 className="h-8 w-8 text-white -rotate-12 group-hover:-rotate-45 transition-transform duration-500" />
+                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-6 transition-all duration-300 hover:border-pink-500/40 h-[180px] flex flex-col">
+                  {/* Simple Icon */}
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <div className="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center shadow-lg">
+                      <BarChart3 className="h-6 w-6 text-white" />
                     </div>
                   </div>
                   
-                  <div className="pt-8 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-bold text-xl mb-3">Program Analytics</h3>
-                    <p className="text-purple-200/80 text-sm leading-relaxed">
+                  <div className="pt-6 text-center flex-1 flex flex-col justify-center">
+                    <h3 className="text-white font-semibold text-lg mb-2">Program Analytics</h3>
+                    <p className="text-gray-300/70 text-sm leading-relaxed">
                       Track your position performance, rewards earned, and program progress with detailed analytics.
                     </p>
                   </div>

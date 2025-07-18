@@ -360,8 +360,19 @@ export function UserPositions() {
                   <div key={position.tokenId.toString()} className={`relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] ${
                     isClosed 
                       ? 'bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/40' 
-                      : 'bg-gradient-to-br from-slate-900/90 to-slate-800/70 border-slate-700/50 hover:border-slate-600/60'
-                  }`}>
+                      : 'bg-gradient-to-br from-slate-900/90 to-slate-800/70 border-[#ff0066]/50 hover:border-[#ff0066]/80 shadow-lg shadow-[#ff0066]/20 hover:shadow-[#ff0066]/40 hover:shadow-2xl'
+                  }`} style={!isClosed ? {
+                    boxShadow: `0 0 20px rgba(255, 0, 102, 0.3), 0 0 40px rgba(255, 0, 102, 0.1)`,
+                    filter: 'drop-shadow(0 0 8px rgba(255, 0, 102, 0.4))'
+                  } : {}}>
+                    {/* Animated Neon Pulse Background */}
+                    {!isClosed && (
+                      <div className="absolute inset-0 rounded-2xl opacity-50 animate-pulse" style={{
+                        background: 'linear-gradient(45deg, rgba(255, 0, 102, 0.1) 0%, rgba(255, 0, 102, 0.05) 50%, rgba(255, 0, 102, 0.1) 100%)',
+                        animation: 'neonPulse 3s ease-in-out infinite'
+                      }}></div>
+                    )}
+                    
                     {/* Header */}
                     <div className="p-6 pb-4">
                       <div className="flex items-center justify-between mb-4">
@@ -373,8 +384,13 @@ export function UserPositions() {
                           {inRange ? 'In Range' : 'Out of Range'}
                         </Badge>
                       </div>
-                      <div className="text-4xl font-bold text-white tabular-nums">
-                        ${positionValue.toFixed(2)}
+                      <div className="text-4xl font-bold text-white tabular-nums relative">
+                        <span className="relative z-10" style={{
+                          textShadow: '0 0 10px rgba(255, 0, 102, 0.8), 0 0 20px rgba(255, 0, 102, 0.6), 0 0 30px rgba(255, 0, 102, 0.4)',
+                          color: '#ffffff'
+                        }}>
+                          ${positionValue.toFixed(2)}
+                        </span>
                       </div>
                     </div>
 
@@ -418,10 +434,18 @@ export function UserPositions() {
                       </div>
 
                       {/* Fees Earned */}
-                      <div className="bg-white/5 rounded-2xl p-4 mb-6">
+                      <div className="bg-white/5 rounded-2xl p-4 mb-6 relative overflow-hidden" style={{
+                        boxShadow: 'inset 0 0 20px rgba(255, 0, 102, 0.1)',
+                        border: '1px solid rgba(255, 0, 102, 0.2)'
+                      }}>
                         <div className="text-white/60 text-sm mb-3">Fees earned</div>
-                        <div className="text-3xl font-bold text-white tabular-nums mb-4">
-                          ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
+                        <div className="text-3xl font-bold text-white tabular-nums mb-4 relative">
+                          <span style={{
+                            textShadow: '0 0 8px rgba(255, 0, 102, 0.6), 0 0 16px rgba(255, 0, 102, 0.4)',
+                            color: '#ffffff'
+                          }}>
+                            ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
+                          </span>
                         </div>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
@@ -460,7 +484,11 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11"
+                              className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11 relative overflow-hidden"
+                              style={{
+                                boxShadow: '0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3)',
+                                border: '1px solid rgba(16, 185, 129, 0.3)'
+                              }}
                             >
                               <Plus className="h-4 w-4 mr-2" />
                               Add
@@ -470,7 +498,11 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11"
+                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11 relative overflow-hidden"
+                              style={{
+                                boxShadow: '0 0 10px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.3)',
+                                border: '1px solid rgba(239, 68, 68, 0.3)'
+                              }}
                             >
                               <Minus className="h-4 w-4 mr-2" />
                               Remove
@@ -480,7 +512,11 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11"
+                              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11 relative overflow-hidden"
+                              style={{
+                                boxShadow: '0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)'
+                              }}
                             >
                               <DollarSign className="h-4 w-4 mr-2" />
                               Collect

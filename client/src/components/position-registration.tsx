@@ -318,7 +318,7 @@ export function PositionRegistration() {
         </CardContent>
       </Card>
       {/* Unregistered Positions */}
-      <Card className="cluely-card flex-1">
+      <Card className="cluely-card flex-1 bg-[#000000]">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-white font-heading text-sm">

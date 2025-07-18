@@ -569,8 +569,8 @@ export function MainDashboard() {
                   <Zap className="h-4 w-4 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
-                  <CardContent className="p-3 flex-1 flex flex-col">
+                <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
+                  <CardContent className="p-3 flex-1 flex flex-col overflow-hidden">
                     <div className="space-y-3 flex-1">
                       {/* Balance Display */}
                       <div className="theme-card p-3">
@@ -694,7 +694,7 @@ export function MainDashboard() {
                     </div>
                     
                     {/* Action Button and Help Text - Bottom of Card */}
-                    <div className="space-y-2 mt-3">
+                    <div className="space-y-2 mt-2 px-1">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();
@@ -733,8 +733,8 @@ export function MainDashboard() {
                       })()}
 
                       {/* Help Text */}
-                      <div className="text-center px-3">
-                        <p className="text-xs text-white/40 text-body break-words leading-tight">
+                      <div className="text-center px-4 py-1">
+                        <p className="text-xs text-white/40 text-body break-words leading-tight max-w-full">
                           For custom amounts, use "Add Liquidity" tab
                         </p>
                       </div>

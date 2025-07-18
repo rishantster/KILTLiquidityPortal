@@ -631,8 +631,26 @@ export function UserPositions() {
                             <span className="text-white font-medium">ETH</span>
                           </div>
                           <div className="text-right">
-                            <div className="text-white font-medium">0.000</div>
-                            <div className="text-white/60 text-xs">$0.00</div>
+                            <div className="text-white font-medium">
+                              {(() => {
+                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                if (!currentPosition || !liquidityAmount) return '0.000';
+                                
+                                const percentage = parseFloat(liquidityAmount) / 100;
+                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.amount0, 18) || '0') * percentage;
+                                return ethAmount.toFixed(3);
+                              })()}
+                            </div>
+                            <div className="text-white/60 text-xs">
+                              ${(() => {
+                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                if (!currentPosition || !liquidityAmount) return '0.00';
+                                
+                                const percentage = parseFloat(liquidityAmount) / 100;
+                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.amount0, 18) || '0') * percentage;
+                                return (ethAmount * 3635).toFixed(2); // ETH price
+                              })()}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -645,8 +663,26 @@ export function UserPositions() {
                             <span className="text-white font-medium">KILT</span>
                           </div>
                           <div className="text-right">
-                            <div className="text-white font-medium">0</div>
-                            <div className="text-white/60 text-xs">$0.00</div>
+                            <div className="text-white font-medium">
+                              {(() => {
+                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                if (!currentPosition || !liquidityAmount) return '0';
+                                
+                                const percentage = parseFloat(liquidityAmount) / 100;
+                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.amount1, 18) || '0') * percentage;
+                                return kiltAmount.toFixed(0);
+                              })()}
+                            </div>
+                            <div className="text-white/60 text-xs">
+                              ${(() => {
+                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                if (!currentPosition || !liquidityAmount || !kiltData?.price) return '0.00';
+                                
+                                const percentage = parseFloat(liquidityAmount) / 100;
+                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.amount1, 18) || '0') * percentage;
+                                return (kiltAmount * kiltData.price).toFixed(2);
+                              })()}
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -398,28 +398,7 @@ export function LiquidityMint({
         deadline: deadlineTime
       };
 
-      // Log parameters for debugging
-      console.log('Mint Parameters:', {
-        token0,
-        token1,
-        fee: 3000,
-        tickLower,
-        tickUpper,
-        amount0Desired: amount0Desired.toString(),
-        amount1Desired: amount1Desired.toString(),
-        recipient: address,
-        deadline: deadlineTime
-      });
 
-      // Debug button state
-      console.log('Button State Debug:', {
-        isMinting,
-        kiltAmount,
-        ethAmount,
-        poolExists,
-        tokensApproved,
-        isButtonEnabled: !isMinting && !!kiltAmount && !!ethAmount && !!poolExists && !!tokensApproved
-      });
 
       // Mint parameters prepared for position creation
 
@@ -464,15 +443,7 @@ export function LiquidityMint({
     );
   }
 
-  // Debug button state
-  console.log('Button State Debug:', {
-    isMinting,
-    kiltAmount,
-    ethAmount,
-    poolExists,
-    tokensApproved,
-    isButtonEnabled: !isMinting && !!kiltAmount && !!ethAmount && !!poolExists && !!tokensApproved
-  });
+
 
   return (
     <div className="space-y-4">
@@ -752,8 +723,8 @@ export function LiquidityMint({
           onClick={handleMintPosition}
           disabled={isMinting || !kiltAmount || !ethAmount || !poolExists || !tokensApproved}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
-            tokensApproved && kiltAmount && ethAmount && poolExists 
-              ? 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700' 
+            !isMinting && kiltAmount && ethAmount && poolExists && tokensApproved
+              ? 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white' 
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >

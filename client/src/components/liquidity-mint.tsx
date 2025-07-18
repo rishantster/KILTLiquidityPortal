@@ -339,6 +339,16 @@ export function LiquidityMint({
       const kiltAmountParsed = parseUnits(kiltAmount, 18);
       const ethAmountParsed = parseUnits(ethAmount, 18);
       
+      // Debug: Log the parsed amounts
+      console.log('Liquidity amounts:', {
+        kiltAmount: kiltAmount,
+        ethAmount: ethAmount,
+        kiltAmountParsed: kiltAmountParsed.toString(),
+        ethAmountParsed: ethAmountParsed.toString(),
+        kiltAmountReadable: formatTokenAmount(kiltAmountParsed),
+        ethAmountReadable: formatTokenAmount(ethAmountParsed)
+      });
+      
       const deadlineTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
 
       // Handle ETH wrapping automatically through position manager

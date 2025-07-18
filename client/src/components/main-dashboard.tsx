@@ -569,47 +569,47 @@ export function MainDashboard() {
                   <Zap className="h-4 w-4 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="theme-card h-[360px] sm:h-[380px] lg:h-[400px] flex flex-col overflow-hidden">
-                  <CardContent className="p-3 flex-1 flex flex-col justify-between overflow-hidden">
-                    <div className="space-y-1.5">
+                <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
+                  <CardContent className="p-3 flex-1 flex flex-col overflow-hidden">
+                    <div className="space-y-3 flex-1">
                       {/* Balance Display */}
-                      <div className="theme-card p-2">
-                        <h4 className="text-white font-bold text-sm mb-1.5">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-1.5">
+                      <div className="theme-card p-3">
+                        <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
+                        <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
-                          <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-2 border border-pink-500/30">
+                          <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-3 border border-pink-500/30">
                             <div className="flex flex-col items-center text-center">
-                              <div className="w-8 h-8 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full flex items-center justify-center mb-1 border border-pink-500/50">
-                                <KiltLogo size="md" showBackground={false} />
+                              <div className="w-10 h-10 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full flex items-center justify-center mb-1 border border-pink-500/50">
+                                <KiltLogo size="lg" showBackground={false} />
                               </div>
-                              <span className="text-white text-xs font-medium">KILT</span>
-                              <span className="text-matrix-green font-bold text-xs font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                              <span className="text-white text-sm font-medium">KILT</span>
+                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                 {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                               </span>
                             </div>
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-lg p-2 border border-blue-500/30">
+                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-lg p-3 border border-blue-500/30">
                             <div className="flex flex-col items-center text-center">
-                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full flex items-center justify-center mb-1 border border-blue-500/50">
-                                <EthLogo size="md" showBackground={false} />
+                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full flex items-center justify-center mb-1 border border-blue-500/50">
+                                <EthLogo size="lg" showBackground={false} />
                               </div>
-                              <span className="text-white text-xs font-medium">ETH</span>
-                              <span className="text-matrix-green font-bold text-xs font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                              <span className="text-white text-sm font-medium">ETH</span>
+                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                 {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
                               </span>
                             </div>
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-lg p-2 border border-emerald-500/30">
+                          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/30">
                             <div className="flex flex-col items-center text-center">
-                              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500/30 to-teal-500/30 rounded-full flex items-center justify-center mb-1 border border-emerald-500/50">
-                                <EthLogo size="md" showBackground={false} />
+                              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/30 to-teal-500/30 rounded-full flex items-center justify-center mb-1 border border-emerald-500/50">
+                                <EthLogo size="lg" showBackground={false} />
                               </div>
-                              <span className="text-white text-xs font-medium">WETH</span>
-                              <span className="text-matrix-green font-bold text-xs font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                              <span className="text-white text-sm font-medium">WETH</span>
+                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                 {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                               </span>
                             </div>
@@ -618,12 +618,12 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="theme-card p-2">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-white/70 text-xs font-medium text-label">Balance Usage</span>
-                          <span className="text-xs text-white/50 text-body">{selectedPercentage}% of wallet</span>
+                      <div className="theme-card p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
+                          <span className="text-sm text-white/50 text-body">{selectedPercentage}% of wallet</span>
                         </div>
-                        <div className="grid grid-cols-5 gap-1 mb-0.5">
+                        <div className="grid grid-cols-5 gap-1 mb-2">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
@@ -659,10 +659,10 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="theme-card p-2">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-white/70 text-xs font-medium text-label">Liquidity Amount</span>
-                          <span className="text-xs text-white/50 text-body">Balanced strategy</span>
+                      <div className="theme-card p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
+                          <span className="text-sm text-white/50 text-body">Balanced strategy</span>
                         </div>
                         {(() => {
                           const amounts = calculateOptimalAmounts();
@@ -679,10 +679,10 @@ export function MainDashboard() {
                           
                           return (
                             <div>
-                              <div className="text-2xl font-bold text-matrix-green text-numbers mb-1" style={{ textShadow: '0 0 20px rgba(0, 255, 0, 0.6)' }}>
+                              <div className="text-2xl font-bold text-matrix-green text-numbers mb-2" style={{ textShadow: '0 0 20px rgba(0, 255, 0, 0.6)' }}>
                                 ~${amounts.totalValue}
                               </div>
-                              <div className="flex items-center justify-center space-x-3 text-white/90 text-xs text-body">
+                              <div className="flex items-center justify-center space-x-4 text-white/90 text-sm text-body">
                                 <div className="flex items-center space-x-1">
                                   <KiltLogo size="xs" showBackground={true} />
                                   <span className="font-medium">{amounts.kiltAmount} KILT</span>
@@ -699,8 +699,8 @@ export function MainDashboard() {
                       </div>
                     </div>
                     
-                    {/* Action Button - Fixed at Bottom */}
-                    <div className="px-1">
+                    {/* Action Button and Help Text - Bottom of Card */}
+                    <div className="space-y-2 mt-2 px-1">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();
@@ -711,7 +711,7 @@ export function MainDashboard() {
                           <Button 
                             onClick={handleQuickAddLiquidity}
                             disabled={isDisabled}
-                            className={`w-full font-semibold py-2 h-10 rounded-lg transition-all duration-300 text-sm ${
+                            className={`w-full font-semibold py-1.5 h-8 rounded-lg transition-all duration-300 text-sm ${
                               hasInsufficientBalance 
                                 ? 'theme-badge-danger cursor-not-allowed' 
                                 : 'theme-button-primary'
@@ -737,6 +737,8 @@ export function MainDashboard() {
                           </Button>
                         );
                       })()}
+
+                      
                     </div>
                   </CardContent>
                 </Card>

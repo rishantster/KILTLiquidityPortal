@@ -478,7 +478,7 @@ export function MainDashboard() {
               className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
             >
               <Wallet className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span className="text-xs font-mono truncate">Pos</span>
+              <span className="text-xs font-mono truncate">Position</span>
             </TabsTrigger>
 
 

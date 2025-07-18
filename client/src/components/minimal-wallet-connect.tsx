@@ -92,7 +92,7 @@ export function MinimalWalletConnect() {
     <Button
       onClick={connectWallet}
       disabled={isConnecting}
-      className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105"
+      className="bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white font-semibold px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105"
     >
       {isConnecting ? (
         <>

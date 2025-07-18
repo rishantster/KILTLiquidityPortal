@@ -426,12 +426,12 @@ export function PositionRegistration() {
 
                   {/* Token Amounts Section */}
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-lg p-4 border border-blue-400/20">
+                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-4 border border-white/10">
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="w-6 h-6 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 bg-gradient-to-r from-[#ff0066] to-[#ff0066] rounded-full flex items-center justify-center">
                           <span className="text-xs font-bold text-white">E</span>
                         </div>
-                        <span className="text-blue-300 font-medium">WETH</span>
+                        <span className="text-white font-medium">WETH</span>
                       </div>
                       <div className="text-xl font-bold text-white">
                         {(parseFloat(position.amount0 || '0') / 1e18).toFixed(4)}

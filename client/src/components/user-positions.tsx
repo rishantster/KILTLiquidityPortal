@@ -400,7 +400,7 @@ export function UserPositions() {
                         <div className="bg-white/5 rounded-lg p-2">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
                                 <span className="text-white text-xs font-bold">Ξ</span>
                               </div>
                               <div className="text-white font-medium text-xs">
@@ -450,7 +450,7 @@ export function UserPositions() {
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1">
-                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
                                 <span className="text-white text-xs">Ξ</span>
                               </div>
                               <span className="text-white/80 text-xs">48.99%</span>
@@ -512,7 +512,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
                               style={{
                                 boxShadow: '0 0 6px rgba(59, 130, 246, 0.5), 0 0 12px rgba(59, 130, 246, 0.3)',
                                 border: '1px solid rgba(59, 130, 246, 0.3)'
@@ -625,7 +625,7 @@ export function UserPositions() {
               <Button
                 onClick={handleLiquidityManagement}
                 disabled={isProcessing}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600"
+                className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066]"
               >
                 {isProcessing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {managementMode === 'increase' && 'Add Liquidity'}
@@ -656,7 +656,7 @@ export function UserPositions() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#ff0066] to-[#ff0066] rounded-lg flex items-center justify-center">
                   <Gift className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -665,13 +665,13 @@ export function UserPositions() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 tabular-nums">
+                <div className="text-2xl font-bold text-white tabular-nums">
                   {totalUnclaimed.toFixed(1)} KILT
                 </div>
                 <Button 
                   onClick={() => claimRewardsMutation.mutate()}
                   disabled={claimRewardsMutation.isPending}
-                  className="mt-2 bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600"
+                  className="mt-2 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066]"
                 >
                   {claimRewardsMutation.isPending ? 'Claiming...' : 'Claim All'}
                 </Button>

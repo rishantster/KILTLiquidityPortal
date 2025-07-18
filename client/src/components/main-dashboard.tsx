@@ -576,9 +576,9 @@ export function MainDashboard() {
                         <h4 className="text-white font-bold text-base mb-2">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
-                          <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-3 border border-pink-500/30">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
                             <div className="flex flex-col items-center text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full flex items-center justify-center mb-1 border border-pink-500/50">
+                              <div className="w-10 h-10 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center mb-1 border border-[#ff0066]/50">
                                 <KiltLogo size="lg" showBackground={false} />
                               </div>
                               <span className="text-white text-sm font-medium">KILT</span>
@@ -589,9 +589,9 @@ export function MainDashboard() {
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-lg p-3 border border-blue-500/30">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
                             <div className="flex flex-col items-center text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full flex items-center justify-center mb-1 border border-blue-500/50">
+                              <div className="w-10 h-10 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center mb-1 border border-[#ff0066]/50">
                                 <EthLogo size="lg" showBackground={false} />
                               </div>
                               <span className="text-white text-sm font-medium">ETH</span>
@@ -602,9 +602,9 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/30">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
                             <div className="flex flex-col items-center text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/30 to-teal-500/30 rounded-full flex items-center justify-center mb-1 border border-emerald-500/50">
+                              <div className="w-10 h-10 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center mb-1 border border-[#ff0066]/50">
                                 <EthLogo size="lg" showBackground={false} />
                               </div>
                               <span className="text-white text-sm font-medium">WETH</span>

@@ -504,7 +504,7 @@ export function MainDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 {/* KILT Price */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-pink-500/20 to-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-pink-400/30">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-matrix-green">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
@@ -512,10 +512,10 @@ export function MainDashboard() {
                     />
                   </div>
                   <p className="text-white/80 text-sm mb-1 font-medium">KILT Price</p>
-                  <p className="text-white font-bold text-lg sm:text-xl">
+                  <p className="text-matrix-green font-bold text-lg sm:text-xl">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
-                  <p className="text-pink-400 text-sm font-medium">+0.50%</p>
+                  <p className="text-matrix-green text-sm font-medium">+0.50%</p>
                 </div>
 
                 {/* Market Cap */}
@@ -532,11 +532,11 @@ export function MainDashboard() {
 
                 {/* Your Reward APR */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-purple-400/30">
-                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-matrix-green">
+                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-matrix-green" />
                   </div>
                   <p className="text-white/80 text-sm mb-1 font-medium">Your Reward APR</p>
-                  <div className="text-white font-bold text-lg sm:text-xl">
+                  <div className="text-matrix-green font-bold text-lg sm:text-xl">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
@@ -550,14 +550,14 @@ export function MainDashboard() {
 
                 {/* Maximum APR */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-amber-400/30">
-                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-matrix-green">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-matrix-green" />
                   </div>
                   <p className="text-white/80 text-sm mb-1 font-medium">Current APR</p>
-                  <p className="text-white font-bold text-lg sm:text-xl">
+                  <p className="text-matrix-green font-bold text-lg sm:text-xl">
                     {unifiedData?.maxAPRData?.aprRange || '31%'}
                   </p>
-                  <p className="text-pink-400 text-sm font-medium">High yields available!</p>
+                  <p className="text-matrix-green text-sm font-medium">High yields available!</p>
                 </div>
               </div>
             </div>

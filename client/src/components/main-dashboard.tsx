@@ -422,15 +422,15 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
-      {/* Background Video */}
+      {/* Background Video - Testing higher z-index */}
       <video 
         autoPlay 
         muted 
         loop 
         playsInline
         preload="auto"
-        className="video-background"
-        style={{ zIndex: -50 }}
+        className="fixed top-0 left-0 w-full h-full object-cover"
+        style={{ zIndex: 1 }}
         onLoadStart={() => console.log('Video loading started')}
         onCanPlay={() => console.log('Video can play')}
         onError={(e) => console.error('Video error:', e)}
@@ -439,9 +439,9 @@ export function MainDashboard() {
         Your browser does not support the video tag.
       </video>
       
-      {/* Semi-transparent overlay for readability */}
-      <div className="absolute inset-0 bg-black/20" style={{ zIndex: -40 }}></div>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">
+      {/* Transparent overlay for content readability */}
+      <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative" style={{ zIndex: 10 }}>
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">

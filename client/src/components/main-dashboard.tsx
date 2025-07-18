@@ -608,41 +608,68 @@ export function MainDashboard() {
                         <h4 className="text-white font-bold text-base mb-2">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                            <div className="flex flex-col items-center text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center mb-1 border border-[#ff0066]/50">
-                                <KiltLogo size="lg" showBackground={false} />
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                                <img 
+                                  src={kiltLogo} 
+                                  alt="KILT" 
+                                  className="w-5 h-5"
+                                  style={{ 
+                                    filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
+                                  }}
+                                />
                               </div>
-                              <span className="text-white text-sm font-medium">KILT</span>
-                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
-                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-white text-xs font-medium">KILT</div>
+                                <div className="text-matrix-green font-bold text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                  {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
+                                </div>
+                              </div>
                             </div>
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                            <div className="flex flex-col items-center text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center mb-1 border border-[#ff0066]/50">
-                                <EthLogo size="lg" showBackground={false} />
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                                <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                                </svg>
                               </div>
-                              <span className="text-white text-sm font-medium">ETH</span>
-                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                {ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}
-                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-white text-xs font-medium">ETH</div>
+                                <div className="text-matrix-green font-bold text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                  {ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}
+                                </div>
+                              </div>
                             </div>
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                            <div className="flex flex-col items-center text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center mb-1 border border-[#ff0066]/50">
-                                <EthLogo size="lg" showBackground={false} />
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                                <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                                </svg>
                               </div>
-                              <span className="text-white text-sm font-medium">WETH</span>
-                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
-                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-white text-xs font-medium">WETH</div>
+                                <div className="text-matrix-green font-bold text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                  {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>

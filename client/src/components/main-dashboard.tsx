@@ -277,17 +277,17 @@ export function MainDashboard() {
             <div className="grid md:grid-cols-3 gap-6 mb-16">
               {/* KILT/ETH Pool - Streamlined */}
               <div className="group relative animate-fade-in animate-delay-100">
-                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-6 transition-all duration-300 hover:border-pink-500/40 h-[180px] flex flex-col">
+                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-4 transition-all duration-300 hover:border-pink-500/40 h-[220px] flex flex-col">
                   {/* Simple Icon */}
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center shadow-lg">
-                      <TrendingUp className="h-6 w-6 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg border-2 border-white/20">
+                      <TrendingUp className="h-7 w-7 text-white drop-shadow-lg" />
                     </div>
                   </div>
                   
-                  <div className="pt-6 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-bold text-xl mb-3">KILT/ETH Pool</h3>
-                    <p className="text-gray-200 text-base leading-relaxed font-medium">
+                  <div className="pt-8 text-center flex-1 flex flex-col justify-center px-2">
+                    <h3 className="text-white font-bold text-lg mb-2">KILT/ETH Pool</h3>
+                    <p className="text-gray-200 text-sm leading-relaxed font-medium">
                       Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
                     </p>
                   </div>
@@ -296,17 +296,17 @@ export function MainDashboard() {
 
               {/* Treasury Rewards - Streamlined */}
               <div className="group relative animate-fade-in animate-delay-200">
-                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-6 transition-all duration-300 hover:border-pink-500/40 h-[180px] flex flex-col">
+                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-4 transition-all duration-300 hover:border-pink-500/40 h-[220px] flex flex-col">
                   {/* Simple Icon */}
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center shadow-lg">
-                      <Award className="h-6 w-6 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg border-2 border-white/20">
+                      <Award className="h-7 w-7 text-white drop-shadow-lg" />
                     </div>
                   </div>
                   
-                  <div className="pt-6 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
-                    <p className="text-gray-200 text-base leading-relaxed font-medium">
+                  <div className="pt-8 text-center flex-1 flex flex-col justify-center px-2">
+                    <h3 className="text-white font-bold text-lg mb-2">Treasury Rewards</h3>
+                    <p className="text-gray-200 text-sm leading-relaxed font-medium">
                       Receive attractive rewards from KILT treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
@@ -315,17 +315,17 @@ export function MainDashboard() {
 
               {/* Program Analytics - Streamlined */}
               <div className="group relative animate-fade-in animate-delay-300">
-                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-6 transition-all duration-300 hover:border-pink-500/40 h-[180px] flex flex-col">
+                <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-4 transition-all duration-300 hover:border-pink-500/40 h-[220px] flex flex-col">
                   {/* Simple Icon */}
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center shadow-lg">
-                      <BarChart3 className="h-6 w-6 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg border-2 border-white/20">
+                      <BarChart3 className="h-7 w-7 text-white drop-shadow-lg" />
                     </div>
                   </div>
                   
-                  <div className="pt-6 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-bold text-xl mb-3">Program Analytics</h3>
-                    <p className="text-gray-200 text-base leading-relaxed font-medium">
+                  <div className="pt-8 text-center flex-1 flex flex-col justify-center px-2">
+                    <h3 className="text-white font-bold text-lg mb-2">Program Analytics</h3>
+                    <p className="text-gray-200 text-sm leading-relaxed font-medium">
                       Track your position performance, rewards earned, and program progress with detailed analytics.
                     </p>
                   </div>

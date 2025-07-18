@@ -431,8 +431,12 @@ export function MainDashboard() {
         preload="auto"
         className="video-background"
         style={{ zIndex: -50 }}
+        onLoadStart={() => console.log('Video loading started')}
+        onCanPlay={() => console.log('Video can play')}
+        onError={(e) => console.error('Video error:', e)}
       >
         <source src={backgroundVideo} type="video/mp4" />
+        Your browser does not support the video tag.
       </video>
       
       {/* Semi-transparent overlay for readability */}

@@ -667,7 +667,7 @@ export function MainDashboard() {
                         </div>
                         {(() => {
                           const amounts = calculateOptimalAmounts();
-                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
                           
                           if (hasInsufficientBalance) {
                             return (
@@ -709,7 +709,7 @@ export function MainDashboard() {
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();
-                        const hasInsufficientBalance = parseFloat(amounts.kiltAmount) < 0.01 || parseFloat(amounts.wethAmount) < 0.000001;
+                        const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
                         const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
                         
                         return (

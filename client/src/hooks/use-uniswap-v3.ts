@@ -88,13 +88,7 @@ export function useUniswapV3() {
       setWethBalance(wethBalanceFormatted);
       setEthBalance(ethBalanceFormatted);
       
-      console.log('Balances fetched and set successfully:', {
-        kilt: kiltBalanceFormatted,
-        weth: wethBalanceFormatted,
-        eth: ethBalanceFormatted,
-        addressConnected: address,
-        isConnected: isConnected
-      });
+
     } catch (error) {
       console.error('Failed to fetch balances:', error);
       // Reset to zeros on failure

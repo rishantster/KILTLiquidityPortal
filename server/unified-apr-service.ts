@@ -52,19 +52,19 @@ class UnifiedAPRService {
       ]);
 
       // Admin panel is the ONLY source of truth - no fallbacks allowed
-      if (!treasuryConf || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null || treasuryConf.dailyRewardsCap == null) {
+      if (!treasuryConf || treasuryConf.total_allocation == null || treasuryConf.program_duration_days == null || treasuryConf.daily_rewards_cap == null) {
         throw new Error('Admin configuration required - no fallback values allowed');
       }
       
-      if (!settingsConf || settingsConf.timeBoostCoefficient == null || settingsConf.fullRangeBonus == null) {
+      if (!settingsConf || settingsConf.time_boost_coefficient == null || settingsConf.full_range_bonus == null) {
         throw new Error('Program settings required - no fallback values allowed');
       }
       
-      const treasuryAllocation = parseFloat(treasuryConf.totalAllocation);
-      const programDuration = treasuryConf.programDurationDays;
-      const dailyBudget = parseFloat(treasuryConf.dailyRewardsCap);
-      const timeBoost = parseFloat(settingsConf.timeBoostCoefficient);
-      const fullRangeBonus = parseFloat(settingsConf.fullRangeBonus);
+      const treasuryAllocation = parseFloat(treasuryConf.total_allocation);
+      const programDuration = treasuryConf.program_duration_days;
+      const dailyBudget = parseFloat(treasuryConf.daily_rewards_cap);
+      const timeBoost = parseFloat(settingsConf.time_boost_coefficient);
+      const fullRangeBonus = parseFloat(settingsConf.full_range_bonus);
       
       // Clear cache to force recalculation
       this.aprCache = null;

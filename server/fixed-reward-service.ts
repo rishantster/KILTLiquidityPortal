@@ -447,13 +447,13 @@ export class FixedRewardService {
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     
     // Admin panel is the ONLY source of truth - no fallbacks allowed
-    if (!treasuryConf || treasuryConf.dailyRewardsCap == null || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null) {
+    if (!treasuryConf || treasuryConf.daily_rewards_cap == null || treasuryConf.total_allocation == null || treasuryConf.program_duration_days == null) {
       throw new Error('Treasury configuration required - admin panel must be configured');
     }
     
-    const dailyBudget = parseFloat(treasuryConf.dailyRewardsCap);
-    const totalAllocation = parseFloat(treasuryConf.totalAllocation);
-    const programDuration = treasuryConf.programDurationDays;
+    const dailyBudget = parseFloat(treasuryConf.daily_rewards_cap);
+    const totalAllocation = parseFloat(treasuryConf.total_allocation);
+    const programDuration = treasuryConf.program_duration_days;
     
     // APR calculation parameters - realistic pool lifecycle progression
     const inRangeMultiplier = 1.0; // Always in-range
@@ -465,12 +465,12 @@ export class FixedRewardService {
     const { programSettings } = await import('../shared/schema');
     const [settings] = await db.select().from(programSettings).limit(1);
     
-    if (!settings || settings.timeBoostCoefficient == null || settings.fullRangeBonus == null) {
+    if (!settings || settings.time_boost_coefficient == null || settings.full_range_bonus == null) {
       throw new Error('Program settings required - admin panel must be configured');
     }
     
-    const timeBoostCoeff = parseFloat(settings.timeBoostCoefficient);
-    const fullRangeBonusCoeff = parseFloat(settings.fullRangeBonus);
+    const timeBoostCoeff = parseFloat(settings.time_boost_coefficient);
+    const fullRangeBonusCoeff = parseFloat(settings.full_range_bonus);
     
     // Get REAL pool data from blockchain instead of assumptions
     let currentPoolTVL = 0;
@@ -587,7 +587,7 @@ export class FixedRewardService {
           })
           .from(rewards),
         this.getAdminConfiguration(),
-        this.calculateMaximumTheoreticalAPR().catch(() => ({ minAPR: 29.46, maxAPR: 46.55 }))
+        this.calculateMaximumTheoreticalAPR()
       ]);
 
       const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;
@@ -619,29 +619,9 @@ export class FixedRewardService {
         }
       };
     } catch (error) {
-      // Production-grade error handling - log the error and return realistic fallback
+      // No fallback values allowed - admin configuration required
       console.error('Failed to get program analytics:', error);
-      
-      // Use real data sources for fallback
-      const fallbackLiquidity = await this.getTotalActiveLiquidity().catch(() => 80000);
-      const fallbackParticipants = await this.getAllActiveParticipants().catch(() => []);
-      
-      return {
-        totalLiquidity: fallbackLiquidity,
-        activeParticipants: fallbackParticipants.length,
-        dailyBudget: this.DEFAULT_DAILY_BUDGET,
-        averageAPR: 30.62,
-        programDaysRemaining: this.DEFAULT_PROGRAM_DURATION_DAYS,
-        programDuration: this.DEFAULT_PROGRAM_DURATION_DAYS,
-        totalDistributed: 0,
-        treasuryTotal: this.DEFAULT_TREASURY_ALLOCATION,
-        treasuryRemaining: this.DEFAULT_TREASURY_ALLOCATION,
-        estimatedAPR: {
-          low: 29,
-          average: 38,
-          high: 47
-        }
-      };
+      throw new Error('Program analytics failed - admin configuration required');
     }
   }
 

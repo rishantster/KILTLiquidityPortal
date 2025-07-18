@@ -86,15 +86,7 @@ export function MainDashboard() {
     formatTokenAmount
   } = unifiedData;
   
-  // Debug balance display
-  console.log('Main Dashboard balance display:', {
-    kiltBalance,
-    wethBalance,
-    ethBalance,
-    kiltParsed: kiltBalance ? parseFloat(kiltBalance) : 'null',
-    wethParsed: wethBalance ? parseFloat(wethBalance) : 'null',
-    ethParsed: ethBalance ? parseFloat(ethBalance) : 'null'
-  });
+
   // Removed deprecated hooks - using unified dashboard data instead
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);

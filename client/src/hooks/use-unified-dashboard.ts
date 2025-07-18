@@ -11,14 +11,7 @@ export function useUnifiedDashboard() {
   const { address, isConnected } = useWallet();
   const { kiltEthPositions, poolData, kiltBalance, wethBalance, ethBalance, isLoading: uniswapLoading } = useUniswapV3();
   
-  // Debug balance flow
-  console.log('Unified Dashboard balance state:', {
-    kiltBalance,
-    wethBalance,
-    ethBalance,
-    address,
-    isConnected
-  });
+
   const { data: kiltData } = useKiltTokenData();
 
   // Get or create user record
@@ -106,11 +99,11 @@ export function useUnifiedDashboard() {
       try {
         const response = await fetch('/api/rewards/maximum-apr');
         if (!response.ok) {
-          return { minAPR: 47, maxAPR: 47, aprRange: "47%" };
+          throw new Error('Failed to fetch APR data');
         }
         return response.json();
       } catch (error) {
-        return { minAPR: 47, maxAPR: 47, aprRange: "47%" };
+        throw new Error('APR calculation failed - admin configuration required');
       }
     },
     refetchInterval: 10000, // Refresh every 10 seconds for admin changes
@@ -125,40 +118,12 @@ export function useUnifiedDashboard() {
       try {
         const response = await fetch('/api/rewards/program-analytics');
         if (!response.ok) {
-          return {
-            totalLiquidity: 0,
-            activeParticipants: 0,
-            estimatedAPR: { 
-              low: maxAPRData?.maxAPR || 5, 
-              average: Math.round(((maxAPRData?.maxAPR || 5) + (maxAPRData?.minAPR || 29)) / 2),
-              high: maxAPRData?.minAPR || 29 
-            },
-            treasuryRemaining: 2905600,
-            avgUserLiquidity: 0
-          };
+          throw new Error('Failed to fetch program analytics');
         }
         const data = await response.json();
-        // Enhance data with realistic APR range
-        return {
-          ...data,
-          estimatedAPR: {
-            low: maxAPRData?.minAPR || 29,
-            average: Math.round(((maxAPRData?.minAPR || 29) + (maxAPRData?.maxAPR || 47)) / 2),
-            high: maxAPRData?.maxAPR || 47
-          }
-        };
+        return data;
       } catch (error) {
-        return {
-          totalLiquidity: 0,
-          activeParticipants: 0,
-          estimatedAPR: { 
-            low: maxAPRData?.minAPR || 29, 
-            average: Math.round(((maxAPRData?.minAPR || 29) + (maxAPRData?.maxAPR || 47)) / 2),
-            high: maxAPRData?.maxAPR || 47 
-          },
-          treasuryRemaining: 2905600,
-          avgUserLiquidity: 0
-        };
+        throw new Error('Program analytics failed - admin configuration required');
       }
     },
     enabled: !!maxAPRData,

@@ -656,22 +656,31 @@ export function useUniswapV3() {
       }
     },
     increaseLiquidity: async () => {
-      throw new Error('Real blockchain integration required - mock data removed');
+      // TODO: Implement real increase liquidity functionality
+      throw new Error('Increase liquidity functionality not yet implemented');
     },
     decreaseLiquidity: async () => {
-      throw new Error('Real blockchain integration required - mock data removed');
+      // TODO: Implement real decrease liquidity functionality
+      throw new Error('Decrease liquidity functionality not yet implemented');
     },
     collectFees: async () => {
-      throw new Error('Real blockchain integration required - mock data removed');
+      // TODO: Implement real collect fees functionality
+      throw new Error('Collect fees functionality not yet implemented');
     },
     burnPosition: async () => {
-      throw new Error('Real blockchain integration required - mock data removed');
+      // TODO: Implement real burn position functionality
+      throw new Error('Burn position functionality not yet implemented');
     },
-    calculatePositionValue: () => {
-      throw new Error('Real blockchain integration required - mock data removed');
+    calculatePositionValue: (position: any) => {
+      // Calculate position value from token amounts and current prices
+      if (!position || !position.currentValueUSD) return 0;
+      return parseFloat(position.currentValueUSD.toString());
     },
-    isPositionInRange: () => {
-      throw new Error('Real blockchain integration required - mock data removed');
+    isPositionInRange: (position: any) => {
+      // Check if position is in range based on API data
+      if (!position) return false;
+      // API already provides this information
+      return position.isInRange !== false; // Default to true if not specified
     }
   };
 }

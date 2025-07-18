@@ -247,23 +247,49 @@ export function UserPositions() {
     <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
       <Card key={`positions-${kiltEthPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
-        <CardHeader className="pb-3 bg-gradient-to-r from-pink-500/5 to-cyan-500/5 border-b border-white/10">
-          <div className="flex flex-col space-y-3">
-            {/* Main Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-pink-500/20 to-cyan-500/20 rounded-lg flex items-center justify-center border border-pink-500/30">
-                  <Layers className="h-4 w-4 text-pink-400" />
-                </div>
-                <div>
-                  <CardTitle className="text-white font-heading text-lg bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
-                    Your KILT LP Positions
-                  </CardTitle>
-                  <p className="text-white/60 text-sm">Real-time Uniswap V3 positions containing KILT token</p>
+        <CardHeader className="pb-4 bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-sm border-b border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Left Side - Title and Stats */}
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-xl flex items-center justify-center border border-pink-500/30 shadow-lg shadow-pink-500/10">
+                <Layers className="h-6 w-6 text-pink-400" />
+              </div>
+              <div>
+                <CardTitle className="text-white font-bold text-xl mb-1">
+                  Your KILT LP Positions
+                </CardTitle>
+                <div className="flex items-center space-x-4 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-white/60">Real-time Uniswap V3 positions containing KILT token</span>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Right Side - Controls */}
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-6 bg-white/5 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                  <span className="text-white font-bold text-sm">{allKiltPositions.length}</span>
+                  <span className="text-white/60 text-sm">total</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <span className="text-emerald-400 font-bold text-sm">{openPositions.length}</span>
+                  <span className="text-white/60 text-sm">active</span>
+                </div>
+                {closedPositions.length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    <span className="text-gray-400 font-bold text-sm">{closedPositions.length}</span>
+                    <span className="text-white/60 text-sm">closed</span>
+                  </div>
+                )}
+              </div>
+              
               <div className="flex items-center space-x-2">
-                <Badge className="bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 text-emerald-400 border-emerald-500/30 px-3 py-1">
+                <Badge className="bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 text-emerald-400 border-emerald-500/30 px-3 py-1.5 text-xs font-medium">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse" />
                   Live
                 </Badge>
@@ -271,51 +297,37 @@ export function UserPositions() {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.reload()}
-                  className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-cyan-500/30 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300 h-8 px-3"
+                  className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 border-slate-600/50 hover:border-slate-500/80 text-white hover:text-white h-9 px-3 backdrop-blur-sm"
                 >
-                  <RefreshCw className="h-3 w-3 mr-1" />
+                  <RefreshCw className="h-4 w-4 mr-2" />
                   Refresh
                 </Button>
               </div>
             </div>
-
-            {/* Position Statistics */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="text-sm text-white/80">
-                  <span className="font-bold text-white">{allKiltPositions.length}</span> KILT positions
-                  <span className="mx-2 text-white/40">•</span>
-                  <span className="font-bold text-emerald-400">{openPositions.length}</span> open
-                  {closedPositions.length > 0 && (
-                    <>
-                      <span className="mx-2 text-white/40">•</span>
-                      <span className="font-bold text-gray-400">{closedPositions.length}</span> closed
-                    </>
-                  )}
-                </div>
-              </div>
-              
-              {closedPositions.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-white/60">Show Closed</span>
-                  <button
-                    onClick={() => setShowClosedPositions(!showClosedPositions)}
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-black ${
-                      showClosedPositions 
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-cyan-500/25' 
-                        : 'bg-white/20 hover:bg-white/30'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-300 ease-in-out shadow-sm ${
-                        showClosedPositions ? 'translate-x-5' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
+          
+          {/* Bottom Row - Toggle for closed positions */}
+          {closedPositions.length > 0 && (
+            <div className="flex items-center justify-end mt-4 pt-3 border-t border-white/5">
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-white/60">Show closed positions</span>
+                <button
+                  onClick={() => setShowClosedPositions(!showClosedPositions)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:ring-offset-2 focus:ring-offset-black ${
+                    showClosedPositions 
+                      ? 'bg-gradient-to-r from-pink-500 to-rose-500 shadow-lg shadow-pink-500/25' 
+                      : 'bg-white/20 hover:bg-white/30'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ease-in-out shadow-sm ${
+                      showClosedPositions ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0 w-full">
           {!kiltPositions || kiltPositions.length === 0 ? (

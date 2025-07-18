@@ -570,8 +570,8 @@ export function MainDashboard() {
                   Quick Add Liquidity
                 </h2>
                 <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
-                  <CardContent className="p-3 flex-1 flex flex-col overflow-hidden">
-                    <div className="space-y-2 flex-1">
+                  <CardContent className="p-3 flex-1 flex flex-col justify-between overflow-hidden">
+                    <div className="space-y-2">
                       {/* Balance Display */}
                       <div className="theme-card p-2">
                         <h4 className="text-white font-bold text-sm mb-2">Wallet Balance</h4>
@@ -699,8 +699,8 @@ export function MainDashboard() {
                       </div>
                     </div>
                     
-                    {/* Action Button - Bottom of Card */}
-                    <div className="mt-2 px-1">
+                    {/* Action Button - Fixed at Bottom */}
+                    <div className="px-1">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();
@@ -737,8 +737,6 @@ export function MainDashboard() {
                           </Button>
                         );
                       })()}
-
-                      
                     </div>
                   </CardContent>
                 </Card>

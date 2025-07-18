@@ -71,6 +71,85 @@
   --ring: #ff0066;
 }
 
+/* Neon glow utility class */
+.neon-glow {
+  border: 1px solid #ff0066;
+  box-shadow: 0 0 5px rgba(255, 0, 102, 0.3), 0 0 10px rgba(255, 0, 102, 0.2), 0 0 15px rgba(255, 0, 102, 0.1);
+  transition: all 0.3s ease;
+}
+
+.neon-glow:hover {
+  box-shadow: 0 0 8px rgba(255, 0, 102, 0.4), 0 0 16px rgba(255, 0, 102, 0.3), 0 0 24px rgba(255, 0, 102, 0.2);
+}
+
+/* Apply neon glow to all cards and components */
+.cluely-card {
+  border: 1px solid #ff0066;
+  box-shadow: 0 0 5px rgba(255, 0, 102, 0.3), 0 0 10px rgba(255, 0, 102, 0.2), 0 0 15px rgba(255, 0, 102, 0.1);
+  transition: all 0.3s ease;
+}
+
+.cluely-card:hover {
+  box-shadow: 0 0 8px rgba(255, 0, 102, 0.4), 0 0 16px rgba(255, 0, 102, 0.3), 0 0 24px rgba(255, 0, 102, 0.2);
+}
+
+/* Apply neon glow to buttons */
+.neon-button {
+  border: 1px solid #ff0066;
+  box-shadow: 0 0 5px rgba(255, 0, 102, 0.3), 0 0 10px rgba(255, 0, 102, 0.2);
+  transition: all 0.3s ease;
+}
+
+.neon-button:hover {
+  box-shadow: 0 0 8px rgba(255, 0, 102, 0.4), 0 0 16px rgba(255, 0, 102, 0.3), 0 0 24px rgba(255, 0, 102, 0.2);
+}
+
+/* Apply neon glow to tabs */
+.neon-tab {
+  border: 1px solid #ff0066;
+  box-shadow: 0 0 3px rgba(255, 0, 102, 0.2), 0 0 6px rgba(255, 0, 102, 0.1);
+  transition: all 0.3s ease;
+}
+
+.neon-tab:hover {
+  box-shadow: 0 0 5px rgba(255, 0, 102, 0.3), 0 0 10px rgba(255, 0, 102, 0.2);
+}
+
+/* Apply neon glow to inputs */
+.neon-input {
+  border: 1px solid #ff0066;
+  box-shadow: 0 0 3px rgba(255, 0, 102, 0.2);
+  transition: all 0.3s ease;
+}
+
+.neon-input:focus {
+  box-shadow: 0 0 5px rgba(255, 0, 102, 0.4), 0 0 10px rgba(255, 0, 102, 0.3);
+}
+
+/* Background video container */
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.video-background video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  opacity: 0.4;
+}
+
 /* Neon Animation Keyframes */
 @keyframes neonPulse {
   0%, 100% {

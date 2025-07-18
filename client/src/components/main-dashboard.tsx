@@ -57,6 +57,7 @@ const OptimizedLoadingFallback = ({ height = "400px" }) => (
 
 // Assets and icons
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
+import backgroundVideo from '@assets/Untitled design (22)_1752822331413.mp4';
 import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
 
 // Services
@@ -408,6 +409,20 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
+      {/* Background Video */}
+      <div className="video-background">
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          preload="auto"
+          className="video-background"
+        >
+          <source src={backgroundVideo} type="video/mp4" />
+        </video>
+      </div>
+      
       {/* Clean Changing Gradient Background */}
       <div className="absolute inset-0 -z-10">
         <div className="gradient-background"></div>

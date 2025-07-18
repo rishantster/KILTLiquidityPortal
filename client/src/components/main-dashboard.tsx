@@ -468,31 +468,31 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/80 backdrop-blur-lg border border-white/10 p-1 rounded-xl mb-6 h-12 gap-1 shadow-2xl shadow-black/50">
+          <TabsList className="grid w-full grid-cols-4 bg-black/80 backdrop-blur-lg border border-white/10 p-1 rounded-xl mb-6 h-12 gap-1 shadow-2xl shadow-black/50 neon-glow">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
             >
               <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
             >
               <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
             >
               <Award className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
             >
               <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Active Position</span>
@@ -502,7 +502,7 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
             {/* Streamlined Metrics Display */}
-            <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg p-3 mb-4 shadow-2xl shadow-black/50">
+            <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg p-3 mb-4 shadow-2xl shadow-black/50 cluely-card">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* KILT Price */}
                 <div className="text-center group hover:scale-105 transition-transform duration-200">

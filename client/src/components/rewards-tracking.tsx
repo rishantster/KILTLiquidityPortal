@@ -165,7 +165,7 @@ export function RewardsTracking() {
     <div className="space-y-4">
       {/* Detailed Reward Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Total Earned</h3>
@@ -188,7 +188,7 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimable</h3>
@@ -211,7 +211,7 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Daily Rate</h3>
@@ -229,7 +229,7 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimed</h3>
@@ -250,7 +250,7 @@ export function RewardsTracking() {
       {/* Enhanced Action Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Enhanced Claim Rewards */}
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
               <Award className="h-4 w-4 text-yellow-400" />

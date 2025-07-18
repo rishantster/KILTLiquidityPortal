@@ -521,7 +521,7 @@ export function LiquidityMint({
         </div>
       </div>
       {/* Position Size */}
-      <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+      <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Target className="h-3 w-3 text-matrix-green" />
@@ -560,7 +560,7 @@ export function LiquidityMint({
       {/* Clean Token Input Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* KILT Input */}
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <img 
@@ -597,7 +597,7 @@ export function LiquidityMint({
         </Card>
 
         {/* ETH/WETH Input */}
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <EthereumLogo className="w-4 h-4" />
@@ -661,7 +661,7 @@ export function LiquidityMint({
       {/* Side-by-Side Layout for Price Range Strategy and Transaction Cost */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Price Range Strategy */}
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <Zap className="h-3 w-3 text-pink-400" />
@@ -811,7 +811,7 @@ export function LiquidityMint({
         <Button
           onClick={handleApproveTokens}
           disabled={isApproving || tokensApproved}
-          className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
+          className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 neon-button ${
             tokensApproved 
               ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
               : 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066]'
@@ -838,7 +838,7 @@ export function LiquidityMint({
         <Button
           onClick={handleMintPosition}
           disabled={isMinting || !kiltAmount || !ethAmount || !tokensApproved}
-          className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
+          className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 neon-button ${
             !isMinting && kiltAmount && ethAmount && tokensApproved
               ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white' 
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'

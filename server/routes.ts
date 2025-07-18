@@ -1561,7 +1561,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         },
         poolType: 'KILT/ETH',
         isKiltPosition: true,
-        isActive: true, // All positions returned are active (zero liquidity filtered out)
+        isActive: pos.isActive, // Use actual active status from backend
+        isInRange: pos.isInRange, // CRITICAL FIX: Add isInRange field from backend
+        positionStatus: pos.positionStatus, // Add position status enum
         isRegistered: registeredTokenIds.has(pos.tokenId),
         createdViaApp: appCreatedTokenIds.has(pos.tokenId)
       }));

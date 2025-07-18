@@ -349,7 +349,7 @@ export function UserPositions() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
-                const inRange = isPositionInRange(position);
+                const inRange = position.isInRange; // Use backend-calculated range status
                 const isClosed = position.liquidity === 0n;
                 const ethAmount = position.amount0 ? (parseFloat(position.amount0) / 1e18).toFixed(3) : '0.000';
                 const kiltAmount = position.amount1 ? (parseFloat(position.amount1) / 1e18).toFixed(0) : '0';

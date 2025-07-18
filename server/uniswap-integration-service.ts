@@ -29,8 +29,9 @@ export interface UniswapV3Position {
   tickLower: number;
   tickUpper: number;
   feeTier: number;
-  isActive: boolean;
-  positionStatus: 'ACTIVE' | 'CLOSED';
+  isActive: boolean; // Position has liquidity > 0
+  isInRange: boolean; // Position is earning fees (current price within range)
+  positionStatus: 'ACTIVE_IN_RANGE' | 'ACTIVE_OUT_OF_RANGE' | 'CLOSED';
   currentValueUSD: number;
   fees: {
     token0: string;
@@ -472,6 +473,19 @@ export class UniswapIntegrationService {
         }
       );
 
+      // CRITICAL FIX: Properly separate position status (has liquidity) from range status (earning fees)
+      const isInRange = poolData.tickCurrent >= tickLower && poolData.tickCurrent < tickUpper;
+      const hasLiquidity = liquidity > 0n;
+      
+      // Debug logging for range calculation
+      console.log(`Position ${tokenId} range check:`, {
+        tickCurrent: poolData.tickCurrent,
+        tickLower: tickLower,
+        tickUpper: tickUpper,
+        isInRange: isInRange,
+        hasLiquidity: hasLiquidity
+      });
+      
       const position: UniswapV3Position = {
         tokenId: tokenId,
         poolAddress,
@@ -483,8 +497,9 @@ export class UniswapIntegrationService {
         tickLower,
         tickUpper,
         feeTier: fee,
-        isActive: poolData.tickCurrent >= tickLower && poolData.tickCurrent < tickUpper,
-        positionStatus: liquidity > 0n ? 'ACTIVE' : 'CLOSED',
+        isActive: hasLiquidity, // Position has liquidity
+        isInRange: isInRange, // Position is within current price range
+        positionStatus: hasLiquidity ? (isInRange ? 'ACTIVE_IN_RANGE' : 'ACTIVE_OUT_OF_RANGE') : 'CLOSED',
         currentValueUSD,
         fees: {
           token0: fees.token0,

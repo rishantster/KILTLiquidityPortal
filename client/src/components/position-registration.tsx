@@ -128,8 +128,19 @@ export function PositionRegistration() {
         // Filter logic: Only show positions that aren't app-created and aren't manually registered
         
         // Filter out app-created positions (they're automatically enrolled) and manually registered positions
+        // Also filter out out-of-range positions since they don't earn rewards
         const eligiblePositions = walletPositions
-          .filter((pos: any) => !appCreatedNftIds.has(pos.tokenId.toString()) && !manuallyRegisteredNftIds.has(pos.tokenId.toString()))
+          .filter((pos: any) => {
+            // Must not be app-created or manually registered
+            if (appCreatedNftIds.has(pos.tokenId.toString()) || manuallyRegisteredNftIds.has(pos.tokenId.toString())) {
+              return false;
+            }
+            // Must be in-range to earn rewards (critical fix)
+            if (!pos.isInRange) {
+              return false;
+            }
+            return true;
+          })
           .map((pos: any) => ({
             nftTokenId: pos.tokenId.toString(),
             poolAddress: pos.poolAddress,

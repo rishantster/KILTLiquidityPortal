@@ -680,9 +680,10 @@ export function LiquidityMint({
                   onClick={() => setSelectedStrategy(strategy.id)}
                   className={`h-16 p-3 flex flex-col items-start justify-center w-full transition-all duration-300 ${
                     selectedStrategy === strategy.id 
-                      ? 'bg-pink-500 hover:bg-pink-600 text-white' 
+                      ? 'text-white' 
                       : 'hover:bg-pink-500/10 hover:border-pink-500/50'
                   }`}
+                  style={selectedStrategy === strategy.id ? { backgroundColor: '#ff0066' } : {}}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
                     <span className="font-bold text-sm">{strategy.label}</span>

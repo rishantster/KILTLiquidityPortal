@@ -452,46 +452,34 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/90 border border-pink-500/30 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
+          <TabsList className="grid w-full grid-cols-4 bg-black/95 border border-matrix-green/30 p-0.5 rounded-lg mb-4 h-8 gap-0.5">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
             >
-              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
-              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
-                <span className="hidden sm:inline">Overview</span>
-                <span className="sm:hidden">Over</span>
-              </span>
+              <TrendingUp className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="text-xs font-mono truncate">Over</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
             >
-              <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
-              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
-                <span className="hidden sm:inline">Add Liquidity</span>
-                <span className="sm:hidden">Add</span>
-              </span>
+              <Plus className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="text-xs font-mono truncate">Add</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
             >
-              <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
-              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
-                <span className="hidden sm:inline">Rewards</span>
-                <span className="sm:hidden">Rwd</span>
-              </span>
+              <Award className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="text-xs font-mono truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
             >
-              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
-              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
-                <span className="hidden sm:inline">Positions</span>
-                <span className="sm:hidden">Pos</span>
-              </span>
+              <Wallet className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="text-xs font-mono truncate">Pos</span>
             </TabsTrigger>
 
 

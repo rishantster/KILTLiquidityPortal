@@ -20,19 +20,19 @@
   pointer-events: none;
 }
 
-/* CYBERPUNK THEME VARIABLES - EXACT PINK COLORS #ff0066 */
+/* CYBERPUNK THEME VARIABLES - SOFTER PINK COLORS #e91e63 */
 :root {
-  /* Primary Pink - Using exact hex #ff0066 from user requirement */
-  --neon-pink: #ff0066;
-  --neon-pink-rgba: rgba(255, 0, 102, 1);
-  --neon-pink-glow: rgba(255, 0, 102, 0.6);
-  --neon-pink-bright: rgba(255, 0, 102, 0.9);
-  --neon-pink-dim: rgba(255, 0, 102, 0.3);
-  --neon-pink-text: rgba(255, 0, 102, 0.95);
-  --neon-pink-border: rgba(255, 0, 102, 0.4);
-  --neon-pink-shadow: rgba(255, 0, 102, 0.5);
-  --neon-pink-bg: rgba(255, 0, 102, 0.08);
-  --neon-pink-hover: rgba(255, 0, 102, 0.15);
+  /* Primary Pink - Using softer hex #e91e63 for better eye comfort */
+  --neon-pink: #e91e63;
+  --neon-pink-rgba: rgba(233, 30, 99, 1);
+  --neon-pink-glow: rgba(233, 30, 99, 0.6);
+  --neon-pink-bright: rgba(233, 30, 99, 0.9);
+  --neon-pink-dim: rgba(233, 30, 99, 0.3);
+  --neon-pink-text: rgba(233, 30, 99, 0.95);
+  --neon-pink-border: rgba(233, 30, 99, 0.4);
+  --neon-pink-shadow: rgba(233, 30, 99, 0.5);
+  --neon-pink-bg: rgba(233, 30, 99, 0.08);
+  --neon-pink-hover: rgba(233, 30, 99, 0.15);
   --terminal-green: rgb(0, 255, 0);
   --terminal-green-glow: rgba(0, 255, 0, 0.4);
   --terminal-green-bright: rgba(0, 255, 0, 0.9);
@@ -69,15 +69,15 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(340, 30%, 20%);
   --input: hsl(340, 15%, 8%);
-  --primary: #ff0066;
+  --primary: #e91e63;
   --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(340, 20%, 15%);
   --secondary-foreground: hsl(0, 0%, 90%);
-  --accent: #ff0066;
+  --accent: #e91e63;
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 100%, 50%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: #ff0066;
+  --ring: #e91e63;
 }
 
 /* Subtle neon glow utility class */

@@ -267,7 +267,7 @@
     pointer-events: none;
   }
   
-  /* CYBERPUNK SCAN LINES OVER VIDEO - STATIC */
+  /* CYBERPUNK OVERLAY - MINIMAL PINK */
   body::after {
     content: '';
     position: fixed;
@@ -276,10 +276,10 @@
     width: 100%;
     height: 100%;
     background: 
-      /* Strong pink cyberpunk overlay */
-      linear-gradient(rgba(255, 0, 102, 0.25), rgba(255, 0, 102, 0.18)),
-      /* Heavy dark overlay for maximum text visibility */
-      linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.8));
+      /* Minimal pink accent */
+      linear-gradient(rgba(255, 0, 102, 0.05), rgba(255, 0, 102, 0.03)),
+      /* Very dark overlay for maximum text visibility */
+      linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.90));
     z-index: -1;
     pointer-events: none;
   }

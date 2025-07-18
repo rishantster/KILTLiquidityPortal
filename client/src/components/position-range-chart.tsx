@@ -46,9 +46,9 @@ export const PositionRangeChart: React.FC<PositionRangeChartProps> = ({
   const baseY = height * 0.7; // 70% down for curve base
   
   return (
-    <div className={`relative bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-lg overflow-hidden border border-white/5 ${className}`} style={{ height }}>
+    <div className={`relative bg-black/20 backdrop-blur-xl rounded-lg overflow-hidden border border-white/5 ${className}`} style={{ height }}>
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-emerald-900/20"></div>
+      <div className="absolute inset-0 bg-black/10"></div>
       
       {/* SVG visualization */}
       <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${svgWidth} ${height}`}>

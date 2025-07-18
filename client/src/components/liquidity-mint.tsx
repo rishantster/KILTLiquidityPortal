@@ -743,7 +743,7 @@ export function LiquidityMint({
                     </div>
                     <div className="relative h-2 bg-gray-800 rounded-full overflow-hidden">
                       <div 
-                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#ff0066] to-[#ff0066] rounded-full"
                         style={{
                           left: '0%',
                           width: '100%',
@@ -770,8 +770,8 @@ export function LiquidityMint({
                     <div className="flex items-center justify-center text-xs text-white/40 mb-1">
                       <span>Always in range</span>
                     </div>
-                    <div className="relative h-2 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full overflow-hidden opacity-60">
-                      <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full animate-pulse"></div>
+                    <div className="relative h-2 bg-gradient-to-r from-[#ff0066] to-[#ff0066] rounded-full overflow-hidden opacity-60">
+                      <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-[#ff0066] to-[#ff0066] rounded-full animate-pulse"></div>
                     </div>
                   </div>
                 )}
@@ -814,7 +814,7 @@ export function LiquidityMint({
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
             tokensApproved 
               ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700'
+              : 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066]'
           }`}
         >
           {isApproving ? (

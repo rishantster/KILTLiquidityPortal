@@ -174,7 +174,7 @@ export function TreasuryManagement() {
 
       {/* Current Treasury Status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20">
+        <Card className="bg-black/20 backdrop-blur-xl border-white/10">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-white">
               <Wallet className="h-5 w-5" />
@@ -400,7 +400,7 @@ export function TreasuryManagement() {
       </div>
 
       {/* Security Controls */}
-      <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
+      <Card className="bg-black/20 backdrop-blur-xl border-white/10">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-white">
             <Shield className="h-5 w-5" />

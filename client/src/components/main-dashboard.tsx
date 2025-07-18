@@ -473,7 +473,7 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
             {/* Streamlined Metrics Display */}
-            <div className="theme-card p-3 mb-4">
+            <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 mb-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* KILT Price */}
                 <div className="text-center group hover:scale-105 transition-transform duration-200">
@@ -554,11 +554,11 @@ export function MainDashboard() {
                   <Zap className="h-4 w-4 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
+                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
                   <CardContent className="p-2 flex-1 flex flex-col overflow-hidden">
                     <div className="space-y-2 flex-1">
                       {/* Balance Display */}
-                      <div className="theme-card p-2">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2">
                         <h4 className="text-white font-bold text-base mb-2">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
@@ -603,10 +603,10 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="theme-card p-2">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
-                          <span className="text-sm text-white/50 text-body">{selectedPercentage}% of wallet</span>
+                          <span className="text-white/70 text-sm font-medium">Balance Usage</span>
+                          <span className="text-sm text-white/50">{selectedPercentage}% of wallet</span>
                         </div>
                         <div className="grid grid-cols-5 gap-1 mb-2">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
@@ -617,8 +617,8 @@ export function MainDashboard() {
                               onClick={() => setSelectedPercentage(value)}
                               className={`text-xs py-1 px-1 h-6 transition-all duration-200 ${
                                 selectedPercentage === value 
-                                  ? 'theme-button-primary' 
-                                  : 'theme-button-secondary'
+                                  ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
+                                  : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
                               }`}
                             >
                               {label}

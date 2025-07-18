@@ -600,126 +600,22 @@ export function LiquidityMint() {
                 </Button>
               ))}
             </div>
-          
-          {/* Ultra Compact Selected Range Display */}
-          <div className="p-2 bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-lg border border-pink-500/20">
-            <div className="flex items-center gap-1 mb-2">
-              <Info className="h-3 w-3 text-pink-400" />
-              <span className="text-white font-bold text-xs">Selected Range</span>
-            </div>
             
-            <div className="space-y-1">
-              <div>
-                <p className="text-white/80 text-xs mb-0.5">{getSelectedStrategy().description}</p>
-                <p className="text-white/60 text-xs">{getSelectedStrategy().risk}</p>
+            {/* Simple Selected Range Info */}
+            <div className="mt-3 p-2 bg-white/5 rounded-lg border border-white/10">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/60">Selected Range</span>
+                <span className="text-white">{getSelectedStrategy().description}</span>
               </div>
-              
-
-              
-              {/* Ultra Compact Range Preview */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-white/60">Range Preview</span>
-                  <span className="text-white/60">${(kiltData?.price || 0.0160).toFixed(4)}</span>
-                </div>
-                
-                <div className="h-8 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded border border-white/10 p-1">
-                  <div className="relative h-full w-full">
-                    <svg className="w-full h-full" viewBox="0 0 200 40" preserveAspectRatio="xMidYMid meet">
-                      {/* Background reference curve */}
-                      <path
-                        d="M 20 30 Q 100 10 180 30"
-                        stroke="rgba(255, 255, 255, 0.15)"
-                        strokeWidth="1"
-                        fill="none"
-                        strokeDasharray="2,2"
-                      />
-                      
-                      {/* Selected range curve */}
-                      <path
-                        d={(() => {
-                          const strategy = getSelectedStrategy();
-                          if (strategy.id === 'full') {
-                            return "M 20 30 Q 100 10 180 30";
-                          } else if (strategy.id === 'wide') {
-                            return "M 40 28 Q 100 12 160 28";
-                          } else if (strategy.id === 'narrow') {
-                            return "M 80 25 Q 100 18 120 25";
-                          } else {
-                            return "M 60 26 Q 100 15 140 26";
-                          }
-                        })()}
-                        stroke="#10b981"
-                        strokeWidth="2"
-                        fill="none"
-                        className="drop-shadow-lg"
-                      />
-                      
-                      {/* Range markers */}
-                      {(() => {
-                        const strategy = getSelectedStrategy();
-                        let minX = 20, maxX = 180, minY = 30, maxY = 30;
-                        if (strategy.id === 'wide') { minX = 40; maxX = 160; minY = 28; maxY = 28; }
-                        else if (strategy.id === 'narrow') { minX = 80; maxX = 120; minY = 25; maxY = 25; }
-                        else if (strategy.id === 'balanced') { minX = 60; maxX = 140; minY = 26; maxY = 26; }
-                        
-                        return (
-                          <>
-                            <circle cx={minX} cy={minY} r="3" fill="#10b981" stroke="white" strokeWidth="1" />
-                            <circle cx={maxX} cy={maxY} r="3" fill="#10b981" stroke="white" strokeWidth="1" />
-                          </>
-                        );
-                      })()}
-                      
-                      {/* Current price indicator */}
-                      <line x1="100" y1="5" x2="100" y2="35" stroke="white" strokeWidth="2" />
-                      <circle cx="100" cy="20" r="2" fill="white" stroke="#10b981" strokeWidth="1" />
-                    </svg>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-2 bg-white/5 rounded-lg">
-                    <span className="text-white/60 text-xs block mb-1">Min Price</span>
-                    <span className="text-white font-bold text-sm">
-                      ${(() => {
-                        const strategy = getSelectedStrategy();
-                        const currentPrice = kiltData?.price || 0.0160;
-                        if (strategy.id === 'full') return '0.0001';
-                        if (strategy.id === 'wide') return (currentPrice * 0.5).toFixed(4);
-                        if (strategy.id === 'narrow') return (currentPrice * 0.75).toFixed(4);
-                        return (currentPrice * 0.6).toFixed(4);
-                      })()}
-                    </span>
-                  </div>
-                  <div className="text-center p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                    <span className="text-emerald-400 text-xs block mb-1">Current</span>
-                    <span className="text-emerald-100 font-bold text-sm">${(kiltData?.price || 0.0160).toFixed(4)}</span>
-                  </div>
-                  <div className="text-center p-2 bg-white/5 rounded-lg">
-                    <span className="text-white/60 text-xs block mb-1">Max Price</span>
-                    <span className="text-white font-bold text-sm">
-                      ${(() => {
-                        const strategy = getSelectedStrategy();
-                        const currentPrice = kiltData?.price || 0.0160;
-                        if (strategy.id === 'full') return '∞';
-                        if (strategy.id === 'wide') return (currentPrice * 2.0).toFixed(4);
-                        if (strategy.id === 'narrow') return (currentPrice * 1.25).toFixed(4);
-                        return (currentPrice * 1.5).toFixed(4);
-                      })()}
-                    </span>
-                  </div>
-                </div>
+              <div className="mt-1 text-xs text-white/60">
+                {getSelectedStrategy().risk}
               </div>
             </div>
-          </div>
           </CardContent>
         </Card>
 
-        {/* Ultra Compact Transaction Cost Estimation */}
-        <div className="space-y-3">
-          <GasEstimationCard />
-        </div>
+        {/* Gas Estimation */}
+        <GasEstimationCard />
       </div>
       {/* Compact Actions */}
       <div className="space-y-2">

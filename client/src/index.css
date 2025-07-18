@@ -71,6 +71,26 @@
   --ring: #ec005e;
 }
 
+/* STREAMLINED THEME CLASSES - FIXED LAYOUT */
+.theme-card {
+  @apply bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg;
+}
+
+.theme-button-primary {
+  background-color: #00ff41;
+  border-color: #00ff41;
+  color: #000000;
+}
+
+.theme-button-primary:hover {
+  background-color: rgba(0, 255, 65, 0.8);
+}
+
+.theme-button-secondary:hover {
+  background-color: rgba(0, 255, 65, 0.1);
+  border-color: rgba(0, 255, 65, 0.5);
+}
+
 /* CYBERPUNK UTILITY CLASSES - BRIGHT PINK THEME */
 .text-neon-pink {
   color: var(--neon-pink);

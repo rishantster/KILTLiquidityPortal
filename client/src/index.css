@@ -28,6 +28,11 @@
   --light-gray: rgb(180, 180, 180);
   --pure-white: rgb(255, 255, 255);
   
+  /* Performance optimizations */
+  --border-radius: 0.75rem;
+  --transition-speed: 0.3s;
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
   /* Core theme colors - Cyberpunk Pink Theme */
   --background: hsl(0, 0%, 0%);
   --foreground: hsl(0, 0%, 95%);

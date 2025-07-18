@@ -7,7 +7,7 @@ import { WalletProvider } from "@/contexts/wallet-context";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function Router() {
   return (
@@ -21,14 +21,20 @@ function Router() {
 
 function CyberpunkVideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
-      // Force video to play
-      video.play().catch(error => {
-        console.log('Video autoplay failed:', error);
-      });
+      // Delay video loading to improve initial page load
+      const loadVideo = () => {
+        video.play().catch(error => {
+          console.log('Video autoplay failed:', error);
+        });
+      };
+      
+      // Load video after a short delay to prioritize page content
+      setTimeout(loadVideo, 500);
     }
   }, []);
 
@@ -40,7 +46,7 @@ function CyberpunkVideoBackground() {
       loop
       muted
       playsInline
-      preload="auto"
+      preload="none"
       style={{
         position: 'fixed',
         top: 0,
@@ -49,8 +55,9 @@ function CyberpunkVideoBackground() {
         height: '100vh',
         zIndex: -1,
         objectFit: 'cover',
-        opacity: 1,
-        filter: 'brightness(0.9) contrast(1.1) saturate(1.0) hue-rotate(320deg) sepia(0.3)'
+        opacity: isLoaded ? 1 : 0,
+        filter: 'brightness(0.9) contrast(1.1) saturate(1.0) hue-rotate(320deg) sepia(0.3)',
+        transition: 'opacity 0.5s ease-in-out'
       }}
       onError={(e) => {
         console.log('Video failed to load:', e);
@@ -59,14 +66,19 @@ function CyberpunkVideoBackground() {
       }}
       onCanPlay={() => {
         console.log('Video can play');
+        setIsLoaded(true);
+      }}
+      onLoadedData={() => {
+        setIsLoaded(true);
       }}
     >
       <source
-        src="/attached_assets/678a7b5f9cfe257413b8e490_6798d33994ec593b001fae82_32 Compressed-transcode_1752818424149.mp4"
+        src="/attached_assets/Untitled design (22)_1752822331413.mp4"
         type="video/mp4"
       />
+      {/* Fallback to original videos if new one fails */}
       <source
-        src="/attached_assets/678a7b5f9cfe257413b8e490_6798d33994ec593b001fae82_32 Compressed-transcode_1752818096839.mp4"
+        src="/attached_assets/678a7b5f9cfe257413b8e490_6798d33994ec593b001fae82_32 Compressed-transcode_1752818424149.mp4"
         type="video/mp4"
       />
     </video>

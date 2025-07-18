@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 // Lazy-loaded components for faster initial load
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
@@ -45,6 +45,16 @@ const UserPositions = lazy(() => import('./user-positions-new').then(m => ({ def
 
 // Import optimized loading components
 import { TabLoadingSpinner } from './loading-screen';
+
+// Optimized loading component for heavy tabs
+const OptimizedLoadingFallback = ({ height = "400px" }) => (
+  <div className="w-full flex items-center justify-center animate-pulse" style={{ height }}>
+    <div className="text-center">
+      <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <div className="text-white/60 text-sm">Loading...</div>
+    </div>
+  </div>
+);
 
 // Assets and icons
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -749,21 +759,21 @@ export function MainDashboard() {
 
           {/* Add Liquidity Tab */}
           <TabsContent value="liquidity">
-            <Suspense fallback={<TabLoadingSpinner />}>
+            <Suspense fallback={<OptimizedLoadingFallback height="600px" />}>
               <LiquidityMint />
             </Suspense>
           </TabsContent>
 
           {/* Rewards Tab */}
           <TabsContent value="rewards">
-            <Suspense fallback={<TabLoadingSpinner />}>
+            <Suspense fallback={<OptimizedLoadingFallback height="500px" />}>
               <RewardsTracking />
             </Suspense>
           </TabsContent>
 
           {/* Positions Tab */}
           <TabsContent value="positions">
-            <Suspense fallback={<TabLoadingSpinner />}>
+            <Suspense fallback={<OptimizedLoadingFallback height="400px" />}>
               <UserPositions />
             </Suspense>
           </TabsContent>

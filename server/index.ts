@@ -58,6 +58,9 @@ app.use((req, res, next) => {
   // Register API routes FIRST (before Vite middleware)
   const server = await registerRoutes(app, securityMiddleware);
 
+  // Serve static files from attached_assets directory
+  app.use('/attached_assets', express.static('attached_assets'));
+
   // Global error handler (must be last)
   app.use(errorHandler);
 

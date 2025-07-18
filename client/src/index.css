@@ -150,7 +150,9 @@
       /* Black overlay filter to reduce vibrancy */
       linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
       /* Static background image */
-      url('/attached_assets/image_1752815946385.png');
+      url('/attached_assets/image_1752815946385.png'),
+      /* Fallback solid dark background */
+      #000000;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

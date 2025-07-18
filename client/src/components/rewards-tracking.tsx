@@ -168,10 +168,10 @@ export function RewardsTracking() {
         <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-medium text-sm">Total Earned</h3>
+              <h3 className="text-super-bright font-medium text-sm">Total Earned</h3>
               <Award className="h-4 w-4 text-matrix-green" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-matrix-green flex items-center gap-2 mb-1">
+            <div className="text-lg font-bold tabular-nums text-matrix-bright flex items-center gap-2 mb-1">
               {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
               <img 
                 src={kiltLogo} 
@@ -191,10 +191,10 @@ export function RewardsTracking() {
         <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-medium text-sm">Claimable</h3>
+              <h3 className="text-super-bright font-medium text-sm">Claimable</h3>
               <Unlock className="h-4 w-4 text-matrix-green" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-matrix-green flex items-center gap-2 mb-1">
+            <div className="text-lg font-bold tabular-nums text-matrix-bright flex items-center gap-2 mb-1">
               {totalClaimableAmount.toFixed(2)}
               <img 
                 src={kiltLogo} 

@@ -513,8 +513,8 @@ export function MainDashboard() {
                       className="w-6 h-6"
                     />
                   </div>
-                  <p className="text-white/90 text-sm mb-1 font-medium">KILT Price</p>
-                  <p className="text-matrix-green font-bold text-lg font-mono">
+                  <p className="text-super-bright text-sm mb-1 font-medium">KILT Price</p>
+                  <p className="text-matrix-bright font-bold text-lg font-mono">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
                   <p className="text-matrix-green/70 text-xs font-medium">+0.50%</p>
@@ -525,8 +525,8 @@ export function MainDashboard() {
                   <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
                     <Coins className="h-5 w-5 text-matrix-green" />
                   </div>
-                  <p className="text-white/90 text-sm mb-1 font-medium">Market Cap</p>
-                  <p className="text-matrix-green font-bold text-lg font-mono">
+                  <p className="text-super-bright text-sm mb-1 font-medium">Market Cap</p>
+                  <p className="text-matrix-bright font-bold text-lg font-mono">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
                   <p className="text-white/60 text-xs font-medium">276.97M circulating</p>
@@ -537,7 +537,7 @@ export function MainDashboard() {
                   <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
                     <Award className="h-5 w-5 text-matrix-green" />
                   </div>
-                  <p className="text-white/90 text-sm mb-1 font-medium">Your Reward APR</p>
+                  <p className="text-super-bright text-sm mb-1 font-medium">Your Reward APR</p>
                   <div className="text-matrix-green font-bold text-lg font-mono">
                     {address ? (
                       <UserPersonalAPR address={address} />
@@ -555,8 +555,8 @@ export function MainDashboard() {
                   <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
                     <TrendingUp className="h-5 w-5 text-matrix-green" />
                   </div>
-                  <p className="text-white/90 text-sm mb-1 font-medium">Current APR</p>
-                  <p className="text-matrix-green font-bold text-lg font-mono">
+                  <p className="text-super-bright text-sm mb-1 font-medium">Current APR</p>
+                  <p className="text-matrix-bright font-bold text-lg font-mono">
                     {unifiedData?.maxAPRData?.aprRange || '31%'}
                   </p>
                   <p className="text-matrix-green/70 text-xs font-medium">High yields available!</p>

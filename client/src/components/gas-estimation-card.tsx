@@ -112,7 +112,7 @@ export function GasEstimationCard() {
   return (
     <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
       <CardHeader className="pb-2">
-        <CardTitle className="text-white text-sm flex items-center gap-2">
+        <CardTitle className="text-super-bright text-sm flex items-center gap-2">
           <Zap className="h-3 w-3 text-matrix-green" />
           Transaction Cost
         </CardTitle>
@@ -120,21 +120,21 @@ export function GasEstimationCard() {
       <CardContent className="p-4 space-y-3">
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-white/70 text-xs">Token Approval</span>
-            <span className="text-white text-xs font-semibold">
+            <span className="text-bright text-xs">Token Approval</span>
+            <span className="text-super-bright text-xs font-semibold">
               ~{gasEstimate.approve.cost} ETH
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-white/70 text-xs">Add Liquidity</span>
-            <span className="text-white text-xs font-semibold">
+            <span className="text-bright text-xs">Add Liquidity</span>
+            <span className="text-super-bright text-xs font-semibold">
               ~{gasEstimate.mint.cost} ETH
             </span>
           </div>
           <div className="border-t border-white/10 pt-2">
             <div className="flex justify-between items-center">
-              <span className="text-white font-semibold text-xs">Total Cost</span>
-              <span className="text-matrix-green font-bold text-xs">
+              <span className="text-super-bright font-semibold text-xs">Total Cost</span>
+              <span className="text-matrix-bright font-bold text-xs">
                 ~{gasEstimate.total.cost} ETH
               </span>
             </div>

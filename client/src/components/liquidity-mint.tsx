@@ -562,7 +562,7 @@ export function LiquidityMint({
         {/* KILT Input */}
         <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-white text-sm flex items-center gap-2">
+            <CardTitle className="text-super-bright text-sm flex items-center gap-2">
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
@@ -581,8 +581,8 @@ export function LiquidityMint({
               className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
             />
             <div className="flex justify-between items-center">
-              <span className="text-white/60 text-xs">
-                Balance: <span className="font-bold text-white">{kiltBalance ? parseFloat(kiltBalance).toFixed(4) : '0.0000'}</span> KILT
+              <span className="text-bright text-xs">
+                Balance: <span className="font-bold text-super-bright">{kiltBalance ? parseFloat(kiltBalance).toFixed(4) : '0.0000'}</span> KILT
               </span>
               <Button
                 variant="ghost"
@@ -599,7 +599,7 @@ export function LiquidityMint({
         {/* ETH/WETH Input */}
         <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-white text-sm flex items-center gap-2">
+            <CardTitle className="text-super-bright text-sm flex items-center gap-2">
               <EthereumLogo className="w-4 h-4" />
               {selectedEthToken}
             </CardTitle>
@@ -614,8 +614,8 @@ export function LiquidityMint({
               className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
             />
             <div className="flex justify-between items-center">
-              <span className="text-white/60 text-xs">
-                Balance: <span className="font-bold text-white">
+              <span className="text-bright text-xs">
+                Balance: <span className="font-bold text-super-bright">
                   {selectedEthToken === 'ETH' 
                     ? (ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000')
                     : (wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000')

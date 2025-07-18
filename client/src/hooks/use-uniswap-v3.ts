@@ -260,9 +260,27 @@ export function useUniswapV3() {
       }
 
       // Calculate ETH value for native ETH transactions
-      const ethValue = params.isNativeETH ? (
-        params.token0.toLowerCase() === WETH_TOKEN.toLowerCase() ? params.amount0Desired : params.amount1Desired
-      ) : 0n;
+      // When using native ETH, we need to send the exact ETH amount, not the KILT amount
+      let ethValue = 0n;
+      if (params.isNativeETH) {
+        // Determine which token is ETH/WETH based on address comparison
+        if (params.token0.toLowerCase() === WETH_TOKEN.toLowerCase()) {
+          ethValue = params.amount0Desired; // token0 is WETH/ETH
+        } else {
+          ethValue = params.amount1Desired; // token1 is WETH/ETH
+        }
+      }
+      
+      // Debug: Log the ETH value being sent
+      console.log('ETH value calculation:', {
+        ethValue: ethValue.toString(),
+        isNativeETH: params.isNativeETH,
+        token0: params.token0,
+        token1: params.token1,
+        amount0Desired: params.amount0Desired.toString(),
+        amount1Desired: params.amount1Desired.toString(),
+        WETH_TOKEN
+      });
 
       // Call the actual Uniswap V3 Position Manager contract
       const txHash = await walletClient.writeContract({

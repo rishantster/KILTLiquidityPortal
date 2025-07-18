@@ -250,16 +250,16 @@ export function MainDashboard() {
                 </div>
               </div>
               
-              {/* Main Headline - Enhanced */}
-              <h1 className="text-6xl sm:text-7xl font-display text-white mb-6 leading-relaxed">
-                <span className="block text-white/90">KILT Liquidity</span>
-                <span className="block bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent pb-2">
+              {/* Main Headline - Enhanced Typography */}
+              <h1 className="text-7xl sm:text-8xl font-bold text-white mb-6 leading-tight tracking-tight">
+                <span className="block text-white">KILT Liquidity</span>
+                <span className="block text-white/90 text-6xl sm:text-7xl font-normal">
                   Incentive Program
                 </span>
               </h1>
               
-              <p className="text-xl sm:text-2xl text-white/70 font-body max-w-3xl mx-auto mb-8 leading-relaxed">
-                Earn <span className="text-blue-400 font-semibold">up to {unifiedData.maxAPRData?.aprRange || '47%'} APR</span> from the <span className="text-indigo-400 font-semibold">{unifiedData.programAnalytics && unifiedData.programAnalytics.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
+              <p className="text-2xl sm:text-3xl text-white font-medium max-w-4xl mx-auto mb-8 leading-relaxed">
+                Earn <span className="text-pink-400 font-bold">up to {unifiedData.maxAPRData?.aprRange || '67% - 89%'} APR</span> from the <span className="text-pink-400 font-bold">{unifiedData.programAnalytics && unifiedData.programAnalytics.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '500K'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
 
@@ -268,7 +268,7 @@ export function MainDashboard() {
               <div className="mb-4">
                 <WalletConnect />
               </div>
-              <p className="text-white/50 text-sm font-body text-center">
+              <p className="text-white/80 text-lg font-medium text-center">
                 No signup required. Connect and start earning in seconds.
               </p>
             </div>
@@ -286,8 +286,8 @@ export function MainDashboard() {
                   </div>
                   
                   <div className="pt-6 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-semibold text-lg mb-2">KILT/ETH Pool</h3>
-                    <p className="text-gray-300/70 text-sm leading-relaxed">
+                    <h3 className="text-white font-bold text-xl mb-3">KILT/ETH Pool</h3>
+                    <p className="text-gray-200 text-base leading-relaxed font-medium">
                       Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
                     </p>
                   </div>
@@ -305,8 +305,8 @@ export function MainDashboard() {
                   </div>
                   
                   <div className="pt-6 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-semibold text-lg mb-2">Treasury Rewards</h3>
-                    <p className="text-gray-300/70 text-sm leading-relaxed">
+                    <h3 className="text-white font-bold text-xl mb-3">Treasury Rewards</h3>
+                    <p className="text-gray-200 text-base leading-relaxed font-medium">
                       Receive attractive rewards from KILT treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
@@ -324,8 +324,8 @@ export function MainDashboard() {
                   </div>
                   
                   <div className="pt-6 text-center flex-1 flex flex-col justify-center">
-                    <h3 className="text-white font-semibold text-lg mb-2">Program Analytics</h3>
-                    <p className="text-gray-300/70 text-sm leading-relaxed">
+                    <h3 className="text-white font-bold text-xl mb-3">Program Analytics</h3>
+                    <p className="text-gray-200 text-base leading-relaxed font-medium">
                       Track your position performance, rewards earned, and program progress with detailed analytics.
                     </p>
                   </div>
@@ -335,13 +335,13 @@ export function MainDashboard() {
 
             {/* Streamlined Bottom CTA */}
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-heading text-white/90 mb-3">
+              <h2 className="text-4xl font-bold text-white mb-3">
                 Join the
               </h2>
-              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent mb-6 leading-relaxed pb-2">
+              <h1 className="text-6xl font-bold text-pink-400 mb-6 leading-tight">
                 KILT Ecosystem
               </h1>
-              <p className="text-white/70 text-lg font-body max-w-xl mx-auto mb-6 leading-relaxed">
+              <p className="text-white text-xl font-medium max-w-2xl mx-auto mb-6 leading-relaxed">
                 Join thousands earning massive rewards while supporting the future of decentralized identity. Limited treasury - act now!
               </p>
             </div>
@@ -502,11 +502,11 @@ export function MainDashboard() {
                       className="w-4 h-4 sm:w-6 sm:h-6"
                     />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">KILT Price</p>
-                  <p className="text-white font-bold text-sm sm:text-lg text-numbers">
+                  <p className="text-white/80 text-sm mb-1 font-medium">KILT Price</p>
+                  <p className="text-white font-bold text-lg sm:text-xl">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
-                  <p className="text-pink-300 text-xs text-body">+0.50%</p>
+                  <p className="text-pink-400 text-sm font-medium">+0.50%</p>
                 </div>
 
                 {/* Market Cap */}
@@ -514,11 +514,11 @@ export function MainDashboard() {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-blue-400/30">
                     <Coins className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">Market Cap</p>
-                  <p className="text-white font-bold text-sm sm:text-lg text-numbers">
+                  <p className="text-white/80 text-sm mb-1 font-medium">Market Cap</p>
+                  <p className="text-white font-bold text-lg sm:text-xl">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
-                  <p className="text-pink-300 text-xs text-body">276.97M circulating</p>
+                  <p className="text-pink-400 text-sm font-medium">276.97M circulating</p>
                 </div>
 
                 {/* Your Reward APR */}
@@ -526,14 +526,14 @@ export function MainDashboard() {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-purple-400/30">
                     <Award className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">Your Reward APR</p>
-                  <div className="text-white font-bold text-sm sm:text-lg text-numbers">
+                  <p className="text-white/80 text-sm mb-1 font-medium">Your Reward APR</p>
+                  <div className="text-white font-bold text-lg sm:text-xl">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
                       <div className="text-center">
                         <span className="text-white/50">--</span>
-                        <div className="text-white/40 text-xs mt-1">Connect wallet</div>
+                        <div className="text-white/60 text-sm mt-1">Connect wallet</div>
                       </div>
                     )}
                   </div>
@@ -544,11 +544,11 @@ export function MainDashboard() {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-amber-400/30">
                     <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
                   </div>
-                  <p className="text-white/70 text-xs mb-1 text-label">Current APR</p>
-                  <p className="text-white font-bold text-sm sm:text-lg text-numbers">
+                  <p className="text-white/80 text-sm mb-1 font-medium">Current APR</p>
+                  <p className="text-white font-bold text-lg sm:text-xl">
                     {unifiedData?.maxAPRData?.aprRange || '31%'}
                   </p>
-                  <p className="text-pink-300 text-xs text-body">High yields available!</p>
+                  <p className="text-pink-400 text-sm font-medium">High yields available!</p>
                 </div>
               </div>
             </div>
@@ -557,8 +557,8 @@ export function MainDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {/* Left Column - Position Registration */}
               <div className="h-full">
-                <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2 mb-3">
-                  <Plus className="h-3 w-3 text-pink-400" />
+                <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-3">
+                  <Plus className="h-4 w-4 text-pink-400" />
                   Register Existing Positions
                 </h2>
                 <div className="h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
@@ -568,8 +568,8 @@ export function MainDashboard() {
 
               {/* Right Column - Quick Add Liquidity */}
               <div className="h-full">
-                <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2 mb-3">
-                  <Zap className="h-3 w-3 text-pink-400" />
+                <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-3">
+                  <Zap className="h-4 w-4 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
                 <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
@@ -577,14 +577,14 @@ export function MainDashboard() {
                     <div className="space-y-3 flex-1">
                       {/* Balance Display */}
                       <div className="theme-card p-3">
-                        <h4 className="text-white font-medium text-sm mb-3 text-label">Wallet Balance</h4>
+                        <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
                           <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-3 border border-pink-500/30">
                             <div className="flex flex-col items-center text-center">
                               <KiltLogo size="md" showBackground={true} />
-                              <span className="text-white/70 text-xs font-medium mt-1">KILT</span>
-                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                              <span className="text-white/80 text-sm font-medium mt-1">KILT</span>
+                              <span className="text-white font-bold text-sm mt-0.5">
                                 {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                               </span>
                             </div>
@@ -594,8 +594,8 @@ export function MainDashboard() {
                           <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-lg p-3 border border-blue-500/30">
                             <div className="flex flex-col items-center text-center">
                               <EthLogo size="md" showBackground={true} />
-                              <span className="text-white/70 text-xs font-medium mt-1">ETH</span>
-                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                              <span className="text-white/80 text-sm font-medium mt-1">ETH</span>
+                              <span className="text-white font-bold text-sm mt-0.5">
                                 {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
                               </span>
                             </div>

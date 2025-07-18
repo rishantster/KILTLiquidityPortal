@@ -333,7 +333,7 @@ export function RewardsTracking() {
             </div>
             
             {!canClaim && daysRemaining > 0 && (
-              <div className="text-white/60 text-xs text-center mt-2 p-2 bg-blue-500/10 rounded border border-blue-500/20">
+              <div className="text-white/60 text-xs text-center mt-2 p-2 rounded border border-blue-500/20 bg-[#000000]">
                 <p className="font-medium">Claim available in {daysRemaining} days</p>
                 <p className="text-white/40">You'll be able to claim all accumulated rewards at once</p>
               </div>
@@ -409,7 +409,7 @@ export function RewardsTracking() {
                   <span className="text-white/60">Remaining:</span>
                   <span className="text-white">{programAnalytics?.treasuryRemaining ? programAnalytics.treasuryRemaining.toLocaleString() : '...'} KILT</span>
                 </div>
-                <Progress value={programAnalytics?.totalBudget ? ((programAnalytics.totalBudget - (programAnalytics.treasuryRemaining || 0)) / programAnalytics.totalBudget * 100) : 0} className="h-2 rounded-full" />
+                <Progress value={programAnalytics?.totalBudget ? ((programAnalytics.totalBudget - (programAnalytics.treasuryRemaining || 0)) / programAnalytics.totalBudget * 100) : 0} className="h-2 rounded-full bg-[#ffc4c4]" />
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Distributed:</span>
                   <span className="text-white">{programAnalytics?.totalBudget ? (programAnalytics.totalBudget - (programAnalytics.treasuryRemaining || 0)).toLocaleString() : '...'} KILT</span>

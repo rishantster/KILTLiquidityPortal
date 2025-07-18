@@ -415,36 +415,46 @@ export function UserPositions() {
                     <div className="px-3 pb-2 relative z-10">
                       <div className="grid grid-cols-2 gap-2 mb-3">
                         <div className="bg-white/5 rounded-lg p-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">Ξ</span>
-                              </div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="flex-shrink-0 w-4 h-4 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                              <svg className="w-3 h-3" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 2px rgba(255,255,255,0.3))' }}>
+                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                              </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
                               <div className="text-white font-medium text-xs">
                                 {ethAmount} WETH
                               </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-white font-medium tabular-nums text-xs">
-                              ${(parseFloat(ethAmount) * 3635).toFixed(2)}
+                              <div className="text-white/60 text-xs tabular-nums">
+                                ${(parseFloat(ethAmount) * 3635).toFixed(2)}
+                              </div>
                             </div>
                           </div>
                         </div>
                         <div className="bg-white/5 rounded-lg p-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">K</span>
-                              </div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="flex-shrink-0 w-4 h-4 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                              <img 
+                                src="/attached_assets/KILT_400x400_transparent_1751723574123.png" 
+                                alt="KILT" 
+                                className="w-3 h-3"
+                                style={{ 
+                                  filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 2px rgba(255,255,255,0.3))'
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
                               <div className="text-white font-medium text-xs">
                                 {kiltAmount} KILT
                               </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-white font-medium tabular-nums text-xs">
-                              ${(parseFloat(kiltAmount) * 0.01816).toFixed(2)}
+                              <div className="text-white/60 text-xs tabular-nums">
+                                ${(parseFloat(kiltAmount) * 0.01816).toFixed(2)}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -467,26 +477,40 @@ export function UserPositions() {
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1">
-                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
-                                <span className="text-white text-xs">Ξ</span>
+                              <div className="flex-shrink-0 w-3 h-3 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                                <svg className="w-2 h-2" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2)' }}>
+                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                                </svg>
                               </div>
                               <span className="text-white/80 text-xs">48.99%</span>
                             </div>
                             <div className="text-right">
                               <div className="text-white text-xs tabular-nums">${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
-                              <div className="text-white/60 text-xs">0.001 WETH</div>
+                              <div className="text-white/60 text-xs">{ethFees} WETH</div>
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1">
-                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
-                                <span className="text-white text-xs">K</span>
+                              <div className="flex-shrink-0 w-3 h-3 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                                <img 
+                                  src="/attached_assets/KILT_400x400_transparent_1751723574123.png" 
+                                  alt="KILT" 
+                                  className="w-2 h-2"
+                                  style={{ 
+                                    filter: 'brightness(1.5) contrast(1.2)'
+                                  }}
+                                />
                               </div>
                               <span className="text-white/80 text-xs">51.01%</span>
                             </div>
                             <div className="text-right">
                               <div className="text-white text-xs tabular-nums">${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
-                              <div className="text-white/60 text-xs">233.87 KILT</div>
+                              <div className="text-white/60 text-xs">{kiltFees} KILT</div>
                             </div>
                           </div>
                         </div>

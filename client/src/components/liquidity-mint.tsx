@@ -714,9 +714,9 @@ export function LiquidityMint({
               
               {/* Live Price Range Display */}
               <div className="mt-2 pt-2 border-t border-white/5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-white/60">Price Range</span>
-                  <span className="text-white font-mono">
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span className="text-white/60 font-medium">Price Range</span>
+                  <span className="text-white font-mono font-bold text-right">
                     {getSelectedStrategy().range === Infinity ? (
                       "Full range (0 to ∞)"
                     ) : kiltData?.price ? (
@@ -726,8 +726,11 @@ export function LiquidityMint({
                     )}
                   </span>
                 </div>
-                <div className="mt-1 text-xs text-white/40">
-                  Current KILT: ${kiltData?.price?.toFixed(4) || 'Loading...'}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60 font-medium">Current KILT</span>
+                  <span className="text-white font-mono font-bold">
+                    ${kiltData?.price?.toFixed(4) || 'Loading...'}
+                  </span>
                 </div>
                 
                 {/* Visual Price Range Indicator */}

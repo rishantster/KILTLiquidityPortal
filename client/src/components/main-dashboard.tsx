@@ -75,19 +75,26 @@ const BaseLogo = ({ className = "w-5 h-5" }) => (
 export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
+  const unifiedData = useUnifiedDashboard();
+  const appSession = useAppSession();
+  
+  // Use balance data from unified dashboard hook
   const { 
     kiltBalance, 
     wethBalance, 
     ethBalance,
-    mintPosition,
-    approveToken,
-    isMinting,
-    isApproving,
-    formatTokenAmount,
-    parseTokenAmount 
-  } = useUniswapV3();
-  const unifiedData = useUnifiedDashboard();
-  const appSession = useAppSession();
+    formatTokenAmount
+  } = unifiedData;
+  
+  // Debug balance display
+  console.log('Main Dashboard balance display:', {
+    kiltBalance,
+    wethBalance,
+    ethBalance,
+    kiltParsed: kiltBalance ? parseFloat(kiltBalance) : 'null',
+    wethParsed: wethBalance ? parseFloat(wethBalance) : 'null',
+    ethParsed: ethBalance ? parseFloat(ethBalance) : 'null'
+  });
   // Removed deprecated hooks - using unified dashboard data instead
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);

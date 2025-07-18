@@ -88,22 +88,24 @@ export function useUniswapV3() {
       setWethBalance(wethBalanceFormatted);
       setEthBalance(ethBalanceFormatted);
       
-      console.log('Balances fetched successfully:', {
+      console.log('Balances fetched and set successfully:', {
         kilt: kiltBalanceFormatted,
         weth: wethBalanceFormatted,
-        eth: ethBalanceFormatted
+        eth: ethBalanceFormatted,
+        addressConnected: address,
+        isConnected: isConnected
       });
     } catch (error) {
       console.error('Failed to fetch balances:', error);
-      // Set known values temporarily for testing
-      setKiltBalance('129121.168066899199248788');
-      setWethBalance('0.000187523109941545');
-      setEthBalance('0.106842646368310878');
+      // Reset to zeros on failure
+      setKiltBalance('0');
+      setWethBalance('0');
+      setEthBalance('0');
       
       toast({
-        title: "Using cached balances",
-        description: "Displaying last known balance values",
-        variant: "default",
+        title: "Balance fetch failed",
+        description: "Unable to fetch wallet balances from blockchain",
+        variant: "destructive",
       });
     } finally {
       setIsLoadingBalances(false);

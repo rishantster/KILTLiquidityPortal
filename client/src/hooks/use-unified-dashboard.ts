@@ -10,6 +10,15 @@ import { useKiltTokenData } from './use-kilt-data';
 export function useUnifiedDashboard() {
   const { address, isConnected } = useWallet();
   const { kiltEthPositions, poolData, kiltBalance, wethBalance, ethBalance, isLoading: uniswapLoading } = useUniswapV3();
+  
+  // Debug balance flow
+  console.log('Unified Dashboard balance state:', {
+    kiltBalance,
+    wethBalance,
+    ethBalance,
+    address,
+    isConnected
+  });
   const { data: kiltData } = useKiltTokenData();
 
   // Get or create user record

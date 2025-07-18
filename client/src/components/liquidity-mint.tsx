@@ -22,7 +22,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useAppSession } from '@/hooks/use-app-session';
 import { TOKENS } from '@/lib/uniswap-v3';
-import { maxUint256 } from 'viem';
+import { maxUint256, parseUnits } from 'viem';
 import { BASE_NETWORK_ID } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
@@ -322,8 +322,8 @@ export function LiquidityMint({
     if (!address || !kiltAmount || !ethAmount) return;
 
     try {
-      const kiltAmountParsed = parseTokenAmount(kiltAmount);
-      const ethAmountParsed = parseTokenAmount(ethAmount);
+      const kiltAmountParsed = parseUnits(kiltAmount, 18).toString();
+      const ethAmountParsed = parseUnits(ethAmount, 18).toString();
       const deadlineTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
 
       // Handle ETH wrapping automatically through position manager

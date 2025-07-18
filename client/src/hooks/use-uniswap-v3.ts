@@ -316,27 +316,45 @@ export function useUniswapV3() {
           transport: custom(window.ethereum),
         });
 
+        // Validate parameters
+        if (!params.token0 || !params.token1) {
+          throw new Error('Invalid token addresses');
+        }
+
+        // Ensure amounts are valid BigInt values
+        const amount0Desired = BigInt(params.amount0Desired || '0');
+        const amount1Desired = BigInt(params.amount1Desired || '0');
+        const amount0Min = BigInt(params.amount0Min || '0');
+        const amount1Min = BigInt(params.amount1Min || '0');
+
+        if (amount0Desired <= 0n && amount1Desired <= 0n) {
+          throw new Error('Invalid token amounts');
+        }
+
         // Calculate ETH value to send (only if using native ETH)
-        const ethValue = params.isNativeETH ? BigInt(params.amount1Desired) : 0n;
+        const ethValue = params.isNativeETH ? amount1Desired : 0n;
+
+        // Create the mint parameters
+        const mintParams = {
+          token0: params.token0 as `0x${string}`,
+          token1: params.token1 as `0x${string}`,
+          fee: params.fee,
+          tickLower: params.tickLower,
+          tickUpper: params.tickUpper,
+          amount0Desired,
+          amount1Desired,
+          amount0Min,
+          amount1Min,
+          recipient: params.recipient as `0x${string}`,
+          deadline: BigInt(params.deadline),
+        };
 
         // Send minting transaction
         const hash = await walletClient.writeContract({
           address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
           abi: POSITION_MANAGER_ABI,
           functionName: 'mint',
-          args: [{
-            token0: params.token0 as `0x${string}`,
-            token1: params.token1 as `0x${string}`,
-            fee: params.fee,
-            tickLower: params.tickLower,
-            tickUpper: params.tickUpper,
-            amount0Desired: BigInt(params.amount0Desired),
-            amount1Desired: BigInt(params.amount1Desired),
-            amount0Min: BigInt(params.amount0Min),
-            amount1Min: BigInt(params.amount1Min),
-            recipient: params.recipient as `0x${string}`,
-            deadline: BigInt(params.deadline),
-          }],
+          args: [mintParams],
           account: address as `0x${string}`,
           value: ethValue,
         });
@@ -354,9 +372,24 @@ export function useUniswapV3() {
           throw new Error('Transaction failed');
         }
       } catch (error: any) {
+        // Enhanced error handling with more specific messages
+        let errorMessage = "Please try again";
+        
+        if (error.message?.includes('insufficient funds')) {
+          errorMessage = "Insufficient funds for transaction";
+        } else if (error.message?.includes('user rejected')) {
+          errorMessage = "Transaction rejected by user";
+        } else if (error.message?.includes('execution reverted')) {
+          errorMessage = "Contract execution failed - check token approvals";
+        } else if (error.message?.includes('invalid address')) {
+          errorMessage = "Invalid contract address";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
         toast({
-          title: "Minting failed",
-          description: error.message || "Please try again",
+          title: "Position Creation Failed",
+          description: errorMessage,
           variant: "destructive",
         });
         throw error;

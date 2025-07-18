@@ -418,203 +418,175 @@ export function LiquidityMint() {
           </Badge>
         </div>
       </div>
-      {/* Sleek Position Size */}
-      <Card className="theme-card">
+      {/* Position Size */}
+      <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Target className="h-3 w-3 text-matrix-green" />
             Position Size
           </CardTitle>
-          <p className="text-white/80 text-sm">Amount to Provide: {positionSizePercent[0]}% of {selectedEthToken} balance</p>
+          <p className="text-white/80 text-xs">Amount to Provide: {positionSizePercent[0]}% of {selectedEthToken} balance</p>
         </CardHeader>
         <CardContent className="space-y-3 p-3">
-          <div className="space-y-3">
-            <Slider
-              value={positionSizePercent}
-              onValueChange={handleSliderChange}
-              max={100}
-              min={0}
-              step={1}
-              className="w-full h-2"
-            />
-            <div className="grid grid-cols-4 gap-2">
-              {[25, 50, 75, 100].map((percent) => (
-                <Button
-                  key={percent}
-                  variant={positionSizePercent[0] === percent ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePercentageSelect(percent)}
-                  className={`h-8 text-xs font-semibold transition-all duration-300 ${
-                    positionSizePercent[0] === percent 
-                      ? 'theme-button-primary' 
-                      : 'theme-button-secondary'
-                  }`}
-                >
-                  {percent}%
-                </Button>
-              ))}
-            </div>
+          <Slider
+            value={positionSizePercent}
+            onValueChange={handleSliderChange}
+            max={100}
+            min={0}
+            step={1}
+            className="w-full h-2"
+          />
+          <div className="grid grid-cols-4 gap-2">
+            {[25, 50, 75, 100].map((percent) => (
+              <Button
+                key={percent}
+                variant={positionSizePercent[0] === percent ? "default" : "outline"}
+                size="sm"
+                onClick={() => handlePercentageSelect(percent)}
+                className={`h-7 text-xs font-semibold transition-all duration-300 ${
+                  positionSizePercent[0] === percent 
+                    ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
+                    : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
+                }`}
+              >
+                {percent}%
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
-      {/* Sleek Token Input Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Sleek KILT Input */}
-        <Card className="theme-card">
+      {/* Clean Token Input Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {/* KILT Input */}
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
-                className={`w-4 h-4 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-1' : 'logo-pulse'}`}
+                className="w-4 h-4"
               />
               KILT
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 p-3">
-            <div className="space-y-2">
-              <Input
-                type="number"
-                value={kiltAmount}
-                onChange={(e) => handleKiltAmountChange(e.target.value)}
-                placeholder="Enter KILT amount"
-                min="0"
-                className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
-              />
-              <div className="flex justify-between items-center">
-                <span className="text-white/60 text-xs">
-                  Balance: <span className="font-bold text-white">{kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'}</span> 
-                  <span className="inline-flex items-center gap-1 ml-1">
-                    <img 
-                      src={kiltLogo} 
-                      alt="KILT" 
-                      className={`w-3 h-3 logo-hover ${!logoAnimationComplete ? 'logo-reveal-enhanced logo-reveal-delay-2' : 'logo-pulse'}`}
-                    />
-                    KILT
-                  </span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handlePercentageSelect(100)}
-                  className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-2 py-1 font-semibold text-xs h-6"
-                >
-                  MAX
-                </Button>
-              </div>
+          <CardContent className="space-y-2 p-3">
+            <Input
+              type="number"
+              value={kiltAmount}
+              onChange={(e) => handleKiltAmountChange(e.target.value)}
+              placeholder="Enter KILT amount"
+              min="0"
+              className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
+            />
+            <div className="flex justify-between items-center">
+              <span className="text-white/60 text-xs">
+                Balance: <span className="font-bold text-white">{kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'}</span> KILT
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handlePercentageSelect(100)}
+                className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-2 py-1 font-semibold text-xs h-6"
+              >
+                MAX
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Sleek ETH/WETH Input */}
-        <Card className="theme-card border-matrix-green">
+        {/* ETH/WETH Input */}
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <EthereumLogo className="w-4 h-4" />
               {selectedEthToken}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 p-4">
+          <CardContent className="space-y-2 p-3">
             {/* ETH/WETH Token Selector */}
-            <div className="flex gap-2 mb-3">
+            <div className="flex gap-2 mb-2">
               <Button
                 variant={selectedEthToken === 'ETH' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedEthToken('ETH')}
-                className={`flex-1 h-8 text-xs font-semibold transition-all duration-300 ${
+                className={`flex-1 h-7 text-xs font-semibold transition-all duration-300 ${
                   selectedEthToken === 'ETH' 
-                    ? 'bg-blue-500 hover:bg-blue-600 shadow-lg' 
-                    : 'hover:bg-blue-500/10 hover:border-blue-500/50'
+                    ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
+                    : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
                 }`}
               >
                 <EthereumLogo className="w-3 h-3 mr-1" />
                 ETH
-                {ethBalance && (
-                  <span className="ml-1 text-xs opacity-70">
-                    ({formatTokenAmount(ethBalance, 18).slice(0, 6)})
-                  </span>
-                )}
               </Button>
               <Button
                 variant={selectedEthToken === 'WETH' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedEthToken('WETH')}
-                className={`flex-1 h-8 text-xs font-semibold transition-all duration-300 ${
+                className={`flex-1 h-7 text-xs font-semibold transition-all duration-300 ${
                   selectedEthToken === 'WETH' 
-                    ? 'bg-blue-500 hover:bg-blue-600 shadow-lg' 
-                    : 'hover:bg-blue-500/10 hover:border-blue-500/50'
+                    ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
+                    : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
                 }`}
               >
                 <EthereumLogo className="w-3 h-3 mr-1" />
                 WETH
-                {wethBalance && (
-                  <span className="ml-1 text-xs opacity-70">
-                    ({formatTokenAmount(wethBalance, 18).slice(0, 6)})
-                  </span>
-                )}
               </Button>
             </div>
             
-            <div className="space-y-3">
-              <Input
-                type="number"
-                value={ethAmount}
-                onChange={(e) => handleEthAmountChange(e.target.value)}
-                placeholder={`Enter ${selectedEthToken} amount`}
-                min="0"
-                className="bg-white/5 border-white/10 text-white text-lg h-12 text-center font-bold rounded-lg"
-              />
-              <div className="flex justify-between items-center">
-                <span className="text-white/60 text-sm">
-                  Balance: <span className="font-bold text-white">
-                    {selectedEthToken === 'ETH' 
-                      ? (ethBalance ? formatTokenAmount(ethBalance) : '0.0000')
-                      : (wethBalance ? formatTokenAmount(wethBalance) : '0.0000')
-                    }
-                  </span> 
-                  <span className="inline-flex items-center gap-1 ml-1">
-                    <EthereumLogo className="w-4 h-4" />
-                    {selectedEthToken}
-                  </span>
-                </span>
-                <span className="text-blue-400 font-semibold text-xs px-2 py-1 bg-blue-500/10 rounded">
-                  Auto-calculated
-                </span>
-              </div>
+            <Input
+              type="number"
+              value={ethAmount}
+              onChange={(e) => handleEthAmountChange(e.target.value)}
+              placeholder={`Enter ${selectedEthToken} amount`}
+              min="0"
+              className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
+            />
+            <div className="flex justify-between items-center">
+              <span className="text-white/60 text-xs">
+                Balance: <span className="font-bold text-white">
+                  {selectedEthToken === 'ETH' 
+                    ? (ethBalance ? formatTokenAmount(ethBalance) : '0.0000')
+                    : (wethBalance ? formatTokenAmount(wethBalance) : '0.0000')
+                  }
+                </span> {selectedEthToken}
+              </span>
+              <span className="text-matrix-green font-semibold text-xs px-2 py-1 bg-matrix-green/10 rounded">
+                Auto-calculated
+              </span>
             </div>
           </CardContent>
         </Card>
       </div>
       {/* Side-by-Side Layout for Price Range Strategy and Transaction Cost */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {/* Ultra Compact Price Range Strategy */}
-        <Card className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border-pink-500/20 rounded-lg">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-white text-sm flex items-center gap-1">
+        {/* Price Range Strategy */}
+        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm flex items-center gap-2">
               <Zap className="h-3 w-3 text-pink-400" />
               Price Range Strategy
               {getSelectedStrategy().recommended && (
-                <div className="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full font-medium border border-emerald-500/30 pt-[0px] pb-[0px] pl-[11px] pr-[11px] ml-[6px] mr-[6px] mt-[0px] mb-[0px]">Recommended</div>
+                <Badge className="bg-emerald-500/20 text-emerald-300 text-xs border-emerald-500/30">Recommended</Badge>
               )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 p-3">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-1">
-            {priceStrategies.map((strategy) => (
-              <div key={strategy.id} className="relative">
+            <div className="grid grid-cols-2 gap-2">
+              {priceStrategies.map((strategy) => (
                 <Button
+                  key={strategy.id}
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className={`h-16 p-1.5 flex-col items-start w-full relative transition-all duration-300 rounded-lg overflow-hidden ${
+                  className={`h-12 p-2 flex-col items-start w-full transition-all duration-300 ${
                     selectedStrategy === strategy.id 
-                      ? 'bg-pink-500 hover:bg-pink-600 shadow-lg border-pink-500' 
+                      ? 'bg-pink-500 hover:bg-pink-600 text-white' 
                       : 'hover:bg-pink-500/10 hover:border-pink-500/50'
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full mb-0.5">
+                  <div className="flex items-center justify-between w-full">
                     <span className="font-bold text-xs truncate">{strategy.label}</span>
-                    {strategy.recommended && (
-                      <div className="ml-1 px-1 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold flex-shrink-0">
+                    {strategy.recommended && selectedStrategy === strategy.id && (
+                      <div className="ml-1 px-1 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold">
                         ✓
                       </div>
                     )}
@@ -623,12 +595,11 @@ export function LiquidityMint() {
                     {strategy.id === 'balanced' ? '50% to 150%' :
                      strategy.id === 'wide' ? '0% to 200%' :
                      strategy.id === 'narrow' ? '75% to 125%' :
-                     'Full range (0 ...)'}
+                     'Full range'}
                   </p>
                 </Button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
           
           {/* Ultra Compact Selected Range Display */}
           <div className="p-2 bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-lg border border-pink-500/20">

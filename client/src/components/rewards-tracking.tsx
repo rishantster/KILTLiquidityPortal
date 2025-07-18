@@ -362,7 +362,7 @@ export function RewardsTracking() {
                   <div className="text-blue-400 text-xs mb-1">Total Liquidity</div>
                   <div className="text-sm font-bold text-white">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
                 </div>
-                <div className="text-center p-2 bg-purple-500/10 rounded border border-purple-500/20">
+                <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
                   <div className="text-purple-400 text-xs mb-1">Active Users</div>
                   <div className="text-sm font-bold text-white">{programAnalytics?.activeParticipants || 0}</div>
                 </div>

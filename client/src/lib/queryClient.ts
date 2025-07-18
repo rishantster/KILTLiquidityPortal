@@ -24,15 +24,27 @@ export async function apiRequest<T = unknown>(
     }
   }
 
-  const res = await fetch(url, {
-    method: options?.method || 'GET',
-    headers,
-    body: options?.data ? JSON.stringify(options.data) : undefined,
-    credentials: "include",
-  });
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-  await throwIfResNotOk(res);
-  return await res.json();
+    const res = await fetch(url, {
+      method: options?.method || 'GET',
+      headers,
+      body: options?.data ? JSON.stringify(options.data) : undefined,
+      credentials: "include",
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    await throwIfResNotOk(res);
+    return await res.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timeout');
+    }
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -51,10 +63,16 @@ export const getQueryFn: <T>(options: {
       }
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     const res = await fetch(queryKey[0] as string, {
       credentials: "include",
       headers,
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
@@ -71,7 +89,13 @@ export const queryClient = new QueryClient({
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,
-      retry: false,
+      retry: (failureCount, error) => {
+        // Retry network errors but not other types of errors
+        if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+          return failureCount < 2;
+        }
+        return false;
+      },
     },
     mutations: {
       retry: false,

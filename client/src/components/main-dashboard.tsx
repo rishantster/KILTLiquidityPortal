@@ -682,15 +682,19 @@ export function MainDashboard() {
                               <div className="text-2xl font-bold text-matrix-green text-numbers mb-2" style={{ textShadow: '0 0 20px rgba(0, 255, 0, 0.6)' }}>
                                 ~${amounts.totalValue}
                               </div>
-                              <div className="flex items-center justify-center space-x-4 text-white/90 text-sm text-body">
-                                <div className="flex items-center space-x-1">
-                                  <KiltLogo size="xs" showBackground={true} />
-                                  <span className="font-medium">{amounts.kiltAmount} KILT</span>
+                              <div className="flex items-center justify-center space-x-4 text-white text-sm text-body">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-6 h-6 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full flex items-center justify-center border border-pink-500/50">
+                                    <KiltLogo size="sm" showBackground={false} />
+                                  </div>
+                                  <span className="font-medium text-matrix-green">{amounts.kiltAmount} KILT</span>
                                 </div>
-                                <span className="text-matrix-green">+</span>
-                                <div className="flex items-center space-x-1">
-                                  <EthLogo size="xs" showBackground={true} />
-                                  <span className="font-medium">{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
+                                <span className="text-matrix-green text-lg">+</span>
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-6 h-6 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full flex items-center justify-center border border-blue-500/50">
+                                    <EthLogo size="sm" showBackground={false} />
+                                  </div>
+                                  <span className="font-medium text-matrix-green">{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
                                 </div>
                               </div>
                             </div>

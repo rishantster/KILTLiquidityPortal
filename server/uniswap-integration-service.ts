@@ -418,13 +418,18 @@ export class UniswapIntegrationService {
     const cacheKey = `position_${tokenId}`;
     const cached = this.positionCache.get(cacheKey);
     
-    // Use cache for production performance
+    // Use cache for production performance  
     if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION) {
       return cached.data;
     }
     
     try {
       console.log(`Fetching position data for token ${tokenId}`);
+      
+      // Check if this is the specific token we're debugging
+      if (tokenId === '3534947') {
+        console.log(`DEBUG: Processing position 3534947 - the one with fees`);
+      }
       
       // Get position data from Uniswap V3 position manager
       const positionData = await this.client.readContract({
@@ -487,7 +492,11 @@ export class UniswapIntegrationService {
           tickUpper,
           poolData.tickCurrent
         ),
-        this.getFeesFromUniswapAPI(tokenId)
+        // Use tokensOwed directly from position data (what's ready to collect)
+        Promise.resolve({
+          token0: tokensOwed0.toString(),
+          token1: tokensOwed1.toString()
+        })
       ]);
 
       // Calculate USD value
@@ -644,6 +653,7 @@ export class UniswapIntegrationService {
       };
     } catch (error) {
       // If fee calculation fails, just return tokensOwed (what's ready to collect)
+      console.log(`Fee calculation failed for ${tokenId}, using tokensOwed fallback: ${tokensOwed0} / ${tokensOwed1}`);
       return {
         token0: tokensOwed0.toString(),
         token1: tokensOwed1.toString()

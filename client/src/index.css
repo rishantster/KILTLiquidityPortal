@@ -267,7 +267,7 @@
     pointer-events: none;
   }
   
-  /* CYBERPUNK SCAN LINES OVER VIDEO */
+  /* CYBERPUNK SCAN LINES OVER VIDEO - STATIC */
   body::after {
     content: '';
     position: fixed;
@@ -279,33 +279,12 @@
       /* Strong pink cyberpunk overlay */
       linear-gradient(rgba(255, 0, 102, 0.25), rgba(255, 0, 102, 0.18)),
       /* Heavy dark overlay for maximum text visibility */
-      linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.8)),
-      /* Bright pink terminal scan lines */
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(255, 0, 102, 0.2) 2px,
-        rgba(255, 0, 102, 0.2) 4px
-      );
+      linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.8));
     z-index: -1;
     pointer-events: none;
-    animation: scanEffect 3s linear infinite;
   }
   
-  @keyframes scanEffect {
-    0% { 
-      transform: translateY(-10%); 
-      opacity: 0.8; 
-    }
-    50% { 
-      opacity: 0.4; 
-    }
-    100% { 
-      transform: translateY(10%); 
-      opacity: 0.8; 
-    }
-  }
+  /* Disabled scan effect animation */
 }
 
 @layer components {
@@ -442,70 +421,30 @@
 }
 
 @layer utilities {
-  /* CYBERPUNK ANIMATION UTILITIES */
+  /* CYBERPUNK ANIMATION UTILITIES - DISABLED */
   .animate-pulse-neon {
-    animation: pulse-neon 2s ease-in-out infinite;
+    /* animation: pulse-neon 2s ease-in-out infinite; */
   }
   
-  @keyframes pulse-neon {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
-    }
-  }
+  /* Disabled pulse-neon animation */
   
   .animate-flicker {
-    animation: flicker 3s ease-in-out infinite;
+    /* animation: flicker 3s ease-in-out infinite; */
   }
   
-  @keyframes flicker {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
-  }
+  /* Disabled flicker animation */
   
   .animate-glitch {
-    animation: glitch 0.3s ease-in-out infinite;
+    /* animation: glitch 0.3s ease-in-out infinite; */
   }
   
-  @keyframes glitch {
-    0% {
-      transform: translateX(0);
-    }
-    20% {
-      transform: translateX(-2px);
-    }
-    40% {
-      transform: translateX(2px);
-    }
-    60% {
-      transform: translateX(-1px);
-    }
-    80% {
-      transform: translateX(1px);
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
+  /* Disabled glitch animation */
   
   .animate-scan {
-    animation: scan 4s linear infinite;
+    /* animation: scan 4s linear infinite; */
   }
   
-  @keyframes scan {
-    0% {
-      transform: translateY(-100%);
-    }
-    100% {
-      transform: translateY(100%);
-    }
-  }
+  /* Disabled scan animation */
   
   .filter-cyberpunk {
     filter: brightness(0.7) contrast(1.5) saturate(0.4) hue-rotate(180deg);

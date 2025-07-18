@@ -495,11 +495,11 @@ export function MainDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 {/* KILT Price */}
                 <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-pink-500/20 to-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 logo-container logo-shimmer border border-pink-400/30">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-pink-500/20 to-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 border border-pink-400/30">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
-                      className={`w-4 h-4 sm:w-6 sm:h-6 logo-hover ${!logoAnimationComplete ? 'logo-reveal' : 'logo-pulse'}`}
+                      className="w-4 h-4 sm:w-6 sm:h-6"
                     />
                   </div>
                   <p className="text-white/70 text-xs mb-1 text-label">KILT Price</p>

@@ -445,7 +445,7 @@ export function MainDashboard() {
           </div>
         </div>
 
-        {/* Clean Navigation Tabs */}
+        {/* Enhanced Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => {
           setActiveTab(value);
           // Invalidate positions cache when switching to positions tab
@@ -453,37 +453,35 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/95 border border-matrix-green/30 p-0.5 rounded-lg mb-4 h-8 gap-0.5">
+          <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border border-slate-700/60 p-1 rounded-xl mb-6 h-12 gap-1 shadow-lg">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-emerald-500/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
             >
-              <TrendingUp className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span className="text-xs font-mono truncate">Overview</span>
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="text-sm font-semibold truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
             >
-              <Plus className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span className="text-xs font-mono truncate">Add Liquidity</span>
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="text-sm font-semibold truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
             >
-              <Award className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span className="text-xs font-mono truncate">Rewards</span>
+              <Award className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="text-sm font-semibold truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-500/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md"
             >
-              <Wallet className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span className="text-xs font-mono truncate">Active Position</span>
+              <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="text-sm font-semibold truncate">Active Position</span>
             </TabsTrigger>
-
-
           </TabsList>
 
           {/* Overview Tab */}

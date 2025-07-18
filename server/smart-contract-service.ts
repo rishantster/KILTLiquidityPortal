@@ -9,7 +9,7 @@ import {
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 
-import { isValidEthereumAddress } from './crypto-utils';
+// Removed crypto-utils - using ethers validation instead
 
 // Smart contract configuration with validation
 const KILT_REWARD_POOL_ADDRESS = process.env.KILT_REWARD_POOL_ADDRESS || '';
@@ -17,11 +17,11 @@ const REWARD_WALLET_ADDRESS = process.env.REWARD_WALLET_ADDRESS || '';
 import { blockchainConfigService } from './blockchain-config-service';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 
-// Validate contract addresses at startup
-if (KILT_REWARD_POOL_ADDRESS && !isValidEthereumAddress(KILT_REWARD_POOL_ADDRESS)) {
+// Validate contract addresses at startup using ethers
+if (KILT_REWARD_POOL_ADDRESS && !ethers.isAddress(KILT_REWARD_POOL_ADDRESS)) {
   throw new Error('Invalid KILT_REWARD_POOL_ADDRESS format');
 }
-if (REWARD_WALLET_ADDRESS && !isValidEthereumAddress(REWARD_WALLET_ADDRESS)) {
+if (REWARD_WALLET_ADDRESS && !ethers.isAddress(REWARD_WALLET_ADDRESS)) {
   throw new Error('Invalid REWARD_WALLET_ADDRESS format');
 }
 // Token address validation now handled by blockchain configuration service

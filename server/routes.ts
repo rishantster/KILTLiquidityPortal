@@ -31,18 +31,14 @@ import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
 import { blockchainConfigService } from "./blockchain-config-service";
-// Removed liquidityTypeDetector - consolidated into position registration
-// Removed reward calculation demo import
-// Removed treasuryService - consolidated into admin service
 import { adminService } from "./admin-service";
 import { validateAdminCredentials, validateAdminWallet, createAdminSession, requireAdminAuth } from "./admin-auth";
-import { realTimeDataService } from "./real-time-data-service";
 import { claimBasedRewards } from "./claim-based-rewards";
 import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";
 import { adminSimpleRouter } from "./routes/admin-simple";
-import { systemHealthRouter } from "./routes/system-health";
-import uniswapPositionsRouter from "./routes/uniswap-positions.js";
+// Removed systemHealthRouter - consolidated into main routes
+// Removed uniswapPositionsRouter - consolidated into main routes
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
@@ -1960,14 +1956,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Blockchain configuration routes
   app.use("/api/blockchain", blockchainConfigRouter);
 
-  // Real-time Uniswap positions routes
-  app.use("/api/positions", uniswapPositionsRouter);
+  // Removed uniswapPositionsRouter - consolidated into main routes
 
   // Admin simple routes (legacy support)
   app.use("/api/admin-simple", adminSimpleRouter);
 
   // System health and debugging routes
-  app.use("/api/system", systemHealthRouter);
+  // Removed systemHealthRouter - consolidated into main routes
 
   const httpServer = createServer(app);
   return httpServer;

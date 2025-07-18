@@ -26,25 +26,23 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
-import { useAppSession } from '@/hooks/use-app-session';
-import { useRealTimeDashboard } from '@/hooks/use-real-time-data';
+// Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnect } from './wallet-connect';
-import { GasEstimationCard } from './gas-estimation-card';
+// Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
 
 // Lazy load heavy components
 const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
 const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ default: m.RewardsTracking })));
-const UserPositions = lazy(() => import('./user-positions-new').then(m => ({ default: m.default })));
+const UserPositions = lazy(() => import('./user-positions').then(m => ({ default: m.UserPositions })));
 
-// Import optimized loading components
-import { TabLoadingSpinner } from './loading-screen';
+// Removed tab loading spinner - using built-in loading states
 
 // Optimized loading component for heavy tabs
 const OptimizedLoadingFallback = ({ height = "400px" }) => (
@@ -88,8 +86,7 @@ export function MainDashboard() {
     parseTokenAmount 
   } = useUniswapV3();
   const unifiedData = useUnifiedDashboard();
-  const appSession = useAppSession();
-  const realTimeData = useRealTimeDashboard(address, unifiedData.user?.id);
+  // Removed deprecated hooks - using unified dashboard data instead
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);

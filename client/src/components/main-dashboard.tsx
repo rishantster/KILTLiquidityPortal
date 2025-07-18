@@ -229,52 +229,23 @@ export function MainDashboard() {
   if (!isConnected) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
-        {/* Pure Liquid Background */}
+        {/* Clean Changing Gradient Background */}
         <div className="absolute inset-0 -z-10">
-          <div className="liquid-glow"></div>
+          <div className="gradient-background"></div>
         </div>
-        
-        {/* Enhanced Floating Liquid Bubbles */}
-        <div className="liquid-bubble liquid-bubble-1"></div>
-        <div className="liquid-bubble liquid-bubble-2"></div>
-        <div className="liquid-bubble liquid-bubble-3"></div>
-        <div className="liquid-bubble liquid-bubble-4"></div>
-        <div className="liquid-bubble liquid-bubble-5"></div>
-        <div className="liquid-bubble liquid-bubble-6"></div>
-        
-        {/* Enhanced Morphing Liquid Blobs */}
-        <div className="liquid-blob liquid-blob-1"></div>
-        <div className="liquid-blob liquid-blob-2"></div>
-        <div className="liquid-blob liquid-blob-3"></div>
-        <div className="liquid-blob liquid-blob-4"></div>
-        <div className="liquid-blob liquid-blob-5"></div>
-        
-        {/* Liquid Ripple Effects */}
-        <div className="liquid-ripple liquid-ripple-1"></div>
-        <div className="liquid-ripple liquid-ripple-2"></div>
-        <div className="liquid-ripple liquid-ripple-3"></div>
-        
-        {/* Dramatic Liquid Dripping Effects */}
-        <div className="liquid-drip liquid-drip-1"></div>
-        <div className="liquid-drip liquid-drip-2"></div>
-        <div className="liquid-drip liquid-drip-3"></div>
-        <div className="liquid-drip liquid-drip-4"></div>
 
         <div className="max-w-5xl mx-auto">
           <div className="text-center pt-16 pb-8">
             {/* Hero Section */}
             <div className="mb-12">
-              <div className="relative w-32 h-32 mx-auto mb-8 group">
+              <div className="relative w-32 h-32 mx-auto mb-8">
                 {/* Simple Logo Container */}
-                <div className="absolute inset-3 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                  {/* Gradient Background Effect */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  {/* KILT Logo - Much Larger */}
+                <div className="absolute inset-3 bg-white rounded-full flex items-center justify-center shadow-2xl">
+                  {/* KILT Logo - Simple and Clean */}
                   <img 
                     src={kiltLogo} 
                     alt="KILT" 
-                    className="w-20 h-20 object-contain relative z-10 group-hover:rotate-12 transition-transform duration-500" 
+                    className="w-20 h-20 object-contain" 
                   />
                 </div>
               </div>
@@ -363,11 +334,11 @@ export function MainDashboard() {
             </div>
 
             {/* Streamlined Bottom CTA */}
-            <div className="text-center animate-fade-in animate-delay-500 mb-12">
+            <div className="text-center mb-12">
               <h2 className="text-3xl font-heading text-white/90 mb-3">
                 Join the
               </h2>
-              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent mb-6 bg-[length:200%_100%] animate-gradient-shift leading-relaxed pb-2">
+              <h1 className="text-5xl font-display bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent mb-6 leading-relaxed pb-2">
                 KILT Ecosystem
               </h1>
               <p className="text-white/70 text-lg font-body max-w-xl mx-auto mb-6 leading-relaxed">
@@ -376,46 +347,46 @@ export function MainDashboard() {
             </div>
 
             {/* Enhanced Social Media Links */}
-            <div className="flex justify-center items-center gap-4 animate-fade-in animate-delay-700">
+            <div className="flex justify-center items-center gap-4">
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
+                className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
               >
-                <SiX className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
+                <SiX className="h-7 w-7 text-white/80 hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
+                className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
               >
-                <SiGithub className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
+                <SiGithub className="h-7 w-7 text-white/80 hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
+                className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
               >
-                <SiDiscord className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
+                <SiDiscord className="h-7 w-7 text-white/80 hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10"
+                className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
               >
-                <SiTelegram className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300" />
+                <SiTelegram className="h-7 w-7 text-white/80 hover:text-white transition-colors duration-300" />
               </a>
               <a 
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative p-4 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-xl hover:shadow-white/10 overflow-hidden"
+                className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
               >
-                <SiMedium className="h-7 w-7 text-white/80 group-hover:text-white transition-colors duration-300 flex-shrink-0" />
+                <SiMedium className="h-7 w-7 text-white/80 hover:text-white transition-colors duration-300" />
               </a>
             </div>
           </div>
@@ -425,26 +396,11 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden relative" style={{
-      background: 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 50%), #000000'
-    }}>
-      {/* Enhanced Floating Liquid Bubbles */}
-      <div className="liquid-bubble liquid-bubble-1"></div>
-      <div className="liquid-bubble liquid-bubble-2"></div>
-      <div className="liquid-bubble liquid-bubble-3"></div>
-      <div className="liquid-bubble liquid-bubble-4"></div>
-      <div className="liquid-bubble liquid-bubble-5"></div>
-      <div className="liquid-bubble liquid-bubble-6"></div>
-      
-      {/* Enhanced Morphing Liquid Blobs */}
-      <div className="liquid-blob liquid-blob-1"></div>
-      <div className="liquid-blob liquid-blob-2"></div>
-      <div className="liquid-blob liquid-blob-3"></div>
-      <div className="liquid-blob liquid-blob-4"></div>
-      <div className="liquid-blob liquid-blob-5"></div>
-      
-      {/* Liquid Wave Glow Effect */}
-      <div className="liquid-glow"></div>
+    <div className="min-h-screen text-white overflow-x-hidden relative">
+      {/* Clean Changing Gradient Background */}
+      <div className="absolute inset-0 -z-10">
+        <div className="gradient-background"></div>
+      </div>
       
       <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">
         {/* Clean Professional Header */}

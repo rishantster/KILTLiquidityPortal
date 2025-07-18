@@ -233,7 +233,6 @@ export function MainDashboard() {
         <div className="absolute inset-0 -z-10">
           <div className="gradient-background"></div>
         </div>
-
         <div className="max-w-5xl mx-auto">
           <div className="text-center pt-16 pb-8">
             {/* Hero Section */}
@@ -299,7 +298,7 @@ export function MainDashboard() {
                 <div className="relative bg-black/40 backdrop-blur-sm border border-pink-500/20 rounded-xl p-4 transition-all duration-300 hover:border-pink-500/40 h-[220px] flex flex-col">
                   {/* Simple Icon */}
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg border-2 border-white/20">
+                    <div className="w-12 h-12 from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg border-2 border-white/20 bg-[#f90263]">
                       <Award className="h-7 w-7 text-white drop-shadow-lg" />
                     </div>
                   </div>

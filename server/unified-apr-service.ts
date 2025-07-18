@@ -69,10 +69,10 @@ class UnifiedAPRService {
       // Clear cache to force recalculation
       this.aprCache = null;
 
-      // Use REAL TVL data from DexScreener verification
-      const poolTVL = 80000; // Real $80K TVL from DexScreener
-      let actualPositionValue = 1000; // Realistic $1K position size
-      const usingRealData = true;
+      // Require REAL blockchain data - no hardcoded values
+      let poolTVL = 0;
+      let actualPositionValue = 0;
+      let usingRealData = false;
       
       // Get actual position data from APP-REGISTERED positions only
       try {
@@ -92,15 +92,27 @@ class UnifiedAPRService {
             sql`${lpPositions.positionValueUsd} > 0 AND ${lpPositions.isActive} = true AND ${positionEligibility.isEligible} = true`
           );
         
-        if (appRegisteredPositions.length > 0) {
-          const totalValue = appRegisteredPositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUsd || '0'), 0);
-          actualPositionValue = totalValue / appRegisteredPositions.length;
+        if (appRegisteredPositions.length === 0) {
+          throw new Error('No app-registered positions found - real blockchain data required');
         }
         
-        // Using real Uniswap data for app-registered positions only
+        const totalValue = appRegisteredPositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUsd || '0'), 0);
+        actualPositionValue = totalValue / appRegisteredPositions.length;
+        
+        // Get real pool TVL from Uniswap integration service
+        const { uniswapIntegrationService } = await import('./uniswap-integration-service.js');
+        const poolInfo = await uniswapIntegrationService.getPoolInfo();
+        
+        if (!poolInfo || poolInfo.tvlUSD === 0) {
+          throw new Error('Unable to fetch real pool TVL from Uniswap - blockchain data required');
+        }
+        
+        poolTVL = poolInfo.tvlUSD;
+        usingRealData = true;
         
       } catch (error) {
-        // Fallback to default values when Uniswap data unavailable
+        // No fallbacks allowed - throw error if real data unavailable
+        throw new Error('Unable to fetch real blockchain data - admin configuration and blockchain integration required');
       }
       
       // Calculate base APR using REAL data

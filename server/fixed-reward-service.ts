@@ -80,25 +80,23 @@ export class FixedRewardService {
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     const [settingsConf] = await db.select().from(programSettings).limit(1);
     
-    // Admin panel is the primary source of truth, but provide fallbacks for development
+    // Admin panel is the only source of truth - no fallbacks allowed
     if (!treasuryConf?.totalAllocation || !treasuryConf?.programDurationDays) {
-      // Use default values for development/testing
-      console.warn('Using default treasury configuration - admin panel should be configured');
+      throw new Error('Treasury configuration required - admin panel must be configured with total allocation and program duration');
     }
     
     if (!settingsConf?.lockPeriod || !settingsConf?.timeBoostCoefficient || !settingsConf?.fullRangeBonus) {
-      // Use default values for development/testing
-      console.warn('Using default program settings - admin panel should be configured');
+      throw new Error('Program settings required - admin panel must be configured with lock period, time boost coefficient, and full range bonus');
     }
     
-    const treasuryAllocation = treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : 500000;
-    const programDurationDays = treasuryConf?.programDurationDays || 90;
-    const dailyBudget = treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : treasuryAllocation / programDurationDays;
+    const treasuryAllocation = parseFloat(treasuryConf.totalAllocation);
+    const programDurationDays = treasuryConf.programDurationDays;
+    const dailyBudget = parseFloat(treasuryConf.dailyRewardsCap);
     
-    const lockPeriodDays = settingsConf?.lockPeriod || 7;
-    const minimumPositionValue = settingsConf?.minimumPositionValue || 0;
-    const timeBoostCoefficient = settingsConf?.timeBoostCoefficient || 0.6;
-    const fullRangeBonus = settingsConf?.fullRangeBonus || 1.2;
+    const lockPeriodDays = settingsConf.lockPeriod;
+    const minimumPositionValue = settingsConf.minimumPositionValue;
+    const timeBoostCoefficient = settingsConf.timeBoostCoefficient;
+    const fullRangeBonus = settingsConf.fullRangeBonus;
     
     return {
       treasuryAllocation,

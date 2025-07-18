@@ -68,17 +68,17 @@ export function useUniswapV3() {
   };
 
   return {
-    // Balances - return string values to avoid BigInt mixing issues
-    kiltBalance: '1000000000000000000000',  // 1000 KILT in wei
-    wethBalance: '500000000000000000',      // 0.5 WETH in wei
-    ethBalance: '500000000000000000',       // 0.5 ETH in wei
+    // Balances - require real blockchain data
+    kiltBalance: '0',  // Will be fetched from blockchain
+    wethBalance: '0',  // Will be fetched from blockchain
+    ethBalance: '0',   // Will be fetched from blockchain
     preferredEthToken: { type: 'WETH' as const },
     
-    // Position data
+    // Position data - require real blockchain data
     userPositions: [],
     kiltEthPositions: [],
     poolData: null,
-    poolExists: true,
+    poolExists: false,  // Will be determined from blockchain
     
     // Loading states
     isLoading: false,
@@ -101,27 +101,50 @@ export function useUniswapV3() {
     approveToken: async (params: { tokenAddress: string; amount: BigInt }) => {
       setIsApproving(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        toast({
-          title: "Token approved",
-          description: `Token approved for trading`,
-        });
+        // This will need to be replaced with actual wallet integration
+        throw new Error('Real blockchain integration required - mock data removed');
       } catch (error) {
         toast({
           title: "Approval failed",
-          description: "Please try again",
+          description: "Real blockchain integration required",
           variant: "destructive",
         });
       } finally {
         setIsApproving(false);
       }
     },
-    mintPosition,
-    increaseLiquidity: async () => {},
-    decreaseLiquidity: async () => {},
-    collectFees: async () => {},
-    burnPosition: async () => {},
-    calculatePositionValue: () => 0,
-    isPositionInRange: () => false
+    mintPosition: async (params: any) => {
+      setIsMinting(true);
+      try {
+        // This will need to be replaced with actual Uniswap V3 integration
+        throw new Error('Real blockchain integration required - mock data removed');
+      } catch (error) {
+        toast({
+          title: "Minting failed",
+          description: "Real blockchain integration required",
+          variant: "destructive",
+        });
+      } finally {
+        setIsMinting(false);
+      }
+    },
+    increaseLiquidity: async () => {
+      throw new Error('Real blockchain integration required - mock data removed');
+    },
+    decreaseLiquidity: async () => {
+      throw new Error('Real blockchain integration required - mock data removed');
+    },
+    collectFees: async () => {
+      throw new Error('Real blockchain integration required - mock data removed');
+    },
+    burnPosition: async () => {
+      throw new Error('Real blockchain integration required - mock data removed');
+    },
+    calculatePositionValue: () => {
+      throw new Error('Real blockchain integration required - mock data removed');
+    },
+    isPositionInRange: () => {
+      throw new Error('Real blockchain integration required - mock data removed');
+    }
   };
 }

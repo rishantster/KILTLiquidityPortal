@@ -344,39 +344,11 @@ export class AdminService {
         };
       }
       
-      // Provide fallback values for development/testing
-      console.warn('Using default program settings - admin panel should be configured');
-      return {
-        maxLiquidityBoost: 0.6,
-        baseLiquidityWeight: 1.0,
-        timeBoostCoefficient: 0.6,
-        inRangeMultiplier: 1.0,
-        poolFactor: 1.0,
-        concentrationBonus: 1.0,
-        minimumPositionValue: 0,
-        lockPeriod: 7,
-        inRangeRequirement: true,
-        fullRangeBonus: 1.2,
-        minimumTimeInRange: 0.8,
-        performanceThreshold: 0.5
-      };
+      // No fallback values - admin panel must be configured
+      throw new Error('Program settings required - admin panel must be configured with all required parameters');
     } catch (error) {
-      // Provide fallback values for development/testing
-      console.warn('Using default program settings - admin panel should be configured');
-      return {
-        maxLiquidityBoost: 0.6,
-        baseLiquidityWeight: 1.0,
-        timeBoostCoefficient: 0.6,
-        inRangeMultiplier: 1.0,
-        poolFactor: 1.0,
-        concentrationBonus: 1.0,
-        minimumPositionValue: 0,
-        lockPeriod: 7,
-        inRangeRequirement: true,
-        fullRangeBonus: 1.2,
-        minimumTimeInRange: 0.8,
-        performanceThreshold: 0.5
-      };
+      // No fallback values - admin panel must be configured
+      throw new Error('Program settings required - admin panel must be configured with all required parameters');
     }
   }
 
@@ -439,39 +411,8 @@ export class AdminService {
         operationHistory: await this.getOperationHistory(10)
       };
     } catch (error) {
-      // Provide fallback stats for development/testing
-      console.warn('Using default admin stats - admin panel should be configured');
-      return {
-        treasury: {
-          balance: 0,
-          address: '0x0000000000000000000000000000000000000000',
-          programBudget: 500000,
-          dailyRewardsCap: 5555,
-          programDuration: 90,
-          programEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-          programStartDate: new Date(),
-          isActive: true,
-          totalDistributed: 0,
-          treasuryRemaining: 500000,
-          kiltPrice: 0.016,
-          aprData: { maxAPR: 89, minAPR: 67, aprRange: '67% - 89%' }
-        },
-        settings: {
-          maxLiquidityBoost: 0.6,
-          baseLiquidityWeight: 1.0,
-          timeBoostCoefficient: 0.6,
-          inRangeMultiplier: 1.0,
-          poolFactor: 1.0,
-          concentrationBonus: 1.0,
-          minimumPositionValue: 0,
-          lockPeriod: 7,
-          inRangeRequirement: true,
-          fullRangeBonus: 1.2,
-          minimumTimeInRange: 0.8,
-          performanceThreshold: 0.5
-        },
-        operationHistory: []
-      };
+      // No fallback values - admin panel must be configured
+      throw new Error('Admin configuration required - admin panel must be configured with all required parameters');
     }
   }
 

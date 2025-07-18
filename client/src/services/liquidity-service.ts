@@ -37,10 +37,10 @@ export class LiquidityService {
 
     const ethPrice = 2500; // Approximate ETH price
     
-    // Convert balances to numbers safely
-    const availableKilt = parseFloat(formatTokenBalance(kiltBalance));
-    const availableWeth = parseFloat(formatTokenBalance(wethBalance));
-    const availableEth = parseFloat(formatTokenBalance(ethBalance));
+    // Convert balances to numbers safely - the balances are already in human-readable format
+    const availableKilt = parseFloat(kiltBalance?.toString() || '0');
+    const availableWeth = parseFloat(wethBalance?.toString() || '0');
+    const availableEth = parseFloat(ethBalance?.toString() || '0');
     
     // Calculate total value of each token in USD
     const kiltValueUSD = availableKilt * kiltPrice;

@@ -702,14 +702,69 @@ export function LiquidityMint({
               ))}
             </div>
             
-            {/* Simple Selected Range Info */}
+            {/* Dynamic Price Range Preview */}
             <div className="mt-3 p-2 bg-white/5 rounded-lg border border-white/10">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-white/60">Selected Range</span>
-                <span className="text-white">{getSelectedStrategy().description}</span>
+                <span className="text-white">{getSelectedStrategy().label}</span>
               </div>
               <div className="mt-1 text-xs text-white/60">
                 {getSelectedStrategy().risk}
+              </div>
+              
+              {/* Live Price Range Display */}
+              <div className="mt-2 pt-2 border-t border-white/5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">Price Range</span>
+                  <span className="text-white font-mono">
+                    {getSelectedStrategy().range === Infinity ? (
+                      "Full range (0 to ∞)"
+                    ) : kiltData?.price ? (
+                      (() => {
+                        const currentPrice = kiltData.price;
+                        const lowerPrice = currentPrice * (1 - getSelectedStrategy().range);
+                        const upperPrice = currentPrice * (1 + getSelectedStrategy().range);
+                        return `$${lowerPrice.toFixed(4)} - $${upperPrice.toFixed(4)}`;
+                      })()
+                    ) : (
+                      "Loading..."
+                    )}
+                  </span>
+                </div>
+                <div className="mt-1 text-xs text-white/40">
+                  Current KILT: ${kiltData?.price?.toFixed(4) || 'Loading...'}
+                </div>
+                
+                {/* Visual Price Range Indicator */}
+                {kiltData?.price && getSelectedStrategy().range !== Infinity && (
+                  <div className="mt-2">
+                    <div className="flex items-center justify-between text-xs text-white/40 mb-1">
+                      <span>Min</span>
+                      <span>Current</span>
+                      <span>Max</span>
+                    </div>
+                    <div className="relative h-2 bg-gray-800 rounded-full overflow-hidden">
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"
+                        style={{
+                          left: '0%',
+                          width: '100%',
+                          opacity: 0.6
+                        }}
+                      />
+                      <div 
+                        className="absolute top-0 h-full w-1 bg-white rounded-full"
+                        style={{
+                          left: '50%',
+                          transform: 'translateX(-50%)'
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-center mt-1">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

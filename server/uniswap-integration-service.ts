@@ -30,6 +30,7 @@ export interface UniswapV3Position {
   tickUpper: number;
   feeTier: number;
   isActive: boolean;
+  positionStatus: 'ACTIVE' | 'CLOSED';
   currentValueUSD: number;
   fees: {
     token0: string;
@@ -246,12 +247,72 @@ export class UniswapIntegrationService {
   }
 
   /**
+   * Get all NFT token IDs owned by a user address
+   */
+  async getUserTokenIds(userAddress: string): Promise<string[]> {
+    try {
+      // Get balance of NFT positions for the user
+      const balance = await this.client.readContract({
+        address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
+        abi: [
+          {
+            inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+            name: 'balanceOf',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+        ],
+        functionName: 'balanceOf',
+        args: [userAddress as `0x${string}`],
+      });
+
+      const tokenIds: string[] = [];
+      const balanceNumber = Number(balance);
+
+      // Get each token ID by index
+      for (let i = 0; i < balanceNumber; i++) {
+        try {
+          const tokenId = await this.client.readContract({
+            address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
+            abi: [
+              {
+                inputs: [
+                  { internalType: 'address', name: 'owner', type: 'address' },
+                  { internalType: 'uint256', name: 'index', type: 'uint256' },
+                ],
+                name: 'tokenOfOwnerByIndex',
+                outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function',
+              },
+            ],
+            functionName: 'tokenOfOwnerByIndex',
+            args: [userAddress as `0x${string}`, BigInt(i)],
+          });
+
+          tokenIds.push(tokenId.toString());
+        } catch (error) {
+          // Skip invalid token IDs
+          continue;
+        }
+      }
+
+      return tokenIds;
+    } catch (error) {
+      console.error('Failed to fetch user token IDs:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get all Uniswap V3 positions for a user address using direct Uniswap API approach
    */
   async getUserPositions(userAddress: string): Promise<UniswapV3Position[]> {
     try {
       // Step 1: Get user's NFT token IDs (fast single call)
       const tokenIds = await this.getUserTokenIds(userAddress);
+      console.log(`getUserPositions - Found ${tokenIds.length} token IDs:`, tokenIds);
       
       if (tokenIds.length === 0) {
         return [];
@@ -264,11 +325,48 @@ export class UniswapIntegrationService {
       
       // Wait for all positions to resolve in parallel
       const positions = await Promise.all(positionPromises);
+      console.log(`getUserPositions - Raw positions returned:`, positions.length);
       
       // Filter out null results and return only valid positions
-      return positions.filter((pos): pos is UniswapV3Position => pos !== null);
+      const validPositions = positions.filter((pos): pos is UniswapV3Position => pos !== null);
+      console.log(`getUserPositions - Valid positions after filtering:`, validPositions.length);
+      
+      return validPositions;
     } catch (error) {
+      console.error('getUserPositions error:', error);
       return [];
+    }
+  }
+
+  /**
+   * Get pool address for a given token pair and fee tier
+   */
+  async getPoolAddress(token0: string, token1: string, fee: number): Promise<string> {
+    try {
+      // Use Uniswap V3 Factory to get pool address
+      const poolAddress = await this.client.readContract({
+        address: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD' as `0x${string}`, // Uniswap V3 Factory on Base
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address', name: 'tokenA', type: 'address' },
+              { internalType: 'address', name: 'tokenB', type: 'address' },
+              { internalType: 'uint24', name: 'fee', type: 'uint24' },
+            ],
+            name: 'getPool',
+            outputs: [{ internalType: 'address', name: 'pool', type: 'address' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+        ],
+        functionName: 'getPool',
+        args: [token0 as `0x${string}`, token1 as `0x${string}`, fee],
+      });
+
+      return poolAddress as string;
+    } catch (error) {
+      console.error('Failed to get pool address:', error);
+      throw error;
     }
   }
 
@@ -285,6 +383,8 @@ export class UniswapIntegrationService {
     // }
     
     try {
+      console.log(`Fetching position data for token ${tokenId}`);
+      
       // Get position data from Uniswap V3 position manager
       const positionData = await this.client.readContract({
         address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
@@ -314,15 +414,26 @@ export class UniswapIntegrationService {
         args: [BigInt(tokenId)],
       });
 
+      console.log(`Position data retrieved for token ${tokenId}:`, positionData);
+
       const [nonce, operator, token0, token1, fee, tickLower, tickUpper, liquidity, feeGrowthInside0LastX128, feeGrowthInside1LastX128, tokensOwed0, tokensOwed1] = positionData as any[];
 
-      // Skip positions with 0 liquidity
-      if (liquidity === 0n) {
+      // Determine position status based on liquidity
+      const isActive = liquidity > 0n;
+      const positionStatus = isActive ? 'ACTIVE' : 'CLOSED';
+      
+      console.log(`Token ${tokenId} - liquidity: ${liquidity}, status: ${positionStatus}, token0: ${token0}, token1: ${token1}`);
+
+      // Skip closed positions (zero liquidity)
+      if (!isActive) {
+        console.log(`Skipping token ${tokenId} - position is ${positionStatus}`);
         return null;
       }
 
       // Get pool address
+      console.log(`Getting pool address for token ${tokenId}`);
       const poolAddress = await this.getPoolAddress(token0, token1, fee);
+      console.log(`Pool address for token ${tokenId}:`, poolAddress);
       
       // Get current pool price and calculate token amounts
       const poolData = await this.getPoolData(poolAddress);
@@ -373,6 +484,7 @@ export class UniswapIntegrationService {
         tickUpper,
         feeTier: fee,
         isActive: poolData.tickCurrent >= tickLower && poolData.tickCurrent < tickUpper,
+        positionStatus: liquidity > 0n ? 'ACTIVE' : 'CLOSED',
         currentValueUSD,
         fees: {
           token0: fees.token0,
@@ -385,6 +497,7 @@ export class UniswapIntegrationService {
       
       return position;
     } catch (error) {
+      console.error(`Error fetching position data for token ${tokenId}:`, error);
       return null;
     }
   }

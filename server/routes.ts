@@ -76,6 +76,32 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.status(500).json({ error: error.message });
     }
   });
+
+  // Debug endpoint to check user token IDs
+  app.get("/api/debug/user-token-ids/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      const tokenIds = await uniswapIntegrationService.getUserTokenIds(address);
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ address, tokenIds, count: tokenIds.length });
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Debug endpoint to check position data for a specific NFT
+  app.get("/api/debug/position-data/:tokenId", async (req, res) => {
+    try {
+      const { tokenId } = req.params;
+      const positionData = await uniswapIntegrationService.getFullPositionData(tokenId);
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ tokenId, positionData });
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: error.message, stack: error.stack });
+    }
+  });
   
   // Ultra-fast position endpoint for instant loading
   app.get("/api/positions/fast/:address", async (req, res) => {
@@ -1490,22 +1516,32 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const { userAddress } = req.params;
       
-      // Parallel execution for maximum efficiency
-      const [uniswapPositions, blockchainConfig, user] = await Promise.all([
-        uniswapIntegrationService.getUserPositions(userAddress),
-        blockchainConfigService.getConfiguration(),
-        storage.getUserByAddress(userAddress)
-      ]);
+      console.log(`Wallet positions API called for: ${userAddress}`);
+      
+      // Get user positions from Uniswap
+      const uniswapPositions = await uniswapIntegrationService.getUserPositions(userAddress);
+      console.log(`Wallet positions - Raw Uniswap positions:`, uniswapPositions.length);
+      
+      // Get blockchain config
+      const blockchainConfig = await blockchainConfigService.getConfiguration();
       
       // Filter for KILT positions only
       const kiltTokenAddress = blockchainConfig.kiltTokenAddress.toLowerCase();
       const kiltPositions = uniswapPositions.filter(pos => {
-        const token0Lower = pos.token0.toLowerCase();
-        const token1Lower = pos.token1.toLowerCase();
-        return token0Lower === kiltTokenAddress || token1Lower === kiltTokenAddress;
+        const token0Lower = pos.token0?.toLowerCase() || '';
+        const token1Lower = pos.token1?.toLowerCase() || '';
+        const isKiltPos = token0Lower === kiltTokenAddress || token1Lower === kiltTokenAddress;
+        console.log(`Position ${pos.tokenId} - KILT check: ${isKiltPos} (${token0Lower} vs ${kiltTokenAddress})`);
+        return isKiltPos;
       });
       
-      // Get registered positions for cross-checking (parallel with above)
+      console.log(`Wallet positions - After KILT filtering:`, kiltPositions.length);
+      
+      // Get user info for registration status
+      const user = await storage.getUserByAddress(userAddress);
+      console.log(`User found:`, !!user);
+      
+      // Get registered positions for cross-checking
       const registeredTokenIds = new Set();
       const appCreatedTokenIds = new Set();
       
@@ -1519,25 +1555,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         });
       }
       
-      // Helper function to serialize BigInt values
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') {
-          return obj.toString();
-        }
-        if (Array.isArray(obj)) {
-          return obj.map(serializeBigInt);
-        }
-        if (obj && typeof obj === 'object') {
-          const serialized: any = {};
-          for (const key in obj) {
-            serialized[key] = serializeBigInt(obj[key]);
-          }
-          return serialized;
-        }
-        return obj;
-      };
+      console.log(`Registered positions:`, registeredTokenIds.size);
+      console.log(`App created positions:`, appCreatedTokenIds.size);
 
-      // Enhanced positions with registration and app-created status (BigInt safe)
+      // Enhanced positions with registration and app-created status (simplified)
+      // Only include active positions (this filtering already happens in getFullPositionData)
       const enhancedPositions = kiltPositions.map(pos => ({
         tokenId: pos.tokenId,
         poolAddress: pos.poolAddress,
@@ -1546,32 +1568,26 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         fee: pos.feeTier,
         tickLower: pos.tickLower,
         tickUpper: pos.tickUpper,
-        liquidity: typeof pos.liquidity === 'bigint' ? pos.liquidity.toString() : pos.liquidity,
-        amount0: typeof pos.token0Amount === 'bigint' ? pos.token0Amount.toString() : pos.token0Amount,
-        amount1: typeof pos.token1Amount === 'bigint' ? pos.token1Amount.toString() : pos.token1Amount,
-        currentValueUSD: pos.currentValueUSD,
-        fees: pos.fees ? {
-          token0: typeof pos.fees.token0 === 'bigint' ? pos.fees.token0.toString() : pos.fees.token0,
-          token1: typeof pos.fees.token1 === 'bigint' ? pos.fees.token1.toString() : pos.fees.token1
-        } : { token0: '0', token1: '0' },
+        liquidity: pos.liquidity?.toString() || '0',
+        amount0: pos.token0Amount?.toString() || '0',
+        amount1: pos.token1Amount?.toString() || '0',
+        currentValueUSD: pos.currentValueUSD || 0,
+        fees: {
+          token0: pos.fees?.token0?.toString() || '0',
+          token1: pos.fees?.token1?.toString() || '0'
+        },
         poolType: 'KILT/ETH',
         isKiltPosition: true,
-        isActive: pos.isActive,
+        isActive: true, // All positions returned are active (zero liquidity filtered out)
         isRegistered: registeredTokenIds.has(pos.tokenId),
         createdViaApp: appCreatedTokenIds.has(pos.tokenId)
       }));
       
-      // Apply comprehensive BigInt serialization
-      const serializedPositions = serializeBigInt(enhancedPositions);
+      console.log(`Enhanced positions created:`, enhancedPositions.length);
+      console.log(`Final enhanced positions:`, enhancedPositions);
       
-      // Use JSON.stringify with BigInt replacer to ensure safe serialization
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(serializedPositions, (key, value) => {
-        if (typeof value === 'bigint') {
-          return value.toString();
-        }
-        return value;
-      }));
+      // Return simple JSON response
+      res.json(enhancedPositions);
     } catch (error) {
       console.error('Error in positions endpoint:', error);
       

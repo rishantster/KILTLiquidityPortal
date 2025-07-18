@@ -632,7 +632,18 @@ export function UserPositions() {
                             variant="outline"
                             size="sm"
                             onClick={() => setLiquidityAmount(percentage.toString())}
-                            className="flex-1 border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
+                            className={`flex-1 border transition-all duration-200 ${
+                              liquidityAmount === percentage.toString()
+                                ? 'text-white font-bold border-2'
+                                : 'text-white/80 hover:bg-white/10 hover:text-white hover:border-white/50'
+                            }`}
+                            style={liquidityAmount === percentage.toString() ? {
+                              backgroundColor: '#ff0066',
+                              borderColor: '#ff0066',
+                              color: 'white'
+                            } : {
+                              borderColor: 'rgba(255, 255, 255, 0.2)'
+                            }}
                           >
                             {percentage}%
                           </Button>

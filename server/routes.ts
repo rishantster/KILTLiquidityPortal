@@ -205,10 +205,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const kiltTokenAddress = blockchainConfig.kiltTokenAddress;
       
       // Filter out already registered positions and only include KILT positions
+      // CRITICAL FIX: Also filter out app-created positions from eligible positions
       const unregisteredPositions = userPositions.filter(pos => {
         const isKiltPosition = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
                               pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
-        return !registeredNftIds.has(pos.tokenId.toString()) && isKiltPosition;
+        const isAlreadyRegistered = registeredNftIds.has(pos.tokenId.toString());
+        const isAppCreated = pos.createdViaApp === true; // Filter out app-created positions
+        return !isAlreadyRegistered && !isAppCreated && isKiltPosition;
       });
       
       res.json(unregisteredPositions);
@@ -1281,27 +1284,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get unregistered KILT positions for a user
-  app.get("/api/positions/unregistered/:userAddress", async (req, res) => {
-    try {
-      const { userAddress } = req.params;
-      
-      const result = await positionRegistrationService.getUnregisteredKiltPositions(userAddress);
-      
-      res.json({
-        userAddress,
-        eligiblePositions: result.eligiblePositions,
-        registrationRequired: result.registrationRequired,
-        message: result.eligiblePositions.length > 0 
-          ? `Found ${result.eligiblePositions.length} unregistered KILT positions` 
-          : 'No unregistered KILT positions found'
-      });
-
-    } catch (error) {
-      // Error fetching unregistered positions
-      res.status(500).json({ error: "Failed to fetch unregistered positions" });
-    }
-  });
+  // REMOVED: Duplicate endpoint causing conflicts - using the one at line 192 instead
 
   // Bulk register multiple positions
   app.post("/api/positions/bulk-register", async (req, res) => {

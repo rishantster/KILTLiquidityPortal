@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Video performance optimizations */
+.video-background {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
 /* CYBERPUNK THEME VARIABLES - EXACT PINK COLORS */
 :root {
   /* Primary Pink - Using exact hex #ec005e and rgba(255,0,102,255) */

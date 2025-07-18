@@ -226,27 +226,27 @@ const UserPositionsNew = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-pink-600 rounded-full flex items-center justify-center">
                 <Coins className="h-4 w-4 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div>
-              <h3 className="text-white font-bold text-lg">Your KILT LP Positions</h3>
-              <p className="text-white/60 text-sm">Real-time Uniswap V3 positions containing KILT token</p>
+              <h3 className="text-white font-bold text-lg font-mono">Your KILT LP Positions</h3>
+              <p className="text-white/60 text-sm font-mono">Real-time Uniswap V3 positions containing KILT token</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-emerald-400">Live</span>
+              <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-pink-400 font-mono">Live</span>
             </div>
             
             <Button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="h-8 px-3 bg-white/10 hover:bg-white/20 text-white border-white/20 text-sm"
+              className="h-8 px-3 bg-pink-500/10 hover:bg-pink-500/20 text-pink-200 border-pink-500/30 text-sm font-mono"
             >
               {isRefreshing ? (
                 <div className="w-4 h-4 border border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -259,17 +259,17 @@ const UserPositionsNew = () => {
         
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm text-white/60">
+            <div className="flex items-center space-x-2 text-sm text-pink-200/80 font-mono">
               <span>{kiltPositions.length} KILT positions ({openPositions.length} open)</span>
             </div>
             
             {closedPositions.length > 0 && (
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-white/60">Show Closed</span>
+                <span className="text-sm text-pink-200/80 font-mono">Show Closed</span>
                 <button
                   onClick={() => setShowClosedPositions(!showClosedPositions)}
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                    showClosedPositions ? 'bg-blue-600' : 'bg-white/20'
+                    showClosedPositions ? 'bg-pink-600' : 'bg-white/20'
                   }`}
                 >
                   <span

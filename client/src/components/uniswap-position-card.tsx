@@ -97,23 +97,23 @@ export const UniswapPositionCard = ({
         {/* Header with Pool Info and NFT ID */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="text-sm font-bold text-white">KILT/WETH</div>
-            <div className="text-xs theme-badge-success px-2 py-1 rounded">
+            <div className="text-sm font-bold text-white font-mono">KILT/WETH</div>
+            <div className="text-xs bg-pink-500/20 text-pink-300 border border-pink-500/30 px-2 py-1 rounded font-mono">
               {position.fee ? `${(position.fee / 10000).toFixed(1)}%` : '0.3%'}
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="text-xs text-white/60">#{position.tokenId}</div>
+            <div className="text-xs text-pink-200/60 font-mono">#{position.tokenId}</div>
             {position.isRegistered && (
-              <CheckCircle className="h-3 w-3 text-blue-400" />
+              <CheckCircle className="h-3 w-3 text-pink-400" />
             )}
           </div>
         </div>
 
         {/* Position Value - Large Display */}
         <div className="text-center py-2">
-          <div className="text-xl font-bold text-white">${positionValue.toFixed(2)}</div>
-          <div className="text-xs text-white/60">Position</div>
+          <div className="text-xl font-bold text-pink-200 font-mono">${positionValue.toFixed(2)}</div>
+          <div className="text-xs text-pink-200/60 font-mono">Position</div>
         </div>
 
         {/* Token Breakdown with Percentages */}
@@ -121,19 +121,19 @@ export const UniswapPositionCard = ({
           {/* Percentage Display */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-gradient-to-r from-pink-500 to-rose-400 rounded-full"></div>
-              <span className="text-sm font-medium text-white">{kiltPercentage.toFixed(1)}%</span>
+              <div className="w-2 h-2 bg-gradient-to-r from-pink-500 to-pink-400 rounded-full"></div>
+              <span className="text-sm font-medium text-pink-200 font-mono">{kiltPercentage.toFixed(1)}%</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">{ethPercentage.toFixed(1)}%</span>
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full"></div>
+              <span className="text-sm font-medium text-pink-200 font-mono">{ethPercentage.toFixed(1)}%</span>
+              <div className="w-2 h-2 bg-gradient-to-r from-pink-300 to-pink-500 rounded-full"></div>
             </div>
           </div>
           
           {/* Progress Bar */}
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-400 transition-all duration-500" 
+              className="h-full bg-gradient-to-r from-pink-500 via-pink-400 to-pink-300 transition-all duration-500" 
               style={{ width: '100%' }}
             />
           </div>
@@ -143,24 +143,24 @@ export const UniswapPositionCard = ({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <TokenLogo token="KILT" className="h-4 w-4" />
-                <span className="text-sm text-white font-medium">${kiltValue.toFixed(2)}</span>
+                <span className="text-sm text-pink-200 font-medium font-mono">${kiltValue.toFixed(2)}</span>
               </div>
-              <span className="text-sm text-white/60">{kiltAmount.toLocaleString()} KILT</span>
+              <span className="text-sm text-pink-200/60 font-mono">{kiltAmount.toLocaleString()} KILT</span>
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <TokenLogo token="ETH" className="h-4 w-4" />
-                <span className="text-sm text-white font-medium">${ethValue.toFixed(2)}</span>
+                <span className="text-sm text-pink-200 font-medium font-mono">${ethValue.toFixed(2)}</span>
               </div>
-              <span className="text-sm text-white/60">{ethAmount.toFixed(3)} WETH</span>
+              <span className="text-sm text-pink-200/60 font-mono">{ethAmount.toFixed(3)} WETH</span>
             </div>
           </div>
         </div>
 
         {/* Fees Earned Section */}
         <div className="theme-card p-3">
-          <div className="text-xs text-white/60 mb-1">Fees earned</div>
-          <div className="text-lg font-bold text-white">
+          <div className="text-xs text-pink-200/60 mb-1 font-mono">Fees earned</div>
+          <div className="text-lg font-bold text-pink-200 font-mono">
             ${formatSmallAmount(feesEarned)}
           </div>
           

@@ -410,15 +410,15 @@ export function MainDashboard() {
               <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">KILT Liquidity Portal</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>
             </div>
           </div>
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <Badge 
-              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 ${
+              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 font-mono ${
                 isConnected && isBaseNetworkConnected 
-                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' 
+                  ? 'bg-pink-500/20 text-pink-300 border-pink-500/30' 
                   : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
               }`}
             >
@@ -443,43 +443,43 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700/50 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
+          <TabsList className="grid w-full grid-cols-4 bg-black/90 border border-pink-500/30 p-0.5 sm:p-1 rounded-xl mb-6 h-10 sm:h-14 gap-0.5 sm:gap-1">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
             >
-              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
+              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
                 <span className="hidden sm:inline">Overview</span>
                 <span className="sm:hidden">Over</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
             >
-              <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
+              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
                 <span className="hidden sm:inline">Add Liquidity</span>
                 <span className="sm:hidden">Add</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
             >
-              <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
+              <Award className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
+              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
                 <span className="hidden sm:inline">Rewards</span>
                 <span className="sm:hidden">Rwd</span>
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-500 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm font-medium transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-pink-500 data-[state=active]:text-white text-pink-200 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all px-1 sm:px-2 py-1 sm:py-2 flex flex-col sm:flex-row items-center justify-center min-w-0 hover:bg-pink-500/10"
             >
-              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm font-heading truncate leading-tight">
+              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5 flex-shrink-0 text-pink-300" />
+              <span className="text-xs sm:text-sm font-mono truncate leading-tight">
                 <span className="hidden sm:inline">Positions</span>
                 <span className="sm:hidden">Pos</span>
               </span>

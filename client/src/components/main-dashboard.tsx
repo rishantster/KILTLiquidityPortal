@@ -733,8 +733,8 @@ export function MainDashboard() {
                       })()}
 
                       {/* Help Text */}
-                      <div className="text-center">
-                        <p className="text-xs text-white/40 text-body">
+                      <div className="text-center px-3">
+                        <p className="text-xs text-white/40 text-body break-words leading-tight">
                           For custom amounts, use "Add Liquidity" tab
                         </p>
                       </div>

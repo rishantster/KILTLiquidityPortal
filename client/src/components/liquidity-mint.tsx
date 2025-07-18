@@ -25,6 +25,7 @@ import { TOKENS } from '@/lib/uniswap-v3';
 import { BASE_NETWORK_ID } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
+import { LiquidityService } from '@/services/liquidity-service';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum logo component
@@ -68,7 +69,7 @@ export function LiquidityMint({
 
   const [kiltAmount, setKiltAmount] = useState('');
   const [ethAmount, setEthAmount] = useState('');
-  const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('WETH');
+  const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('ETH');
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
   const [selectedStrategy, setSelectedStrategy] = useState('balanced');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
@@ -135,12 +136,20 @@ export function LiquidityMint({
     }
   ];
 
-  // Set preferred ETH token on component mount
+  // Set preferred ETH token based on balance amounts (always pick bigger amount)
   useEffect(() => {
-    if (preferredEthToken) {
-      setSelectedEthToken(preferredEthToken.type);
+    if (kiltData?.price && ethBalance && wethBalance) {
+      const calculation = LiquidityService.calculateOptimalAmounts(
+        kiltBalance,
+        wethBalance,
+        ethBalance,
+        kiltData.price,
+        80,
+        formatTokenAmount
+      );
+      setSelectedEthToken(calculation.useNativeEth ? 'ETH' : 'WETH');
     }
-  }, [preferredEthToken]);
+  }, [kiltBalance, wethBalance, ethBalance, kiltData?.price, formatTokenAmount]);
 
   // Auto-calculate amounts based on slider percentage - limited by selected ETH token balance
   useEffect(() => {

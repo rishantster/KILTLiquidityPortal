@@ -42,6 +42,28 @@ import { adminSimpleRouter } from "./routes/admin-simple";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
+  // Debug endpoint to check database configuration
+  app.get("/api/debug/treasury-config", async (req, res) => {
+    try {
+      const { treasuryConfig } = await import('../shared/schema');
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        exists: !!treasuryConf,
+        data: treasuryConf,
+        columnNames: Object.keys(treasuryConf || {}),
+        values: {
+          daily_rewards_cap: treasuryConf?.daily_rewards_cap,
+          total_allocation: treasuryConf?.total_allocation,
+          program_duration_days: treasuryConf?.program_duration_days
+        }
+      });
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
   // Ultra-fast position endpoint for instant loading
   app.get("/api/positions/fast/:address", async (req, res) => {
     try {
@@ -790,21 +812,22 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get maximum theoretical APR calculation (using unified service)
+  // Get maximum theoretical APR calculation (using fixed service directly)
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
-      const { unifiedAPRService } = await import('./unified-apr-service.js');
-      const aprData = await unifiedAPRService.getUnifiedAPRCalculation();
+      console.log('APR endpoint called, starting calculation...');
+      const aprData = await fixedRewardService.calculateMaximumTheoreticalAPR();
+      console.log('APR calculation completed:', aprData);
       
       res.json({
         maxAPR: aprData.maxAPR,
         minAPR: aprData.minAPR,
         aprRange: aprData.aprRange,
-        calculationDetails: aprData.calculationDetails
+        calculationDetails: aprData
       });
     } catch (error) {
-      // Error calculating maximum APR
-      res.status(500).json({ error: "Failed to calculate maximum APR" });
+      console.error('APR calculation failed:', error);
+      res.status(500).json({ error: "Failed to calculate maximum APR", details: error.message });
     }
   });
 

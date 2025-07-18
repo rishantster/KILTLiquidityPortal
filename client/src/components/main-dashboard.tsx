@@ -148,16 +148,17 @@ export function MainDashboard() {
   }, [isConnected]);
 
   // Helper function to convert wei to human-readable amounts
-  const formatTokenBalance = (balance: bigint | undefined): string => {
+  const formatTokenBalance = (balance: string | bigint | undefined): string => {
     if (!balance) return '0';
-    // Convert wei to ether (both KILT and WETH use 18 decimals)
-    const divisor = 10n ** 18n;
-    const wholePart = balance / divisor;
-    const fractionalPart = balance % divisor;
-    const fractionalString = fractionalPart.toString().padStart(18, '0');
-    // Remove trailing zeros for cleaner display
-    const cleanFractional = fractionalString.replace(/0+$/, '');
-    return cleanFractional ? `${wholePart.toString()}.${cleanFractional}` : wholePart.toString();
+    try {
+      // Convert to string if it's a bigint
+      const balanceStr = typeof balance === 'bigint' ? balance.toString() : balance;
+      // Convert wei to ether (both KILT and WETH use 18 decimals)
+      const parsed = parseFloat(balanceStr) / 1e18;
+      return parsed.toFixed(4);
+    } catch {
+      return '0';
+    }
   };
 
   // Calculate optimal amounts using universal LiquidityService

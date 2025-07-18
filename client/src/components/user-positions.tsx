@@ -37,7 +37,7 @@ export function UserPositions() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const unifiedData = useUnifiedDashboard();
-  const [selectedPosition, setSelectedPosition] = useState<bigint | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [managementMode, setManagementMode] = useState<'increase' | 'decrease' | 'collect' | null>(null);
   const [liquidityAmount, setLiquidityAmount] = useState('');
   const [amount0, setAmount0] = useState('');

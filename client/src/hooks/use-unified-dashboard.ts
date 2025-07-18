@@ -210,10 +210,17 @@ export function useUnifiedDashboard() {
   const walletBalanceValue = (() => {
     if (!kiltBalance || !wethBalance || !kiltData?.price) return 0;
     
-    const kiltValue = parseFloat(kiltBalance.toString()) / (10**18) * kiltData.price;
-    const ethValue = parseFloat(wethBalance.toString()) / (10**18) * 2500;
-    
-    return kiltValue + ethValue;
+    try {
+      const kiltBalanceStr = typeof kiltBalance === 'string' ? kiltBalance : kiltBalance.toString();
+      const wethBalanceStr = typeof wethBalance === 'string' ? wethBalance : wethBalance.toString();
+      
+      const kiltValue = parseFloat(kiltBalanceStr) / (10**18) * kiltData.price;
+      const ethValue = parseFloat(wethBalanceStr) / (10**18) * 2500;
+      
+      return kiltValue + ethValue;
+    } catch {
+      return 0;
+    }
   })();
 
   return {
@@ -250,10 +257,19 @@ export function useUnifiedDashboard() {
     
     // Helper functions
     formatTokenAmount: (amount: bigint | string | number) => {
-      if (typeof amount === 'bigint') {
-        return (parseFloat(amount.toString()) / (10**18)).toFixed(6);
+      try {
+        if (typeof amount === 'bigint') {
+          return (parseFloat(amount.toString()) / (10**18)).toFixed(6);
+        }
+        const numAmount = parseFloat(amount.toString());
+        if (numAmount > 1e18) {
+          // If the amount is in wei, convert it
+          return (numAmount / 1e18).toFixed(6);
+        }
+        return numAmount.toFixed(6);
+      } catch {
+        return '0.000000';
       }
-      return parseFloat(amount.toString()).toFixed(6);
     }
   };
 }

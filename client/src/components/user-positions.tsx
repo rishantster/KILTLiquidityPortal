@@ -197,6 +197,15 @@ export function UserPositions() {
       setAmount1('');
       setLiquidityAmount('');
       
+      // INSTANT UI UPDATE - Remove position immediately from UI
+      if (managementMode === 'decrease' && liquidityAmount === '100') {
+        // For 100% removal, immediately remove position from UI
+        queryClient.setQueryData([`/api/positions/wallet/${address}`], (oldData: any) => {
+          if (!oldData) return oldData;
+          return oldData.filter((pos: any) => pos.tokenId !== selectedPosition);
+        });
+      }
+      
       // BLAZING FAST CACHE INVALIDATION - Force refresh positions data
       queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
       queryClient.refetchQueries({ queryKey: [`/api/positions/wallet/${address}`] });
@@ -859,6 +868,12 @@ export function UserPositions() {
                         setManagementMode(null);
                         setSelectedPosition(null);
                         setLiquidityAmount('');
+                        
+                        // INSTANT UI UPDATE - Remove position immediately from UI
+                        queryClient.setQueryData([`/api/positions/wallet/${address}`], (oldData: any) => {
+                          if (!oldData) return oldData;
+                          return oldData.filter((pos: any) => pos.tokenId !== selectedPosition);
+                        });
                         
                         // Force refresh
                         queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });

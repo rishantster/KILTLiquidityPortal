@@ -502,7 +502,7 @@ export function LiquidityMint({
                 variant="ghost"
                 size="sm"
                 onClick={() => handlePercentageSelect(100)}
-                className="text-pink-400 hover:text-pink-300 hover:bg-pink-500/10 px-2 py-1 font-semibold text-xs h-6"
+                className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 px-2 py-1 font-semibold text-xs h-6"
               >
                 MAX
               </Button>
@@ -566,7 +566,7 @@ export function LiquidityMint({
                   }
                 </span> {selectedEthToken}
               </span>
-              <span className="text-matrix-green font-semibold text-xs px-2 py-1 bg-matrix-green/10 rounded">
+              <span className="text-emerald-400 font-semibold text-xs px-2 py-1 bg-emerald-500/10 rounded">
                 Auto-calculated
               </span>
             </div>

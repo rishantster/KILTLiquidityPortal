@@ -336,8 +336,18 @@ export function LiquidityMint({
     if (!address || !kiltAmount || !ethAmount) return;
 
     try {
+      // Debug: Log the input amounts
+      console.log('Input amounts:', { kiltAmount, ethAmount });
+      
       const kiltAmountParsed = parseUnits(kiltAmount, 18);
       const ethAmountParsed = parseUnits(ethAmount, 18);
+      
+      // Debug: Log parsed amounts
+      console.log('Parsed amounts:', { 
+        kiltAmountParsed: kiltAmountParsed.toString(), 
+        ethAmountParsed: ethAmountParsed.toString() 
+      });
+      
       const deadlineTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
 
       // Handle ETH wrapping automatically through position manager
@@ -357,6 +367,9 @@ export function LiquidityMint({
       // Set amounts based on token order
       const amount0Desired = token0.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
       const amount1Desired = token1.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
+      
+      // Debug: Log token order and amounts
+      console.log('Token order:', { token0, token1, amount0Desired: amount0Desired.toString(), amount1Desired: amount1Desired.toString() });
 
       // Use proper tick values based on pool info and selected strategy
       let tickLower, tickUpper;

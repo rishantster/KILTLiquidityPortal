@@ -694,7 +694,7 @@ export function LiquidityMint({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button
           onClick={handleApproveTokens}
-          disabled={isApproving || !poolExists || tokensApproved}
+          disabled={isApproving || tokensApproved}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
             tokensApproved 
               ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
@@ -721,9 +721,9 @@ export function LiquidityMint({
 
         <Button
           onClick={handleMintPosition}
-          disabled={isMinting || !kiltAmount || !ethAmount || !poolExists || !tokensApproved}
+          disabled={isMinting || !kiltAmount || !ethAmount || !tokensApproved}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
-            !isMinting && kiltAmount && ethAmount && poolExists && tokensApproved
+            !isMinting && kiltAmount && ethAmount && tokensApproved
               ? 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white' 
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}

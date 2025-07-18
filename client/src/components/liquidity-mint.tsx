@@ -325,7 +325,6 @@ export function LiquidityMint({
       const kiltAmountParsed = parseTokenAmount(kiltAmount);
       const ethAmountParsed = parseTokenAmount(ethAmount);
       const deadlineTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
-      const deadline = BigInt(deadlineTime);
 
       // Handle ETH wrapping automatically through position manager
 
@@ -345,10 +344,41 @@ export function LiquidityMint({
       const amount0Desired = token0.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
       const amount1Desired = token1.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
 
-      // Use more realistic Full Range ticks for 0.3% fee tier
-      const tickLower = -887220;  // Full range minimum
-      const tickUpper = 887220;   // Full range maximum
+      // Use proper tick values based on pool info and selected strategy
+      let tickLower, tickUpper;
+      
+      if (selectedStrategy === 'full') {
+        // Full range ticks for 0.3% fee tier (tick spacing = 60)
+        tickLower = -887220;
+        tickUpper = 887220;
+      } else {
+        // Calculate ticks based on current price and strategy
+        const currentPrice = poolInfo?.price || 0.0001; // KILT price in ETH
+        const strategy = getSelectedStrategy();
+        
+        if (strategy.range === Infinity) {
+          tickLower = -887220;
+          tickUpper = 887220;
+        } else {
+          // Calculate price range based on strategy
+          const lowerPrice = currentPrice * (1 - strategy.range);
+          const upperPrice = currentPrice * (1 + strategy.range);
+          
+          // Convert prices to ticks (simplified calculation)
+          tickLower = Math.floor(Math.log(lowerPrice) / Math.log(1.0001));
+          tickUpper = Math.floor(Math.log(upperPrice) / Math.log(1.0001));
+          
+          // Ensure ticks are divisible by tick spacing (60 for 0.3% fee)
+          tickLower = Math.floor(tickLower / 60) * 60;
+          tickUpper = Math.ceil(tickUpper / 60) * 60;
+        }
+      }
 
+      // Validate tick values are within bounds
+      if (tickLower >= tickUpper) {
+        throw new Error('Invalid tick range: tickLower must be less than tickUpper');
+      }
+      
       // Use zero minimum amounts to bypass slippage entirely
       const amount0Min = 0n; // Zero minimum to bypass slippage check
       const amount1Min = 0n; // Zero minimum to bypass slippage check
@@ -365,8 +395,21 @@ export function LiquidityMint({
         amount0Min,
         amount1Min,
         recipient: address as `0x${string}`,
-        deadline
+        deadline: deadlineTime
       };
+
+      // Log parameters for debugging
+      console.log('Mint Parameters:', {
+        token0,
+        token1,
+        fee: 3000,
+        tickLower,
+        tickUpper,
+        amount0Desired: amount0Desired.toString(),
+        amount1Desired: amount1Desired.toString(),
+        recipient: address,
+        deadline: deadlineTime
+      });
 
       // Mint parameters prepared for position creation
 

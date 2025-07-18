@@ -317,7 +317,7 @@ export function useUniswapV3() {
         });
 
         // Calculate ETH value to send (only if using native ETH)
-        const ethValue = params.isNativeETH ? parseUnits(params.amount1Desired.toString(), 18) : 0n;
+        const ethValue = params.isNativeETH ? BigInt(params.amount1Desired) : 0n;
 
         // Send minting transaction
         const hash = await walletClient.writeContract({
@@ -325,8 +325,8 @@ export function useUniswapV3() {
           abi: POSITION_MANAGER_ABI,
           functionName: 'mint',
           args: [{
-            token0: params.token0,
-            token1: params.token1,
+            token0: params.token0 as `0x${string}`,
+            token1: params.token1 as `0x${string}`,
             fee: params.fee,
             tickLower: params.tickLower,
             tickUpper: params.tickUpper,
@@ -334,8 +334,8 @@ export function useUniswapV3() {
             amount1Desired: BigInt(params.amount1Desired),
             amount0Min: BigInt(params.amount0Min),
             amount1Min: BigInt(params.amount1Min),
-            recipient: params.recipient,
-            deadline: params.deadline,
+            recipient: params.recipient as `0x${string}`,
+            deadline: BigInt(params.deadline),
           }],
           account: address as `0x${string}`,
           value: ethValue,

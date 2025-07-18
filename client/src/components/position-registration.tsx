@@ -337,7 +337,7 @@ export function PositionRegistration() {
               <span className="ml-2 text-white/60 text-xs">Scanning for positions...</span>
             </div>
           ) : unregisteredPositions.length === 0 ? (
-            <div className="text-center py-3">
+            <div className="flex flex-col items-center justify-center h-full text-center py-8">
               {totalPositions === 0 ? (
                 <>
                   <Plus className="h-6 w-6 text-gray-400 mx-auto mb-2" />
@@ -374,9 +374,9 @@ export function PositionRegistration() {
                 </>
               ) : (
                 <>
-                  <CheckCircle className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
-                  <h3 className="text-white font-semibold mb-2 text-xs">All Set!</h3>
-                  <p className="text-white/60 text-xs">
+                  <CheckCircle className="h-6 w-6 text-emerald-400 mx-auto mb-3" />
+                  <h3 className="text-white font-semibold mb-3 text-lg">All Set!</h3>
+                  <p className="text-white/60 text-sm max-w-xs">
                     All your KILT positions are already registered and earning rewards.
                   </p>
                 </>

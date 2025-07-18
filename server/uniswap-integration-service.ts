@@ -59,8 +59,31 @@ export class UniswapIntegrationService {
   private positionCache = new Map<string, { data: UniswapV3Position, timestamp: number }>();
   private poolAddressCache = new Map<string, string>();
   private poolInfoCache: { data: any; timestamp: number } | null = null;
-  private readonly CACHE_DURATION = 60000; // 1 minute for production caching
+  private userPositionsCache = new Map<string, { data: UniswapV3Position[], timestamp: number }>();
+  private tokenIdsCache = new Map<string, { data: string[], timestamp: number }>();
+  private readonly CACHE_DURATION = 30000; // 30 seconds for ultra-fast updates
+  private readonly AGGRESSIVE_CACHE_DURATION = 15000; // 15 seconds for position data
   private readonly FORCE_FEE_REFRESH = true; // Always refresh fees for latest data
+
+  // BLAZING FAST CACHE INVALIDATION - Clear all caches for a user
+  clearUserCache(userAddress: string): void {
+    const cacheKey = `tokenIds_${userAddress}`;
+    this.tokenIdsCache.delete(cacheKey);
+    this.userPositionsCache.delete(userAddress);
+    
+    // Clear all position caches for this user
+    for (const [key] of this.positionCache.entries()) {
+      if (key.includes(userAddress)) {
+        this.positionCache.delete(key);
+      }
+    }
+  }
+
+  // FORCE REFRESH - Bypass all caches for immediate updates
+  async forceRefreshUserPositions(userAddress: string): Promise<UniswapV3Position[]> {
+    this.clearUserCache(userAddress);
+    return this.getUserPositions(userAddress);
+  }
 
   /**
    * Get pool info from blockchain - Required for real blockchain integration
@@ -251,6 +274,14 @@ export class UniswapIntegrationService {
    * Get all NFT token IDs owned by a user address
    */
   async getUserTokenIds(userAddress: string): Promise<string[]> {
+    // Check cache first for blazing fast responses
+    const cacheKey = `tokenIds_${userAddress}`;
+    const cached = this.tokenIdsCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.AGGRESSIVE_CACHE_DURATION) {
+      return cached.data;
+    }
+    
     try {
       // Get balance of NFT positions for the user
       const balance = await this.client.readContract({
@@ -271,10 +302,11 @@ export class UniswapIntegrationService {
       const tokenIds: string[] = [];
       const balanceNumber = Number(balance);
 
-      // Get each token ID by index
+      // Get each token ID by index - PARALLEL PROCESSING FOR BLAZING SPEED
+      const tokenIdPromises = [];
       for (let i = 0; i < balanceNumber; i++) {
-        try {
-          const tokenId = await this.client.readContract({
+        tokenIdPromises.push(
+          this.client.readContract({
             address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
             abi: [
               {
@@ -290,12 +322,20 @@ export class UniswapIntegrationService {
             ],
             functionName: 'tokenOfOwnerByIndex',
             args: [userAddress as `0x${string}`, BigInt(i)],
-          });
+          }).catch(error => {
+            console.error(`Failed to get token ID at index ${i}:`, error);
+            return null;
+          })
+        );
+      }
 
-          tokenIds.push(tokenId.toString());
-        } catch (error) {
-          // Skip invalid token IDs
-          continue;
+      // Execute all token ID fetches in parallel - BLAZING FAST
+      const tokenIdResults = await Promise.all(tokenIdPromises);
+      
+      // Filter out null results and convert to strings
+      for (const result of tokenIdResults) {
+        if (result) {
+          tokenIds.push(result.toString());
         }
       }
 
@@ -431,35 +471,34 @@ export class UniswapIntegrationService {
         return null;
       }
 
-      // Get pool address
-      console.log(`Getting pool address for token ${tokenId}`);
+      // PARALLEL PROCESSING FOR BLAZING SPEED - Execute all expensive operations simultaneously
       const poolAddress = await this.getPoolAddress(token0, token1, fee);
-      console.log(`Pool address for token ${tokenId}:`, poolAddress);
-      
-      // Get current pool price and calculate token amounts
       const poolData = await this.getPoolData(poolAddress);
       
-      // Calculate exact token amounts using pool's current price
-      const { amount0, amount1 } = await this.calculateTokenAmounts(
-        poolAddress,
-        liquidity,
-        tickLower,
-        tickUpper,
-        poolData.tickCurrent
-      );
-
-      // Get actual fees from blockchain using authentic fee calculation
-      const fees = await this.getUnclaimedFeesFromBlockchain(
-        tokenId,
-        liquidity,
-        feeGrowthInside0LastX128,
-        feeGrowthInside1LastX128,
-        tokensOwed0,
-        tokensOwed1,
-        poolData.tickCurrent,
-        tickLower,
-        tickUpper
-      );
+      // Execute all calculations in parallel - MAXIMUM SPEED
+      const [
+        { amount0, amount1 },
+        fees
+      ] = await Promise.all([
+        this.calculateTokenAmounts(
+          poolAddress,
+          liquidity,
+          tickLower,
+          tickUpper,
+          poolData.tickCurrent
+        ),
+        this.getUnclaimedFeesFromBlockchain(
+          tokenId,
+          liquidity,
+          feeGrowthInside0LastX128,
+          feeGrowthInside1LastX128,
+          tokensOwed0,
+          tokensOwed1,
+          poolData.tickCurrent,
+          tickLower,
+          tickUpper
+        )
+      ]);
 
       // Calculate USD value
       const currentValueUSD = await this.calculatePositionValueUSD(

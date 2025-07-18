@@ -168,9 +168,18 @@ export function UserPositions() {
           });
           break;
         case 'decrease':
+          // Calculate actual liquidity amount from percentage
+          const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+          if (!currentPosition) {
+            throw new Error('Position not found');
+          }
+          
+          const percentage = parseFloat(liquidityAmount) / 100;
+          const actualLiquidityAmount = (BigInt(currentPosition.liquidity) * BigInt(Math.floor(percentage * 100)) / BigInt(100)).toString();
+          
           await decreaseLiquidity({
             tokenId: selectedPosition,
-            liquidity: parseTokenAmount(liquidityAmount),
+            liquidity: actualLiquidityAmount,
             amount0Min: '0',
             amount1Min: '0'
           });
@@ -188,8 +197,13 @@ export function UserPositions() {
       setAmount1('');
       setLiquidityAmount('');
       
-      // Refresh positions data after successful transaction
+      // BLAZING FAST CACHE INVALIDATION - Force refresh positions data
       queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+      
+      // Also force refresh unified dashboard data
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/program-analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/user-apr', address] });
       
       toast({
         title: "Success",
@@ -615,6 +629,22 @@ export function UserPositions() {
                           </Button>
                         ))}
                       </div>
+                      
+                      {/* DEBUG: Show exact liquidity calculation */}
+                      {liquidityAmount && (
+                        <div className="mt-2 text-xs text-white/60">
+                          <div>Current Liquidity: {(() => {
+                            const pos = allKiltPositions.find(p => p.tokenId === selectedPosition);
+                            return pos?.liquidity || 'N/A';
+                          })()}</div>
+                          <div>Removing: {(() => {
+                            const pos = allKiltPositions.find(p => p.tokenId === selectedPosition);
+                            if (!pos || !liquidityAmount) return 'N/A';
+                            const percentage = parseFloat(liquidityAmount) / 100;
+                            return (BigInt(pos.liquidity) * BigInt(Math.floor(percentage * 100)) / BigInt(100)).toString();
+                          })()}</div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -786,25 +816,75 @@ export function UserPositions() {
                 </div>
               )}
               
-              {/* Action Button */}
-              <Button
-                onClick={handleLiquidityManagement}
-                disabled={isProcessing}
-                className="w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-medium py-3 text-base"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    {managementMode === 'increase' && 'Add Liquidity'}
-                    {managementMode === 'decrease' && 'Remove Liquidity'}
-                    {managementMode === 'collect' && 'Collect Fees'}
-                  </>
+              {/* Action Buttons */}
+              <div className="space-y-2">
+                <Button
+                  onClick={handleLiquidityManagement}
+                  disabled={isProcessing}
+                  className="w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-medium py-3 text-base"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {managementMode === 'increase' && 'Add Liquidity'}
+                      {managementMode === 'decrease' && 'Remove Liquidity'}
+                      {managementMode === 'collect' && 'Collect Fees'}
+                    </>
+                  )}
+                </Button>
+                
+                {/* REMOVE ALL BUTTON for guaranteed complete removal */}
+                {managementMode === 'decrease' && (
+                  <Button
+                    onClick={async () => {
+                      try {
+                        setIsProcessing(true);
+                        const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                        if (!currentPosition) {
+                          throw new Error('Position not found');
+                        }
+                        
+                        // Remove 100% of liquidity
+                        await decreaseLiquidity({
+                          tokenId: selectedPosition,
+                          liquidity: currentPosition.liquidity,
+                          amount0Min: '0',
+                          amount1Min: '0'
+                        });
+                        
+                        setManagementMode(null);
+                        setSelectedPosition(null);
+                        setLiquidityAmount('');
+                        
+                        // Force refresh
+                        queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+                        queryClient.refetchQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+                        
+                        toast({
+                          title: "Complete Removal",
+                          description: "Position completely removed",
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: (error as Error)?.message || "Failed to remove position",
+                          variant: "destructive",
+                        });
+                      } finally {
+                        setIsProcessing(false);
+                      }
+                    }}
+                    disabled={isProcessing}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium py-2 text-sm"
+                  >
+                    Remove All (100%)
+                  </Button>
                 )}
-              </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

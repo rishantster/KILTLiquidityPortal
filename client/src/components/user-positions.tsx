@@ -335,79 +335,113 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="position-grid-4 p-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
                 const isClosed = position.liquidity === 0n;
-                const isMainPool = position.poolAddress?.toLowerCase() === position.poolAddress?.toLowerCase(); // Pool detection now via API
+                const ethAmount = position.amount0 ? (parseFloat(position.amount0) / 1e18).toFixed(3) : '0.000';
+                const kiltAmount = position.amount1 ? (parseFloat(position.amount1) / 1e18).toFixed(0) : '0';
+                const ethFees = position.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(4) : '0.0000';
+                const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
                 
                 return (
-                  <div key={position.tokenId.toString()} className={`position-card liquid-card ${isClosed ? 'bg-gradient-to-br from-gray-500/10 to-gray-600/5 border-gray-400/20' : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 border-blue-400/20'} rounded hover:bg-gradient-to-br hover:from-blue-500/20 hover:via-purple-500/20 hover:to-emerald-500/20 transition-all border p-1 backdrop-blur-sm`}>
-                    <div className="min-w-0 overflow-hidden">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <div className="text-white font-bold tabular-nums text-xs">#{position.tokenId.toString()}</div>
-                        <div className="text-white font-bold tabular-nums text-xs">
-                          ${positionValue.toFixed(0)}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-center mb-1">
+                  <div key={position.tokenId.toString()} className={`relative overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] ${
+                    isClosed 
+                      ? 'bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/40' 
+                      : 'bg-gradient-to-br from-slate-900/90 to-slate-800/70 border-slate-700/50 hover:border-slate-600/60'
+                  }`}>
+                    {/* Header */}
+                    <div className="p-6 pb-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-white/60 text-sm font-medium">Position</span>
                         <Badge 
                           variant={inRange ? "default" : "secondary"}
-                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"} text-xs px-1 py-0`}
+                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border-amber-500/30"} text-xs px-3 py-1`}
                         >
-                          {inRange ? 'In' : 'Out'}
+                          {inRange ? 'In Range' : 'Out of Range'}
                         </Badge>
                       </div>
-                      
-                      <div className="space-y-1 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-white/60 flex items-center gap-1">
-                            <EthLogo size="sm" />
-                          </span>
-                          <span className="text-white font-bold tabular-nums">
-                            {position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(2) : '0'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-white/60 flex items-center gap-1">
-                            <KiltLogo size="sm" />
-                          </span>
-                          <span className="text-white font-bold tabular-nums">
-                            {position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(0) : '0'}
-                          </span>
-                        </div>
-                        
-                        {/* Mini Range Visualization */}
-                        <div className="mt-1 p-1 bg-white/5 rounded-sm">
-                          <div className="relative h-4 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 rounded-sm overflow-hidden">
-                            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 16">
-                              {/* Active position curve */}
-                              <path
-                                d="M 20 12 Q 50 4 80 12"
-                                stroke={position.liquidity > 0 ? '#10b981' : '#ef4444'}
-                                strokeWidth="1"
-                                fill="none"
-                              />
-                              
-                              {/* Min/Max markers */}
-                              <circle cx="20" cy="12" r="1" fill={position.liquidity > 0 ? '#10b981' : '#ef4444'} />
-                              <circle cx="80" cy="12" r="1" fill={position.liquidity > 0 ? '#10b981' : '#ef4444'} />
-                              
-                              {/* Current price indicator */}
-                              <line x1="50" y1="2" x2="50" y2="14" stroke="white" strokeWidth="1" />
-                              <circle cx="50" cy="8" r="1" fill="white" />
-                            </svg>
+                      <div className="text-3xl font-bold text-white tabular-nums">
+                        ${positionValue.toFixed(2)}
+                      </div>
+                    </div>
+
+                    {/* Token Holdings */}
+                    <div className="px-6 pb-4">
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <span className="text-white text-sm font-bold">Ξ</span>
+                            </div>
+                            <div>
+                              <div className="text-white font-medium">{ethAmount} WETH</div>
+                              <div className="text-white/60 text-sm">50.3%</div>
+                            </div>
                           </div>
-                          <div className="text-xs text-white/60 text-center">
-                            {position.fee / 10000}%
+                          <div className="text-right">
+                            <div className="text-white font-medium tabular-nums">
+                              ${(parseFloat(ethAmount) * 3635).toFixed(2)}
+                            </div>
+                            <div className="text-white/60 text-sm">0.358 WETH</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <span className="text-white text-sm font-bold">K</span>
+                            </div>
+                            <div>
+                              <div className="text-white font-medium">{kiltAmount} KILT</div>
+                              <div className="text-white/60 text-sm">49.7%</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-white font-medium tabular-nums">
+                              ${(parseFloat(kiltAmount) * 0.01816).toFixed(2)}
+                            </div>
+                            <div className="text-white/60 text-sm">70,446.58 KILT</div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Mini Position Management Actions */}
-                      <div className="flex gap-1 mt-1">
+                      {/* Fees Earned */}
+                      <div className="bg-white/5 rounded-2xl p-4 mb-6">
+                        <div className="text-white/60 text-sm mb-2">Fees earned</div>
+                        <div className="text-2xl font-bold text-white tabular-nums mb-3">
+                          ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <span className="text-white text-xs">Ξ</span>
+                              </div>
+                              <span className="text-white/80 text-sm">48.99%</span>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-white text-sm tabular-nums">${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
+                              <div className="text-white/60 text-xs">0.001 WETH</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                                <span className="text-white text-xs">K</span>
+                              </div>
+                              <span className="text-white/80 text-sm">51.01%</span>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-white text-sm tabular-nums">${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
+                              <div className="text-white/60 text-xs">233.87 KILT</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-3 mb-4">
                         {!isClosed ? (
                           <>
                             <Button
@@ -417,9 +451,10 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 text-xs bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border-emerald-400/30 hover:border-emerald-400/60 text-emerald-400 hover:text-emerald-300 hover:bg-gradient-to-br hover:from-emerald-500/20 hover:to-emerald-600/10 h-4 px-1"
+                              className="flex-1 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border-emerald-500/30 hover:border-emerald-400/60 text-emerald-400 hover:text-emerald-300 hover:bg-gradient-to-r hover:from-emerald-500/20 hover:to-emerald-600/20 h-10"
                             >
-                              <Plus className="h-2 w-2" />
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add
                             </Button>
                             <Button
                               variant="outline"
@@ -428,9 +463,10 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 text-xs bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-400/30 hover:border-red-400/60 text-red-400 hover:text-red-300 hover:bg-gradient-to-br hover:from-red-500/20 hover:to-red-600/10 h-4 px-1"
+                              className="flex-1 bg-gradient-to-r from-red-500/10 to-red-600/10 border-red-500/30 hover:border-red-400/60 text-red-400 hover:text-red-300 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-red-600/20 h-10"
                             >
-                              <Minus className="h-2 w-2" />
+                              <Minus className="h-4 w-4 mr-2" />
+                              Remove
                             </Button>
                             <Button
                               variant="outline"
@@ -439,16 +475,33 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 text-xs bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-400/30 hover:border-blue-400/60 text-blue-400 hover:text-blue-300 hover:bg-gradient-to-br hover:from-blue-500/20 hover:to-blue-600/10 h-4 px-1"
+                              className="flex-1 bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-500/30 hover:border-blue-400/60 text-blue-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-blue-600/20 h-10"
                             >
-                              <DollarSign className="h-2 w-2" />
+                              <DollarSign className="h-4 w-4 mr-2" />
+                              Collect
                             </Button>
                           </>
                         ) : (
-                          <div className="flex-1 text-center py-1 text-white/40 text-xs">
-                            Closed
+                          <div className="flex-1 text-center py-3 text-white/40 text-sm">
+                            Position Closed
                           </div>
                         )}
+                      </div>
+
+                      {/* Position Details */}
+                      <div className="pt-4 border-t border-white/10">
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="text-white/60">NFT ID</div>
+                          <div className="text-white">#{position.tokenId}</div>
+                        </div>
+                        <div className="flex items-center justify-between text-sm mt-2">
+                          <div className="text-white/60">Fee Tier</div>
+                          <div className="text-white">{(position.fee / 10000).toFixed(2)}%</div>
+                        </div>
+                        <div className="flex items-center justify-between text-sm mt-2">
+                          <div className="text-white/60">Range</div>
+                          <div className="text-white">Full Range</div>
+                        </div>
                       </div>
                     </div>
                   </div>

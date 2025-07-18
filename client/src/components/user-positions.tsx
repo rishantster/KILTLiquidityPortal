@@ -752,7 +752,7 @@ export function UserPositions() {
               
               {/* Action Button */}
               <Button
-                onClick={handlePositionManagement}
+                onClick={handleLiquidityManagement}
                 disabled={isProcessing}
                 className="w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-medium py-3 text-base"
               >

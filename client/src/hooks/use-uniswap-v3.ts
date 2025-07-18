@@ -70,8 +70,8 @@ const baseClient = createPublicClient({
   transport: http('https://base-rpc.publicnode.com'),
 });
 
-// Contract addresses on Base network
-const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf82D4C7c848';
+// Contract addresses on Base network - Updated from official Uniswap docs
+const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1';
 
 // Custom hook to fetch blockchain configuration from admin panel
 function useBlockchainConfig() {

@@ -506,7 +506,7 @@ export function MainDashboard() {
                   <p className="text-white font-bold text-sm sm:text-lg text-numbers">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
-                  <p className="text-emerald-300 text-xs text-body">+0.50%</p>
+                  <p className="text-pink-300 text-xs text-body">+0.50%</p>
                 </div>
 
                 {/* Market Cap */}
@@ -518,7 +518,7 @@ export function MainDashboard() {
                   <p className="text-white font-bold text-sm sm:text-lg text-numbers">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
-                  <p className="text-blue-300 text-xs text-body">276.97M circulating</p>
+                  <p className="text-pink-300 text-xs text-body">276.97M circulating</p>
                 </div>
 
                 {/* Your Reward APR */}
@@ -548,7 +548,7 @@ export function MainDashboard() {
                   <p className="text-white font-bold text-sm sm:text-lg text-numbers">
                     {unifiedData?.maxAPRData?.aprRange || '31%'}
                   </p>
-                  <p className="text-amber-300 text-xs text-body">High yields available!</p>
+                  <p className="text-pink-300 text-xs text-body">High yields available!</p>
                 </div>
               </div>
             </div>
@@ -558,7 +558,7 @@ export function MainDashboard() {
               {/* Left Column - Position Registration */}
               <div className="h-full">
                 <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2 mb-3">
-                  <Plus className="h-3 w-3 text-emerald-400" />
+                  <Plus className="h-3 w-3 text-pink-400" />
                   Register Existing Positions
                 </h2>
                 <div className="h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
@@ -569,7 +569,7 @@ export function MainDashboard() {
               {/* Right Column - Quick Add Liquidity */}
               <div className="h-full">
                 <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2 mb-3">
-                  <Zap className="h-3 w-3 text-cyan-400" />
+                  <Zap className="h-3 w-3 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
                 <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col">
@@ -676,7 +676,7 @@ export function MainDashboard() {
                           
                           return (
                             <div>
-                              <div className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent text-numbers mb-2">
+                              <div className="text-lg font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent text-numbers mb-2">
                                 ~${amounts.totalValue}
                               </div>
                               <div className="flex items-center justify-center space-x-4 text-white/60 text-xs text-body">

@@ -104,24 +104,103 @@
 }
 
 /* FORCE BRIGHT PINK THEME OVERRIDES */
-.text-blue-300, .text-blue-400, .text-blue-500 {
+.text-blue-300, .text-blue-400, .text-blue-500, .text-blue-600 {
   color: var(--neon-pink-text) !important;
+  text-shadow: 0 0 10px var(--neon-pink-glow);
 }
 
-.bg-blue-500\/20, .bg-blue-600 {
+.bg-blue-500\/20, .bg-blue-600, .bg-blue-500 {
   background: var(--neon-pink-bg) !important;
 }
 
-.border-blue-500\/30 {
+.border-blue-500\/30, .border-blue-500 {
   border-color: var(--neon-pink-border) !important;
 }
 
-.text-emerald-400, .text-emerald-500 {
+.text-emerald-400, .text-emerald-500, .text-cyan-400, .text-cyan-500 {
   color: var(--neon-pink-text) !important;
+  text-shadow: 0 0 10px var(--neon-pink-glow);
 }
 
-.bg-emerald-500 {
+.bg-emerald-500, .bg-cyan-500 {
   background: var(--neon-pink) !important;
+}
+
+.text-purple-400, .text-purple-500 {
+  color: var(--neon-pink-text) !important;
+  text-shadow: 0 0 10px var(--neon-pink-glow);
+}
+
+.bg-purple-500 {
+  background: var(--neon-pink) !important;
+}
+
+/* ENHANCED TEXT VISIBILITY - CYBERPUNK PINK THEME */
+.text-white {
+  color: #ffffff !important;
+  text-shadow: 
+    0 0 4px rgba(0, 0, 0, 0.9), 
+    0 0 8px rgba(0, 0, 0, 0.8), 
+    0 0 12px rgba(0, 0, 0, 0.6),
+    0 0 2px rgba(255, 0, 102, 0.4);
+}
+
+.text-white\/60, .text-white\/80, .text-white\/70 {
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 
+    0 0 4px rgba(0, 0, 0, 0.9), 
+    0 0 8px rgba(0, 0, 0, 0.8), 
+    0 0 12px rgba(0, 0, 0, 0.6),
+    0 0 2px rgba(255, 0, 102, 0.4);
+}
+
+.text-white\/50 {
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-shadow: 
+    0 0 4px rgba(0, 0, 0, 0.9), 
+    0 0 8px rgba(0, 0, 0, 0.8), 
+    0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+.text-white\/40 {
+  color: rgba(255, 255, 255, 0.75) !important;
+  text-shadow: 
+    0 0 4px rgba(0, 0, 0, 0.9), 
+    0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+/* CYBERPUNK PINK THEME TEXT CLASSES */
+.text-pink-300, .text-pink-400 {
+  color: var(--neon-pink-text) !important;
+  text-shadow: 
+    0 0 8px var(--neon-pink-glow),
+    0 0 15px var(--neon-pink-glow),
+    0 0 3px rgba(0, 0, 0, 0.9);
+}
+
+.text-pink-500, .text-pink-600 {
+  color: var(--neon-pink) !important;
+  text-shadow: 
+    0 0 10px var(--neon-pink-glow),
+    0 0 20px var(--neon-pink-glow),
+    0 0 3px rgba(0, 0, 0, 0.9);
+}
+
+/* ENHANCED READABILITY FOR SMALL TEXT */
+.text-xs, .text-sm {
+  font-weight: 500 !important;
+  text-shadow: 
+    0 0 3px rgba(0, 0, 0, 0.95), 
+    0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+/* CYBERPUNK BRAND COLORS */
+.text-emerald-300, .text-emerald-400 {
+  color: var(--terminal-green) !important;
+  text-shadow: 
+    0 0 8px var(--terminal-green-glow),
+    0 0 15px var(--terminal-green-glow),
+    0 0 3px rgba(0, 0, 0, 0.9);
 }
 
 .dark {
@@ -155,8 +234,10 @@
     font-family: 'Courier New', 'JetBrains Mono', 'Monaco', monospace;
     color: #ffffff;
     background: 
-      /* Dark overlay over video */
-      linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.7)),
+      /* Strong pink cyberpunk overlay */
+      linear-gradient(rgba(255, 0, 102, 0.12), rgba(255, 0, 102, 0.08)),
+      /* Heavy dark overlay for text contrast */
+      linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.8)),
       /* Pure black fallback */
       #000000;
     background-size: cover;
@@ -165,7 +246,7 @@
     background-attachment: fixed;
     min-height: 100vh;
     letter-spacing: 0.05em;
-    font-weight: 400;
+    font-weight: 500;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -195,19 +276,21 @@
     width: 100%;
     height: 100%;
     background: 
-      /* Subtle dark overlay */
-      linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)),
-      /* Terminal scan lines */
+      /* Strong pink cyberpunk overlay */
+      linear-gradient(rgba(255, 0, 102, 0.25), rgba(255, 0, 102, 0.18)),
+      /* Heavy dark overlay for maximum text visibility */
+      linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.8)),
+      /* Bright pink terminal scan lines */
       repeating-linear-gradient(
         0deg,
         transparent,
-        transparent 3px,
-        rgba(255, 0, 102, 0.03) 3px,
-        rgba(255, 0, 102, 0.03) 6px
+        transparent 2px,
+        rgba(255, 0, 102, 0.2) 2px,
+        rgba(255, 0, 102, 0.2) 4px
       );
     z-index: -1;
     pointer-events: none;
-    animation: scanEffect 4s linear infinite;
+    animation: scanEffect 3s linear infinite;
   }
   
   @keyframes scanEffect {
@@ -230,11 +313,13 @@
   .theme-card {
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
     backdrop-filter: blur(2px);
-    border: 2px solid rgba(255, 0, 102, 0.2);
+    border: 2px solid rgba(255, 0, 102, 0.4);
     border-radius: 0.25rem;
     transition: all 0.3s ease;
     color: #ffffff;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.95) inset;
+    box-shadow: 
+      0 0 20px rgba(0, 0, 0, 0.95) inset,
+      0 0 15px rgba(255, 0, 102, 0.2);
     font-family: 'Courier New', monospace;
     letter-spacing: 0.05em;
   }

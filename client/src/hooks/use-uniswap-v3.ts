@@ -95,6 +95,24 @@ export function useUniswapV3() {
   const [ethBalance, setEthBalance] = useState('0');
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
 
+  // Fetch real position data from API
+  const { data: positionData = [], isLoading: isLoadingPositions } = useQuery({
+    queryKey: ['/api/positions/wallet', address],
+    queryFn: async () => {
+      if (!address) return [];
+      
+      const response = await fetch(`/api/positions/wallet/${address}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch positions');
+      }
+      
+      return response.json();
+    },
+    enabled: !!address && isConnected,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 15000, // Consider stale after 15 seconds
+  });
+
   // Token addresses from admin panel configuration
   const KILT_TOKEN = blockchainConfig?.kiltTokenAddress || '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
   const WETH_TOKEN = blockchainConfig?.wethTokenAddress || '0x4200000000000000000000000000000000000006';
@@ -448,6 +466,18 @@ export function useUniswapV3() {
     }
   };
 
+  // Process position data
+  const processedPositions = Array.isArray(positionData?.positions) ? positionData.positions : [];
+  const kiltEthPositions = processedPositions.filter(pos => {
+    // Only show active positions (liquidity > 0)
+    if (!pos.liquidity || pos.liquidity === '0') return false;
+    
+    // Check if position contains KILT token
+    const kiltTokenAddress = KILT_TOKEN.toLowerCase();
+    return pos.token0Address?.toLowerCase() === kiltTokenAddress || 
+           pos.token1Address?.toLowerCase() === kiltTokenAddress;
+  });
+
   return {
     // Real blockchain balances
     kiltBalance,
@@ -455,14 +485,14 @@ export function useUniswapV3() {
     ethBalance,
     preferredEthToken: { type: 'WETH' as const },
     
-    // Position data - require real blockchain data
-    userPositions: [],
-    kiltEthPositions: [],
+    // Position data - real blockchain data
+    userPositions: processedPositions,
+    kiltEthPositions,
     poolData: null,
     poolExists: !isConfigLoading && !!POOL_ADDRESS,  // Pool exists if configuration loaded and pool address is set
     
     // Loading states
-    isLoading: isLoadingBalances,
+    isLoading: isLoadingBalances || isLoadingPositions,
     isIncreasing: false,
     isDecreasing: false,
     isCollecting: false,

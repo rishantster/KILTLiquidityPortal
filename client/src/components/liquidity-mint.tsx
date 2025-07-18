@@ -722,6 +722,7 @@ export function LiquidityMint({
         <Button
           onClick={handleMintPosition}
           disabled={isMinting || !kiltAmount || !ethAmount || !tokensApproved}
+          title={`Debug: isMinting=${isMinting}, kiltAmount=${kiltAmount}, ethAmount=${ethAmount}, tokensApproved=${tokensApproved}`}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
             !isMinting && kiltAmount && ethAmount && tokensApproved
               ? 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white' 

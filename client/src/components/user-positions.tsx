@@ -345,7 +345,7 @@ export function UserPositions() {
                 const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
                 
                 return (
-                  <div key={position.tokenId.toString()} className={`relative overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] ${
+                  <div key={position.tokenId.toString()} className={`relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] ${
                     isClosed 
                       ? 'bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/40' 
                       : 'bg-gradient-to-br from-slate-900/90 to-slate-800/70 border-slate-700/50 hover:border-slate-600/60'
@@ -353,34 +353,34 @@ export function UserPositions() {
                     {/* Header */}
                     <div className="p-6 pb-4">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-white/60 text-sm font-medium">Position</span>
+                        <span className="text-white/60 text-lg font-medium">Position</span>
                         <Badge 
                           variant={inRange ? "default" : "secondary"}
-                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border-amber-500/30"} text-xs px-3 py-1`}
+                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border-amber-500/30"} text-sm px-3 py-1`}
                         >
                           {inRange ? 'In Range' : 'Out of Range'}
                         </Badge>
                       </div>
-                      <div className="text-3xl font-bold text-white tabular-nums">
+                      <div className="text-4xl font-bold text-white tabular-nums">
                         ${positionValue.toFixed(2)}
                       </div>
                     </div>
 
                     {/* Token Holdings */}
                     <div className="px-6 pb-4">
-                      <div className="space-y-3 mb-6">
+                      <div className="space-y-4 mb-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                              <span className="text-white text-sm font-bold">Ξ</span>
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <span className="text-white text-lg font-bold">Ξ</span>
                             </div>
                             <div>
-                              <div className="text-white font-medium">{ethAmount} WETH</div>
+                              <div className="text-white font-medium text-lg">{ethAmount} WETH</div>
                               <div className="text-white/60 text-sm">50.3%</div>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-white font-medium tabular-nums">
+                            <div className="text-white font-medium tabular-nums text-lg">
                               ${(parseFloat(ethAmount) * 3635).toFixed(2)}
                             </div>
                             <div className="text-white/60 text-sm">0.358 WETH</div>
@@ -388,16 +388,16 @@ export function UserPositions() {
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                              <span className="text-white text-sm font-bold">K</span>
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <span className="text-white text-lg font-bold">K</span>
                             </div>
                             <div>
-                              <div className="text-white font-medium">{kiltAmount} KILT</div>
+                              <div className="text-white font-medium text-lg">{kiltAmount} KILT</div>
                               <div className="text-white/60 text-sm">49.7%</div>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-white font-medium tabular-nums">
+                            <div className="text-white font-medium tabular-nums text-lg">
                               ${(parseFloat(kiltAmount) * 0.01816).toFixed(2)}
                             </div>
                             <div className="text-white/60 text-sm">70,446.58 KILT</div>
@@ -407,15 +407,15 @@ export function UserPositions() {
 
                       {/* Fees Earned */}
                       <div className="bg-white/5 rounded-2xl p-4 mb-6">
-                        <div className="text-white/60 text-sm mb-2">Fees earned</div>
-                        <div className="text-2xl font-bold text-white tabular-nums mb-3">
+                        <div className="text-white/60 text-sm mb-3">Fees earned</div>
+                        <div className="text-3xl font-bold text-white tabular-nums mb-4">
                           ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                                <span className="text-white text-xs">Ξ</span>
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <span className="text-white text-sm">Ξ</span>
                               </div>
                               <span className="text-white/80 text-sm">48.99%</span>
                             </div>
@@ -426,8 +426,8 @@ export function UserPositions() {
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                                <span className="text-white text-xs">K</span>
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                                <span className="text-white text-sm">K</span>
                               </div>
                               <span className="text-white/80 text-sm">51.01%</span>
                             </div>
@@ -440,41 +440,35 @@ export function UserPositions() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-3 mb-4">
+                      <div className="flex gap-2 mb-6">
                         {!isClosed ? (
                           <>
                             <Button
-                              variant="outline"
-                              size="sm"
                               onClick={() => {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border-emerald-500/30 hover:border-emerald-400/60 text-emerald-400 hover:text-emerald-300 hover:bg-gradient-to-r hover:from-emerald-500/20 hover:to-emerald-600/20 h-10"
+                              className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11"
                             >
                               <Plus className="h-4 w-4 mr-2" />
                               Add
                             </Button>
                             <Button
-                              variant="outline"
-                              size="sm"
                               onClick={() => {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 bg-gradient-to-r from-red-500/10 to-red-600/10 border-red-500/30 hover:border-red-400/60 text-red-400 hover:text-red-300 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-red-600/20 h-10"
+                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11"
                             >
                               <Minus className="h-4 w-4 mr-2" />
                               Remove
                             </Button>
                             <Button
-                              variant="outline"
-                              size="sm"
                               onClick={() => {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-500/30 hover:border-blue-400/60 text-blue-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-blue-600/20 h-10"
+                              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11"
                             >
                               <DollarSign className="h-4 w-4 mr-2" />
                               Collect
@@ -489,17 +483,19 @@ export function UserPositions() {
 
                       {/* Position Details */}
                       <div className="pt-4 border-t border-white/10">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="text-white/60">NFT ID</div>
-                          <div className="text-white">#{position.tokenId}</div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm mt-2">
-                          <div className="text-white/60">Fee Tier</div>
-                          <div className="text-white">{(position.fee / 10000).toFixed(2)}%</div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm mt-2">
-                          <div className="text-white/60">Range</div>
-                          <div className="text-white">Full Range</div>
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="text-white/60 mb-1">NFT ID</div>
+                            <div className="text-white font-medium">#{position.tokenId}</div>
+                          </div>
+                          <div>
+                            <div className="text-white/60 mb-1">Fee Tier</div>
+                            <div className="text-white font-medium">{(position.fee / 10000).toFixed(2)}%</div>
+                          </div>
+                          <div>
+                            <div className="text-white/60 mb-1">Range</div>
+                            <div className="text-white font-medium">Full Range</div>
+                          </div>
                         </div>
                       </div>
                     </div>

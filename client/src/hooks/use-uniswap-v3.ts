@@ -70,7 +70,7 @@ const baseClient = createPublicClient({
 });
 
 // Contract addresses on Base network
-const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BF5754d4cb5C8bD0Ce2C';
+const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf82D4C7c848';
 const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
 const WETH_TOKEN = '0x4200000000000000000000000000000000000006';
 
@@ -180,41 +180,148 @@ export function useUniswapV3() {
     return amount;
   };
 
-  const approveToken = async (token: string, amount: string) => {
+  const approveToken = async ({ tokenAddress, amount }: { tokenAddress: `0x${string}`, amount: bigint }) => {
     setIsApproving(true);
     try {
-      // Simplified approval logic
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: "Token approved",
-        description: `${token} approved for trading`,
+      if (!walletClient) {
+        throw new Error('Wallet client not available');
+      }
+
+      // Call the ERC20 approve function
+      const txHash = await walletClient.writeContract({
+        address: tokenAddress,
+        abi: [
+          {
+            inputs: [
+              { name: 'spender', type: 'address' },
+              { name: 'amount', type: 'uint256' }
+            ],
+            name: 'approve',
+            outputs: [{ name: '', type: 'bool' }],
+            type: 'function'
+          }
+        ],
+        functionName: 'approve',
+        args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount]
       });
-    } catch (error) {
+
+      // Wait for transaction confirmation
+      await baseClient.waitForTransactionReceipt({ hash: txHash });
+
       toast({
-        title: "Approval failed",
-        description: "Please try again",
+        title: "Token Approved",
+        description: `Token approved for position manager`,
+      });
+
+      return txHash;
+    } catch (error) {
+      const errorMessage = (error as Error)?.message || 'Failed to approve token';
+      toast({
+        title: "Approval Failed",
+        description: errorMessage,
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsApproving(false);
     }
   };
 
-  const mintPosition = async (params: any) => {
+  const mintPosition = async (params: {
+    token0: `0x${string}`,
+    token1: `0x${string}`,
+    fee: number,
+    tickLower: number,
+    tickUpper: number,
+    amount0Desired: bigint,
+    amount1Desired: bigint,
+    amount0Min: bigint,
+    amount1Min: bigint,
+    recipient: `0x${string}`,
+    deadline: number,
+    isNativeETH?: boolean
+  }) => {
     setIsMinting(true);
     try {
-      // Simplified mint logic
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      toast({
-        title: "Position created",
-        description: "Your liquidity position has been created",
+      if (!walletClient) {
+        throw new Error('Wallet client not available');
+      }
+
+      // Calculate ETH value for native ETH transactions
+      const ethValue = params.isNativeETH ? (
+        params.token0.toLowerCase() === WETH_TOKEN.toLowerCase() ? params.amount0Desired : params.amount1Desired
+      ) : 0n;
+
+      // Call the actual Uniswap V3 Position Manager contract
+      const txHash = await walletClient.writeContract({
+        address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+        abi: [
+          {
+            inputs: [
+              {
+                components: [
+                  { name: 'token0', type: 'address' },
+                  { name: 'token1', type: 'address' },
+                  { name: 'fee', type: 'uint24' },
+                  { name: 'tickLower', type: 'int24' },
+                  { name: 'tickUpper', type: 'int24' },
+                  { name: 'amount0Desired', type: 'uint256' },
+                  { name: 'amount1Desired', type: 'uint256' },
+                  { name: 'amount0Min', type: 'uint256' },
+                  { name: 'amount1Min', type: 'uint256' },
+                  { name: 'recipient', type: 'address' },
+                  { name: 'deadline', type: 'uint256' }
+                ],
+                name: 'params',
+                type: 'tuple'
+              }
+            ],
+            name: 'mint',
+            outputs: [
+              { name: 'tokenId', type: 'uint256' },
+              { name: 'liquidity', type: 'uint128' },
+              { name: 'amount0', type: 'uint256' },
+              { name: 'amount1', type: 'uint256' }
+            ],
+            type: 'function'
+          }
+        ],
+        functionName: 'mint',
+        args: [
+          {
+            token0: params.token0,
+            token1: params.token1,
+            fee: params.fee,
+            tickLower: params.tickLower,
+            tickUpper: params.tickUpper,
+            amount0Desired: params.amount0Desired,
+            amount1Desired: params.amount1Desired,
+            amount0Min: params.amount0Min,
+            amount1Min: params.amount1Min,
+            recipient: params.recipient,
+            deadline: BigInt(params.deadline)
+          }
+        ],
+        value: ethValue
       });
-    } catch (error) {
+
+      // Wait for transaction confirmation
+      await baseClient.waitForTransactionReceipt({ hash: txHash });
+
       toast({
-        title: "Minting failed",
-        description: "Please try again",
+        title: "Position Created!",
+        description: `Transaction hash: ${txHash}`,
+      });
+
+      return txHash;
+    } catch (error) {
+      const errorMessage = (error as Error)?.message || 'Failed to create position';
+      toast({
+        title: "Position Creation Failed",
+        description: errorMessage,
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsMinting(false);
     }

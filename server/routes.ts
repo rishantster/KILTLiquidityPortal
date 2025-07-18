@@ -43,6 +43,18 @@ import rewardDistributionRoutes from "./routes/reward-distribution";
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
+  // Blockchain configuration endpoint
+  app.get("/api/blockchain-config", async (req, res) => {
+    try {
+      const config = await blockchainConfigService.getConfiguration();
+      res.setHeader('Content-Type', 'application/json');
+      res.json(config);
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Debug endpoint to check database configuration
   app.get("/api/debug/treasury-config", async (req, res) => {
     try {

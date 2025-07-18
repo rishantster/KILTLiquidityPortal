@@ -3,6 +3,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useToast } from './use-toast';
 import { createPublicClient, createWalletClient, custom, http, formatUnits, parseUnits, maxUint256 } from 'viem';
 import { base } from 'viem/chains';
+import { useQuery } from '@tanstack/react-query';
 
 // ERC20 ABI for token operations
 const ERC20_ABI = [
@@ -71,12 +72,22 @@ const baseClient = createPublicClient({
 
 // Contract addresses on Base network
 const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf82D4C7c848';
-const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
-const WETH_TOKEN = '0x4200000000000000000000000000000000000006';
+
+// Custom hook to fetch blockchain configuration from admin panel
+function useBlockchainConfig() {
+  return useQuery({
+    queryKey: ['/api/blockchain-config'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
 
 export function useUniswapV3() {
   const { address, isConnected } = useWallet();
   const { toast } = useToast();
+  
+  // Get blockchain configuration from admin panel - MUST be called unconditionally
+  const { data: blockchainConfig, isLoading: isConfigLoading } = useBlockchainConfig();
+  
   const [isMinting, setIsMinting] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [kiltBalance, setKiltBalance] = useState('0');
@@ -84,9 +95,10 @@ export function useUniswapV3() {
   const [ethBalance, setEthBalance] = useState('0');
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
 
-  // Token addresses on Base
-  const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
-  const WETH_TOKEN = '0x4200000000000000000000000000000000000006';
+  // Token addresses from admin panel configuration
+  const KILT_TOKEN = blockchainConfig?.kiltTokenAddress || '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
+  const WETH_TOKEN = blockchainConfig?.wethTokenAddress || '0x4200000000000000000000000000000000000006';
+  const POOL_ADDRESS = blockchainConfig?.poolAddress;
 
   // Real blockchain balance fetching with timeout and retry
   const fetchRealBalances = async () => {
@@ -338,7 +350,7 @@ export function useUniswapV3() {
     userPositions: [],
     kiltEthPositions: [],
     poolData: null,
-    poolExists: true,  // Enable for testing - pool exists on Base network
+    poolExists: !isConfigLoading && !!POOL_ADDRESS,  // Pool exists if configuration loaded and pool address is set
     
     // Loading states
     isLoading: isLoadingBalances,

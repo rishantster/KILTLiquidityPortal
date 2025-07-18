@@ -351,41 +351,41 @@ export function MainDashboard() {
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
+                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
               >
-                <SiX className="h-5 w-5 text-white/80 hover:text-white transition-colors duration-300" />
+                <SiX className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
               </a>
               <a 
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
+                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
               >
-                <SiGithub className="h-5 w-5 text-white/80 hover:text-white transition-colors duration-300" />
+                <SiGithub className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
               </a>
               <a 
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
+                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
               >
-                <SiDiscord className="h-5 w-5 text-white/80 hover:text-white transition-colors duration-300" />
+                <SiDiscord className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
               </a>
               <a 
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
+                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
               >
-                <SiTelegram className="h-5 w-5 text-white/80 hover:text-white transition-colors duration-300" />
+                <SiTelegram className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
               </a>
               <a 
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all duration-300"
+                className="p-3 bg-black/60 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
               >
-                <SiMedium className="h-5 w-5 text-white/80 hover:text-white transition-colors duration-300" />
+                <SiMedium className="h-5 w-5 text-white/80 hover:text-pink-400 transition-colors duration-300" />
               </a>
             </div>
           </div>

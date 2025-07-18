@@ -454,28 +454,28 @@ export function MainDashboard() {
           <TabsList className="grid w-full grid-cols-4 bg-black/95 border border-matrix-green/30 p-0.5 rounded-lg mb-4 h-8 gap-0.5">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
             >
               <TrendingUp className="h-3 w-3 mr-1 flex-shrink-0" />
               <span className="text-xs font-mono truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
             >
               <Plus className="h-3 w-3 mr-1 flex-shrink-0" />
               <span className="text-xs font-mono truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
             >
               <Award className="h-3 w-3 mr-1 flex-shrink-0" />
               <span className="text-xs font-mono truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green text-white/70 rounded text-xs font-medium font-mono transition-all px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/10 hover:text-matrix-green"
+              className="data-[state=active]:bg-matrix-green/20 data-[state=active]:text-matrix-green data-[state=active]:shadow-[0_0_10px_rgba(0,255,65,0.3)] text-white/70 rounded text-xs font-medium font-mono transition-all duration-300 px-2 py-1 flex items-center justify-center min-w-0 hover:bg-matrix-green/15 hover:text-matrix-green hover:shadow-[0_0_8px_rgba(0,255,65,0.2)] hover:scale-105 hover:border-matrix-green/40"
             >
               <Wallet className="h-3 w-3 mr-1 flex-shrink-0" />
               <span className="text-xs font-mono truncate">Position</span>

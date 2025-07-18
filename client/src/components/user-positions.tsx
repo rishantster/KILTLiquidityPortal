@@ -357,11 +357,7 @@ export function UserPositions() {
                 const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
                 
                 return (
-                  <div key={position.tokenId.toString()} className={`relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] ${
-                    isClosed 
-                      ? 'bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/40' 
-                      : 'bg-gradient-to-br from-slate-900/90 to-slate-800/70 border-[#ff0066]/50 hover:border-[#ff0066]/80 shadow-lg shadow-[#ff0066]/20 hover:shadow-[#ff0066]/40 hover:shadow-2xl'
-                  }`} style={!isClosed ? {
+                  <div key={position.tokenId.toString()} className="relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] from-slate-900/90 to-slate-800/70 border-[#ff0066]/50 hover:border-[#ff0066]/80 shadow-lg shadow-[#ff0066]/20 hover:shadow-[#ff0066]/40 hover:shadow-2xl bg-[#29d025]" style={!isClosed ? {
                     boxShadow: `0 0 20px rgba(255, 0, 102, 0.3), 0 0 40px rgba(255, 0, 102, 0.1)`,
                     filter: 'drop-shadow(0 0 8px rgba(255, 0, 102, 0.4))'
                   } : {}}>
@@ -372,7 +368,6 @@ export function UserPositions() {
                         animation: 'neonPulse 3s ease-in-out infinite'
                       }}></div>
                     )}
-                    
                     {/* Header */}
                     <div className="p-3 pb-2 relative z-10">
                       <div className="flex items-center justify-between mb-2">
@@ -393,7 +388,6 @@ export function UserPositions() {
                         </span>
                       </div>
                     </div>
-
                     {/* Token Holdings */}
                     <div className="px-3 pb-2 relative z-10">
                       <div className="grid grid-cols-2 gap-2 mb-3">
@@ -554,7 +548,6 @@ export function UserPositions() {
           )}
         </CardContent>
       </Card>
-
       {/* Position Management Modal */}
       {selectedPosition && managementMode && (
         <Card className="cluely-card rounded-2xl">
@@ -649,7 +642,6 @@ export function UserPositions() {
           </CardContent>
         </Card>
       )}
-
       {/* Rewards Summary */}
       {totalUnclaimed > 0 && (
         <Card className="cluely-card rounded-2xl">

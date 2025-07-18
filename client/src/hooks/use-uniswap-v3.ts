@@ -1,17 +1,101 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWallet } from '@/contexts/wallet-context';
 import { useToast } from './use-toast';
+import { createPublicClient, http, formatUnits, parseUnits } from 'viem';
+import { base } from 'viem/chains';
+
+// ERC20 ABI for token balance queries
+const ERC20_ABI = [
+  {
+    inputs: [{ name: 'account', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'spender', type: 'address' }, { name: 'amount', type: 'uint256' }],
+    name: 'approve',
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+] as const;
+
+// Create Base network client
+const baseClient = createPublicClient({
+  chain: base,
+  transport: http('https://base.llamarpc.com'),
+});
 
 export function useUniswapV3() {
-  const { address } = useWallet();
+  const { address, isConnected } = useWallet();
   const { toast } = useToast();
   const [isMinting, setIsMinting] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [kiltBalance, setKiltBalance] = useState('0');
+  const [wethBalance, setWethBalance] = useState('0');
+  const [ethBalance, setEthBalance] = useState('0');
+  const [isLoadingBalances, setIsLoadingBalances] = useState(false);
 
-  // Simplified mock data for cleanup phase
-  const kiltBalance = '0';
-  const wethBalance = '0';
-  const ethBalance = '0';
+  // Token addresses on Base
+  const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
+  const WETH_TOKEN = '0x4200000000000000000000000000000000000006';
+
+  // Real blockchain balance fetching
+  const fetchRealBalances = async () => {
+    if (!address || !isConnected) return;
+
+    setIsLoadingBalances(true);
+    try {
+      // Fetch all balances in parallel
+      const [kiltBalanceWei, wethBalanceWei, ethBalanceWei] = await Promise.all([
+        // KILT token balance
+        baseClient.readContract({
+          address: KILT_TOKEN as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: 'balanceOf',
+          args: [address as `0x${string}`],
+        }),
+        // WETH token balance
+        baseClient.readContract({
+          address: WETH_TOKEN as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: 'balanceOf',
+          args: [address as `0x${string}`],
+        }),
+        // Native ETH balance
+        baseClient.getBalance({
+          address: address as `0x${string}`,
+        }),
+      ]);
+
+      // Convert wei to readable format
+      setKiltBalance(formatUnits(kiltBalanceWei, 18));
+      setWethBalance(formatUnits(wethBalanceWei, 18));
+      setEthBalance(formatUnits(ethBalanceWei, 18));
+    } catch (error) {
+      console.error('Failed to fetch balances:', error);
+      toast({
+        title: "Balance fetch failed",
+        description: "Unable to fetch wallet balances from blockchain",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingBalances(false);
+    }
+  };
+
+  // Fetch balances when wallet connects
+  useEffect(() => {
+    if (isConnected && address) {
+      fetchRealBalances();
+    } else {
+      setKiltBalance('0');
+      setWethBalance('0');
+      setEthBalance('0');
+    }
+  }, [address, isConnected]);
 
   const formatTokenAmount = (amount: string | bigint) => {
     try {
@@ -68,10 +152,10 @@ export function useUniswapV3() {
   };
 
   return {
-    // Balances - require real blockchain data
-    kiltBalance: '0',  // Will be fetched from blockchain
-    wethBalance: '0',  // Will be fetched from blockchain
-    ethBalance: '0',   // Will be fetched from blockchain
+    // Real blockchain balances
+    kiltBalance,
+    wethBalance,
+    ethBalance,
     preferredEthToken: { type: 'WETH' as const },
     
     // Position data - require real blockchain data
@@ -81,7 +165,7 @@ export function useUniswapV3() {
     poolExists: false,  // Will be determined from blockchain
     
     // Loading states
-    isLoading: false,
+    isLoading: isLoadingBalances,
     isIncreasing: false,
     isDecreasing: false,
     isCollecting: false,

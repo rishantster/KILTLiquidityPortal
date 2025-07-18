@@ -67,18 +67,10 @@ export class BlockchainConfigService {
 
       return config;
     } catch (error) {
-      // Error fetching blockchain configuration
+      console.error('Error fetching blockchain configuration:', error);
       
-      // Return fallback configuration to prevent system breakage
-      return {
-        kiltTokenAddress: '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8',
-        wethTokenAddress: '0x4200000000000000000000000000000000000006',
-        poolAddress: '0xB578b4c5539FD22D7a0E6682Ab645c623Bae9dEb',
-        poolFeeRate: 3000,
-        networkId: 8453,
-        treasuryWalletAddress: '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
-        isActive: true,
-      };
+      // NO FALLBACK VALUES - Real blockchain integration only
+      throw new Error('Failed to fetch blockchain configuration from admin panel');
     }
   }
 

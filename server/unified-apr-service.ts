@@ -73,6 +73,33 @@ class UnifiedAPRService {
       let poolTVL = 0;
       let actualPositionValue = 0;
       let usingRealData = false;
+
+      try {
+        // Import and use real blockchain services
+        const { uniswapIntegrationService } = await import('./uniswap-integration-service.js');
+        const { fixedRewardService } = await import('./fixed-reward-service.js');
+        
+        // Get real pool data from blockchain
+        const poolInfo = await uniswapIntegrationService.getPoolInfo();
+        const activeParticipants = await fixedRewardService.getAllActiveParticipants();
+        
+        if (poolInfo && poolInfo.totalValueUSD > 0) {
+          poolTVL = poolInfo.totalValueUSD;
+          usingRealData = true;
+        }
+        
+        if (activeParticipants.length > 0) {
+          actualPositionValue = activeParticipants.reduce((sum, p) => sum + p.currentValueUsd, 0) / activeParticipants.length;
+        }
+      } catch (error) {
+        console.error('Failed to fetch real blockchain data:', error);
+        throw new Error('Real blockchain data required - no fallbacks allowed');
+      }
+
+      // Require actual blockchain data
+      if (!usingRealData || poolTVL === 0) {
+        throw new Error('Real pool data from blockchain required');
+      }
       
       // Get actual position data from APP-REGISTERED positions only
       try {

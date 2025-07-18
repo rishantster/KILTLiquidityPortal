@@ -1956,6 +1956,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Blockchain configuration routes
   app.use("/api/blockchain", blockchainConfigRouter);
 
+  // Legacy endpoint for backward compatibility
+  app.get("/api/blockchain-config", async (req, res) => {
+    try {
+      const config = await blockchainConfigService.getConfiguration();
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch blockchain configuration' });
+    }
+  });
+
   // Removed uniswapPositionsRouter - consolidated into main routes
 
   // Admin simple routes (legacy support)

@@ -130,11 +130,11 @@ class UnifiedAPRService {
         const { uniswapIntegrationService } = await import('./uniswap-integration-service.js');
         const poolInfo = await uniswapIntegrationService.getPoolInfo();
         
-        if (!poolInfo || poolInfo.tvlUSD === 0) {
+        if (!poolInfo || poolInfo.totalValueUSD === 0) {
           throw new Error('Unable to fetch real pool TVL from Uniswap - blockchain data required');
         }
         
-        poolTVL = poolInfo.tvlUSD;
+        poolTVL = poolInfo.totalValueUSD;
         usingRealData = true;
         
       } catch (error) {

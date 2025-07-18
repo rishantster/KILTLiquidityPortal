@@ -42,6 +42,16 @@ export class LiquidityService {
     const availableWeth = parseFloat(wethBalance?.toString() || '0');
     const availableEth = parseFloat(ethBalance?.toString() || '0');
     
+    // Debug logging
+    console.log('Balance Debug:', {
+      availableKilt,
+      availableWeth,
+      availableEth,
+      kiltBalance: kiltBalance?.toString(),
+      wethBalance: wethBalance?.toString(),
+      ethBalance: ethBalance?.toString()
+    });
+    
     // Calculate total value of each token in USD
     const kiltValueUSD = availableKilt * kiltPrice;
     const wethValueUSD = availableWeth * ethPrice;
@@ -49,6 +59,14 @@ export class LiquidityService {
     
     // Select higher value token as base (preference to ETH over WETH)
     const useEthNotWeth = ethValueUSD >= wethValueUSD;
+    
+    console.log('ETH Selection Debug:', {
+      ethValueUSD,
+      wethValueUSD,
+      useEthNotWeth,
+      availableEth,
+      availableWeth
+    });
     const ethTokenValue = useEthNotWeth ? ethValueUSD : wethValueUSD;
     const availableEthToken = useEthNotWeth ? availableEth : availableWeth;
     

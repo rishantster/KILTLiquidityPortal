@@ -411,6 +411,16 @@ export function LiquidityMint({
         deadline: deadlineTime
       });
 
+      // Debug button state
+      console.log('Button State Debug:', {
+        isMinting,
+        kiltAmount,
+        ethAmount,
+        poolExists,
+        tokensApproved,
+        isButtonEnabled: !isMinting && !!kiltAmount && !!ethAmount && !!poolExists && !!tokensApproved
+      });
+
       // Mint parameters prepared for position creation
 
       const txHash = await mintPosition({
@@ -453,6 +463,16 @@ export function LiquidityMint({
       </Card>
     );
   }
+
+  // Debug button state
+  console.log('Button State Debug:', {
+    isMinting,
+    kiltAmount,
+    ethAmount,
+    poolExists,
+    tokensApproved,
+    isButtonEnabled: !isMinting && !!kiltAmount && !!ethAmount && !!poolExists && !!tokensApproved
+  });
 
   return (
     <div className="space-y-4">

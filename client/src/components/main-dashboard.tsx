@@ -428,8 +428,8 @@ export function MainDashboard() {
             <Badge 
               className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 font-mono ${
                 isConnected && isBaseNetworkConnected 
-                  ? 'bg-pink-500/20 text-pink-300 border-pink-500/30' 
-                  : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                  ? 'bg-pink-500/20 text-white border-pink-500/30' 
+                  : 'bg-gray-500/20 text-white border-gray-500/30'
               }`}
             >
               <BaseLogo className="w-4 h-4 mr-1.5" />

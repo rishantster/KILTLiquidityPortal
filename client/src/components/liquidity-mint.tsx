@@ -519,8 +519,29 @@ export function LiquidityMint({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 p-3">
+            <Input
+              type="number"
+              value={ethAmount}
+              onChange={(e) => handleEthAmountChange(e.target.value)}
+              placeholder={`Enter ${selectedEthToken} amount`}
+              min="0"
+              className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
+            />
+            <div className="flex justify-between items-center">
+              <span className="text-white/60 text-xs">
+                Balance: <span className="font-bold text-white">
+                  {selectedEthToken === 'ETH' 
+                    ? (ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000')
+                    : (wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000')
+                  }
+                </span> {selectedEthToken}
+              </span>
+              <span className="text-emerald-400 font-semibold text-xs px-2 py-1 bg-emerald-500/10 rounded">
+                Auto-calculated
+              </span>
+            </div>
             {/* ETH/WETH Token Selector */}
-            <div className="flex gap-2 mb-2">
+            <div className="flex gap-2 mt-2">
               <Button
                 variant={selectedEthToken === 'ETH' ? 'default' : 'outline'}
                 size="sm"
@@ -547,28 +568,6 @@ export function LiquidityMint({
                 <EthereumLogo className="w-3 h-3 mr-1" />
                 WETH
               </Button>
-            </div>
-            
-            <Input
-              type="number"
-              value={ethAmount}
-              onChange={(e) => handleEthAmountChange(e.target.value)}
-              placeholder={`Enter ${selectedEthToken} amount`}
-              min="0"
-              className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
-            />
-            <div className="flex justify-between items-center">
-              <span className="text-white/60 text-xs">
-                Balance: <span className="font-bold text-white">
-                  {selectedEthToken === 'ETH' 
-                    ? (ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000')
-                    : (wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000')
-                  }
-                </span> {selectedEthToken}
-              </span>
-              <span className="text-emerald-400 font-semibold text-xs px-2 py-1 bg-emerald-500/10 rounded">
-                Auto-calculated
-              </span>
             </div>
           </CardContent>
         </Card>

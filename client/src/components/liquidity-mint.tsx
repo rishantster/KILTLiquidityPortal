@@ -143,19 +143,9 @@ export function LiquidityMint({
       const ethValueUSD = parseFloat(ethBalance) * ethPrice;
       const wethValueUSD = parseFloat(wethBalance) * ethPrice;
       
-      console.log('ETH Selection Debug in LiquidityMint:', {
-        ethBalance,
-        wethBalance,
-        ethValueUSD,
-        wethValueUSD,
-        shouldUseEth: ethValueUSD >= wethValueUSD
-      });
-      
       // Always pick the bigger amount between ETH and WETH
       const shouldUseEth = ethValueUSD >= wethValueUSD;
-      const newToken = shouldUseEth ? 'ETH' : 'WETH';
-      console.log('Setting selectedEthToken to:', newToken);
-      setSelectedEthToken(newToken);
+      setSelectedEthToken(shouldUseEth ? 'ETH' : 'WETH');
     }
   }, [ethBalance, wethBalance]);
 
@@ -534,14 +524,11 @@ export function LiquidityMint({
               <Button
                 variant={selectedEthToken === 'ETH' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => {
-                  console.log('Manual ETH selection clicked');
-                  setSelectedEthToken('ETH');
-                }}
+                onClick={() => setSelectedEthToken('ETH')}
                 className={`flex-1 h-7 text-xs font-semibold transition-all duration-300 ${
                   selectedEthToken === 'ETH' 
-                    ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
-                    : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-600' 
+                    : 'bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-600'
                 }`}
               >
                 <EthereumLogo className="w-3 h-3 mr-1" />
@@ -550,23 +537,16 @@ export function LiquidityMint({
               <Button
                 variant={selectedEthToken === 'WETH' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => {
-                  console.log('Manual WETH selection clicked');
-                  setSelectedEthToken('WETH');
-                }}
+                onClick={() => setSelectedEthToken('WETH')}
                 className={`flex-1 h-7 text-xs font-semibold transition-all duration-300 ${
                   selectedEthToken === 'WETH' 
-                    ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
-                    : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-600' 
+                    : 'bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-600'
                 }`}
               >
                 <EthereumLogo className="w-3 h-3 mr-1" />
                 WETH
               </Button>
-            </div>
-            {/* Debug display */}
-            <div className="text-xs text-gray-400 mb-2">
-              Debug: selectedEthToken = {selectedEthToken}
             </div>
             
             <Input

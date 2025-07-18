@@ -143,149 +143,207 @@
   }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: rgba(255, 255, 255, 0.95);
+    font-family: 'Courier New', 'JetBrains Mono', 'Monaco', monospace;
+    color: #ffffff;
     background: 
-      /* Ultra-heavy black overlay for cyberpunk effect */
-      linear-gradient(rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.92)),
-      /* Subtle cyan tint overlay */
-      linear-gradient(rgba(0, 255, 255, 0.02), rgba(0, 255, 255, 0.01)),
-      /* New background image */
+      /* ABSOLUTE BLACK - Kusama style */
+      linear-gradient(rgba(0, 0, 0, 0.99), rgba(0, 0, 0, 0.98)),
+      /* Chaotic neon glitch overlays */
+      radial-gradient(circle at 10% 20%, rgba(0, 255, 255, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(255, 0, 255, 0.03) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.02) 0%, transparent 60%),
+      /* Terminal-style scan lines */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 255, 0.01) 2px,
+        rgba(0, 255, 255, 0.01) 4px
+      ),
+      /* Background image heavily filtered */
       url('/attached_assets/Untitled design (69)_1752816496582.png'),
-      /* Fallback solid black background */
+      /* Pure black fallback */
       #000000;
-    background-size: cover;
-    background-position: center;
+    background-size: cover, 400% 400%, 400% 400%, 400% 400%, 100% 100%, cover, cover;
+    background-position: center, 0% 0%, 100% 100%, 50% 50%, center, center, center;
     background-repeat: no-repeat;
     background-attachment: fixed;
     min-height: 100vh;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.05em;
     font-weight: 400;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     font-variant-numeric: tabular-nums;
     position: relative;
+  }
+
+  /* CYBERPUNK VIDEO BACKGROUND */
+  .video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    object-fit: cover;
+    filter: 
+      brightness(0.15) 
+      contrast(1.8) 
+      saturate(0.2) 
+      hue-rotate(180deg) 
+      blur(1px);
+  }
+  
+  .video-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      linear-gradient(rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.92)),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 255, 255, 0.02) 3px,
+        rgba(0, 255, 255, 0.02) 6px
+      );
+    z-index: 1;
   }
 }
 
 @layer components {
-  /* Cyberpunk monochrome components */
+  /* KUSAMA STYLE TERMINAL COMPONENTS */
   .theme-card {
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(60, 60, 60, 0.3);
-    border-radius: 0.5rem;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    color: rgba(255, 255, 255, 0.9);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
+    backdrop-filter: blur(1px);
+    border: 2px solid rgba(0, 255, 255, 0.1);
+    border-radius: 0.125rem;
+    transition: all 0.2s ease;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.95) inset;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.05em;
   }
   
   .theme-card:hover {
-    background: linear-gradient(135deg, rgba(40, 40, 40, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(5, 5, 5, 0.9) 100%);
     border-color: var(--neon-cyan);
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), 0 0 4px rgba(0, 255, 255, 0.1) inset;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.3) inset, 0 0 10px rgba(0, 0, 0, 0.95) inset;
+    transform: translateY(-2px);
   }
   
   .theme-button-primary {
-    background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%);
+    background: rgba(0, 0, 0, 0.98);
     color: var(--neon-cyan);
-    border: 1px solid rgba(80, 80, 80, 0.4);
-    backdrop-filter: blur(8px);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+    border: 2px solid var(--neon-cyan);
+    backdrop-filter: blur(1px);
+    transition: all 0.1s ease;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.95) inset;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 0.125rem;
   }
   
   .theme-button-primary:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, rgba(25, 25, 25, 0.95) 0%, rgba(15, 15, 15, 0.98) 100%);
+    transform: translateY(-1px);
+    background: rgba(0, 255, 255, 0.05);
     border-color: var(--neon-cyan);
-    box-shadow: 0 0 16px rgba(0, 255, 255, 0.4), 0 0 4px rgba(0, 255, 255, 0.2) inset;
-    text-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
+    box-shadow: 0 0 60px rgba(0, 255, 255, 0.8), 0 0 25px rgba(0, 255, 255, 0.4) inset, 0 0 15px rgba(0, 0, 0, 0.95) inset;
+    text-shadow: 0 0 25px rgba(0, 255, 255, 1);
   }
   
   .theme-button-secondary {
-    background: linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
-    color: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(80, 80, 80, 0.4);
-    backdrop-filter: blur(8px);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(8, 8, 8, 0.95) 100%);
+    color: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(60, 60, 60, 0.6);
+    backdrop-filter: blur(12px);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.9) inset;
   }
   
   .theme-button-secondary:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%);
+    transform: translateY(-3px);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 15, 15, 0.9) 100%);
     border-color: var(--neon-purple);
     color: var(--neon-purple);
-    box-shadow: 0 0 16px rgba(255, 0, 255, 0.3), 0 0 4px rgba(255, 0, 255, 0.1) inset;
-    text-shadow: 0 0 12px rgba(255, 0, 255, 0.5);
+    box-shadow: 0 0 40px rgba(255, 0, 255, 0.5), 0 0 12px rgba(255, 0, 255, 0.2) inset, 0 0 8px rgba(0, 0, 0, 0.9) inset;
+    text-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
   }
   
   .theme-button-accent {
-    background: linear-gradient(135deg, rgba(25, 25, 25, 0.95) 0%, rgba(15, 15, 15, 0.98) 100%);
-    color: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(80, 80, 80, 0.4);
-    backdrop-filter: blur(8px);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(10, 10, 10, 0.95) 100%);
+    color: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(60, 60, 60, 0.6);
+    backdrop-filter: blur(12px);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.9) inset;
   }
   
   .theme-button-accent:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, rgba(35, 35, 35, 0.95) 0%, rgba(25, 25, 25, 0.98) 100%);
+    transform: translateY(-3px);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.9) 100%);
     border-color: var(--neon-green);
     color: var(--neon-green);
-    box-shadow: 0 0 16px rgba(0, 255, 0, 0.3), 0 0 4px rgba(0, 255, 0, 0.1) inset;
-    text-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 40px rgba(0, 255, 0, 0.5), 0 0 12px rgba(0, 255, 0, 0.2) inset, 0 0 8px rgba(0, 0, 0, 0.9) inset;
+    text-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
   }
   
   .theme-badge-success {
-    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(5, 5, 5, 0.9) 100%);
     color: var(--neon-green);
-    border: 1px solid rgba(80, 80, 80, 0.4);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
-    text-shadow: 0 0 6px rgba(0, 255, 0, 0.3);
+    border: 2px solid rgba(0, 255, 0, 0.3);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.3), 0 0 6px rgba(0, 0, 0, 0.9) inset;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
   }
   
   .theme-badge-warning {
-    background: linear-gradient(135deg, rgba(25, 25, 25, 0.9) 0%, rgba(15, 15, 15, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(8, 8, 8, 0.9) 100%);
     color: var(--neon-orange);
-    border: 1px solid rgba(80, 80, 80, 0.4);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 8px rgba(255, 136, 0, 0.2);
-    text-shadow: 0 0 6px rgba(255, 136, 0, 0.3);
+    border: 2px solid rgba(255, 136, 0, 0.3);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 12px rgba(255, 136, 0, 0.3), 0 0 6px rgba(0, 0, 0, 0.9) inset;
+    text-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
   }
   
   .theme-badge-danger {
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 10, 10, 0.9) 100%);
     color: #ff4444;
-    border: 1px solid rgba(80, 80, 80, 0.4);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 8px rgba(255, 0, 0, 0.2);
-    text-shadow: 0 0 6px rgba(255, 0, 0, 0.3);
+    border: 2px solid rgba(255, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.3), 0 0 6px rgba(0, 0, 0, 0.9) inset;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
   }
   
   .theme-progress-bar {
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.8) 0%, rgba(100, 100, 100, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.9) 0%, rgba(0, 0, 0, 0.2) 100%);
     height: 0.5rem;
     border-radius: 9999px;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 8px rgba(0, 255, 255, 0.2) inset;
   }
   
   .theme-input {
-    background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%);
-    border: 1px solid rgba(80, 80, 80, 0.4);
-    backdrop-filter: blur(8px);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(5, 5, 5, 0.9) 100%);
+    border: 2px solid rgba(40, 40, 40, 0.8);
+    backdrop-filter: blur(12px);
     transition: all 0.3s ease;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.9) inset;
   }
   
   .theme-input:focus {
     border-color: var(--neon-cyan);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1), 0 0 8px rgba(0, 255, 255, 0.2) inset;
+    box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.2), 0 0 12px rgba(0, 255, 255, 0.3) inset, 0 0 6px rgba(0, 0, 0, 0.9) inset;
   }
 
   /* Neon glow effects */
@@ -362,52 +420,62 @@
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
   }
   
-  /* Cyberpunk specific styles */
+  /* KUSAMA TERMINAL CYBERPUNK STYLES */
   .cyberpunk-card {
-    background: linear-gradient(135deg, rgba(8, 8, 8, 0.95) 0%, rgba(3, 3, 3, 0.98) 100%);
-    border: 1px solid rgba(120, 120, 120, 0.2);
-    backdrop-filter: blur(20px);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.98);
+    border: 2px solid rgba(0, 255, 255, 0.2);
+    backdrop-filter: blur(1px);
+    transition: all 0.1s ease;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.1em;
+    border-radius: 0.125rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.95) inset;
   }
   
   .cyberpunk-card:hover {
     border-color: var(--neon-cyan);
-    box-shadow: 0 0 24px rgba(0, 255, 255, 0.15), 0 0 6px rgba(0, 255, 255, 0.1) inset;
-    background: linear-gradient(135deg, rgba(12, 12, 12, 0.95) 0%, rgba(6, 6, 6, 0.98) 100%);
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), 0 0 20px rgba(0, 255, 255, 0.3) inset, 0 0 15px rgba(0, 0, 0, 0.95) inset;
+    background: rgba(0, 255, 255, 0.03);
+    transform: translateY(-1px);
   }
   
   .cyberpunk-border {
-    border: 1px solid rgba(120, 120, 120, 0.3);
-    transition: all 0.3s ease;
+    border: 2px solid rgba(0, 255, 255, 0.2);
+    transition: all 0.1s ease;
   }
   
   .cyberpunk-border:hover {
     border-color: var(--neon-cyan);
-    box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
   }
   
   .cyberpunk-text {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-    letter-spacing: 0.025em;
+    color: #ffffff;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
   }
   
   .cyberpunk-text-dim {
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: normal;
+    font-family: 'Courier New', monospace;
   }
   
   .cyberpunk-glow {
-    animation: cyberpunkGlow 2s ease-in-out infinite alternate;
+    animation: kusamaGlow 1.5s ease-in-out infinite alternate;
   }
   
-  @keyframes cyberpunkGlow {
+  @keyframes kusamaGlow {
     0% { 
-      box-shadow: 0 0 8px rgba(0, 255, 255, 0.2); 
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
     }
     100% { 
-      box-shadow: 0 0 16px rgba(0, 255, 255, 0.4), 0 0 4px rgba(0, 255, 255, 0.2) inset; 
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.7), 0 0 10px rgba(0, 255, 255, 0.4) inset;
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
     }
   }
   
@@ -424,14 +492,34 @@
     right: 0;
     bottom: 0;
     background: repeating-linear-gradient(
-      90deg,
+      0deg,
       transparent,
       transparent 2px,
-      rgba(255, 255, 255, 0.02) 2px,
-      rgba(255, 255, 255, 0.02) 4px
+      rgba(0, 255, 255, 0.03) 2px,
+      rgba(0, 255, 255, 0.03) 4px
     );
     pointer-events: none;
     z-index: 1;
+    animation: scanLines 2s linear infinite;
+  }
+  
+  @keyframes scanLines {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  
+  .terminal-text {
+    font-family: 'Courier New', monospace;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+    letter-spacing: 0.1em;
+    font-weight: bold;
+  }
+  
+  .terminal-prompt::before {
+    content: '> ';
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
   }
   
   /* Liquid-themed position cards */

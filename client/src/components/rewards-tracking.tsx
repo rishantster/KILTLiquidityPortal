@@ -247,7 +247,6 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
       </div>
-
       {/* Enhanced Action Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Enhanced Claim Rewards */}
@@ -259,7 +258,7 @@ export function RewardsTracking() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 p-3">
-            <div className="text-center py-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+            <div className="text-center py-3 from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20 bg-[#000000]">
               <div className="text-white/60 text-xs mb-1 font-medium">
                 {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
               </div>
@@ -359,7 +358,7 @@ export function RewardsTracking() {
           <CardContent className="p-3">
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
-                <div className="text-center p-2 bg-blue-500/10 rounded border border-blue-500/20">
+                <div className="text-center p-2 rounded border border-blue-500/20 bg-[#000000]">
                   <div className="text-blue-400 text-xs mb-1">Total Liquidity</div>
                   <div className="text-sm font-bold text-white">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
                 </div>

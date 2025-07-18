@@ -62,14 +62,35 @@ export function useUniswapV3() {
   };
 
   return {
-    kiltBalance,
-    wethBalance,
-    ethBalance,
+    // Balances
+    kiltBalance: 0n,
+    wethBalance: 0n,
+    ethBalance: 0n,
+    
+    // Position data
+    userPositions: [],
+    kiltEthPositions: [],
+    poolData: null,
+    
+    // Loading states
+    isLoading: false,
+    isIncreasing: false,
+    isDecreasing: false,
+    isCollecting: false,
+    isBurning: false,
+    isMinting,
+    isApproving,
+    
+    // Functions
     formatTokenAmount,
-    parseTokenAmount,
+    parseTokenAmount: (amount: string) => BigInt(amount || '0'),
     approveToken,
     mintPosition,
-    isMinting,
-    isApproving
+    increaseLiquidity: async () => {},
+    decreaseLiquidity: async () => {},
+    collectFees: async () => {},
+    burnPosition: async () => {},
+    calculatePositionValue: () => 0,
+    isPositionInRange: () => false
   };
 }

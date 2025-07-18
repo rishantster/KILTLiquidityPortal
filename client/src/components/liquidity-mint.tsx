@@ -334,8 +334,8 @@ export function LiquidityMint() {
       const tickUpper = 887220;   // Full range maximum
 
       // Use zero minimum amounts to bypass slippage entirely
-      const amount0Min = BigInt(0); // Zero minimum to bypass slippage check
-      const amount1Min = BigInt(0); // Zero minimum to bypass slippage check
+      const amount0Min = 0n; // Zero minimum to bypass slippage check
+      const amount1Min = 0n; // Zero minimum to bypass slippage check
 
       // Create the mint parameters object
       const mintParams = {

@@ -30,7 +30,7 @@ const ERC20_ABI = [
   },
 ] as const;
 
-// Uniswap V3 NonfungiblePositionManager ABI (minimal)
+// Uniswap V3 NonfungiblePositionManager ABI (comprehensive)
 const POSITION_MANAGER_ABI = [
   {
     inputs: [
@@ -60,6 +60,73 @@ const POSITION_MANAGER_ABI = [
       { name: 'amount1', type: 'uint256' },
     ],
     stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          { name: 'tokenId', type: 'uint256' },
+          { name: 'amount0Desired', type: 'uint256' },
+          { name: 'amount1Desired', type: 'uint256' },
+          { name: 'amount0Min', type: 'uint256' },
+          { name: 'amount1Min', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+        name: 'params',
+        type: 'tuple',
+      },
+    ],
+    name: 'increaseLiquidity',
+    outputs: [
+      { name: 'liquidity', type: 'uint128' },
+      { name: 'amount0', type: 'uint256' },
+      { name: 'amount1', type: 'uint256' },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          { name: 'tokenId', type: 'uint256' },
+          { name: 'liquidity', type: 'uint128' },
+          { name: 'amount0Min', type: 'uint256' },
+          { name: 'amount1Min', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+        name: 'params',
+        type: 'tuple',
+      },
+    ],
+    name: 'decreaseLiquidity',
+    outputs: [
+      { name: 'amount0', type: 'uint256' },
+      { name: 'amount1', type: 'uint256' },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          { name: 'tokenId', type: 'uint256' },
+          { name: 'recipient', type: 'address' },
+          { name: 'amount0Max', type: 'uint128' },
+          { name: 'amount1Max', type: 'uint128' },
+        ],
+        name: 'params',
+        type: 'tuple',
+      },
+    ],
+    name: 'collect',
+    outputs: [
+      { name: 'amount0', type: 'uint256' },
+      { name: 'amount1', type: 'uint256' },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
 ] as const;
@@ -655,17 +722,142 @@ export function useUniswapV3() {
         setIsMinting(false);
       }
     },
-    increaseLiquidity: async () => {
-      // TODO: Implement real increase liquidity functionality
-      throw new Error('Increase liquidity functionality not yet implemented');
+    increaseLiquidity: async (params: {
+      tokenId: string;
+      amount0Desired: string;
+      amount1Desired: string;
+      amount0Min?: string;
+      amount1Min?: string;
+    }) => {
+      try {
+        if (!address) throw new Error('Wallet not connected');
+        
+        const walletClient = createWalletClient({
+          chain: base,
+          transport: custom(window.ethereum),
+        });
+
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
+        
+        const hash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'increaseLiquidity',
+          args: [{
+            tokenId: BigInt(params.tokenId),
+            amount0Desired: BigInt(params.amount0Desired),
+            amount1Desired: BigInt(params.amount1Desired),
+            amount0Min: BigInt(params.amount0Min || '0'),
+            amount1Min: BigInt(params.amount1Min || '0'),
+            deadline: BigInt(deadline)
+          }],
+          account: address as `0x${string}`,
+        });
+
+        await baseClient.waitForTransactionReceipt({ hash });
+        
+        toast({
+          title: "Liquidity Added!",
+          description: `Successfully added liquidity to position #${params.tokenId}`,
+        });
+        
+        return hash;
+      } catch (error) {
+        toast({
+          title: "Add Liquidity Failed",
+          description: (error as Error)?.message || 'Failed to add liquidity',
+          variant: "destructive",
+        });
+        throw error;
+      }
     },
-    decreaseLiquidity: async () => {
-      // TODO: Implement real decrease liquidity functionality
-      throw new Error('Decrease liquidity functionality not yet implemented');
+    decreaseLiquidity: async (params: {
+      tokenId: string;
+      liquidity: string;
+      amount0Min?: string;
+      amount1Min?: string;
+    }) => {
+      try {
+        if (!address) throw new Error('Wallet not connected');
+        
+        const walletClient = createWalletClient({
+          chain: base,
+          transport: custom(window.ethereum),
+        });
+
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
+        
+        const hash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'decreaseLiquidity',
+          args: [{
+            tokenId: BigInt(params.tokenId),
+            liquidity: BigInt(params.liquidity),
+            amount0Min: BigInt(params.amount0Min || '0'),
+            amount1Min: BigInt(params.amount1Min || '0'),
+            deadline: BigInt(deadline)
+          }],
+          account: address as `0x${string}`,
+        });
+
+        await baseClient.waitForTransactionReceipt({ hash });
+        
+        toast({
+          title: "Liquidity Removed!",
+          description: `Successfully removed liquidity from position #${params.tokenId}`,
+        });
+        
+        return hash;
+      } catch (error) {
+        toast({
+          title: "Remove Liquidity Failed",
+          description: (error as Error)?.message || 'Failed to remove liquidity',
+          variant: "destructive",
+        });
+        throw error;
+      }
     },
-    collectFees: async () => {
-      // TODO: Implement real collect fees functionality
-      throw new Error('Collect fees functionality not yet implemented');
+    collectFees: async (params: {
+      tokenId: string;
+    }) => {
+      try {
+        if (!address) throw new Error('Wallet not connected');
+        
+        const walletClient = createWalletClient({
+          chain: base,
+          transport: custom(window.ethereum),
+        });
+        
+        const hash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'collect',
+          args: [{
+            tokenId: BigInt(params.tokenId),
+            recipient: address as `0x${string}`,
+            amount0Max: BigInt('340282366920938463463374607431768211455'), // type(uint128).max
+            amount1Max: BigInt('340282366920938463463374607431768211455'), // type(uint128).max
+          }],
+          account: address as `0x${string}`,
+        });
+
+        await baseClient.waitForTransactionReceipt({ hash });
+        
+        toast({
+          title: "Fees Collected!",
+          description: `Successfully collected fees from position #${params.tokenId}`,
+        });
+        
+        return hash;
+      } catch (error) {
+        toast({
+          title: "Collect Fees Failed",
+          description: (error as Error)?.message || 'Failed to collect fees',
+          variant: "destructive",
+        });
+        throw error;
+      }
     },
     burnPosition: async () => {
       // TODO: Implement real burn position functionality

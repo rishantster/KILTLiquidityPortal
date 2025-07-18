@@ -44,6 +44,7 @@ export function UserPositions() {
   const [amount1, setAmount1] = useState('');
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Logo animation timing - optimize with single effect
   useEffect(() => {
@@ -154,36 +155,29 @@ export function UserPositions() {
   const handleLiquidityManagement = async () => {
     if (!selectedPosition || !managementMode) return;
 
+    setIsProcessing(true);
     try {
-      const deadlineTime = Math.floor(Date.now() / 1000) + 3600;
-      const deadline = BigInt(deadlineTime);
-      
       switch (managementMode) {
         case 'increase':
           await increaseLiquidity({
             tokenId: selectedPosition,
-            amount0Desired: parseTokenAmount(amount0, 18),
-            amount1Desired: parseTokenAmount(amount1, 18),
-            amount0Min: 0n,
-            amount1Min: 0n,
-            deadline
+            amount0Desired: parseTokenAmount(amount0),
+            amount1Desired: parseTokenAmount(amount1),
+            amount0Min: '0',
+            amount1Min: '0'
           });
           break;
         case 'decrease':
           await decreaseLiquidity({
             tokenId: selectedPosition,
-            liquidity: parseTokenAmount(liquidityAmount, 18),
-            amount0Min: 0n,
-            amount1Min: 0n,
-            deadline
+            liquidity: parseTokenAmount(liquidityAmount),
+            amount0Min: '0',
+            amount1Min: '0'
           });
           break;
         case 'collect':
           await collectFees({
-            tokenId: selectedPosition,
-            recipient: address as `0x${string}`,
-            amount0Max: 2n ** 128n - 1n,
-            amount1Max: 2n ** 128n - 1n
+            tokenId: selectedPosition
           });
           break;
       }
@@ -193,6 +187,9 @@ export function UserPositions() {
       setAmount0('');
       setAmount1('');
       setLiquidityAmount('');
+      
+      // Refresh positions data after successful transaction
+      queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
       
       toast({
         title: "Success",
@@ -204,6 +201,8 @@ export function UserPositions() {
         description: (error as Error)?.message || `Failed to ${managementMode} position`,
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -581,10 +580,10 @@ export function UserPositions() {
             <div className="flex gap-3">
               <Button
                 onClick={handleLiquidityManagement}
-                disabled={isIncreasing || isDecreasing || isCollecting}
+                disabled={isProcessing}
                 className="flex-1 bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600"
               >
-                {(isIncreasing || isDecreasing || isCollecting) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isProcessing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {managementMode === 'increase' && 'Add Liquidity'}
                 {managementMode === 'decrease' && 'Remove Liquidity'}
                 {managementMode === 'collect' && 'Collect Fees'}

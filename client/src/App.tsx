@@ -86,6 +86,20 @@ function CyberpunkVideoBackground() {
 }
 
 function App() {
+  // Global error handler for unhandled promise rejections
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason?.name === 'AbortError' || event.reason?.message?.includes('aborted')) {
+        event.preventDefault(); // Prevent console warnings for AbortError
+        return;
+      }
+      console.error('Unhandled promise rejection:', event.reason);
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <WalletProvider>

@@ -26,7 +26,7 @@ export async function apiRequest<T = unknown>(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     const res = await fetch(url, {
       method: options?.method || 'GET',
@@ -41,6 +41,7 @@ export async function apiRequest<T = unknown>(
     return await res.json();
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('Request timed out:', url);
       throw new Error('Request timeout');
     }
     throw error;
@@ -64,7 +65,7 @@ export const getQueryFn: <T>(options: {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     try {
       const res = await fetch(queryKey[0] as string, {
@@ -84,6 +85,7 @@ export const getQueryFn: <T>(options: {
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Request timed out:', queryKey[0]);
         throw new Error('Request timeout');
       }
       throw error;
@@ -107,9 +109,23 @@ export const queryClient = new QueryClient({
         }
         return false;
       },
+      onError: (error) => {
+        // Silently handle AbortError to prevent unhandled promise rejections
+        if (error instanceof Error && error.name === 'AbortError') {
+          return; // Don't log abort errors
+        }
+        console.error('Query error:', error);
+      },
     },
     mutations: {
       retry: false,
+      onError: (error) => {
+        // Silently handle AbortError to prevent unhandled promise rejections
+        if (error instanceof Error && error.name === 'AbortError') {
+          return; // Don't log abort errors
+        }
+        console.error('Mutation error:', error);
+      },
     },
   },
 });

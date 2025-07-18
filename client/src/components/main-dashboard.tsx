@@ -732,12 +732,7 @@ export function MainDashboard() {
                         );
                       })()}
 
-                      {/* Help Text */}
-                      <div className="text-center px-4 py-1">
-                        <p className="text-xs text-white/40 text-body break-words leading-tight max-w-full">
-                          For custom amounts, use "Add Liquidity" tab
-                        </p>
-                      </div>
+                      
                     </div>
                   </CardContent>
                 </Card>

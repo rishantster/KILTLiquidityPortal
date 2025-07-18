@@ -569,11 +569,11 @@ export function MainDashboard() {
                   Quick Add Liquidity
                 </h2>
                 <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
-                  <CardContent className="p-3 flex-1 flex flex-col overflow-hidden">
-                    <div className="space-y-3 flex-1">
+                  <CardContent className="p-2 flex-1 flex flex-col overflow-hidden">
+                    <div className="space-y-2 flex-1">
                       {/* Balance Display */}
-                      <div className="theme-card p-3 pl-[9px] pr-[9px] pt-[8px] pb-[8px] mt-[-6px] mb-[-6px] ml-[0px] mr-[0px]">
-                        <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
+                      <div className="theme-card p-2">
+                        <h4 className="text-white font-bold text-base mb-2">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
                           <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-3 border border-pink-500/30">
@@ -617,7 +617,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="theme-card p-3 mt-[12px] mb-[12px] pt-[12px] pb-[12px]">
+                      <div className="theme-card p-2">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
                           <span className="text-sm text-white/50 text-body">{selectedPercentage}% of wallet</span>
@@ -658,7 +658,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="theme-card p-3 mt-[0px] mb-[0px]">
+                      <div className="theme-card p-2">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Liquidity Amount</span>
                           <span className="text-sm text-white/50 text-body">Balanced strategy</span>
@@ -703,7 +703,7 @@ export function MainDashboard() {
                     </div>
                     
                     {/* Action Button and Help Text - Bottom of Card */}
-                    <div className="space-y-2 mt-2 px-1">
+                    <div className="space-y-1 mt-1 px-1">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();

@@ -76,7 +76,7 @@ export function LiquidityMint({
   const [ethAmount, setEthAmount] = useState('');
   const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('ETH');
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
-  const [selectedStrategy, setSelectedStrategy] = useState('balanced');
+  const [selectedStrategy, setSelectedStrategy] = useState('full');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isManualInput, setIsManualInput] = useState(false);
   
@@ -118,15 +118,22 @@ export function LiquidityMint({
     }
   }, [address, isConnected]);
 
-  // Price range strategies - ordered by recommendation
+  // Price range strategies - ordered by recommendation (Full Range first for safety)
   const priceStrategies = [
+    { 
+      id: 'full', 
+      label: 'Full Range', 
+      range: Infinity,
+      description: 'Full price range (0 to ∞)',
+      risk: 'Always in range, minimal impermanent loss',
+      recommended: true
+    },
     { 
       id: 'balanced', 
       label: 'Balanced (±50%)', 
       range: 0.50,
       description: '50% to 150% of current price',
-      risk: 'Optimal balance of fees and stability',
-      recommended: true
+      risk: 'Optimal balance of fees and stability'
     },
     { 
       id: 'wide', 
@@ -141,13 +148,6 @@ export function LiquidityMint({
       range: 0.25,
       description: '75% to 125% of current price',
       risk: 'Higher fees, higher impermanent loss risk'
-    },
-    { 
-      id: 'full', 
-      label: 'Full Range', 
-      range: Infinity,
-      description: 'Full price range (0 to ∞)',
-      risk: 'Lowest fees, minimal impermanent loss'
     }
   ];
 
@@ -377,8 +377,17 @@ export function LiquidityMint({
         tickLower = -887220;
         tickUpper = 887220;
       } else {
-        // Calculate ticks based on current price and strategy
-        const currentPrice = poolInfo?.price || 0.0001; // KILT price in ETH
+        // Get current pool price from the pool info
+        // The pool price is token1/token0 ratio
+        const currentPoolPrice = poolInfo?.currentPrice || poolInfo?.price || 0.00005; // WETH/KILT price
+        
+        // Debug: Log the current pool price
+        console.log('Pool price calculation:', {
+          poolInfo,
+          currentPoolPrice,
+          selectedStrategy
+        });
+        
         const strategy = getSelectedStrategy();
         
         if (strategy.range === Infinity) {
@@ -386,16 +395,29 @@ export function LiquidityMint({
           tickUpper = 887220;
         } else {
           // Calculate price range based on strategy
-          const lowerPrice = currentPrice * (1 - strategy.range);
-          const upperPrice = currentPrice * (1 + strategy.range);
+          const lowerPrice = currentPoolPrice * (1 - strategy.range);
+          const upperPrice = currentPoolPrice * (1 + strategy.range);
           
-          // Convert prices to ticks (simplified calculation)
-          tickLower = Math.floor(Math.log(lowerPrice) / Math.log(1.0001));
-          tickUpper = Math.floor(Math.log(upperPrice) / Math.log(1.0001));
+          // Convert prices to ticks using proper Uniswap V3 formula
+          // tick = log(price) / log(1.0001)
+          const tickLowerRaw = Math.log(lowerPrice) / Math.log(1.0001);
+          const tickUpperRaw = Math.log(upperPrice) / Math.log(1.0001);
           
           // Ensure ticks are divisible by tick spacing (60 for 0.3% fee)
-          tickLower = Math.floor(tickLower / 60) * 60;
-          tickUpper = Math.ceil(tickUpper / 60) * 60;
+          tickLower = Math.floor(tickLowerRaw / 60) * 60;
+          tickUpper = Math.ceil(tickUpperRaw / 60) * 60;
+          
+          // Debug: Log the tick calculation
+          console.log('Tick calculation:', {
+            currentPoolPrice,
+            lowerPrice,
+            upperPrice,
+            tickLowerRaw,
+            tickUpperRaw,
+            tickLower,
+            tickUpper,
+            strategy: strategy.label
+          });
         }
       }
 

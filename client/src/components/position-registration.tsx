@@ -307,24 +307,26 @@ export function PositionRegistration() {
         <CardContent className="p-3 bg-[#000000]">
           <Alert className="border-emerald-400/30 bg-[#000000]">
             <Gift className="h-3 w-3 text-emerald-400" />
-            <AlertDescription className="text-emerald-100 text-xs">
-              Already have KILT liquidity positions on Uniswap? Register them here to start earning treasury rewards!
-              <div className="mt-2 space-y-1 text-xs text-emerald-200/90">
-                <div className="flex items-start gap-1">
-                  <span className="text-emerald-300">•</span>
-                  <span>Immediate reward accrual upon registration</span>
+            <AlertDescription className="text-white text-sm leading-relaxed">
+              <div className="font-medium mb-3">
+                Already have KILT liquidity positions on Uniswap? Register them here to start earning treasury rewards!
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-start gap-3 pl-1">
+                  <span className="text-emerald-400 font-bold text-base leading-none mt-0.5">•</span>
+                  <span className="text-white/90">Immediate reward accrual upon registration</span>
                 </div>
-                <div className="flex items-start gap-1">
-                  <span className="text-emerald-300">•</span>
-                  <span>Smart contract security with historical validation</span>
+                <div className="flex items-start gap-3 pl-1">
+                  <span className="text-emerald-400 font-bold text-base leading-none mt-0.5">•</span>
+                  <span className="text-white/90">Smart contract security with historical validation</span>
                 </div>
-                <div className="flex items-start gap-1">
-                  <span className="text-emerald-300">•</span>
-                  <span>Auto-validation for full range positions</span>
+                <div className="flex items-start gap-3 pl-1">
+                  <span className="text-emerald-400 font-bold text-base leading-none mt-0.5">•</span>
+                  <span className="text-white/90">Auto-validation for full range positions</span>
                 </div>
-                <div className="flex items-start gap-1">
-                  <span className="text-emerald-300">•</span>
-                  <span>Complete transaction history verification</span>
+                <div className="flex items-start gap-3 pl-1">
+                  <span className="text-emerald-400 font-bold text-base leading-none mt-0.5">•</span>
+                  <span className="text-white/90">Complete transaction history verification</span>
                 </div>
               </div>
             </AlertDescription>

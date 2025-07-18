@@ -9,7 +9,7 @@ import { useKiltTokenData } from './use-kilt-data';
  */
 export function useUnifiedDashboard() {
   const { address, isConnected } = useWallet();
-  const { kiltEthPositions, poolData, kiltBalance, wethBalance, isLoading: uniswapLoading } = useUniswapV3();
+  const { kiltEthPositions, poolData, kiltBalance, wethBalance, ethBalance, isLoading: uniswapLoading } = useUniswapV3();
   const { data: kiltData } = useKiltTokenData();
 
   // Get or create user record
@@ -237,6 +237,7 @@ export function useUnifiedDashboard() {
     isConnected,
     kiltBalance,
     wethBalance,
+    ethBalance,
     walletBalanceValue,
     
     // Reward data

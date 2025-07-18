@@ -179,7 +179,7 @@ export default function InstantSkeletonPositions() {
                   <span className="text-white/70 text-sm">#{position.nftTokenId}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="border-blue-500/30 text-blue-400">
+                  <Badge variant="outline" className="border-matrix-green text-matrix-green">
                     {(position.feeTier / 10000).toFixed(2)}%
                   </Badge>
                   {!position.isActive && (

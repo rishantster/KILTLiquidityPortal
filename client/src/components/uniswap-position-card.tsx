@@ -98,7 +98,7 @@ export const UniswapPositionCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="text-sm font-bold text-white font-mono">KILT/WETH</div>
-            <div className="text-xs bg-pink-500/20 text-pink-300 border border-pink-500/30 px-2 py-1 rounded font-mono">
+            <div className="text-xs bg-matrix-green-glow text-matrix-green border border-matrix-green px-2 py-1 rounded font-mono">
               {position.fee ? `${(position.fee / 10000).toFixed(1)}%` : '0.3%'}
             </div>
           </div>

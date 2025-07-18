@@ -165,13 +165,13 @@ export function RewardsTracking() {
     <div className="space-y-4">
       {/* Detailed Reward Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="theme-card">
+        <Card className="theme-card border-matrix-green">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Total Earned</h3>
-              <Award className="h-4 w-4 text-cyan-400" />
+              <Award className="h-4 w-4 text-matrix-green" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
+            <div className="text-lg font-bold tabular-nums text-matrix-green flex items-center gap-2 mb-1">
               {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
               <img 
                 src={kiltLogo} 
@@ -182,19 +182,19 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               {rewardStats?.activePositions || 0} positions
             </div>
-            <div className="text-xs text-blue-400 font-medium">
+            <div className="text-xs text-matrix-green font-medium">
               ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
 
-        <Card className="theme-card">
+        <Card className="theme-card border-matrix-green">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimable</h3>
-              <Unlock className="h-4 w-4 text-blue-400" />
+              <Unlock className="h-4 w-4 text-matrix-green" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
+            <div className="text-lg font-bold tabular-nums text-matrix-green flex items-center gap-2 mb-1">
               {totalClaimableAmount.toFixed(2)}
               <img 
                 src={kiltLogo} 
@@ -205,7 +205,7 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               Ready to claim
             </div>
-            <div className="text-xs text-blue-400 font-medium">
+            <div className="text-xs text-matrix-green font-medium">
               ≈ ${(totalClaimableAmount * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
@@ -369,9 +369,9 @@ export function RewardsTracking() {
                 </div>
               </div>
               
-              <div className="text-center p-2 bg-emerald-500/10 rounded border border-emerald-500/20">
-                <div className="text-emerald-400 text-xs mb-1">APR Range</div>
-                <div className="text-sm font-bold text-emerald-100">{programAnalytics?.estimatedAPR?.low || 5}% - {programAnalytics?.estimatedAPR?.high || 66}%</div>
+              <div className="text-center p-2 bg-matrix-green-glow rounded border border-matrix-green">
+                <div className="text-matrix-green text-xs mb-1">APR Range</div>
+                <div className="text-sm font-bold text-matrix-green">{programAnalytics?.estimatedAPR?.low || 5}% - {programAnalytics?.estimatedAPR?.high || 66}%</div>
               </div>
               
               <div className="space-y-2">

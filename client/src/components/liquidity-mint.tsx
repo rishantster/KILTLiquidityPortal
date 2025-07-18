@@ -399,21 +399,21 @@ export function LiquidityMint() {
       {/* Sleek Header */}
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-2">
-          <Plus className="h-4 w-4 text-emerald-400" />
+          <Plus className="h-4 w-4 text-matrix-green" />
           <h2 className="text-white font-heading text-lg">Add Liquidity to KILT/ETH Pool</h2>
         </div>
-        <p className="text-white/70 text-xs max-w-xl mx-auto">
+        <p className="text-white/90 text-sm max-w-xl mx-auto">
           Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + 0.3% trading fees
         </p>
         <div className="flex items-center justify-center gap-2 flex-wrap">
-          <div className="theme-badge-warning text-xs rounded-lg px-2 py-1">
+          <div className="bg-matrix-green-glow text-matrix-green border border-matrix-green text-xs rounded-lg px-2 py-1">
             <Info className="h-3 w-3 inline mr-1" />
             Minimum position value: $10 (anti-spam protection)
           </div>
-          <Badge className="theme-badge-success px-2 py-0.5 text-xs">
+          <Badge className="bg-matrix-green-glow text-matrix-green border border-matrix-green px-2 py-0.5 text-xs">
             0.3% Fee Tier
           </Badge>
-          <Badge className="theme-badge-success px-2 py-0.5 text-xs">
+          <Badge className="bg-matrix-green-glow text-matrix-green border border-matrix-green px-2 py-0.5 text-xs">
             {poolExists ? 'Pool Active' : 'Pool Not Found'}
           </Badge>
         </div>
@@ -422,10 +422,10 @@ export function LiquidityMint() {
       <Card className="theme-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Target className="h-3 w-3 text-cyan-400" />
+            <Target className="h-3 w-3 text-matrix-green" />
             Position Size
           </CardTitle>
-          <p className="text-white/60 text-xs">Amount to Provide: {positionSizePercent[0]}% of {selectedEthToken} balance</p>
+          <p className="text-white/80 text-sm">Amount to Provide: {positionSizePercent[0]}% of {selectedEthToken} balance</p>
         </CardHeader>
         <CardContent className="space-y-3 p-3">
           <div className="space-y-3">
@@ -507,7 +507,7 @@ export function LiquidityMint() {
         </Card>
 
         {/* Sleek ETH/WETH Input */}
-        <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-500/20 rounded-lg">
+        <Card className="theme-card border-matrix-green">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <EthereumLogo className="w-4 h-4" />
@@ -767,7 +767,7 @@ export function LiquidityMint() {
                   description: "Marked tokens as approved. You can now add liquidity.",
                 });
               }}
-              className="text-xs text-blue-400 hover:text-blue-300"
+              className="text-xs text-matrix-green hover:text-terminal-green cyberpunk-button-green"
             >
               Already approved tokens? Click here
             </Button>

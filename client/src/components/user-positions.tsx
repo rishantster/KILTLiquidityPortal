@@ -167,6 +167,9 @@ export function UserPositions() {
     if (!selectedPosition || !managementMode) return;
 
     try {
+      const deadlineTime = Math.floor(Date.now() / 1000) + 3600;
+      const deadline = BigInt(deadlineTime);
+      
       switch (managementMode) {
         case 'increase':
           await increaseLiquidity({
@@ -175,7 +178,7 @@ export function UserPositions() {
             amount1Desired: parseTokenAmount(amount1, 18),
             amount0Min: 0n,
             amount1Min: 0n,
-            deadline: BigInt(Math.floor(Date.now() / 1000) + 3600)
+            deadline
           });
           break;
         case 'decrease':
@@ -184,15 +187,15 @@ export function UserPositions() {
             liquidity: parseTokenAmount(liquidityAmount, 18),
             amount0Min: 0n,
             amount1Min: 0n,
-            deadline: BigInt(Math.floor(Date.now() / 1000) + 3600)
+            deadline
           });
           break;
         case 'collect':
           await collectFees({
             tokenId: selectedPosition,
             recipient: address as `0x${string}`,
-            amount0Max: BigInt(2) ** BigInt(128) - BigInt(1),
-            amount1Max: BigInt(2) ** BigInt(128) - BigInt(1)
+            amount0Max: 2n ** 128n - 1n,
+            amount1Max: 2n ** 128n - 1n
           });
           break;
       }

@@ -308,7 +308,8 @@ export function LiquidityMint() {
     try {
       const kiltAmountParsed = parseTokenAmount(kiltAmount);
       const ethAmountParsed = parseTokenAmount(ethAmount);
-      const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600); // 1 hour from now
+      const deadlineTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+      const deadline = BigInt(deadlineTime);
 
       // Handle ETH wrapping automatically through position manager
 

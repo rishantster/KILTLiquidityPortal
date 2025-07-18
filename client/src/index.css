@@ -11,10 +11,10 @@
   perspective: 1000px;
 }
 
-/* CYBERPUNK THEME VARIABLES - EXACT PINK COLORS */
+/* CYBERPUNK THEME VARIABLES - EXACT PINK COLORS #ff0066 */
 :root {
-  /* Primary Pink - Using exact hex #ec005e and rgba(255,0,102,255) */
-  --neon-pink: #ec005e;
+  /* Primary Pink - Using exact hex #ff0066 from user requirement */
+  --neon-pink: #ff0066;
   --neon-pink-rgba: rgba(255, 0, 102, 1);
   --neon-pink-glow: rgba(255, 0, 102, 0.6);
   --neon-pink-bright: rgba(255, 0, 102, 0.9);
@@ -60,15 +60,15 @@
   --card-foreground: hsl(0, 0%, 95%);
   --border: hsl(340, 30%, 20%);
   --input: hsl(340, 15%, 8%);
-  --primary: #ec005e;
+  --primary: #ff0066;
   --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(340, 20%, 15%);
   --secondary-foreground: hsl(0, 0%, 90%);
-  --accent: #ec005e;
+  --accent: #ff0066;
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 100%, 50%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: #ec005e;
+  --ring: #ff0066;
 }
 
 /* Neon Animation Keyframes */

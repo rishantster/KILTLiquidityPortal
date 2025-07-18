@@ -569,13 +569,13 @@ export function MainDashboard() {
                   <Zap className="h-4 w-4 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="theme-card h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
+                <Card className="theme-card h-[360px] sm:h-[380px] lg:h-[400px] flex flex-col overflow-hidden">
                   <CardContent className="p-3 flex-1 flex flex-col justify-between overflow-hidden">
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {/* Balance Display */}
                       <div className="theme-card p-2">
-                        <h4 className="text-white font-bold text-sm mb-2">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-2">
+                        <h4 className="text-white font-bold text-sm mb-1.5">Wallet Balance</h4>
+                        <div className="grid grid-cols-3 gap-1.5">
                           {/* KILT Balance Card */}
                           <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-2 border border-pink-500/30">
                             <div className="flex flex-col items-center text-center">
@@ -623,7 +623,7 @@ export function MainDashboard() {
                           <span className="text-white/70 text-xs font-medium text-label">Balance Usage</span>
                           <span className="text-xs text-white/50 text-body">{selectedPercentage}% of wallet</span>
                         </div>
-                        <div className="grid grid-cols-5 gap-1 mb-1">
+                        <div className="grid grid-cols-5 gap-1 mb-0.5">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
@@ -679,10 +679,10 @@ export function MainDashboard() {
                           
                           return (
                             <div>
-                              <div className="text-2xl font-bold text-matrix-green text-numbers mb-2" style={{ textShadow: '0 0 20px rgba(0, 255, 0, 0.6)' }}>
+                              <div className="text-2xl font-bold text-matrix-green text-numbers mb-1" style={{ textShadow: '0 0 20px rgba(0, 255, 0, 0.6)' }}>
                                 ~${amounts.totalValue}
                               </div>
-                              <div className="flex items-center justify-center space-x-4 text-white/90 text-sm text-body">
+                              <div className="flex items-center justify-center space-x-3 text-white/90 text-xs text-body">
                                 <div className="flex items-center space-x-1">
                                   <KiltLogo size="xs" showBackground={true} />
                                   <span className="font-medium">{amounts.kiltAmount} KILT</span>

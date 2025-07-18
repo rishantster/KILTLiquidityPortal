@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@/contexts/wallet-context';
 import { useToast } from './use-toast';
-import { createPublicClient, http, formatUnits, parseUnits } from 'viem';
+import { createPublicClient, createWalletClient, custom, http, formatUnits, parseUnits, maxUint256 } from 'viem';
 import { base } from 'viem/chains';
 
-// ERC20 ABI for token balance queries
+// ERC20 ABI for token operations
 const ERC20_ABI = [
   {
     inputs: [{ name: 'account', type: 'address' }],
@@ -20,6 +20,47 @@ const ERC20_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
+  {
+    inputs: [{ name: 'owner', type: 'address' }, { name: 'spender', type: 'address' }],
+    name: 'allowance',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
+
+// Uniswap V3 NonfungiblePositionManager ABI (minimal)
+const POSITION_MANAGER_ABI = [
+  {
+    inputs: [
+      {
+        components: [
+          { name: 'token0', type: 'address' },
+          { name: 'token1', type: 'address' },
+          { name: 'fee', type: 'uint24' },
+          { name: 'tickLower', type: 'int24' },
+          { name: 'tickUpper', type: 'int24' },
+          { name: 'amount0Desired', type: 'uint256' },
+          { name: 'amount1Desired', type: 'uint256' },
+          { name: 'amount0Min', type: 'uint256' },
+          { name: 'amount1Min', type: 'uint256' },
+          { name: 'recipient', type: 'address' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+        name: 'params',
+        type: 'tuple',
+      },
+    ],
+    name: 'mint',
+    outputs: [
+      { name: 'tokenId', type: 'uint256' },
+      { name: 'liquidity', type: 'uint128' },
+      { name: 'amount0', type: 'uint256' },
+      { name: 'amount1', type: 'uint256' },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
 ] as const;
 
 // Create Base network client with reliable RPC endpoint
@@ -27,6 +68,11 @@ const baseClient = createPublicClient({
   chain: base,
   transport: http('https://base-rpc.publicnode.com'),
 });
+
+// Contract addresses on Base network
+const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BF5754d4cb5C8bD0Ce2C';
+const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
+const WETH_TOKEN = '0x4200000000000000000000000000000000000006';
 
 export function useUniswapV3() {
   const { address, isConnected } = useWallet();
@@ -210,18 +256,46 @@ export function useUniswapV3() {
     approveToken: async (params: { tokenAddress: string; amount: BigInt }) => {
       setIsApproving(true);
       try {
-        // Mock approval - simulate blockchain interaction
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        toast({
-          title: "Token Approved",
-          description: "Successfully approved token for trading",
+        if (!address) throw new Error('Wallet not connected');
+        
+        // Check if MetaMask is available
+        if (typeof window.ethereum === 'undefined') {
+          throw new Error('MetaMask not found');
+        }
+
+        // Create wallet client
+        const walletClient = createWalletClient({
+          chain: base,
+          transport: custom(window.ethereum),
         });
-      } catch (error) {
+
+        // Send approval transaction
+        const hash = await walletClient.writeContract({
+          address: params.tokenAddress as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: 'approve',
+          args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, params.amount],
+          account: address as `0x${string}`,
+        });
+
+        // Wait for transaction confirmation
+        const receipt = await baseClient.waitForTransactionReceipt({ hash });
+        
+        if (receipt.status === 'success') {
+          toast({
+            title: "Token Approved",
+            description: `Successfully approved ${params.tokenAddress === KILT_TOKEN ? 'KILT' : 'WETH'} for trading`,
+          });
+        } else {
+          throw new Error('Transaction failed');
+        }
+      } catch (error: any) {
         toast({
           title: "Approval failed",
-          description: "Please try again",
+          description: error.message || "Please try again",
           variant: "destructive",
         });
+        throw error;
       } finally {
         setIsApproving(false);
       }
@@ -229,19 +303,63 @@ export function useUniswapV3() {
     mintPosition: async (params: any) => {
       setIsMinting(true);
       try {
-        // Mock minting - simulate blockchain interaction
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        toast({
-          title: "Position Created",
-          description: "Successfully created liquidity position",
+        if (!address) throw new Error('Wallet not connected');
+        
+        // Check if MetaMask is available
+        if (typeof window.ethereum === 'undefined') {
+          throw new Error('MetaMask not found');
+        }
+
+        // Create wallet client
+        const walletClient = createWalletClient({
+          chain: base,
+          transport: custom(window.ethereum),
         });
-        return '0x123...mockHash';
-      } catch (error) {
+
+        // Calculate ETH value to send (only if using native ETH)
+        const ethValue = params.isNativeETH ? parseUnits(params.amount1Desired.toString(), 18) : 0n;
+
+        // Send minting transaction
+        const hash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'mint',
+          args: [{
+            token0: params.token0,
+            token1: params.token1,
+            fee: params.fee,
+            tickLower: params.tickLower,
+            tickUpper: params.tickUpper,
+            amount0Desired: BigInt(params.amount0Desired),
+            amount1Desired: BigInt(params.amount1Desired),
+            amount0Min: BigInt(params.amount0Min),
+            amount1Min: BigInt(params.amount1Min),
+            recipient: params.recipient,
+            deadline: params.deadline,
+          }],
+          account: address as `0x${string}`,
+          value: ethValue,
+        });
+
+        // Wait for transaction confirmation
+        const receipt = await baseClient.waitForTransactionReceipt({ hash });
+        
+        if (receipt.status === 'success') {
+          toast({
+            title: "Position Created",
+            description: "Successfully created liquidity position",
+          });
+          return hash;
+        } else {
+          throw new Error('Transaction failed');
+        }
+      } catch (error: any) {
         toast({
           title: "Minting failed",
-          description: "Please try again",
+          description: error.message || "Please try again",
           variant: "destructive",
         });
+        throw error;
       } finally {
         setIsMinting(false);
       }

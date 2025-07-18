@@ -612,8 +612,8 @@ export function UserPositions() {
                     <Label className="text-white/80 text-sm font-medium">Amount</Label>
                     <div className="mt-2 bg-white/5 border border-white/20 rounded-lg p-4">
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-white/60 text-sm">% of Position</span>
-                        <span className="text-white/60 text-sm">Max</span>
+                        <span className="text-white text-sm">% of Position</span>
+                        <span className="text-white text-sm">Max</span>
                       </div>
                       <Input
                         type="number"
@@ -652,7 +652,7 @@ export function UserPositions() {
                       
                       {/* DEBUG: Show exact liquidity calculation */}
                       {liquidityAmount && (
-                        <div className="mt-2 text-xs text-white/60">
+                        <div className="mt-2 text-xs text-white/80">
                           <div>Current Liquidity: {(() => {
                             const pos = allKiltPositions.find(p => p.tokenId === selectedPosition);
                             return pos?.liquidity || 'N/A';

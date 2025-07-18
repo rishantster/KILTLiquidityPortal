@@ -121,6 +121,23 @@
   text-shadow: 0 0 2px #00ff41 !important;
 }
 
+/* Global text visibility improvements */
+.text-white\/60 {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.text-white\/70 {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.text-white\/50 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.text-white\/40 {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
 /* Enhanced card backgrounds for better visibility */
 .bg-enhanced {
   background: rgba(0, 0, 0, 0.8) !important;

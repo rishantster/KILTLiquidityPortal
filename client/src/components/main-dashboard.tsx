@@ -257,23 +257,26 @@ export function MainDashboard() {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
         {/* Background Video */}
-        <div className="absolute inset-0 -z-20">
+        <div className="absolute inset-0" style={{ zIndex: 1 }}>
           <video 
             autoPlay 
             loop 
             muted 
             playsInline 
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: 1 }}
+            onLoadStart={() => console.log('Landing page video loading started')}
+            onCanPlay={() => console.log('Landing page video can play')}
+            onError={(e) => console.error('Landing page video error:', e)}
           >
             <source src={backgroundVideo} type="video/mp4" />
           </video>
         </div>
         
-        {/* Clean Changing Gradient Background */}
-        <div className="absolute inset-0 -z-10">
-          <div className="gradient-background"></div>
-        </div>
-        <div className="max-w-5xl mx-auto">
+        {/* Overlay for content readability */}
+        <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
+        
+        <div className="max-w-5xl mx-auto relative" style={{ zIndex: 10 }}>
           <div className="text-center pt-16 pb-8">
             {/* Hero Section */}
             <div className="mb-12">

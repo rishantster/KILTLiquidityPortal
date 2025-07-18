@@ -667,6 +667,18 @@ export function MainDashboard() {
                         </div>
                         {(() => {
                           const amounts = calculateOptimalAmounts();
+                          // Debug: Log the calculated amounts
+                          if (amounts.kiltAmount && amounts.ethAmount) {
+                            console.log('Quick Add Debug:', {
+                              kiltAmount: amounts.kiltAmount,
+                              ethAmount: amounts.ethAmount,
+                              totalValue: amounts.totalValue,
+                              selectedPercentage,
+                              kiltBalance,
+                              wethBalance,
+                              ethBalance
+                            });
+                          }
                           const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
                           
                           if (hasInsufficientBalance) {

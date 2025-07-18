@@ -361,11 +361,42 @@ export class PositionRegistrationService {
         return containsKilt && position.isActive;
       });
       
-      // Get already registered positions for this user
+      // First, get the user ID from the address
+      const [user] = await this.db
+        .select()
+        .from(users)
+        .where(eq(users.address, userAddress.toLowerCase()))
+        .limit(1);
+
+      if (!user) {
+        // If user doesn't exist, no registered positions
+        return {
+          eligiblePositions: kiltPositions.map(position => ({
+            nftTokenId: position.tokenId,
+            poolAddress: position.poolAddress,
+            token0Address: position.token0,
+            token1Address: position.token1,
+            amount0: position.token0Amount,
+            amount1: position.token1Amount,
+            minPrice: "0", // Would need to calculate from ticks
+            maxPrice: "0", // Would need to calculate from ticks
+            liquidity: position.liquidity,
+            currentValueUSD: position.currentValueUSD,
+            feeTier: position.feeTier,
+            tickLower: position.tickLower,
+            tickUpper: position.tickUpper,
+            isActive: position.isActive,
+            createdAt: new Date() // Would need creation timestamp from blockchain
+          })),
+          registrationRequired: kiltPositions.length > 0
+        };
+      }
+
+      // Get already registered positions for this user using the correct user ID
       const registeredPositions = await this.db
         .select()
         .from(lpPositions)
-        .where(eq(lpPositions.userId, userAddress));
+        .where(eq(lpPositions.userId, user.id));
       
       const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId));
       

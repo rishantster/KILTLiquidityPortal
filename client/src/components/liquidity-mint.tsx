@@ -542,14 +542,21 @@ export function LiquidityMint({
             {[25, 50, 75, 100].map((percent) => (
               <Button
                 key={percent}
-                variant={positionSizePercent[0] === percent ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 onClick={() => handlePercentageSelect(percent)}
-                className={`h-7 text-xs font-semibold transition-all duration-300 ${
+                className={`h-7 text-xs font-semibold transition-all duration-300 border ${
                   positionSizePercent[0] === percent 
-                    ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
-                    : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
+                    ? 'text-white font-bold border-2' 
+                    : 'text-white/80 hover:bg-white/10 hover:text-white hover:border-white/50'
                 }`}
+                style={positionSizePercent[0] === percent ? {
+                  backgroundColor: '#ff0066',
+                  borderColor: '#ff0066',
+                  color: 'white'
+                } : {
+                  borderColor: 'rgba(255, 255, 255, 0.2)'
+                }}
               >
                 {percent}%
               </Button>

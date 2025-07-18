@@ -27,6 +27,7 @@ import { BASE_NETWORK_ID } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityService } from '@/services/liquidity-service';
+import { UniswapV3SDKService, KILT_TOKEN, WETH_TOKEN } from '@/lib/uniswap-v3-sdk';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum logo component
@@ -68,6 +69,9 @@ export function LiquidityMint({
   const { sessionId, createAppSession, recordAppTransaction, isCreatingSession } = useAppSession();
   const { toast } = useToast();
 
+  // Initialize Uniswap V3 SDK service
+  const [uniswapSDK, setUniswapSDK] = useState<UniswapV3SDKService | null>(null);
+
   const [kiltAmount, setKiltAmount] = useState('');
   const [ethAmount, setEthAmount] = useState('');
   const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('ETH');
@@ -88,6 +92,16 @@ export function LiquidityMint({
     }, 800); // Match the animation duration
     return () => clearTimeout(timer);
   }, []);
+
+  // Initialize SDK when pool exists
+  useEffect(() => {
+    if (poolExists && !uniswapSDK) {
+      // Use a temporary pool address for testing - in production this would come from the pool detection
+      const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
+      const sdkService = new UniswapV3SDKService(poolAddress);
+      setUniswapSDK(sdkService);
+    }
+  }, [poolExists, uniswapSDK]);
 
   // Check if tokens are already approved (for users who have previously approved)
   useEffect(() => {

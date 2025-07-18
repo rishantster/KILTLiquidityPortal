@@ -151,7 +151,7 @@ export function MainDashboard() {
   const formatTokenBalance = (balance: bigint | undefined): string => {
     if (!balance) return '0';
     // Convert wei to ether (both KILT and WETH use 18 decimals)
-    const divisor = BigInt(10 ** 18);
+    const divisor = BigInt(10n ** 18n);
     const wholePart = balance / divisor;
     const fractionalPart = balance % divisor;
     const fractionalString = fractionalPart.toString().padStart(18, '0');

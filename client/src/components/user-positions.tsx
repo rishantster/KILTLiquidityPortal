@@ -536,7 +536,12 @@ export function UserPositions() {
                           </div>
                           <div>
                             <div className="text-white/60 mb-0.5">Range</div>
-                            <div className="text-white font-medium">Full Range</div>
+                            <div className="text-white font-medium">
+                              {position.tickLower === -887220 && position.tickUpper === 887220 
+                                ? 'Full Range' 
+                                : 'Concentrated'
+                              }
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -20,7 +20,8 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
-  FileText
+  FileText,
+  LogOut
 } from 'lucide-react';
 
 interface AdminTreasuryStats {
@@ -461,10 +462,30 @@ export default function AdminPanel() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">KILT Admin Panel</h1>
-          <Badge variant="outline" className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
-            <CheckCircle className="h-4 w-4 mr-1" />
-            Authenticated
-          </Badge>
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Authenticated
+            </Badge>
+            <Button
+              onClick={() => {
+                setIsAuthenticated(false);
+                setAdminToken('');
+                setUsername('');
+                setPassword('');
+                toast({
+                  title: "Logged Out",
+                  description: "You have been successfully logged out",
+                });
+              }}
+              variant="outline"
+              size="sm"
+              className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30 hover:text-red-300"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

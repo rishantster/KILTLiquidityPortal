@@ -411,7 +411,7 @@ export function PositionRegistration() {
                       />
                       <div className="flex items-center gap-2">
                         <span className="text-white font-bold text-lg">Position</span>
-                        <div className="px-2 py-1 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-full border border-emerald-400/30">
+                        <div className="px-2 py-1 bg-black/20 backdrop-blur-sm rounded-full border border-white/10">
                           <span className="text-emerald-300 text-sm font-medium">In Range</span>
                         </div>
                       </div>
@@ -440,7 +440,7 @@ export function PositionRegistration() {
                         ${((parseFloat(position.amount0 || '0') / 1e18) * 2500).toFixed(2)}
                       </div>
                     </div>
-                    <div className="bg-gradient-to-br from-pink-500/10 to-rose-500/10 rounded-lg p-4 border border-pink-400/20">
+                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-4 border border-white/10">
                       <div className="flex items-center gap-2 mb-3">
                         <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
                         <span className="text-pink-300 font-medium">KILT</span>
@@ -474,7 +474,7 @@ export function PositionRegistration() {
                   <Button
                     onClick={() => registerMutation.mutate(position)}
                     disabled={registerMutation.isPending}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-12 text-base font-medium"
+                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-12 text-base font-medium"
                   >
                     {registerMutation.isPending ? (
                       <div className="flex items-center gap-2">

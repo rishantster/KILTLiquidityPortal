@@ -683,14 +683,14 @@ export function MainDashboard() {
                               </div>
                               <div className="flex items-center justify-center space-x-4 text-white text-sm text-body">
                                 <div className="flex items-center space-x-2">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full flex items-center justify-center border border-pink-500/50">
+                                  <div className="w-6 h-6 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                     <KiltLogo size="sm" showBackground={false} />
                                   </div>
                                   <span className="font-medium text-matrix-green">{amounts.kiltAmount} KILT</span>
                                 </div>
                                 <span className="text-matrix-green text-lg">+</span>
                                 <div className="flex items-center space-x-2">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full flex items-center justify-center border border-blue-500/50">
+                                  <div className="w-6 h-6 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                     <EthLogo size="sm" showBackground={false} />
                                   </div>
                                   <span className="font-medium text-matrix-green">{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>

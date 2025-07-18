@@ -251,7 +251,7 @@ export function UserPositions() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Left Side - Title and Stats */}
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-xl flex items-center justify-center border border-pink-500/30 shadow-lg shadow-pink-500/10">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/20 rounded-xl flex items-center justify-center border border-[#ff0066]/30 shadow-lg shadow-[#ff0066]/10">
                 <Layers className="h-6 w-6 text-pink-400" />
               </div>
               <div>
@@ -289,7 +289,7 @@ export function UserPositions() {
               </div>
               
               <div className="flex items-center space-x-2">
-                <Badge className="bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 text-emerald-400 border-emerald-500/30 px-3 py-1.5 text-xs font-medium">
+                <Badge className="bg-black/20 backdrop-blur-sm text-white border-white/20 px-3 py-1.5 text-xs font-medium">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse" />
                   Live
                 </Badge>
@@ -315,7 +315,7 @@ export function UserPositions() {
                   onClick={() => setShowClosedPositions(!showClosedPositions)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:ring-offset-2 focus:ring-offset-black ${
                     showClosedPositions 
-                      ? 'bg-gradient-to-r from-pink-500 to-rose-500 shadow-lg shadow-pink-500/25' 
+                      ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] shadow-lg shadow-[#ff0066]/25' 
                       : 'bg-white/20 hover:bg-white/30'
                   }`}
                 >
@@ -417,7 +417,7 @@ export function UserPositions() {
                         <div className="bg-white/5 rounded-lg p-2">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
                                 <span className="text-white text-xs font-bold">K</span>
                               </div>
                               <div className="text-white font-medium text-xs">
@@ -462,7 +462,7 @@ export function UserPositions() {
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1">
-                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff0066] flex items-center justify-center">
                                 <span className="text-white text-xs">K</span>
                               </div>
                               <span className="text-white/80 text-xs">51.01%</span>
@@ -484,7 +484,7 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
                               style={{
                                 boxShadow: '0 0 6px rgba(16, 185, 129, 0.5), 0 0 12px rgba(16, 185, 129, 0.3)',
                                 border: '1px solid rgba(16, 185, 129, 0.3)'

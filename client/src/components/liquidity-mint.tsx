@@ -840,7 +840,7 @@ export function LiquidityMint({
           disabled={isMinting || !kiltAmount || !ethAmount || !tokensApproved}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 ${
             !isMinting && kiltAmount && ethAmount && tokensApproved
-              ? 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white' 
+              ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white' 
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >

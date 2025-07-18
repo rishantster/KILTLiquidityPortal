@@ -617,7 +617,7 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="theme-card p-3">
+                      <div className="theme-card p-3 mt-[5px] mb-[5px]">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/70 text-sm font-medium text-label">Balance Usage</span>
                           <span className="text-sm text-white/50 text-body">{selectedPercentage}% of wallet</span>

@@ -394,17 +394,23 @@ export function UserPositions() {
                     {/* Header */}
                     <div className="p-3 pb-2 relative z-10">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white/60 text-xs font-medium">Position</span>
+                        <span className="text-white font-bold text-sm" style={{
+                          color: '#ffffff',
+                          textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
+                        }}>Position</span>
                         <Badge 
                           variant={inRange ? "default" : "secondary"}
-                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border-amber-500/30"} text-xs px-2 py-0.5`}
+                          className={`${inRange ? "bg-emerald-500/30 text-emerald-300 border-emerald-400/50" : "bg-amber-500/30 text-amber-300 border-amber-400/50"} text-sm px-3 py-1 font-bold`}
+                          style={{
+                            textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                          }}
                         >
                           {inRange ? 'In Range' : 'Out of Range'}
                         </Badge>
                       </div>
-                      <div className="text-xl font-bold text-white tabular-nums relative">
+                      <div className="text-2xl font-bold text-white tabular-nums relative">
                         <span className="relative z-10" style={{
-                          textShadow: '0 0 6px rgba(255, 0, 102, 0.8), 0 0 12px rgba(255, 0, 102, 0.6), 0 0 18px rgba(255, 0, 102, 0.4)',
+                          textShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.6), 0 0 24px rgba(255, 0, 102, 0.4)',
                           color: '#ffffff'
                         }}>
                           ${positionValue.toFixed(2)}
@@ -427,10 +433,16 @@ export function UserPositions() {
                               </svg>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-white font-medium text-xs">
+                              <div className="text-white font-bold text-sm" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
+                              }}>
                                 {ethAmount} WETH
                               </div>
-                              <div className="text-white/60 text-xs tabular-nums">
+                              <div className="text-white font-medium text-sm tabular-nums" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                              }}>
                                 ${(parseFloat(ethAmount) * 3635).toFixed(2)}
                               </div>
                             </div>
@@ -449,10 +461,16 @@ export function UserPositions() {
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-white font-medium text-xs">
+                              <div className="text-white font-bold text-sm" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
+                              }}>
                                 {kiltAmount} KILT
                               </div>
-                              <div className="text-white/60 text-xs tabular-nums">
+                              <div className="text-white font-medium text-sm tabular-nums" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                              }}>
                                 ${(parseFloat(kiltAmount) * 0.01816).toFixed(2)}
                               </div>
                             </div>
@@ -465,10 +483,13 @@ export function UserPositions() {
                         boxShadow: 'inset 0 0 10px rgba(255, 0, 102, 0.1)',
                         border: '1px solid rgba(255, 0, 102, 0.2)'
                       }}>
-                        <div className="text-white/60 text-xs mb-1">Fees earned</div>
-                        <div className="text-sm font-bold text-white tabular-nums mb-2 relative">
+                        <div className="text-white font-bold text-sm mb-2" style={{
+                          color: '#ffffff',
+                          textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
+                        }}>Fees earned</div>
+                        <div className="text-lg font-bold text-white tabular-nums mb-2 relative">
                           <span style={{
-                            textShadow: '0 0 4px rgba(255, 0, 102, 0.6), 0 0 8px rgba(255, 0, 102, 0.4)',
+                            textShadow: '0 0 6px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 255, 255, 0.6), 0 0 18px rgba(255, 0, 102, 0.4)',
                             color: '#ffffff'
                           }}>
                             ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
@@ -487,11 +508,20 @@ export function UserPositions() {
                                   <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
                                 </svg>
                               </div>
-                              <span className="text-white/80 text-xs">48.99%</span>
+                              <span className="text-white font-bold text-sm" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                              }}>48.99%</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-white text-xs tabular-nums">${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
-                              <div className="text-white/60 text-xs">{ethFees} WETH</div>
+                              <div className="text-white font-bold text-sm tabular-nums" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
+                              }}>${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
+                              <div className="text-white font-medium text-sm" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                              }}>{ethFees} WETH</div>
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
@@ -506,11 +536,20 @@ export function UserPositions() {
                                   }}
                                 />
                               </div>
-                              <span className="text-white/80 text-xs">51.01%</span>
+                              <span className="text-white font-bold text-sm" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                              }}>51.01%</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-white text-xs tabular-nums">${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
-                              <div className="text-white/60 text-xs">{kiltFees} KILT</div>
+                              <div className="text-white font-bold text-sm tabular-nums" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
+                              }}>${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
+                              <div className="text-white font-medium text-sm" style={{
+                                color: '#ffffff',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                              }}>{kiltFees} KILT</div>
                             </div>
                           </div>
                         </div>
@@ -525,10 +564,11 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-8 text-sm font-bold relative overflow-hidden"
                               style={{
                                 boxShadow: '0 0 6px rgba(16, 185, 129, 0.5), 0 0 12px rgba(16, 185, 129, 0.3)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)'
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
                               }}
                             >
                               <Plus className="h-3 w-3 mr-1" />
@@ -539,10 +579,11 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-8 text-sm font-bold relative overflow-hidden"
                               style={{
                                 boxShadow: '0 0 6px rgba(239, 68, 68, 0.5), 0 0 12px rgba(239, 68, 68, 0.3)',
-                                border: '1px solid rgba(239, 68, 68, 0.3)'
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
                               }}
                             >
                               <Minus className="h-3 w-3 mr-1" />
@@ -553,10 +594,11 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-8 text-sm font-bold relative overflow-hidden"
                               style={{
                                 boxShadow: '0 0 6px rgba(59, 130, 246, 0.5), 0 0 12px rgba(59, 130, 246, 0.3)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)'
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
                               }}
                             >
                               <DollarSign className="h-3 w-3 mr-1" />
@@ -572,18 +614,36 @@ export function UserPositions() {
 
                       {/* Position Details */}
                       <div className="pt-2 border-t border-white/10 relative z-10">
-                        <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="grid grid-cols-3 gap-2 text-sm">
                           <div>
-                            <div className="text-white/60 mb-0.5">NFT ID</div>
-                            <div className="text-white font-medium">#{position.tokenId}</div>
+                            <div className="text-white font-bold mb-1" style={{
+                              color: '#ffffff',
+                              textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                            }}>NFT ID</div>
+                            <div className="text-white font-bold" style={{
+                              color: '#ffffff',
+                              textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
+                            }}>#{position.tokenId}</div>
                           </div>
                           <div>
-                            <div className="text-white/60 mb-0.5">Fee Tier</div>
-                            <div className="text-white font-medium">{(position.fee / 10000).toFixed(2)}%</div>
+                            <div className="text-white font-bold mb-1" style={{
+                              color: '#ffffff',
+                              textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                            }}>Fee Tier</div>
+                            <div className="text-white font-bold" style={{
+                              color: '#ffffff',
+                              textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
+                            }}>{(position.fee / 10000).toFixed(2)}%</div>
                           </div>
                           <div>
-                            <div className="text-white/60 mb-0.5">Range</div>
-                            <div className="text-white font-medium">
+                            <div className="text-white font-bold mb-1" style={{
+                              color: '#ffffff',
+                              textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
+                            }}>Range</div>
+                            <div className="text-white font-bold" style={{
+                              color: '#ffffff',
+                              textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
+                            }}>
                               {position.tickLower === -887220 && position.tickUpper === 887220 
                                 ? 'Full Range' 
                                 : 'Concentrated'

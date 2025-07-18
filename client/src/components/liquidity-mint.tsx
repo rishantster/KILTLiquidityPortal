@@ -139,17 +139,15 @@ export function LiquidityMint({
   // Set preferred ETH token based on balance amounts (always pick bigger amount)
   useEffect(() => {
     if (kiltData?.price && ethBalance && wethBalance) {
-      const calculation = LiquidityService.calculateOptimalAmounts(
-        kiltBalance,
-        wethBalance,
-        ethBalance,
-        kiltData.price,
-        80,
-        formatTokenAmount
-      );
-      setSelectedEthToken(calculation.useNativeEth ? 'ETH' : 'WETH');
+      const ethPrice = 2500; // Approximate ETH price
+      const ethValueUSD = parseFloat(ethBalance) * ethPrice;
+      const wethValueUSD = parseFloat(wethBalance) * ethPrice;
+      
+      // Always pick the bigger amount between ETH and WETH
+      const shouldUseEth = ethValueUSD >= wethValueUSD;
+      setSelectedEthToken(shouldUseEth ? 'ETH' : 'WETH');
     }
-  }, [kiltBalance, wethBalance, ethBalance, kiltData?.price, formatTokenAmount]);
+  }, [kiltBalance, wethBalance, ethBalance, kiltData?.price]);
 
   // Auto-calculate amounts based on slider percentage - limited by selected ETH token balance
   useEffect(() => {

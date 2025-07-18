@@ -26,6 +26,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
+import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
@@ -86,6 +87,7 @@ export function MainDashboard() {
     parseTokenAmount 
   } = useUniswapV3();
   const unifiedData = useUnifiedDashboard();
+  const appSession = useAppSession();
   // Removed deprecated hooks - using unified dashboard data instead
   const [activeTab, setActiveTab] = useState('overview');
   const [isQuickAdding, setIsQuickAdding] = useState(false);
@@ -151,13 +153,30 @@ export function MainDashboard() {
   const formatTokenBalance = (balance: string | bigint | undefined): string => {
     if (!balance) return '0';
     try {
-      // Convert to string if it's a bigint
-      const balanceStr = typeof balance === 'bigint' ? balance.toString() : balance;
+      // Convert to string if it's a bigint or number
+      let balanceStr: string;
+      if (typeof balance === 'bigint') {
+        balanceStr = balance.toString();
+      } else if (typeof balance === 'number') {
+        balanceStr = balance.toString();
+      } else {
+        balanceStr = balance;
+      }
+      
       // Convert wei to ether (both KILT and WETH use 18 decimals)
-      const parsed = parseFloat(balanceStr) / 1e18;
-      return parsed.toFixed(4);
+      // Use BigInt division to avoid precision issues
+      const balanceBigInt = BigInt(balanceStr);
+      const divisor = BigInt(1e18);
+      const wholePart = balanceBigInt / divisor;
+      const fractionalPart = balanceBigInt % divisor;
+      
+      // Convert fractional part to decimal
+      const fractionalStr = fractionalPart.toString().padStart(18, '0');
+      const trimmedFractional = fractionalStr.slice(0, 4);
+      
+      return `${wholePart.toString()}.${trimmedFractional}`;
     } catch {
-      return '0';
+      return '0.0000';
     }
   };
 

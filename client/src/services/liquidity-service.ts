@@ -18,12 +18,12 @@ export interface LiquidityCalculation {
 
 export class LiquidityService {
   static calculateOptimalAmounts(
-    kiltBalance: bigint | undefined,
-    wethBalance: bigint | undefined,
-    ethBalance: bigint | undefined,
+    kiltBalance: string | bigint | undefined,
+    wethBalance: string | bigint | undefined,
+    ethBalance: string | bigint | undefined,
     kiltPrice: number,
     percentage: number = 80,
-    formatTokenBalance: (balance: bigint | undefined) => string
+    formatTokenBalance: (balance: string | bigint | undefined) => string
   ): LiquidityCalculation {
     if (!kiltBalance || !kiltPrice) {
       return { 
@@ -37,7 +37,7 @@ export class LiquidityService {
 
     const ethPrice = 2500; // Approximate ETH price
     
-    // Convert balances to numbers
+    // Convert balances to numbers safely
     const availableKilt = parseFloat(formatTokenBalance(kiltBalance));
     const availableWeth = parseFloat(formatTokenBalance(wethBalance));
     const availableEth = parseFloat(formatTokenBalance(ethBalance));

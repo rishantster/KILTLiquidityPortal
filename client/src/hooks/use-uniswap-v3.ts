@@ -106,7 +106,9 @@ export function useUniswapV3() {
         throw new Error('Failed to fetch positions');
       }
       
-      return response.json();
+      const data = await response.json();
+      // The API returns the position array directly, not wrapped in an object
+      return Array.isArray(data) ? data : [];
     },
     enabled: !!address && isConnected,
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -466,16 +468,14 @@ export function useUniswapV3() {
     }
   };
 
-  // Process position data
-  const processedPositions = Array.isArray(positionData?.positions) ? positionData.positions : [];
+  // Process position data - API returns array directly
+  const processedPositions = Array.isArray(positionData) ? positionData : [];
   const kiltEthPositions = processedPositions.filter(pos => {
-    // Only show active positions (liquidity > 0)
+    // Only show active positions (liquidity > 0) - API already filters this
     if (!pos.liquidity || pos.liquidity === '0') return false;
     
-    // Check if position contains KILT token
-    const kiltTokenAddress = KILT_TOKEN.toLowerCase();
-    return pos.token0Address?.toLowerCase() === kiltTokenAddress || 
-           pos.token1Address?.toLowerCase() === kiltTokenAddress;
+    // All positions from the API are already KILT positions
+    return pos.isKiltPosition === true;
   });
 
   return {

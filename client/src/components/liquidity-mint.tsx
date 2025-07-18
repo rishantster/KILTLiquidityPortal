@@ -153,7 +153,9 @@ export function LiquidityMint({
       
       // Always pick the bigger amount between ETH and WETH
       const shouldUseEth = ethValueUSD >= wethValueUSD;
-      setSelectedEthToken(shouldUseEth ? 'ETH' : 'WETH');
+      const newToken = shouldUseEth ? 'ETH' : 'WETH';
+      console.log('Setting selectedEthToken to:', newToken);
+      setSelectedEthToken(newToken);
     }
   }, [ethBalance, wethBalance]);
 
@@ -532,7 +534,10 @@ export function LiquidityMint({
               <Button
                 variant={selectedEthToken === 'ETH' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedEthToken('ETH')}
+                onClick={() => {
+                  console.log('Manual ETH selection clicked');
+                  setSelectedEthToken('ETH');
+                }}
                 className={`flex-1 h-7 text-xs font-semibold transition-all duration-300 ${
                   selectedEthToken === 'ETH' 
                     ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
@@ -545,7 +550,10 @@ export function LiquidityMint({
               <Button
                 variant={selectedEthToken === 'WETH' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedEthToken('WETH')}
+                onClick={() => {
+                  console.log('Manual WETH selection clicked');
+                  setSelectedEthToken('WETH');
+                }}
                 className={`flex-1 h-7 text-xs font-semibold transition-all duration-300 ${
                   selectedEthToken === 'WETH' 
                     ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
@@ -555,6 +563,10 @@ export function LiquidityMint({
                 <EthereumLogo className="w-3 h-3 mr-1" />
                 WETH
               </Button>
+            </div>
+            {/* Debug display */}
+            <div className="text-xs text-gray-400 mb-2">
+              Debug: selectedEthToken = {selectedEthToken}
             </div>
             
             <Input

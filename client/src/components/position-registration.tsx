@@ -304,8 +304,8 @@ export function PositionRegistration() {
     <div className="space-y-2 h-full flex flex-col">
       {/* Compact Header */}
       <Card className="cluely-card">
-        <CardContent className="p-3">
-          <Alert className="bg-emerald-900/20 border-emerald-400/30">
+        <CardContent className="p-3 bg-[#000000]">
+          <Alert className="border-emerald-400/30 bg-[#000000]">
             <Gift className="h-3 w-3 text-emerald-400" />
             <AlertDescription className="text-emerald-100 text-xs">
               Already have KILT liquidity positions on Uniswap? Register them here to start earning treasury rewards!
@@ -317,7 +317,6 @@ export function PositionRegistration() {
           </Alert>
         </CardContent>
       </Card>
-
       {/* Unregistered Positions */}
       <Card className="cluely-card flex-1">
         <CardHeader className="pb-2">
@@ -494,8 +493,6 @@ export function PositionRegistration() {
           )}
         </CardContent>
       </Card>
-
-
     </div>
   );
 }

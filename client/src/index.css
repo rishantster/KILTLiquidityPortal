@@ -378,7 +378,7 @@
   
   .theme-button-primary:hover {
     background: var(--neon-pink);
-    color: var(--absolute-black);
+    color: var(--pure-white) !important;
     box-shadow: 
       0 0 50px var(--neon-pink-glow), 
       0 0 100px var(--neon-pink-shadow);

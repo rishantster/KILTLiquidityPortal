@@ -348,7 +348,7 @@ export function RewardsTracking() {
         </Card>
 
         {/* Enhanced Program Analytics */}
-        <Card className="bg-black/20 backdrop-blur-xl border-white/10 rounded-lg">
+        <Card className="bg-black/20 backdrop-blur-xl border-white/10 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
               <BarChart3 className="h-4 w-4 text-blue-400" />
@@ -388,7 +388,7 @@ export function RewardsTracking() {
         </Card>
 
         {/* Enhanced Treasury Status */}
-        <Card className="bg-black/20 backdrop-blur-xl border-white/10 rounded-lg">
+        <Card className="bg-black/20 backdrop-blur-xl border-white/10 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
               <Building2 className="h-4 w-4 text-purple-400" />

@@ -583,11 +583,11 @@ export function MainDashboard() {
                   <Zap className="h-4 w-4 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden">
+                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden cluely-card">
                   <CardContent className="p-2 flex-1 flex flex-col overflow-hidden">
                     <div className="space-y-2 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 cluely-card">
                         <h4 className="text-white font-bold text-base mb-2">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}

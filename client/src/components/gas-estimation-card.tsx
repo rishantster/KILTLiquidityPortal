@@ -67,7 +67,7 @@ export function GasEstimationCard() {
 
   if (!isConnected) {
     return (
-      <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+      <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
         <CardContent className="p-4 text-center">
           <AlertCircle className="h-5 w-5 text-amber-400 mx-auto mb-2" />
           <p className="text-white/70 text-xs">Connect wallet to view gas estimates</p>
@@ -78,7 +78,7 @@ export function GasEstimationCard() {
 
   if (isLoading) {
     return (
-      <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+      <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Zap className="h-3 w-3 text-matrix-green" />
@@ -110,7 +110,7 @@ export function GasEstimationCard() {
   }
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
+    <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-white text-sm flex items-center gap-2">
           <Zap className="h-3 w-3 text-matrix-green" />

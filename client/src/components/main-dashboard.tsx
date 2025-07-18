@@ -580,8 +580,8 @@ export function MainDashboard() {
                           <div className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg p-3 border border-pink-500/30">
                             <div className="flex flex-col items-center text-center">
                               <KiltLogo size="md" showBackground={true} />
-                              <span className="text-white/80 text-sm font-medium mt-1">KILT</span>
-                              <span className="text-white font-bold text-sm mt-0.5">
+                              <span className="text-white text-sm font-medium mt-1">KILT</span>
+                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                 {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
                               </span>
                             </div>
@@ -591,8 +591,8 @@ export function MainDashboard() {
                           <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-lg p-3 border border-blue-500/30">
                             <div className="flex flex-col items-center text-center">
                               <EthLogo size="md" showBackground={true} />
-                              <span className="text-white/80 text-sm font-medium mt-1">ETH</span>
-                              <span className="text-white font-bold text-sm mt-0.5">
+                              <span className="text-white text-sm font-medium mt-1">ETH</span>
+                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                 {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
                               </span>
                             </div>
@@ -602,8 +602,8 @@ export function MainDashboard() {
                           <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-lg p-3 border border-emerald-500/30">
                             <div className="flex flex-col items-center text-center">
                               <EthLogo size="md" showBackground={true} />
-                              <span className="text-white/70 text-xs font-medium mt-1">WETH</span>
-                              <span className="text-white font-bold text-xs text-numbers mt-0.5">
+                              <span className="text-white text-sm font-medium mt-1">WETH</span>
+                              <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                 {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
                               </span>
                             </div>

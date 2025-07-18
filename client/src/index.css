@@ -11,12 +11,12 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -30;
+  z-index: -10;
   object-fit: cover;
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
-  opacity: 0.15;
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -671,7 +671,7 @@
   }
 
   .gradient-background {
-    background: #000000;
+    background: rgba(0, 0, 0, 0.6);
     position: fixed;
     top: 0;
     left: 0;

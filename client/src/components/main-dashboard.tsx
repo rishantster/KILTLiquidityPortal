@@ -430,12 +430,13 @@ export function MainDashboard() {
         playsInline
         preload="auto"
         className="video-background"
+        style={{ zIndex: -20 }}
       >
         <source src={backgroundVideo} type="video/mp4" />
       </video>
       
       {/* Clean Changing Gradient Background */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0" style={{ zIndex: -15 }}>
         <div className="gradient-background"></div>
       </div>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">

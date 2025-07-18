@@ -121,21 +121,30 @@
   text-shadow: 0 0 2px #00ff41 !important;
 }
 
-/* Global text visibility improvements */
+/* Global text visibility improvements - DRAMATIC BRIGHTNESS INCREASE */
 .text-white\/60 {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.3) !important;
 }
 
 .text-white\/70 {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.3) !important;
 }
 
 .text-white\/50 {
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.3) !important;
 }
 
 .text-white\/40 {
-  color: rgba(255, 255, 255, 0.75) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.3) !important;
+}
+
+.text-gray-400 {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Enhanced card backgrounds for better visibility */
@@ -358,32 +367,32 @@
   background: var(--neon-pink) !important;
 }
 
-/* ENHANCED TEXT VISIBILITY - CYBERPUNK PINK THEME */
+/* ENHANCED TEXT VISIBILITY - CYBERPUNK PINK THEME - DRAMATIC BRIGHTENING */
 .text-white {
   color: #ffffff !important;
   text-shadow: 
-    0 0 2px rgba(0, 0, 0, 0.8), 
+    0 0 3px rgba(255, 255, 255, 0.4), 
     0 0 1px rgba(255, 0, 102, 0.2);
 }
 
 .text-white\/60, .text-white\/80, .text-white\/70 {
-  color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(255, 255, 255, 1) !important;
   text-shadow: 
-    0 0 2px rgba(0, 0, 0, 0.8), 
-    0 0 1px rgba(255, 0, 102, 0.2);
+    0 0 4px rgba(255, 255, 255, 0.5), 
+    0 0 2px rgba(255, 0, 102, 0.3);
 }
 
 .text-white\/50 {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
   text-shadow: 
-    0 0 2px rgba(0, 0, 0, 0.8);
+    0 0 4px rgba(255, 255, 255, 0.4);
 }
 
 .text-white\/40 {
-  color: rgba(255, 255, 255, 0.75) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
   text-shadow: 
-    0 0 4px rgba(0, 0, 0, 0.9), 
-    0 0 8px rgba(0, 0, 0, 0.8);
+    0 0 4px rgba(255, 255, 255, 0.4), 
+    0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 /* CYBERPUNK PINK THEME TEXT CLASSES */

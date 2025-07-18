@@ -758,58 +758,42 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get program analytics (open participation) - PARALLEL PROCESSING FOR BLAZING SPEED
+  // Get program analytics (open participation) - SIMPLIFIED VERSION
   app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
-      // PARALLEL PROCESSING - Execute all calls simultaneously
-      const [aprData, analytics, treasuryConf, settingsConf] = await Promise.all([
-        (async () => {
-          const { unifiedAPRService } = await import('./unified-apr-service.js');
-          return unifiedAPRService.getUnifiedAPRCalculation();
-        })(),
-        fixedRewardService.getProgramAnalytics(),
-        (async () => {
-          const { treasuryConfig } = await import('../shared/schema');
-          const [conf] = await db.select().from(treasuryConfig).limit(1);
-          return conf;
-        })(),
-        (async () => {
-          const { programSettings } = await import('../shared/schema');
-          const [conf] = await db.select().from(programSettings).limit(1);
-          return conf;
-        })()
-      ]);
+      // Get basic analytics that don't require blockchain integration
+      const analytics = await fixedRewardService.getProgramAnalytics();
+      
+      // Get treasury configuration
+      const { treasuryConfig } = await import('../shared/schema');
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
       
       // Calculate days remaining based on admin configuration
-      const programEndDate = treasuryConf?.program_end_date ? new Date(treasuryConf.program_end_date) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+      const programEndDate = treasuryConf?.programEndDate ? new Date(treasuryConf.programEndDate) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
       const daysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
       
-      // Merge with unified APR data to ensure consistency
+      // Create simplified analytics response
       const unifiedAnalytics = {
         ...analytics,
-        estimatedAPR: {
-          low: aprData.minAPR,
-          average: Math.round((aprData.minAPR + aprData.maxAPR) / 2),
-          high: aprData.maxAPR
-        },
-        aprRange: aprData.aprRange,
-        calculationDetails: aprData.calculationDetails,
-        // Override with admin-configured values (snake_case from database)
+        // Override with admin-configured values (camelCase from database)
         totalBudget: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : analytics.totalBudget,
-        dailyBudget: treasuryConf?.daily_rewards_cap ? parseFloat(treasuryConf.daily_rewards_cap) : analytics.dailyBudget,
-        programDuration: treasuryConf?.program_duration_days || analytics.programDuration,
+        dailyBudget: treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : analytics.dailyBudget,
+        programDuration: treasuryConf?.programDurationDays || analytics.programDuration,
         daysRemaining: daysRemaining,
-        programStartDate: treasuryConf?.program_start_date || analytics.programStartDate,
-        programEndDate: treasuryConf?.program_end_date || analytics.programEndDate,
-        isActive: treasuryConf?.is_active !== undefined ? treasuryConf.is_active : analytics.isActive,
+        programStartDate: treasuryConf?.programStartDate || analytics.programStartDate,
+        programEndDate: treasuryConf?.programEndDate || analytics.programEndDate,
+        isActive: treasuryConf?.isActive !== undefined ? treasuryConf.isActive : analytics.isActive,
         // Calculate treasuryRemaining from admin configuration
         treasuryRemaining: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analytics.totalDistributed || 0) : analytics.treasuryRemaining
       };
       
       res.json(unifiedAnalytics);
     } catch (error) {
-      // Error getting program analytics
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('Program analytics error:', error);
+      res.status(500).json({ 
+        error: 'Internal server error',
+        details: error.message 
+      });
     }
   });
 

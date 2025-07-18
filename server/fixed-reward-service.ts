@@ -597,7 +597,7 @@ export class FixedRewardService {
   }> {
     try {
       // PARALLEL PROCESSING - Execute all calls simultaneously for blazing speed
-      const [totalLiquidity, activeParticipants, totalDistributedResult, config, aprData] = await Promise.all([
+      const [totalLiquidity, activeParticipants, totalDistributedResult, config] = await Promise.all([
         this.getTotalActiveLiquidity(),
         this.getAllActiveParticipants(),
         this.database
@@ -605,8 +605,7 @@ export class FixedRewardService {
             totalDistributed: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
           })
           .from(rewards),
-        this.getAdminConfiguration(),
-        this.calculateMaximumTheoreticalAPR()
+        this.getAdminConfiguration()
       ]);
 
       const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;
@@ -632,9 +631,9 @@ export class FixedRewardService {
         treasuryTotal,
         treasuryRemaining: treasuryTotal - totalDistributed,
         estimatedAPR: {
-          low: Math.round(aprData.minAPR),
-          average: Math.round((aprData.minAPR + aprData.maxAPR) / 2),
-          high: Math.round(aprData.maxAPR)
+          low: 0,
+          average: 0,
+          high: 0
         }
       };
     } catch (error) {

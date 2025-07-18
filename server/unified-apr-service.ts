@@ -235,12 +235,7 @@ class UnifiedAPRService {
 
     } catch (error) {
       // No fallback values allowed - admin panel must be configured
-      console.error('UnifiedAPRService admin configuration check failed:', {
-        treasuryConf: !!treasuryConf,
-        settingsConf: !!settingsConf,
-        treasuryFields: treasuryConf ? Object.keys(treasuryConf) : [],
-        settingsFields: settingsConf ? Object.keys(settingsConf) : []
-      });
+      console.error('UnifiedAPRService admin configuration check failed:', error);
       throw new Error('UnifiedAPRService requires admin configuration - no fallback values allowed');
     }
   }

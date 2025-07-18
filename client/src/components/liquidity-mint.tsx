@@ -437,6 +437,9 @@ export function LiquidityMint({
         title: "Position Created!",
         description: "Your liquidity position has been successfully created",
       });
+      
+      // Note: MetaMask may show token address instead of "KILT" name
+      // This is normal - the transaction is correct even if the token name isn't recognized
 
       // Reset form
       setKiltAmount('');
@@ -766,6 +769,16 @@ export function LiquidityMint({
             </>
           )}
         </Button>
+      </div>
+      
+      {/* MetaMask Information */}
+      <div className="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+          <p className="text-xs text-blue-300">
+            <strong>MetaMask Note:</strong> KILT may appear as "0x5D0DD...ad2d8" in transaction details - this is normal and the transaction is correct.
+          </p>
+        </div>
       </div>
       </div>
     </div>

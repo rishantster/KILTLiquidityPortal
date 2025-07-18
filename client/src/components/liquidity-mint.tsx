@@ -39,19 +39,27 @@ const EthereumLogo = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
-export function LiquidityMint() {
+interface LiquidityMintProps {
+  kiltBalance: string;
+  wethBalance: string;
+  ethBalance: string;
+  formatTokenAmount: (amount: string | bigint) => string;
+}
+
+export function LiquidityMint({
+  kiltBalance,
+  wethBalance,
+  ethBalance,
+  formatTokenAmount
+}: LiquidityMintProps) {
   const { address, isConnected } = useWallet();
   const { 
-    kiltBalance, 
-    wethBalance, 
-    ethBalance,
     preferredEthToken,
     poolExists, 
     mintPosition, 
     approveToken,
     isMinting, 
     isApproving,
-    formatTokenAmount,
     parseTokenAmount 
   } = useUniswapV3();
   const { data: kiltData } = useKiltTokenData();
@@ -481,7 +489,7 @@ export function LiquidityMint() {
             />
             <div className="flex justify-between items-center">
               <span className="text-white/60 text-xs">
-                Balance: <span className="font-bold text-white">{kiltBalance ? formatTokenAmount(kiltBalance) : '0.0000'}</span> KILT
+                Balance: <span className="font-bold text-white">{kiltBalance ? parseFloat(kiltBalance).toFixed(4) : '0.0000'}</span> KILT
               </span>
               <Button
                 variant="ghost"
@@ -546,8 +554,8 @@ export function LiquidityMint() {
               <span className="text-white/60 text-xs">
                 Balance: <span className="font-bold text-white">
                   {selectedEthToken === 'ETH' 
-                    ? (ethBalance ? formatTokenAmount(ethBalance) : '0.0000')
-                    : (wethBalance ? formatTokenAmount(wethBalance) : '0.0000')
+                    ? (ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000')
+                    : (wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000')
                   }
                 </span> {selectedEthToken}
               </span>

@@ -754,7 +754,12 @@ export function MainDashboard() {
           {/* Add Liquidity Tab */}
           <TabsContent value="liquidity">
             <Suspense fallback={<OptimizedLoadingFallback height="600px" />}>
-              <LiquidityMint />
+              <LiquidityMint 
+                kiltBalance={kiltBalance}
+                wethBalance={wethBalance}
+                ethBalance={ethBalance}
+                formatTokenAmount={formatTokenAmount}
+              />
             </Suspense>
           </TabsContent>
 

@@ -720,12 +720,7 @@ export function LiquidityMint({
                     {getSelectedStrategy().range === Infinity ? (
                       "Full range (0 to ∞)"
                     ) : kiltData?.price ? (
-                      (() => {
-                        const currentPrice = kiltData.price;
-                        const lowerPrice = currentPrice * (1 - getSelectedStrategy().range);
-                        const upperPrice = currentPrice * (1 + getSelectedStrategy().range);
-                        return `$${lowerPrice.toFixed(4)} - $${upperPrice.toFixed(4)}`;
-                      })()
+                      `$${(kiltData.price * (1 - getSelectedStrategy().range)).toFixed(4)} - $${(kiltData.price * (1 + getSelectedStrategy().range)).toFixed(4)}`
                     ) : (
                       "Loading..."
                     )}
@@ -762,6 +757,18 @@ export function LiquidityMint({
                     </div>
                     <div className="flex justify-center mt-1">
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Full Range Indicator */}
+                {getSelectedStrategy().range === Infinity && (
+                  <div className="mt-2">
+                    <div className="flex items-center justify-center text-xs text-white/40 mb-1">
+                      <span>Always in range</span>
+                    </div>
+                    <div className="relative h-2 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full overflow-hidden opacity-60">
+                      <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full animate-pulse"></div>
                     </div>
                   </div>
                 )}

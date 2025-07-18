@@ -586,7 +586,7 @@ export function MainDashboard() {
                               </div>
                               <span className="text-white text-sm font-medium">KILT</span>
                               <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                {kiltBalance ? parseFloat(formatTokenBalance(kiltBalance)).toLocaleString() : '0'}
+                                {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
                               </span>
                             </div>
                           </div>
@@ -599,7 +599,7 @@ export function MainDashboard() {
                               </div>
                               <span className="text-white text-sm font-medium">ETH</span>
                               <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                {ethBalance ? parseFloat(formatTokenBalance(ethBalance)).toFixed(6) : '0.000000'}
+                                {ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}
                               </span>
                             </div>
                           </div>
@@ -612,7 +612,7 @@ export function MainDashboard() {
                               </div>
                               <span className="text-white text-sm font-medium">WETH</span>
                               <span className="text-matrix-green font-bold text-sm font-mono mt-0.5" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                {wethBalance ? parseFloat(formatTokenBalance(wethBalance)).toFixed(6) : '0.000000'}
+                                {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
                               </span>
                             </div>
                           </div>

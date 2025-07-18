@@ -22,10 +22,10 @@ const ERC20_ABI = [
   },
 ] as const;
 
-// Create Base network client
+// Create Base network client with multiple RPC endpoints for reliability
 const baseClient = createPublicClient({
   chain: base,
-  transport: http('https://base.llamarpc.com'),
+  transport: http('https://base.blockpi.network/v1/rpc/public'),
 });
 
 export function useUniswapV3() {
@@ -71,9 +71,20 @@ export function useUniswapV3() {
       ]);
 
       // Convert wei to readable format
-      setKiltBalance(formatUnits(kiltBalanceWei, 18));
-      setWethBalance(formatUnits(wethBalanceWei, 18));
-      setEthBalance(formatUnits(ethBalanceWei, 18));
+      const kiltBalanceFormatted = formatUnits(kiltBalanceWei, 18);
+      const wethBalanceFormatted = formatUnits(wethBalanceWei, 18);
+      const ethBalanceFormatted = formatUnits(ethBalanceWei, 18);
+      
+      setKiltBalance(kiltBalanceFormatted);
+      setWethBalance(wethBalanceFormatted);
+      setEthBalance(ethBalanceFormatted);
+      
+      // Log successful balance fetch for debugging
+      console.log('Balances fetched successfully:', {
+        kilt: kiltBalanceFormatted,
+        weth: wethBalanceFormatted,
+        eth: ethBalanceFormatted
+      });
     } catch (error) {
       console.error('Failed to fetch balances:', error);
       toast({
@@ -89,7 +100,10 @@ export function useUniswapV3() {
   // Fetch balances when wallet connects
   useEffect(() => {
     if (isConnected && address) {
-      fetchRealBalances();
+      // Add a small delay to ensure wallet is fully connected
+      setTimeout(() => {
+        fetchRealBalances();
+      }, 1000);
     } else {
       setKiltBalance('0');
       setWethBalance('0');
@@ -182,6 +196,8 @@ export function useUniswapV3() {
         return '0';
       }
     },
+    // Manual refresh function for balances
+    refreshBalances: fetchRealBalances,
     approveToken: async (params: { tokenAddress: string; amount: BigInt }) => {
       setIsApproving(true);
       try {

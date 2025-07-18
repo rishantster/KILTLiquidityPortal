@@ -678,21 +678,21 @@ export function LiquidityMint({
                   key={strategy.id}
                   variant={selectedStrategy === strategy.id ? "default" : "outline"}
                   onClick={() => setSelectedStrategy(strategy.id)}
-                  className={`h-12 p-2 flex-col items-start w-full transition-all duration-300 ${
+                  className={`h-16 p-3 flex flex-col items-start justify-center w-full transition-all duration-300 ${
                     selectedStrategy === strategy.id 
                       ? 'bg-pink-500 hover:bg-pink-600 text-white' 
                       : 'hover:bg-pink-500/10 hover:border-pink-500/50'
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-xs truncate">{strategy.label}</span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="font-bold text-sm">{strategy.label}</span>
                     {strategy.recommended && selectedStrategy === strategy.id && (
                       <div className="ml-1 px-1 py-0.5 bg-emerald-400 text-white text-xs rounded-full font-bold">
                         ✓
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-left opacity-80 truncate w-full">
+                  <p className="text-xs text-left opacity-80 w-full">
                     {strategy.id === 'balanced' ? '50% to 150%' :
                      strategy.id === 'wide' ? '0% to 200%' :
                      strategy.id === 'narrow' ? '75% to 125%' :

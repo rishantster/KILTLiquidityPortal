@@ -162,13 +162,7 @@
     font-variant-numeric: tabular-nums;
     position: relative;
   }
-  
-
-  
-
 }
-
-
 
 @layer components {
   /* Universal glassmorphism components */

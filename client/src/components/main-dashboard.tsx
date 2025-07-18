@@ -256,6 +256,19 @@ export function MainDashboard() {
   if (!isConnected) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
+        {/* Background Video */}
+        <div className="absolute inset-0 -z-20">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
+          >
+            <source src={backgroundVideo} type="video/mp4" />
+          </video>
+        </div>
+        
         {/* Clean Changing Gradient Background */}
         <div className="absolute inset-0 -z-10">
           <div className="gradient-background"></div>
@@ -410,18 +423,16 @@ export function MainDashboard() {
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
       {/* Background Video */}
-      <div className="video-background">
-        <video 
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          preload="auto"
-          className="video-background"
-        >
-          <source src={backgroundVideo} type="video/mp4" />
-        </video>
-      </div>
+      <video 
+        autoPlay 
+        muted 
+        loop 
+        playsInline
+        preload="auto"
+        className="video-background"
+      >
+        <source src={backgroundVideo} type="video/mp4" />
+      </video>
       
       {/* Clean Changing Gradient Background */}
       <div className="absolute inset-0 -z-10">

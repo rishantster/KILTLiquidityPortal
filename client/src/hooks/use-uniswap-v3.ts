@@ -250,8 +250,7 @@ export function useUniswapV3() {
     amount0Min: bigint,
     amount1Min: bigint,
     recipient: `0x${string}`,
-    deadline: number,
-    isNativeETH?: boolean
+    deadline: number
   }) => {
     setIsMinting(true);
     try {
@@ -259,27 +258,19 @@ export function useUniswapV3() {
         throw new Error('Wallet client not available');
       }
 
-      // Calculate ETH value for native ETH transactions
-      // When using native ETH, we need to send the exact ETH amount, not the KILT amount
-      let ethValue = 0n;
-      if (params.isNativeETH) {
-        // Determine which token is ETH/WETH based on address comparison
-        if (params.token0.toLowerCase() === WETH_TOKEN.toLowerCase()) {
-          ethValue = params.amount0Desired; // token0 is WETH/ETH
-        } else {
-          ethValue = params.amount1Desired; // token1 is WETH/ETH
-        }
-      }
+      // On Base network, we use WETH tokens only (no native ETH value)
+      // The position manager expects WETH tokens, not native ETH
+      const ethValue = 0n; // Always 0 for WETH-based transactions
       
-      // Debug: Log the ETH value being sent
-      console.log('ETH value calculation:', {
+      // Debug: Log the transaction details
+      console.log('Base network transaction:', {
         ethValue: ethValue.toString(),
-        isNativeETH: params.isNativeETH,
         token0: params.token0,
         token1: params.token1,
         amount0Desired: params.amount0Desired.toString(),
         amount1Desired: params.amount1Desired.toString(),
-        WETH_TOKEN
+        WETH_TOKEN,
+        note: 'Using WETH tokens only on Base network'
       });
 
       // Call the actual Uniswap V3 Position Manager contract

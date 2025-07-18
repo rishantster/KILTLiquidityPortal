@@ -69,15 +69,15 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(340, 30%, 20%);
   --input: hsl(340, 15%, 8%);
-  --primary: #d4779b;
+  --primary: #ff0066;
   --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(340, 20%, 15%);
   --secondary-foreground: hsl(0, 0%, 90%);
-  --accent: #d4779b;
+  --accent: #ff0066;
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 100%, 50%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: #d4779b;
+  --ring: #ff0066;
 }
 
 /* Subtle neon glow utility class */

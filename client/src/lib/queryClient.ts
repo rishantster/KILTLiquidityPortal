@@ -66,20 +66,28 @@ export const getQueryFn: <T>(options: {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
-      headers,
-      signal: controller.signal,
-    });
+    try {
+      const res = await fetch(queryKey[0] as string, {
+        credentials: "include",
+        headers,
+        signal: controller.signal,
+      });
 
-    clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
+      
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({
@@ -88,11 +96,14 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      staleTime: 1000 * 60 * 5, // 5 minutes
       retry: (failureCount, error) => {
         // Retry network errors but not other types of errors
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
           return failureCount < 2;
+        }
+        if (error instanceof Error && error.message.includes('Request timeout')) {
+          return failureCount < 1;
         }
         return false;
       },

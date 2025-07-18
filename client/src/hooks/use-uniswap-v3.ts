@@ -106,7 +106,7 @@ export function useUniswapV3() {
         
         return converted;
       } catch (error) {
-        console.error('Error fetching KILT/ETH positions:', error);
+        // Error fetching KILT/ETH positions
         return [];
       }
     },

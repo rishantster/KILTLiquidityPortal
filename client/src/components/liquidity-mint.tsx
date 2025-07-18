@@ -293,7 +293,7 @@ export function LiquidityMint() {
         description: "KILT and WETH have been approved for the Position Manager",
       });
     } catch (error: unknown) {
-      console.error('Approval error:', error);
+      // Approval error
       toast({
         title: "Approval Failed",
         description: (error as Error)?.message || "Failed to approve tokens",
@@ -314,7 +314,7 @@ export function LiquidityMint() {
 
       // Get pool info to determine token order
       const poolInfo = await fetch('/api/pools/0x82Da478b1382B951cBaD01Beb9eD459cDB16458E/info').then(r => r.json());
-      console.log('Pool info:', poolInfo);
+      // Pool info retrieved
       
       // Use appropriate token addresses based on selected token type
       // For liquidity provision, we always use WETH address but send ETH value if needed
@@ -351,21 +351,7 @@ export function LiquidityMint() {
         deadline
       };
 
-      console.log('Mint params:', {
-        token0,
-        token1,
-        fee: 3000,
-        tickLower,
-        tickUpper,
-        amount0Desired: amount0Desired.toString(),
-        amount1Desired: amount1Desired.toString(),
-        amount0Min: amount0Min.toString(),
-        amount1Min: amount1Min.toString(),
-        recipient: address,
-        deadline: deadline.toString(),
-        selectedEthToken,
-        willSendEthValue: selectedEthToken === 'ETH'
-      });
+      // Mint parameters prepared for position creation
 
       const txHash = await mintPosition({
         ...mintParams,
@@ -383,7 +369,7 @@ export function LiquidityMint() {
       setPositionSizePercent([25]);
     } catch (error: unknown) {
       const errorMessage = (error as Error)?.message || "Failed to create liquidity position";
-      console.error('Full error object:', error);
+      // Mint transaction failed
       toast({
         title: "Position Creation Failed",
         description: errorMessage.includes("slippage") ? 

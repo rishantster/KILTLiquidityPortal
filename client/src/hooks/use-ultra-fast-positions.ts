@@ -85,7 +85,7 @@ export function useUltraFastPositions() {
     try {
       await loadPositions(userAddress, false);
     } catch (error) {
-      console.error('Background refresh failed:', error);
+      // Background refresh failed
     }
   }, [loadPositions]);
 

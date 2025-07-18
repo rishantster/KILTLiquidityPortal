@@ -76,7 +76,7 @@ export default function InstantSkeletonPositions() {
         setPositions(data);
         setShowSkeletons(false);
       } catch (error) {
-        console.error('Position loading failed:', error);
+        // Position loading failed
         setShowSkeletons(false);
       }
     };

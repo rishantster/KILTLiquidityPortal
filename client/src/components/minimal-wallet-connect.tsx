@@ -57,7 +57,7 @@ export function MinimalWalletConnect() {
         setAddress(accounts[0]);
       }
     } catch (error) {
-      console.error('Failed to connect wallet:', error);
+      // Failed to connect wallet
     } finally {
       setIsConnecting(false);
     }

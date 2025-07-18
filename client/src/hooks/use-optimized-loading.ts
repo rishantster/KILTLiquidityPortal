@@ -39,7 +39,7 @@ export function useOptimizedLoading() {
         rewards: { aprData }
       });
     } catch (error) {
-      console.error('Failed to load essential data:', error);
+      // Failed to load essential data
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +68,7 @@ export function useOptimizedLoading() {
         poolData: { blockchainConfig, poolInfo }
       });
     } catch (error) {
-      console.error('Failed to load secondary data:', error);
+      // Failed to load secondary data
     }
   }, [isConnected, address]);
 

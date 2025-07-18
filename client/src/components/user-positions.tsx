@@ -398,12 +398,14 @@ export function UserPositions() {
                     <div className="px-3 pb-2 relative z-10">
                       <div className="grid grid-cols-2 gap-2 mb-3">
                         <div className="bg-white/5 rounded-lg p-2">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">Ξ</span>
-                            </div>
-                            <div className="text-white font-medium text-xs">
-                              {ethAmount} WETH
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">Ξ</span>
+                              </div>
+                              <div className="text-white font-medium text-xs">
+                                {ethAmount} WETH
+                              </div>
                             </div>
                           </div>
                           <div className="text-right">
@@ -413,12 +415,14 @@ export function UserPositions() {
                           </div>
                         </div>
                         <div className="bg-white/5 rounded-lg p-2">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">K</span>
-                            </div>
-                            <div className="text-white font-medium text-xs">
-                              {kiltAmount} KILT
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">K</span>
+                              </div>
+                              <div className="text-white font-medium text-xs">
+                                {kiltAmount} KILT
+                              </div>
                             </div>
                           </div>
                           <div className="text-right">
@@ -443,28 +447,28 @@ export function UserPositions() {
                             ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
                           </span>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-1">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                                <span className="text-white text-sm">Ξ</span>
+                            <div className="flex items-center gap-1">
+                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <span className="text-white text-xs">Ξ</span>
                               </div>
-                              <span className="text-white/80 text-sm">48.99%</span>
+                              <span className="text-white/80 text-xs">48.99%</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-white text-sm tabular-nums">${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
+                              <div className="text-white text-xs tabular-nums">${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
                               <div className="text-white/60 text-xs">0.001 WETH</div>
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                                <span className="text-white text-sm">K</span>
+                            <div className="flex items-center gap-1">
+                              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                                <span className="text-white text-xs">K</span>
                               </div>
-                              <span className="text-white/80 text-sm">51.01%</span>
+                              <span className="text-white/80 text-xs">51.01%</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-white text-sm tabular-nums">${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
+                              <div className="text-white text-xs tabular-nums">${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
                               <div className="text-white/60 text-xs">233.87 KILT</div>
                             </div>
                           </div>

@@ -50,7 +50,7 @@ function CyberpunkVideoBackground() {
         zIndex: -1,
         objectFit: 'cover',
         opacity: 1,
-        filter: 'brightness(0.3) contrast(1.4) saturate(0.8) hue-rotate(320deg) sepia(0.1)'
+        filter: 'brightness(0.6) contrast(1.3) saturate(0.9) hue-rotate(320deg) sepia(0.2)'
       }}
       onError={(e) => {
         console.log('Video failed to load:', e);

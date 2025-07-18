@@ -346,7 +346,7 @@ export function UserPositions() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
               {kiltPositions && kiltPositions.map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = isPositionInRange(position);
@@ -374,19 +374,19 @@ export function UserPositions() {
                     )}
                     
                     {/* Header */}
-                    <div className="p-6 pb-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-white/60 text-lg font-medium">Position</span>
+                    <div className="p-3 pb-2 relative z-10">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white/60 text-xs font-medium">Position</span>
                         <Badge 
                           variant={inRange ? "default" : "secondary"}
-                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border-amber-500/30"} text-sm px-3 py-1`}
+                          className={`${inRange ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border-amber-500/30"} text-xs px-2 py-0.5`}
                         >
                           {inRange ? 'In Range' : 'Out of Range'}
                         </Badge>
                       </div>
-                      <div className="text-4xl font-bold text-white tabular-nums relative">
+                      <div className="text-xl font-bold text-white tabular-nums relative">
                         <span className="relative z-10" style={{
-                          textShadow: '0 0 10px rgba(255, 0, 102, 0.8), 0 0 20px rgba(255, 0, 102, 0.6), 0 0 30px rgba(255, 0, 102, 0.4)',
+                          textShadow: '0 0 6px rgba(255, 0, 102, 0.8), 0 0 12px rgba(255, 0, 102, 0.6), 0 0 18px rgba(255, 0, 102, 0.4)',
                           color: '#ffffff'
                         }}>
                           ${positionValue.toFixed(2)}
@@ -395,53 +395,49 @@ export function UserPositions() {
                     </div>
 
                     {/* Token Holdings */}
-                    <div className="px-6 pb-4">
-                      <div className="space-y-4 mb-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                              <span className="text-white text-lg font-bold">Ξ</span>
+                    <div className="px-3 pb-2 relative z-10">
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div className="bg-white/5 rounded-lg p-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">Ξ</span>
                             </div>
-                            <div>
-                              <div className="text-white font-medium text-lg">{ethAmount} WETH</div>
-                              <div className="text-white/60 text-sm">50.3%</div>
+                            <div className="text-white font-medium text-xs">
+                              {ethAmount} WETH
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-white font-medium tabular-nums text-lg">
+                            <div className="text-white font-medium tabular-nums text-xs">
                               ${(parseFloat(ethAmount) * 3635).toFixed(2)}
                             </div>
-                            <div className="text-white/60 text-sm">0.358 WETH</div>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                              <span className="text-white text-lg font-bold">K</span>
+                        <div className="bg-white/5 rounded-lg p-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">K</span>
                             </div>
-                            <div>
-                              <div className="text-white font-medium text-lg">{kiltAmount} KILT</div>
-                              <div className="text-white/60 text-sm">49.7%</div>
+                            <div className="text-white font-medium text-xs">
+                              {kiltAmount} KILT
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-white font-medium tabular-nums text-lg">
+                            <div className="text-white font-medium tabular-nums text-xs">
                               ${(parseFloat(kiltAmount) * 0.01816).toFixed(2)}
                             </div>
-                            <div className="text-white/60 text-sm">70,446.58 KILT</div>
                           </div>
                         </div>
                       </div>
 
                       {/* Fees Earned */}
-                      <div className="bg-white/5 rounded-2xl p-4 mb-6 relative overflow-hidden" style={{
-                        boxShadow: 'inset 0 0 20px rgba(255, 0, 102, 0.1)',
+                      <div className="bg-white/5 rounded-lg p-2 mb-2 relative overflow-hidden" style={{
+                        boxShadow: 'inset 0 0 10px rgba(255, 0, 102, 0.1)',
                         border: '1px solid rgba(255, 0, 102, 0.2)'
                       }}>
-                        <div className="text-white/60 text-sm mb-3">Fees earned</div>
-                        <div className="text-3xl font-bold text-white tabular-nums mb-4 relative">
+                        <div className="text-white/60 text-xs mb-1">Fees earned</div>
+                        <div className="text-sm font-bold text-white tabular-nums mb-2 relative">
                           <span style={{
-                            textShadow: '0 0 8px rgba(255, 0, 102, 0.6), 0 0 16px rgba(255, 0, 102, 0.4)',
+                            textShadow: '0 0 4px rgba(255, 0, 102, 0.6), 0 0 8px rgba(255, 0, 102, 0.4)',
                             color: '#ffffff'
                           }}>
                             ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
@@ -476,7 +472,7 @@ export function UserPositions() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-2 mb-6">
+                      <div className="flex gap-1 mb-2 relative z-10">
                         {!isClosed ? (
                           <>
                             <Button
@@ -484,13 +480,13 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11 relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
                               style={{
-                                boxShadow: '0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3)',
+                                boxShadow: '0 0 6px rgba(16, 185, 129, 0.5), 0 0 12px rgba(16, 185, 129, 0.3)',
                                 border: '1px solid rgba(16, 185, 129, 0.3)'
                               }}
                             >
-                              <Plus className="h-4 w-4 mr-2" />
+                              <Plus className="h-3 w-3 mr-1" />
                               Add
                             </Button>
                             <Button
@@ -498,13 +494,13 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11 relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
                               style={{
-                                boxShadow: '0 0 10px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.3)',
+                                boxShadow: '0 0 6px rgba(239, 68, 68, 0.5), 0 0 12px rgba(239, 68, 68, 0.3)',
                                 border: '1px solid rgba(239, 68, 68, 0.3)'
                               }}
                             >
-                              <Minus className="h-4 w-4 mr-2" />
+                              <Minus className="h-3 w-3 mr-1" />
                               Remove
                             </Button>
                             <Button
@@ -512,36 +508,36 @@ export function UserPositions() {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-11 relative overflow-hidden"
+                              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-7 text-xs relative overflow-hidden"
                               style={{
-                                boxShadow: '0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)',
+                                boxShadow: '0 0 6px rgba(59, 130, 246, 0.5), 0 0 12px rgba(59, 130, 246, 0.3)',
                                 border: '1px solid rgba(59, 130, 246, 0.3)'
                               }}
                             >
-                              <DollarSign className="h-4 w-4 mr-2" />
+                              <DollarSign className="h-3 w-3 mr-1" />
                               Collect
                             </Button>
                           </>
                         ) : (
-                          <div className="flex-1 text-center py-3 text-white/40 text-sm">
+                          <div className="flex-1 text-center py-2 text-white/40 text-xs">
                             Position Closed
                           </div>
                         )}
                       </div>
 
                       {/* Position Details */}
-                      <div className="pt-4 border-t border-white/10">
-                        <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div className="pt-2 border-t border-white/10 relative z-10">
+                        <div className="grid grid-cols-3 gap-2 text-xs">
                           <div>
-                            <div className="text-white/60 mb-1">NFT ID</div>
+                            <div className="text-white/60 mb-0.5">NFT ID</div>
                             <div className="text-white font-medium">#{position.tokenId}</div>
                           </div>
                           <div>
-                            <div className="text-white/60 mb-1">Fee Tier</div>
+                            <div className="text-white/60 mb-0.5">Fee Tier</div>
                             <div className="text-white font-medium">{(position.fee / 10000).toFixed(2)}%</div>
                           </div>
                           <div>
-                            <div className="text-white/60 mb-1">Range</div>
+                            <div className="text-white/60 mb-0.5">Range</div>
                             <div className="text-white font-medium">Full Range</div>
                           </div>
                         </div>

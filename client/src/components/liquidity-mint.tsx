@@ -416,10 +416,11 @@ export function LiquidityMint({
 
 
       // Mint parameters prepared for position creation
-      // On Base network, we always use WETH tokens, never native ETH
+      // Use Uniswap V3 native ETH-to-WETH conversion when ETH is selected
 
       const txHash = await mintPosition({
-        ...mintParams
+        ...mintParams,
+        useNativeETH: selectedEthToken === 'ETH'
       });
 
       toast({

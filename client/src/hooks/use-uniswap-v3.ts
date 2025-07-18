@@ -250,7 +250,8 @@ export function useUniswapV3() {
     amount0Min: bigint,
     amount1Min: bigint,
     recipient: `0x${string}`,
-    deadline: number
+    deadline: number,
+    useNativeETH?: boolean
   }) => {
     setIsMinting(true);
     try {
@@ -258,73 +259,172 @@ export function useUniswapV3() {
         throw new Error('Wallet client not available');
       }
 
-      // On Base network, we use WETH tokens only (no native ETH value)
-      // The position manager expects WETH tokens, not native ETH
-      const ethValue = 0n; // Always 0 for WETH-based transactions
+      // Calculate ETH value for native ETH transactions on Base network
+      // Uniswap V3 Position Manager can handle ETH-to-WETH conversion automatically
+      let ethValue = 0n;
+      
+      if (params.useNativeETH) {
+        // Determine which token amount corresponds to ETH/WETH
+        if (params.token0.toLowerCase() === WETH_TOKEN.toLowerCase()) {
+          ethValue = params.amount0Desired; // token0 is WETH, send ETH value
+        } else if (params.token1.toLowerCase() === WETH_TOKEN.toLowerCase()) {
+          ethValue = params.amount1Desired; // token1 is WETH, send ETH value
+        }
+      }
       
       // Debug: Log the transaction details
       console.log('Base network transaction:', {
         ethValue: ethValue.toString(),
+        useNativeETH: params.useNativeETH,
         token0: params.token0,
         token1: params.token1,
         amount0Desired: params.amount0Desired.toString(),
         amount1Desired: params.amount1Desired.toString(),
         WETH_TOKEN,
-        note: 'Using WETH tokens only on Base network'
+        note: 'Using Uniswap V3 ETH-to-WETH conversion'
       });
 
-      // Call the actual Uniswap V3 Position Manager contract
-      const txHash = await walletClient.writeContract({
-        address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
-        abi: [
-          {
-            inputs: [
-              {
-                components: [
-                  { name: 'token0', type: 'address' },
-                  { name: 'token1', type: 'address' },
-                  { name: 'fee', type: 'uint24' },
-                  { name: 'tickLower', type: 'int24' },
-                  { name: 'tickUpper', type: 'int24' },
-                  { name: 'amount0Desired', type: 'uint256' },
-                  { name: 'amount1Desired', type: 'uint256' },
-                  { name: 'amount0Min', type: 'uint256' },
-                  { name: 'amount1Min', type: 'uint256' },
-                  { name: 'recipient', type: 'address' },
-                  { name: 'deadline', type: 'uint256' }
-                ],
-                name: 'params',
-                type: 'tuple'
-              }
-            ],
-            name: 'mint',
-            outputs: [
-              { name: 'tokenId', type: 'uint256' },
-              { name: 'liquidity', type: 'uint128' },
-              { name: 'amount0', type: 'uint256' },
-              { name: 'amount1', type: 'uint256' }
-            ],
-            type: 'function'
-          }
-        ],
-        functionName: 'mint',
-        args: [
-          {
-            token0: params.token0,
-            token1: params.token1,
-            fee: params.fee,
-            tickLower: params.tickLower,
-            tickUpper: params.tickUpper,
-            amount0Desired: params.amount0Desired,
-            amount1Desired: params.amount1Desired,
-            amount0Min: params.amount0Min,
-            amount1Min: params.amount1Min,
-            recipient: params.recipient,
-            deadline: BigInt(params.deadline)
-          }
-        ],
-        value: ethValue
-      });
+      // For Base network, use multicall with refundETH when using native ETH
+      let txHash: `0x${string}`;
+      
+      if (params.useNativeETH) {
+        // Use multicall with mint + refundETH for native ETH handling
+        const mintCalldata = walletClient.encodeFunctionData({
+          abi: [
+            {
+              inputs: [
+                {
+                  components: [
+                    { name: 'token0', type: 'address' },
+                    { name: 'token1', type: 'address' },
+                    { name: 'fee', type: 'uint24' },
+                    { name: 'tickLower', type: 'int24' },
+                    { name: 'tickUpper', type: 'int24' },
+                    { name: 'amount0Desired', type: 'uint256' },
+                    { name: 'amount1Desired', type: 'uint256' },
+                    { name: 'amount0Min', type: 'uint256' },
+                    { name: 'amount1Min', type: 'uint256' },
+                    { name: 'recipient', type: 'address' },
+                    { name: 'deadline', type: 'uint256' }
+                  ],
+                  name: 'params',
+                  type: 'tuple'
+                }
+              ],
+              name: 'mint',
+              outputs: [
+                { name: 'tokenId', type: 'uint256' },
+                { name: 'liquidity', type: 'uint128' },
+                { name: 'amount0', type: 'uint256' },
+                { name: 'amount1', type: 'uint256' }
+              ],
+              type: 'function'
+            }
+          ],
+          functionName: 'mint',
+          args: [
+            {
+              token0: params.token0,
+              token1: params.token1,
+              fee: params.fee,
+              tickLower: params.tickLower,
+              tickUpper: params.tickUpper,
+              amount0Desired: params.amount0Desired,
+              amount1Desired: params.amount1Desired,
+              amount0Min: params.amount0Min,
+              amount1Min: params.amount1Min,
+              recipient: params.recipient,
+              deadline: BigInt(params.deadline)
+            }
+          ]
+        });
+
+        const refundETHCalldata = walletClient.encodeFunctionData({
+          abi: [
+            {
+              inputs: [],
+              name: 'refundETH',
+              outputs: [],
+              type: 'function'
+            }
+          ],
+          functionName: 'refundETH',
+          args: []
+        });
+
+        // Execute multicall with mint + refundETH
+        txHash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: [
+            {
+              inputs: [
+                { name: 'data', type: 'bytes[]' }
+              ],
+              name: 'multicall',
+              outputs: [
+                { name: 'results', type: 'bytes[]' }
+              ],
+              type: 'function'
+            }
+          ],
+          functionName: 'multicall',
+          args: [[mintCalldata, refundETHCalldata]],
+          value: ethValue
+        });
+      } else {
+        // Standard mint call for WETH-only transactions
+        txHash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: [
+            {
+              inputs: [
+                {
+                  components: [
+                    { name: 'token0', type: 'address' },
+                    { name: 'token1', type: 'address' },
+                    { name: 'fee', type: 'uint24' },
+                    { name: 'tickLower', type: 'int24' },
+                    { name: 'tickUpper', type: 'int24' },
+                    { name: 'amount0Desired', type: 'uint256' },
+                    { name: 'amount1Desired', type: 'uint256' },
+                    { name: 'amount0Min', type: 'uint256' },
+                    { name: 'amount1Min', type: 'uint256' },
+                    { name: 'recipient', type: 'address' },
+                    { name: 'deadline', type: 'uint256' }
+                  ],
+                  name: 'params',
+                  type: 'tuple'
+                }
+              ],
+              name: 'mint',
+              outputs: [
+                { name: 'tokenId', type: 'uint256' },
+                { name: 'liquidity', type: 'uint128' },
+                { name: 'amount0', type: 'uint256' },
+                { name: 'amount1', type: 'uint256' }
+              ],
+              type: 'function'
+            }
+          ],
+          functionName: 'mint',
+          args: [
+            {
+              token0: params.token0,
+              token1: params.token1,
+              fee: params.fee,
+              tickLower: params.tickLower,
+              tickUpper: params.tickUpper,
+              amount0Desired: params.amount0Desired,
+              amount1Desired: params.amount1Desired,
+              amount0Min: params.amount0Min,
+              amount1Min: params.amount1Min,
+              recipient: params.recipient,
+              deadline: BigInt(params.deadline)
+            }
+          ],
+          value: ethValue
+        });
+      }
 
       // Wait for transaction confirmation
       await baseClient.waitForTransactionReceipt({ hash: txHash });

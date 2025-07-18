@@ -1994,6 +1994,49 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Admin simple routes (legacy support)
   app.use("/api/admin-simple", adminSimpleRouter);
 
+  // Admin audit trail routes
+  app.get("/api/admin/audit/history", requireAdminAuth, async (req, res) => {
+    try {
+      const { adminOperations } = await import('../shared/schema');
+      const { desc } = await import('drizzle-orm');
+      const operations = await db
+        .select()
+        .from(adminOperations)
+        .orderBy(desc(adminOperations.timestamp))
+        .limit(100);
+      res.json(operations);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch admin history' });
+    }
+  });
+
+  // Log admin operation
+  app.post("/api/admin/audit/log", requireAdminAuth, async (req, res) => {
+    try {
+      const { adminOperations } = await import('../shared/schema');
+      const logData = req.body;
+      
+      const [operation] = await db
+        .insert(adminOperations)
+        .values({
+          operationType: logData.operationType,
+          operationDetails: JSON.stringify(logData.operationDetails),
+          treasuryAddress: logData.treasuryAddress,
+          amount: logData.amount,
+          reason: logData.reason,
+          performedBy: logData.performedBy,
+          transactionHash: logData.transactionHash,
+          success: logData.success,
+          errorMessage: logData.errorMessage,
+        })
+        .returning();
+
+      res.json(operation);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to log admin operation' });
+    }
+  });
+
   // System health and debugging routes
   // Removed systemHealthRouter - consolidated into main routes
 

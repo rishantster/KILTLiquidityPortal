@@ -218,6 +218,21 @@ export const liquidityEvents = pgTable("liquidity_events", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+// Insert/select schemas for admin operations audit log
+export const insertAdminOperationSchema = createInsertSchema(adminOperations).pick({
+  operationType: true,
+  operationDetails: true,
+  treasuryAddress: true,
+  amount: true,
+  reason: true,
+  performedBy: true,
+  transactionHash: true,
+  success: true,
+  errorMessage: true,
+});
+
+
+
 export const insertUserSchema = createInsertSchema(users).pick({
   address: true,
 });
@@ -343,52 +358,7 @@ export const insertTreasuryConfigSchema = createInsertSchema(treasuryConfig).pic
   createdBy: true,
 });
 
-export const insertAdminOperationSchema = createInsertSchema(adminOperations).pick({
-  operationType: true,
-  operationDetails: true,
-  treasuryAddress: true,
-  amount: true,
-  reason: true,
-  performedBy: true,
-  transactionHash: true,
-  success: true,
-  errorMessage: true,
-});
 
-export const insertTokenPoolConfigSchema = createInsertSchema(tokenPoolConfig).pick({
-  kiltTokenAddress: true,
-  wethTokenAddress: true,
-  poolAddress: true,
-  poolFeeRate: true,
-  networkId: true,
-  isActive: true,
-  createdBy: true,
-});
-
-// Type definitions for inserts and selects
-export type LpPosition = typeof lpPositions.$inferSelect;
-export type InsertLpPosition = typeof lpPositions.$inferInsert;
-
-export type Reward = typeof rewards.$inferSelect;
-export type InsertReward = typeof rewards.$inferInsert;
-
-export type PoolStats = typeof poolStats.$inferSelect;
-export type InsertPoolStats = typeof poolStats.$inferInsert;
-
-export type PositionSnapshot = typeof positionSnapshots.$inferSelect;
-export type InsertPositionSnapshot = typeof positionSnapshots.$inferInsert;
-
-export type PoolMetricsHistory = typeof poolMetricsHistory.$inferSelect;
-export type InsertPoolMetricsHistory = typeof poolMetricsHistory.$inferInsert;
-
-export type UserAnalytics = typeof userAnalytics.$inferSelect;
-export type InsertUserAnalytics = typeof userAnalytics.$inferInsert;
-
-export type FeeEvent = typeof feeEvents.$inferSelect;
-export type InsertFeeEvent = typeof feeEvents.$inferInsert;
-
-export type DailyReward = typeof dailyRewards.$inferSelect;
-export type InsertDailyReward = typeof dailyRewards.$inferInsert;
 
 export type AppTransaction = typeof appTransactions.$inferSelect;
 export type InsertAppTransaction = typeof appTransactions.$inferInsert;

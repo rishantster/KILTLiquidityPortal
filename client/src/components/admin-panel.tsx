@@ -19,7 +19,8 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle,
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react';
 
 interface AdminTreasuryStats {
@@ -167,6 +168,20 @@ export default function AdminPanel() {
     queryFn: async () => {
       const response = await fetch('/api/rewards/maximum-apr');
       if (!response.ok) throw new Error('Failed to fetch APR calculations');
+      return response.json();
+    }
+  });
+
+  // Admin audit history query
+  const auditHistoryQuery = useQuery({
+    queryKey: ['/api/admin/audit/history'],
+    enabled: isAuthenticated && !!adminToken,
+    refetchInterval: 10000, // Check every 10 seconds
+    queryFn: async () => {
+      const response = await fetch('/api/admin/audit/history', {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch audit history');
       return response.json();
     }
   });
@@ -453,7 +468,7 @@ export default function AdminPanel() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="treasury" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               Treasury
@@ -465,6 +480,10 @@ export default function AdminPanel() {
             <TabsTrigger value="blockchain" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
               Blockchain
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Audit Trail
             </TabsTrigger>
           </TabsList>
 
@@ -789,6 +808,73 @@ export default function AdminPanel() {
                     <CheckCircle className="h-4 w-4 inline mr-1" />
                     Network: Base Mainnet (Chain ID: 8453) - Production ready
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-6">
+            <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Admin Operation History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {auditHistoryQuery.isLoading ? (
+                    <div className="text-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                      <p className="text-gray-400">Loading audit history...</p>
+                    </div>
+                  ) : auditHistoryQuery.data?.length === 0 ? (
+                    <div className="text-center py-8">
+                      <FileText className="h-12 w-12 mx-auto mb-4 text-gray-500" />
+                      <p className="text-gray-400">No admin operations recorded yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {auditHistoryQuery.data?.map((operation: any) => (
+                        <div
+                          key={operation.id}
+                          className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg border border-gray-700/50"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-full ${
+                              operation.success 
+                                ? 'bg-emerald-500/20 text-emerald-400' 
+                                : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {operation.success ? (
+                                <CheckCircle className="h-4 w-4" />
+                              ) : (
+                                <AlertCircle className="h-4 w-4" />
+                              )}
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">
+                                {operation.operationType}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {operation.reason || 'No reason provided'}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right text-xs text-gray-400">
+                            <div className="flex items-center gap-1 mb-1">
+                              <Clock className="h-3 w-3" />
+                              {new Date(operation.timestamp).toLocaleString()}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Shield className="h-3 w-3" />
+                              {operation.performedBy?.slice(0, 6)}...{operation.performedBy?.slice(-4)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

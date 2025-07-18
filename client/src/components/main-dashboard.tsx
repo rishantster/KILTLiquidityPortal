@@ -658,14 +658,21 @@ export function MainDashboard() {
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
-                              variant={selectedPercentage === value ? "default" : "outline"}
+                              variant="outline"
                               size="sm"
                               onClick={() => setSelectedPercentage(value)}
-                              className={`text-xs py-1 px-1 h-6 transition-all duration-200 ${
+                              className={`text-xs py-1 px-1 h-6 transition-all duration-200 border ${
                                 selectedPercentage === value 
-                                  ? 'bg-matrix-green hover:bg-matrix-green/80 text-black' 
-                                  : 'hover:bg-matrix-green/10 hover:border-matrix-green/50'
+                                  ? 'text-black font-bold border-2' 
+                                  : 'border text-white/80 hover:bg-matrix-green/10 hover:border-matrix-green/50 hover:text-white'
                               }`}
+                              style={selectedPercentage === value ? { 
+                                backgroundColor: '#ff0066', 
+                                borderColor: '#ff0066',
+                                color: 'white'
+                              } : { 
+                                borderColor: 'rgba(255, 255, 255, 0.2)' 
+                              }}
                             >
                               {label}
                             </Button>

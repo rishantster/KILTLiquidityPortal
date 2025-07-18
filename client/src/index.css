@@ -146,7 +146,13 @@
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: white;
-    background: #000000;
+    background: 
+      /* Heavy black overlay filter */
+      linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+      /* New background image */
+      url('/attached_assets/Untitled design (69)_1752816496582.png'),
+      /* Fallback solid black background */
+      #000000;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

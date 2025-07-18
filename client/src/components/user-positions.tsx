@@ -247,7 +247,7 @@ export function UserPositions() {
     <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
       <Card key={`positions-${kiltEthPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
-        <CardHeader className="pb-4 bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-sm border-b border-white/10">
+        <CardHeader className="pb-4 from-slate-900/50 to-slate-800/50 backdrop-blur-sm border-b border-white/10 bg-[#000000]">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Left Side - Title and Stats */}
             <div className="flex items-center space-x-4">

@@ -112,8 +112,8 @@ function CyberpunkVideoBackground() {
             height: '100vh',
             zIndex: -1,
             objectFit: 'cover',
-            opacity: isLoaded ? 0.8 : 0,
-            filter: 'brightness(0.9) contrast(1.1) saturate(1.0) hue-rotate(320deg) sepia(0.3)',
+            opacity: isLoaded ? 0.7 : 0,
+            filter: 'brightness(1.2) contrast(1.0) saturate(1.1) hue-rotate(320deg) sepia(0.2)',
             transition: 'opacity 0.3s ease-in-out',
             willChange: 'opacity'
           }}

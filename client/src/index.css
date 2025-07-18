@@ -354,9 +354,9 @@
     height: 100%;
     background: 
       /* Subtle pink tint */
-      linear-gradient(rgba(255, 0, 102, 0.03), rgba(255, 0, 102, 0.02)),
-      /* Light dark overlay for text readability */
-      linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.60));
+      linear-gradient(rgba(255, 0, 102, 0.05), rgba(255, 0, 102, 0.03)),
+      /* Even lighter dark overlay to show more video */
+      linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.15));
     z-index: -1;
     pointer-events: none;
   }

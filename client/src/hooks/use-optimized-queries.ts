@@ -40,14 +40,22 @@ export function useOptimizedQueries(userAddress?: string) {
     enabled: !!userAddress, // Only fetch if user address provided
   });
 
+  // Cache real trading fees APR data
+  const tradingFeesData = useQuery({
+    queryKey: ['/api/trading-fees/pool-apr'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
   // Memoized calculations to prevent unnecessary re-renders
   const calculations = useMemo(() => {
-    const dailyVolume = kiltData.data?.volume || 426;
-    const poolTVL = programAnalytics.data?.totalLiquidity || 91431.8;
-    const feeTier = 0.003; // 0.3%
-    const dailyFees = dailyVolume * feeTier;
-    const annualFees = dailyFees * 365;
-    const feeAPR = poolTVL > 0 ? (annualFees / poolTVL) * 100 : 0;
+    // Use real trading fees APR from our service instead of flawed calculation
+    const feeAPR = tradingFeesData.data?.tradingFeesAPR || 0;
+    const poolTVL = tradingFeesData.data?.poolTVL || programAnalytics.data?.totalLiquidity || 91431.8;
+    const dailyVolume = tradingFeesData.data?.poolVolume24hUSD || kiltData.data?.volume || 426;
+    
     // Use user-specific APR if available, otherwise fall back to maximum APR
     const kiltRewardAPR = userAprData.data?.incentiveAPR || aprData.data?.maxAPR || 0;
     const totalAPR = feeAPR + kiltRewardAPR;
@@ -58,15 +66,18 @@ export function useOptimizedQueries(userAddress?: string) {
       totalAPR: totalAPR.toFixed(0),
       dailyVolume,
       poolTVL,
+      dataSource: tradingFeesData.data?.dataSource || 'fallback',
+      feeTier: tradingFeesData.data?.feeTier || 3000,
     };
-  }, [kiltData.data, programAnalytics.data, aprData.data, userAprData.data]);
+  }, [kiltData.data, programAnalytics.data, aprData.data, userAprData.data, tradingFeesData.data]);
 
   return {
     kiltData,
     programAnalytics,
     aprData,
     userAprData,
+    tradingFeesData,
     calculations,
-    isLoading: kiltData.isLoading || programAnalytics.isLoading || aprData.isLoading,
+    isLoading: kiltData.isLoading || programAnalytics.isLoading || aprData.isLoading || tradingFeesData.isLoading,
   };
 }

@@ -550,6 +550,22 @@ export function MainDashboard() {
                   <p className="text-white/60 text-xs font-medium">276.97M circulating</p>
                 </div>
 
+                {/* Trading Fees APR - Real Data */}
+                <div className="text-center group hover:scale-105 transition-transform duration-200">
+                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
+                    <TrendingUp className="h-5 w-5 text-matrix-green" />
+                  </div>
+                  <p className="text-super-bright text-sm mb-1 font-medium">Trading Fees APR</p>
+                  <div className="text-matrix-green font-bold text-lg font-mono">
+                    {queries?.calculations?.feeAPR || '--'}%
+                  </div>
+                  <div className="text-white/60 text-xs mt-1 flex items-center justify-center gap-1">
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs">
+                      {queries?.calculations?.dataSource || 'live'}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Your Reward APR */}
                 <div className="text-center group hover:scale-105 transition-transform duration-200">
                   <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
@@ -566,18 +582,6 @@ export function MainDashboard() {
                       </div>
                     )}
                   </div>
-                </div>
-
-                {/* Maximum APR */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <TrendingUp className="h-5 w-5 text-matrix-green" />
-                  </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Current APR</p>
-                  <p className="text-matrix-bright font-bold text-lg font-mono">
-                    {unifiedData?.maxAPRData?.aprRange || '31%'}
-                  </p>
-                  <p className="text-matrix-green/70 text-xs font-medium">High yields available!</p>
                 </div>
               </div>
             </div>

@@ -2120,6 +2120,63 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Trading Fees APR API routes
+  app.get("/api/trading-fees/pool-apr", async (req, res) => {
+    try {
+      const { tradingFeesAPRService } = await import('./trading-fees-apr-service');
+      const aprData = await tradingFeesAPRService.calculatePoolTradingFeesAPR();
+      res.setHeader('Content-Type', 'application/json');
+      res.json(aprData);
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ 
+        error: 'Failed to calculate trading fees APR',
+        tradingFeesAPR: 0,
+        poolVolume24hUSD: 0,
+        poolFees24hUSD: 0,
+        poolTVL: 0,
+        feeTier: 3000,
+        dataSource: 'error'
+      });
+    }
+  });
+
+  app.get("/api/trading-fees/position-apr/:userAddress", async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      const { positionValue, tickLower, tickUpper, liquidity } = req.query;
+      
+      if (!positionValue || !tickLower || !tickUpper || !liquidity) {
+        res.status(400).json({ error: 'Missing required position parameters' });
+        return;
+      }
+
+      const { tradingFeesAPRService } = await import('./trading-fees-apr-service');
+      const aprData = await tradingFeesAPRService.calculatePositionTradingFeesAPR(
+        userAddress,
+        parseFloat(positionValue as string),
+        parseInt(tickLower as string),
+        parseInt(tickUpper as string),
+        liquidity as string
+      );
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.json(aprData);
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ 
+        error: 'Failed to calculate position-specific trading fees APR',
+        tradingFeesAPR: 0,
+        positionSpecificAPR: 0,
+        poolVolume24hUSD: 0,
+        poolFees24hUSD: 0,
+        poolTVL: 0,
+        feeTier: 3000,
+        dataSource: 'error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

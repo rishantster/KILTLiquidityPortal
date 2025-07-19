@@ -376,47 +376,67 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Clean Social Media Links */}
-            <div className="flex justify-center items-center gap-3">
+            {/* Right-Side Vertical Social Media Navigation */}
+            <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col space-y-4">
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="group relative w-14 h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                title="Follow us on X (Twitter)"
               >
-                <SiX className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiX className="h-6 w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
+                  Follow on X
+                </div>
               </a>
               <a 
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="group relative w-14 h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                title="View our GitHub"
               >
-                <SiGithub className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiGithub className="h-6 w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
+                  View GitHub
+                </div>
               </a>
               <a 
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="group relative w-14 h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                title="Join our Discord"
               >
-                <SiDiscord className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiDiscord className="h-6 w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
+                  Join Discord
+                </div>
               </a>
               <a 
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="group relative w-14 h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                title="Join our Telegram"
               >
-                <SiTelegram className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiTelegram className="h-6 w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
+                  Join Telegram
+                </div>
               </a>
               <a 
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="group relative w-14 h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                title="Read our Medium"
               >
-                <SiMedium className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiMedium className="h-6 w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
+                  Read Medium
+                </div>
               </a>
             </div>
           </div>
@@ -435,50 +455,26 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
-      {/* Right-Side Vertical Navigation */}
-      <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-50 flex flex-col space-y-3">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`
-              group relative w-14 h-14 rounded-xl border
-              flex items-center justify-center
-              vertical-nav-button
-              ${activeTab === tab.id 
-                ? 'bg-gradient-to-br from-[#ff0066] to-[#ff0066]/70 border-[#ff0066] shadow-lg shadow-[#ff0066]/30' 
-                : 'bg-black/50 border-gray-700 hover:border-[#ff0066]/50'
-              }
-              backdrop-blur-md
-            `}
-            title={tab.label}
-          >
-            <tab.icon className={`
-              w-6 h-6 transition-all duration-300
-              ${activeTab === tab.id ? 'text-white' : 'text-gray-400 group-hover:text-[#ff0066]'}
-              group-hover:scale-125
-            `} />
-            
-            {/* Tooltip */}
-            <div className="
-              absolute right-16 top-1/2 transform -translate-y-1/2
-              bg-black/90 text-white px-3 py-1 rounded-lg text-sm
-              opacity-0 group-hover:opacity-100 transition-opacity duration-300
-              pointer-events-none whitespace-nowrap
-              border border-gray-700
-            ">
-              {tab.label}
-            </div>
-            
-            {/* Old-school glow effect */}
-            <div className="
-              absolute inset-0 rounded-xl
-              opacity-0 group-hover:opacity-100 transition-opacity duration-500
-              bg-gradient-to-br from-[#ff0066]/20 to-transparent
-              animate-pulse
-            "></div>
-          </button>
-        ))}
+      {/* Tab Navigation */}
+      <div className="flex justify-center mb-8">
+        <div className="bg-black/40 backdrop-blur-sm border border-gray-800/50 rounded-xl p-1 flex gap-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300
+                ${activeTab === tab.id 
+                  ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066]/80 text-white shadow-lg' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }
+              `}
+            >
+              <tab.icon className="h-4 w-4" />
+              <span className="text-sm font-medium">{tab.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Background Video - Testing higher z-index */}

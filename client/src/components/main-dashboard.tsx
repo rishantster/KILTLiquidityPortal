@@ -581,12 +581,12 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Two Column Layout - Mobile Responsive */}
-            <div className="mobile-flex-layout lg:grid lg:grid-cols-2 gap-6 lg:gap-6">
+            {/* Two Column Layout - Fixed Mobile Responsive */}
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-6">
               {/* Left Column - Position Registration */}
-              <div className="mobile-column-fix mobile-section-spacing lg:mb-0">
+              <div className="w-full mb-8 lg:mb-0">
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
-                  <Plus className="h-4 w-4 text-pink-400" />
+                  <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span className="hidden sm:inline">Register Existing Positions</span>
                   <span className="sm:hidden">Register Positions</span>
                 </h2>
@@ -596,13 +596,13 @@ export function MainDashboard() {
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="mobile-column-fix mobile-prevent-overlap">
+              <div className="w-full">
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
-                  <Zap className="h-4 w-4 text-pink-400" />
+                  <Zap className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span className="hidden sm:inline">Quick Add Liquidity</span>
                   <span className="sm:hidden">Add Liquidity</span>
                 </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
+                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col overflow-hidden cluely-card mobile-stack-fix">
                   <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
                     <div className="space-y-4 flex-1">
                       {/* Balance Display */}
@@ -612,7 +612,7 @@ export function MainDashboard() {
                           {/* KILT Balance Card */}
                           <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
                             <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                                 <img 
                                   src={kiltLogo} 
                                   alt="KILT" 
@@ -634,7 +634,7 @@ export function MainDashboard() {
                           {/* ETH Balance Card */}
                           <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
                             <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                                 <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                   <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                   <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
@@ -656,7 +656,7 @@ export function MainDashboard() {
                           {/* WETH Balance Card */}
                           <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
                             <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                                 <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                   <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                   <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>

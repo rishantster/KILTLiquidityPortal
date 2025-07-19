@@ -3,101 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    
-    <!-- Cache Control Headers -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    
-    <!-- Version-based cache busting -->
-    <meta name="version" content="2025.01.19.002" />
-    <meta name="build-timestamp" content="1752907500000" />
-    
-    <!-- SEO Meta Tags -->
-    <title>KILT Liquidity Incentive Portal | DeFi Rewards on Base Network</title>
-    <meta name="description" content="Earn up to 113% APR on KILT/ETH liquidity positions with treasury rewards. Join the KILT Liquidity Incentive Program on Base network." />
-    
-    <!-- Open Graph for Social Sharing -->
-    <meta property="og:title" content="KILT Liquidity Incentive Portal" />
-    <meta property="og:description" content="Earn up to 113% APR on KILT/ETH liquidity positions with treasury rewards" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://kilt-liquidity-portal.replit.app" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Service Worker Registration for Cache Busting -->
-    <script>
-      // Enhanced Service Worker registration with better error handling
-      if ('serviceWorker' in navigator && !window.location.hostname.includes('localhost')) {
-        window.addEventListener('load', () => {
-          // Check if we're in an iframe (Replit environment)
-          const isIframe = window.self !== window.top;
-          
-          if (isIframe) {
-            console.log('Service Worker registration skipped in iframe environment');
-            return;
-          }
-
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('Service Worker registered:', registration);
-              
-              // Check for updates less frequently in Replit environment
-              const updateInterval = window.location.hostname.includes('replit') ? 60000 : 30000;
-              setInterval(() => {
-                registration.update().catch(() => {
-                  // Silently handle update failures
-                });
-              }, updateInterval);
-              
-              // Listen for updates
-              registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                if (newWorker) {
-                  newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      // New version available, force update
-                      console.log('New version available');
-                      // Auto-update without prompting in development
-                      if (window.location.hostname.includes('replit')) {
-                        window.location.reload();
-                      } else if (confirm('New version available! Click OK to update.')) {
-                        newWorker.postMessage({ type: 'FORCE_UPDATE' });
-                        window.location.reload();
-                      }
-                    }
-                  });
-                }
-              });
-            })
-            .catch(error => {
-              console.log('Service Worker registration failed (this is normal in some environments):', error.message);
-            });
-        });
-      }
-    </script>
-    
-    <!-- Replit development banner - only load if in Replit environment -->
-    <script>
-      // Only load Replit banner in development and when in Replit environment
-      if (window.location.hostname.includes('replit') || window.location.hostname.includes('repl')) {
-        try {
-          const script = document.createElement('script');
-          script.src = 'https://replit.com/public/js/replit-dev-banner.js';
-          script.type = 'text/javascript';
-          script.async = true;
-          script.onerror = function() {
-            // Silently fail if script cannot be loaded
-            console.log('Replit banner script could not be loaded');
-          };
-          document.head.appendChild(script);
-        } catch (e) {
-          // Silently fail
-          console.log('Replit banner loading failed:', e.message);
-        }
-      }
-    </script>
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

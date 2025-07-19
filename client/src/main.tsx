@@ -2,24 +2,6 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import App from "./App";
 import "./index.css";
-import { KiltCookieManager } from './utils/cookie-manager';
-import { initializeBrowserCompatibility } from './lib/browser-compatibility';
-
-// Initialize browser compatibility improvements
-initializeBrowserCompatibility();
-
-// Initialize essential cookies for optimal loading
-KiltCookieManager.initializeEssentials();
-
-// Track page load performance
-const loadStartTime = performance.now();
-window.addEventListener('load', () => {
-  const loadTime = performance.now() - loadStartTime;
-  KiltCookieManager.trackPageLoad(loadTime);
-});
-
-// Cleanup expired cookies on app start
-KiltCookieManager.cleanup();
 
 // Global error handler for unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {

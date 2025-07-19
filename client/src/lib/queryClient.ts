@@ -1,5 +1,4 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { safeFetch } from "./browser-compatibility";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -26,27 +25,24 @@ export async function apiRequest<T = unknown>(
   }
 
   try {
-    const res = await safeFetch(url, {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+    const res = await fetch(url, {
       method: options?.method || 'GET',
       headers,
       body: options?.data ? JSON.stringify(options.data) : undefined,
       credentials: "include",
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
     await throwIfResNotOk(res);
     return await res.json();
   } catch (error) {
-    // Enhanced error handling for Replit environment
-    if (error instanceof Error) {
-      if (error.message.includes('timeout')) {
-        console.warn('Request timed out:', url);
-        throw new Error('Request timeout - please check your connection');
-      }
-      
-      if (error.message.includes('CORS')) {
-        console.warn('CORS error for:', url);
-        throw new Error('Network error - please refresh the page');
-      }
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('Request timed out:', url);
+      throw new Error('Request timeout');
     }
     throw error;
   }

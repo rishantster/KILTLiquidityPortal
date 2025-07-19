@@ -157,53 +157,27 @@ export const setupSecurity = (app: Express) => {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com", "data:"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://replit.com", "https://*.replit.com"], // Required for Vite and Replit
-        connectSrc: ["'self'", "https://api.coingecko.com", "https://mainnet.base.org", "https://*.replit.com", "https://replit.com", "wss:", "https:"],
-        frameSrc: ["'self'", "https://*.replit.com", "https://replit.com"],
-        frameAncestors: ["'self'", "https://*.replit.com", "https://replit.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Required for Vite
+        connectSrc: ["'self'", "https://api.coingecko.com", "https://mainnet.base.org", "wss:", "https:"],
+        frameSrc: ["'none'"],
         objectSrc: ["'none'"],
-        workerSrc: ["'self'", "blob:"],
-        childSrc: ["'self'", "blob:"],
         upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
       },
     },
     crossOriginEmbedderPolicy: false, // Disable for Web3 compatibility
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin resources
   }));
 
   // CORS configuration
   app.use(cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      const allowedOrigins = process.env.NODE_ENV === 'production' 
-        ? [
-            /https:\/\/.*\.replit\.app$/,
-            /https:\/\/.*\.repl\.co$/,
-            /https:\/\/replit\.com$/,
-            /https:\/\/.*\.replit\.com$/
-          ]
-        : [
-            'http://localhost:5000',
-            'http://127.0.0.1:5000',
-            /https:\/\/.*\.replit\.app$/,
-            /https:\/\/.*\.repl\.co$/,
-            /https:\/\/replit\.com$/
-          ];
-      
-      const isAllowed = allowedOrigins.some(pattern => 
-        typeof pattern === 'string' ? pattern === origin : pattern.test(origin)
-      );
-      
-      callback(null, isAllowed);
-    },
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://*.replit.app', 'https://*.repl.co'] 
+      : ['http://localhost:5000', 'http://127.0.0.1:5000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Frame-Options'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     exposedHeaders: ['X-Total-Count'],
     maxAge: 86400 // 24 hours
   }));

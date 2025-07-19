@@ -1726,16 +1726,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return res.status(400).json({ error: 'Invalid wallet address format' });
       }
 
-      // Check if wallet is authorized for admin access
+      // Check if wallet is authorized for admin access (case-insensitive)
       const authorizedWallets = [
         '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
         '0x861722f739539CF31d86F1221460Fa96C9baB95C'
       ];
       
-      if (!authorizedWallets.includes(walletAddress)) {
+      const normalizedWalletAddress = walletAddress.toLowerCase();
+      const normalizedAuthorizedWallets = authorizedWallets.map(addr => addr.toLowerCase());
+      
+      console.log('Backend auth check - Wallet:', walletAddress);
+      console.log('Backend auth check - Authorized wallets:', authorizedWallets);
+      
+      if (!normalizedAuthorizedWallets.includes(normalizedWalletAddress)) {
         return res.status(401).json({ 
-          error: 'Access denied. Unauthorized wallet address.',
-          code: 'UNAUTHORIZED_WALLET'
+          error: `Access denied. Wallet ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} is not authorized for admin access.`,
+          code: 'UNAUTHORIZED_WALLET',
+          connectedWallet: walletAddress
         });
       }
 

@@ -32,8 +32,16 @@ export default function AdminPage() {
         return;
       }
 
-      if (!authorizedWallets.includes(address)) {
-        setError('Access denied. Unauthorized wallet address.');
+      // Debug: Show the actual connected address
+      console.log('Connected address:', address);
+      console.log('Authorized wallets:', authorizedWallets);
+      
+      // Check authorization with case-insensitive comparison
+      const normalizedAddress = address.toLowerCase();
+      const normalizedAuthorizedWallets = authorizedWallets.map(addr => addr.toLowerCase());
+      
+      if (!normalizedAuthorizedWallets.includes(normalizedAddress)) {
+        setError(`Access denied. Connected wallet: ${address.slice(0, 6)}...${address.slice(-4)} is not authorized for admin access.`);
         return;
       }
 
@@ -132,7 +140,7 @@ export default function AdminPage() {
                   <span>WALLET:</span>
                   <span>{address.slice(0, 6)}...{address.slice(-4)}</span>
                 </div>
-                {authorizedWallets.includes(address) ? (
+                {authorizedWallets.map(addr => addr.toLowerCase()).includes(address.toLowerCase()) ? (
                   <div className="text-green-400 text-xs mt-1">✓ AUTHORIZED ADMIN WALLET</div>
                 ) : (
                   <div className="text-red-400 text-xs mt-1">✗ UNAUTHORIZED WALLET</div>

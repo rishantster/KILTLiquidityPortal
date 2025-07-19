@@ -73,16 +73,10 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
-// Debug middleware to log request body parsing
+// Simple request logging for admin endpoints
 app.use((req, res, next) => {
   if (req.method === 'POST' && req.path.includes('/api/admin/')) {
-    console.log('=== REQUEST DEBUG ===');
-    console.log('Path:', req.path);
-    console.log('Content-Type:', req.get('Content-Type'));
-    console.log('Content-Length:', req.get('Content-Length'));
-    console.log('Raw body available:', req.body !== undefined);
-    console.log('Body keys:', Object.keys(req.body || {}));
-    console.log('==================');
+    console.log(`Admin ${req.method} ${req.path}`);
   }
   next();
 });

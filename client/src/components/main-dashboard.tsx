@@ -30,6 +30,8 @@ import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
+import { CookieConsent } from './cookie-consent';
+import { KiltCookieManager } from '../utils/cookie-manager';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
@@ -848,6 +850,18 @@ export function MainDashboard() {
 
         </Tabs>
       </div>
+      
+      {/* Cookie Consent Modal */}
+      <CookieConsent 
+        onAccept={() => {
+          // Initialize performance cookies on acceptance
+          KiltCookieManager.setPreferences({
+            theme: 'dark',
+            currency: 'USD',
+            notifications: true
+          });
+        }}
+      />
     </div>
   );
 }

@@ -80,6 +80,9 @@ export function MainDashboard() {
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
   
+  // Get optimized queries for real trading fees APR data
+  const queries = useOptimizedQueries(address);
+  
   // Use balance data from unified dashboard hook
   const { 
     kiltBalance, 

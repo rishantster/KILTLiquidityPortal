@@ -4,6 +4,72 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Matrix Rain Animation for Cyberpunk Admin Panel */
+.matrix-rain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    0deg,
+    transparent 20%,
+    rgba(0, 255, 102, 0.1) 50%,
+    transparent 80%
+  );
+  background-size: 2px 100px;
+  animation: matrix-fall 3s linear infinite;
+}
+
+.matrix-rain::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(0, 255, 102, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 30% 40%, rgba(0, 255, 102, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 50% 60%, rgba(0, 255, 102, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 70% 80%, rgba(0, 255, 102, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 90% 10%, rgba(0, 255, 102, 0.1) 1px, transparent 1px);
+  background-size: 100px 100px, 150px 150px, 200px 200px, 120px 120px, 180px 180px;
+  animation: matrix-fall 4s linear infinite reverse;
+}
+
+@keyframes matrix-fall {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Cyberpunk Glow Effects */
+.cyberpunk-glow {
+  box-shadow: 
+    0 0 10px rgba(0, 255, 102, 0.3),
+    0 0 20px rgba(0, 255, 102, 0.2),
+    0 0 30px rgba(0, 255, 102, 0.1);
+}
+
+.cyberpunk-pink-glow {
+  box-shadow: 
+    0 0 10px rgba(255, 0, 102, 0.3),
+    0 0 20px rgba(255, 0, 102, 0.2),
+    0 0 30px rgba(255, 0, 102, 0.1);
+}
+
 /* Video performance optimizations */
 .video-background {
   position: fixed;

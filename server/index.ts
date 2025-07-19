@@ -112,52 +112,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// CRITICAL FIX: Admin login with manual body parsing
-app.post("/api/admin/login", (req, res) => {
-  let body = '';
-  
-  req.setEncoding('utf8');
-  req.on('data', (chunk) => {
-    body += chunk;
-  });
-  
-  req.on('end', () => {
-    try {
-      
-      const data = JSON.parse(body || '{}');
-      const { username, password, walletAddress } = data;
-      
-      if (walletAddress) {
-        // Wallet-based authentication
-        const validWallets = ['0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e', '0x861722f739539CF31d86F1221460Fa96C9baB95C'];
-        if (!validWallets.includes(walletAddress)) {
-          return res.status(401).json({ error: 'Unauthorized wallet address' });
-        }
-      } else if (username && password) {
-        // Username/password authentication
-        if (username !== 'admin' || password !== 'admin123') {
-          return res.status(401).json({ error: 'Invalid credentials' });
-        }
-      } else {
-        return res.status(400).json({ error: 'Either wallet address or username/password required' });
-      }
 
-      // Generate simple token
-      const token = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-      
-
-      
-      res.json({
-        success: true,
-        token,
-        message: 'Admin login successful'
-      });
-    } catch (error) {
-      console.error('Admin login parsing error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-});
 
 // Application startup
 (async () => {

@@ -7,6 +7,7 @@ import { WalletProvider } from "@/contexts/wallet-context";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
+
 import { useEffect, useRef, useState } from "react";
 
 function Router() {

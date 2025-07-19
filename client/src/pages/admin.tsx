@@ -1,5 +1,5 @@
-import { AdminPanelRestored } from '@/components/admin-panel-restored';
+import { AdminPanelCyberpunk } from '@/components/admin-panel-cyberpunk';
 
 export default function AdminPage() {
-  return <AdminPanelRestored />;
+  return <AdminPanelCyberpunk />;
 }

@@ -36,7 +36,10 @@ interface AdminTreasuryStats {
 }
 
 export function AdminPanelMinimal() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Skip auth for now
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -58,6 +61,102 @@ export function AdminPanelMinimal() {
     kiltTokenAddress: '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8',
     poolAddress: '0x0000000000000000000000000000000000000000'
   });
+
+  // Login handler
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        localStorage.setItem('adminToken', data.token);
+        setIsAuthenticated(true);
+        toast({ title: "Success", description: "Successfully logged in" });
+      } else {
+        toast({ title: "Error", description: data.error || "Login failed", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Network error - please try again", variant: "destructive" });
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  // Check for existing token on mount
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    setIsAuthenticated(false);
+    toast({ title: "Success", description: "Successfully logged out" });
+  };
+
+  // Show login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
+        <Card className="w-full max-w-md bg-white/5 backdrop-blur-sm border-white/10">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+              KILT Admin Panel
+            </CardTitle>
+            <CardDescription className="text-center text-gray-400">
+              Sign in to access treasury management
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="bg-white/5 border-white/20 text-white"
+                  placeholder="admin"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-white/5 border-white/20 text-white"
+                  placeholder="Enter password"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
+                disabled={loginLoading}
+              >
+                {loginLoading ? 'Signing In...' : 'Sign In'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Treasury stats query
   const { data: treasuryStats, isLoading: statsLoading } = useQuery<AdminTreasuryStats>({
@@ -159,10 +258,21 @@ export function AdminPanelMinimal() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
             KILT Admin Panel
           </h1>
-          <Badge variant="outline" className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
-            <CheckCircle className="h-4 w-4 mr-1" />
-            Authenticated
-          </Badge>
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Authenticated
+            </Badge>
+            <Button 
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30"
+            >
+              <LogOut className="h-4 w-4 mr-1" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Treasury Overview Cards */}

@@ -70,8 +70,8 @@ export default function AdminPanel() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [adminToken, setAdminToken] = useState<string>('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminToken, setAdminToken] = useState<string>(() => localStorage.getItem('adminToken') || '');
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('adminToken'));
   const [activeTab, setActiveTab] = useState('treasury');
   
   // Form states
@@ -117,6 +117,7 @@ export default function AdminPanel() {
     onSuccess: (data) => {
       setAdminToken(data.token);
       setIsAuthenticated(true);
+      localStorage.setItem('adminToken', data.token);
       toast({
         title: "Login Successful",
         description: data.message,
@@ -399,6 +400,16 @@ export default function AdminPanel() {
     updateBlockchainMutation.mutate(values);
   };
 
+  const handleLogout = () => {
+    setAdminToken('');
+    setIsAuthenticated(false);
+    localStorage.removeItem('adminToken');
+    toast({
+      title: "Logged Out",
+      description: "Admin session ended",
+    });
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black text-white p-8">
@@ -496,16 +507,7 @@ export default function AdminPanel() {
               Authenticated
             </Badge>
             <Button
-              onClick={() => {
-                setIsAuthenticated(false);
-                setAdminToken('');
-                setUsername('');
-                setPassword('');
-                toast({
-                  title: "Logged Out",
-                  description: "You have been successfully logged out",
-                });
-              }}
+              onClick={handleLogout}
               variant="outline"
               size="sm"
               className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30 hover:text-red-300"

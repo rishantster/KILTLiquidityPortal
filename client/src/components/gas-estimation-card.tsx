@@ -19,7 +19,8 @@ export function GasEstimationCard() {
   const [error, setError] = useState<string | null>(null);
 
   // Use optimized queries with aggressive caching
-  const { calculations, aprData, isLoading: dataLoading } = useOptimizedQueries();
+  const { address } = useWallet();
+  const { calculations, aprData, isLoading: dataLoading } = useOptimizedQueries(address);
 
   // Memoize break-even calculation to prevent recalculation on each render
   const breakEvenDays = useMemo(() => {

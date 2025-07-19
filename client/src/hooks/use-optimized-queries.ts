@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 // Optimized query hook with aggressive caching and background updates
-export function useOptimizedQueries() {
+export function useOptimizedQueries(userAddress?: string) {
   // Cache KILT data for 2 minutes with background updates
   const kiltData = useQuery({
     queryKey: ['/api/kilt-data'],
@@ -30,6 +30,16 @@ export function useOptimizedQueries() {
     refetchOnWindowFocus: false,
   });
 
+  // Cache user-specific APR for personalized rewards display
+  const userAprData = useQuery({
+    queryKey: ['/api/rewards/user-apr', userAddress],
+    staleTime: 2 * 60 * 1000, // 2 minutes for user-specific data
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 2 * 60 * 1000, // Background refresh every 2 minutes
+    refetchOnWindowFocus: false,
+    enabled: !!userAddress, // Only fetch if user address provided
+  });
+
   // Memoized calculations to prevent unnecessary re-renders
   const calculations = useMemo(() => {
     const dailyVolume = kiltData.data?.volume || 426;
@@ -38,7 +48,8 @@ export function useOptimizedQueries() {
     const dailyFees = dailyVolume * feeTier;
     const annualFees = dailyFees * 365;
     const feeAPR = poolTVL > 0 ? (annualFees / poolTVL) * 100 : 0;
-    const kiltRewardAPR = aprData.data?.maxAPR || 112;
+    // Use user-specific APR if available, otherwise fall back to maximum APR
+    const kiltRewardAPR = userAprData.data?.incentiveAPR || aprData.data?.maxAPR || 0;
     const totalAPR = feeAPR + kiltRewardAPR;
 
     return {
@@ -48,12 +59,13 @@ export function useOptimizedQueries() {
       dailyVolume,
       poolTVL,
     };
-  }, [kiltData.data, programAnalytics.data, aprData.data]);
+  }, [kiltData.data, programAnalytics.data, aprData.data, userAprData.data]);
 
   return {
     kiltData,
     programAnalytics,
     aprData,
+    userAprData,
     calculations,
     isLoading: kiltData.isLoading || programAnalytics.isLoading || aprData.isLoading,
   };

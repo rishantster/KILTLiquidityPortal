@@ -23,20 +23,20 @@ interface ProgramSettings {
 export function CyberpunkAdminPanel() {
   const [activeTab, setActiveTab] = useState<'treasury' | 'settings' | 'blockchain' | 'operations'>('treasury');
   const [treasuryConfig, setTreasuryConfig] = useState<TreasuryConfig>({
-    totalAllocation: 500000,
-    programDurationDays: 90,
-    dailyBudget: 5555.56,
-    programStartDate: new Date().toISOString().split('T')[0],
-    programEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
+    totalAllocation: 0,
+    programDurationDays: 0,
+    dailyBudget: 0,
+    programStartDate: '',
+    programEndDate: '',
+    treasuryWalletAddress: '',
     isActive: true
   });
   
   const [programSettings, setProgramSettings] = useState<ProgramSettings>({
-    timeBoostCoefficient: 0.6,
-    fullRangeBonus: 1.2,
-    minimumPositionValue: 10,
-    lockPeriod: 7
+    timeBoostCoefficient: 0,
+    fullRangeBonus: 0,
+    minimumPositionValue: 0,
+    lockPeriod: 0
   });
 
   // Save Treasury Configuration
@@ -64,30 +64,27 @@ export function CyberpunkAdminPanel() {
   });
 
   // Load existing treasury configuration
-  const { data: existingTreasuryConfig } = useQuery({
+  const { data: existingTreasuryConfig, isLoading: treasuryLoading } = useQuery({
     queryKey: ['/api/admin/treasury/config'],
-    onSuccess: (data) => {
-      if (data) {
-        setTreasuryConfig({
-          ...treasuryConfig,
-          ...data
-        });
-      }
-    }
   });
 
   // Load existing program settings
-  const { data: existingProgramSettings } = useQuery({
+  const { data: existingProgramSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ['/api/admin/program/settings'],
-    onSuccess: (data) => {
-      if (data) {
-        setProgramSettings({
-          ...programSettings,
-          ...data
-        });
-      }
-    }
   });
+
+  // Update state when data loads
+  useEffect(() => {
+    if (existingTreasuryConfig && !treasuryLoading) {
+      setTreasuryConfig(existingTreasuryConfig);
+    }
+  }, [existingTreasuryConfig, treasuryLoading]);
+
+  useEffect(() => {
+    if (existingProgramSettings && !settingsLoading) {
+      setProgramSettings(existingProgramSettings);
+    }
+  }, [existingProgramSettings, settingsLoading]);
 
   // Get Operations History
   const { data: operations = [] } = useQuery({
@@ -172,8 +169,16 @@ export function CyberpunkAdminPanel() {
 
         {/* Content */}
         <div className="p-6">
+          {/* Loading State */}
+          {(treasuryLoading || settingsLoading) && (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400 mx-auto mb-4"></div>
+              <div className="text-green-400 font-mono">Loading admin configuration...</div>
+            </div>
+          )}
+
           {/* Treasury Configuration */}
-          {activeTab === 'treasury' && (
+          {activeTab === 'treasury' && !treasuryLoading && (
             <div className="space-y-6">
               <div className="bg-black/50 border border-green-400 rounded p-6">
                 <h2 className="text-lg font-bold text-[#ff0066] mb-4 tracking-wider">
@@ -185,11 +190,12 @@ export function CyberpunkAdminPanel() {
                     <label className="block text-green-400 text-sm mb-2 font-mono">TOTAL_ALLOCATION:</label>
                     <input
                       type="number"
-                      value={treasuryConfig.totalAllocation}
+                      value={treasuryConfig.totalAllocation || ''}
                       onChange={(e) => setTreasuryConfig({
                         ...treasuryConfig,
-                        totalAllocation: Number(e.target.value)
+                        totalAllocation: Number(e.target.value) || 0
                       })}
+                      placeholder="Enter total allocation"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
                     />
                   </div>
@@ -198,11 +204,12 @@ export function CyberpunkAdminPanel() {
                     <label className="block text-green-400 text-sm mb-2 font-mono">PROGRAM_DURATION_DAYS:</label>
                     <input
                       type="number"
-                      value={treasuryConfig.programDurationDays}
+                      value={treasuryConfig.programDurationDays || ''}
                       onChange={(e) => setTreasuryConfig({
                         ...treasuryConfig,
-                        programDurationDays: Number(e.target.value)
+                        programDurationDays: Number(e.target.value) || 0
                       })}
+                      placeholder="Enter program duration"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
                     />
                   </div>
@@ -211,7 +218,7 @@ export function CyberpunkAdminPanel() {
                     <label className="block text-green-400 text-sm mb-2 font-mono">WALLET_ADDRESS:</label>
                     <input
                       type="text"
-                      value={treasuryConfig.treasuryWalletAddress}
+                      value={treasuryConfig.treasuryWalletAddress || ''}
                       onChange={(e) => setTreasuryConfig({
                         ...treasuryConfig,
                         treasuryWalletAddress: e.target.value
@@ -226,11 +233,12 @@ export function CyberpunkAdminPanel() {
                     <input
                       type="number"
                       step="0.01"
-                      value={treasuryConfig.dailyBudget}
+                      value={treasuryConfig.dailyBudget || ''}
                       onChange={(e) => setTreasuryConfig({
                         ...treasuryConfig,
-                        dailyBudget: Number(e.target.value)
+                        dailyBudget: Number(e.target.value) || 0
                       })}
+                      placeholder="Enter daily budget"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
                     />
                   </div>
@@ -248,7 +256,7 @@ export function CyberpunkAdminPanel() {
           )}
 
           {/* Program Settings */}
-          {activeTab === 'settings' && (
+          {activeTab === 'settings' && !settingsLoading && (
             <div className="space-y-6">
               {/* Reward Formula Explanation */}
               <div className="bg-black/60 border border-[#ff0066] rounded p-6">
@@ -300,11 +308,12 @@ export function CyberpunkAdminPanel() {
                     <input
                       type="number"
                       step="0.1"
-                      value={programSettings.timeBoostCoefficient}
+                      value={programSettings.timeBoostCoefficient || ''}
                       onChange={(e) => setProgramSettings({
                         ...programSettings,
-                        timeBoostCoefficient: Number(e.target.value)
+                        timeBoostCoefficient: Number(e.target.value) || 0
                       })}
+                      placeholder="e.g. 0.6"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
                     <div className="text-gray-400 text-xs font-mono">
@@ -321,11 +330,12 @@ export function CyberpunkAdminPanel() {
                     <input
                       type="number"
                       step="0.1"
-                      value={programSettings.fullRangeBonus}
+                      value={programSettings.fullRangeBonus || ''}
                       onChange={(e) => setProgramSettings({
                         ...programSettings,
-                        fullRangeBonus: Number(e.target.value)
+                        fullRangeBonus: Number(e.target.value) || 0
                       })}
+                      placeholder="e.g. 1.2"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
                     <div className="text-gray-400 text-xs font-mono">
@@ -341,11 +351,12 @@ export function CyberpunkAdminPanel() {
                     <label className="block text-green-400 text-sm mb-2 font-mono">MIN_POSITION_VALUE (USD):</label>
                     <input
                       type="number"
-                      value={programSettings.minimumPositionValue}
+                      value={programSettings.minimumPositionValue || ''}
                       onChange={(e) => setProgramSettings({
                         ...programSettings,
-                        minimumPositionValue: Number(e.target.value)
+                        minimumPositionValue: Number(e.target.value) || 0
                       })}
+                      placeholder="e.g. 10"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
                     <div className="text-gray-400 text-xs font-mono">
@@ -361,11 +372,12 @@ export function CyberpunkAdminPanel() {
                     <label className="block text-green-400 text-sm mb-2 font-mono">LOCK_PERIOD_DAYS:</label>
                     <input
                       type="number"
-                      value={programSettings.lockPeriod}
+                      value={programSettings.lockPeriod || ''}
                       onChange={(e) => setProgramSettings({
                         ...programSettings,
-                        lockPeriod: Number(e.target.value)
+                        lockPeriod: Number(e.target.value) || 0
                       })}
+                      placeholder="e.g. 7"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
                     <div className="text-gray-400 text-xs font-mono">

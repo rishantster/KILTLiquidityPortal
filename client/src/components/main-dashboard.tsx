@@ -516,23 +516,23 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
-      {/* Tab Navigation */}
-      <div className="flex justify-center mb-8">
-        <div className="bg-black/40 backdrop-blur-sm border border-gray-800/50 rounded-xl p-1 flex gap-1">
+      {/* RETRO CYBERPUNK TAB NAVIGATION */}
+      <div className="flex justify-center mb-8 retro-slide-in">
+        <div className="retro-card rounded-xl p-2 flex gap-2">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300
+                flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 font-mono retro-button
                 ${activeTab === tab.id 
-                  ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066]/80 text-white shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg retro-glow border-2 border-pink-500' 
+                  : 'text-green-400 hover:text-white hover:bg-pink-500/20 border-2 border-green-500/50 hover:border-pink-500/50'
                 }
               `}
             >
-              <tab.icon className="h-4 w-4" />
-              <span className="text-sm font-medium">{tab.label}</span>
+              <tab.icon className="h-5 w-5" />
+              <span className="text-sm font-bold uppercase">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -558,34 +558,41 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 pr-20 relative" style={{ zIndex: 10 }}>
-        {/* Clean Professional Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
-              <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+        {/* RETRO CYBERPUNK HEADER */}
+        <div className="retro-header rounded-xl p-4 mb-8 retro-slide-in">
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-black via-black to-pink-500/20 rounded-xl flex items-center justify-center p-2 flex-shrink-0 retro-pulse border-2 border-pink-500 shadow-lg shadow-pink-500/30">
+                <img src={kiltLogo} alt="KILT" className="w-12 h-12 object-contain drop-shadow-lg" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-3xl font-bold text-white font-mono retro-flicker">
+                  KILT LIQUIDITY PORTAL
+                </h1>
+                <p className="text-green-400 text-sm font-mono mt-1 opacity-80">
+                  &gt;&gt; CYBERPUNK DEFI PROTOCOL v2.1.337
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>
-            </div>
-          </div>
           
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <Badge 
-              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 font-mono ${
-                isConnected && isBaseNetworkConnected 
-                  ? 'bg-pink-500/20 text-white border-pink-500/30' 
-                  : 'bg-gray-500/20 text-white border-gray-500/30'
-              }`}
-            >
-              <BaseLogo className="w-4 h-4 mr-1.5" />
-              Base Network
-              {isConnected && isBaseNetworkConnected && (
-                <div className="w-2 h-2 bg-green-500 rounded-full ml-2" />
-              )}
-            </Badge>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Badge 
+                className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 font-mono ${
+                  isConnected && isBaseNetworkConnected 
+                    ? 'bg-pink-500/20 text-white border-pink-500/30' 
+                    : 'bg-gray-500/20 text-white border-gray-500/30'
+                }`}
+              >
+                <BaseLogo className="w-4 h-4 mr-1.5" />
+                Base Network
+                {isConnected && isBaseNetworkConnected && (
+                  <div className="w-2 h-2 bg-green-500 rounded-full ml-2" />
+                )}
+              </Badge>
 
-            <div className="flex-shrink-0">
-              <WalletConnect />
+              <div className="flex-shrink-0">
+                <WalletConnect />
+              </div>
             </div>
           </div>
         </div>
@@ -602,65 +609,65 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
-            {/* Streamlined Metrics Display */}
-            <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg p-3 mb-4 shadow-2xl shadow-black/50 cluely-card">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* RETRO CYBERPUNK METRICS DISPLAY */}
+            <div className="retro-card rounded-lg p-4 mb-6 retro-slide-in">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {/* KILT Price */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
+                <div className="text-center group retro-pulse">
+                  <div className="w-12 h-12 bg-gradient-to-br from-black to-pink-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-pink-500 shadow-lg shadow-pink-500/30 retro-glow">
                     <img 
                       src={kiltLogo} 
                       alt="KILT" 
-                      className="w-6 h-6"
+                      className="w-8 h-8"
                     />
                   </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">KILT Price</p>
-                  <p className="text-matrix-bright font-bold text-lg font-mono">
+                  <p className="text-white text-sm mb-2 font-mono font-bold">KILT PRICE</p>
+                  <p className="text-green-400 font-bold text-xl font-mono retro-flicker">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
-                  <p className="text-matrix-green/70 text-xs font-medium">+0.50%</p>
+                  <p className="text-green-400/70 text-xs font-mono">+0.50%</p>
                 </div>
 
                 {/* Market Cap */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <Coins className="h-5 w-5 text-matrix-green" />
+                <div className="text-center group retro-pulse">
+                  <div className="w-12 h-12 bg-gradient-to-br from-black to-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-green-500 shadow-lg shadow-green-500/30 retro-glow">
+                    <Coins className="h-6 w-6 text-green-400" />
                   </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Market Cap</p>
-                  <p className="text-matrix-bright font-bold text-lg font-mono">
+                  <p className="text-white text-sm mb-2 font-mono font-bold">MARKET CAP</p>
+                  <p className="text-green-400 font-bold text-xl font-mono retro-flicker">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
-                  <p className="text-white/60 text-xs font-medium">276.97M circulating</p>
+                  <p className="text-green-400/70 text-xs font-mono">276.97M SUPPLY</p>
                 </div>
 
                 {/* Your Reward APR */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <Award className="h-5 w-5 text-matrix-green" />
+                <div className="text-center group retro-pulse">
+                  <div className="w-12 h-12 bg-gradient-to-br from-black to-pink-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-pink-500 shadow-lg shadow-pink-500/30 retro-glow">
+                    <Award className="h-6 w-6 text-pink-400" />
                   </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Your Reward APR</p>
-                  <div className="text-matrix-green font-bold text-lg font-mono">
+                  <p className="text-white text-sm mb-2 font-mono font-bold">REWARD APR</p>
+                  <div className="text-pink-400 font-bold text-xl font-mono retro-flicker">
                     {address ? (
                       <UserPersonalAPR address={address} />
                     ) : (
                       <div className="text-center">
-                        <span className="text-white/50">--</span>
-                        <div className="text-white/60 text-xs mt-1">Connect wallet</div>
+                        <span className="text-white/50 font-mono">--</span>
+                        <div className="text-white/60 text-xs mt-1 font-mono">CONNECT WALLET</div>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Maximum APR */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <TrendingUp className="h-5 w-5 text-matrix-green" />
+                <div className="text-center group retro-pulse">
+                  <div className="w-12 h-12 bg-gradient-to-br from-black to-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-green-500 shadow-lg shadow-green-500/30 retro-glow">
+                    <TrendingUp className="h-6 w-6 text-green-400" />
                   </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Current APR</p>
-                  <p className="text-matrix-bright font-bold text-lg font-mono">
-                    {unifiedData?.maxAPRData?.aprRange || '31%'}
+                  <p className="text-white text-sm mb-2 font-mono font-bold">CURRENT APR</p>
+                  <p className="text-green-400 font-bold text-xl font-mono retro-flicker">
+                    {unifiedData?.maxAPRData?.aprRange || '112%'}
                   </p>
-                  <p className="text-matrix-green/70 text-xs font-medium">High yields available!</p>
+                  <p className="text-green-400/70 text-xs font-mono">HIGH YIELDS!</p>
                 </div>
               </div>
             </div>

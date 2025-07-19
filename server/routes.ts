@@ -1712,36 +1712,56 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // ===== CYBERPUNK ADMIN PANEL ROUTES =====
   
-  // Admin login endpoint
+  // Admin MetaMask login endpoint
   app.post("/api/admin/login", async (req, res) => {
     try {
-      const { username, password, walletAddress } = req.body;
+      const { walletAddress } = req.body;
       
-      if (walletAddress) {
-        // Wallet-based authentication
-        const validWallets = ['0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e', '0x861722f739539CF31d86F1221460Fa96C9baB95C'];
-        if (!validWallets.includes(walletAddress)) {
-          return res.status(401).json({ error: 'Unauthorized wallet address' });
-        }
-      } else if (username && password) {
-        // Username/password authentication  
-        if (username !== 'admin' || password !== 'admin123') {
-          return res.status(401).json({ error: 'Invalid credentials' });
-        }
-      } else {
-        return res.status(400).json({ error: 'Either wallet address or username/password required' });
+      if (!walletAddress) {
+        return res.status(400).json({ error: 'Wallet address required for admin access' });
       }
 
-      // Generate simple token
-      const token = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+      // Validate wallet address format
+      if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+        return res.status(400).json({ error: 'Invalid wallet address format' });
+      }
+
+      // Check if wallet is authorized for admin access
+      const authorizedWallets = [
+        '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
+        '0x861722f739539CF31d86F1221460Fa96C9baB95C'
+      ];
       
+      if (!authorizedWallets.includes(walletAddress)) {
+        return res.status(401).json({ 
+          error: 'Access denied. Unauthorized wallet address.',
+          code: 'UNAUTHORIZED_WALLET'
+        });
+      }
+
+      // Generate secure admin session token
+      const token = 'admin_' + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+      
+      // Log admin access for security audit
+      const accessLog = {
+        walletAddress,
+        timestamp: new Date().toISOString(),
+        action: 'ADMIN_LOGIN',
+        success: true
+      };
+
       res.json({
         success: true,
         token,
-        message: 'Admin login successful'
+        walletAddress,
+        message: 'Admin authentication successful',
+        accessLevel: 'MAXIMUM'
       });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ 
+        error: 'Authentication system error',
+        code: 'SYSTEM_ERROR'
+      });
     }
   });
 

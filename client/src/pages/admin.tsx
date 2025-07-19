@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@/contexts/wallet-context";
 import { CyberpunkAdminPanel } from "@/components/cyberpunk-admin-panel";
 
 export default function AdminPage() {
-  const { isConnected, address } = useWallet();
+  const { isConnected, address, connectWallet } = useWallet();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authMethod, setAuthMethod] = useState<'wallet' | 'credentials'>('credentials');
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -16,15 +14,34 @@ export default function AdminPage() {
     '0x861722f739539CF31d86F1221460Fa96C9baB95C'
   ];
 
-  const handleCredentialsLogin = async () => {
+  const handleMetaMaskLogin = async () => {
     setIsLoading(true);
     setError('');
     
     try {
+      // First connect wallet if not connected
+      if (!isConnected) {
+        await connectWallet();
+        // Wait a moment for wallet connection to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      // Check if wallet is now connected and authorized
+      if (!address) {
+        setError('Wallet connection failed. Please try again.');
+        return;
+      }
+
+      if (!authorizedWallets.includes(address)) {
+        setError('Access denied. Unauthorized wallet address.');
+        return;
+      }
+
+      // Authenticate with backend
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify({ walletAddress: address })
       });
       
       const data = await response.json();
@@ -32,30 +49,33 @@ export default function AdminPage() {
       if (data.success) {
         setIsAuthenticated(true);
         localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_wallet', address);
       } else {
-        setError(data.error || 'Invalid credentials');
+        setError(data.error || 'Authentication failed');
       }
     } catch (err) {
-      setError('Authentication failed');
+      setError('MetaMask authentication failed');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleWalletLogin = async () => {
-    if (!isConnected || !address) {
-      setError('Please connect your wallet first');
-      return;
+  // Auto-authenticate if wallet is already connected and authorized
+  const checkAutoAuth = async () => {
+    if (isConnected && address && authorizedWallets.includes(address)) {
+      const existingToken = localStorage.getItem('admin_token');
+      const existingWallet = localStorage.getItem('admin_wallet');
+      
+      if (existingToken && existingWallet === address) {
+        setIsAuthenticated(true);
+      }
     }
-
-    if (!authorizedWallets.includes(address)) {
-      setError('Unauthorized wallet address');
-      return;
-    }
-
-    setIsAuthenticated(true);
-    localStorage.setItem('admin_wallet', address);
   };
+
+  // Check for auto-authentication on component mount and wallet changes
+  useEffect(() => {
+    checkAutoAuth();
+  }, [isConnected, address]);
 
   if (isAuthenticated) {
     return <CyberpunkAdminPanel />;
@@ -89,32 +109,8 @@ export default function AdminPage() {
               ◢◤ ADMIN TERMINAL ◥◣
             </h1>
             <div className="text-green-400 text-sm">
-              [SYSTEM_ACCESS_LEVEL: MAXIMUM]
+              [METAMASK_AUTHENTICATION_REQUIRED]
             </div>
-          </div>
-
-          {/* Auth Method Toggle */}
-          <div className="flex mb-6 bg-gray-900 rounded border border-green-400/30">
-            <button
-              className={`flex-1 py-2 px-4 text-sm font-mono transition-all ${
-                authMethod === 'credentials'
-                  ? 'bg-green-400 text-black'
-                  : 'text-green-400 hover:bg-green-400/10'
-              }`}
-              onClick={() => setAuthMethod('credentials')}
-            >
-              CREDENTIALS
-            </button>
-            <button
-              className={`flex-1 py-2 px-4 text-sm font-mono transition-all ${
-                authMethod === 'wallet'
-                  ? 'bg-[#ff0066] text-white'
-                  : 'text-green-400 hover:bg-[#ff0066]/10'
-              }`}
-              onClick={() => setAuthMethod('wallet')}
-            >
-              WALLET_AUTH
-            </button>
           </div>
 
           {/* Error Display */}
@@ -124,63 +120,51 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Credentials Login */}
-          {authMethod === 'credentials' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-green-400 text-sm mb-2 font-mono">USERNAME:</label>
-                <input
-                  type="text"
-                  value={credentials.username}
-                  onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                  className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                  placeholder="admin"
-                />
-              </div>
-              <div>
-                <label className="block text-green-400 text-sm mb-2 font-mono">PASSWORD:</label>
-                <input
-                  type="password"
-                  value={credentials.password}
-                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                  className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
-              <button
-                onClick={handleCredentialsLogin}
-                disabled={isLoading}
-                className="w-full py-3 bg-green-400 text-black font-mono font-bold rounded hover:bg-green-300 transition-colors disabled:opacity-50"
-              >
-                {isLoading ? '[AUTHENTICATING...]' : '[INITIATE_ACCESS]'}
-              </button>
+          {/* MetaMask Login */}
+          <div className="space-y-4">
+            <div className="text-center text-sm text-green-400 font-mono mb-4">
+              Connect with your authorized MetaMask wallet to access admin controls
             </div>
-          )}
+            
+            {isConnected && address ? (
+              <div className="p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono text-sm">
+                <div className="flex items-center justify-between">
+                  <span>WALLET:</span>
+                  <span>{address.slice(0, 6)}...{address.slice(-4)}</span>
+                </div>
+                {authorizedWallets.includes(address) ? (
+                  <div className="text-green-400 text-xs mt-1">✓ AUTHORIZED ADMIN WALLET</div>
+                ) : (
+                  <div className="text-red-400 text-xs mt-1">✗ UNAUTHORIZED WALLET</div>
+                )}
+              </div>
+            ) : (
+              <div className="p-3 bg-red-900/20 border border-red-500/50 rounded text-red-400 font-mono text-sm text-center">
+                [METAMASK_NOT_CONNECTED]
+              </div>
+            )}
 
-          {/* Wallet Login */}
-          {authMethod === 'wallet' && (
-            <div className="space-y-4">
-              <div className="text-sm text-green-400 font-mono">
-                Connect with your authorized admin wallet
-              </div>
-              {isConnected ? (
-                <div className="p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono text-sm">
-                  WALLET: {address?.slice(0, 6)}...{address?.slice(-4)}
+            <button
+              onClick={handleMetaMaskLogin}
+              disabled={isLoading}
+              className="w-full py-4 bg-gradient-to-r from-[#ff0066] to-[#ff0066]/80 text-white font-mono font-bold rounded hover:from-[#ff0066]/90 hover:to-[#ff0066]/70 transition-all disabled:opacity-50 disabled:cursor-not-allowed cyberpunk-pink-glow"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  <span>[AUTHENTICATING...]</span>
                 </div>
+              ) : isConnected && address ? (
+                '[VERIFY_ADMIN_ACCESS]'
               ) : (
-                <div className="p-3 bg-red-900/20 border border-red-500/50 rounded text-red-400 font-mono text-sm">
-                  [NO_WALLET_CONNECTED]
-                </div>
+                '[CONNECT_METAMASK]'
               )}
-              <button
-                onClick={handleWalletLogin}
-                disabled={!isConnected}
-                className="w-full py-3 bg-[#ff0066] text-white font-mono font-bold rounded hover:bg-[#ff0066]/80 transition-colors disabled:opacity-50"
-              >
-                [WALLET_VERIFY]
-              </button>
+            </button>
+
+            <div className="text-center text-xs text-green-400/50 font-mono">
+              Only authorized admin wallets can access this terminal
             </div>
-          )}
+          </div>
 
           <div className="mt-6 text-center text-xs text-green-400/50 font-mono">
             KILT_PROTOCOL_ADMIN_v2.0

@@ -425,8 +425,62 @@ export function MainDashboard() {
     );
   }
 
+  // Tab definitions
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: TrendingUp },
+    { id: 'liquidity', label: 'Add Liquidity', icon: Plus },
+    { id: 'rewards', label: 'Rewards', icon: Award },
+    { id: 'positions', label: 'Positions', icon: Coins },
+  ];
+
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
+      {/* Right-Side Vertical Navigation */}
+      <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-50 flex flex-col space-y-3">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`
+              group relative w-14 h-14 rounded-xl border
+              flex items-center justify-center
+              vertical-nav-button
+              ${activeTab === tab.id 
+                ? 'bg-gradient-to-br from-[#ff0066] to-[#ff0066]/70 border-[#ff0066] shadow-lg shadow-[#ff0066]/30' 
+                : 'bg-black/50 border-gray-700 hover:border-[#ff0066]/50'
+              }
+              backdrop-blur-md
+            `}
+            title={tab.label}
+          >
+            <tab.icon className={`
+              w-6 h-6 transition-all duration-300
+              ${activeTab === tab.id ? 'text-white' : 'text-gray-400 group-hover:text-[#ff0066]'}
+              group-hover:scale-125
+            `} />
+            
+            {/* Tooltip */}
+            <div className="
+              absolute right-16 top-1/2 transform -translate-y-1/2
+              bg-black/90 text-white px-3 py-1 rounded-lg text-sm
+              opacity-0 group-hover:opacity-100 transition-opacity duration-300
+              pointer-events-none whitespace-nowrap
+              border border-gray-700
+            ">
+              {tab.label}
+            </div>
+            
+            {/* Old-school glow effect */}
+            <div className="
+              absolute inset-0 rounded-xl
+              opacity-0 group-hover:opacity-100 transition-opacity duration-500
+              bg-gradient-to-br from-[#ff0066]/20 to-transparent
+              animate-pulse
+            "></div>
+          </button>
+        ))}
+      </div>
+
       {/* Background Video - Testing higher z-index */}
       <video 
         autoPlay 
@@ -446,7 +500,7 @@ export function MainDashboard() {
       
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative" style={{ zIndex: 10 }}>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 pr-20 relative" style={{ zIndex: 10 }}>
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -479,7 +533,7 @@ export function MainDashboard() {
           </div>
         </div>
 
-        {/* Enhanced Navigation Tabs */}
+        {/* Hidden Navigation Tabs (replaced by right-side vertical navigation) */}
         <Tabs value={activeTab} onValueChange={(value) => {
           setActiveTab(value);
           // Invalidate positions cache when switching to positions tab
@@ -487,36 +541,7 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/80 backdrop-blur-lg border border-white/10 p-1 rounded-xl mb-6 h-12 gap-1 shadow-2xl shadow-black/50 neon-glow">
-            <TabsTrigger 
-              value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
-            >
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
-            >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Add Liquidity</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
-            >
-              <Award className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Rewards</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
-            >
-              <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Active Position</span>
-            </TabsTrigger>
-          </TabsList>
+          {/* Navigation now handled by right-side vertical buttons */}
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">

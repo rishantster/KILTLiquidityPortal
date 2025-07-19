@@ -1726,9 +1726,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // TODO: Implement proper token validation later
       console.log('Dashboard: Bypassing auth for testing');
       
-      
-      console.log('Dashboard: Valid token received, length:', token.length);
-      
       // Mock treasury stats for now
       const stats = {
         totalAllocation: 500000,

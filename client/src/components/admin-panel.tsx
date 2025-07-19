@@ -105,14 +105,12 @@ export default function AdminPanel() {
   // Admin login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username?: string; password?: string; walletAddress?: string }) => {
-      console.log('Sending login request with:', credentials);
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
       });
       const data = await response.json();
-      console.log('Login response:', { status: response.status, data });
       if (!response.ok) throw new Error(data.error);
       return data;
     },
@@ -359,15 +357,10 @@ export default function AdminPanel() {
   }, [blockchainConfig]);
 
   const handleLogin = () => {
-    console.log('Login attempt:', { loginType, address, username, password: !!password });
-    if (loginType === 'wallet' && address) {
-      console.log('Attempting wallet login with address:', address);
+    if (loginType === 'wallet' && address && isConnected) {
       loginMutation.mutate({ walletAddress: address });
     } else if (loginType === 'credentials' && username && password) {
-      console.log('Attempting credentials login with username:', username);
       loginMutation.mutate({ username, password });
-    } else {
-      console.error('Login validation failed:', { loginType, hasAddress: !!address, hasUsername: !!username, hasPassword: !!password });
     }
   };
 

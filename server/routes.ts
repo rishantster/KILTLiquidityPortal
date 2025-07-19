@@ -1715,22 +1715,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Admin login (supports both wallet and credentials)
   app.post("/api/admin/login", async (req, res) => {
     try {
-      // Admin login request received
       const { username, password, walletAddress } = req.body;
       
       // Wallet-based authentication
       if (walletAddress) {
-        // Validating admin wallet authentication
         if (validateAdminWallet(walletAddress)) {
           const token = createAdminSession(walletAddress, 'wallet');
-          // Admin wallet login successful, token generated
           res.json({
             success: true,
             token,
             message: 'Admin access granted via wallet'
           });
         } else {
-          // Unauthorized wallet address attempted
           res.status(401).json({ error: 'Unauthorized: Admin access restricted to authorized wallet' });
         }
         return;
@@ -1738,26 +1734,21 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Credentials-based authentication
       if (username && password) {
-        // Validating admin credentials
         if (validateAdminCredentials(username, password)) {
           const token = createAdminSession(username, 'credentials');
-          // Admin credentials login successful, token generated
           res.json({
             success: true,
             token,
             message: 'Admin login successful'
           });
         } else {
-          // Invalid credentials - security logging removed for production
           res.status(401).json({ error: 'Invalid credentials' });
         }
         return;
       }
       
-      // No valid authentication method provided
       res.status(400).json({ error: 'Either wallet address or username/password required' });
     } catch (error) {
-      // Admin login error
       res.status(500).json({ error: 'Login failed' });
     }
   });

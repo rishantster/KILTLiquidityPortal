@@ -1717,12 +1717,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get admin dashboard data (simplified auth)
   app.get("/api/admin/dashboard", async (req, res) => {
     try {
-      // Simple token check
-      const token = req.headers.authorization?.replace('Bearer ', '');
+      // Simple token check with detailed logging
+      const authHeader = req.headers.authorization;
+      console.log('Dashboard auth header:', authHeader);
+      
+      const token = authHeader?.replace('Bearer ', '');
+      console.log('Dashboard extracted token:', token);
+      
       if (!token) {
+        console.log('Dashboard: No token provided');
         return res.status(401).json({ error: 'No token provided' });
       }
       
+      console.log('Dashboard: Token accepted, returning stats');
       // Mock treasury stats for now
       const stats = {
         totalAllocation: 500000,

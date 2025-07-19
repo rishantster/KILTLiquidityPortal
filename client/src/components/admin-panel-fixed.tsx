@@ -80,10 +80,19 @@ export function AdminPanelFixed() {
     enabled: isAuthenticated && !!adminToken,
     refetchInterval: 5000,
     queryFn: async () => {
+      console.log('Dashboard query - token:', adminToken);
       const response = await fetch('/api/admin/dashboard', {
-        headers: { Authorization: `Bearer ${adminToken}` }
+        headers: { 
+          'Authorization': `Bearer ${adminToken}`,
+          'Content-Type': 'application/json'
+        }
       });
-      if (!response.ok) throw new Error('Failed to fetch treasury stats');
+      console.log('Dashboard response:', response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Dashboard error:', errorText);
+        throw new Error('Failed to fetch treasury stats');
+      }
       return response.json();
     }
   });

@@ -516,28 +516,6 @@ export function MainDashboard() {
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
-      {/* RETRO CYBERPUNK TAB NAVIGATION */}
-      <div className="flex justify-center mb-8 retro-slide-in">
-        <div className="retro-card rounded-xl p-2 flex gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 font-mono retro-button
-                ${activeTab === tab.id 
-                  ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg retro-glow border-2 border-pink-500' 
-                  : 'text-green-400 hover:text-white hover:bg-pink-500/20 border-2 border-green-500/50 hover:border-pink-500/50'
-                }
-              `}
-            >
-              <tab.icon className="h-5 w-5" />
-              <span className="text-sm font-bold uppercase">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Background Video - Testing higher z-index */}
       <video 
         autoPlay 
@@ -594,6 +572,28 @@ export function MainDashboard() {
                 <WalletConnect />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* RETRO CYBERPUNK TAB NAVIGATION */}
+        <div className="flex justify-center mb-8 retro-slide-in">
+          <div className="retro-card rounded-xl p-2 flex gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`
+                  flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 font-mono retro-button
+                  ${activeTab === tab.id 
+                    ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg retro-glow border-2 border-pink-500' 
+                    : 'text-green-400 hover:text-white hover:bg-pink-500/20 border-2 border-green-500/50 hover:border-pink-500/50'
+                  }
+                `}
+              >
+                <tab.icon className="h-5 w-5" />
+                <span className="text-sm font-bold uppercase">{tab.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 

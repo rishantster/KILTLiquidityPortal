@@ -304,7 +304,7 @@ export function MainDashboard() {
               </h1>
               
               <p className="text-xl sm:text-2xl text-white/90 font-medium max-w-4xl mx-auto mb-8 leading-relaxed">
-                Earn <span className="text-matrix-green font-bold">up to {unifiedData.maxAPRData?.aprRange || '67% - 89%'} APR</span> from the <span className="text-pink-400 font-bold">500K KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
+                Earn <span className="text-matrix-green font-bold">up to {unifiedData.maxAPRData?.aprRange || '112%'} APR</span> from the <span className="text-pink-400 font-bold">{unifiedData.programAnalytics?.totalBudget ? `${(Number(unifiedData.programAnalytics.totalBudget) / 1000000).toFixed(1)}M KILT treasury` : '1.0M KILT treasury'}</span> by providing liquidity to Uniswap V3 pools on Base network.
               </p>
             </div>
 
@@ -344,7 +344,7 @@ export function MainDashboard() {
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <p className="text-gray-300 text-sm leading-relaxed">
-                      Receive attractive rewards from <span className="text-pink-400">500K KILT</span> treasury allocation with secure smart contract distribution.
+                      Receive attractive rewards from <span className="text-pink-400">{unifiedData.programAnalytics?.totalBudget ? `${(Number(unifiedData.programAnalytics.totalBudget) / 1000000).toFixed(1)}M KILT` : '1.0M KILT'}</span> treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
                 </div>

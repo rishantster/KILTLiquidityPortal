@@ -31,22 +31,16 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
     setIsLoading(true);
 
     try {
-      const requestBody = {
-        username: username.trim(),
-        password: password.trim()
-      };
-      
-      console.log('Sending login request with:', requestBody);
-      
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password.trim()
+        }),
       });
-      
-      console.log('Response status:', response.status);
 
       const data = await response.json();
 

@@ -99,7 +99,16 @@ app.use((req, res, next) => {
 });
 
 // CRITICAL FIX: Admin login route BEFORE any middleware
-app.post("/api/admin/login", express.json(), async (req, res) => {
+app.use("/api/admin/login", express.json({ limit: '1mb' }));
+app.post("/api/admin/login", (req, res) => {
+  console.log('=== ADMIN LOGIN DEBUG ===');
+  console.log('Raw body:', req.body);
+  console.log('Content-Type:', req.headers['content-type']);
+  console.log('Content-Length:', req.headers['content-length']);
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('========================');
+  
   try {
     const { username, password, walletAddress } = req.body;
     

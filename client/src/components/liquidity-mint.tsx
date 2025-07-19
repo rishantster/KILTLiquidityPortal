@@ -77,7 +77,7 @@ export function LiquidityMint({
   const [ethAmount, setEthAmount] = useState('');
   const [selectedEthToken, setSelectedEthToken] = useState<'ETH' | 'WETH'>('ETH');
   const [positionSizePercent, setPositionSizePercent] = useState([0]);
-  const [selectedStrategy, setSelectedStrategy] = useState('balanced');
+  const [selectedStrategy, setSelectedStrategy] = useState('full');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isManualInput, setIsManualInput] = useState(false);
   

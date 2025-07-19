@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
 import { kiltPriceService } from "./kilt-price-service.js";
 import compression from "compression";
+import cookieParser from "cookie-parser";
 
 // Validate environment variables first
 validateEnvironment();
@@ -59,6 +60,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   }
   next();
 });
+
+
 
 // Security middleware setup
 const securityMiddleware = setupSecurity(app);
@@ -130,6 +133,8 @@ app.post("/api/admin/login", (req, res) => {
 
       // Generate simple token
       const token = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+      
+
       
       res.json({
         success: true,

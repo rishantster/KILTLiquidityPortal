@@ -180,19 +180,7 @@ export const setupSecurity = (app: Express) => {
     maxAge: 86400 // 24 hours
   }));
 
-  // Additional manual CORS headers to ensure Authorization header is accepted
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    
-    if (req.method === 'OPTIONS') {
-      return res.status(200).end();
-    }
-    
-    next();
-  });
+
 
   // Basic rate limiting for all routes
   app.use('/api', createRateLimit);

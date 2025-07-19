@@ -582,39 +582,41 @@ export function MainDashboard() {
             </div>
 
             {/* Two Column Layout - Mobile Responsive */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 space-y-4 lg:space-y-0">
               {/* Left Column - Position Registration */}
-              <div className="h-full">
-                <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-3">
+              <div className="order-1 lg:order-1 space-y-0">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
                   <Plus className="h-4 w-4 text-pink-400" />
-                  Register Existing Positions
+                  <span className="hidden sm:inline">Register Existing Positions</span>
+                  <span className="sm:hidden">Register Positions</span>
                 </h2>
-                <div className="h-[450px] sm:h-[480px] lg:h-[520px] flex flex-col">
+                <div className="h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="h-full">
-                <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-3">
+              <div className="order-2 lg:order-2 space-y-0">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
                   <Zap className="h-4 w-4 text-pink-400" />
-                  Quick Add Liquidity
+                  <span className="hidden sm:inline">Quick Add Liquidity</span>
+                  <span className="sm:hidden">Add Liquidity</span>
                 </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[450px] sm:h-[480px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
+                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
                   <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
                     <div className="space-y-4 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
-                        <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 sm:p-3 cluely-card">
+                        <h4 className="text-white font-bold text-sm sm:text-base mb-2 sm:mb-3">Wallet Balance</h4>
+                        <div className="grid grid-cols-3 gap-2 sm:gap-3">
                           {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                            <div className="flex items-center gap-2">
-                              <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                 <img 
                                   src={kiltLogo} 
                                   alt="KILT" 
-                                  className="w-5 h-5"
+                                  className="w-3 h-3 sm:w-5 sm:h-5"
                                   style={{ 
                                     filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
                                   }}
@@ -622,7 +624,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">KILT</div>
-                                <div className="text-matrix-green font-bold text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                   {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
                                 </div>
                               </div>
@@ -630,10 +632,10 @@ export function MainDashboard() {
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                            <div className="flex items-center gap-2">
-                              <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                                <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                   <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                   <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
                                   <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
@@ -644,7 +646,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">ETH</div>
-                                <div className="text-matrix-green font-bold text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                   {ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}
                                 </div>
                               </div>
@@ -652,10 +654,10 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                            <div className="flex items-center gap-2">
-                              <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                                <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                   <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                   <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
                                   <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
@@ -666,7 +668,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">WETH</div>
-                                <div className="text-matrix-green font-bold text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                   {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
                                 </div>
                               </div>

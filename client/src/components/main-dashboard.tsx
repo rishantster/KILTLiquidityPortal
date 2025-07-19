@@ -70,18 +70,22 @@ import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 
 // Component for formula-based program APR display using existing maximum-apr endpoint
 function FormulaProgramAPR() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['/api/rewards/maximum-apr'],
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000,
   });
 
+  // Show loading state
   if (isLoading) return <span className="text-white/50">--</span>;
+  
+  // Show error state
+  if (error) return <span className="text-red-400">Error</span>;
   
   // Use the raw formula calculation directly from backend
   // This respects our reward mechanism: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-  const formulaAPR = data?.maxAPR || 0;
+  const formulaAPR = data?.maxAPR;
   
   return (
     <span>

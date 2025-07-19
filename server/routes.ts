@@ -1755,22 +1755,27 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.post("/api/admin/treasury/config", async (req, res) => {
     try {
       const config = req.body;
+      console.log('Treasury config update request:', config);
+      
       if (!config.programBudget || !config.programDurationDays) {
         return res.status(400).json({ error: 'Program budget and program duration required' });
       }
 
-      console.log('Treasury config update:', config);
+      // Calculate start/end dates
+      const startDate = config.programStartDate ? new Date(config.programStartDate) : new Date();
+      const endDate = config.programEndDate ? new Date(config.programEndDate) : new Date(startDate.getTime() + config.programDurationDays * 24 * 60 * 60 * 1000);
       
       // Update real treasury configuration
       const result = await adminService.updateTreasuryConfiguration({
-        treasuryWalletAddress: config.treasuryWalletAddress || '',
+        treasuryWalletAddress: config.treasuryWalletAddress || '0x0000000000000000000000000000000000000000',
         programBudget: config.programBudget,
-        programStartDate: new Date(config.programStartDate),
-        programEndDate: new Date(config.programEndDate),
+        programStartDate: startDate,
+        programEndDate: endDate,
         programDurationDays: config.programDurationDays,
-        isActive: config.isActive !== false
+        isActive: true
       }, 'admin');
       
+      console.log('Treasury config updated successfully:', result);
       res.json(result);
     } catch (error) {
       console.error('Treasury config error:', error);

@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityService } from '@/services/liquidity-service';
 import { UniswapV3SDKService, KILT_TOKEN, WETH_TOKEN } from '@/lib/uniswap-v3-sdk';
+import { transactionValidator, type LiquidityParams } from '@/services/transaction-validator';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum logo component
@@ -84,6 +85,10 @@ export function LiquidityMint({
   const [isKiltApproved, setIsKiltApproved] = useState(false);
   const [isEthApproved, setIsEthApproved] = useState(false);
   const [tokensApproved, setTokensApproved] = useState(false);
+  
+  // Transaction validation state
+  const [validationResult, setValidationResult] = useState<any>(null);
+  const [isValidating, setIsValidating] = useState(false);
 
   // Logo animation timing
   useEffect(() => {
@@ -298,6 +303,50 @@ export function LiquidityMint({
     return priceStrategies.find(s => s.id === selectedStrategy) || priceStrategies[0];
   };
 
+  // Validate transaction before execution
+  const validateTransaction = async (kiltAmt: string, ethAmt: string) => {
+    if (!address || !kiltAmt || !ethAmt) return null;
+    
+    setIsValidating(true);
+    try {
+      const currentTime = Math.floor(Date.now() / 1000);
+      const strategy = getSelectedStrategy();
+      
+      const validationParams: LiquidityParams = {
+        token0: WETH_TOKEN.toLowerCase(),
+        token1: KILT_TOKEN.toLowerCase(),
+        amount0Desired: parseUnits(ethAmt, 18),
+        amount1Desired: parseUnits(kiltAmt, 18),
+        amount0Min: (parseUnits(ethAmt, 18) * 95n) / 100n, // 5% slippage
+        amount1Min: (parseUnits(kiltAmt, 18) * 95n) / 100n, // 5% slippage
+        tickLower: strategy.tickLower || -887220,
+        tickUpper: strategy.tickUpper || 887220,
+        fee: 3000,
+        deadline: currentTime + 1200, // 20 minutes
+        userAddress: address,
+        isNativeETH: selectedEthToken === 'ETH'
+      };
+      
+      const result = await transactionValidator.validateLiquidityTransaction(validationParams);
+      setValidationResult(result);
+      return result;
+    } catch (error) {
+      console.error('Validation failed:', error);
+      return null;
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  // Auto-validate when amounts change
+  useEffect(() => {
+    if (kiltAmount && ethAmount && parseFloat(kiltAmount) > 0 && parseFloat(ethAmount) > 0) {
+      validateTransaction(kiltAmount, ethAmount);
+    } else {
+      setValidationResult(null);
+    }
+  }, [kiltAmount, ethAmount, selectedStrategy, address]);
+
   const handleApproveTokens = async () => {
     if (!address) return;
     
@@ -336,6 +385,16 @@ export function LiquidityMint({
     if (!address || !kiltAmount || !ethAmount) return;
 
     try {
+      // Enhanced validation before transaction
+      if (parseFloat(kiltAmount) <= 0 || parseFloat(ethAmount) <= 0) {
+        toast({
+          title: "Invalid Amounts",
+          description: "Please enter valid token amounts greater than zero.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const kiltAmountParsed = parseUnits(kiltAmount, 18);
       const ethAmountParsed = parseUnits(ethAmount, 18);
       
@@ -349,7 +408,7 @@ export function LiquidityMint({
         ethAmountReadable: formatTokenAmount(ethAmountParsed)
       });
       
-      const deadlineTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+      const deadlineTime = Math.floor(Date.now() / 1000) + 1200; // 20 minutes from now for better execution
 
       // Handle ETH wrapping automatically through position manager
 
@@ -426,9 +485,9 @@ export function LiquidityMint({
         throw new Error('Invalid tick range: tickLower must be less than tickUpper');
       }
       
-      // Use zero minimum amounts to bypass slippage entirely
-      const amount0Min = 0n; // Zero minimum to bypass slippage check
-      const amount1Min = 0n; // Zero minimum to bypass slippage check
+      // Use proper slippage protection (5% slippage tolerance)
+      const amount0Min = (amount0Desired * 95n) / 100n; // 5% slippage protection
+      const amount1Min = (amount1Desired * 95n) / 100n; // 5% slippage protection
 
       // Create the mint parameters object
       const mintParams = {
@@ -845,9 +904,9 @@ export function LiquidityMint({
 
         <Button
           onClick={handleMintPosition}
-          disabled={isMinting || !kiltAmount || !ethAmount || !tokensApproved}
+          disabled={isMinting || !kiltAmount || !ethAmount || !tokensApproved || (validationResult && !validationResult.isValid)}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 neon-button ${
-            !isMinting && kiltAmount && ethAmount && tokensApproved
+            !isMinting && kiltAmount && ethAmount && tokensApproved && (!validationResult || validationResult.isValid)
               ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white' 
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
@@ -856,6 +915,11 @@ export function LiquidityMint({
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Adding Liquidity...
+            </>
+          ) : validationResult && !validationResult.isValid ? (
+            <>
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Fix Issues Above
             </>
           ) : (
             <>
@@ -866,6 +930,46 @@ export function LiquidityMint({
         </Button>
       </div>
       
+      {/* Transaction Validation Results */}
+      {validationResult && (
+        <div className={`p-3 rounded-lg border ${
+          validationResult.isValid 
+            ? 'bg-green-500/10 border-green-500/30' 
+            : 'bg-red-500/10 border-red-500/30'
+        }`}>
+          {validationResult.errors.length > 0 && (
+            <div className="space-y-1">
+              <h4 className="text-red-400 font-medium text-xs flex items-center gap-2">
+                <AlertCircle className="h-3 w-3" />
+                Transaction Issues:
+              </h4>
+              {validationResult.errors.map((error: string, index: number) => (
+                <p key={index} className="text-red-300 text-xs">• {error}</p>
+              ))}
+            </div>
+          )}
+          
+          {validationResult.warnings.length > 0 && (
+            <div className="space-y-1 mt-2">
+              <h4 className="text-amber-400 font-medium text-xs flex items-center gap-2">
+                <AlertCircle className="h-3 w-3" />
+                Warnings:
+              </h4>
+              {validationResult.warnings.map((warning: string, index: number) => (
+                <p key={index} className="text-amber-300 text-xs">• {warning}</p>
+              ))}
+            </div>
+          )}
+          
+          {validationResult.isValid && (
+            <div className="flex items-center gap-2 text-green-400 text-xs">
+              <CheckCircle2 className="h-3 w-3" />
+              Transaction validated successfully - ready to execute
+            </div>
+          )}
+        </div>
+      )}
+
       {/* MetaMask Information */}
       <div className="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
         <div className="flex items-center gap-2">

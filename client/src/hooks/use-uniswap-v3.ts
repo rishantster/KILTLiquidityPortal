@@ -365,17 +365,35 @@ export function useUniswapV3() {
         }
       }
       
-      // Debug: Log the transaction details
-      console.log('Base network transaction:', {
+      // Enhanced transaction validation and debugging
+      const transactionDetails = {
         ethValue: ethValue.toString(),
         useNativeETH: params.useNativeETH,
         token0: params.token0,
         token1: params.token1,
         amount0Desired: params.amount0Desired.toString(),
         amount1Desired: params.amount1Desired.toString(),
+        amount0Min: params.amount0Min.toString(),
+        amount1Min: params.amount1Min.toString(),
+        tickLower: params.tickLower,
+        tickUpper: params.tickUpper,
+        fee: params.fee,
         WETH_TOKEN,
-        note: 'Using Uniswap V3 ETH-to-WETH conversion'
-      });
+        positionManager: UNISWAP_V3_POSITION_MANAGER
+      };
+
+      // Validate transaction parameters before execution
+      if (params.amount0Desired === 0n && params.amount1Desired === 0n) {
+        throw new Error('Both token amounts cannot be zero');
+      }
+
+      if (params.tickLower >= params.tickUpper) {
+        throw new Error('Invalid tick range: tickLower must be less than tickUpper');
+      }
+
+      if (params.deadline < Math.floor(Date.now() / 1000)) {
+        throw new Error('Transaction deadline has passed');
+      }
 
       // For Base network, use multicall with refundETH when using native ETH
       let txHash: `0x${string}`;

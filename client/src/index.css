@@ -354,10 +354,21 @@
     display: none !important;
   }
   
-  /* Add safe area padding for mobile browsers */
+  /* Add safe area padding for mobile browsers and ensure bottom positioning */
   .mobile-social-nav {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    margin-bottom: 1rem;
+    bottom: 1rem !important;
+    padding-bottom: env(safe-area-inset-bottom, 0.5rem) !important;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Ensure icons are properly sized on mobile */
+  .vertical-nav-button svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
   }
 }
 

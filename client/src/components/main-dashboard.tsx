@@ -96,6 +96,7 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
+  const [showSocialButtons, setShowSocialButtons] = useState(false);
   const { toast } = useToast();
 
   // Navigation function for components to use
@@ -109,6 +110,22 @@ export function MainDashboard() {
     return () => {
       delete (window as unknown as { navigateToTab?: (tab: string) => void }).navigateToTab;
     };
+  }, []);
+
+  // Scroll detection for social buttons
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Show social buttons when user is within 200px of the bottom
+      const isNearBottom = scrollTop + windowHeight >= documentHeight - 200;
+      setShowSocialButtons(isNearBottom);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Optimize effects - combine network check and animation
@@ -376,8 +393,8 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Social Media Navigation - Desktop: Right side, Mobile: Bottom */}
-            <div className="fixed md:right-6 md:top-1/2 md:transform md:-translate-y-1/2 bottom-4 md:bottom-auto left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 z-50 flex md:flex-col flex-row md:space-y-4 space-x-3 md:space-x-0 mobile-social-nav">
+            {/* Social Media Navigation - Desktop: Right side, Mobile: Bottom (scroll-triggered) */}
+            <div className={`fixed md:right-6 md:top-1/2 md:transform md:-translate-y-1/2 bottom-4 md:bottom-auto left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 z-50 flex md:flex-col flex-row md:space-y-4 space-x-3 md:space-x-0 mobile-social-nav transition-all duration-300 ${showSocialButtons ? 'opacity-100 translate-y-0' : 'opacity-0 md:opacity-100 translate-y-4 md:translate-y-0'}`}>
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 

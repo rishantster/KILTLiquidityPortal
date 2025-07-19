@@ -41,6 +41,7 @@ export function AdminPanelWorking() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -143,15 +144,17 @@ export function AdminPanelWorking() {
     }
   }, []);
 
+  // Only load initial config values on first load, don't override user inputs
   useEffect(() => {
-    if (treasuryStats) {
+    if (treasuryStats && !hasLoadedInitialData) {
       setTreasuryForm({
         totalAllocation: treasuryStats.totalAllocation || 600000,
         programDurationDays: treasuryStats.programDurationDays || 120,
         dailyBudget: treasuryStats.dailyBudget || 5000
       });
+      setHasLoadedInitialData(true);
     }
-  }, [treasuryStats]);
+  }, [treasuryStats, hasLoadedInitialData]);
 
   // Event handlers (not hooks)
   const handleLogin = async (e: React.FormEvent) => {

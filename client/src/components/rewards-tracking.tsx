@@ -333,7 +333,7 @@ export function RewardsTracking() {
             </div>
             
             {!canClaim && daysRemaining > 0 && (
-              <div className="text-white/60 text-xs text-center mt-2 p-2 rounded border border-blue-500/20 bg-[#000000]">
+              <div className="text-white/60 text-xs text-center mt-2 p-2 rounded bg-[#000000]" style={{ borderColor: 'rgba(255, 0, 102, 0.2)' }}>
                 <p className="font-medium">Claim available in {daysRemaining} days</p>
                 <p className="text-white/40">You'll be able to claim all accumulated rewards at once</p>
               </div>
@@ -351,15 +351,15 @@ export function RewardsTracking() {
         <Card className="bg-black/20 backdrop-blur-xl border-white/10 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
-              <BarChart3 className="h-4 w-4 text-blue-400" />
+              <BarChart3 className="h-4 w-4" style={{ color: '#ff0066' }} />
               <span>Program Analytics</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3">
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
-                <div className="text-center p-2 rounded border border-blue-500/20 bg-[#000000]">
-                  <div className="text-blue-400 text-xs mb-1">Total Liquidity</div>
+                <div className="text-center p-2 rounded bg-[#000000]" style={{ borderColor: 'rgba(255, 0, 102, 0.2)' }}>
+                  <div className="text-xs mb-1" style={{ color: '#ff0066' }}>Total Liquidity</div>
                   <div className="text-sm font-bold text-white">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
                 </div>
                 <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">

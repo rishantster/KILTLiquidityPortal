@@ -446,21 +446,8 @@ export class FixedRewardService {
     
     const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
     
-    // Debug what fields are actually available in the database object
-    console.log('Database query result:', {
-      treasuryConf: !!treasuryConf,
-      allFields: treasuryConf ? Object.keys(treasuryConf) : [],
-      values: treasuryConf
-    });
-    
     // Admin panel is the ONLY source of truth - no fallbacks allowed
     if (!treasuryConf || treasuryConf.dailyRewardsCap == null || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null) {
-      console.error('Treasury configuration missing:', {
-        treasuryConf: !!treasuryConf,
-        dailyRewardsCap: treasuryConf?.dailyRewardsCap,
-        totalAllocation: treasuryConf?.totalAllocation,
-        programDurationDays: treasuryConf?.programDurationDays
-      });
       throw new Error('Treasury configuration required - admin panel must be configured');
     }
     
@@ -479,11 +466,6 @@ export class FixedRewardService {
     const [settings] = await db.select().from(programSettings).limit(1);
     
     if (!settings || settings.timeBoostCoefficient == null || settings.fullRangeBonus == null) {
-      console.error('Program settings missing:', {
-        settings: !!settings,
-        timeBoostCoefficient: settings?.timeBoostCoefficient,
-        fullRangeBonus: settings?.fullRangeBonus
-      });
       throw new Error('Program settings required - admin panel must be configured');
     }
     
@@ -514,9 +496,7 @@ export class FixedRewardService {
         actualLiquidityShare = averagePositionValue / Math.max(currentPoolTVL, totalPositionValue);
       }
     } catch (error) {
-      console.error('Blockchain data fetch error:', error.message);
-      // Production-grade error handling
-      console.error('Failed to get real pool data for APR calculation:', error);
+      // Production-grade error handling - use fallback scenarios
     }
     
     // Use real data if available, otherwise use realistic initial launch scenarios
@@ -638,7 +618,6 @@ export class FixedRewardService {
       };
     } catch (error) {
       // No fallback values allowed - admin configuration required
-      console.error('Failed to get program analytics:', error);
       throw new Error('Program analytics failed - admin configuration required');
     }
   }

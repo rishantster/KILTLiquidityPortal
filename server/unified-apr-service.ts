@@ -35,15 +35,12 @@ class UnifiedAPRService {
       dataSource: string;
     };
   }> {
-    console.log('getUnifiedAPRCalculation called - function started');
     // Check cache first
     if (this.aprCache && Date.now() - this.aprCache.timestamp < this.CACHE_DURATION) {
       return this.aprCache.value;
     }
 
     try {
-      console.log('Starting APR calculation with parallel processing...');
-      
       // PARALLEL PROCESSING - Execute all database calls simultaneously
       const [treasuryConf, settingsConf, kiltPrice] = await Promise.all([
         db.select().from(treasuryConfig).limit(1).then(results => results[0]),
@@ -53,38 +50,14 @@ class UnifiedAPRService {
           return kiltPriceService.getCurrentPrice();
         })()
       ]);
-      
-      console.log('Database queries completed:', {
-        treasuryConf: !!treasuryConf,
-        settingsConf: !!settingsConf,
-        kiltPrice
-      });
 
       // Admin panel is the ONLY source of truth - no fallbacks allowed
-      console.log('Admin configuration check:', {
-        treasuryConf: !!treasuryConf,
-        treasuryFields: treasuryConf ? Object.keys(treasuryConf) : [],
-        settingsConf: !!settingsConf,
-        settingsFields: settingsConf ? Object.keys(settingsConf) : []
-      });
-      
       if (!treasuryConf || treasuryConf.totalAllocation == null || treasuryConf.programDurationDays == null || treasuryConf.dailyRewardsCap == null) {
-        console.error('Treasury configuration missing - fixed field names:', {
-          treasuryConf: !!treasuryConf,
-          totalAllocation: treasuryConf?.totalAllocation,
-          programDurationDays: treasuryConf?.programDurationDays,
-          dailyRewardsCap: treasuryConf?.dailyRewardsCap
-        });
-        throw new Error('Admin configuration required - no fallback values allowed');
+        throw new Error('Admin configuration required - treasury settings missing');
       }
       
       if (!settingsConf || settingsConf.timeBoostCoefficient == null || settingsConf.fullRangeBonus == null) {
-        console.error('Program settings missing:', {
-          settingsConf: !!settingsConf,
-          timeBoostCoefficient: settingsConf?.timeBoostCoefficient,
-          fullRangeBonus: settingsConf?.fullRangeBonus
-        });
-        throw new Error('Program settings required - no fallback values allowed');
+        throw new Error('Program settings required - formula parameters missing');
       }
       
       const treasuryAllocation = parseFloat(treasuryConf.totalAllocation);
@@ -121,8 +94,7 @@ class UnifiedAPRService {
           actualPositionValue = activeParticipants.reduce((sum, p) => sum + p.currentValueUsd, 0) / activeParticipants.length;
         }
       } catch (error) {
-        console.error('Failed to fetch real blockchain data:', error);
-        throw new Error('Real blockchain data required - no fallbacks allowed');
+        throw new Error('Real blockchain data required - data fetch failed');
       }
 
       // Require actual blockchain data
@@ -235,7 +207,6 @@ class UnifiedAPRService {
 
     } catch (error) {
       // No fallback values allowed - admin panel must be configured
-      console.error('UnifiedAPRService admin configuration check failed:', error);
       throw new Error('UnifiedAPRService requires admin configuration - no fallback values allowed');
     }
   }

@@ -146,7 +146,7 @@ export function GasEstimationCard() {
             <Clock className="h-2 w-2 mr-1" />
             Base Network
           </Badge>
-          <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 text-xs">
+          <Badge className="px-2 py-0.5 text-xs" style={{ backgroundColor: 'rgba(255, 0, 102, 0.2)', color: '#ff0066', borderColor: 'rgba(255, 0, 102, 0.3)' }}>
             <TrendingUp className="h-2 w-2 mr-1" />
             Fast
           </Badge>

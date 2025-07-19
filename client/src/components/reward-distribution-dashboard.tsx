@@ -98,7 +98,7 @@ export function RewardDistributionDashboard() {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderBottomColor: '#ff0066' }}></div>
           <p className="mt-4 text-gray-400">Loading reward distribution data...</p>
         </div>
       </div>
@@ -169,7 +169,7 @@ export function RewardDistributionDashboard() {
         <Button
           onClick={handleDailyDistribution}
           disabled={dailyDistributionMutation.isPending || eligibleUsers.length === 0}
-          className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+          className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white"
         >
           <Send className="h-4 w-4 mr-2" />
           {dailyDistributionMutation.isPending ? 'Processing...' : 'Daily Distribution'}
@@ -179,7 +179,7 @@ export function RewardDistributionDashboard() {
           onClick={handleDistribute}
           disabled={distributeMutation.isPending || selectedUsers.length === 0}
           variant="outline"
-          className="flex-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+          className="flex-1 text-white hover:bg-[#ff0066]/10" style={{ borderColor: 'rgba(255, 0, 102, 0.3)', color: '#ff0066' }}
         >
           <Users className="h-4 w-4 mr-2" />
           {distributeMutation.isPending ? 'Distributing...' : `Distribute to Selected (${selectedUsers.length})`}

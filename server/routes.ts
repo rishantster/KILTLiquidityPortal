@@ -141,7 +141,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(fastPositions);
     } catch (error) {
-      console.error('Fast position fetch failed:', error);
+      // Fast position fetch failed - using database query
       res.status(500).json({ error: 'Failed to fetch positions' });
     }
   });
@@ -372,7 +372,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         rewardEligible: true
       });
     } catch (error) {
-      console.error("Failed to create app position:", error);
+      // Failed to create app position - registration required
       res.status(500).json({ error: "Failed to create app position" });
     }
   });
@@ -830,7 +830,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(unifiedAnalytics);
     } catch (error) {
-      console.error('Program analytics error:', error);
+      // Program analytics error
       res.status(500).json({ 
         error: 'Internal server error',
         details: error.message 
@@ -841,9 +841,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get maximum theoretical APR calculation (using fixed service directly)
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
-      console.log('APR endpoint called, starting calculation...');
       const aprData = await fixedRewardService.calculateMaximumTheoreticalAPR();
-      console.log('APR calculation completed:', aprData);
       
       res.json({
         maxAPR: aprData.maxAPR,
@@ -852,7 +850,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         calculationDetails: aprData
       });
     } catch (error) {
-      console.error('APR calculation failed:', error);
       res.status(500).json({ error: "Failed to calculate maximum APR", details: error.message });
     }
   });
@@ -2039,7 +2036,89 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.use("/api/reward-distribution", rewardDistributionRoutes);
 
   // System health and debugging routes
-  // Removed systemHealthRouter - consolidated into main routes
+  // Health check and schema validation endpoints
+  app.get("/api/health", async (req, res) => {
+    try {
+      const { healthCheckService } = await import('./health-check-service');
+      const healthStatus = await healthCheckService.performHealthCheck();
+      
+      // Set appropriate status code
+      const statusCode = healthStatus.status === 'healthy' ? 200 : 
+                        healthStatus.status === 'warning' ? 200 : 503;
+      
+      res.status(statusCode).json(healthStatus);
+    } catch (error) {
+      res.status(503).json({
+        status: 'critical',
+        timestamp: new Date().toISOString(),
+        error: 'Health check service unavailable'
+      });
+    }
+  });
+
+  app.get("/api/schema/validate", async (req, res) => {
+    try {
+      const { schemaValidator } = await import('./schema-validator');
+      const validationResult = await schemaValidator.validateAllTables();
+      
+      res.json(validationResult);
+    } catch (error) {
+      res.status(500).json({
+        isValid: false,
+        error: 'Schema validation service unavailable',
+        details: error.message
+      });
+    }
+  });
+
+  app.get("/api/performance/audit", async (req, res) => {
+    try {
+      const { performanceAuditor } = await import('./performance-audit');
+      const auditResult = await performanceAuditor.performComprehensiveAudit();
+      
+      res.json(auditResult);
+    } catch (error) {
+      res.status(500).json({
+        overallScore: 0,
+        error: 'Performance audit service unavailable',
+        details: error.message
+      });
+    }
+  });
+
+  app.get("/api/bugs/scan", async (req, res) => {
+    try {
+      const { bugScanner } = await import('./bug-scanner');
+      const scanResult = await bugScanner.scanCodebase();
+      
+      res.json(scanResult);
+    } catch (error) {
+      res.status(500).json({
+        totalFiles: 0,
+        scannedFiles: 0,
+        issues: [],
+        error: 'Bug scanner service unavailable',
+        details: error.message
+      });
+    }
+  });
+
+  app.get("/api/optimize/report", async (req, res) => {
+    try {
+      const { apiOptimizer } = await import('./api-optimizer');
+      const optimizationReport = apiOptimizer.getOptimizationReport();
+      
+      res.json(optimizationReport);
+    } catch (error) {
+      res.status(500).json({
+        timestamp: new Date().toISOString(),
+        optimizations: [],
+        recommendations: [],
+        error: 'API optimizer service unavailable',
+        details: error.message
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

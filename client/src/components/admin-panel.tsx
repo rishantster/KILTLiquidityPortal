@@ -360,10 +360,15 @@ export default function AdminPanel() {
   }, [blockchainConfig]);
 
   const handleLogin = () => {
+    console.log('handleLogin called with:', { loginType, username, password: !!password, address, isConnected });
     if (loginType === 'wallet' && address && isConnected) {
+      console.log('Attempting wallet login');
       loginMutation.mutate({ walletAddress: address });
     } else if (loginType === 'credentials' && username && password) {
+      console.log('Attempting credentials login with:', { username, password });
       loginMutation.mutate({ username, password });
+    } else {
+      console.log('Login validation failed:', { loginType, hasUsername: !!username, hasPassword: !!password, hasAddress: !!address, isConnected });
     }
   };
 

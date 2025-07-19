@@ -6,7 +6,7 @@ export function useOptimizedQueries() {
   // Cache KILT data for 2 minutes with background updates
   const kiltData = useQuery({
     queryKey: ['/api/kilt-data'],
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes for maximum caching
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchInterval: 2 * 60 * 1000, // Background refresh every 2 minutes
     refetchOnWindowFocus: false,

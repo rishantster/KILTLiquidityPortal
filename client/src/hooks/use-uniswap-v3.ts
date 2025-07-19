@@ -178,8 +178,8 @@ export function useUniswapV3() {
       return Array.isArray(data) ? data : [];
     },
     enabled: !!address && isConnected,
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 15000, // Consider stale after 15 seconds
+    refetchInterval: 120000, // Refresh every 2 minutes for better caching
+    staleTime: 60000, // Consider stale after 1 minute
   });
 
   // Token addresses from admin panel configuration

@@ -21,6 +21,18 @@ export function GasEstimationCard() {
   // Use optimized queries with aggressive caching
   const { calculations, aprData, isLoading: dataLoading } = useOptimizedQueries();
 
+  // Memoize break-even calculation to prevent recalculation on each render
+  const breakEvenDays = useMemo(() => {
+    const transactionCostETH = parseFloat(gasEstimate?.total?.cost || '0.0025');
+    const ethPrice = 3500;
+    const transactionCostUSD = transactionCostETH * ethPrice;
+    const totalAPR = parseFloat(calculations.totalAPR);
+    const dailyReturn = totalAPR / 365 / 100;
+    const positionValue = 1000;
+    const dailyEarnings = positionValue * dailyReturn;
+    return dailyEarnings > 0 ? transactionCostUSD / dailyEarnings : 2.5;
+  }, [gasEstimate?.total?.cost, calculations.totalAPR]);
+
   useEffect(() => {
     if (!isConnected) {
       setIsLoading(false);
@@ -182,17 +194,7 @@ export function GasEstimationCard() {
             <div className="flex justify-between items-center mb-1">
               <span>Cost recovered in:</span>
               <span className="text-cyan-400 font-mono">
-                ~{useMemo(() => {
-                  const transactionCostETH = parseFloat(gasEstimate?.total?.cost || '0.0025');
-                  const ethPrice = 3500;
-                  const transactionCostUSD = transactionCostETH * ethPrice;
-                  const totalAPR = parseFloat(calculations.totalAPR);
-                  const dailyReturn = totalAPR / 365 / 100;
-                  const positionValue = 1000;
-                  const dailyEarnings = positionValue * dailyReturn;
-                  const breakEvenDays = dailyEarnings > 0 ? transactionCostUSD / dailyEarnings : 2.5;
-                  return breakEvenDays.toFixed(1);
-                }, [gasEstimate?.total?.cost, calculations.totalAPR])} days
+                ~{breakEvenDays.toFixed(1)} days
               </span>
             </div>
             <div className="text-xs text-blue-300/70">

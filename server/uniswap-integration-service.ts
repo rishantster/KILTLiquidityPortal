@@ -61,9 +61,9 @@ export class UniswapIntegrationService {
   private poolInfoCache: { data: any; timestamp: number } | null = null;
   private userPositionsCache = new Map<string, { data: UniswapV3Position[], timestamp: number }>();
   private tokenIdsCache = new Map<string, { data: string[], timestamp: number }>();
-  private readonly CACHE_DURATION = 30000; // 30 seconds for ultra-fast updates
-  private readonly AGGRESSIVE_CACHE_DURATION = 15000; // 15 seconds for position data
-  private readonly FORCE_FEE_REFRESH = true; // Always refresh fees for latest data
+  private readonly CACHE_DURATION = 120000; // 2 minutes for better caching
+  private readonly AGGRESSIVE_CACHE_DURATION = 60000; // 1 minute for position data
+  private readonly FORCE_FEE_REFRESH = false; // Use cached fees for speed
 
   // BLAZING FAST CACHE INVALIDATION - Clear all caches for a user
   clearUserCache(userAddress: string): void {
@@ -359,10 +359,22 @@ export class UniswapIntegrationService {
         return [];
       }
       
-      // Step 2: Parallel processing for all positions with full Uniswap data
-      const positionPromises = tokenIds.map(tokenId => 
-        this.getFullPositionData(tokenId)
-      );
+      // Step 2: Ultra-fast parallel processing with aggressive caching
+      const positionPromises = tokenIds.map(async (tokenId) => {
+        // Check cache first for maximum speed
+        const cacheKey = `position_${tokenId}`;
+        const cached = this.positionCache.get(cacheKey);
+        if (cached && (Date.now() - cached.timestamp) < this.AGGRESSIVE_CACHE_DURATION) {
+          return cached.data;
+        }
+        
+        // If not cached, fetch and cache
+        const position = await this.getFullPositionData(tokenId);
+        if (position) {
+          this.positionCache.set(cacheKey, { data: position, timestamp: Date.now() });
+        }
+        return position;
+      });
       
       // Wait for all positions to resolve in parallel
       const positions = await Promise.all(positionPromises);

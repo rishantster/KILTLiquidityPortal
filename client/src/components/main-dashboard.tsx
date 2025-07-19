@@ -569,21 +569,17 @@ export function MainDashboard() {
                   </div>
                 </div>
 
-                {/* Your Reward APR */}
+                {/* Program APR - Treasury Rewards */}
                 <div className="text-center group hover:scale-105 transition-transform duration-200">
                   <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
                     <Award className="h-5 w-5 text-matrix-green" />
                   </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Your Reward APR</p>
+                  <p className="text-super-bright text-sm mb-1 font-medium">Program APR</p>
                   <div className="text-matrix-green font-bold text-lg font-mono">
-                    {address ? (
-                      <UserPersonalAPR address={address} />
-                    ) : (
-                      <div className="text-center">
-                        <span className="text-white/50">--</span>
-                        <div className="text-white/60 text-xs mt-1">Connect wallet</div>
-                      </div>
-                    )}
+                    {queries?.calculations?.kiltRewardAPR || unifiedData?.maxAPRData?.aprRange || '--'}%
+                  </div>
+                  <div className="text-white/60 text-xs mt-1">
+                    Treasury rewards
                   </div>
                 </div>
               </div>

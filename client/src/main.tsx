@@ -10,6 +10,11 @@ window.addEventListener('unhandledrejection', (event) => {
   event.preventDefault();
 });
 
+// Force reload if necessary for Replit browser compatibility
+if (typeof window !== 'undefined' && window.location.search.includes('force-reload')) {
+  window.location.href = window.location.href.replace('?force-reload', '').replace('&force-reload', '');
+}
+
 // Global error handler for other errors
 window.addEventListener('error', (event) => {
   console.warn('Global error (gracefully handled):', event.error?.message || event.error);

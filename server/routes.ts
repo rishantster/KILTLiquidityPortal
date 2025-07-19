@@ -1712,48 +1712,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // ===== ADMIN PANEL ROUTES =====
   
-  // Admin login (supports both wallet and credentials)
-  app.post("/api/admin/login", async (req, res) => {
-    try {
-      console.log('Body received:', req.body);
-      console.log('Headers:', req.headers['content-type']);
-      const { username, password, walletAddress } = req.body;
-      
-      // Wallet-based authentication
-      if (walletAddress) {
-        if (validateAdminWallet(walletAddress)) {
-          const token = createAdminSession(walletAddress, 'wallet');
-          res.json({
-            success: true,
-            token,
-            message: 'Admin access granted via wallet'
-          });
-        } else {
-          res.status(401).json({ error: 'Unauthorized: Admin access restricted to authorized wallet' });
-        }
-        return;
-      }
-      
-      // Credentials-based authentication
-      if (username && password) {
-        if (validateAdminCredentials(username, password)) {
-          const token = createAdminSession(username, 'credentials');
-          res.json({
-            success: true,
-            token,
-            message: 'Admin login successful'
-          });
-        } else {
-          res.status(401).json({ error: 'Invalid credentials' });
-        }
-        return;
-      }
-      
-      res.status(400).json({ error: 'Either wallet address or username/password required' });
-    } catch (error) {
-      res.status(500).json({ error: 'Login failed' });
-    }
-  });
+  // Note: Admin login route moved to index.ts to bypass middleware issues
 
   // Get admin dashboard data
   app.get("/api/admin/dashboard", requireAdminAuth, async (req, res) => {

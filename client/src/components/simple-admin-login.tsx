@@ -8,12 +8,10 @@ export function SimpleAdminLogin({ onLogin }: { onLogin: (token: string) => void
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted with:', { username, password });
     setLoading(true);
     setError('');
 
     try {
-      console.log('Making fetch request...');
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: {
@@ -22,9 +20,7 @@ export function SimpleAdminLogin({ onLogin }: { onLogin: (token: string) => void
         body: JSON.stringify({ username, password })
       });
 
-      console.log('Response received:', response.status);
       const data = await response.json();
-      console.log('Data received:', data);
 
       if (response.ok && data.success) {
         localStorage.setItem('adminToken', data.token);
@@ -33,8 +29,7 @@ export function SimpleAdminLogin({ onLogin }: { onLogin: (token: string) => void
         setError(data.error || 'Login failed');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Network error');
+      setError('Network error - please try again');
     } finally {
       setLoading(false);
     }

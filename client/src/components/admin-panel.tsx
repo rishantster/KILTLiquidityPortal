@@ -105,12 +105,15 @@ export default function AdminPanel() {
   // Admin login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username?: string; password?: string; walletAddress?: string }) => {
+      console.log('Frontend sending credentials:', credentials);
+      console.log('Stringified body:', JSON.stringify(credentials));
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
       });
       const data = await response.json();
+      console.log('Response status:', response.status, 'Data:', data);
       if (!response.ok) throw new Error(data.error);
       return data;
     },

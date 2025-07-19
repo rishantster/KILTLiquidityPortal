@@ -2157,6 +2157,22 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Formula-based APR calculation using our actual reward formula
+  app.get("/api/rewards/formula-apr", async (req, res) => {
+    try {
+      const { formulaBasedAPRService } = await import('./formula-based-apr-service');
+      const aprData = await formulaBasedAPRService.calculateFormulaBasedAPR();
+      res.setHeader('Content-Type', 'application/json');
+      res.json(aprData);
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ 
+        error: 'Failed to calculate formula-based APR',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   app.get("/api/trading-fees/position-apr/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;

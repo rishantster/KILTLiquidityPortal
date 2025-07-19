@@ -323,6 +323,30 @@
   box-shadow: inset 0 0 6px var(--neon-pink-glow);
 }
 
+/* Mobile responsive layout fixes */
+@media (max-width: 1024px) {
+  /* Force proper flex layout on mobile */
+  .mobile-flex-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+  }
+  
+  /* Ensure proper mobile section spacing */
+  .mobile-section-spacing {
+    margin-bottom: 2rem !important;
+    position: relative;
+    z-index: auto;
+  }
+  
+  /* Prevent mobile overlap issues */
+  .mobile-prevent-overlap {
+    clear: both;
+    position: relative;
+    overflow: visible;
+  }
+}
+
 .glass-dark {
   background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(2px);

@@ -582,9 +582,9 @@ export function MainDashboard() {
             </div>
 
             {/* Two Column Layout - Mobile Responsive */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 space-y-4 lg:space-y-0">
+            <div className="mobile-flex-layout lg:grid lg:grid-cols-2 gap-6 lg:gap-6">
               {/* Left Column - Position Registration */}
-              <div className="order-1 lg:order-1 space-y-0">
+              <div className="w-full mobile-section-spacing lg:mb-0">
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
                   <Plus className="h-4 w-4 text-pink-400" />
                   <span className="hidden sm:inline">Register Existing Positions</span>
@@ -596,7 +596,7 @@ export function MainDashboard() {
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="order-2 lg:order-2 space-y-0">
+              <div className="w-full mobile-prevent-overlap">
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
                   <Zap className="h-4 w-4 text-pink-400" />
                   <span className="hidden sm:inline">Quick Add Liquidity</span>

@@ -21,6 +21,13 @@ import {
   insertAppTransactionSchema,
   insertPositionEligibilitySchema
 } from "@shared/schema";
+import { 
+  blazingCacheMiddleware, 
+  timingMiddleware, 
+  smartCompressionMiddleware,
+  performanceMonitor,
+  QueryOptimizer
+} from './blazing-fast-optimizer';
 import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 
@@ -38,6 +45,7 @@ import { db } from "./db";
 import { blockchainConfigRouter } from "./routes/blockchain-config";
 import { adminSimpleRouter } from "./routes/admin-simple";
 import rewardDistributionRoutes from "./routes/reward-distribution";
+import { registerPerformanceRoutes } from "./routes/performance";
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes
 
@@ -799,8 +807,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get program analytics (open participation) - SIMPLIFIED VERSION
-  app.get("/api/rewards/program-analytics", async (req, res) => {
+  // BLAZING FAST Get program analytics (open participation) - SIMPLIFIED VERSION
+  app.get("/api/rewards/program-analytics", blazingCacheMiddleware(120), timingMiddleware(), async (req, res) => {
     try {
       // Get basic analytics that don't require blockchain integration
       const analytics = await fixedRewardService.getProgramAnalytics();
@@ -838,18 +846,27 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get maximum theoretical APR calculation (using fixed service directly)
-  app.get("/api/rewards/maximum-apr", async (req, res) => {
+  // Get maximum theoretical APR calculation - BLAZING FAST with aggressive caching
+  app.get("/api/rewards/maximum-apr", blazingCacheMiddleware(180), timingMiddleware(), async (req, res) => {
     try {
-      const aprData = await fixedRewardService.calculateMaximumTheoreticalAPR();
+      const cacheKey = 'maximum-apr-calculation';
+      const cachedResult = await QueryOptimizer.cachedQuery(
+        cacheKey,
+        async () => {
+          return await fixedRewardService.calculateMaximumTheoreticalAPR();
+        },
+        180 // 3 minutes cache for stable calculations
+      );
       
+      res.setHeader('X-Optimized', 'blazing-cache');
       res.json({
-        maxAPR: aprData.maxAPR,
-        minAPR: aprData.minAPR,
-        aprRange: aprData.aprRange,
-        calculationDetails: aprData
+        maxAPR: cachedResult.maxAPR,
+        minAPR: cachedResult.minAPR,
+        aprRange: cachedResult.aprRange,
+        calculationDetails: cachedResult
       });
     } catch (error) {
+      performanceMonitor.recordSlowRequest('/api/rewards/maximum-apr', Date.now());
       res.status(500).json({ error: "Failed to calculate maximum APR", details: error.message });
     }
   });
@@ -1491,16 +1508,21 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // SUPER EFFICIENT: Uniswap-first with database cross-check
-  app.get("/api/positions/wallet/:userAddress", async (req, res) => {
+  // ULTRA-FAST OPTIMIZED: Uniswap positions with aggressive caching
+  app.get("/api/positions/wallet/:userAddress", blazingCacheMiddleware(60), timingMiddleware(), async (req, res) => {
     try {
       const { userAddress } = req.params;
+      const { positionCacheOptimizer } = await import('./position-cache-optimizer');
       
       console.log(`Wallet positions API called for: ${userAddress}`);
       
-      // Get user positions from Uniswap
-      const uniswapPositions = await uniswapIntegrationService.getUserPositions(userAddress);
-      console.log(`Wallet positions - Raw Uniswap positions:`, uniswapPositions.length);
+      // Use super-aggressive caching for positions
+      const cachedPositions = await positionCacheOptimizer.getCachedWalletPositions(
+        userAddress,
+        async () => {
+          // Get user positions from Uniswap
+          const uniswapPositions = await uniswapIntegrationService.getUserPositions(userAddress);
+          console.log(`Wallet positions - Raw Uniswap positions:`, uniswapPositions.length);
       
       // Get blockchain config
       const blockchainConfig = await blockchainConfigService.getConfiguration();
@@ -1566,10 +1588,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }));
       
       console.log(`Enhanced positions created:`, enhancedPositions.length);
-      console.log(`Final enhanced positions:`, enhancedPositions);
+          console.log(`Final enhanced positions:`, enhancedPositions);
+          
+          return enhancedPositions;
+        }
+      );
       
-      // Return simple JSON response
-      res.json(enhancedPositions);
+      res.setHeader('X-Optimized', 'position-cache');
+      res.json(cachedPositions);
     } catch (error) {
       console.error('Error in positions endpoint:', error);
       
@@ -2034,6 +2060,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // Reward distribution routes
   app.use("/api/reward-distribution", rewardDistributionRoutes);
+
+  // Register performance optimization routes
+  registerPerformanceRoutes(app);
 
   // System health and debugging routes
   // Health check and schema validation endpoints

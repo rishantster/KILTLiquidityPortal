@@ -1,5 +1,5 @@
-import { SimpleAdmin } from '@/components/simple-admin';
+import { AdminPanelRestored } from '@/components/admin-panel-restored';
 
 export default function AdminPage() {
-  return <SimpleAdmin />;
+  return <AdminPanelRestored />;
 }

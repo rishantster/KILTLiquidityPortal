@@ -2,20 +2,16 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import App from "./App";
 import "./index.css";
-import { KiltCookieManager } from './utils/cookie-manager';
-
-// Initialize essential cookies for optimal loading
-KiltCookieManager.initializeEssentials();
-
-// Track page load performance
-const loadStartTime = performance.now();
-window.addEventListener('load', () => {
-  const loadTime = performance.now() - loadStartTime;
-  KiltCookieManager.trackPageLoad(loadTime);
-});
-
-// Cleanup expired cookies on app start
-KiltCookieManager.cleanup();
+// Simple cookie initialization (avoiding complex imports that break loading)
+try {
+  // Basic cookie setup for cache versioning
+  if (typeof window !== 'undefined' && window.document) {
+    document.cookie = 'kilt_cache_version=2025.01.19.002; path=/; max-age=604800'; // 7 days
+    document.cookie = 'kilt_last_visit=' + Date.now() + '; path=/; max-age=2592000'; // 30 days
+  }
+} catch (error) {
+  // Silently handle any cookie errors
+}
 
 // Global error handler for unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {

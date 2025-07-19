@@ -30,8 +30,7 @@ import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
-import { CookieConsent } from './cookie-consent';
-import { KiltCookieManager } from '../utils/cookie-manager';
+// Simplified cookie management imports removed to fix loading issues
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
@@ -851,17 +850,38 @@ export function MainDashboard() {
         </Tabs>
       </div>
       
-      {/* Cookie Consent Modal */}
-      <CookieConsent 
-        onAccept={() => {
-          // Initialize performance cookies on acceptance
-          KiltCookieManager.setPreferences({
-            theme: 'dark',
-            currency: 'USD',
-            notifications: true
-          });
-        }}
-      />
+      {/* Simple Cookie Notice */}
+      {(() => {
+        // Simple cookie check without complex imports
+        const hasCookieConsent = typeof document !== 'undefined' && 
+          document.cookie.includes('kilt_cookie_consent=true');
+        
+        if (hasCookieConsent) return null;
+        
+        return (
+          <div className="fixed bottom-4 left-4 right-4 z-50 bg-black/90 backdrop-blur-sm border border-gray-800 rounded-lg p-4 text-white">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <p className="text-sm">
+                  We use cookies to optimize your KILT liquidity portal experience. 
+                  <span className="text-pink-400"> Essential cookies only.</span>
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  if (typeof document !== 'undefined') {
+                    document.cookie = 'kilt_cookie_consent=true; path=/; max-age=31536000'; // 1 year
+                    window.location.reload();
+                  }
+                }}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded text-sm font-medium transition-colors"
+              >
+                Accept
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

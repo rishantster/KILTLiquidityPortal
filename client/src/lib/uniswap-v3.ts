@@ -40,16 +40,17 @@ export const KILT_ETH_POOL = {
 export function getPoolAddress(token0: string, token1: string, fee: number): string {
   // This would normally compute the pool address using the factory
   // For now, return a placeholder that matches the expected format
-  return ethers.utils.solidityKeccak256(
-    ['string', 'address', 'address', 'uint24'],
-    ['pool', token0, token1, fee]
-  ).slice(0, 42);
+  // Use a simplified approach for pool address generation
+  return `0x${token0.slice(2)}${token1.slice(2)}${fee.toString(16)}`.slice(0, 42);
 }
 
 export function formatTokenAmount(amount: string, decimals: number = 18): string {
   try {
-    const formatted = ethers.utils.formatUnits(amount, decimals);
-    return parseFloat(formatted).toFixed(6);
+    // Simple formatting without ethers utils
+    const value = BigInt(amount);
+    const divisor = BigInt(10 ** decimals);
+    const formatted = Number(value) / Number(divisor);
+    return formatted.toFixed(6);
   } catch {
     return '0.000000';
   }
@@ -57,7 +58,10 @@ export function formatTokenAmount(amount: string, decimals: number = 18): string
 
 export function parseTokenAmount(amount: string, decimals: number = 18): string {
   try {
-    return ethers.utils.parseUnits(amount, decimals).toString();
+    // Simple parsing without ethers utils
+    const value = parseFloat(amount);
+    const multiplier = BigInt(10 ** decimals);
+    return (BigInt(Math.floor(value * Number(multiplier))) / BigInt(1)).toString();
   } catch {
     return '0';
   }
@@ -66,8 +70,9 @@ export function parseTokenAmount(amount: string, decimals: number = 18): string 
 // Price utilities
 export function calculatePrice(amount0: string, amount1: string, decimals0: number = 18, decimals1: number = 18): number {
   try {
-    const amt0 = parseFloat(ethers.utils.formatUnits(amount0, decimals0));
-    const amt1 = parseFloat(ethers.utils.formatUnits(amount1, decimals1));
+    // Simple price calculation without ethers utils
+    const amt0 = Number(BigInt(amount0)) / Number(BigInt(10 ** decimals0));
+    const amt1 = Number(BigInt(amount1)) / Number(BigInt(10 ** decimals1));
     
     if (amt0 === 0) return 0;
     return amt1 / amt0;

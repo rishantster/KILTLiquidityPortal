@@ -170,17 +170,29 @@ export const setupSecurity = (app: Express) => {
     crossOriginEmbedderPolicy: false, // Disable for Web3 compatibility
   }));
 
-  // CORS configuration
+  // CORS configuration with broader origin support for admin panel
   app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://*.replit.app', 'https://*.repl.co'] 
-      : ['http://localhost:5000', 'http://127.0.0.1:5000'],
+    origin: true, // Allow all origins in development
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     exposedHeaders: ['X-Total-Count'],
     maxAge: 86400 // 24 hours
   }));
+
+  // Additional manual CORS headers to ensure Authorization header is accepted
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    
+    next();
+  });
 
   // Basic rate limiting for all routes
   app.use('/api', createRateLimit);

@@ -1714,22 +1714,31 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   
   // Note: Admin login route moved to index.ts to bypass middleware issues
 
-  // Get admin dashboard data (simplified auth)
-  app.get("/api/admin/dashboard", async (req, res) => {
+  // Get admin dashboard data (with proper CORS and auth handling)
+  app.get("/api/admin/dashboard", (req, res) => {
     try {
-      // Simple token check with detailed logging
-      const authHeader = req.headers.authorization;
-      console.log('Dashboard auth header:', authHeader);
+      // Add CORS headers
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
       
-      const token = authHeader?.replace('Bearer ', '');
-      console.log('Dashboard extracted token:', token);
+      // Detailed logging of all headers
+      console.log('=== DASHBOARD REQUEST DEBUG ===');
+      console.log('All request headers:', JSON.stringify(req.headers, null, 2));
+      console.log('Authorization header specifically:', req.headers.authorization);
+      console.log('Authorization header (lowercase):', req.headers['authorization']);
+      console.log('===============================');
       
-      if (!token) {
-        console.log('Dashboard: No token provided');
-        return res.status(401).json({ error: 'No token provided' });
+      const authHeader = req.headers.authorization || req.headers['Authorization'];
+      const token = authHeader?.replace('Bearer ', '').trim();
+      
+      if (!token || token === 'undefined' || token === 'null') {
+        console.log('Dashboard: Invalid or missing token:', token);
+        return res.status(401).json({ error: 'No valid token provided' });
       }
       
-      console.log('Dashboard: Token accepted, returning stats');
+      console.log('Dashboard: Valid token received, length:', token.length);
+      
       // Mock treasury stats for now
       const stats = {
         totalAllocation: 500000,
@@ -1744,8 +1753,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         treasuryProgress: 0
       };
       
+      console.log('Dashboard: Returning stats successfully');
       res.json(stats);
     } catch (error) {
+      console.error('Dashboard error:', error);
       res.status(500).json({ error: 'Failed to load dashboard' });
     }
   });

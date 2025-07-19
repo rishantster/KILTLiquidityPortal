@@ -399,10 +399,10 @@ export function MainDashboard() {
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
                 title="Follow us on X (Twitter)"
               >
-                <SiX className="h-4 w-4 md:h-6 md:w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <SiX className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
                 <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
                   Follow on X
                 </div>
@@ -411,10 +411,10 @@ export function MainDashboard() {
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
                 title="View our GitHub"
               >
-                <SiGithub className="h-4 w-4 md:h-6 md:w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <SiGithub className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
                 <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
                   View GitHub
                 </div>
@@ -423,10 +423,10 @@ export function MainDashboard() {
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
                 title="Join our Discord"
               >
-                <SiDiscord className="h-4 w-4 md:h-6 md:w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <SiDiscord className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
                 <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
                   Join Discord
                 </div>
@@ -435,10 +435,10 @@ export function MainDashboard() {
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
                 title="Join our Telegram"
               >
-                <SiTelegram className="h-4 w-4 md:h-6 md:w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <SiTelegram className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
                 <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
                   Join Telegram
                 </div>
@@ -447,10 +447,10 @@ export function MainDashboard() {
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-xl border border-gray-800 bg-black/50 hover:border-[#ff0066]/50 flex items-center justify-center vertical-nav-button backdrop-blur-md"
+                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
                 title="Read our Medium"
               >
-                <SiMedium className="h-4 w-4 md:h-6 md:w-6 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
+                <SiMedium className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
                 <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
                   Read Medium
                 </div>

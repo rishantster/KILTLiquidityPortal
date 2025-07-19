@@ -3,6 +3,10 @@ import React from "react";
 import App from "./App";
 import "./index.css";
 import { KiltCookieManager } from './utils/cookie-manager';
+import { initializeBrowserCompatibility } from './lib/browser-compatibility';
+
+// Initialize browser compatibility improvements
+initializeBrowserCompatibility();
 
 // Initialize essential cookies for optimal loading
 KiltCookieManager.initializeEssentials();

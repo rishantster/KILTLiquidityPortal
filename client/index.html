@@ -29,16 +29,28 @@
     
     <!-- Service Worker Registration for Cache Busting -->
     <script>
-      if ('serviceWorker' in navigator) {
+      // Enhanced Service Worker registration with better error handling
+      if ('serviceWorker' in navigator && !window.location.hostname.includes('localhost')) {
         window.addEventListener('load', () => {
+          // Check if we're in an iframe (Replit environment)
+          const isIframe = window.self !== window.top;
+          
+          if (isIframe) {
+            console.log('Service Worker registration skipped in iframe environment');
+            return;
+          }
+
           navigator.serviceWorker.register('/sw.js')
             .then(registration => {
               console.log('Service Worker registered:', registration);
               
-              // Check for updates every 30 seconds
+              // Check for updates less frequently in Replit environment
+              const updateInterval = window.location.hostname.includes('replit') ? 60000 : 30000;
               setInterval(() => {
-                registration.update();
-              }, 30000);
+                registration.update().catch(() => {
+                  // Silently handle update failures
+                });
+              }, updateInterval);
               
               // Listen for updates
               registration.addEventListener('updatefound', () => {
@@ -47,7 +59,11 @@
                   newWorker.addEventListener('statechange', () => {
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                       // New version available, force update
-                      if (confirm('New version available! Click OK to update.')) {
+                      console.log('New version available');
+                      // Auto-update without prompting in development
+                      if (window.location.hostname.includes('replit')) {
+                        window.location.reload();
+                      } else if (confirm('New version available! Click OK to update.')) {
                         newWorker.postMessage({ type: 'FORCE_UPDATE' });
                         window.location.reload();
                       }
@@ -57,13 +73,31 @@
               });
             })
             .catch(error => {
-              console.log('Service Worker registration failed:', error);
+              console.log('Service Worker registration failed (this is normal in some environments):', error.message);
             });
         });
       }
     </script>
     
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+    <!-- Replit development banner - only load if in Replit environment -->
+    <script>
+      // Only load Replit banner in development and when in Replit environment
+      if (window.location.hostname.includes('replit') || window.location.hostname.includes('repl')) {
+        try {
+          const script = document.createElement('script');
+          script.src = 'https://replit.com/public/js/replit-dev-banner.js';
+          script.type = 'text/javascript';
+          script.async = true;
+          script.onerror = function() {
+            // Silently fail if script cannot be loaded
+            console.log('Replit banner script could not be loaded');
+          };
+          document.head.appendChild(script);
+        } catch (e) {
+          // Silently fail
+          console.log('Replit banner loading failed:', e.message);
+        }
+      }
+    </script>
   </body>
 </html>

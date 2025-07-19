@@ -393,68 +393,112 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Social Media Navigation - Desktop: Right side, Mobile: Bottom (scroll-triggered) */}
-            <div className={`fixed md:right-6 md:top-1/2 md:transform md:-translate-y-1/2 bottom-4 md:bottom-auto left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 z-50 flex md:flex-col flex-row md:space-y-4 space-x-3 md:space-x-0 mobile-social-nav transition-all duration-300 ${showSocialButtons ? 'opacity-100 translate-y-0' : 'opacity-0 md:opacity-100 translate-y-4 md:translate-y-0'}`}>
-              <a 
-                href="https://x.com/kiltprotocol" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
-                title="Follow us on X (Twitter)"
-              >
-                <SiX className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-                <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
-                  Follow on X
+            {/* Social Media Navigation - Card-based design matching site theme */}
+            <div className={`
+              hidden md:fixed md:right-6 md:top-1/2 md:transform md:-translate-y-1/2 md:flex md:flex-col md:space-y-3 md:z-50
+              ${showSocialButtons ? 'md:opacity-100' : 'md:opacity-100'}
+            `}>
+              {/* Desktop Social Navigation */}
+              <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg p-3 shadow-2xl shadow-black/50">
+                <div className="flex flex-col space-y-3">
+                  <a 
+                    href="https://x.com/kiltprotocol" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                    title="Follow us on X"
+                  >
+                    <SiX className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://github.com/KILTprotocol" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                    title="View our GitHub"
+                  >
+                    <SiGithub className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://discord.gg/kiltprotocol" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                    title="Join our Discord"
+                  >
+                    <SiDiscord className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://t.me/KILTProtocolChat" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                    title="Join our Telegram"
+                  >
+                    <SiTelegram className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://kilt-protocol.medium.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                    title="Read our Medium"
+                  >
+                    <SiMedium className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
                 </div>
-              </a>
-              <a 
-                href="https://github.com/KILTprotocol" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
-                title="View our GitHub"
-              >
-                <SiGithub className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-                <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
-                  View GitHub
+              </div>
+            </div>
+
+            {/* Mobile Social Navigation - Bottom card when scrolled to bottom */}
+            <div className={`
+              md:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300
+              ${showSocialButtons ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
+            `}>
+              <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg p-3 shadow-2xl shadow-black/50">
+                <div className="flex space-x-3">
+                  <a 
+                    href="https://x.com/kiltprotocol" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                  >
+                    <SiX className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://github.com/KILTprotocol" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                  >
+                    <SiGithub className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://discord.gg/kiltprotocol" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                  >
+                    <SiDiscord className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://t.me/KILTProtocolChat" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                  >
+                    <SiTelegram className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
+                  <a 
+                    href="https://kilt-protocol.medium.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/30 rounded-lg border border-[#ff0066]/40 hover:scale-105 transition-transform duration-200"
+                  >
+                    <SiMedium className="h-4 w-4 text-white group-hover:text-[#ff0066] transition-colors duration-300" />
+                  </a>
                 </div>
-              </a>
-              <a 
-                href="https://discord.gg/kiltprotocol" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
-                title="Join our Discord"
-              >
-                <SiDiscord className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-                <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
-                  Join Discord
-                </div>
-              </a>
-              <a 
-                href="https://t.me/KILTProtocolChat" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
-                title="Join our Telegram"
-              >
-                <SiTelegram className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-                <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
-                  Join Telegram
-                </div>
-              </a>
-              <a 
-                href="https://kilt-protocol.medium.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group relative w-12 h-12 md:w-14 md:h-14 rounded-lg border border-gray-800 bg-black/40 hover:border-[#ff0066]/50 hover:bg-black/60 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
-                title="Read our Medium"
-              >
-                <SiMedium className="h-3 w-3 md:h-5 md:w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-                <div className="absolute md:right-16 bottom-16 md:bottom-auto md:top-1/2 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-700">
-                  Read Medium
-                </div>
-              </a>
+              </div>
             </div>
           </div>
         </div>

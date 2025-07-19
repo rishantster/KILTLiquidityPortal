@@ -3,10 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    
+    <!-- Cache Control Headers -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
+    <!-- Version-based cache busting -->
+    <meta name="version" content="2025.01.19.002" />
+    <meta name="build-timestamp" content="1752907500000" />
+    
+    <!-- SEO Meta Tags -->
+    <title>KILT Liquidity Incentive Portal | DeFi Rewards on Base Network</title>
+    <meta name="description" content="Earn up to 113% APR on KILT/ETH liquidity positions with treasury rewards. Join the KILT Liquidity Incentive Program on Base network." />
+    
+    <!-- Open Graph for Social Sharing -->
+    <meta property="og:title" content="KILT Liquidity Incentive Portal" />
+    <meta property="og:description" content="Earn up to 113% APR on KILT/ETH liquidity positions with treasury rewards" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kilt-liquidity-portal.replit.app" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration for Cache Busting -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('Service Worker registered:', registration);
+              
+              // Check for updates every 30 seconds
+              setInterval(() => {
+                registration.update();
+              }, 30000);
+              
+              // Listen for updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                if (newWorker) {
+                  newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      // New version available, force update
+                      if (confirm('New version available! Click OK to update.')) {
+                        newWorker.postMessage({ type: 'FORCE_UPDATE' });
+                        window.location.reload();
+                      }
+                    }
+                  });
+                }
+              });
+            })
+            .catch(error => {
+              console.log('Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
+    
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>

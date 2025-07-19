@@ -3,15 +3,18 @@ import React from "react";
 import App from "./App";
 import "./index.css";
 
-// Simple, safe cookie setup
-setTimeout(() => {
-  try {
-    document.cookie = 'kilt_cache_version=2025.01.19.002; path=/; max-age=604800';
-    document.cookie = 'kilt_last_visit=' + Date.now() + '; path=/; max-age=2592000';
-  } catch (e) {
-    // Silent fail for cookie issues
-  }
-}, 100);
+// Global error handler for unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  console.warn('Unhandled promise rejection (gracefully handled):', event.reason?.message || event.reason);
+  // Prevent the default behavior (which would show an error overlay)
+  event.preventDefault();
+});
+
+// Global error handler for other errors
+window.addEventListener('error', (event) => {
+  console.warn('Global error (gracefully handled):', event.error?.message || event.error);
+  event.preventDefault();
+});
 
 // Error boundary wrapper for the entire application
 class ErrorBoundary extends React.Component<
@@ -53,25 +56,8 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// Ensure DOM is ready before mounting
-const initApp = () => {
-  const container = document.getElementById("root");
-  if (!container) {
-    console.error("Root container missing in index.html");
-    return;
-  }
-
-  const root = createRoot(container);
-  root.render(
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  );
-};
-
-// Mount when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
+createRoot(document.getElementById("root")!).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);

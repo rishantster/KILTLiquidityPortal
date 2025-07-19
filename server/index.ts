@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
 import { kiltPriceService } from "./kilt-price-service.js";
+import compression from "compression";
 
 // Validate environment variables first
 validateEnvironment();
@@ -14,6 +15,50 @@ const app = express();
 
 // Trust proxy for rate limiting (must be before security setup)
 app.set('trust proxy', 1);
+
+// Performance optimizations - compression and response time
+app.use(compression({
+  level: 6, // Good balance of speed vs compression
+  threshold: 1024, // Only compress responses > 1KB
+}));
+
+// Response time tracking for optimization (must be before routes)
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  
+  // Store original end function
+  const originalEnd = res.end;
+  
+  // Override end function to track timing
+  res.end = function(chunk?: any, encoding?: any) {
+    const duration = Date.now() - start;
+    if (duration > 1000) {
+      console.warn(`Slow request: ${req.method} ${req.path} - ${duration}ms`);
+    }
+    
+    // Call original end function
+    return originalEnd.call(this, chunk, encoding);
+  };
+  
+  next();
+});
+
+// Cache headers for better performance
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.includes('/api/')) {
+    // API responses - aggressive caching with revalidation
+    res.set({
+      'Cache-Control': 'public, max-age=30, stale-while-revalidate=300',
+      'ETag': `"${Date.now()}"`,
+    });
+  } else if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {
+    // Static assets - long cache
+    res.set({
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    });
+  }
+  next();
+});
 
 // Security middleware setup (must be first)
 const securityMiddleware = setupSecurity(app);

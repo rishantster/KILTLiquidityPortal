@@ -27,6 +27,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
+import { useFastPositionData } from '@/hooks/use-fast-position-data';
 import { useState, useEffect } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';

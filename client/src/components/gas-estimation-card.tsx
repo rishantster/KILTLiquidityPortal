@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { useWallet } from '@/contexts/wallet-context';
-import { useQuery } from '@tanstack/react-query';
+import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
 
 interface GasEstimate {
   approve: { gasLimit: string; gasPrice: string; cost: string };
@@ -18,19 +18,8 @@ export function GasEstimationCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get real-time data for calculations
-  const { data: kiltData } = useQuery({ 
-    queryKey: ['/api/kilt-data'],
-    refetchInterval: 30000
-  });
-  const { data: programAnalytics } = useQuery({ 
-    queryKey: ['/api/rewards/program-analytics'],
-    refetchInterval: 30000
-  });
-  const { data: aprData } = useQuery({ 
-    queryKey: ['/api/rewards/maximum-apr'],
-    refetchInterval: 30000
-  });
+  // Use optimized queries with aggressive caching
+  const { calculations, aprData, isLoading: dataLoading } = useOptimizedQueries();
 
   useEffect(() => {
     if (!isConnected) {
@@ -167,38 +156,16 @@ export function GasEstimationCard() {
           <div className="space-y-1">
             <div className="flex justify-between items-center text-xs">
               <span className="text-white/70">Trading Fees APR</span>
-              <span className="text-green-400 font-mono">
-                ~{(() => {
-                  const dailyVolume = kiltData?.volume || 426;
-                  const poolTVL = programAnalytics?.totalLiquidity || 91431.8;
-                  const feeTier = 0.003; // 0.3%
-                  const dailyFees = dailyVolume * feeTier;
-                  const annualFees = dailyFees * 365;
-                  const feeAPR = poolTVL > 0 ? (annualFees / poolTVL) * 100 : 0;
-                  return feeAPR.toFixed(1);
-                })()}%
-              </span>
+              <span className="text-green-400 font-mono">~{calculations.feeAPR}%</span>
             </div>
             <div className="flex justify-between items-center text-xs">
               <span className="text-white/70">KILT Rewards APR</span>
-              <span className="text-green-400 font-mono">~{aprData?.maxAPR || 112}%</span>
+              <span className="text-green-400 font-mono">~{calculations.kiltRewardAPR}%</span>
             </div>
             <div className="border-t border-purple-300/20 pt-1">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-purple-300 font-medium">Total APR</span>
-                <span className="text-pink-400 font-mono font-bold">
-                  ~{(() => {
-                    const dailyVolume = kiltData?.volume || 426;
-                    const poolTVL = programAnalytics?.totalLiquidity || 91431.8;
-                    const feeTier = 0.003;
-                    const dailyFees = dailyVolume * feeTier;
-                    const annualFees = dailyFees * 365;
-                    const feeAPR = poolTVL > 0 ? (annualFees / poolTVL) * 100 : 0;
-                    const kiltRewardAPR = aprData?.maxAPR || 112;
-                    const totalAPR = feeAPR + kiltRewardAPR;
-                    return totalAPR.toFixed(0);
-                  })()}%
-                </span>
+                <span className="text-pink-400 font-mono font-bold">~{calculations.totalAPR}%</span>
               </div>
             </div>
           </div>
@@ -215,29 +182,17 @@ export function GasEstimationCard() {
             <div className="flex justify-between items-center mb-1">
               <span>Cost recovered in:</span>
               <span className="text-cyan-400 font-mono">
-                ~{(() => {
+                ~{useMemo(() => {
                   const transactionCostETH = parseFloat(gasEstimate?.total?.cost || '0.0025');
-                  const ethPrice = 3500; // Could be made dynamic too
+                  const ethPrice = 3500;
                   const transactionCostUSD = transactionCostETH * ethPrice;
-                  
-                  // Calculate fee APR
-                  const dailyVolume = kiltData?.volume || 426;
-                  const poolTVL = programAnalytics?.totalLiquidity || 91431.8;
-                  const feeTier = 0.003;
-                  const dailyFees = dailyVolume * feeTier;
-                  const annualFees = dailyFees * 365;
-                  const feeAPR = poolTVL > 0 ? (annualFees / poolTVL) * 100 : 0;
-                  
-                  const totalAPR = (aprData?.maxAPR || 112) + feeAPR;
+                  const totalAPR = parseFloat(calculations.totalAPR);
                   const dailyReturn = totalAPR / 365 / 100;
-                  
-                  // Assume $1000 position for calculation
                   const positionValue = 1000;
                   const dailyEarnings = positionValue * dailyReturn;
                   const breakEvenDays = dailyEarnings > 0 ? transactionCostUSD / dailyEarnings : 2.5;
-                  
                   return breakEvenDays.toFixed(1);
-                })()} days
+                }, [gasEstimate?.total?.cost, calculations.totalAPR])} days
               </span>
             </div>
             <div className="text-xs text-blue-300/70">

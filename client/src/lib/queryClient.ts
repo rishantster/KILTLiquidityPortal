@@ -26,7 +26,7 @@ export async function apiRequest<T = unknown>(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for faster loading
 
     const res = await fetch(url, {
       method: options?.method || 'GET',
@@ -65,7 +65,7 @@ export const getQueryFn: <T>(options: {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for faster loading
 
     try {
       const res = await fetch(queryKey[0] as string, {
@@ -98,7 +98,7 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 1000 * 60 * 2, // 2 minutes - more aggressive caching
       retry: (failureCount, error) => {
         // Retry network errors but not other types of errors
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {

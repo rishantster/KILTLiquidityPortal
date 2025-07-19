@@ -26,6 +26,7 @@ import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
+import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
 import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';

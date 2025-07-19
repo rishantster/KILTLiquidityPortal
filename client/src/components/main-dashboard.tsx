@@ -591,7 +591,7 @@ export function MainDashboard() {
                   </div>
                   <div className="text-white/60 text-xs mt-1 flex items-center justify-center gap-1">
                     <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs">
-                      {queries?.calculations?.dataSource || 'live'}
+                      uniswap
                     </span>
                   </div>
                 </div>

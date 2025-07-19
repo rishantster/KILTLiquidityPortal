@@ -90,6 +90,51 @@ export function AdminPanelMinimal() {
     }
   };
 
+  // Treasury stats query - MUST be at top level before any conditional returns
+  const { data: treasuryStats, isLoading: statsLoading } = useQuery<AdminTreasuryStats>({
+    queryKey: ['/api/admin/dashboard'],
+    enabled: isAuthenticated,
+    refetchInterval: 5000,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/dashboard', {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Dashboard request failed: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+
+  // Load current config values
+  useEffect(() => {
+    if (treasuryStats) {
+      setTreasuryForm({
+        totalAllocation: treasuryStats.totalAllocation || 600000,
+        programDurationDays: treasuryStats.programDurationDays || 120,
+        dailyBudget: treasuryStats.dailyBudget || 5000
+      });
+    }
+  }, [treasuryStats]);
+
+  // Operation history query
+  const { data: operationHistory } = useQuery({
+    queryKey: ['/api/admin/operations'],
+    enabled: isAuthenticated,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/operations?limit=10', {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) return [];
+      return response.json();
+    }
+  });
+
   // Check for existing token on mount
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -157,51 +202,6 @@ export function AdminPanelMinimal() {
       </div>
     );
   }
-
-  // Treasury stats query
-  const { data: treasuryStats, isLoading: statsLoading } = useQuery<AdminTreasuryStats>({
-    queryKey: ['/api/admin/dashboard'],
-    enabled: isAuthenticated,
-    refetchInterval: 5000,
-    queryFn: async () => {
-      const response = await fetch('/api/admin/dashboard', {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Dashboard request failed: ${response.status}`);
-      }
-      return response.json();
-    }
-  });
-
-  // Load current config values
-  useEffect(() => {
-    if (treasuryStats) {
-      setTreasuryForm({
-        totalAllocation: treasuryStats.totalAllocation || 600000,
-        programDurationDays: treasuryStats.programDurationDays || 120,
-        dailyBudget: treasuryStats.dailyBudget || 5000
-      });
-    }
-  }, [treasuryStats]);
-
-  // Operation history query
-  const { data: operationHistory } = useQuery({
-    queryKey: ['/api/admin/operations'],
-    enabled: isAuthenticated,
-    queryFn: async () => {
-      const response = await fetch('/api/admin/operations?limit=10', {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) return [];
-      return response.json();
-    }
-  });
 
   // Treasury update mutation
   const treasuryMutation = useMutation({

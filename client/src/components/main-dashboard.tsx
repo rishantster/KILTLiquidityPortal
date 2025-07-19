@@ -600,15 +600,15 @@ export function MainDashboard() {
                   <Zap className="h-4 w-4 text-pink-400" />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[440px] lg:h-[480px] flex flex-col overflow-hidden cluely-card">
-                  <CardContent className="p-2 flex-1 flex flex-col overflow-hidden">
-                    <div className="space-y-2 flex-1">
+                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[450px] sm:h-[480px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
+                  <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
+                    <div className="space-y-4 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 cluely-card">
-                        <h4 className="text-white font-bold text-base mb-2">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
+                        <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
+                        <div className="grid grid-cols-3 gap-3">
                           {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
                             <div className="flex items-center gap-2">
                               <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                 <img 
@@ -630,7 +630,7 @@ export function MainDashboard() {
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
                             <div className="flex items-center gap-2">
                               <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                 <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
@@ -652,7 +652,7 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
                             <div className="flex items-center gap-2">
                               <div className="flex-shrink-0 w-8 h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                 <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
@@ -676,12 +676,12 @@ export function MainDashboard() {
                       </div>
 
                       {/* Percentage Selector */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 cluely-card">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
+                        <div className="flex items-center justify-between mb-3">
                           <span className="text-white text-sm font-medium">Balance Usage</span>
                           <span className="text-sm text-white/80">{selectedPercentage}% of wallet</span>
                         </div>
-                        <div className="grid grid-cols-5 gap-1 mb-2">
+                        <div className="grid grid-cols-5 gap-2 mb-3">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
@@ -707,7 +707,7 @@ export function MainDashboard() {
                         </div>
                         
                         {/* Seek Bar Slider */}
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-white text-xs">Precise Control</span>
                             <span className="text-white/80 text-xs">{selectedPercentage}%</span>
@@ -724,8 +724,8 @@ export function MainDashboard() {
                       </div>
 
                       {/* Optimal Amount */}
-                      <div className="theme-card p-2 cluely-card">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="theme-card p-3 cluely-card">
+                        <div className="flex items-center justify-between mb-3">
                           <span className="text-white text-sm font-medium text-label">Liquidity Amount</span>
                           <span className="text-sm text-white/80 text-body">Balanced strategy</span>
                         </div>
@@ -769,7 +769,7 @@ export function MainDashboard() {
                     </div>
                     
                     {/* Action Button and Help Text - Bottom of Card */}
-                    <div className="space-y-1 mt-1 px-1">
+                    <div className="space-y-2 mt-3 px-1">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();

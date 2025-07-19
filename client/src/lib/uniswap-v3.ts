@@ -40,7 +40,7 @@ export const KILT_ETH_POOL = {
 export function getPoolAddress(token0: string, token1: string, fee: number): string {
   // This would normally compute the pool address using the factory
   // For now, return a placeholder that matches the expected format
-  return ethers.utils.solidityKeccak256(
+  return ethers.solidityPackedKeccak256(
     ['string', 'address', 'address', 'uint24'],
     ['pool', token0, token1, fee]
   ).slice(0, 42);
@@ -48,7 +48,7 @@ export function getPoolAddress(token0: string, token1: string, fee: number): str
 
 export function formatTokenAmount(amount: string, decimals: number = 18): string {
   try {
-    const formatted = ethers.utils.formatUnits(amount, decimals);
+    const formatted = ethers.formatUnits(amount, decimals);
     return parseFloat(formatted).toFixed(6);
   } catch {
     return '0.000000';
@@ -57,7 +57,7 @@ export function formatTokenAmount(amount: string, decimals: number = 18): string
 
 export function parseTokenAmount(amount: string, decimals: number = 18): string {
   try {
-    return ethers.utils.parseUnits(amount, decimals).toString();
+    return ethers.parseUnits(amount, decimals).toString();
   } catch {
     return '0';
   }
@@ -66,8 +66,8 @@ export function parseTokenAmount(amount: string, decimals: number = 18): string 
 // Price utilities
 export function calculatePrice(amount0: string, amount1: string, decimals0: number = 18, decimals1: number = 18): number {
   try {
-    const amt0 = parseFloat(ethers.utils.formatUnits(amount0, decimals0));
-    const amt1 = parseFloat(ethers.utils.formatUnits(amount1, decimals1));
+    const amt0 = parseFloat(ethers.formatUnits(amount0, decimals0));
+    const amt1 = parseFloat(ethers.formatUnits(amount1, decimals1));
     
     if (amt0 === 0) return 0;
     return amt1 / amt0;

@@ -1,5 +1,5 @@
-import { AdminPanelFixed } from '@/components/admin-panel-fixed';
+import { AdminPanelMinimal } from '@/components/admin-panel-minimal';
 
 export default function AdminPage() {
-  return <AdminPanelFixed />;
+  return <AdminPanelMinimal />;
 }

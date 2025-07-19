@@ -434,10 +434,19 @@ export class AdminService {
       const dailyRewardsCap = parseFloat(treasuryConf.dailyRewardsCap);
       const programDuration = treasuryConf.programDurationDays;
       
-      // Calculate days remaining
-      const endDate = new Date(treasuryConf.programEndDate);
-      const now = new Date();
-      const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+      // Calculate days remaining - handle date parsing safely
+      let daysRemaining = 90; // Default fallback
+      try {
+        if (treasuryConf.programEndDate) {
+          const endDate = new Date(treasuryConf.programEndDate);
+          if (!isNaN(endDate.getTime())) {
+            const now = new Date();
+            daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+          }
+        }
+      } catch (dateError) {
+        console.error('Date parsing error:', dateError);
+      }
       
       // Get participant count from database
       const participants = await db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
@@ -450,8 +459,8 @@ export class AdminService {
         totalAllocation: programBudget,
         dailyBudget: dailyRewardsCap,
         programDurationDays: programDuration,
-        programStartDate: treasuryConf.programStartDate ? treasuryConf.programStartDate.toISOString() : new Date().toISOString(),
-        programEndDate: treasuryConf.programEndDate ? treasuryConf.programEndDate.toISOString() : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        programStartDate: this.safeDateToISO(treasuryConf.programStartDate) || new Date().toISOString(),
+        programEndDate: this.safeDateToISO(treasuryConf.programEndDate) || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
         daysRemaining: daysRemaining,
         totalDistributed: totalDistributed,
         currentParticipants: participants.length,
@@ -473,6 +482,21 @@ export class AdminService {
         totalClaimed: 0,
         treasuryProgress: 0
       };
+    }
+  }
+
+  /**
+   * Safely convert a date value to ISO string
+   */
+  private safeDateToISO(dateValue: any): string | null {
+    try {
+      if (!dateValue) return null;
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return null;
+      return date.toISOString();
+    } catch (error) {
+      console.error('Date conversion error:', error);
+      return null;
     }
   }
 

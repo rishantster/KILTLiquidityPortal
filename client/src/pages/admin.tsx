@@ -3,7 +3,7 @@ import { useWallet } from "@/contexts/wallet-context";
 import { CyberpunkAdminPanel } from "@/components/cyberpunk-admin-panel";
 
 export default function AdminPage() {
-  const { isConnected, address, connectWallet } = useWallet();
+  const { isConnected, address, connect } = useWallet();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function AdminPage() {
     try {
       // First connect wallet if not connected
       if (!isConnected) {
-        await connectWallet();
+        await connect();
         // Wait a moment for wallet connection to complete
         await new Promise(resolve => setTimeout(resolve, 1000));
       }

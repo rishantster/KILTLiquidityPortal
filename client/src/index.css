@@ -347,6 +347,20 @@
   }
 }
 
+/* Mobile Social Media Navigation - Bottom Centered */
+@media (max-width: 768px) {
+  /* Hide tooltips on mobile to prevent layout issues */
+  .vertical-nav-button div {
+    display: none !important;
+  }
+  
+  /* Add safe area padding for mobile browsers */
+  .mobile-social-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    margin-bottom: 1rem;
+  }
+}
+
 .glass-dark {
   background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(2px);

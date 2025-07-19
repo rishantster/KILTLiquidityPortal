@@ -1,0 +1,311 @@
+/* AUTHENTIC RETRO TERMINAL THEME */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono:wght@400&display=swap');
+
+:root {
+  /* Terminal Color Palette */
+  --terminal-green: #00ff41;
+  --terminal-green-dim: #00cc33;
+  --terminal-green-bright: #44ff77;
+  --terminal-amber: #ffb000;
+  --terminal-red: #ff4444;
+  --terminal-bg: #000000;
+  --terminal-bg-lighter: #0a0a0a;
+  --terminal-border: #00ff41;
+  --terminal-text: #00ff41;
+  --terminal-text-dim: #009922;
+  --terminal-text-bright: #44ff77;
+}
+
+/* Terminal Font */
+.terminal-font {
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+}
+
+/* Terminal Window Base */
+.terminal-window {
+  background: var(--terminal-bg);
+  border: 2px solid var(--terminal-green);
+  color: var(--terminal-text);
+  font-family: 'Share Tech Mono', monospace;
+  position: relative;
+}
+
+/* Scanline Effect */
+.terminal-window::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 65, 0.03) 2px,
+    rgba(0, 255, 65, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Terminal Header Bar */
+.terminal-header {
+  background: var(--terminal-bg-lighter);
+  border-bottom: 1px solid var(--terminal-green);
+  padding: 8px 16px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.terminal-header::before {
+  content: '● ● ●';
+  color: var(--terminal-green);
+  margin-right: 12px;
+  font-size: 10px;
+}
+
+/* Terminal Content Area */
+.terminal-content {
+  padding: 16px;
+  background: var(--terminal-bg);
+  position: relative;
+  z-index: 2;
+}
+
+/* Terminal Text Styling */
+.terminal-prompt::before {
+  content: 'root@kilt:~$ ';
+  color: var(--terminal-green-dim);
+}
+
+.terminal-text {
+  color: var(--terminal-text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.terminal-text-dim {
+  color: var(--terminal-green-dim);
+}
+
+.terminal-text-bright {
+  color: var(--terminal-green-bright);
+}
+
+/* Terminal Button Styling */
+.terminal-button {
+  background: transparent;
+  border: 1px solid var(--terminal-green);
+  color: var(--terminal-green);
+  padding: 8px 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.terminal-button:hover {
+  background: var(--terminal-green);
+  color: var(--terminal-bg);
+  box-shadow: 0 0 10px var(--terminal-green);
+  text-shadow: none;
+}
+
+.terminal-button.active {
+  background: var(--terminal-green);
+  color: var(--terminal-bg);
+  box-shadow: 0 0 15px var(--terminal-green);
+}
+
+/* Terminal Input Fields */
+.terminal-input {
+  background: transparent;
+  border: 1px solid var(--terminal-green);
+  color: var(--terminal-green);
+  padding: 8px 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  outline: none;
+}
+
+.terminal-input:focus {
+  box-shadow: 0 0 8px var(--terminal-green);
+  border-color: var(--terminal-green-bright);
+}
+
+/* Terminal Cards */
+.terminal-card {
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-green);
+  padding: 16px;
+  position: relative;
+}
+
+.terminal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 65, 0.05) 2px,
+    rgba(0, 255, 65, 0.05) 4px
+  );
+  pointer-events: none;
+}
+
+/* Terminal Status Indicators */
+.status-online {
+  color: var(--terminal-green);
+}
+
+.status-warning {
+  color: var(--terminal-amber);
+}
+
+.status-error {
+  color: var(--terminal-red);
+}
+
+/* Terminal Animations */
+@keyframes terminal-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes terminal-flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.92; }
+  98% { opacity: 0.98; }
+  99% { opacity: 0.96; }
+}
+
+@keyframes terminal-boot {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes terminal-glow {
+  0%, 100% {
+    text-shadow: 0 0 5px var(--terminal-green);
+  }
+  50% {
+    text-shadow: 0 0 10px var(--terminal-green), 0 0 15px var(--terminal-green);
+  }
+}
+
+/* Terminal Animation Classes */
+.terminal-cursor::after {
+  content: '_';
+  animation: terminal-blink 1s infinite;
+  color: var(--terminal-green);
+}
+
+.terminal-flicker {
+  animation: terminal-flicker 0.15s infinite;
+}
+
+.terminal-boot {
+  animation: terminal-boot 0.5s ease-out;
+}
+
+.terminal-glow {
+  animation: terminal-glow 2s ease-in-out infinite;
+}
+
+/* Terminal ASCII Art */
+.terminal-ascii {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--terminal-green-dim);
+  white-space: pre;
+  letter-spacing: 0;
+}
+
+/* Loading Indicators */
+.loading-dots::after {
+  content: '';
+  animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
+}
+
+/* Terminal Table */
+.terminal-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+}
+
+.terminal-table th,
+.terminal-table td {
+  border: 1px solid var(--terminal-green);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.terminal-table th {
+  background: var(--terminal-bg-lighter);
+  color: var(--terminal-green-bright);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Terminal Progress Bar */
+.terminal-progress {
+  width: 100%;
+  height: 20px;
+  border: 1px solid var(--terminal-green);
+  background: var(--terminal-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-progress-fill {
+  height: 100%;
+  background: var(--terminal-green);
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.terminal-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(0, 0, 0, 0.2) 4px,
+    rgba(0, 0, 0, 0.2) 8px
+  );
+}

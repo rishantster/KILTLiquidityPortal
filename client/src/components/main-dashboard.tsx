@@ -515,85 +515,77 @@ export function MainDashboard() {
   ];
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden relative">
-      {/* Background Video - Testing higher z-index */}
-      <video 
-        autoPlay 
-        muted 
-        loop 
-        playsInline
-        preload="auto"
-        className="fixed top-0 left-0 w-full h-full object-cover"
-        style={{ zIndex: 1 }}
-        onLoadStart={() => console.log('Video loading started')}
-        onCanPlay={() => console.log('Video can play')}
-        onError={(e) => console.error('Video error:', e)}
-      >
-        <source src={backgroundVideo} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+    <div className="min-h-screen bg-black text-green-400 terminal-font overflow-x-hidden relative terminal-scan">
+      {/* Terminal Background Pattern */}
+      <div className="fixed inset-0 opacity-10 pointer-events-none">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            #00ff41 2px,
+            #00ff41 4px
+          )`
+        }}></div>
+      </div>
       
-      {/* Transparent overlay for content readability */}
-      <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 pr-20 relative" style={{ zIndex: 10 }}>
-        {/* RETRO CYBERPUNK HEADER */}
-        <div className="retro-header rounded-xl p-4 mb-8 retro-slide-in">
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-black via-black to-pink-500/20 rounded-xl flex items-center justify-center p-2 flex-shrink-0 retro-pulse border-2 border-pink-500 shadow-lg shadow-pink-500/30">
-                <img src={kiltLogo} alt="KILT" className="w-12 h-12 object-contain drop-shadow-lg" />
+      <div className="max-w-7xl mx-auto p-4 relative z-10">
+        {/* TERMINAL HEADER */}
+        <div className="terminal-window mb-6 terminal-boot">
+          <div className="terminal-header">
+            <span className="terminal-text-bright">KILT_LIQUIDITY_PORTAL.exe</span>
+            <span className="ml-auto text-xs terminal-text-dim">[RUNNING]</span>
+          </div>
+          <div className="terminal-content">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 border border-green-400 flex items-center justify-center terminal-flicker">
+                  <img src={kiltLogo} alt="KILT" className="w-8 h-8 brightness-0 invert" style={{filter: 'hue-rotate(90deg) brightness(2)'}} />
+                </div>
+                <div>
+                  <h1 className="text-xl terminal-text-bright terminal-glow">
+                    KILT LIQUIDITY PORTAL
+                  </h1>
+                  <p className="text-xs terminal-text-dim terminal-cursor">
+                    &gt; DEFI_PROTOCOL_v2.1.337_AUTHENTICATED
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <h1 className="text-3xl font-bold text-white font-mono retro-flicker">
-                  KILT LIQUIDITY PORTAL
-                </h1>
-                <p className="text-green-400 text-sm font-mono mt-1 opacity-80">
-                  &gt;&gt; CYBERPUNK DEFI PROTOCOL v2.1.337
-                </p>
-              </div>
-            </div>
-          
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <Badge 
-                className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 font-mono ${
-                  isConnected && isBaseNetworkConnected 
-                    ? 'bg-pink-500/20 text-white border-pink-500/30' 
-                    : 'bg-gray-500/20 text-white border-gray-500/30'
-                }`}
-              >
-                <BaseLogo className="w-4 h-4 mr-1.5" />
-                Base Network
-                {isConnected && isBaseNetworkConnected && (
-                  <div className="w-2 h-2 bg-green-500 rounded-full ml-2" />
-                )}
-              </Badge>
-
-              <div className="flex-shrink-0">
-                <WalletConnect />
+              
+              <div className="flex items-center space-x-3">
+                <div className="hidden sm:flex items-center space-x-2 text-xs">
+                  <span className="terminal-text-dim">NET:</span>
+                  <span className={isConnected && isBaseNetworkConnected ? 'status-online' : 'status-error'}>
+                    BASE_{isConnected && isBaseNetworkConnected ? 'ONLINE' : 'OFFLINE'}
+                  </span>
+                </div>
+                <div className="flex-shrink-0">
+                  <WalletConnect />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* RETRO CYBERPUNK TAB NAVIGATION */}
-        <div className="flex justify-center mb-8 retro-slide-in">
-          <div className="retro-card rounded-xl p-2 flex gap-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 font-mono retro-button
-                  ${activeTab === tab.id 
-                    ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg retro-glow border-2 border-pink-500' 
-                    : 'text-green-400 hover:text-white hover:bg-pink-500/20 border-2 border-green-500/50 hover:border-pink-500/50'
-                  }
-                `}
-              >
-                <tab.icon className="h-5 w-5" />
-                <span className="text-sm font-bold uppercase">{tab.label}</span>
-              </button>
-            ))}
+        {/* TERMINAL NAVIGATION */}
+        <div className="terminal-window mb-6 terminal-boot">
+          <div className="terminal-header">
+            <span className="terminal-text-bright">NAVIGATION_MENU.exe</span>
+            <span className="ml-auto text-xs terminal-text-dim">[SELECT_MODULE]</span>
+          </div>
+          <div className="terminal-content">
+            <div className="flex flex-wrap gap-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`terminal-button ${activeTab === tab.id ? 'active' : ''}`}
+                >
+                  <tab.icon className="inline w-4 h-4 mr-2" />
+                  {tab.label.toUpperCase()}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -609,201 +601,130 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
-            {/* RETRO CYBERPUNK METRICS DISPLAY */}
-            <div className="retro-card rounded-lg p-4 mb-6 retro-slide-in">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {/* KILT Price */}
-                <div className="text-center group retro-pulse">
-                  <div className="w-12 h-12 bg-gradient-to-br from-black to-pink-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-pink-500 shadow-lg shadow-pink-500/30 retro-glow">
-                    <img 
-                      src={kiltLogo} 
-                      alt="KILT" 
-                      className="w-8 h-8"
-                    />
-                  </div>
-                  <p className="text-white text-sm mb-2 font-mono font-bold">KILT PRICE</p>
-                  <p className="text-green-400 font-bold text-xl font-mono retro-flicker">
-                    ${kiltData?.price?.toFixed(4) || '0.0289'}
-                  </p>
-                  <p className="text-green-400/70 text-xs font-mono">+0.50%</p>
-                </div>
-
-                {/* Market Cap */}
-                <div className="text-center group retro-pulse">
-                  <div className="w-12 h-12 bg-gradient-to-br from-black to-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-green-500 shadow-lg shadow-green-500/30 retro-glow">
-                    <Coins className="h-6 w-6 text-green-400" />
-                  </div>
-                  <p className="text-white text-sm mb-2 font-mono font-bold">MARKET CAP</p>
-                  <p className="text-green-400 font-bold text-xl font-mono retro-flicker">
-                    ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
-                  </p>
-                  <p className="text-green-400/70 text-xs font-mono">276.97M SUPPLY</p>
-                </div>
-
-                {/* Your Reward APR */}
-                <div className="text-center group retro-pulse">
-                  <div className="w-12 h-12 bg-gradient-to-br from-black to-pink-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-pink-500 shadow-lg shadow-pink-500/30 retro-glow">
-                    <Award className="h-6 w-6 text-pink-400" />
-                  </div>
-                  <p className="text-white text-sm mb-2 font-mono font-bold">REWARD APR</p>
-                  <div className="text-pink-400 font-bold text-xl font-mono retro-flicker">
-                    {address ? (
-                      <UserPersonalAPR address={address} />
-                    ) : (
-                      <div className="text-center">
-                        <span className="text-white/50 font-mono">--</span>
-                        <div className="text-white/60 text-xs mt-1 font-mono">CONNECT WALLET</div>
+            {/* TERMINAL SYSTEM STATUS */}
+            <div className="terminal-window terminal-boot">
+              <div className="terminal-header">
+                <span className="terminal-text-bright">SYSTEM_STATUS.exe</span>
+                <span className="ml-auto text-xs terminal-text-dim">[REAL_TIME_DATA]</span>
+              </div>
+              <div className="terminal-content">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {/* KILT Price */}
+                  <div className="terminal-card">
+                    <div className="text-center">
+                      <div className="w-8 h-8 border border-green-400 mx-auto mb-2 flex items-center justify-center">
+                        <span className="text-green-400 text-xs">K</span>
                       </div>
-                    )}
+                      <div className="text-xs terminal-text-dim mb-1">KILT_PRICE</div>
+                      <div className="terminal-text-bright terminal-flicker text-sm">
+                        ${kiltData?.price?.toFixed(4) || '0.0289'}
+                      </div>
+                      <div className="text-xs status-online">+0.50%</div>
+                    </div>
                   </div>
-                </div>
 
-                {/* Maximum APR */}
-                <div className="text-center group retro-pulse">
-                  <div className="w-12 h-12 bg-gradient-to-br from-black to-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 border-2 border-green-500 shadow-lg shadow-green-500/30 retro-glow">
-                    <TrendingUp className="h-6 w-6 text-green-400" />
+                  {/* Market Cap */}
+                  <div className="terminal-card">
+                    <div className="text-center">
+                      <div className="w-8 h-8 border border-green-400 mx-auto mb-2 flex items-center justify-center">
+                        <Coins className="h-4 w-4 text-green-400" />
+                      </div>
+                      <div className="text-xs terminal-text-dim mb-1">MARKET_CAP</div>
+                      <div className="terminal-text-bright terminal-flicker text-sm">
+                        ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
+                      </div>
+                      <div className="text-xs terminal-text-dim">276.97M_SUPPLY</div>
+                    </div>
                   </div>
-                  <p className="text-white text-sm mb-2 font-mono font-bold">CURRENT APR</p>
-                  <p className="text-green-400 font-bold text-xl font-mono retro-flicker">
-                    {unifiedData?.maxAPRData?.aprRange || '112%'}
-                  </p>
-                  <p className="text-green-400/70 text-xs font-mono">HIGH YIELDS!</p>
+
+                  {/* Your Reward APR */}
+                  <div className="terminal-card">
+                    <div className="text-center">
+                      <div className="w-8 h-8 border border-green-400 mx-auto mb-2 flex items-center justify-center">
+                        <Award className="h-4 w-4 text-green-400" />
+                      </div>
+                      <div className="text-xs terminal-text-dim mb-1">REWARD_APR</div>
+                      <div className="terminal-text-bright terminal-flicker text-sm">
+                        {address ? (
+                          <UserPersonalAPR address={address} />
+                        ) : (
+                          <div>
+                            <span className="status-error">--</span>
+                            <div className="text-xs terminal-text-dim mt-1">CONNECT_WALLET</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Maximum APR */}
+                  <div className="terminal-card">
+                    <div className="text-center">
+                      <div className="w-8 h-8 border border-green-400 mx-auto mb-2 flex items-center justify-center">
+                        <TrendingUp className="h-4 w-4 text-green-400" />
+                      </div>
+                      <div className="text-xs terminal-text-dim mb-1">CURRENT_APR</div>
+                      <div className="terminal-text-bright terminal-flicker text-sm">
+                        {unifiedData?.maxAPRData?.aprRange || '112%'}
+                      </div>
+                      <div className="text-xs status-online">HIGH_YIELDS</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Two Column Layout - Mobile Responsive */}
-            <div className="mobile-flex-layout lg:grid lg:grid-cols-2 gap-6 lg:gap-6">
+            {/* TERMINAL ACTION MODULES */}
+            <div className="grid lg:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
-              <div className="w-full mobile-section-spacing lg:mb-0">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
-                  <Plus className="h-4 w-4 text-pink-400" />
-                  <span className="hidden sm:inline">Register Existing Positions</span>
-                  <span className="sm:hidden">Register Positions</span>
-                </h2>
-                <div className="h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col">
+              <div className="terminal-window terminal-boot">
+                <div className="terminal-header">
+                  <span className="terminal-text-bright">POSITION_REGISTRY.exe</span>
+                  <span className="ml-auto text-xs terminal-text-dim">[REGISTER_EXISTING]</span>
+                </div>
+                <div className="terminal-content">
                   <PositionRegistration />
                 </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="w-full mobile-prevent-overlap">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
-                  <Zap className="h-4 w-4 text-pink-400" />
-                  <span className="hidden sm:inline">Quick Add Liquidity</span>
-                  <span className="sm:hidden">Add Liquidity</span>
-                </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
-                  <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
-                    <div className="space-y-4 flex-1">
-                      {/* Balance Display */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 sm:p-3 cluely-card">
-                        <h4 className="text-white font-bold text-sm sm:text-base mb-2 sm:mb-3">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                          {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                <img 
-                                  src={kiltLogo} 
-                                  alt="KILT" 
-                                  className="w-3 h-3 sm:w-5 sm:h-5"
-                                  style={{ 
-                                    filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
-                                  }}
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white text-xs font-medium">KILT</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                  {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
-                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                                </svg>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white text-xs font-medium">ETH</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                  {ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
-                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                                </svg>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white text-xs font-medium">WETH</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
-                                  {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+              <div className="terminal-window terminal-boot">
+                <div className="terminal-header">
+                  <span className="terminal-text-bright">LIQUIDITY_PROVISION.exe</span>
+                  <span className="ml-auto text-xs terminal-text-dim">[QUICK_ADD]</span>
+                </div>
+                <div className="terminal-content">
+                  <div className="space-y-4">
+                    {/* Wallet Balance Terminal Display */}
+                    <div className="terminal-prompt terminal-text-dim mb-2">WALLET_BALANCE:</div>
+                    <div className="terminal-table text-xs">
+                      <div className="flex justify-between py-1">
+                        <span>KILT:</span>
+                        <span className="terminal-text-bright">{kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}</span>
                       </div>
+                      <div className="flex justify-between py-1">
+                        <span>ETH:</span>
+                        <span className="terminal-text-bright">{ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}</span>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span>WETH:</span>
+                        <span className="terminal-text-bright">{wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}</span>
+                      </div>
+                    </div>
 
-                      {/* Percentage Selector */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-white text-sm font-medium">Balance Usage</span>
-                          <span className="text-sm text-white/80">{selectedPercentage}% of wallet</span>
-                        </div>
-                        <div className="grid grid-cols-5 gap-2 mb-3">
-                          {LiquidityService.getPercentageOptions().map(({ value, label }) => (
-                            <Button
-                              key={value}
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedPercentage(value)}
-                              className={`text-xs py-1 px-1 h-6 transition-all duration-200 border ${
-                                selectedPercentage === value 
-                                  ? 'text-black font-bold border-2' 
-                                  : 'border text-white/80 hover:bg-matrix-green/10 hover:border-matrix-green/50 hover:text-white'
-                              }`}
-                              style={selectedPercentage === value ? { 
-                                backgroundColor: '#ff0066', 
-                                borderColor: '#ff0066',
-                                color: 'white'
-                              } : { 
-                                borderColor: 'rgba(255, 255, 255, 0.2)' 
-                              }}
-                            >
-                              {label}
-                            </Button>
-                          ))}
-                        </div>
-                        
-                        {/* Seek Bar Slider */}
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-white text-xs">Precise Control</span>
-                            <span className="text-white/80 text-xs">{selectedPercentage}%</span>
+                    {/* Terminal Balance Usage */}
+                    <div className="mt-4">
+                      <div className="terminal-prompt terminal-text-dim mb-2">USAGE: {selectedPercentage}%</div>
+                      <div className="flex gap-1">
+                        {LiquidityService.getPercentageOptions().map(({ value, label }) => (
+                          <button
+                            key={value}
+                            onClick={() => setSelectedPercentage(value)}
+                            className={`terminal-button text-xs px-2 py-1 ${selectedPercentage === value ? 'active' : ''}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
                           </div>
                           <Slider
                             value={[selectedPercentage]}

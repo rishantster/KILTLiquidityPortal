@@ -607,9 +607,9 @@ export default function AdminPanel() {
                     <Label htmlFor="programBudget">Program Budget (KILT)</Label>
                     <Input
                       id="programBudget"
-                      value={treasuryForm.programBudget}
+                      value={treasuryForm.programBudget || (programAnalytics?.totalBudget?.toString()) || '1000000'}
                       onChange={(e) => setTreasuryForm({...treasuryForm, programBudget: e.target.value})}
-                      placeholder="500000"
+                      placeholder="1000000"
                       className="bg-white/5 border-gray-800/30"
                     />
                   </div>
@@ -617,7 +617,7 @@ export default function AdminPanel() {
                     <Label htmlFor="programDurationDays">Program Duration (days)</Label>
                     <Input
                       id="programDurationDays"
-                      value={treasuryForm.programDurationDays}
+                      value={treasuryForm.programDurationDays || (programAnalytics?.programDuration?.toString()) || '90'}
                       onChange={(e) => setTreasuryForm({...treasuryForm, programDurationDays: e.target.value})}
                       placeholder="90"
                       className="bg-white/5 border-gray-800/30"
@@ -627,7 +627,7 @@ export default function AdminPanel() {
                     <Label htmlFor="treasuryWalletAddress">Treasury Wallet Address</Label>
                     <Input
                       id="treasuryWalletAddress"
-                      value={treasuryForm.treasuryWalletAddress}
+                      value={treasuryForm.treasuryWalletAddress || (treasuryConfig?.treasuryWalletAddress) || '0x0000000000000000000000000000000000000000'}
                       onChange={(e) => setTreasuryForm({...treasuryForm, treasuryWalletAddress: e.target.value})}
                       placeholder="0x..."
                       className="bg-white/5 border-gray-800/30"
@@ -720,7 +720,7 @@ export default function AdminPanel() {
                     <Label htmlFor="timeBoost">Time Boost Coefficient (b_time)</Label>
                     <Input
                       id="timeBoost"
-                      value={programForm.timeBoostCoefficient}
+                      value={programForm.timeBoostCoefficient || (programSettings?.timeBoostCoefficient?.toString()) || '0.6'}
                       onChange={(e) => setProgramForm({...programForm, timeBoostCoefficient: e.target.value})}
                       placeholder="0.6"
                       className="bg-white/5 border-gray-800/30"
@@ -730,7 +730,7 @@ export default function AdminPanel() {
                     <Label htmlFor="fullRangeBonus">Full Range Bonus (FRB)</Label>
                     <Input
                       id="fullRangeBonus"
-                      value={programForm.fullRangeBonus}
+                      value={programForm.fullRangeBonus || (programSettings?.fullRangeBonus?.toString()) || '1.2'}
                       onChange={(e) => setProgramForm({...programForm, fullRangeBonus: e.target.value})}
                       placeholder="1.2"
                       className="bg-white/5 border-gray-800/30"
@@ -740,7 +740,7 @@ export default function AdminPanel() {
                     <Label htmlFor="minimumPosition">Minimum Position Value ($)</Label>
                     <Input
                       id="minimumPosition"
-                      value={programForm.minimumPositionValue}
+                      value={programForm.minimumPositionValue || (programSettings?.minimumPositionValue?.toString()) || '10'}
                       onChange={(e) => setProgramForm({...programForm, minimumPositionValue: e.target.value})}
                       placeholder="10"
                       className="bg-white/5 border-gray-800/30"
@@ -750,7 +750,7 @@ export default function AdminPanel() {
                     <Label htmlFor="lockPeriod">Lock Period (days)</Label>
                     <Input
                       id="lockPeriod"
-                      value={programForm.lockPeriod}
+                      value={programForm.lockPeriod || (programSettings?.lockPeriod?.toString()) || '7'}
                       onChange={(e) => setProgramForm({...programForm, lockPeriod: e.target.value})}
                       placeholder="7"
                       className="bg-white/5 border-gray-800/30"

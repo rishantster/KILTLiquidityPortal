@@ -160,7 +160,7 @@ export const setupSecurity = (app: Express) => {
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Required for Vite
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://replit.com"], // Required for Vite
         connectSrc: ["'self'", "https://api.coingecko.com", "https://mainnet.base.org", "wss:", "https:"],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],

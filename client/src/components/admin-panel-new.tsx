@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { AdminLogin } from './admin-login';
+import { SimpleAdminLogin } from './simple-admin-login';
 import {
   Settings,
   DollarSign,
@@ -81,7 +81,7 @@ export function AdminPanel() {
 
   // If not authenticated, show login screen
   if (!isAuthenticated) {
-    return <AdminLogin onLogin={handleLogin} />;
+    return <SimpleAdminLogin onLogin={handleLogin} />;
   }
 
   // Admin dashboard queries and mutations

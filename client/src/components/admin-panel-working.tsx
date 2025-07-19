@@ -96,25 +96,34 @@ export function AdminPanelWorking() {
 
   const treasuryMutation = useMutation({
     mutationFn: async (data: typeof treasuryForm) => {
+      console.log('Sending treasury data to API:', data);
+      const requestBody = {
+        programBudget: data.totalAllocation,
+        programDurationDays: data.programDurationDays,
+        treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
+        isActive: true
+      };
+      console.log('Request body:', requestBody);
+      
       const response = await fetch('/api/admin/treasury/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          programBudget: data.totalAllocation,
-          programDurationDays: data.programDurationDays,
-          treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
-          isActive: true
-        })
+        body: JSON.stringify(requestBody)
       });
-      if (!response.ok) throw new Error('Failed to update treasury');
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Failed to update treasury: ${error}`);
+      }
       return response.json();
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Treasury configuration updated" });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update treasury", variant: "destructive" });
+    onError: (error) => {
+      console.error('Treasury update error:', error);
+      toast({ title: "Error", description: `Failed to update treasury: ${error.message}`, variant: "destructive" });
     }
   });
 
@@ -374,7 +383,10 @@ export function AdminPanelWorking() {
                     />
                   </div>
                   <Button 
-                    onClick={() => treasuryMutation.mutate(treasuryForm)}
+                    onClick={() => {
+                      console.log('Treasury form data:', treasuryForm);
+                      treasuryMutation.mutate(treasuryForm);
+                    }}
                     disabled={treasuryMutation.isPending}
                     className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
                   >

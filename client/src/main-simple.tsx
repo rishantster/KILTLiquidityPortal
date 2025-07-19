@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
-import App from "./App";
+import App from "./App-minimal";
 import "./index.css";
 
 // Ultra-simple React mounting without any complex logic

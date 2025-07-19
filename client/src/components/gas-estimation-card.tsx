@@ -23,14 +23,14 @@ export function GasEstimationCard() {
 
   // Memoize break-even calculation to prevent recalculation on each render
   const breakEvenDays = useMemo(() => {
-    const transactionCostETH = parseFloat(gasEstimate?.total?.cost || '0.0025');
+    const transactionCostETH = parseFloat(gasEstimate?.total?.cost || '0.00025'); // Realistic Base cost
     const ethPrice = 3500;
     const transactionCostUSD = transactionCostETH * ethPrice;
     const totalAPR = parseFloat(calculations.totalAPR);
     const dailyReturn = totalAPR / 365 / 100;
     const positionValue = 1000;
     const dailyEarnings = positionValue * dailyReturn;
-    return dailyEarnings > 0 ? transactionCostUSD / dailyEarnings : 2.5;
+    return dailyEarnings > 0 ? transactionCostUSD / dailyEarnings : 0.3; // Much faster break-even with realistic costs
   }, [gasEstimate?.total?.cost, calculations.totalAPR]);
 
   useEffect(() => {
@@ -47,21 +47,22 @@ export function GasEstimationCard() {
         // Simulate gas estimation - in real app, this would call actual gas estimation API
         await new Promise(resolve => setTimeout(resolve, 1000));
         
+        // Realistic Base network gas costs - much cheaper than mainnet
         const mockGasEstimate: GasEstimate = {
           approve: {
             gasLimit: '50000',
-            gasPrice: '0.00001',
-            cost: '0.0005'
+            gasPrice: '0.000001', // Base has very low gas prices
+            cost: '0.00005' // ~$0.18 for approval
           },
           mint: {
             gasLimit: '200000',
-            gasPrice: '0.00001',
-            cost: '0.002'
+            gasPrice: '0.000001',
+            cost: '0.0002' // ~$0.70 for minting
           },
           total: {
             gasLimit: '250000',
-            gasPrice: '0.00001',
-            cost: '0.0025'
+            gasPrice: '0.000001',
+            cost: '0.00025' // ~$0.88 total - realistic for Base
           }
         };
         
@@ -198,7 +199,7 @@ export function GasEstimationCard() {
               </span>
             </div>
             <div className="text-xs text-blue-300/70">
-              Based on $1K position & current APR
+              Based on $1K position & current APR on Base network
             </div>
           </div>
         </div>

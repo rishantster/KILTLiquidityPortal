@@ -1710,6 +1710,109 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // ===== TREASURY MANAGEMENT ROUTES (REMOVED) =====
   // Note: Treasury management consolidated into admin service
 
+  // ===== BLOCKCHAIN CONFIGURATION ROUTES =====
+
+  // Get all blockchain configurations
+  app.get("/api/admin/blockchain-config", async (req, res) => {
+    try {
+      const { blockchainConfigService } = await import('./blockchain-config-service');
+      const configs = await blockchainConfigService.getAllConfigs();
+      
+      // Group configs by category for better organization
+      const groupedConfigs = configs.reduce((acc, config) => {
+        if (!acc[config.category]) {
+          acc[config.category] = [];
+        }
+        acc[config.category].push(config);
+        return acc;
+      }, {} as Record<string, typeof configs>);
+
+      res.json({
+        success: true,
+        configs: groupedConfigs,
+        totalConfigs: configs.length
+      });
+    } catch (error) {
+      console.error('Failed to get blockchain configurations:', error);
+      res.status(500).json({ 
+        error: 'Failed to retrieve blockchain configurations',
+        code: 'CONFIG_FETCH_ERROR'
+      });
+    }
+  });
+
+  // Update blockchain configuration
+  app.post("/api/admin/blockchain-config", async (req, res) => {
+    try {
+      const { configKey, configValue, description, category } = req.body;
+
+      if (!configKey || !configValue) {
+        return res.status(400).json({ 
+          error: 'Config key and value are required',
+          code: 'MISSING_REQUIRED_FIELDS'
+        });
+      }
+
+      const { blockchainConfigService } = await import('./blockchain-config-service');
+      
+      const success = await blockchainConfigService.upsertConfig({
+        configKey,
+        configValue,
+        description: description || null,
+        category: category || 'blockchain',
+        isActive: true
+      });
+
+      if (success) {
+        res.json({
+          success: true,
+          message: `Configuration ${configKey} updated successfully`,
+          config: { configKey, configValue, description, category }
+        });
+      } else {
+        res.status(500).json({
+          error: 'Failed to update configuration',
+          code: 'CONFIG_UPDATE_ERROR'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update blockchain configuration:', error);
+      res.status(500).json({ 
+        error: 'Internal server error during configuration update',
+        code: 'INTERNAL_ERROR'
+      });
+    }
+  });
+
+  // Get specific blockchain configuration by key
+  app.get("/api/admin/blockchain-config/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { blockchainConfigService } = await import('./blockchain-config-service');
+      
+      const value = await blockchainConfigService.getConfig(key);
+      
+      if (value !== null) {
+        res.json({
+          success: true,
+          configKey: key,
+          configValue: value
+        });
+      } else {
+        res.status(404).json({
+          error: `Configuration key '${key}' not found`,
+          code: 'CONFIG_NOT_FOUND'
+        });
+      }
+    } catch (error) {
+      console.error(`Failed to get configuration for key ${req.params.key}:`, error);
+      res.status(500).json({ 
+        error: 'Failed to retrieve configuration',
+        code: 'CONFIG_FETCH_ERROR'
+      });
+    }
+  });
+
   // ===== CYBERPUNK ADMIN PANEL ROUTES =====
   
   // Admin MetaMask login endpoint

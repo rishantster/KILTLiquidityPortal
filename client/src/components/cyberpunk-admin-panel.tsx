@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { BlockchainConfigPanel } from "./blockchain-config-panel";
 
 interface TreasuryConfig {
   totalAllocation: number;
@@ -20,7 +21,7 @@ interface ProgramSettings {
 }
 
 export function CyberpunkAdminPanel() {
-  const [activeTab, setActiveTab] = useState<'treasury' | 'settings' | 'operations'>('treasury');
+  const [activeTab, setActiveTab] = useState<'treasury' | 'settings' | 'blockchain' | 'operations'>('treasury');
   const [treasuryConfig, setTreasuryConfig] = useState<TreasuryConfig>({
     totalAllocation: 500000,
     programDurationDays: 90,
@@ -125,6 +126,7 @@ export function CyberpunkAdminPanel() {
             {[
               { id: 'treasury', label: 'TREASURY_CONFIG' },
               { id: 'settings', label: 'PROGRAM_PARAMS' },
+              { id: 'blockchain', label: 'BLOCKCHAIN_CONFIG' },
               { id: 'operations', label: 'OPERATIONS_LOG' }
             ].map((tab) => (
               <button
@@ -291,6 +293,13 @@ export function CyberpunkAdminPanel() {
                   {settingsMutation.isPending ? '[UPDATING...]' : '[UPDATE_PARAMETERS]'}
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Blockchain Configuration */}
+          {activeTab === 'blockchain' && (
+            <div className="space-y-6">
+              <BlockchainConfigPanel />
             </div>
           )}
 

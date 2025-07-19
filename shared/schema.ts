@@ -2,6 +2,22 @@ import { pgTable, text, serial, decimal, timestamp, integer, boolean, date, nume
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// ===== BLOCKCHAIN CONFIGURATION TABLE =====
+export const blockchainConfig = pgTable('blockchain_config', {
+  id: serial('id').primaryKey(),
+  configKey: text('config_key').notNull().unique(),
+  configValue: text('config_value').notNull(),
+  description: text('description'),
+  category: text('category').notNull().default('blockchain'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+export const insertBlockchainConfigSchema = createInsertSchema(blockchainConfig);
+export type InsertBlockchainConfig = z.infer<typeof insertBlockchainConfigSchema>;
+export type BlockchainConfig = typeof blockchainConfig.$inferSelect;
+
 // Core user table - EVM wallet addresses
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),

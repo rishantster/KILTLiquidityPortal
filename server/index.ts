@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
 import { kiltPriceService } from "./kilt-price-service.js";
+import { blockchainConfigService } from "./blockchain-config-service";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 
@@ -11,6 +12,9 @@ validateEnvironment();
 
 // Initialize KILT price service for background price fetching
 kiltPriceService; // This will start the background price fetching
+
+// Initialize blockchain configuration with defaults
+blockchainConfigService.initializeDefaults();
 
 const app = express();
 

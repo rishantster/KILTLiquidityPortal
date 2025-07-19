@@ -79,18 +79,13 @@ function FormulaProgramAPR() {
 
   if (isLoading) return <span className="text-white/50">--</span>;
   
-  // Use the actual formula calculation from our existing endpoint
+  // Use the raw formula calculation directly from backend
   // This respects our reward mechanism: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-  const rawFormulaAPR = data?.maxAPR || 0;
-  
-  // The formula produces 112% which shows our actual mechanism working
-  // But for user display, we need realistic DeFi expectations (10-20% range)
-  // Scale down to realistic treasury reward APR comparable to established protocols
-  const realisticAPR = Math.min(rawFormulaAPR * 0.125, 18); // Scale to 14% realistic range
+  const formulaAPR = data?.maxAPR || 0;
   
   return (
     <span>
-      {realisticAPR ? `${realisticAPR.toFixed(1)}%` : '--'}
+      {formulaAPR ? `${formulaAPR}%` : '--'}
     </span>
   );
 }

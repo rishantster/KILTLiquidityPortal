@@ -63,6 +63,32 @@ export function CyberpunkAdminPanel() {
     }
   });
 
+  // Load existing treasury configuration
+  const { data: existingTreasuryConfig } = useQuery({
+    queryKey: ['/api/admin/treasury/config'],
+    onSuccess: (data) => {
+      if (data) {
+        setTreasuryConfig({
+          ...treasuryConfig,
+          ...data
+        });
+      }
+    }
+  });
+
+  // Load existing program settings
+  const { data: existingProgramSettings } = useQuery({
+    queryKey: ['/api/admin/program/settings'],
+    onSuccess: (data) => {
+      if (data) {
+        setProgramSettings({
+          ...programSettings,
+          ...data
+        });
+      }
+    }
+  });
+
   // Get Operations History
   const { data: operations = [] } = useQuery({
     queryKey: ['/api/admin/operations'],
@@ -224,14 +250,53 @@ export function CyberpunkAdminPanel() {
           {/* Program Settings */}
           {activeTab === 'settings' && (
             <div className="space-y-6">
+              {/* Reward Formula Explanation */}
+              <div className="bg-black/60 border border-[#ff0066] rounded p-6">
+                <h2 className="text-lg font-bold text-[#ff0066] mb-4 tracking-wider">
+                  [REWARD_FORMULA_SPECIFICATION]
+                </h2>
+                
+                <div className="bg-gray-900/80 border border-green-400/30 rounded p-4 mb-4">
+                  <div className="text-green-400 font-mono text-sm mb-2">
+                    MATHEMATICAL FORMULA:
+                  </div>
+                  <div className="text-white font-mono text-lg bg-black/50 p-3 rounded border border-green-400/20">
+                    R_u = (L_u/L_T) × (1 + ((D_u/P) × b_time)) × IRM × FRB × (R/P)
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="text-green-400 font-mono">FORMULA COMPONENTS:</div>
+                    <div className="text-gray-300 space-y-1 font-mono">
+                      <div>R_u = Daily user rewards (KILT)</div>
+                      <div>L_u = User liquidity amount (USD)</div>
+                      <div>L_T = Total pool liquidity (USD)</div>
+                      <div>D_u = Days actively providing liquidity</div>
+                      <div>P = Program duration (days)</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-green-400 font-mono">MULTIPLIERS:</div>
+                    <div className="text-gray-300 space-y-1 font-mono">
+                      <div>b_time = Time boost coefficient</div>
+                      <div>IRM = In-range multiplier (0.7-1.0)</div>
+                      <div>FRB = Full range bonus multiplier</div>
+                      <div>R/P = Daily reward budget allocation</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="bg-black/50 border border-green-400 rounded p-6">
                 <h2 className="text-lg font-bold text-[#ff0066] mb-4 tracking-wider">
                   [REWARD_ALGORITHM_PARAMETERS]
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">TIME_BOOST_COEFFICIENT:</label>
+                <div className="grid grid-cols-1 gap-6">
+                  {/* Time Boost Coefficient */}
+                  <div className="border border-green-400/30 rounded p-4 bg-gray-900/30">
+                    <label className="block text-green-400 text-sm mb-2 font-mono">TIME_BOOST_COEFFICIENT (b_time):</label>
                     <input
                       type="number"
                       step="0.1"
@@ -240,12 +305,19 @@ export function CyberpunkAdminPanel() {
                         ...programSettings,
                         timeBoostCoefficient: Number(e.target.value)
                       })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
+                    <div className="text-gray-400 text-xs font-mono">
+                      Controls time-based reward growth. Value of 0.6 means users get 100% base rewards on day 1, growing to 160% at program completion. Higher values = steeper time progression.
+                    </div>
+                    <div className="text-green-400 text-xs mt-1 font-mono">
+                      Current: {programSettings.timeBoostCoefficient}x → {(100 + programSettings.timeBoostCoefficient * 100).toFixed(0)}% max boost
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">FULL_RANGE_BONUS:</label>
+                  {/* Full Range Bonus */}
+                  <div className="border border-green-400/30 rounded p-4 bg-gray-900/30">
+                    <label className="block text-green-400 text-sm mb-2 font-mono">FULL_RANGE_BONUS (FRB):</label>
                     <input
                       type="number"
                       step="0.1"
@@ -254,12 +326,19 @@ export function CyberpunkAdminPanel() {
                         ...programSettings,
                         fullRangeBonus: Number(e.target.value)
                       })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
+                    <div className="text-gray-400 text-xs font-mono">
+                      Bonus multiplier for full-range (50/50) liquidity positions. Encourages balanced liquidity provision. Concentrated positions get 1.0x, full-range gets this multiplier.
+                    </div>
+                    <div className="text-green-400 text-xs mt-1 font-mono">
+                      Current: Full-range positions get {((programSettings.fullRangeBonus - 1) * 100).toFixed(0)}% bonus vs concentrated
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">MIN_POSITION_VALUE:</label>
+                  {/* Minimum Position Value */}
+                  <div className="border border-green-400/30 rounded p-4 bg-gray-900/30">
+                    <label className="block text-green-400 text-sm mb-2 font-mono">MIN_POSITION_VALUE (USD):</label>
                     <input
                       type="number"
                       value={programSettings.minimumPositionValue}
@@ -267,11 +346,18 @@ export function CyberpunkAdminPanel() {
                         ...programSettings,
                         minimumPositionValue: Number(e.target.value)
                       })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
+                    <div className="text-gray-400 text-xs font-mono">
+                      Anti-spam protection: Minimum liquidity value required for reward eligibility. Prevents dust attacks and spam positions from consuming rewards.
+                    </div>
+                    <div className="text-green-400 text-xs mt-1 font-mono">
+                      Current: ${programSettings.minimumPositionValue} minimum to earn rewards
+                    </div>
                   </div>
 
-                  <div>
+                  {/* Lock Period */}
+                  <div className="border border-green-400/30 rounded p-4 bg-gray-900/30">
                     <label className="block text-green-400 text-sm mb-2 font-mono">LOCK_PERIOD_DAYS:</label>
                     <input
                       type="number"
@@ -280,8 +366,57 @@ export function CyberpunkAdminPanel() {
                         ...programSettings,
                         lockPeriod: Number(e.target.value)
                       })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none mb-2"
                     />
+                    <div className="text-gray-400 text-xs font-mono">
+                      Commitment period required before rewards become claimable. Encourages longer-term liquidity provision and reduces reward dumping.
+                    </div>
+                    <div className="text-green-400 text-xs mt-1 font-mono">
+                      Current: {programSettings.lockPeriod} days commitment before claiming
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live Formula Preview */}
+                <div className="mt-6 bg-gray-900/80 border border-[#ff0066]/30 rounded p-4">
+                  <div className="text-[#ff0066] font-mono text-sm mb-2">
+                    LIVE FORMULA PREVIEW:
+                  </div>
+                  <div className="text-white font-mono text-sm bg-black/50 p-3 rounded border border-green-400/20">
+                    R_u = (L_u/L_T) × (1 + ((D_u/{treasuryConfig.programDurationDays}) × {programSettings.timeBoostCoefficient})) × IRM × {programSettings.fullRangeBonus} × ({treasuryConfig.dailyBudget}/day)
+                  </div>
+                  <div className="text-gray-400 text-xs mt-2 font-mono">
+                    This formula runs in real-time across the main application. Changes here immediately affect all reward calculations, APR displays, and user earnings.
+                  </div>
+                </div>
+
+                {/* Data Flow Documentation */}
+                <div className="mt-6 bg-gray-900/60 border border-green-400/20 rounded p-4">
+                  <div className="text-green-400 font-mono text-sm mb-3">
+                    [SINGLE_SOURCE_OF_TRUTH_DATA_FLOW]
+                  </div>
+                  <div className="space-y-2 text-xs font-mono text-gray-300">
+                    <div className="flex items-center">
+                      <span className="text-[#ff0066] mr-2">1.</span>
+                      <span>Admin Panel Parameters → PostgreSQL Database (treasury_config & program_settings tables)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-[#ff0066] mr-2">2.</span>
+                      <span>Fixed Reward Service → Reads admin configuration via getAdminConfiguration()</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-[#ff0066] mr-2">3.</span>
+                      <span>Main App Components → Use unified dashboard hook to get real-time APR calculations</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-[#ff0066] mr-2">4.</span>
+                      <span>User Interface → Displays live values from formula-based-apr-service.ts</span>
+                    </div>
+                  </div>
+                  <div className="mt-3 p-2 bg-black/40 border border-green-400/20 rounded">
+                    <div className="text-green-400 text-xs font-mono">
+                      ✓ No hardcoded values in main app &nbsp; ✓ Admin panel is single source of truth &nbsp; ✓ Real-time synchronization
+                    </div>
                   </div>
                 </div>
 

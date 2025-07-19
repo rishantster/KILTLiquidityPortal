@@ -35,7 +35,8 @@ interface AdminTreasuryStats {
   treasuryProgress: number;
 }
 
-export function AdminPanelMinimal() {
+export function AdminPanelWorking() {
+  // All state hooks at the top
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -62,35 +63,7 @@ export function AdminPanelMinimal() {
     poolAddress: '0x0000000000000000000000000000000000000000'
   });
 
-  // Login handler
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginLoading(true);
-
-    try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        localStorage.setItem('adminToken', data.token);
-        setIsAuthenticated(true);
-        toast({ title: "Success", description: "Successfully logged in" });
-      } else {
-        toast({ title: "Error", description: data.error || "Login failed", variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: "Error", description: "Network error - please try again", variant: "destructive" });
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
-  // Treasury stats query - MUST be at top level before any conditional returns
+  // ALL REACT QUERY HOOKS MUST BE AT TOP LEVEL
   const { data: treasuryStats, isLoading: statsLoading } = useQuery<AdminTreasuryStats>({
     queryKey: ['/api/admin/dashboard'],
     enabled: isAuthenticated,
@@ -103,26 +76,11 @@ export function AdminPanelMinimal() {
           'Accept': 'application/json'
         }
       });
-      
-      if (!response.ok) {
-        throw new Error(`Dashboard request failed: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Dashboard failed: ${response.status}`);
       return response.json();
     }
   });
 
-  // Load current config values
-  useEffect(() => {
-    if (treasuryStats) {
-      setTreasuryForm({
-        totalAllocation: treasuryStats.totalAllocation || 600000,
-        programDurationDays: treasuryStats.programDurationDays || 120,
-        dailyBudget: treasuryStats.dailyBudget || 5000
-      });
-    }
-  }, [treasuryStats]);
-
-  // Operation history query
   const { data: operationHistory } = useQuery({
     queryKey: ['/api/admin/operations'],
     enabled: isAuthenticated,
@@ -135,7 +93,67 @@ export function AdminPanelMinimal() {
     }
   });
 
-  // Login handler
+  const treasuryMutation = useMutation({
+    mutationFn: async (data: typeof treasuryForm) => {
+      const response = await fetch('/api/admin/treasury/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          programBudget: data.totalAllocation,
+          programDurationDays: data.programDurationDays,
+          treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
+          isActive: true
+        })
+      });
+      if (!response.ok) throw new Error('Failed to update treasury');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Treasury configuration updated" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update treasury", variant: "destructive" });
+    }
+  });
+
+  const programMutation = useMutation({
+    mutationFn: async (data: typeof programForm) => {
+      const response = await fetch('/api/admin/program/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to update program settings');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Program settings updated" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update program settings", variant: "destructive" });
+    }
+  });
+
+  // ALL USE_EFFECT HOOKS AT TOP LEVEL
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (treasuryStats) {
+      setTreasuryForm({
+        totalAllocation: treasuryStats.totalAllocation || 600000,
+        programDurationDays: treasuryStats.programDurationDays || 120,
+        dailyBudget: treasuryStats.dailyBudget || 5000
+      });
+    }
+  }, [treasuryStats]);
+
+  // Event handlers (not hooks)
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginLoading(true);
@@ -163,22 +181,13 @@ export function AdminPanelMinimal() {
     }
   };
 
-  // Check for existing token on mount
-  useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  // Logout handler
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     setIsAuthenticated(false);
     toast({ title: "Success", description: "Successfully logged out" });
   };
 
-  // Show login form if not authenticated
+  // Conditional rendering AFTER all hooks
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
@@ -230,54 +239,6 @@ export function AdminPanelMinimal() {
       </div>
     );
   }
-
-  // Treasury update mutation - MOVED TO TOP LEVEL
-  const treasuryMutation = useMutation({
-    mutationFn: async (data: typeof treasuryForm) => {
-      const response = await fetch('/api/admin/treasury/config', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          programBudget: data.totalAllocation,
-          programDurationDays: data.programDurationDays,
-          treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
-          isActive: true
-        })
-      });
-      if (!response.ok) throw new Error('Failed to update treasury');
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({ title: "Success", description: "Treasury configuration updated" });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update treasury", variant: "destructive" });
-    }
-  });
-
-  // Program settings mutation
-  const programMutation = useMutation({
-    mutationFn: async (data: typeof programForm) => {
-      const response = await fetch('/api/admin/program/settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error('Failed to update program settings');
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({ title: "Success", description: "Program settings updated" });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update program settings", variant: "destructive" });
-    }
-  });
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -386,9 +347,7 @@ export function AdminPanelMinimal() {
               <Card className="bg-white/5 backdrop-blur-sm border-white/10">
                 <CardHeader>
                   <CardTitle className="text-emerald-400">Treasury Configuration</CardTitle>
-                  <CardDescription>
-                    Configure program budget and duration
-                  </CardDescription>
+                  <CardDescription>Configure program budget and duration</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -425,9 +384,7 @@ export function AdminPanelMinimal() {
               <Card className="bg-white/5 backdrop-blur-sm border-white/10">
                 <CardHeader>
                   <CardTitle className="text-emerald-400">Program Parameters</CardTitle>
-                  <CardDescription>
-                    Configure reward formula parameters
-                  </CardDescription>
+                  <CardDescription>Configure reward formula parameters</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -478,9 +435,7 @@ export function AdminPanelMinimal() {
             <Card className="bg-white/5 backdrop-blur-sm border-white/10">
               <CardHeader>
                 <CardTitle className="text-blue-400">Blockchain Configuration</CardTitle>
-                <CardDescription>
-                  Configure token addresses and network settings
-                </CardDescription>
+                <CardDescription>Configure token addresses and network settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -522,9 +477,7 @@ export function AdminPanelMinimal() {
             <Card className="bg-white/5 backdrop-blur-sm border-white/10">
               <CardHeader>
                 <CardTitle className="text-purple-400">Operation History</CardTitle>
-                <CardDescription>
-                  View recent admin actions and system events
-                </CardDescription>
+                <CardDescription>View recent admin actions and system events</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">

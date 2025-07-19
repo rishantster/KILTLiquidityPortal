@@ -1714,6 +1714,27 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   
   // Note: Admin login route moved to index.ts to bypass middleware issues
 
+  // GET endpoints for treasury and program settings
+  app.get('/api/admin/treasury/config', async (req, res) => {
+    try {
+      const config = await adminService.getTreasuryConfig();
+      res.json(config);
+    } catch (error) {
+      console.error('Error getting treasury config:', error);
+      res.status(500).json({ error: 'Failed to get treasury config' });
+    }
+  });
+
+  app.get('/api/admin/program/settings', async (req, res) => {
+    try {
+      const settings = await adminService.getCurrentProgramSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error('Error getting program settings:', error);
+      res.status(500).json({ error: 'Failed to get program settings' });
+    }
+  });
+
   // Get admin dashboard data (connected to real service)
   app.get("/api/admin/dashboard", async (req, res) => {
     try {
@@ -1771,6 +1792,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Program settings error:', error);
       res.status(500).json({ error: 'Failed to update program settings' });
+    }
+  });
+
+  // Get admin operations
+  app.get("/api/admin/operations", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const operations = await adminService.getOperationHistory(limit);
+      res.json(operations);
+    } catch (error) {
+      console.error('Error getting operations:', error);
+      res.status(500).json({ error: 'Failed to get operations' });
     }
   });
 

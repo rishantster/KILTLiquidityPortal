@@ -71,7 +71,7 @@ export function AdminPanelFixed() {
 
   const [blockchainForm, setBlockchainForm] = useState({
     kiltTokenAddress: '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8',
-    poolAddress: '0x...'
+    poolAddress: '0x0000000000000000000000000000000000000000'
   });
 
   // All hooks must be called before any conditional returns
@@ -111,7 +111,10 @@ export function AdminPanelFixed() {
         body: JSON.stringify({
           programBudget: data.totalAllocation,
           programDurationDays: data.programDurationDays,
-          dailyBudget: data.dailyBudget
+          programStartDate: new Date().toISOString(),
+          programEndDate: new Date(Date.now() + data.programDurationDays * 24 * 60 * 60 * 1000).toISOString(),
+          treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
+          isActive: true
         })
       });
       if (!response.ok) throw new Error('Failed to update treasury');
@@ -165,6 +168,30 @@ export function AdminPanelFixed() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to update blockchain config", variant: "destructive" });
+    }
+  });
+
+  // Load current config values
+  useEffect(() => {
+    if (treasuryStats) {
+      setTreasuryForm({
+        totalAllocation: treasuryStats.totalAllocation || 500000,
+        programDurationDays: treasuryStats.programDurationDays || 90,
+        dailyBudget: treasuryStats.dailyBudget || 5555.56
+      });
+    }
+  }, [treasuryStats]);
+
+  // Operation history query
+  const { data: operationHistory } = useQuery({
+    queryKey: ['/api/admin/operations'],
+    enabled: true,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/operations?limit=10', {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) return [];
+      return response.json();
     }
   });
 
@@ -475,26 +502,28 @@ export function AdminPanelFixed() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  {[
-                    { time: 'Just now', action: 'Admin panel accessed', user: 'admin', status: 'success' },
-                    { time: '5 min ago', action: 'Treasury stats refreshed', user: 'system', status: 'success' },
-                    { time: '1 hour ago', action: 'Reward calculations updated', user: 'system', status: 'success' },
-                    { time: '2 hours ago', action: 'New position registered', user: 'system', status: 'info' }
-                  ].map((event, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-2 w-2 rounded-full ${
-                          event.status === 'success' ? 'bg-green-400' : 
-                          event.status === 'error' ? 'bg-red-400' : 'bg-blue-400'
-                        }`} />
-                        <div>
-                          <div className="text-sm text-white">{event.action}</div>
-                          <div className="text-xs text-gray-400">by {event.user}</div>
+                  {operationHistory && operationHistory.length > 0 ? (
+                    operationHistory.map((event: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                        <div className="flex items-center gap-3">
+                          <div className={`h-2 w-2 rounded-full ${
+                            event.success ? 'bg-green-400' : 'bg-red-400'
+                          }`} />
+                          <div>
+                            <div className="text-sm text-white">{event.operationType}</div>
+                            <div className="text-xs text-gray-400">by {event.performedBy || 'system'}</div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {new Date(event.timestamp).toLocaleString()}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-400">{event.time}</div>
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-400 py-4">
+                      No operations recorded yet
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>

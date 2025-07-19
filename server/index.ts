@@ -60,12 +60,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Security middleware setup (must be first)
-const securityMiddleware = setupSecurity(app);
-
-// Body parsing middleware with size limits
+// Body parsing middleware with size limits (MUST be before security middleware)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Security middleware setup
+const securityMiddleware = setupSecurity(app);
 
 // Request logging middleware
 app.use((req, res, next) => {

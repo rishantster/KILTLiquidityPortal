@@ -1715,10 +1715,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Admin login (supports both wallet and credentials)
   app.post("/api/admin/login", async (req, res) => {
     try {
-      console.log('Raw request body:', req.body);
-      console.log('Request headers:', req.headers);
-      console.log('Body type:', typeof req.body);
-      console.log('Body stringified:', JSON.stringify(req.body));
       const { username, password, walletAddress } = req.body;
       
       // Wallet-based authentication

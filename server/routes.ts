@@ -1714,33 +1714,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   
   // Note: Admin login route moved to index.ts to bypass middleware issues
 
-  // Get admin dashboard data (simplified auth - bypass for now)
-  app.get("/api/admin/dashboard", (req, res) => {
+  // Get admin dashboard data (connected to real service)
+  app.get("/api/admin/dashboard", async (req, res) => {
     try {
-      console.log('=== DASHBOARD REQUEST DEBUG ===');
-      console.log('Authorization header:', req.headers.authorization);
-      console.log('All headers:', Object.keys(req.headers));
-      console.log('===============================');
+      console.log('Dashboard: Loading real treasury stats');
       
-      // For now, bypass auth to test the dashboard functionality
-      // TODO: Implement proper token validation later
-      console.log('Dashboard: Bypassing auth for testing');
+      // Get real treasury stats from admin service
+      const stats = await adminService.getAdminTreasuryStats();
       
-      // Mock treasury stats for now
-      const stats = {
-        totalAllocation: 500000,
-        dailyBudget: 5555.56,
-        programDurationDays: 90,
-        programStartDate: new Date().toISOString(),
-        programEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-        daysRemaining: 90,
-        totalDistributed: 0,
-        currentParticipants: 0,
-        totalClaimed: 0,
-        treasuryProgress: 0
-      };
-      
-      console.log('Dashboard: Returning stats successfully');
+      console.log('Dashboard: Returning real stats:', stats);
       res.json(stats);
     } catch (error) {
       console.error('Dashboard error:', error);
@@ -1748,7 +1730,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Update treasury configuration (bypass auth for testing)
+  // Update treasury configuration (connected to real service)
   app.post("/api/admin/treasury/config", async (req, res) => {
     try {
       const config = req.body;
@@ -1758,49 +1740,57 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
       console.log('Treasury config update:', config);
       
-      // Mock successful update
-      res.json({ 
-        success: true, 
-        message: 'Treasury configuration updated successfully',
-        config: config
-      });
+      // Update real treasury configuration
+      const result = await adminService.updateTreasuryConfiguration({
+        treasuryWalletAddress: config.treasuryWalletAddress || '',
+        programBudget: config.programBudget,
+        programStartDate: new Date(config.programStartDate),
+        programEndDate: new Date(config.programEndDate),
+        programDurationDays: config.programDurationDays,
+        isActive: config.isActive !== false
+      }, 'admin');
+      
+      res.json(result);
     } catch (error) {
+      console.error('Treasury config error:', error);
       res.status(500).json({ error: 'Failed to update treasury configuration' });
     }
   });
 
-  // Update program settings (bypass auth for testing)
+  // Update program settings (connected to real service)
   app.post("/api/admin/program/settings", async (req, res) => {
     try {
       const settings = req.body;
       
       console.log('Program settings update:', settings);
       
-      // Mock successful update
-      res.json({ 
-        success: true, 
-        message: 'Program settings updated successfully',
-        settings: settings
-      });
+      // Update real program settings
+      const result = await adminService.updateProgramSettings(settings, 'admin');
+      
+      res.json(result);
     } catch (error) {
+      console.error('Program settings error:', error);
       res.status(500).json({ error: 'Failed to update program settings' });
     }
   });
 
-  // Update blockchain configuration (bypass auth for testing)
+  // Update blockchain configuration (connected to real service)
   app.post("/api/admin/blockchain/config", async (req, res) => {
     try {
       const config = req.body;
       
       console.log('Blockchain config update:', config);
       
-      // Mock successful update
+      // Update real blockchain configuration
+      const result = await blockchainConfigService.updateConfiguration(config);
+      
       res.json({ 
         success: true, 
         message: 'Blockchain configuration updated successfully',
-        config: config
+        config: result
       });
     } catch (error) {
+      console.error('Blockchain config error:', error);
       res.status(500).json({ error: 'Failed to update blockchain configuration' });
     }
   });

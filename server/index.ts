@@ -109,10 +109,6 @@ app.post("/api/admin/login", (req, res) => {
   
   req.on('end', () => {
     try {
-      console.log('=== MANUAL BODY PARSING ===');
-      console.log('Raw body string:', body);
-      console.log('Content-Type:', req.headers['content-type']);
-      console.log('========================');
       
       const data = JSON.parse(body || '{}');
       const { username, password, walletAddress } = data;

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { BlockchainConfigPanel } from "./blockchain-config-panel";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 interface TreasuryConfig {
   totalAllocation: number;
@@ -11,6 +13,11 @@ interface TreasuryConfig {
   programEndDate: string;
   treasuryWalletAddress: string;
   isActive: boolean;
+  rewardTokenAddress: string;
+  distributionWalletAddress: string;
+  emergencyContactAddress: string;
+  maxDailyDistribution: number;
+  vestingPeriodDays: number;
 }
 
 interface ProgramSettings {
@@ -21,6 +28,7 @@ interface ProgramSettings {
 }
 
 export function CyberpunkAdminPanel() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'treasury' | 'settings' | 'blockchain' | 'operations'>('treasury');
   const [treasuryConfig, setTreasuryConfig] = useState<TreasuryConfig>({
     totalAllocation: 0,
@@ -29,7 +37,12 @@ export function CyberpunkAdminPanel() {
     programStartDate: '',
     programEndDate: '',
     treasuryWalletAddress: '',
-    isActive: true
+    isActive: true,
+    rewardTokenAddress: '',
+    distributionWalletAddress: '',
+    emergencyContactAddress: '',
+    maxDailyDistribution: 0,
+    vestingPeriodDays: 0
   });
   
   const [programSettings, setProgramSettings] = useState<ProgramSettings>({
@@ -46,8 +59,21 @@ export function CyberpunkAdminPanel() {
         method: 'POST',
         body: JSON.stringify(config)
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/treasury/config'] });
+      toast({
+        title: "[TREASURY_UPDATE_SUCCESS]",
+        description: "Treasury configuration updated successfully",
+        className: "bg-green-900/90 border-green-400 text-green-100",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "[TREASURY_UPDATE_FAILED]",
+        description: `Failed to update treasury configuration: ${error.message}`,
+        variant: "destructive",
+        className: "bg-red-900/90 border-red-400 text-red-100",
+      });
     }
   });
 
@@ -58,8 +84,21 @@ export function CyberpunkAdminPanel() {
         method: 'POST', 
         body: JSON.stringify(settings)
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/program/settings'] });
+      toast({
+        title: "[PROGRAM_SETTINGS_SUCCESS]",
+        description: "Program parameters updated successfully",
+        className: "bg-green-900/90 border-green-400 text-green-100",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "[PROGRAM_SETTINGS_FAILED]",
+        description: `Failed to update program settings: ${error.message}`,
+        variant: "destructive",
+        className: "bg-red-900/90 border-red-400 text-red-100",
+      });
     }
   });
 
@@ -185,7 +224,7 @@ export function CyberpunkAdminPanel() {
                   [TREASURY_ALLOCATION_MATRIX]
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-green-400 text-sm mb-2 font-mono">TOTAL_ALLOCATION:</label>
                     <input
@@ -239,6 +278,103 @@ export function CyberpunkAdminPanel() {
                         dailyBudget: Number(e.target.value) || 0
                       })}
                       placeholder="Enter daily budget"
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">REWARD_TOKEN_ADDRESS:</label>
+                    <input
+                      type="text"
+                      value={treasuryConfig.rewardTokenAddress || ''}
+                      onChange={(e) => setTreasuryConfig({
+                        ...treasuryConfig,
+                        rewardTokenAddress: e.target.value
+                      })}
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                      placeholder="0x... (KILT token address)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">DISTRIBUTION_WALLET:</label>
+                    <input
+                      type="text"
+                      value={treasuryConfig.distributionWalletAddress || ''}
+                      onChange={(e) => setTreasuryConfig({
+                        ...treasuryConfig,
+                        distributionWalletAddress: e.target.value
+                      })}
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                      placeholder="0x... (Distribution wallet)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">EMERGENCY_CONTACT:</label>
+                    <input
+                      type="text"
+                      value={treasuryConfig.emergencyContactAddress || ''}
+                      onChange={(e) => setTreasuryConfig({
+                        ...treasuryConfig,
+                        emergencyContactAddress: e.target.value
+                      })}
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                      placeholder="0x... (Emergency contact)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">MAX_DAILY_DISTRIBUTION:</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={treasuryConfig.maxDailyDistribution || ''}
+                      onChange={(e) => setTreasuryConfig({
+                        ...treasuryConfig,
+                        maxDailyDistribution: Number(e.target.value) || 0
+                      })}
+                      placeholder="Maximum daily distribution cap"
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">VESTING_PERIOD_DAYS:</label>
+                    <input
+                      type="number"
+                      value={treasuryConfig.vestingPeriodDays || ''}
+                      onChange={(e) => setTreasuryConfig({
+                        ...treasuryConfig,
+                        vestingPeriodDays: Number(e.target.value) || 0
+                      })}
+                      placeholder="Token vesting period"
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">PROGRAM_START_DATE:</label>
+                    <input
+                      type="date"
+                      value={treasuryConfig.programStartDate || ''}
+                      onChange={(e) => setTreasuryConfig({
+                        ...treasuryConfig,
+                        programStartDate: e.target.value
+                      })}
+                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">PROGRAM_END_DATE:</label>
+                    <input
+                      type="date"
+                      value={treasuryConfig.programEndDate || ''}
+                      onChange={(e) => setTreasuryConfig({
+                        ...treasuryConfig,
+                        programEndDate: e.target.value
+                      })}
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
                     />
                   </div>
@@ -491,6 +627,7 @@ export function CyberpunkAdminPanel() {
           )}
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

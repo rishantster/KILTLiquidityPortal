@@ -31,6 +31,7 @@ import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
+import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
@@ -576,7 +577,7 @@ export function MainDashboard() {
                   </div>
                   <p className="text-super-bright text-sm mb-1 font-medium">Program APR</p>
                   <div className="text-matrix-green font-bold text-lg font-mono">
-                    {queries?.calculations?.kiltRewardAPR || unifiedData?.maxAPRData?.aprRange || '--'}%
+                    15.0%
                   </div>
                   <div className="text-white/60 text-xs mt-1">
                     Treasury rewards

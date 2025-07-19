@@ -2141,6 +2141,22 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Realistic APR calculation endpoint
+  app.get("/api/rewards/realistic-apr", async (req, res) => {
+    try {
+      const { realisticAPRService } = await import('./realistic-apr-service');
+      const aprData = await realisticAPRService.calculateRealisticAPR();
+      res.setHeader('Content-Type', 'application/json');
+      res.json(aprData);
+    } catch (error) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ 
+        error: 'Failed to calculate realistic APR',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   app.get("/api/trading-fees/position-apr/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;

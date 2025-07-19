@@ -1754,10 +1754,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Update treasury configuration (connected to real service)
   app.post("/api/admin/treasury/config", async (req, res) => {
     try {
+      console.log('=== TREASURY CONFIG UPDATE DEBUG ===');
+      console.log('req.body:', req.body);
+      console.log('req.body type:', typeof req.body);
+      console.log('JSON.stringify(req.body):', JSON.stringify(req.body));
+      console.log('Object.keys(req.body):', Object.keys(req.body || {}));
+      console.log('Content-Type header:', req.get('Content-Type'));
+      console.log('Raw request size:', req.get('Content-Length'));
+      console.log('====================================');
+      
       const config = req.body;
-      console.log('Treasury config update request:', config);
       
       if (!config.programBudget || !config.programDurationDays) {
+        console.log('Missing required fields:', {
+          programBudget: config.programBudget,
+          programDurationDays: config.programDurationDays,
+          allKeys: Object.keys(config || {})
+        });
         return res.status(400).json({ error: 'Program budget and program duration required' });
       }
 

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>KILT Portal Basic Test</title>
+    <style>
+        body { 
+            background: black; 
+            color: white; 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 { color: #ff0066; font-size: 2rem; }
+        p { color: #10b981; margin: 1rem 0; }
+        .status { 
+            background: #1f2937; 
+            padding: 1rem; 
+            border-radius: 8px; 
+            margin: 1rem auto;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 KILT Portal Debug Test</h1>
+    <p>✅ HTML Loading Successfully</p>
+    
+    <div class="status">
+        <p>Server Status: <span id="server-status">Checking...</span></p>
+        <p>React Status: <span id="react-status">Not Loaded</span></p>
+        <p>Cache Version: 2025.01.19.002</p>
+    </div>
+    
+    <div id="root-test">
+        <p style="color: #6b7280;">React will mount here...</p>
+    </div>
+    
+    <script>
+        // Check server connection
+        fetch('/api/kilt-data')
+            .then(r => r.json())
+            .then(() => {
+                document.getElementById('server-status').textContent = '✅ Connected';
+                document.getElementById('server-status').style.color = '#10b981';
+            })
+            .catch(() => {
+                document.getElementById('server-status').textContent = '❌ Failed';
+                document.getElementById('server-status').style.color = '#ef4444';
+            });
+            
+        // Simple React test
+        setTimeout(() => {
+            document.getElementById('react-status').textContent = 'Loading...';
+            document.getElementById('react-status').style.color = '#f59e0b';
+        }, 1000);
+    </script>
+</body>
+</html>

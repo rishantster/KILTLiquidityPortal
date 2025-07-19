@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
-import App from "./App-minimal";
+import BasicTest from "./basic-test";
 import "./index.css";
 
 // Ultra-simple React mounting without any complex logic
@@ -59,7 +59,7 @@ class SimpleErrorBoundary extends React.Component<
 // Mount immediately
 root.render(
   <SimpleErrorBoundary>
-    <App />
+    <BasicTest />
   </SimpleErrorBoundary>
 );
 

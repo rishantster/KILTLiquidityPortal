@@ -27,40 +27,14 @@
     <div id="root"></div>
     <script type="module" src="/src/main-simple.tsx"></script>
     
-    <!-- Service Worker Registration for Cache Busting -->
+    <!-- Service Worker temporarily disabled for debugging -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('Service Worker registered:', registration);
-              
-              // Check for updates every 30 seconds
-              setInterval(() => {
-                registration.update();
-              }, 30000);
-              
-              // Listen for updates
-              registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                if (newWorker) {
-                  newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      // New version available, force update
-                      if (confirm('New version available! Click OK to update.')) {
-                        newWorker.postMessage({ type: 'FORCE_UPDATE' });
-                        window.location.reload();
-                      }
-                    }
-                  });
-                }
-              });
-            })
-            .catch(error => {
-              console.log('Service Worker registration failed:', error);
-            });
-        });
-      }
+      // Basic debug info
+      console.log('KILT Portal loading...', {
+        timestamp: new Date().toISOString(),
+        version: '2025.01.19.002',
+        userAgent: navigator.userAgent
+      });
     </script>
     
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->

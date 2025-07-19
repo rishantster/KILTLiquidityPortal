@@ -45,12 +45,19 @@ export function AdminPanelWorking() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Form states
+  // Form states with proper initialization
   const [treasuryForm, setTreasuryForm] = useState({
     totalAllocation: 600000,
     programDurationDays: 120,
     dailyBudget: 5000
   });
+  
+  // Add debug logging for form state changes
+  const updateTreasuryForm = (updates: Partial<typeof treasuryForm>) => {
+    const newForm = { ...treasuryForm, ...updates };
+    console.log('Updating treasury form:', newForm);
+    setTreasuryForm(newForm);
+  };
   
   const [programForm, setProgramForm] = useState({
     timeBoostCoefficient: 0.6,
@@ -368,7 +375,11 @@ export function AdminPanelWorking() {
                       id="totalAllocation"
                       type="number"
                       value={treasuryForm.totalAllocation}
-                      onChange={(e) => setTreasuryForm(prev => ({ ...prev, totalAllocation: parseInt(e.target.value) }))}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        console.log('Total allocation changed to:', value);
+                        updateTreasuryForm({ totalAllocation: value });
+                      }}
                       className="bg-white/5 border-white/20 text-white"
                     />
                   </div>
@@ -378,14 +389,31 @@ export function AdminPanelWorking() {
                       id="programDuration"
                       type="number"
                       value={treasuryForm.programDurationDays}
-                      onChange={(e) => setTreasuryForm(prev => ({ ...prev, programDurationDays: parseInt(e.target.value) }))}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        console.log('Program duration changed to:', value);
+                        updateTreasuryForm({ programDurationDays: value });
+                      }}
                       className="bg-white/5 border-white/20 text-white"
                     />
                   </div>
                   <Button 
                     onClick={() => {
-                      console.log('Treasury form data:', treasuryForm);
-                      treasuryMutation.mutate(treasuryForm);
+                      console.log('=== TREASURY UPDATE CLICKED ===');
+                      console.log('Current treasury form state:', treasuryForm);
+                      console.log('Total Allocation:', treasuryForm.totalAllocation);
+                      console.log('Program Duration:', treasuryForm.programDurationDays);
+                      console.log('============================');
+                      
+                      // Force a fresh form state capture
+                      const currentForm = {
+                        totalAllocation: treasuryForm.totalAllocation || 600000,
+                        programDurationDays: treasuryForm.programDurationDays || 120,
+                        dailyBudget: treasuryForm.dailyBudget || 5000
+                      };
+                      
+                      console.log('Sending form data:', currentForm);
+                      treasuryMutation.mutate(currentForm);
                     }}
                     disabled={treasuryMutation.isPending}
                     className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"

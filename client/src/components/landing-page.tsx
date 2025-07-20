@@ -17,26 +17,8 @@ export function LandingPage() {
   const { isConnected: legacyConnected } = useWallet();
   const { isThirdwebConnected } = useThirdwebWallet();
   
-  // Navigate to dashboard when wallet is connected
-  useEffect(() => {
-    if (legacyConnected || isThirdwebConnected) {
-      setLocation('/dashboard');
-    }
-  }, [legacyConnected, isThirdwebConnected, setLocation]);
-
-  // Listen for Thirdweb wallet connection events
-  useEffect(() => {
-    const handleThirdwebConnection = (event: CustomEvent) => {
-      console.log('Received Thirdweb connection event, navigating to dashboard');
-      setLocation('/dashboard');
-    };
-
-    window.addEventListener('thirdweb-wallet-connected', handleThirdwebConnection as EventListener);
-    
-    return () => {
-      window.removeEventListener('thirdweb-wallet-connected', handleThirdwebConnection as EventListener);
-    };
-  }, [setLocation]);
+  // Show dashboard navigation when wallet is connected
+  const isWalletConnected = legacyConnected || isThirdwebConnected;
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
@@ -91,10 +73,22 @@ export function LandingPage() {
           {/* Connection Section */}
           <div className="mb-16 flex flex-col items-center">
             <div className="mb-4">
-              <ThirdwebWalletConnect />
+              {isWalletConnected ? (
+                <button
+                  onClick={() => setLocation('/dashboard')}
+                  className="bg-pink-500/20 hover:bg-pink-500/30 backdrop-blur-sm border border-pink-500/40 hover:border-pink-500/60 rounded-lg px-8 py-3 text-white font-medium transition-all duration-300 hover:scale-105"
+                >
+                  Go to Dashboard
+                </button>
+              ) : (
+                <ThirdwebWalletConnect />
+              )}
             </div>
             <p className="text-white/80 text-lg font-medium text-center">
-              No signup required. Connect and start earning in seconds.
+              {isWalletConnected 
+                ? "Wallet connected! Access your liquidity dashboard." 
+                : "No signup required. Connect and start earning in seconds."
+              }
             </p>
           </div>
 

@@ -478,14 +478,14 @@ export class FixedRewardService {
     
     const currentPoolTVL = poolData.tvlUSD;
     
-    // For landing page APR calculation, use hypothetical values instead of real user positions
-    // This shows what users could potentially earn, not what current users are earning
-    const HYPOTHETICAL_POSITION_VALUE = 2000; // Typical $2K position for new users
-    const poolTVL = currentPoolTVL;
-    const typicalPositionValue = HYPOTHETICAL_POSITION_VALUE;
+    // Landing page uses industry-standard benchmarked hypothetical values
+    // Not tied to any real pool data or user positions - pure theoretical calculation
+    const BENCHMARK_POSITION_VALUE = 5000; // Industry standard $5K position benchmark
+    const BENCHMARK_POOL_TVL = 500000; // Hypothetical $500K mature pool scenario
+    const typicalPositionValue = BENCHMARK_POSITION_VALUE;
     
-    // Calculate share based on hypothetical position in real pool TVL
-    const liquidityShare = HYPOTHETICAL_POSITION_VALUE / poolTVL;
+    // Calculate share based on benchmarked industry standards (1% typical share)
+    const liquidityShare = BENCHMARK_POSITION_VALUE / BENCHMARK_POOL_TVL;
     
     // Debug APR calculation with admin values
     // Calculate APR for full range positions using REAL data (gets FRB bonus)
@@ -523,17 +523,17 @@ export class FixedRewardService {
       scenario: "Early participant opportunity",
       formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)",
       assumptions: [
-        `Example: $${typicalPositionValue.toLocaleString()} position in $${poolTVL.toLocaleString()} pool (${(liquidityShare * 100).toFixed(1)}% share)`,
-        `Calculation: Hypothetical position for potential new users`,
-        `Pool Data: Real Uniswap V3 TVL + Admin treasury configuration`,
-        `Full Range Bonus: ${fullRangeBonusCoeff}x (${Math.round((fullRangeBonusCoeff - 1) * 100)}% boost for balanced 50/50 liquidity)`,
+        `Benchmark: $${typicalPositionValue.toLocaleString()} position in $${(BENCHMARK_POOL_TVL/1000).toFixed(0)}K pool (${(liquidityShare * 100).toFixed(1)}% share)`,
+        `Industry Standard: Hypothetical DeFi liquidity scenario`,
+        `Treasury Data: Admin configuration (${totalAllocation.toLocaleString()} KILT over ${programDuration} days)`,
+        `Full Range Bonus: ${fullRangeBonusCoeff}x (${Math.round((fullRangeBonusCoeff - 1) * 100)}% boost for balanced liquidity)`,
         `Concentrated positions: ${Math.round(finalConcentratedAPR)}% APR (no FRB bonus)`,
         `Time commitment: ${fullRangeDays}+ days for maximum rewards`,
-        "Always in-range assumption (IRM = 1.0)",
+        "Optimal performance assumption (always in-range)",
         `Current KILT price: $${kiltPrice}`,
-        "Encourages balanced liquidity provision",
-        `Treasury allocation: ${totalAllocation.toLocaleString()} KILT over ${programDuration} days`,
-        `Daily budget: ${dailyBudget.toFixed(2)} KILT (from admin configuration)`
+        "Encourages balanced 50/50 liquidity provision",
+        `Daily reward budget: ${dailyBudget.toFixed(2)} KILT tokens`,
+        "Calculation: Pure theoretical benchmark, not tied to real positions"
       ]
     };
   }

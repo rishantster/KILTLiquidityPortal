@@ -65,13 +65,15 @@ export function CyberpunkAdminPanel() {
   // Save Treasury Configuration
   const treasuryMutation = useMutation({
     mutationFn: (config: TreasuryConfig) => {
-      // Include auto-calculated values in the request
+      // Get the admin wallet address for logging
+      const adminWallet = localStorage.getItem('admin_wallet') || 'Unknown Admin';
+      
+      // Include auto-calculated values and wallet address in the request
       const configWithCalculations = {
         ...config,
-        ...derivedValues
+        ...derivedValues,
+        adminWallet
       };
-      
-
       
       return apiRequest('/api/admin/treasury/config', {
         method: 'POST',
@@ -112,11 +114,18 @@ export function CyberpunkAdminPanel() {
 
   // Save Program Settings
   const settingsMutation = useMutation({
-    mutationFn: (settings: ProgramSettings) => 
-      apiRequest('/api/admin/program/settings', {
+    mutationFn: (settings: ProgramSettings) => {
+      // Get the admin wallet address for logging
+      const adminWallet = localStorage.getItem('admin_wallet') || 'Unknown Admin';
+      
+      return apiRequest('/api/admin/program/settings', {
         method: 'POST',
-        data: settings
-      }),
+        data: {
+          ...settings,
+          adminWallet
+        }
+      });
+    },
     onSuccess: (data) => {
       // Invalidate ALL queries that depend on program settings for blazing fast updates
       queryClient.invalidateQueries({ queryKey: ['/api/admin/program/settings'] });

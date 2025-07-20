@@ -14,7 +14,7 @@ declare global {
 }
 import { storage } from "./storage";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { 
   insertUserSchema, 
   insertLpPositionSchema, 
@@ -52,6 +52,38 @@ import rewardDistributionRoutes from "./routes/reward-distribution";
 import { registerPerformanceRoutes } from "./routes/performance";
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes
+
+// Helper function to log admin operations
+async function logAdminOperation(
+  operationType: string,
+  reason: string,
+  performedBy: string,
+  amount?: string,
+  transactionHash?: string,
+  success: boolean = true,
+  errorMessage?: string
+) {
+  try {
+    const { adminOperations } = await import('../shared/schema');
+    await db.insert(adminOperations).values({
+      operationType,
+      operationDetails: JSON.stringify({
+        timestamp: new Date().toISOString(),
+        performedBy,
+        amount,
+        transactionHash
+      }),
+      reason,
+      performedBy,
+      amount,
+      transactionHash,
+      success,
+      errorMessage
+    });
+  } catch (error) {
+    console.error('Failed to log admin operation:', error);
+  }
+}
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
@@ -2050,6 +2082,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         await db.insert(treasuryConfig).values(dbConfig);
       }
       
+      // Extract admin wallet address from request body or fallback methods
+      const adminWallet = config.adminWallet || req.body.adminWallet || req.headers['x-admin-wallet'] || 'Unknown Admin';
+      
+      // Log the treasury update operation
+      await logAdminOperation(
+        'treasury_update',
+        `Updated treasury configuration - Total: ${config.totalAllocation.toLocaleString()} KILT, Duration: ${config.programDurationDays} days`,
+        adminWallet,
+        config.totalAllocation.toString(),
+        undefined,
+        true
+      );
+      
       console.log('Admin POST /api/admin/treasury/config');
       res.json({
         success: true,
@@ -2119,6 +2164,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         await db.insert(programSettings).values(dbSettings);
       }
       
+      // Extract admin wallet address and log the operation
+      const adminWallet = settings.adminWallet || req.body.adminWallet || req.headers['x-admin-wallet'] || 'Unknown Admin';
+      
+      await logAdminOperation(
+        'parameters_update',
+        `Updated program parameters - Time Boost: ${settings.timeBoostCoefficient}, Full Range Bonus: ${settings.fullRangeBonus}, Min Position: $${settings.minimumPositionValue}, Lock Period: ${settings.lockPeriod} days`,
+        adminWallet,
+        undefined,
+        undefined,
+        true
+      );
+      
       res.json({
         success: true,
         message: 'Program settings updated successfully',
@@ -2138,26 +2195,51 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Operations history endpoint
   app.get("/api/admin/operations", async (req, res) => {
     try {
-      // Return mock operations history
-      const operations = [
-        {
-          action: 'TREASURY_UPDATE',
-          details: 'Updated total allocation to 500,000 KILT',
-          adminId: 'admin',
-          timestamp: new Date().toISOString(),
-          ipAddress: '127.0.0.1'
-        },
-        {
-          action: 'PARAMETERS_UPDATE', 
-          details: 'Updated time boost coefficient to 0.6',
-          adminId: 'admin',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          ipAddress: '127.0.0.1'
-        }
-      ];
+      // Get real operations from database
+      const { adminOperations } = await import('../shared/schema');
+      const dbOperations = await db.select().from(adminOperations)
+        .orderBy(desc(adminOperations.timestamp))
+        .limit(50);
+      
+      // Transform database format to frontend format
+      const operations = dbOperations.map(op => ({
+        action: op.operationType.toUpperCase(),
+        details: op.reason,
+        adminId: op.performedBy, // This will now show the wallet address
+        walletAddress: op.performedBy, // Add explicit wallet address field
+        timestamp: op.timestamp.toISOString(),
+        success: op.success,
+        amount: op.amount,
+        transactionHash: op.transactionHash,
+        errorMessage: op.errorMessage
+      }));
+      
+      // If no operations in database, return recent mock data with note
+      if (operations.length === 0) {
+        const mockOperations = [
+          {
+            action: 'TREASURY_UPDATE',
+            details: 'Updated total allocation to 500,000 KILT',
+            adminId: 'Mock Data - No Operations Logged Yet',
+            walletAddress: null,
+            timestamp: new Date().toISOString(),
+            success: true
+          },
+          {
+            action: 'PARAMETERS_UPDATE', 
+            details: 'Updated time boost coefficient to 0.6',
+            adminId: 'Mock Data - No Operations Logged Yet',
+            walletAddress: null,
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            success: true
+          }
+        ];
+        return res.json(mockOperations);
+      }
       
       res.json(operations);
     } catch (error) {
+      console.error('Admin operations fetch error:', error);
       res.status(500).json({ error: 'Failed to get operations' });
     }
   });

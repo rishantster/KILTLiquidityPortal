@@ -478,7 +478,7 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="flex justify-center gap-4 bg-transparent mb-8 h-auto p-0">
+          <TabsList className="flex justify-center gap-8 bg-transparent mb-12 h-auto p-0">
             <TabsTrigger value="overview" className="simple-tab">
               <TrendingUp />
               <span>Overview</span>

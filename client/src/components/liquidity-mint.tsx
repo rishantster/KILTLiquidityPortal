@@ -549,7 +549,7 @@ export function LiquidityMint({
 
       const txHash = await mintPosition({
         ...mintParams,
-        useNativeETH: false // On Base, ETH is native - no special handling needed
+        useNativeETH: selectedEthToken === 'ETH' // Send ETH for WETH conversion
       });
 
       toast({

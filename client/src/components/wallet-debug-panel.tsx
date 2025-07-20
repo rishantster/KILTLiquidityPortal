@@ -75,10 +75,10 @@ export function WalletDebugPanel() {
             size="sm"
             className="w-full bg-pink-600 hover:bg-pink-700"
           >
-            Force Refresh Wallet
+            Force Reconnect Current Account
           </Button>
           <p className="text-xs text-gray-400">
-            Use Force Refresh if wallet address changed but app didn't detect it
+            Completely disconnects and reconnects to your currently selected MetaMask account
           </p>
         </div>
       </CardContent>

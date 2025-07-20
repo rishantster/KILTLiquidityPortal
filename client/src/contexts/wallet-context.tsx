@@ -272,23 +272,27 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             // Only log when there's a potential change to reduce noise
             const hasChange = currentAddress !== address;
             
-            // Force re-request accounts if we detect a discrepancy
-            if (selectedAddress && accounts[0] && selectedAddress !== accounts[0]) {
-              console.log('DISCREPANCY DETECTED - forcing account refresh:', {
-                selectedAddress,
-                accountsFirst: accounts[0],
-                currentStored: address
-              });
-              
-              // Force MetaMask to refresh by requesting accounts again
+            // Aggressive detection: Force refresh if any account mismatch detected
+            if (accounts && accounts.length > 0) {
+              // Always force a fresh request to ensure MetaMask gives us the real current account
               try {
                 const freshAccounts = await ethereum.request({ method: 'eth_requestAccounts' });
                 if (freshAccounts && freshAccounts.length > 0) {
                   currentAddress = freshAccounts[0];
-                  console.log('FORCED REFRESH RESULT:', { freshAccounts, newCurrentAddress: currentAddress });
+                  
+                  // Check if there's any difference between what we expected and what we got
+                  if (currentAddress !== accounts[0] || currentAddress !== selectedAddress) {
+                    console.log('FORCED ACCOUNT DETECTION:', {
+                      ethAccounts: accounts[0],
+                      selectedAddress,
+                      freshResult: currentAddress,
+                      storedAddress: address
+                    });
+                  }
                 }
               } catch (error) {
-                console.log('Force refresh failed:', error);
+                // If fresh request fails, use the best available option
+                currentAddress = accounts[0] || selectedAddress;
               }
             }
             
@@ -508,53 +512,53 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      console.log('forceRefreshWallet: Starting forced wallet refresh');
+      console.log('FORCE RECONNECT: Starting complete wallet reconnection...');
       
-      // Force request accounts to trigger MetaMask to update connection
+      // Step 1: Complete disconnection
+      setAddress(null);
+      setIsConnected(false);
+      setManuallyDisconnected(true);
+      
+      // Step 2: Clear all cached data
+      queryClient.removeQueries({ queryKey: ['user-positions'] });
+      queryClient.removeQueries({ queryKey: ['rewards'] });
+      queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+      queryClient.removeQueries({ queryKey: ['user-analytics'] });
+      queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+      queryClient.removeQueries({ queryKey: ['weth-balance'] });
+      
+      // Step 3: Wait a moment to let MetaMask clear state
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Step 4: Force fresh connection with current account
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts',
       });
 
-      console.log('forceRefreshWallet: Got accounts from eth_requestAccounts:', accounts);
+      console.log('FORCE RECONNECT: Fresh connection result:', accounts);
       
       if (accounts && accounts.length > 0) {
-        const newAddress = accounts[0];
+        const currentAddress = accounts[0];
         
-        if (newAddress !== address) {
-          console.log('forceRefreshWallet: Address changed!', { oldAddress: address, newAddress });
-          
-          setAddress(newAddress);
-          setIsConnected(true);
-          setManuallyDisconnected(false);
-          
-          // Clear all user-specific cache
-          queryClient.removeQueries({ queryKey: ['user-positions'] });
-          queryClient.removeQueries({ queryKey: ['rewards'] });
-          queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
-          queryClient.removeQueries({ queryKey: ['user-analytics'] });
-          queryClient.removeQueries({ queryKey: ['kilt-balance'] });
-          queryClient.removeQueries({ queryKey: ['weth-balance'] });
-          
-          // Trigger immediate re-fetch for new account
-          queryClient.invalidateQueries();
-          
-          toast({
-            title: "Wallet refreshed",
-            description: `Now connected to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`,
-          });
-        } else {
-          console.log('forceRefreshWallet: No address change detected');
-          toast({
-            title: "Wallet up to date",
-            description: "No account changes detected.",
-          });
-        }
+        console.log('FORCE RECONNECT: Connecting to current account:', currentAddress);
+        
+        setAddress(currentAddress);
+        setIsConnected(true);
+        setManuallyDisconnected(false);
+        
+        // Trigger immediate re-fetch for current account
+        queryClient.invalidateQueries();
+        
+        toast({
+          title: "Wallet reconnected",
+          description: `Connected to current account: ${currentAddress.slice(0, 6)}...${currentAddress.slice(-4)}`,
+        });
       }
     } catch (error) {
-      console.error('forceRefreshWallet: Error during force refresh:', error);
+      console.error('FORCE RECONNECT: Error during reconnection:', error);
       toast({
-        title: "Refresh failed",
-        description: "Could not refresh wallet connection.",
+        title: "Reconnection failed",
+        description: "Could not reconnect to wallet. Please try manually.",
         variant: "destructive",
       });
     }

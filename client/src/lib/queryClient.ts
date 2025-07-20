@@ -73,7 +73,7 @@ export const getQueryFn: <T>(options: {
       if (!controller.signal.aborted) {
         controller.abort();
       }
-    }, 30000); // 30 second timeout for query functions
+    }, 15000); // 15 second timeout for query functions
 
     try {
       const res = await fetch(queryKey[0] as string, {
@@ -94,6 +94,15 @@ export const getQueryFn: <T>(options: {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
         console.warn('Request timed out:', queryKey[0]);
+        // Don't throw for program-analytics timeouts, return fallback data
+        if (typeof queryKey[0] === 'string' && queryKey[0].includes('program-analytics')) {
+          return {
+            totalLiquidity: 0,
+            participantCount: 0,
+            averageAPR: 0,
+            totalRewardsDistributed: 0
+          };
+        }
         throw new Error('Request timeout');
       }
       throw error;
@@ -117,23 +126,11 @@ export const queryClient = new QueryClient({
         }
         return false;
       },
-      onError: (error) => {
-        // Silently handle AbortError to prevent unhandled promise rejections
-        if (error instanceof Error && error.name === 'AbortError') {
-          return; // Don't log abort errors
-        }
-        console.error('Query error:', error);
-      },
+
     },
     mutations: {
       retry: false,
-      onError: (error) => {
-        // Silently handle AbortError to prevent unhandled promise rejections
-        if (error instanceof Error && error.name === 'AbortError') {
-          return; // Don't log abort errors
-        }
-        console.error('Mutation error:', error);
-      },
+
     },
   },
 });

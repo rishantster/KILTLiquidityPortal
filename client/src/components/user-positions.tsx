@@ -324,18 +324,18 @@ export function UserPositions() {
               <div className="flex items-center space-x-6 bg-white/5 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white font-bold text-sm">{allKiltPositions.length}</span>
+                  <span className="text-white text-sm numeric-mono">{allKiltPositions.length}</span>
                   <span className="text-white/60 text-sm">total</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-emerald-400 font-bold text-sm">{openPositions.length}</span>
+                  <span className="text-emerald-400 text-sm numeric-mono">{openPositions.length}</span>
                   <span className="text-white/60 text-sm">active</span>
                 </div>
                 {closedPositions.length > 0 && (
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    <span className="text-gray-400 font-bold text-sm">{closedPositions.length}</span>
+                    <span className="text-gray-400 text-sm numeric-mono">{closedPositions.length}</span>
                     <span className="text-white/60 text-sm">closed</span>
                   </div>
                 )}
@@ -438,7 +438,7 @@ export function UserPositions() {
                           {inRange ? 'In Range' : 'Out of Range'}
                         </Badge>
                       </div>
-                      <div className="text-2xl font-bold text-white tabular-nums relative">
+                      <div className="text-2xl text-white relative numeric-large">
                         <span className="relative z-10" style={{
                           textShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.6), 0 0 24px rgba(255, 0, 102, 0.4)',
                           color: '#ffffff'
@@ -463,13 +463,13 @@ export function UserPositions() {
                               </svg>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-white font-bold text-sm" style={{
+                              <div className="text-white text-sm numeric-display" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
                               }}>
                                 {ethAmount} WETH
                               </div>
-                              <div className="text-white font-medium text-sm tabular-nums" style={{
+                              <div className="text-white font-medium text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
                               }}>
@@ -491,13 +491,13 @@ export function UserPositions() {
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-white font-bold text-sm" style={{
+                              <div className="text-white text-sm numeric-display" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
                               }}>
                                 {kiltAmount} KILT
                               </div>
-                              <div className="text-white font-medium text-sm tabular-nums" style={{
+                              <div className="text-white font-medium text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
                               }}>
@@ -517,7 +517,7 @@ export function UserPositions() {
                           color: '#ffffff',
                           textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
                         }}>Fees earned</div>
-                        <div className="text-lg font-bold text-white tabular-nums mb-2 relative">
+                        <div className="text-lg text-white mb-2 relative numeric-large">
                           <span style={{
                             textShadow: '0 0 6px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 255, 255, 0.6), 0 0 18px rgba(255, 0, 102, 0.4)',
                             color: '#ffffff'
@@ -538,17 +538,17 @@ export function UserPositions() {
                                   <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
                                 </svg>
                               </div>
-                              <span className="text-white font-bold text-sm" style={{
+                              <span className="text-white text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
                               }}>48.99%</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-white font-bold text-sm tabular-nums" style={{
+                              <div className="text-white text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
                               }}>${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
-                              <div className="text-white font-medium text-sm" style={{
+                              <div className="text-white font-medium text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
                               }}>{ethFees} WETH</div>
@@ -566,17 +566,17 @@ export function UserPositions() {
                                   }}
                                 />
                               </div>
-                              <span className="text-white font-bold text-sm" style={{
+                              <span className="text-white text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
                               }}>51.01%</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-white font-bold text-sm tabular-nums" style={{
+                              <div className="text-white text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
                               }}>${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
-                              <div className="text-white font-medium text-sm" style={{
+                              <div className="text-white font-medium text-sm numeric-mono" style={{
                                 color: '#ffffff',
                                 textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
                               }}>{kiltFees} KILT</div>

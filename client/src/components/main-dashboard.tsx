@@ -523,10 +523,10 @@ export function MainDashboard() {
                     </div>
                     <span className="text-white/70 text-sm font-medium">KILT Price</span>
                   </div>
-                  <div className="text-white font-bold text-xl font-mono mb-1">
+                  <div className="text-white text-xl mb-1 numeric-large">
                     ${kiltData?.price?.toFixed(4) || '0.0186'}
                   </div>
-                  <div className={`text-xs font-medium ${
+                  <div className={`text-xs font-medium numeric-mono ${
                     (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {kiltData?.priceChange24h ? 
@@ -547,7 +547,7 @@ export function MainDashboard() {
                     </div>
                     <span className="text-white/70 text-sm font-medium">Market Cap</span>
                   </div>
-                  <div className="text-white font-bold text-xl font-mono mb-1">
+                  <div className="text-white text-xl mb-1 numeric-large">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '5.1'}M
                   </div>
                   <div className="text-white/50 text-xs font-medium">
@@ -566,7 +566,7 @@ export function MainDashboard() {
                     </div>
                     <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
                   </div>
-                  <div className="text-white font-bold text-xl font-mono mb-1">
+                  <div className="text-white text-xl mb-1 numeric-large">
                     {queries?.calculations?.feeAPR || '0.1'}%
                   </div>
                   <div className="text-white/50 text-xs font-medium">
@@ -585,7 +585,7 @@ export function MainDashboard() {
                     </div>
                     <span className="text-white/70 text-sm font-medium">Program APR</span>
                   </div>
-                  <div className="text-white font-bold text-xl font-mono mb-1">
+                  <div className="text-white text-xl mb-1 numeric-large">
                     155%
                   </div>
                   <div className="text-white/50 text-xs font-medium">
@@ -638,7 +638,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">KILT</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-matrix-green font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                   {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
                                 </div>
                               </div>
@@ -660,7 +660,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">ETH</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-matrix-green font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                   {ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}
                                 </div>
                               </div>
@@ -682,7 +682,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">WETH</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm font-mono truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-matrix-green font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
                                   {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
                                 </div>
                               </div>
@@ -697,7 +697,7 @@ export function MainDashboard() {
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-white text-sm font-medium">Balance Usage</span>
-                          <span className="text-sm text-white/80">{selectedPercentage}% of wallet</span>
+                          <span className="text-sm text-white/80 numeric-mono">{selectedPercentage}% of wallet</span>
                         </div>
                         <div className="grid grid-cols-5 gap-2 mb-3">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (

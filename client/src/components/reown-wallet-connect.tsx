@@ -113,20 +113,17 @@ export function ReownWalletConnect() {
     return (
       <div className="p-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-            <div>
-              <div className="text-sm font-medium text-white">Connected</div>
-              <div className="text-xs text-gray-400 font-mono">
-                {address?.slice(0, 6)}...{address?.slice(-4)}
-              </div>
-            </div>
+            <span className="text-sm text-gray-400 font-mono">
+              {address?.slice(0, 6)}...{address?.slice(-4)}
+            </span>
           </div>
           <button
             onClick={disconnect}
-            className="px-2 py-1 text-xs text-gray-400 hover:text-white transition-colors duration-200"
+            className="px-2 py-1 text-sm text-gray-400 hover:text-white transition-colors duration-200"
           >
-            ✕
+            Disconnect
           </button>
         </div>
       </div>

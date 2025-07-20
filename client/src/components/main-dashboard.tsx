@@ -90,7 +90,7 @@ function FormulaProgramAPR() {
   
   // Use the raw formula calculation directly from backend
   // This respects our reward mechanism: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-  const formulaAPR = data?.maxAPR;
+  const formulaAPR = (data as { maxAPR?: number })?.maxAPR;
   
   return (
     <span>
@@ -113,7 +113,7 @@ export function MainDashboard() {
   const appSession = useAppSession();
   
   // Get optimized queries for real trading fees APR data
-  const queries = useOptimizedQueries(address);
+  const queries = useOptimizedQueries(address || undefined);
   
   // Use balance data from unified dashboard hook
   const { 
@@ -195,7 +195,7 @@ export function MainDashboard() {
       if (typeof balance === 'bigint') {
         balanceStr = balance.toString();
       } else if (typeof balance === 'number') {
-        balanceStr = balance.toString();
+        balanceStr = String(balance);
       } else {
         balanceStr = balance;
       }
@@ -229,56 +229,13 @@ export function MainDashboard() {
     );
   };
 
-  // One-click liquidity addition using universal LiquidityService
-  const handleQuickAddLiquidity = async () => {
-    if (!address) return;
-    
-    setIsQuickAdding(true);
-    
-    try {
-      // Calculate optimal amounts based on selected percentage
-      const { kiltAmount, ethAmount, useNativeEth } = calculateOptimalAmounts(selectedPercentage);
-      
-      // Prepare liquidity parameters
-      const liquidityParams = {
-        kiltAmount,
-        ethAmount,
-        useNativeEth,
-        strategy: 'balanced' as const,
-        slippage: 5
-      };
-      
-      toast({
-        title: "Starting Quick Add Liquidity",
-        description: `Adding ${kiltAmount} KILT + ${ethAmount} ${useNativeEth ? 'ETH' : 'WETH'} (${selectedPercentage}% of balance)`,
-      });
-      
-      // Execute liquidity addition using universal service
-      const success = await LiquidityService.executeQuickAddLiquidity(
-        liquidityParams,
-        mintPosition,
-        approveToken,
-        parseTokenAmount,
-        toast,
-        appSession.sessionId,
-        appSession.createAppSession,
-        appSession.recordAppTransaction
-      );
-      
-      if (success) {
-        // Switch to positions tab to show the new position
-        setActiveTab('positions');
-      }
-      
-    } catch (error: any) {
-      toast({
-        title: "Quick Add Failed",
-        description: error.message || "Failed to add liquidity automatically",
-        variant: "destructive",
-      });
-    } finally {
-      setIsQuickAdding(false);
-    }
+  // Navigate to Add Liquidity tab for detailed liquidity management
+  const handleQuickAddLiquidity = () => {
+    setActiveTab('liquidity');
+    toast({
+      title: "Redirecting to Add Liquidity",
+      description: "Use the Add Liquidity tab for complete position management",
+    });
   };
 
   // Render loading state or disconnected state after all hooks are called
@@ -570,7 +527,14 @@ export function MainDashboard() {
                   <p className="text-matrix-bright font-bold text-lg font-mono">
                     ${kiltData?.price?.toFixed(4) || '0.0289'}
                   </p>
-                  <p className="text-matrix-green/70 text-xs font-medium">+0.50%</p>
+                  <p className={`text-xs font-medium ${
+                    (kiltData?.priceChange24h || 0) >= 0 ? 'text-matrix-green/70' : 'text-red-400/70'
+                  }`}>
+                    {kiltData?.priceChange24h ? 
+                      `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}%` : 
+                      '+0.50%'
+                    }
+                  </p>
                 </div>
 
                 {/* Market Cap */}
@@ -582,7 +546,12 @@ export function MainDashboard() {
                   <p className="text-matrix-bright font-bold text-lg font-mono">
                     ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
                   </p>
-                  <p className="text-white/60 text-xs font-medium">276.97M circulating</p>
+                  <p className="text-white/60 text-xs font-medium">
+                    {kiltData?.totalSupply ? 
+                      `${(276970000 / 1000000).toFixed(1)}M circulating` : 
+                      '276.97M circulating'
+                    }
+                  </p>
                 </div>
 
                 {/* Trading Fees APR - Real Data */}

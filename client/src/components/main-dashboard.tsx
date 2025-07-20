@@ -478,34 +478,34 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="inline-flex bg-black/40 backdrop-blur-sm border border-white/10 mb-8 h-11 gap-1 rounded-lg p-1 mx-auto">
+          <TabsList className="flex justify-center bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-2 shadow-2xl mb-12 h-auto mx-auto w-fit">
             <TabsTrigger 
               value="overview" 
-              className="compact-tab"
+              className="nav-button-tab"
             >
-              <TrendingUp className="h-4 w-4 mr-1.5 flex-shrink-0" />
-              <span>Overview</span>
+              <TrendingUp className="h-5 w-5 mr-2.5 flex-shrink-0" />
+              <span className="font-medium">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="compact-tab"
+              className="nav-button-tab"
             >
-              <Plus className="h-4 w-4 mr-1.5 flex-shrink-0" />
-              <span>Add Liquidity</span>
+              <Plus className="h-5 w-5 mr-2.5 flex-shrink-0" />
+              <span className="font-medium">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="compact-tab"
+              className="nav-button-tab"
             >
-              <Award className="h-4 w-4 mr-1.5 flex-shrink-0" />
-              <span>Rewards</span>
+              <Award className="h-5 w-5 mr-2.5 flex-shrink-0" />
+              <span className="font-medium">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="compact-tab"
+              className="nav-button-tab"
             >
-              <Wallet className="h-4 w-4 mr-1.5 flex-shrink-0" />
-              <span>Positions</span>
+              <Wallet className="h-5 w-5 mr-2.5 flex-shrink-0" />
+              <span className="font-medium">Positions</span>
             </TabsTrigger>
           </TabsList>
 

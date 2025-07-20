@@ -105,9 +105,8 @@ export class UniswapIntegrationService {
     }
 
     try {
-      // Get pool address from blockchain configuration
-      const config = await blockchainConfigService.getConfiguration();
-      const poolAddress = config.poolAddress;
+      // Get pool address from blockchain configuration - use hardcoded for now
+      const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
 
       if (!poolAddress) {
         throw new Error('Pool address not configured');
@@ -1143,9 +1142,8 @@ export class UniswapIntegrationService {
    */
   private async getTokenPrices(token0: string, token1: string): Promise<{ token0Price: number; token1Price: number }> {
     try {
-      // Get blockchain configuration to identify tokens
-      const config = await blockchainConfigService.getConfiguration();
-      const kiltTokenAddress = config.kiltTokenAddress.toLowerCase();
+      // Get token addresses - hardcoded for now
+      const kiltTokenAddress = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
       const wethTokenAddress = '0x4200000000000000000000000000000000000006'; // WETH on Base
       
       // Get real KILT price from our price service
@@ -1370,8 +1368,7 @@ export class UniswapIntegrationService {
    * Check if position contains KILT token
    */
   private async isKiltPosition(token0: string, token1: string): Promise<boolean> {
-    const config = await blockchainConfigService.getConfiguration();
-    const kiltAddress = config.kiltTokenAddress;
+    const kiltAddress = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
     return token0.toLowerCase() === kiltAddress.toLowerCase() || 
            token1.toLowerCase() === kiltAddress.toLowerCase();
   }

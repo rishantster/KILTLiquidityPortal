@@ -1664,6 +1664,50 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Get trading fees APR for KILT/ETH pool
+  app.get("/api/trading-fees/pool-apr", async (req, res) => {
+    try {
+      // Get pool address
+      const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
+      
+      // Get pool data with volume information
+      const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
+      
+      if (!poolData || !poolData.tvlUSD) {
+        return res.json({
+          tradingFeesAPR: 0,
+          poolTVL: 0,
+          poolVolume24hUSD: 0,
+          feeTier: 3000,
+          dataSource: 'fallback'
+        });
+      }
+      
+      // Calculate trading fees APR
+      // Trading Fees APR = (Daily Fees / TVL) * 365 * 100
+      const tradingFeesAPR = poolData.tvlUSD > 0 
+        ? (poolData.feesUSD24h / poolData.tvlUSD) * 365 * 100
+        : 0;
+
+      res.json({
+        tradingFeesAPR: parseFloat(tradingFeesAPR.toFixed(1)),
+        poolTVL: poolData.tvlUSD,
+        poolVolume24hUSD: poolData.volume24hUSD,
+        feeTier: poolData.feeTier,
+        dataSource: poolData.volumeDataSource || 'blockchain'
+      });
+    } catch (error) {
+      // Return fallback data if pool fetch fails
+      res.json({
+        tradingFeesAPR: 0,
+        poolTVL: 0,
+        poolVolume24hUSD: 0,
+        feeTier: 3000,
+        dataSource: 'fallback'
+      });
+    }
+  });
+
   // ===== REWARD CALCULATION VULNERABILITY DEMO ROUTES =====
   
   // Get detailed vulnerability report showing the fix

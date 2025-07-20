@@ -172,62 +172,59 @@ export function UnifiedWalletConnect() {
 
       {/* Wallet Selection Modal */}
       <Dialog open={showWalletModal} onOpenChange={setShowWalletModal}>
-        <DialogContent className="sm:max-w-md bg-black/95 backdrop-blur-xl border border-[#ff0066]/20 shadow-2xl shadow-[#ff0066]/10">
-          <DialogHeader className="pb-6">
-            <DialogTitle className="text-white text-xl font-bold text-center bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+        <DialogContent className="sm:max-w-lg bg-black/95 backdrop-blur-xl border border-[#ff0066]/30 shadow-2xl shadow-[#ff0066]/20 rounded-2xl">
+          <DialogHeader className="pb-6 border-b border-gray-800/50">
+            <DialogTitle className="text-white text-2xl font-bold text-center bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
               Connect your wallet
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-6 pt-4">
             {/* Primary Wallet Options */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {walletOptions.map((wallet) => (
-                <Button
+                <button
                   key={wallet.id}
                   onClick={wallet.action}
-                  variant="ghost"
-                  className="w-full justify-start p-4 h-auto border border-gray-700/50 bg-gradient-to-r from-gray-900/50 to-gray-800/50 hover:from-[#ff0066]/10 hover:to-purple-600/10 hover:border-[#ff0066]/30 transition-all duration-300 group"
+                  className="w-full p-5 border border-gray-700/30 bg-gradient-to-r from-gray-900/80 to-gray-800/60 hover:from-[#ff0066]/20 hover:to-purple-600/20 hover:border-[#ff0066]/50 transition-all duration-300 group rounded-xl backdrop-blur-sm"
                 >
                   <div className="flex items-center space-x-4 w-full">
-                    <span className="text-3xl">{wallet.icon}</span>
+                    <div className="text-4xl">{wallet.icon}</div>
                     <div className="flex-1 text-left">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-white font-semibold group-hover:text-white transition-colors">{wallet.name}</span>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-white font-bold text-lg group-hover:text-white transition-colors">{wallet.name}</span>
                         {wallet.recommended && (
-                          <Badge className="bg-[#ff0066]/30 text-[#ff0066] border-[#ff0066]/40 text-xs px-2 py-0.5 font-medium">
+                          <div className="bg-[#ff0066]/30 text-[#ff0066] border border-[#ff0066]/40 text-xs px-3 py-1 rounded-full font-semibold">
                             Recommended
-                          </Badge>
+                          </div>
                         )}
                       </div>
-                      <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">{wallet.description}</p>
+                      <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors leading-relaxed">{wallet.description}</p>
                     </div>
-                    <div className="bg-gray-800/50 p-2 rounded-lg group-hover:bg-[#ff0066]/20 transition-colors">
-                      {isMobile ? <Smartphone className="h-4 w-4 text-gray-400 group-hover:text-[#ff0066]" /> : <Monitor className="h-4 w-4 text-gray-400 group-hover:text-[#ff0066]" />}
+                    <div className="bg-gray-800/50 p-3 rounded-xl group-hover:bg-[#ff0066]/30 transition-all duration-300">
+                      {isMobile ? <Smartphone className="h-5 w-5 text-gray-400 group-hover:text-white" /> : <Monitor className="h-5 w-5 text-gray-400 group-hover:text-white" />}
                     </div>
                   </div>
-                </Button>
+                </button>
               ))}
             </div>
 
             {/* Mobile Direct Links */}
             {isMobile && (
-              <div className="pt-4 border-t border-gray-700/50">
-                <p className="text-gray-400 text-sm text-center mb-4 font-medium">
+              <div className="pt-6 border-t border-gray-700/30">
+                <p className="text-gray-400 text-base text-center mb-6 font-medium">
                   Or open directly in your wallet app:
                 </p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-4">
                   {mobileWalletLinks.map((wallet) => (
-                    <Button
+                    <button
                       key={wallet.name}
                       onClick={wallet.action}
-                      variant="ghost"
-                      size="sm"
-                      className="flex flex-col items-center p-4 h-auto bg-gradient-to-b from-gray-800/50 to-gray-900/50 hover:from-[#ff0066]/20 hover:to-purple-600/20 border border-gray-700/50 hover:border-[#ff0066]/30 transition-all duration-300 group"
+                      className="flex flex-col items-center p-5 h-auto bg-gradient-to-b from-gray-800/60 to-gray-900/60 hover:from-[#ff0066]/20 hover:to-purple-600/20 border border-gray-700/30 hover:border-[#ff0066]/40 transition-all duration-300 group rounded-xl backdrop-blur-sm"
                     >
-                      <span className="text-2xl mb-2">{wallet.icon}</span>
-                      <span className="text-xs text-gray-300 group-hover:text-white font-medium">{wallet.name.split(' ')[0]}</span>
-                    </Button>
+                      <span className="text-3xl mb-3">{wallet.icon}</span>
+                      <span className="text-sm text-gray-300 group-hover:text-white font-semibold">{wallet.name.split(' ')[0]}</span>
+                    </button>
                   ))}
                 </div>
               </div>

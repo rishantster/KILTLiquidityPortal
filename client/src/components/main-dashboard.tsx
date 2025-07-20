@@ -478,33 +478,21 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="flex justify-center gap-6 bg-transparent mb-8 h-auto p-0">
-            <TabsTrigger 
-              value="overview" 
-              className="clean-nav-tab"
-            >
-              <TrendingUp className="h-4 w-4" />
+          <TabsList className="flex justify-center gap-4 bg-transparent mb-8 h-auto p-0">
+            <TabsTrigger value="overview" className="simple-tab">
+              <TrendingUp />
               <span>Overview</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="liquidity" 
-              className="clean-nav-tab"
-            >
-              <Plus className="h-4 w-4" />
+            <TabsTrigger value="liquidity" className="simple-tab">
+              <Plus />
               <span>Add Liquidity</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="rewards" 
-              className="clean-nav-tab"
-            >
-              <Award className="h-4 w-4" />
+            <TabsTrigger value="rewards" className="simple-tab">
+              <Award />
               <span>Rewards</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="positions" 
-              className="clean-nav-tab"
-            >
-              <Wallet className="h-4 w-4" />
+            <TabsTrigger value="positions" className="simple-tab">
+              <Wallet />
               <span>Positions</span>
             </TabsTrigger>
           </TabsList>

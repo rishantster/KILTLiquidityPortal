@@ -24,6 +24,20 @@ export function LandingPage() {
     }
   }, [legacyConnected, isThirdwebConnected, setLocation]);
 
+  // Listen for Thirdweb wallet connection events
+  useEffect(() => {
+    const handleThirdwebConnection = (event: CustomEvent) => {
+      console.log('Received Thirdweb connection event, navigating to dashboard');
+      setLocation('/dashboard');
+    };
+
+    window.addEventListener('thirdweb-wallet-connected', handleThirdwebConnection as EventListener);
+    
+    return () => {
+      window.removeEventListener('thirdweb-wallet-connected', handleThirdwebConnection as EventListener);
+    };
+  }, [setLocation]);
+
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
       {/* Background Video */}

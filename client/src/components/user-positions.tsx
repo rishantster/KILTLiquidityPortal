@@ -669,7 +669,7 @@ export function UserPositions() {
                             <div className="text-white font-bold" style={{
                               color: '#ffffff',
                               textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
-                            }}>{(position.fee / 10000).toFixed(2)}%</div>
+                            }}>{(position.feeTier / 10000).toFixed(2)}%</div>
                           </div>
                           <div>
                             <div className="text-white font-bold mb-1" style={{

@@ -370,27 +370,68 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         description: "Please approve the connection in MetaMask",
       });
       
-      // Request account access with timeout (Reown best practice: handle timeouts)
-      const connectPromise = (window as any).ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout - please try again')), 30000)
-      );
-      
-      const accounts = await Promise.race([connectPromise, timeoutPromise]);
+      // Force MetaMask to show account selector to get the currently selected account
+      // This ensures we always connect to the account the user actually wants
+      let accounts;
+      try {
+        // Try to request fresh permissions first (this shows account selector)
+        await (window as any).ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }]
+        });
+        
+        // Now get the freshly selected accounts
+        const connectPromise = (window as any).ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+        
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Connection timeout - please try again')), 30000)
+        );
+        
+        accounts = await Promise.race([connectPromise, timeoutPromise]);
+      } catch (permissionError) {
+        // If permission request fails, fall back to regular request
+        console.log('WALLET CONTEXT: Permission request failed, using fallback', permissionError);
+        
+        const connectPromise = (window as any).ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+        
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Connection timeout - please try again')), 30000)
+        );
+        
+        accounts = await Promise.race([connectPromise, timeoutPromise]);
+      }
 
       if (accounts && accounts.length > 0) {
-        const connectedAddress = accounts[0];
+        const connectedAddress = accounts[0]; // This is the currently selected/active account
         
         console.log('WALLET CONTEXT: Manual connect to fresh address', {
           connectedAddress,
-          previousAddress: address
+          previousAddress: address,
+          allAccounts: accounts
         });
         
-        // Clear all cache when connecting (fresh start)
-        queryClient.clear();
+        // Check if this is a different address than what we had before
+        if (address && address !== connectedAddress) {
+          console.log('WALLET CONTEXT: Address change detected during connect', {
+            oldAddress: address,
+            newAddress: connectedAddress
+          });
+          
+          // Clear cache for address change
+          queryClient.clear();
+          
+          toast({
+            title: "Account Changed",
+            description: `Switched from ${address.slice(0, 6)}...${address.slice(-4)} to ${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)}`,
+          });
+        } else if (!address) {
+          // First time connection
+          queryClient.clear();
+        }
         
         setAddress(connectedAddress);
         setIsConnected(true);

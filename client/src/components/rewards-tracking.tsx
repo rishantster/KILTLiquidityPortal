@@ -185,7 +185,7 @@ export function RewardsTracking() {
               <h3 className="text-super-bright font-medium text-sm">Total Earned</h3>
               <Award className="h-4 w-4 text-matrix-green" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-matrix-bright flex items-center gap-2 mb-1">
+            <div className="text-lg text-matrix-bright flex items-center gap-2 mb-1 numeric-large">
               {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
               <img 
                 src={kiltLogo} 
@@ -231,7 +231,7 @@ export function RewardsTracking() {
               <h3 className="text-white font-medium text-sm">Daily Rate</h3>
               <TrendingUp className="h-4 w-4 text-indigo-400" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-white mb-1">
+            <div className="text-lg text-white mb-1 numeric-large">
               {rewardStats?.avgDailyRewards?.toFixed(3) || '0.000'}
             </div>
             <div className="text-xs text-white/60 mb-1">
@@ -249,7 +249,7 @@ export function RewardsTracking() {
               <h3 className="text-white font-medium text-sm">Claimed</h3>
               <CheckCircle className="h-4 w-4 text-violet-400" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-white mb-1">
+            <div className="text-lg text-white mb-1 numeric-large">
               {rewardStats?.totalClaimed?.toFixed(2) || '0.00'}
             </div>
             <div className="text-xs text-white/60 mb-1">
@@ -276,7 +276,7 @@ export function RewardsTracking() {
               <div className="text-white/60 text-xs mb-1 font-medium">
                 {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
               </div>
-              <div className="text-white text-xl font-bold tabular-nums mb-2 flex items-center justify-center gap-2">
+              <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
                 {totalClaimableAmount.toFixed(2)} 
                 <img 
                   src={kiltLogo} 
@@ -374,17 +374,17 @@ export function RewardsTracking() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="text-center p-2 rounded bg-[#000000]" style={{ borderColor: 'rgba(255, 0, 102, 0.2)' }}>
                   <div className="text-xs mb-1" style={{ color: '#ff0066' }}>Total Liquidity</div>
-                  <div className="text-sm font-bold text-white">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
+                  <div className="text-sm text-white numeric-display">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
                 </div>
                 <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
                   <div className="text-purple-400 text-xs mb-1">Active Users</div>
-                  <div className="text-sm font-bold text-white">{programAnalytics?.activeParticipants || 0}</div>
+                  <div className="text-sm text-white numeric-display">{programAnalytics?.activeParticipants || 0}</div>
                 </div>
               </div>
               
               <div className="text-center p-2 bg-matrix-green-glow rounded border border-matrix-green">
                 <div className="text-matrix-green text-xs mb-1">Program APR</div>
-                <div className="text-sm font-bold text-matrix-green">{maxAPRData?.maxAPR || 171}%</div>
+                <div className="text-sm text-matrix-green numeric-display">{maxAPRData?.maxAPR || 171}%</div>
               </div>
               
               <div className="space-y-2">
@@ -413,7 +413,7 @@ export function RewardsTracking() {
             <div className="space-y-3">
               <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
                 <div className="text-purple-400 text-xs mb-1">Program Budget</div>
-                <div className="text-sm font-bold text-white flex items-center justify-center gap-2">
+                <div className="text-sm text-white flex items-center justify-center gap-2 numeric-display">
                   {programAnalytics?.totalBudget ? ((programAnalytics.totalBudget / 1000000).toFixed(1) + 'M') : '...'} <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
                 </div>
               </div>

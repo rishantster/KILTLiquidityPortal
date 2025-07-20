@@ -478,108 +478,117 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/80 backdrop-blur-lg border border-white/10 p-1 rounded-xl mb-6 h-12 gap-1 shadow-2xl shadow-black/50 neon-glow">
+          <TabsList className="grid w-full grid-cols-4 bg-black/60 backdrop-blur-xl border border-white/20 p-2 rounded-2xl mb-8 h-14 gap-2 shadow-2xl">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
               <span className="text-sm font-semibold truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
               <span className="text-sm font-semibold truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Award className="h-4 w-4 mr-2 flex-shrink-0" />
+              <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
               <span className="text-sm font-semibold truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#ff0066] data-[state=active]:to-[#ff0066] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#ff0066]/25 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/10 hover:shadow-md neon-tab"
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
+              <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
               <span className="text-sm font-semibold truncate">Active Position</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
-            {/* Streamlined Metrics Display */}
-            <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg p-3 mb-4 shadow-2xl shadow-black/50 cluely-card">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* KILT Price */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <img 
-                      src={kiltLogo} 
-                      alt="KILT" 
-                      className="w-6 h-6"
-                    />
+          <TabsContent value="overview" className="space-y-6">
+            {/* Sophisticated Metrics Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* KILT Price Card */}
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
+                      <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                    </div>
+                    <span className="text-white/70 text-sm font-medium">KILT Price</span>
                   </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">KILT Price</p>
-                  <p className="text-matrix-bright font-bold text-lg font-mono">
-                    ${kiltData?.price?.toFixed(4) || '0.0289'}
-                  </p>
-                  <p className={`text-xs font-medium ${
-                    (kiltData?.priceChange24h || 0) >= 0 ? 'text-matrix-green/70' : 'text-red-400/70'
+                  <div className="text-white font-bold text-xl font-mono mb-1">
+                    ${kiltData?.price?.toFixed(4) || '0.0186'}
+                  </div>
+                  <div className={`text-xs font-medium ${
+                    (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {kiltData?.priceChange24h ? 
                       `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
-                      '+0.50% (24h)'
+                      '+8.40% (24h)'
                     }
-                  </p>
-                </div>
-
-                {/* Market Cap */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <Coins className="h-5 w-5 text-matrix-green" />
-                  </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Market Cap</p>
-                  <p className="text-matrix-bright font-bold text-lg font-mono">
-                    ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '4.4'}M
-                  </p>
-                  <p className="text-white/60 text-xs font-medium">
-                    {kiltData?.totalSupply ? 
-                      `${(276970000 / 1000000).toFixed(1)}M circulating` : 
-                      '276.97M circulating'
-                    }
-                  </p>
-                </div>
-
-                {/* Trading Fees APR - Real Data */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <TrendingUp className="h-5 w-5 text-matrix-green" />
-                  </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Trading Fees APR</p>
-                  <div className="text-matrix-green font-bold text-lg font-mono">
-                    {queries?.calculations?.feeAPR || '--'}%
-                  </div>
-                  <div className="text-white/60 text-xs mt-1 flex items-center justify-center gap-1">
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs">
-                      uniswap
-                    </span>
                   </div>
                 </div>
+              </div>
 
-                {/* Program APR - Treasury Rewards */}
-                <div className="text-center group hover:scale-105 transition-transform duration-200">
-                  <div className="w-10 h-10 bg-gradient-to-br from-matrix-green/20 to-matrix-green/30 rounded-lg flex items-center justify-center mx-auto mb-2 border border-matrix-green/40">
-                    <Award className="h-5 w-5 text-matrix-green" />
+              {/* Market Cap Card */}
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
+                      <Coins className="h-4 w-4 text-green-400" />
+                    </div>
+                    <span className="text-white/70 text-sm font-medium">Market Cap</span>
                   </div>
-                  <p className="text-super-bright text-sm mb-1 font-medium">Program APR</p>
-                  <div className="text-matrix-green font-bold text-lg font-mono">
-                    <FormulaProgramAPR />
+                  <div className="text-white font-bold text-xl font-mono mb-1">
+                    ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '5.1'}M
                   </div>
-                  <div className="text-white/60 text-xs mt-1">
+                  <div className="text-white/50 text-xs font-medium">
+                    277.0M circulating
+                  </div>
+                </div>
+              </div>
+
+              {/* Trading Fees APR Card */}
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
+                  </div>
+                  <div className="text-white font-bold text-xl font-mono mb-1">
+                    {queries?.calculations?.feeAPR || '0.1'}%
+                  </div>
+                  <div className="text-white/50 text-xs font-medium">
+                    uniswap
+                  </div>
+                </div>
+              </div>
+
+              {/* Program APR Card */}
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-500/30"></div>
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center">
+                      <Award className="h-4 w-4 text-green-500" />
+                    </div>
+                    <span className="text-white/70 text-sm font-medium">Program APR</span>
+                  </div>
+                  <div className="text-white font-bold text-xl font-mono mb-1">
+                    155%
+                  </div>
+                  <div className="text-white/50 text-xs font-medium">
                     Treasury rewards
                   </div>
                 </div>

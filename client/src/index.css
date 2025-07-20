@@ -723,7 +723,113 @@ a:hover {
 .enhanced-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(255, 0, 102, 0.35);
-  filter: brightness(1.1);
+}
+
+/* ===== SOPHISTICATED CYBERPUNK ENHANCEMENTS ===== */
+
+/* Subtle glow animations for metrics cards */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes gentle-glow {
+  0%, 100% { 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  50% { 
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.metric-card-glow {
+  animation: gentle-glow 4s ease-in-out infinite;
+}
+
+/* Enhanced glassmorphism with better contrast */
+.glass-enhanced {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-enhanced:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Smooth tab transitions */
+.tab-elegant {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-elegant::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.tab-elegant:hover::before {
+  left: 100%;
+}
+
+/* Refined color gradients */
+.gradient-pink-subtle {
+  background: linear-gradient(135deg, rgba(255, 0, 102, 0.1) 0%, rgba(255, 0, 102, 0.05) 100%);
+}
+
+.gradient-green-subtle {
+  background: linear-gradient(135deg, rgba(0, 255, 102, 0.1) 0%, rgba(0, 255, 102, 0.05) 100%);
+}
+
+.gradient-blue-subtle {
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 102, 255, 0.05) 100%);
+}
+
+.gradient-emerald-subtle {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+}
+
+/* Typography enhancements */
+.cyber-text-glow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.cyber-text-accent {
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Icon hover effects */
+.icon-hover-accent {
+  transition: color 0.3s ease;
+}
+
+.icon-hover-accent:hover {
+  color: #ff0066 !important;
+}
+
+/* Card elevation system */
+.card-level-1 {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-level-2 {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-level-3 {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 /* Enhanced Typography Classes */

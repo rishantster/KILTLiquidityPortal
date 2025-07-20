@@ -145,6 +145,19 @@ export function CyberpunkAdminPanel() {
   });
 
   const handleSaveTreasury = () => {
+    console.log('Current treasury config state:', treasuryConfig);
+    
+    // Validate required fields on frontend
+    if (!treasuryConfig.treasuryWalletAddress || treasuryConfig.treasuryWalletAddress.trim() === '') {
+      toast({
+        title: "[VALIDATION_ERROR]",
+        description: "Treasury wallet address is required",
+        variant: "destructive",
+        className: "bg-red-900/90 border-red-400 text-red-100",
+      });
+      return;
+    }
+    
     treasuryMutation.mutate(treasuryConfig);
   };
 
@@ -271,10 +284,13 @@ export function CyberpunkAdminPanel() {
                     <input
                       type="text"
                       value={treasuryConfig.treasuryWalletAddress || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        treasuryWalletAddress: e.target.value
-                      })}
+                      onChange={(e) => {
+                        console.log('Treasury wallet address changed:', e.target.value);
+                        setTreasuryConfig({
+                          ...treasuryConfig,
+                          treasuryWalletAddress: e.target.value
+                        });
+                      }}
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
                       placeholder="0x1234...abcd (complete wallet address required)"
                     />

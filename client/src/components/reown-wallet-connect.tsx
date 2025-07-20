@@ -111,27 +111,22 @@ export function ReownWalletConnect() {
 
   if (isConnected) {
     return (
-      <div className="flex flex-col gap-3">
-        
-
-        {/* Connected Wallet Info */}
-        <div className="p-3 bg-emerald-500/5 backdrop-blur-sm rounded-lg border border-emerald-500/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-medium text-emerald-400">Connected</div>
-              <div className="text-xs text-gray-400 font-mono">
-                {address?.slice(0, 6)}...{address?.slice(-4)}
-              </div>
+      <div className="p-3 bg-emerald-500/5 backdrop-blur-sm rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-medium text-emerald-400">Connected</div>
+            <div className="text-xs text-gray-400 font-mono">
+              {address?.slice(0, 6)}...{address?.slice(-4)}
             </div>
-            <Button
-              onClick={disconnect}
-              variant="outline"
-              size="sm"
-              className="border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10"
-            >
-              Disconnect
-            </Button>
           </div>
+          <Button
+            onClick={disconnect}
+            variant="outline"
+            size="sm"
+            className="border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10"
+          >
+            Disconnect
+          </Button>
         </div>
       </div>
     );

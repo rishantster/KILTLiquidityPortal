@@ -84,6 +84,13 @@ export function ReownWalletConnect() {
   };
 
   const handleMobileConnect = (wallet: MobileWallet) => {
+    // WalletConnect uses the standard connect flow, not deep links
+    if (wallet.name === 'WalletConnect') {
+      connect();
+      return;
+    }
+    
+    // Handle other wallets with deep links
     const currentUrl = window.location.href;
     const encodedUrl = encodeURIComponent(currentUrl);
     

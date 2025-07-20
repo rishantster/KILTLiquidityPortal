@@ -678,9 +678,16 @@ export function LiquidityMint({
                         size="sm"
                         onClick={() => {
                           const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
-                          window.open(swapUrl, '_blank');
+                          // Mobile-optimized: Check if we're on mobile and use appropriate opening method
+                          if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                            // Mobile: Open in same tab to avoid popup blockers
+                            window.location.href = swapUrl;
+                          } else {
+                            // Desktop: Open in new tab
+                            window.open(swapUrl, '_blank');
+                          }
                         }}
-                        className="text-[#ff0066] hover:text-white hover:bg-[#ff0066] border-[#ff0066]/50 hover:border-[#ff0066] px-2 py-1 font-semibold text-xs h-6 transition-all duration-200"
+                        className="text-[#ff0066] hover:text-white hover:bg-[#ff0066] border-[#ff0066]/50 hover:border-[#ff0066] px-2 py-1 font-semibold text-xs h-6 transition-all duration-200 touch-manipulation"
                       >
                         Buy KILT
                       </Button>
@@ -690,11 +697,11 @@ export function LiquidityMint({
                   {!hasKiltBalance && (
                     <div className="mt-2 p-2 bg-amber-900/20 border border-amber-500/30 rounded-lg">
                       <div className="flex items-center gap-2 text-amber-400 text-xs">
-                        <AlertCircle className="h-3 w-3" />
-                        <span>You need KILT tokens to provide liquidity</span>
+                        <AlertCircle className="h-3 w-3 flex-shrink-0" />
+                        <span className="leading-tight">You need KILT tokens to provide liquidity</span>
                       </div>
-                      <p className="text-amber-300/80 text-xs mt-1">
-                        Click "Buy KILT" to swap ETH for KILT on Uniswap
+                      <p className="text-amber-300/80 text-xs mt-1 leading-tight">
+                        Tap "Buy KILT" to swap ETH for KILT on Uniswap
                       </p>
                     </div>
                   )}

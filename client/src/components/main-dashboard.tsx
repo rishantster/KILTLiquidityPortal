@@ -478,33 +478,33 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/60 backdrop-blur-xl border border-white/20 p-2 rounded-2xl mb-8 h-14 gap-2 shadow-2xl">
+          <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 mb-8 h-auto gap-3">
             <TabsTrigger 
               value="overview" 
-              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="cyber-tab-clean"
             >
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="cyber-tab-clean"
             >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="cyber-tab-clean"
             >
-              <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <Award className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="cyber-tab-clean"
             >
-              <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-sm font-semibold truncate">Active Position</span>
             </TabsTrigger>
           </TabsList>

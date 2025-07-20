@@ -79,10 +79,24 @@ export function CyberpunkAdminPanel() {
       });
     },
     onSuccess: (data) => {
+      // Invalidate ALL queries that depend on treasury configuration for blazing fast updates
       queryClient.invalidateQueries({ queryKey: ['/api/admin/treasury/config'] });
+      queryClient.invalidateQueries({ queryKey: ['maxAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['programAnalytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/maximum-apr'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/program-analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['personalAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['rewardStats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/user-apr'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/trading-fees/pool-apr'] });
+      
+      // Force refetch of all cached data for instant main app updates
+      queryClient.refetchQueries({ queryKey: ['maxAPR'] });
+      queryClient.refetchQueries({ queryKey: ['programAnalytics'] });
+      
       toast({
         title: "[TREASURY_UPDATE_SUCCESS]",
-        description: "Treasury configuration updated successfully",
+        description: "Treasury configuration updated successfully - Main app updated instantly",
         className: "bg-green-900/90 border-green-400 text-green-100",
       });
     },
@@ -104,10 +118,23 @@ export function CyberpunkAdminPanel() {
         data: settings
       }),
     onSuccess: (data) => {
+      // Invalidate ALL queries that depend on program settings for blazing fast updates
       queryClient.invalidateQueries({ queryKey: ['/api/admin/program/settings'] });
+      queryClient.invalidateQueries({ queryKey: ['maxAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['programAnalytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/maximum-apr'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/program-analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['personalAPR'] });
+      queryClient.invalidateQueries({ queryKey: ['rewardStats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/user-apr'] });
+      
+      // Force refetch of all cached data for instant main app updates
+      queryClient.refetchQueries({ queryKey: ['maxAPR'] });
+      queryClient.refetchQueries({ queryKey: ['programAnalytics'] });
+      
       toast({
         title: "[PROGRAM_SETTINGS_SUCCESS]",
-        description: "Program parameters updated successfully",
+        description: "Program parameters updated successfully - Main app updated instantly",
         className: "bg-green-900/90 border-green-400 text-green-100",
       });
     },

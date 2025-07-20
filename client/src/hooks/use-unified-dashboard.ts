@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useWallet } from '@/contexts/wallet-context';
 import { useUniswapV3 } from './use-uniswap-v3';
 import { useKiltTokenData } from './use-kilt-data';
+import { useAdminSync } from './use-admin-sync';
 
 /**
  * Unified dashboard hook that provides interconnected data across all components
@@ -11,6 +12,8 @@ export function useUnifiedDashboard() {
   const { address, isConnected } = useWallet();
   const { kiltEthPositions, poolData, kiltBalance, wethBalance, ethBalance, isLoading: uniswapLoading } = useUniswapV3();
   
+  // Enable blazing fast admin synchronization
+  useAdminSync();
 
   const { data: kiltData } = useKiltTokenData();
 
@@ -106,9 +109,10 @@ export function useUnifiedDashboard() {
         throw new Error('APR calculation failed - admin configuration required');
       }
     },
-    refetchInterval: 10000, // Refresh every 10 seconds for admin changes
-    staleTime: 5000, // Consider data stale after 5 seconds
-    refetchOnWindowFocus: true // Refetch when window gains focus
+    refetchInterval: 3000, // Blazing fast refresh every 3 seconds for admin changes
+    staleTime: 1000, // Consider data stale after 1 second for instant updates
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: true // Always refetch on component mount
   });
 
   // Get program analytics with proper error handling
@@ -127,9 +131,10 @@ export function useUnifiedDashboard() {
       }
     },
     enabled: !!maxAPRData,
-    refetchInterval: 10000, // Refresh every 10 seconds for admin changes
-    staleTime: 5000, // Consider data stale after 5 seconds
-    refetchOnWindowFocus: true // Refetch when window gains focus
+    refetchInterval: 3000, // Blazing fast refresh every 3 seconds for admin changes
+    staleTime: 1000, // Consider data stale after 1 second for instant updates
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: true // Always refetch on component mount
   });
 
   // Get user analytics dashboard

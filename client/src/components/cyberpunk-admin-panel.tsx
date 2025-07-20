@@ -65,7 +65,7 @@ export function CyberpunkAdminPanel() {
         ...derivedValues
       };
       
-      console.log('Sending treasury config:', configWithCalculations);
+
       
       return apiRequest('/api/admin/treasury/config', {
         method: 'POST',
@@ -145,7 +145,7 @@ export function CyberpunkAdminPanel() {
   });
 
   const handleSaveTreasury = () => {
-    console.log('Current treasury config state:', treasuryConfig);
+
     
     // Validate required fields on frontend
     if (!treasuryConfig.treasuryWalletAddress || treasuryConfig.treasuryWalletAddress.trim() === '') {
@@ -285,7 +285,7 @@ export function CyberpunkAdminPanel() {
                       type="text"
                       value={treasuryConfig.treasuryWalletAddress || ''}
                       onChange={(e) => {
-                        console.log('Treasury wallet address changed:', e.target.value);
+
                         setTreasuryConfig({
                           ...treasuryConfig,
                           treasuryWalletAddress: e.target.value

@@ -198,6 +198,8 @@ Suggested domain: liq.kilt.io (for liquid theme portal)
 
 **CURRENT SESSION FIXES:** July 20, 2025 - **AUTOMATIC CALCULATION SYSTEM PERFECTED**: Successfully implemented complete automatic calculation system in admin panel treasury configuration. Program end date now auto-calculates from start date + duration days, daily rewards cap auto-calculates from total allocation ÷ duration days. Removed unnecessary annual rewards budget field from schema and admin panel. Enhanced validation with detailed error messages and improved date handling. Admin panel now displays calculated values as read-only fields with clear formula explanations (16666.67 KILT/day = 1,500,000 ÷ 90 days). System provides streamlined treasury management with essential fields only and automatic derived value computation for enhanced user experience and data consistency.
 
+**TREASURY CONFIGURATION SUCCESS:** July 20, 2025 - **COMPLETE TREASURY SETUP WORKING**: Successfully saved first treasury configuration with 1,500,000 KILT allocation, 90-day duration, auto-calculated 16,666.67 KILT/day rewards cap, and program dates from July 21 to October 19, 2025. Fixed all form state management issues, API request formatting, and backend validation. Treasury wallet address (0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e) properly saved. Admin panel automatic calculations functioning perfectly with real-time formula display and seamless data persistence.
+
 Changelog:
 - July 05, 2025. Initial setup
 - July 05, 2025. Updated with real KILT token data (0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8, 290.56M supply)

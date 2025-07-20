@@ -1914,7 +1914,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.post("/api/admin/treasury/config", async (req, res) => {
     try {
       const config = req.body;
-      console.log('Received treasury config:', JSON.stringify(config, null, 2));
+
       
       // Validate required fields - check for valid values
       const validationErrors = [];

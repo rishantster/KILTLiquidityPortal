@@ -32,7 +32,11 @@ export function ThirdwebWalletConnect() {
       theme="dark"
       onConnect={(wallet) => {
         console.log('Wallet connected via Thirdweb, navigating to dashboard');
+        // Use multiple navigation methods to ensure it works
         setLocation('/dashboard');
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 100);
       }}
       connectModal={{
         size: "wide",

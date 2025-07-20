@@ -480,15 +480,16 @@ export class FixedRewardService {
     try {
       // Get actual pool TVL from Uniswap V3 integration
       const { uniswapIntegrationService } = await import('./uniswap-integration-service');
-      const { blockchainConfigService } = await import('./blockchain-config-service');
       
-      const poolAddress = await blockchainConfigService.getPoolAddress();
-      const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
+      // Use the direct pool address instead of blockchain config service
+      const KILT_ETH_POOL_ADDRESS = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
+      const poolData = await uniswapIntegrationService.getPoolData(KILT_ETH_POOL_ADDRESS);
       currentPoolTVL = poolData.tvlUSD || 0;
       
       // Get actual position data from database (ONLY app-registered positions are reward-eligible)
       // Note: This excludes direct Uniswap positions that haven't registered on our app
       const activePositions = await this.getAllActiveParticipants();
+      
       if (activePositions.length > 0) {
         const totalPositionValue = activePositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUSD || '0'), 0);
         averagePositionValue = totalPositionValue / activePositions.length;
@@ -496,16 +497,15 @@ export class FixedRewardService {
         actualLiquidityShare = averagePositionValue / Math.max(currentPoolTVL, totalPositionValue);
       }
     } catch (error) {
-      // Production-grade error handling - use fallback scenarios
+      // Continue with fallback values if real data unavailable
     }
     
-    // Use real data if available, otherwise use realistic initial launch scenarios
-    const poolTVL = currentPoolTVL > 0 ? currentPoolTVL : 20000; // Fallback to $20K initial launch
-    const typicalPositionValue = averagePositionValue > 0 ? averagePositionValue : 100; // Fallback to $100 initial positions
+    // Use real data if available, otherwise use realistic DeFi scenarios
+    const poolTVL = currentPoolTVL > 0 ? currentPoolTVL : 500000; // Realistic $500K pool for DeFi
+    const typicalPositionValue = averagePositionValue > 0 ? averagePositionValue : 2000; // Realistic $2K position size
     const liquidityShare = actualLiquidityShare > 0 ? actualLiquidityShare : (typicalPositionValue / poolTVL);
     
-    // APR Calculation Data Sources logged
-    
+    // Debug APR calculation with admin values
     // Calculate APR for full range positions using REAL data (gets FRB bonus)
     // Using new formula: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
     const fullRangeDays = 30;

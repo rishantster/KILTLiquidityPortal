@@ -4,6 +4,7 @@
  */
 
 import { kiltPriceService } from './kilt-price-service.js';
+import { db } from './db';
 
 interface RealisticAPRResult {
   tradingFeesAPR: number;
@@ -38,8 +39,10 @@ class RealisticAPRService {
       // Get current KILT price
       const kiltPrice = await kiltPriceService.getCurrentPrice();
       
-      // Realistic DeFi program parameters
-      const ANNUAL_TREASURY_BUDGET_KILT = 500000; // 500K KILT tokens for the year
+      // Get treasury budget from admin configuration (single source of truth)
+      const { treasuryConfig } = await import('../shared/schema');
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const ANNUAL_TREASURY_BUDGET_KILT = treasuryConf ? parseFloat(treasuryConf.totalAllocation) : 1500000;
       const ANNUAL_BUDGET_USD = ANNUAL_TREASURY_BUDGET_KILT * kiltPrice;
       const DAILY_BUDGET_USD = ANNUAL_BUDGET_USD / 365;
       

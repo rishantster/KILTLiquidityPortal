@@ -478,24 +478,14 @@ export class FixedRewardService {
     
     const currentPoolTVL = poolData.tvlUSD;
     
-    // Get actual position data from database (ONLY app-registered positions are reward-eligible)
-    const activePositions = await this.getAllActiveParticipants();
-    
-    if (activePositions.length === 0) {
-      throw new Error('No active positions found for APR calculation - real user data required');
-    }
-    
-    const totalPositionValue = activePositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUSD || '0'), 0);
-    const averagePositionValue = totalPositionValue / activePositions.length;
-    
-    if (averagePositionValue <= 0) {
-      throw new Error('Invalid position values - real position data required for APR calculation');
-    }
-    
-    // Calculate share based on app-registered positions only (not all pool liquidity)
-    const liquidityShare = averagePositionValue / Math.max(currentPoolTVL, totalPositionValue);
+    // For landing page APR calculation, use hypothetical values instead of real user positions
+    // This shows what users could potentially earn, not what current users are earning
+    const HYPOTHETICAL_POSITION_VALUE = 2000; // Typical $2K position for new users
     const poolTVL = currentPoolTVL;
-    const typicalPositionValue = averagePositionValue;
+    const typicalPositionValue = HYPOTHETICAL_POSITION_VALUE;
+    
+    // Calculate share based on hypothetical position in real pool TVL
+    const liquidityShare = HYPOTHETICAL_POSITION_VALUE / poolTVL;
     
     // Debug APR calculation with admin values
     // Calculate APR for full range positions using REAL data (gets FRB bonus)
@@ -533,17 +523,17 @@ export class FixedRewardService {
       scenario: "Early participant opportunity",
       formula: "R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)",
       assumptions: [
-        `Position: $${typicalPositionValue.toLocaleString()} in $${poolTVL.toLocaleString()} pool (${(liquidityShare * 100).toFixed(1)}% share)`,
-        `Data Source: ${currentPoolTVL > 0 ? 'Real Uniswap V3 pool data' : 'Estimated initial launch scenario'}`,
-        `Reward Eligibility: Only app-registered positions (not all Uniswap positions)`,
+        `Example: $${typicalPositionValue.toLocaleString()} position in $${poolTVL.toLocaleString()} pool (${(liquidityShare * 100).toFixed(1)}% share)`,
+        `Calculation: Hypothetical position for potential new users`,
+        `Pool Data: Real Uniswap V3 TVL + Admin treasury configuration`,
         `Full Range Bonus: ${fullRangeBonusCoeff}x (${Math.round((fullRangeBonusCoeff - 1) * 100)}% boost for balanced 50/50 liquidity)`,
         `Concentrated positions: ${Math.round(finalConcentratedAPR)}% APR (no FRB bonus)`,
         `Time commitment: ${fullRangeDays}+ days for maximum rewards`,
-        "Always in-range (IRM = 1.0)",
-        `Current KILT price ($${kiltPrice})`,
+        "Always in-range assumption (IRM = 1.0)",
+        `Current KILT price: $${kiltPrice}`,
         "Encourages balanced liquidity provision",
         `Treasury allocation: ${totalAllocation.toLocaleString()} KILT over ${programDuration} days`,
-        `Daily budget: ${dailyBudget.toFixed(2)} KILT (dynamically adjusted)`
+        `Daily budget: ${dailyBudget.toFixed(2)} KILT (from admin configuration)`
       ]
     };
   }

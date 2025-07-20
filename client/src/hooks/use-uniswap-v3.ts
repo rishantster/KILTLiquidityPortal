@@ -5,6 +5,13 @@ import { createPublicClient, createWalletClient, custom, http, formatUnits, pars
 import { base } from 'viem/chains';
 import { useQuery } from '@tanstack/react-query';
 
+// Extend window interface for ethereum provider
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 // ERC20 ABI for token operations
 const ERC20_ABI = [
   {
@@ -151,6 +158,12 @@ function useBlockchainConfig() {
 export function useUniswapV3() {
   const { address, isConnected } = useWallet();
   const { toast } = useToast();
+
+  // Create wallet client for transactions
+  const walletClient = address ? createWalletClient({
+    chain: base,
+    transport: custom((window as any).ethereum)
+  }) : null;
   
   // Get blockchain configuration from admin panel - MUST be called unconditionally
   const { data: blockchainConfig, isLoading: isConfigLoading } = useBlockchainConfig();
@@ -182,10 +195,14 @@ export function useUniswapV3() {
     staleTime: 60000, // Consider stale after 1 minute
   });
 
-  // Token addresses from admin panel configuration
-  const KILT_TOKEN = blockchainConfig?.kiltTokenAddress || '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
-  const WETH_TOKEN = blockchainConfig?.wethTokenAddress || '0x4200000000000000000000000000000000000006';
-  const POOL_ADDRESS = blockchainConfig?.poolAddress;
+  // Token addresses from admin panel configuration with proper fallbacks
+  const blockchainData = Array.isArray(blockchainConfig) ? blockchainConfig : [];
+  const kiltTokenConfig = blockchainData.find(config => config.configKey === 'KILT_TOKEN_ADDRESS');
+  const poolConfig = blockchainData.find(config => config.configKey === 'KILT_ETH_POOL_ADDRESS');
+  
+  const KILT_TOKEN = kiltTokenConfig?.configValue || '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
+  const WETH_TOKEN = '0x4200000000000000000000000000000000000006'; // Base WETH is standard
+  const POOL_ADDRESS = poolConfig?.configValue || '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
 
   // Real blockchain balance fetching with proper error handling
   const fetchRealBalances = async () => {
@@ -602,7 +619,7 @@ export function useUniswapV3() {
     },
     // Manual refresh function for balances
     refreshBalances: fetchRealBalances,
-    approveToken: async (params: { tokenAddress: string; amount: BigInt }) => {
+    approveToken: async (params: { tokenAddress: string; amount: bigint }) => {
       setIsApproving(true);
       try {
         if (!address) throw new Error('Wallet not connected');

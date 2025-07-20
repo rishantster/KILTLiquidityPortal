@@ -299,7 +299,7 @@ export function MainDashboard() {
               {/* Clean Description */}
               <div className="relative max-w-4xl mx-auto mb-8">
                 <p className="text-xl sm:text-2xl text-white/90 font-medium leading-relaxed text-center">
-                  Earn <span className="text-emerald-400 font-bold bg-emerald-400/10 px-2 py-1 rounded">up to {unifiedData.maxAPRData?.aprRange || '48%'} APR</span> from the <span className="text-pink-400 font-bold bg-pink-400/10 px-2 py-1 rounded">{unifiedData.programAnalytics?.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '1.5M'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
+                  Earn <span className="text-emerald-400 font-bold bg-emerald-400/10 px-2 py-1 rounded">up to {unifiedData.maxAPRData?.maxAPR ? `${Math.round(unifiedData.maxAPRData.maxAPR)}%` : '48%'} APR</span> from the <span className="text-pink-400 font-bold bg-pink-400/10 px-2 py-1 rounded">{unifiedData.programAnalytics?.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '1.5M'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
                 </p>
               </div>
             </div>
@@ -576,7 +576,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Program APR</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    155%
+                    {unifiedData.maxAPRData?.maxAPR ? `${Math.round(unifiedData.maxAPRData.maxAPR)}%` : '48%'}
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     Treasury rewards

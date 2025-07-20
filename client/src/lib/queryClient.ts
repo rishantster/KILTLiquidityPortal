@@ -73,7 +73,7 @@ export const getQueryFn: <T>(options: {
       if (!controller.signal.aborted) {
         controller.abort();
       }
-    }, 15000); // 15 second timeout for query functions
+    }, 25000); // 25 second timeout for query functions
 
     try {
       const res = await fetch(queryKey[0] as string, {
@@ -112,7 +112,6 @@ export const getQueryFn: <T>(options: {
         }
         // For other endpoints, return null instead of throwing
         return null;
-        throw new Error('Request timeout');
       }
       throw error;
     }
@@ -124,7 +123,7 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 2, // 2 minutes - more aggressive caching
+      staleTime: 1000 * 60 * 5, // 5 minutes - more aggressive caching
       retry: (failureCount, error) => {
         // Retry network errors but not other types of errors
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {

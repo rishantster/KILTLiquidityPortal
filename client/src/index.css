@@ -45,10 +45,10 @@
   --shadow-intense: 0 16px 48px rgba(0, 0, 0, 0.35);
   
   /* Advanced Glassmorphism */
-  --glass-subtle: rgba(255, 255, 255, 0.06);
-  --glass-light: rgba(255, 255, 255, 0.10);
-  --glass-medium: rgba(255, 255, 255, 0.14);
-  --glass-strong: rgba(255, 255, 255, 0.18);
+  --glass-subtle: rgba(0, 0, 0, 0.3);
+  --glass-light: rgba(0, 0, 0, 0.4);
+  --glass-medium: rgba(0, 0, 0, 0.5);
+  --glass-strong: rgba(0, 0, 0, 0.6);
   
   /* Smooth Transitions */
   --transition-fast: 0.15s ease-out;

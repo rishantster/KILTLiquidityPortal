@@ -306,7 +306,7 @@ export function PositionRegistration() {
       {/* Compact Header */}
       <Card className="cluely-card">
         <CardContent className="p-3">
-          <Alert className="border-emerald-400/30">
+          <Alert className="border-emerald-400/30 bg-black/40 backdrop-blur-sm">
             <Gift className="h-3 w-3 text-emerald-400" />
             <AlertDescription className="text-white text-xs leading-relaxed">
               <div className="font-semibold mb-2 text-white">

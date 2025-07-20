@@ -593,54 +593,53 @@ export function UserPositions() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-1 mb-2 relative z-10">
+                      <div className="flex gap-2 mb-2 relative z-10">
                         {!isClosed ? (
                           <>
-                            <Button
+                            {/* Add Liquidity Button - Emerald/Green Theme */}
+                            <button
                               onClick={() => {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('increase');
                               }}
-                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-8 text-sm font-bold relative overflow-hidden"
-                              style={{
-                                boxShadow: '0 0 6px rgba(16, 185, 129, 0.5), 0 0 12px rgba(16, 185, 129, 0.3)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
-                              }}
+                              className="flex-1 bg-gradient-to-r from-emerald-600/90 to-emerald-500/90 hover:from-emerald-500 hover:to-emerald-400 text-white border border-emerald-400/30 shadow-lg hover:shadow-emerald-400/30 transition-all duration-300 h-9 text-sm font-bold relative overflow-hidden group rounded-lg backdrop-blur-sm"
                             >
-                              <Plus className="h-3 w-3 mr-1" />
-                              Add
-                            </Button>
-                            <Button
+                              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                              <div className="relative z-10 flex items-center justify-center">
+                                <Plus className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
+                                <span className="tracking-wide">Add</span>
+                              </div>
+                            </button>
+                            
+                            {/* Remove Liquidity Button - Red/Orange Theme */}
+                            <button
                               onClick={() => {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('decrease');
                               }}
-                              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-8 text-sm font-bold relative overflow-hidden"
-                              style={{
-                                boxShadow: '0 0 6px rgba(239, 68, 68, 0.5), 0 0 12px rgba(239, 68, 68, 0.3)',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
-                              }}
+                              className="flex-1 bg-gradient-to-r from-red-600/90 to-orange-600/90 hover:from-red-500 hover:to-orange-500 text-white border border-red-400/30 shadow-lg hover:shadow-red-400/30 transition-all duration-300 h-9 text-sm font-bold relative overflow-hidden group rounded-lg backdrop-blur-sm"
                             >
-                              <Minus className="h-3 w-3 mr-1" />
-                              Remove
-                            </Button>
-                            <Button
+                              <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                              <div className="relative z-10 flex items-center justify-center">
+                                <Minus className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
+                                <span className="tracking-wide">Remove</span>
+                              </div>
+                            </button>
+                            
+                            {/* Collect Fees Button - Pink/Purple Theme */}
+                            <button
                               onClick={() => {
                                 setSelectedPosition(position.tokenId);
                                 setManagementMode('collect');
                               }}
-                              className="flex-1 bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-8 text-sm font-bold relative overflow-hidden"
-                              style={{
-                                boxShadow: '0 0 6px rgba(59, 130, 246, 0.5), 0 0 12px rgba(59, 130, 246, 0.3)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
-                              }}
+                              className="flex-1 bg-gradient-to-r from-[#ff0066]/90 to-purple-600/90 hover:from-[#ff0066] hover:to-purple-500 text-white border border-[#ff0066]/30 shadow-lg hover:shadow-[#ff0066]/30 transition-all duration-300 h-9 text-sm font-bold relative overflow-hidden group rounded-lg backdrop-blur-sm"
                             >
-                              <DollarSign className="h-3 w-3 mr-1" />
-                              Collect
-                            </Button>
+                              <div className="absolute inset-0 bg-gradient-to-r from-[#ff0066]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                              <div className="relative z-10 flex items-center justify-center">
+                                <DollarSign className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
+                                <span className="tracking-wide">Collect</span>
+                              </div>
+                            </button>
                           </>
                         ) : (
                           <div className="flex-1 text-center py-2 text-white/40 text-xs">

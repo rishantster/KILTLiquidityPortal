@@ -283,89 +283,49 @@ export function MainDashboard() {
                 </div>
               </div>
               
-              {/* Cyberpunk Headline - Bold Futuristic Typography */}
-              <h1 className="relative mb-8">
-                {/* Main title with cyberpunk effects */}
-                <div className="text-7xl sm:text-8xl lg:text-9xl font-black text-transparent bg-gradient-to-r from-[#ff0066] via-[#ff6600] to-[#ff0066] bg-clip-text mb-4 leading-none tracking-wider font-mono uppercase">
-                  <span className="relative inline-block">
-                    KILT
-                    {/* Glitch text shadow effect */}
-                    <span className="absolute top-0 left-0 text-cyan-400 opacity-70 animate-pulse" style={{ transform: 'translate(-2px, -2px)' }}>KILT</span>
-                    <span className="absolute top-0 left-0 text-red-500 opacity-60 animate-pulse" style={{ transform: 'translate(2px, 2px)' }}>KILT</span>
+              {/* Modern Typography - Clean & Professional */}
+              <div className="mb-8">
+                {/* Main title with subtle gradient */}
+                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight tracking-tight">
+                  <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+                    KILT Liquidity
                   </span>
-                </div>
-                
-                {/* Subtitle with neon glow */}
-                <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight tracking-widest font-mono uppercase">
-                  <span className="relative inline-block">
-                    <span className="text-shadow-neon-pink">LIQUIDITY</span>
-                    <span className="block text-3xl sm:text-4xl lg:text-5xl mt-2 text-cyan-400 text-shadow-neon-cyan">INCENTIVE PROTOCOL</span>
+                  <span className="block text-5xl sm:text-6xl lg:text-7xl mt-2 text-white/90 font-normal">
+                    Incentive Program
                   </span>
-                </div>
-              </h1>
+                </h1>
+              </div>
               
-              {/* Cyberpunk Description */}
-              <div className="relative max-w-5xl mx-auto mb-8">
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold leading-relaxed font-mono text-center">
-                  <span className="text-white/90">EARN </span>
-                  <span className="text-matrix-green font-black text-shadow-neon-green bg-matrix-green/10 px-3 py-1 rounded border border-matrix-green/30">
-                    UP TO {unifiedData.maxAPRData?.aprRange || '48%'} APR
-                  </span>
-                  <span className="text-white/90"> FROM THE </span>
-                  <span className="text-[#ff0066] font-black text-shadow-neon-pink bg-[#ff0066]/10 px-3 py-1 rounded border border-[#ff0066]/30">
-                    {unifiedData.programAnalytics?.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '1.5M'} KILT
-                  </span>
-                  <span className="text-white/90"> TREASURY</span>
-                </p>
-                
-                {/* Secondary description */}
-                <p className="text-lg sm:text-xl text-cyan-400/90 font-semibold mt-6 tracking-wide font-mono uppercase">
-                  &gt; PROVIDING LIQUIDITY TO UNISWAP V3 POOLS ON BASE NETWORK
+              {/* Clean Description */}
+              <div className="relative max-w-4xl mx-auto mb-8">
+                <p className="text-xl sm:text-2xl text-white/90 font-medium leading-relaxed text-center">
+                  Earn <span className="text-emerald-400 font-bold bg-emerald-400/10 px-2 py-1 rounded">up to {unifiedData.maxAPRData?.aprRange || '48%'} APR</span> from the <span className="text-pink-400 font-bold bg-pink-400/10 px-2 py-1 rounded">{unifiedData.programAnalytics?.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M` : '1.5M'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
                 </p>
               </div>
             </div>
 
-            {/* Cyberpunk Connection Section */}
-            <div className="mb-16 flex flex-col items-center relative">
-              <div className="mb-6 p-1 bg-gradient-to-r from-[#ff0066]/20 via-cyan-500/20 to-[#ff0066]/20 rounded-2xl">
-                <div className="bg-black/80 rounded-2xl p-6 backdrop-blur-sm">
-                  <UnifiedWalletConnect />
-                </div>
+            {/* Connection Section */}
+            <div className="mb-16 flex flex-col items-center">
+              <div className="mb-4">
+                <UnifiedWalletConnect />
               </div>
-              
-              {/* Cyberpunk connection message */}
-              <div className="text-center relative">
-                <p className="text-lg sm:text-xl text-cyan-400/90 font-bold font-mono uppercase tracking-widest mb-2">
-                  &gt; NO SIGNUP REQUIRED &lt;
-                </p>
-                <p className="text-base sm:text-lg text-white/80 font-semibold font-mono">
-                  Connect and start earning in <span className="text-[#ff0066] font-black">seconds</span>
-                </p>
-                
-                {/* Animated border lines */}
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
-                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-transparent via-[#ff0066] to-transparent animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-              </div>
+              <p className="text-white/80 text-lg font-medium text-center">
+                No signup required. Connect and start earning in seconds.
+              </p>
             </div>
 
-            {/* Cyberpunk Feature Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mb-16">
+            {/* Clean Feature Grid */}
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
               {/* KILT/ETH Pool */}
               <div className="group relative animate-fade-in animate-delay-100">
-                <div className="relative bg-black/60 backdrop-blur-lg border-2 border-matrix-green/30 rounded-xl p-6 transition-all duration-300 hover:border-matrix-green/60 hover:bg-black/80 h-[180px] flex flex-col">
-                  {/* Neon corner accents */}
-                  <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-matrix-green opacity-60"></div>
-                  <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-matrix-green opacity-60"></div>
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-matrix-green opacity-60"></div>
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-matrix-green opacity-60"></div>
-                  
+                <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:border-emerald-500/30 hover:bg-black/60 h-[180px] flex flex-col">
                   <div className="flex items-center mb-4">
-                    <TrendingUp className="h-6 w-6 text-matrix-green mr-3 group-hover:animate-pulse" />
-                    <h3 className="text-white font-black text-lg font-mono uppercase tracking-wide">KILT/ETH Pool</h3>
+                    <TrendingUp className="h-6 w-6 text-emerald-400 mr-3" />
+                    <h3 className="text-white font-bold text-lg">KILT/ETH Pool</h3>
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
-                    <p className="text-gray-300 text-sm leading-relaxed font-medium">
-                      Deploy capital efficiently with <span className="text-matrix-green font-bold">concentrated liquidity</span> positions and advanced range strategies.
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Deploy capital efficiently with concentrated liquidity positions and advanced range strategies.
                     </p>
                   </div>
                 </div>
@@ -373,20 +333,14 @@ export function MainDashboard() {
 
               {/* Treasury Rewards */}
               <div className="group relative animate-fade-in animate-delay-200">
-                <div className="relative bg-black/60 backdrop-blur-lg border-2 border-[#ff0066]/30 rounded-xl p-6 transition-all duration-300 hover:border-[#ff0066]/60 hover:bg-black/80 h-[180px] flex flex-col">
-                  {/* Neon corner accents */}
-                  <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-[#ff0066] opacity-60"></div>
-                  <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-[#ff0066] opacity-60"></div>
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-[#ff0066] opacity-60"></div>
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-[#ff0066] opacity-60"></div>
-                  
+                <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:border-pink-500/30 hover:bg-black/60 h-[180px] flex flex-col">
                   <div className="flex items-center mb-4">
-                    <Award className="h-6 w-6 text-[#ff0066] mr-3 group-hover:animate-pulse" />
-                    <h3 className="text-white font-black text-lg font-mono uppercase tracking-wide">Treasury Rewards</h3>
+                    <Award className="h-6 w-6 text-pink-400 mr-3" />
+                    <h3 className="text-white font-bold text-lg">Treasury Rewards</h3>
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
-                    <p className="text-gray-300 text-sm leading-relaxed font-medium">
-                      Receive attractive rewards from <span className="text-[#ff0066] font-black">{unifiedData?.programAnalytics?.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M KILT` : '1.5M KILT'}</span> treasury allocation with secure smart contract distribution.
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Receive attractive rewards from <span className="text-pink-400 font-semibold">{unifiedData?.programAnalytics?.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M KILT` : '1.5M KILT'}</span> treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
                 </div>
@@ -394,36 +348,27 @@ export function MainDashboard() {
 
               {/* Program Analytics */}
               <div className="group relative animate-fade-in animate-delay-300">
-                <div className="relative bg-black/60 backdrop-blur-lg border-2 border-cyan-400/30 rounded-xl p-6 transition-all duration-300 hover:border-cyan-400/60 hover:bg-black/80 h-[180px] flex flex-col">
-                  {/* Neon corner accents */}
-                  <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-cyan-400 opacity-60"></div>
-                  <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-cyan-400 opacity-60"></div>
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-cyan-400 opacity-60"></div>
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-cyan-400 opacity-60"></div>
-                  
+                <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-black/60 h-[180px] flex flex-col">
                   <div className="flex items-center mb-4">
-                    <BarChart3 className="h-6 w-6 text-cyan-400 mr-3 group-hover:animate-pulse" />
-                    <h3 className="text-white font-black text-lg font-mono uppercase tracking-wide">Program Analytics</h3>
+                    <BarChart3 className="h-6 w-6 text-blue-400 mr-3" />
+                    <h3 className="text-white font-bold text-lg">Program Analytics</h3>
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
-                    <p className="text-gray-300 text-sm leading-relaxed font-medium">
-                      Track your position performance, rewards earned, and program progress with <span className="text-cyan-400 font-bold">detailed analytics</span>.
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Track your position performance, rewards earned, and program progress with detailed analytics.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Cyberpunk Bottom CTA */}
-            <div className="text-center mb-12 relative">
-              <div className="mb-6">
-                <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-gradient-to-r from-cyan-400 via-[#ff0066] to-cyan-400 bg-clip-text mb-4 font-mono uppercase tracking-widest">
-                  JOIN THE KILT ECOSYSTEM
-                </h2>
-                <div className="w-40 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-auto mb-4"></div>
-              </div>
-              <p className="text-cyan-400/80 text-lg font-bold max-w-2xl mx-auto mb-6 leading-relaxed font-mono uppercase tracking-wide">
-                &gt; CONNECT WITH THE KILT PROTOCOL COMMUNITY &lt;
+            {/* Bottom CTA */}
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                Join the KILT Ecosystem
+              </h2>
+              <p className="text-white/80 text-lg font-medium max-w-2xl mx-auto mb-6 leading-relaxed">
+                Connect with the KILT Protocol community and stay updated on the latest developments.
               </p>
             </div>
 

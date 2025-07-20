@@ -166,10 +166,7 @@ export function UnifiedWalletConnect() {
             Connecting...
           </>
         ) : (
-          <>
-            {getStatusIcon()}
-            <span className="ml-2">Connect Wallet</span>
-          </>
+          "Connect Wallet"
         )}
       </Button>
 

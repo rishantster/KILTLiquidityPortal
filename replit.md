@@ -202,6 +202,8 @@ Suggested domain: liq.kilt.io (for liquid theme portal)
 
 **CRITICAL ADMIN PANEL FIX:** July 20, 2025 - **COMPLETE DATE FIELD SYNCHRONIZATION ACHIEVED**: Successfully resolved critical admin panel date field display issue where program start/end dates showed placeholder text instead of actual configured dates. Fixed database schema mismatch between PostgreSQL date fields and Drizzle ORM timestamp expectations, implemented proper React Query cache invalidation to prevent stale data serving, and achieved complete frontend-backend synchronization. Admin panel now correctly displays program dates (2025-07-21 to 2025-10-19) from database, eliminating cache-related data inconsistencies and ensuring all treasury configuration fields load properly for admin management.
 
+**TREASURY DISPLAY SYNCHRONIZATION FIX:** July 20, 2025 - **HARDCODED TREASURY VALUE ELIMINATED**: Fixed critical frontend display issue where main dashboard showed hardcoded "500K KILT treasury" instead of actual admin panel configured value. Replaced hardcoded text with dynamic treasury allocation from programAnalytics API (`totalBudget: 1500000`), implemented proper formatting to display "1.5M KILT treasury" based on real admin configuration, achieved complete synchronization between admin panel treasury settings (1.5M KILT allocation) and user-facing landing page messaging, ensuring all treasury values now reflect actual admin panel configuration in real-time.
+
 Changelog:
 - July 05, 2025. Initial setup
 - July 05, 2025. Updated with real KILT token data (0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8, 290.56M supply)

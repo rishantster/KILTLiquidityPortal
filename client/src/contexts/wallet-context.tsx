@@ -8,11 +8,14 @@ interface WalletContextType {
   isConnected: boolean;
   isConnecting: boolean;
   initialized: boolean;
+  connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'error' | 'network_error';
+  lastError: string | null;
   connect: () => Promise<void>;
   disconnect: () => void;
   switchToBase: () => Promise<void>;
   validateBaseNetwork: () => Promise<boolean>;
   forceRefreshWallet: () => Promise<void>;
+  clearError: () => void;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -22,6 +25,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error' | 'network_error'>('disconnected');
+  const [lastError, setLastError] = useState<string | null>(null);
   
   // Persist manually disconnected state across page reloads
   const [manuallyDisconnected, setManuallyDisconnectedState] = useState(() => {
@@ -42,6 +47,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }
     } catch {
       // Ignore localStorage errors
+    }
+  };
+
+  const clearError = () => {
+    setLastError(null);
+    if (connectionStatus === 'error' || connectionStatus === 'network_error') {
+      setConnectionStatus('disconnected');
     }
   };
   const { toast } = useToast();
@@ -330,6 +342,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const connect = async () => {
     if (!(window as any).ethereum) {
+      setConnectionStatus('error');
+      setLastError('MetaMask not found. Please install MetaMask.');
       toast({
         title: "Wallet not found",
         description: "Please install MetaMask or another Web3 wallet to connect.",
@@ -338,12 +352,29 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    setIsConnecting(true);
     try {
-      // Always request fresh accounts - never trust cached state
-      const accounts = await (window as any).ethereum.request({
+      // Set connecting state immediately (Reown best practice: immediate feedback)
+      setIsConnecting(true);
+      setConnectionStatus('connecting');
+      setLastError(null);
+      setManuallyDisconnected(false); // Reset flag when manually connecting
+      
+      // Show connecting toast (Reown best practice: inform user of status)
+      toast({
+        title: "Connecting...",
+        description: "Please approve the connection in MetaMask",
+      });
+      
+      // Request account access with timeout (Reown best practice: handle timeouts)
+      const connectPromise = (window as any).ethereum.request({
         method: 'eth_requestAccounts',
       });
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout - please try again')), 30000)
+      );
+      
+      const accounts = await Promise.race([connectPromise, timeoutPromise]);
 
       if (accounts && accounts.length > 0) {
         const connectedAddress = accounts[0];
@@ -358,40 +389,62 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         
         setAddress(connectedAddress);
         setIsConnected(true);
-        setManuallyDisconnected(false); // Reset flag when manually connecting
         
-        // Connected to wallet successfully
-        
-        // Force switch to Base mainnet
-        await switchToBase();
-        
-        // Verify we're on Base mainnet
-        const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
-        if (chainId !== '0x2105') {
-          toast({
-            title: "Network Warning",
-            description: "Please switch to Base mainnet in your wallet for full functionality.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Wallet connected",
-            description: "Successfully connected to Base mainnet.",
-          });
+        // Check network connectivity before proceeding
+        try {
+          await switchToBase();
+          
+          const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+          if (chainId !== '0x2105') {
+            setConnectionStatus('network_error');
+            setLastError('Please switch to Base network to continue');
+            toast({
+              title: "Network Warning",
+              description: "Please switch to Base mainnet in your wallet for full functionality.",
+              variant: "destructive",
+            });
+            return;
+          }
+        } catch (networkError) {
+          setConnectionStatus('network_error');
+          setLastError('Network switch failed - please manually switch to Base network');
+          throw networkError;
         }
+
+        // Connection successful (Reown best practice: clear success message)
+        setConnectionStatus('connected');
+        toast({
+          title: "✅ Connected Successfully",
+          description: `Connected to ${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)} on Base network`,
+        });
       }
     } catch (error: unknown) {
       const walletError = error as { code?: number; message?: string };
+      
+      // Set error state (Reown best practice: proper error state management)
+      setConnectionStatus('error');
+      setIsConnected(false);
+      setAddress(null);
+      
       if (walletError.code === 4001) {
+        setLastError('Connection rejected by user');
         toast({
           title: "Connection rejected",
           description: "Please approve the connection request in your wallet.",
           variant: "destructive",
         });
+      } else if (walletError.message?.includes('timeout')) {
+        setLastError('Connection timeout - please try again');
+        toast({
+          title: "Connection Timeout",
+          description: "Connection took too long. Please try again.",
+          variant: "destructive",
+        });
       } else {
+        setLastError(walletError.message || 'Failed to connect wallet');
         toast({
           title: "Connection failed",
-          description: walletError.message || "Failed to connect wallet.",
+          description: walletError.message || "Failed to connect wallet. Please try again.",
           variant: "destructive",
         });
       }
@@ -430,9 +483,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       // Ignore localStorage errors
     }
     
+    // Set disconnected state (Reown best practice: clear status indication)
+    setConnectionStatus('disconnected');
+    setLastError(null);
+    
     toast({
-      title: "Wallet disconnected",
-      description: "Your wallet has been disconnected and all cache cleared.",
+      title: "✅ Disconnected Successfully",
+      description: "Your wallet has been safely disconnected and cache cleared.",
     });
   };
 
@@ -518,11 +575,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         isConnected,
         isConnecting,
         initialized,
+        connectionStatus,
+        lastError,
         connect,
         disconnect,
         switchToBase,
         validateBaseNetwork,
         forceRefreshWallet,
+        clearError,
       }}
     >
       {children}

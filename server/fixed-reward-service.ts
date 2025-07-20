@@ -610,9 +610,9 @@ export class FixedRewardService {
         treasuryTotal,
         treasuryRemaining: treasuryTotal - totalDistributed,
         estimatedAPR: {
-          low: 0,
-          average: 0,
-          high: 0
+          low: Math.round(averageAPR * 0.8 * 100) / 100, // Use actual calculated APR
+          average: Math.round(averageAPR * 100) / 100,
+          high: Math.round(averageAPR * 1.2 * 100) / 100
         }
       };
     } catch (error) {

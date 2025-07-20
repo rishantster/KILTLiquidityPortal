@@ -111,7 +111,7 @@ export function ReownWalletConnect() {
 
   if (isConnected) {
     return (
-      <div className="p-4 bg-white/5 backdrop-blur-sm rounded-lg">
+      <div className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -160,7 +160,7 @@ export function ReownWalletConnect() {
         <Button
           onClick={connect}
           disabled={isConnecting}
-          className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border-0 backdrop-blur-sm transition-all duration-200"
+          className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border-0 transition-all duration-200"
         >
           {isConnecting ? (
             <>
@@ -183,7 +183,7 @@ export function ReownWalletConnect() {
             <Button
               onClick={() => setShowMobileOptions(true)}
               disabled={isConnecting}
-              className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border-0 backdrop-blur-sm transition-all duration-200"
+              className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border-0 transition-all duration-200"
             >
               {isConnecting ? (
                 <>
@@ -207,7 +207,7 @@ export function ReownWalletConnect() {
                   key={wallet.name}
                   onClick={() => handleMobileConnect(wallet)}
                   variant="ghost"
-                  className="w-full justify-start bg-white/5 border-0 hover:bg-white/10 backdrop-blur-sm transition-all duration-200 text-white"
+                  className="w-full justify-start border-0 hover:bg-white/10 transition-all duration-200 text-white"
                 >
                   <span className="mr-3 text-lg">{wallet.icon}</span>
                   <span>{wallet.name}</span>
@@ -227,7 +227,7 @@ export function ReownWalletConnect() {
       )}
 
       {/* Network Status Indicator */}
-      <div className="flex items-center justify-center gap-2 p-2 bg-white/5 backdrop-blur-sm rounded-lg">
+      <div className="flex items-center justify-center gap-2 p-2">
         <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
         <span className="text-xs text-gray-400">Base Mainnet</span>
       </div>

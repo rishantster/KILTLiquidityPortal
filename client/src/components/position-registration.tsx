@@ -305,8 +305,8 @@ export function PositionRegistration() {
     <div className="space-y-2 h-full flex flex-col">
       {/* Compact Header */}
       <Card className="cluely-card">
-        <CardContent className="p-3 bg-[#000000]">
-          <Alert className="border-emerald-400/30 bg-[#000000]">
+        <CardContent className="p-3">
+          <Alert className="border-emerald-400/30">
             <Gift className="h-3 w-3 text-emerald-400" />
             <AlertDescription className="text-white text-xs leading-relaxed">
               <div className="font-semibold mb-2 text-white">
@@ -335,7 +335,7 @@ export function PositionRegistration() {
         </CardContent>
       </Card>
       {/* Unregistered Positions */}
-      <Card className="cluely-card flex-1 bg-[#000000]">
+      <Card className="cluely-card flex-1">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-white font-heading text-sm">

@@ -42,7 +42,7 @@ import { WalletConnect } from './wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
-import { SwapModal } from './swap-modal';
+
 
 
 // Lazy load heavy components
@@ -130,7 +130,7 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
-  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
+
   const { toast } = useToast();
 
   // Navigation function for components to use
@@ -717,7 +717,10 @@ export function MainDashboard() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setIsSwapModalOpen(true)}
+                            onClick={() => {
+                              const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
+                              window.open(swapUrl, '_blank');
+                            }}
                             className="bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white border-0 px-4 py-2 font-bold text-sm h-9 transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 touch-manipulation"
                           >
                             <ArrowUpDown className="h-4 w-4 mr-2" />
@@ -907,12 +910,6 @@ export function MainDashboard() {
 
         </Tabs>
       </div>
-      
-      {/* Swap Modal */}
-      <SwapModal 
-        isOpen={isSwapModalOpen} 
-        onClose={() => setIsSwapModalOpen(false)} 
-      />
     </div>
   );
 }

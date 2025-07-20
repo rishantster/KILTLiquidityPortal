@@ -404,8 +404,8 @@ export function UserPositions() {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = position.isInRange; // Use backend-calculated range status
                 const isClosed = position.liquidity === 0n;
-                const ethAmount = position.amount0 ? (parseFloat(position.amount0) / 1e18).toFixed(3) : '0.000';
-                const kiltAmount = position.amount1 ? (parseFloat(position.amount1) / 1e18).toFixed(0) : '0';
+                const ethAmount = position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(3) : '0.000';
+                const kiltAmount = position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(0) : '0';
                 const ethFees = position.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(4) : '0.0000';
                 const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
                 
@@ -801,7 +801,7 @@ export function UserPositions() {
                                 if (!currentPosition || !liquidityAmount) return '0.000';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
-                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.amount0, 18) || '0') * percentage;
+                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.token0Amount, 18) || '0') * percentage;
                                 return ethAmount.toFixed(3);
                               })()}
                             </div>
@@ -811,7 +811,7 @@ export function UserPositions() {
                                 if (!currentPosition || !liquidityAmount) return '0.00';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
-                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.amount0, 18) || '0') * percentage;
+                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.token0Amount, 18) || '0') * percentage;
                                 return (ethAmount * 3635).toFixed(2); // ETH price
                               })()}
                             </div>
@@ -833,7 +833,7 @@ export function UserPositions() {
                                 if (!currentPosition || !liquidityAmount) return '0';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
-                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.amount1, 18) || '0') * percentage;
+                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.token1Amount, 18) || '0') * percentage;
                                 return kiltAmount.toFixed(0);
                               })()}
                             </div>
@@ -843,7 +843,7 @@ export function UserPositions() {
                                 if (!currentPosition || !liquidityAmount || !kiltData?.price) return '0.00';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
-                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.amount1, 18) || '0') * percentage;
+                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.token1Amount, 18) || '0') * percentage;
                                 return (kiltAmount * kiltData.price).toFixed(2);
                               })()}
                             </div>

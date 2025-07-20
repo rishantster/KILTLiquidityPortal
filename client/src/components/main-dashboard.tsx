@@ -23,9 +23,7 @@ import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
-import { useThirdwebWallet } from '@/contexts/thirdweb-wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
-import { useLocation } from 'wouter';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
@@ -39,7 +37,8 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { ThirdwebWalletConnect } from './thirdweb-wallet-connect';
+import { UnifiedWalletConnect } from './unified-wallet-connect';
+// Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
 
@@ -104,9 +103,7 @@ function FormulaProgramAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected, initialized, disconnect } = useWallet();
-  const { disconnectThirdweb } = useThirdwebWallet();
-  const [, setLocation] = useLocation();
+  const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
@@ -302,7 +299,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <ThirdwebWalletConnect />
+                <UnifiedWalletConnect />
               </div>
               <p className="text-white/80 text-lg font-medium text-center">
                 No signup required. Connect and start earning in seconds.
@@ -449,35 +446,9 @@ export function MainDashboard() {
           </div>
           
           <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Disconnect Button */}
-            <button
-              onClick={async () => {
-                try {
-                  // Disconnect both wallet types
-                  await disconnect();
-                  await disconnectThirdweb();
-                  
-                  // Show success message
-                  toast({
-                    title: "Wallet Disconnected",
-                    description: "Successfully disconnected from wallet",
-                  });
-                  
-                  // Navigate back to landing page
-                  setLocation('/');
-                } catch (error) {
-                  console.error('Disconnect error:', error);
-                  toast({
-                    title: "Disconnect Error",
-                    description: "There was an issue disconnecting your wallet",
-                    variant: "destructive",
-                  });
-                }
-              }}
-              className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 rounded-lg text-red-300 hover:text-red-200 transition-all duration-200 text-sm font-medium backdrop-blur-sm"
-            >
-              Disconnect
-            </button>
+            <div className="flex-shrink-0">
+              <UnifiedWalletConnect />
+            </div>
           </div>
         </div>
 

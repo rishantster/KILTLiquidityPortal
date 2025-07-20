@@ -1188,11 +1188,11 @@ export class UniswapIntegrationService {
   }
 
   /**
-   * Get pool data by address - Required for fixed reward service
+   * Get pool data by address - Using official Uniswap API for accurate TVL
    */
   async getPoolData(poolAddress: string): Promise<PoolData> {
     try {
-      // PARALLEL PROCESSING - Execute all blockchain calls simultaneously
+      // First get basic pool info from blockchain
       const [slot0Data, liquidity, token0, token1, fee] = await Promise.all([
         this.client.readContract({
           address: poolAddress as `0x${string}`,
@@ -1271,7 +1271,89 @@ export class UniswapIntegrationService {
 
       const [sqrtPriceX96, tick] = slot0Data as [bigint, number];
 
-      // Calculate pool TVL using real token balances
+      // Cross-validate TVL from multiple sources (Uniswap + DexScreener)
+      let tvlResults = {
+        uniswap: 0,
+        dexscreener: 0,
+        calculated: 0,
+        final: 0,
+        source: 'calculated'
+      };
+      
+      // 1. Try Free Uniswap V3 Subgraph endpoints (highest priority)
+      try {
+        // Try free Uniswap subgraph endpoint first
+        const freeResponse = await fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: `
+              query GetPool($poolId: String!) {
+                pool(id: $poolId) {
+                  totalValueLockedUSD
+                  token0 { symbol }
+                  token1 { symbol }
+                }
+              }
+            `,
+            variables: { poolId: poolAddress.toLowerCase() }
+          })
+        });
+
+        if (freeResponse.ok) {
+          const freeData = await freeResponse.json();
+          if (freeData.data?.pool?.totalValueLockedUSD) {
+            tvlResults.uniswap = parseFloat(freeData.data.pool.totalValueLockedUSD);
+          }
+        }
+      } catch (error) {
+        // Free Uniswap subgraph failed, try alternate endpoint
+        try {
+          const altResponse = await fetch('https://api.studio.thegraph.com/query/5713/uniswap-v3-base/version/latest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              query: `
+                query GetPool($poolId: String!) {
+                  pool(id: $poolId) {
+                    totalValueLockedUSD
+                    token0 { symbol }
+                    token1 { symbol }
+                  }
+                }
+              `,
+              variables: { poolId: poolAddress.toLowerCase() }
+            })
+          });
+
+          if (altResponse.ok) {
+            const altData = await altResponse.json();
+            if (altData.data?.pool?.totalValueLockedUSD) {
+              tvlResults.uniswap = parseFloat(altData.data.pool.totalValueLockedUSD);
+            }
+          }
+        } catch (altError) {
+          // Both Uniswap endpoints failed
+        }
+      }
+
+      // 2. Try DexScreener API (cross-validation source)
+      try {
+        const dexResponse = await fetch(`https://api.dexscreener.com/latest/dex/pairs/base/${poolAddress.toLowerCase()}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (dexResponse.ok) {
+          const dexData = await dexResponse.json();
+          if (dexData.pairs && dexData.pairs.length > 0 && dexData.pairs[0].liquidity?.usd) {
+            tvlResults.dexscreener = parseFloat(dexData.pairs[0].liquidity.usd);
+          }
+        }
+      } catch (error) {
+        // DexScreener API failed
+      }
+
+      // 3. Calculate from token balances as backup (most accurate)
       const [token0Balance, token1Balance] = await Promise.all([
         this.client.readContract({
           address: token0 as `0x${string}`,
@@ -1303,25 +1385,81 @@ export class UniswapIntegrationService {
         }),
       ]);
 
-      // Calculate USD value using real prices
+      // Calculate USD value using accurate real-time prices
       const token0Amount = parseFloat(formatUnits(token0Balance, 18));
       const token1Amount = parseFloat(formatUnits(token1Balance, 18));
 
       // Get real KILT price and ETH price
       const { kiltPriceService } = await import('./kilt-price-service.js');
       const kiltPrice = await kiltPriceService.getCurrentPrice();
-      const ethPrice = 3000; // Could be improved with real price feed
+      
+      // Get real ETH price from CoinGecko
+      let ethPrice = 3400; // Fallback ETH price
+      try {
+        const ethPriceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        if (ethPriceResponse.ok) {
+          const ethPriceData = await ethPriceResponse.json();
+          ethPrice = ethPriceData.ethereum?.usd || 3400;
+        }
+      } catch (error) {
+        // Use fallback ETH price
+      }
 
       // Determine which token is KILT and calculate TVL
       const kiltTokenAddress = await blockchainConfigService.getKiltTokenAddress();
-      const kiltTokenAddressLower = kiltTokenAddress.toLowerCase();
-      const isToken0KILT = (token0 as string).toLowerCase() === kiltTokenAddress;
+      const isToken0KILT = (token0 as string).toLowerCase() === kiltTokenAddress.toLowerCase();
       
-      let tvlUSD = 0;
       if (isToken0KILT) {
-        tvlUSD = (token0Amount * kiltPrice) + (token1Amount * ethPrice);
+        tvlResults.calculated = (token0Amount * kiltPrice) + (token1Amount * ethPrice);
       } else {
-        tvlUSD = (token1Amount * kiltPrice) + (token0Amount * ethPrice);
+        tvlResults.calculated = (token1Amount * kiltPrice) + (token0Amount * ethPrice);
+      }
+
+      // 4. Cross-validate and choose best source
+      let tvlUSD = 0;
+      
+      // Prioritize Uniswap if available
+      if (tvlResults.uniswap > 0) {
+        tvlUSD = tvlResults.uniswap;
+        tvlResults.source = 'uniswap';
+        tvlResults.final = tvlUSD;
+      }
+      // Use DexScreener if Uniswap failed
+      else if (tvlResults.dexscreener > 0) {
+        tvlUSD = tvlResults.dexscreener;
+        tvlResults.source = 'dexscreener';
+        tvlResults.final = tvlUSD;
+      }
+      // Use calculated as last resort
+      else if (tvlResults.calculated > 0) {
+        tvlUSD = tvlResults.calculated;
+        tvlResults.source = 'calculated';
+        tvlResults.final = tvlUSD;
+      }
+      
+      // Cross-validation check and detailed logging
+      console.log(`TVL Cross-validation results:`, {
+        uniswap: tvlResults.uniswap > 0 ? `$${tvlResults.uniswap.toFixed(2)}` : 'Failed',
+        dexscreener: tvlResults.dexscreener > 0 ? `$${tvlResults.dexscreener.toFixed(2)}` : 'Failed',
+        calculated: `$${tvlResults.calculated.toFixed(2)}`,
+        finalSource: tvlResults.source,
+        finalValue: `$${tvlResults.final.toFixed(2)}`
+      });
+
+      if (tvlResults.uniswap > 0 && tvlResults.dexscreener > 0) {
+        const difference = Math.abs(tvlResults.uniswap - tvlResults.dexscreener);
+        const percentDiff = (difference / Math.max(tvlResults.uniswap, tvlResults.dexscreener)) * 100;
+        
+        console.log(`Cross-validation: ${percentDiff.toFixed(1)}% difference between sources`);
+        
+        if (percentDiff > 10) {
+          console.warn(`TVL Cross-validation warning: Large discrepancy detected - ${percentDiff.toFixed(1)}% difference`);
+        }
+      }
+
+      // Throw error if no authentic data is available
+      if (tvlUSD === 0) {
+        throw new Error('No authentic TVL data available from any source - refusing to use fallback values');
       }
 
       // Calculate prices from sqrtPriceX96
@@ -1346,8 +1484,7 @@ export class UniswapIntegrationService {
         volumeDataSource,
       };
     } catch (error) {
-      console.error('Failed to fetch pool data from blockchain:', error);
-      throw error;
+      throw new Error(`Failed to fetch authentic pool data: ${error}`);
     }
   }
 

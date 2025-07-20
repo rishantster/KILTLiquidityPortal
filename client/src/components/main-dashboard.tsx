@@ -478,34 +478,34 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="flex justify-center bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-2 shadow-2xl mb-12 h-auto mx-auto w-fit">
+          <TabsList className="flex justify-center gap-6 bg-transparent mb-8 h-auto p-0">
             <TabsTrigger 
               value="overview" 
-              className="nav-button-tab"
+              className="clean-nav-tab"
             >
-              <TrendingUp className="h-5 w-5 mr-2.5 flex-shrink-0" />
-              <span className="font-medium">Overview</span>
+              <TrendingUp className="h-4 w-4" />
+              <span>Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="nav-button-tab"
+              className="clean-nav-tab"
             >
-              <Plus className="h-5 w-5 mr-2.5 flex-shrink-0" />
-              <span className="font-medium">Add Liquidity</span>
+              <Plus className="h-4 w-4" />
+              <span>Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="nav-button-tab"
+              className="clean-nav-tab"
             >
-              <Award className="h-5 w-5 mr-2.5 flex-shrink-0" />
-              <span className="font-medium">Rewards</span>
+              <Award className="h-4 w-4" />
+              <span>Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="nav-button-tab"
+              className="clean-nav-tab"
             >
-              <Wallet className="h-5 w-5 mr-2.5 flex-shrink-0" />
-              <span className="font-medium">Positions</span>
+              <Wallet className="h-4 w-4" />
+              <span>Positions</span>
             </TabsTrigger>
           </TabsList>
 

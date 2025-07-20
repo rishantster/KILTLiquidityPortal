@@ -252,29 +252,41 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       ethereum.on('connect', handleConnect);
       ethereum.on('disconnect', handleDisconnect);
       
-      // Additional periodic check for wallet changes (fallback)
+      // Enhanced automatic detection system
       const intervalCheck = setInterval(async () => {
         if (isActive && ethereum) {
           try {
-            // Get current accounts directly from wallet
+            // Multiple detection methods for maximum reliability
             const accounts = await ethereum.request({ method: 'eth_accounts' });
-            const currentSelectedAddress = ethereum.selectedAddress || (accounts && accounts[0]);
+            const selectedAddress = ethereum.selectedAddress;
+            const chainId = await ethereum.request({ method: 'eth_chainId' });
             
-            console.log('WalletContext: Periodic check', { 
-              currentSelectedAddress, 
-              storedAddress: address, 
-              accounts,
-              selectedAddress: ethereum.selectedAddress 
-            });
+            // Get the most reliable current address
+            let currentAddress = null;
+            if (accounts && accounts.length > 0) {
+              currentAddress = accounts[0];
+            } else if (selectedAddress) {
+              currentAddress = selectedAddress;
+            }
             
-            if (currentSelectedAddress && currentSelectedAddress !== address) {
-              console.log('WalletContext: Address changed detected via periodic check');
-              // Address changed without event
-              setAddress(currentSelectedAddress);
+            // Only log when there's a potential change to reduce noise
+            const hasChange = currentAddress !== address;
+            
+            if (hasChange && currentAddress) {
+              console.log('WALLET CHANGE DETECTED:', { 
+                previousAddress: address,
+                newAddress: currentAddress,
+                method: 'auto-detection',
+                accounts,
+                selectedAddress 
+              });
+              
+              // Address changed - update immediately
+              setAddress(currentAddress);
               setIsConnected(true);
               setManuallyDisconnected(false);
               
-              // Clear cache and invalidate queries
+              // Clear all user-specific cache for clean state
               queryClient.removeQueries({ queryKey: ['user-positions'] });
               queryClient.removeQueries({ queryKey: ['rewards'] });
               queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
@@ -284,12 +296,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
               queryClient.invalidateQueries();
               
               toast({
-                title: "Account detected",
-                description: `Switched to ${currentSelectedAddress.slice(0, 6)}...${currentSelectedAddress.slice(-4)}`,
+                title: "Wallet account changed",
+                description: `Automatically switched to ${currentAddress.slice(0, 6)}...${currentAddress.slice(-4)}`,
               });
-            } else if (!currentSelectedAddress && address) {
-              console.log('WalletContext: Wallet disconnected detected via periodic check');
-              // Wallet was disconnected
+              
+              // Ensure we're on Base network
+              if (chainId !== '0x2105') {
+                try {
+                  await switchToBase();
+                } catch (error) {
+                  console.log('Auto network switch failed:', error);
+                }
+              }
+            } else if (!currentAddress && address) {
+              console.log('WALLET DISCONNECT DETECTED:', { previousAddress: address });
+              
+              // Wallet disconnected
               setAddress(null);
               setIsConnected(false);
               setManuallyDisconnected(true);
@@ -304,14 +326,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
               
               toast({
                 title: "Wallet disconnected",
-                description: "Your wallet has been disconnected.",
+                description: "Your wallet has been automatically disconnected.",
               });
             }
           } catch (error) {
-            console.log('WalletContext: Error during periodic check', error);
+            // Only log significant errors
+            if (error.message && !error.message.includes('User rejected')) {
+              console.log('WalletContext: Auto-detection error', error);
+            }
           }
         }
-      }, 1000); // Check every 1 second for faster detection
+      }, 500); // Check every 500ms for very fast detection
       
       // Cleanup function
       return () => {

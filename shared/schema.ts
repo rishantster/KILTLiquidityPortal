@@ -146,36 +146,20 @@ export const positionEligibility = pgTable("position_eligibility", {
   uniquePositionEligibility: unique().on(table.positionId, table.nftTokenId),
 }));
 
-// Program settings table - comprehensive formula parameters
+// Program settings table - only essential formula parameters
 export const programSettings = pgTable("program_settings", {
   id: serial("id").primaryKey(),
-  programDuration: integer("program_duration").notNull().default(90),
-  
-  // Core formula parameters
-  liquidityWeight: decimal("liquidity_weight", { precision: 10, scale: 3 }).notNull().default("0.600"), // b_time parameter
-  baseLiquidityWeight: decimal("base_liquidity_weight", { precision: 10, scale: 3 }).notNull().default("1.000"), // Base liquidity coefficient
-  timeBoostCoefficient: decimal("time_boost_coefficient", { precision: 10, scale: 3 }).notNull().default("1.000"), // Time boost multiplier
-  inRangeMultiplier: decimal("in_range_multiplier", { precision: 10, scale: 3 }).notNull().default("1.000"), // IRM coefficient
-  poolFactor: decimal("pool_factor", { precision: 10, scale: 3 }).notNull().default("1.000"), // Pool performance factor
-  concentrationBonus: decimal("concentration_bonus", { precision: 10, scale: 3 }).notNull().default("1.000"), // Concentration range bonus
-  
-  // Position requirements
+  timeBoostCoefficient: decimal("time_boost_coefficient", { precision: 10, scale: 3 }).notNull().default("0.600"),
+  fullRangeBonus: decimal("full_range_bonus", { precision: 10, scale: 3 }).notNull().default("1.200"),
   minimumPositionValue: decimal("minimum_position_value", { precision: 18, scale: 8 }).notNull().default("10.00000000"),
   lockPeriod: integer("lock_period").notNull().default(7),
-  inRangeRequirement: boolean("in_range_requirement").default(true).notNull(),
-  fullRangeBonus: decimal("full_range_bonus", { precision: 10, scale: 3 }).notNull().default("1.200"), // FRB parameter
-  
-  // Performance thresholds
-  minimumTimeInRange: decimal("minimum_time_in_range", { precision: 10, scale: 3 }).notNull().default("0.800"), // 80% minimum time in range
-  performanceThreshold: decimal("performance_threshold", { precision: 10, scale: 3 }).notNull().default("0.500"), // 50% performance threshold
-  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Treasury configuration table
+// Treasury configuration table - essential fields only
 export const treasuryConfig = pgTable("treasury_config", {
   id: serial("id").primaryKey(),
-  treasuryWalletAddress: text("treasury_wallet_address").notNull().unique(),
+  treasuryWalletAddress: text("treasury_wallet_address").notNull(),
   totalAllocation: numeric("total_allocation", { precision: 30, scale: 18 }).notNull(),
   annualRewardsBudget: numeric("annual_rewards_budget", { precision: 30, scale: 18 }).notNull(),
   dailyRewardsCap: numeric("daily_rewards_cap", { precision: 30, scale: 18 }).notNull(),
@@ -184,21 +168,15 @@ export const treasuryConfig = pgTable("treasury_config", {
   programDurationDays: integer("program_duration_days").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   createdBy: text("created_by").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Token and pool configuration table - eliminates hardcoded addresses
+// Token and pool configuration table - essential blockchain addresses
 export const tokenPoolConfig = pgTable("token_pool_config", {
   id: serial("id").primaryKey(),
   kiltTokenAddress: text("kilt_token_address").notNull(),
-  wethTokenAddress: text("weth_token_address").notNull(),
   poolAddress: text("pool_address").notNull(),
-  poolFeeRate: integer("pool_fee_rate").notNull().default(3000), // 0.3% = 3000
-  networkId: integer("network_id").notNull().default(8453), // Base network
   isActive: boolean("is_active").default(true).notNull(),
-  createdBy: text("created_by").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

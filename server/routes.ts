@@ -1524,16 +1524,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           const uniswapPositions = await uniswapIntegrationService.getUserPositions(userAddress);
           console.log(`Wallet positions - Raw Uniswap positions:`, uniswapPositions.length);
       
-      // Get blockchain config
-      const blockchainConfig = await blockchainConfigService.getConfiguration();
+      // Get blockchain config using correct method
+      const kiltTokenAddress = await blockchainConfigService.getKiltTokenAddress();
       
       // Filter for KILT positions only
-      const kiltTokenAddress = blockchainConfig.kiltTokenAddress.toLowerCase();
+      const kiltAddressLower = kiltTokenAddress.toLowerCase();
       const kiltPositions = uniswapPositions.filter(pos => {
         const token0Lower = pos.token0?.toLowerCase() || '';
         const token1Lower = pos.token1?.toLowerCase() || '';
-        const isKiltPos = token0Lower === kiltTokenAddress || token1Lower === kiltTokenAddress;
-        console.log(`Position ${pos.tokenId} - KILT check: ${isKiltPos} (${token0Lower} vs ${kiltTokenAddress})`);
+        const isKiltPos = token0Lower === kiltAddressLower || token1Lower === kiltAddressLower;
+        console.log(`Position ${pos.tokenId} - KILT check: ${isKiltPos} (${token0Lower} vs ${kiltAddressLower})`);
         return isKiltPos;
       });
       
@@ -1882,31 +1882,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const [config] = await db.select().from(treasuryConfig).limit(1);
       
       if (!config) {
-        // If no config exists, create default one
-        const defaultConfig = {
-          treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
-          totalAllocation: '500000',
-          annualRewardsBudget: '500000',
-          dailyRewardsCap: '5555.56',
-          programStartDate: new Date(),
-          programEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-          programDurationDays: 90,
-          isActive: true,
-          createdBy: 'admin'
-        };
-        
-        const [newConfig] = await db.insert(treasuryConfig).values(defaultConfig).returning();
-        
-        // Return with exact field names as admin panel expects
-        res.json({
-          totalAllocation: parseFloat(newConfig.totalAllocation),
-          programDurationDays: newConfig.programDurationDays,
-          dailyRewardsCap: parseFloat(newConfig.dailyRewardsCap),
-          programStartDate: newConfig.programStartDate.toISOString().split('T')[0],
-          programEndDate: newConfig.programEndDate.toISOString().split('T')[0],
-          treasuryWalletAddress: newConfig.treasuryWalletAddress,
-          annualRewardsBudget: parseFloat(newConfig.annualRewardsBudget),
-          isActive: newConfig.isActive
+        // No treasury config exists - return error instead of creating defaults
+        return res.status(404).json({ 
+          error: 'Treasury configuration not found. Please configure via admin panel first.' 
         });
       } else {
         // Return existing config with exact field names as admin panel expects
@@ -1931,15 +1909,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const config = req.body;
       
-      // Use exact field names from admin panel - no mapping needed
+      // Use exact field names from admin panel - no fallback defaults, require real values
+      if (!config.treasuryWalletAddress || !config.totalAllocation || !config.dailyRewardsCap) {
+        return res.status(400).json({ error: 'Missing required treasury configuration fields' });
+      }
+      
       const dbConfig = {
-        treasuryWalletAddress: config.treasuryWalletAddress || '0x0000000000000000000000000000000000000000',
-        totalAllocation: config.totalAllocation?.toString() || '500000',
-        annualRewardsBudget: config.annualRewardsBudget?.toString() || config.totalAllocation?.toString() || '500000',
-        dailyRewardsCap: config.dailyRewardsCap?.toString() || '5555.56',
-        programStartDate: new Date(config.programStartDate || new Date()),
-        programEndDate: new Date(config.programEndDate || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)),
-        programDurationDays: config.programDurationDays || 90,
+        treasuryWalletAddress: config.treasuryWalletAddress,
+        totalAllocation: config.totalAllocation.toString(),
+        annualRewardsBudget: config.annualRewardsBudget?.toString() || config.totalAllocation.toString(),
+        dailyRewardsCap: config.dailyRewardsCap.toString(),
+        programStartDate: new Date(config.programStartDate),
+        programEndDate: new Date(config.programEndDate),
+        programDurationDays: config.programDurationDays,
         isActive: config.isActive !== false,
         createdBy: 'admin',
         updatedAt: new Date()
@@ -1977,27 +1959,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const [settings] = await db.select().from(programSettings).limit(1);
       
       if (!settings) {
-        // If no settings exist, create default ones
-        const defaultSettings = {
-          timeBoostCoefficient: 0.6,
-          fullRangeBonus: 1.2,
-          minimumPositionValue: 10,
-          lockPeriod: 7
-        };
-        
-        const [newSettings] = await db.insert(programSettings).values(defaultSettings).returning();
-        
-        res.json({
-          timeBoostCoefficient: newSettings.timeBoostCoefficient,
-          fullRangeBonus: newSettings.fullRangeBonus,
-          minimumPositionValue: newSettings.minimumPositionValue,
-          lockPeriod: newSettings.lockPeriod
+        // No settings exist - return error instead of creating defaults
+        return res.status(404).json({ 
+          error: 'Program settings not configured. Please configure via admin panel first.' 
         });
       } else {
         res.json({
-          timeBoostCoefficient: settings.timeBoostCoefficient,
-          fullRangeBonus: settings.fullRangeBonus,
-          minimumPositionValue: settings.minimumPositionValue,
+          timeBoostCoefficient: parseFloat(settings.timeBoostCoefficient),
+          fullRangeBonus: parseFloat(settings.fullRangeBonus),
+          minimumPositionValue: parseFloat(settings.minimumPositionValue),
           lockPeriod: settings.lockPeriod
         });
       }
@@ -2011,13 +1981,46 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const settings = req.body;
       
-      // Mock program settings update  
+      // Validate required fields - no fallback defaults
+      if (settings.timeBoostCoefficient === undefined || settings.fullRangeBonus === undefined || 
+          settings.minimumPositionValue === undefined || settings.lockPeriod === undefined) {
+        return res.status(400).json({ error: 'Missing required program settings fields' });
+      }
+
+      // Real database update for program settings
+      const dbSettings = {
+        timeBoostCoefficient: settings.timeBoostCoefficient.toString(),
+        fullRangeBonus: settings.fullRangeBonus.toString(),
+        minimumPositionValue: settings.minimumPositionValue.toString(),
+        lockPeriod: settings.lockPeriod,
+        updatedAt: new Date()
+      };
+      
+      // Check if settings exist
+      const [existingSettings] = await db.select().from(programSettings).limit(1);
+      
+      if (existingSettings) {
+        // Update existing settings
+        await db.update(programSettings)
+          .set(dbSettings)
+          .where(eq(programSettings.id, existingSettings.id));
+      } else {
+        // Insert new settings
+        await db.insert(programSettings).values(dbSettings);
+      }
+      
       res.json({
         success: true,
         message: 'Program settings updated successfully',
-        settings
+        settings: {
+          timeBoostCoefficient: parseFloat(dbSettings.timeBoostCoefficient),
+          fullRangeBonus: parseFloat(dbSettings.fullRangeBonus),
+          minimumPositionValue: parseFloat(dbSettings.minimumPositionValue),
+          lockPeriod: dbSettings.lockPeriod
+        }
       });
     } catch (error) {
+      console.error('Program settings update error:', error);
       res.status(500).json({ error: 'Failed to update program settings' });
     }
   });

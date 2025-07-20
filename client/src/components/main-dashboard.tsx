@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { ThirdwebWalletConnect } from './thirdweb-wallet-connect';
+// Removed ThirdwebWalletConnect - now on landing page
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -446,9 +446,7 @@ export function MainDashboard() {
           </div>
           
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="flex-shrink-0">
-              <ThirdwebWalletConnect />
-            </div>
+            {/* Wallet connection moved to landing page */}
           </div>
         </div>
 

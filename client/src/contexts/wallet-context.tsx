@@ -123,6 +123,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // CRITICAL: Never auto-reconnect if user manually disconnected
+      if (manuallyDisconnected) {
+        console.log('WALLET CONTEXT: Skipping connection check - user manually disconnected');
+        if (isActive) setInitialized(true);
+        return;
+      }
+
       try {
         // Always get fresh accounts - never trust cached state
         const accounts = await (window as any).ethereum.request({
@@ -192,7 +199,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const handleAccountsChanged = (accounts: string[]) => {
       if (!isActive) return;
       
-      console.log('WalletContext: accountsChanged event fired', { accounts, currentAddress: address });
+      console.log('WalletContext: accountsChanged event fired', { accounts, currentAddress: address, manuallyDisconnected });
       
       // Accounts changed event
       if (accounts.length === 0) {
@@ -214,17 +221,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           title: "Wallet disconnected",
           description: "Your wallet has been disconnected.",
         });
-      } else {
-        // User switched accounts or connected for the first time
+      } else if (!manuallyDisconnected) {
+        // Only auto-connect if user hasn't manually disconnected
         const newAddress = accounts[0];
-        console.log('WalletContext: Checking address change', { currentAddress: address, newAddress });
-        
-        // Always update address when MetaMask fires accountsChanged event
-        console.log('WalletContext: Address update from MetaMask event', { currentAddress: address, newAddress });
+        console.log('WalletContext: Auto-connecting to new address', { currentAddress: address, newAddress });
         
         setAddress(newAddress);
         setIsConnected(true);
-        setManuallyDisconnected(false);
         
         // Always clear cache when address changes (MetaMask knows best)
         queryClient.removeQueries({ queryKey: ['user-positions'] });
@@ -241,6 +244,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           title: "Account switched",
           description: `Now connected to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`,
         });
+      } else {
+        console.log('WalletContext: Ignoring accountsChanged - user manually disconnected');
       }
     };
 

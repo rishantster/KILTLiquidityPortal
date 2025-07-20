@@ -21,7 +21,8 @@ import {
   RefreshCw,
   Settings,
   Eye,
-  Loader2
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';

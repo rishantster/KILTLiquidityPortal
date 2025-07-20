@@ -121,7 +121,7 @@ export function ReownWalletConnect() {
           </div>
           <button
             onClick={disconnect}
-            className="px-3 py-1 text-xs bg-pink-500/20 hover:bg-pink-500/30 text-gray-300 hover:text-white rounded-full transition-all duration-200"
+            className="px-3 py-1 text-xs hover:bg-pink-500/30 hover:text-white rounded-full transition-all duration-200 bg-[#ff0466] text-[#ffffff]"
           >
             Disconnect
           </button>

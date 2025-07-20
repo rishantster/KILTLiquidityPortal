@@ -478,22 +478,34 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="flex justify-center gap-8 bg-transparent mb-12 h-auto p-0">
-            <TabsTrigger value="overview" className="simple-tab">
-              <TrendingUp />
-              <span>Overview</span>
+          <TabsList className="grid w-full grid-cols-4 bg-black/60 backdrop-blur-xl border border-white/20 p-2 rounded-2xl mb-8 h-14 gap-2 shadow-2xl">
+            <TabsTrigger 
+              value="overview" 
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+            >
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <span className="text-sm font-semibold truncate">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="liquidity" className="simple-tab">
-              <Plus />
-              <span>Add Liquidity</span>
+            <TabsTrigger 
+              value="liquidity" 
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+            >
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <span className="text-sm font-semibold truncate">Add Liquidity</span>
             </TabsTrigger>
-            <TabsTrigger value="rewards" className="simple-tab">
-              <Award />
-              <span>Rewards</span>
+            <TabsTrigger 
+              value="rewards" 
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+            >
+              <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <span className="text-sm font-semibold truncate">Rewards</span>
             </TabsTrigger>
-            <TabsTrigger value="positions" className="simple-tab">
-              <Wallet />
-              <span>Positions</span>
+            <TabsTrigger 
+              value="positions" 
+              className="relative data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/20 data-[state=active]:shadow-xl text-white/60 hover:text-white/80 rounded-xl text-sm font-medium transition-all duration-500 px-4 py-3 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+            >
+              <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-hover:text-[#ff0066]" />
+              <span className="text-sm font-semibold truncate">Active Position</span>
             </TabsTrigger>
           </TabsList>
 

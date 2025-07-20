@@ -832,48 +832,6 @@ a:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-/* ===== BETTER TAB NAVIGATION ===== */
-.simple-tab {
-  background: transparent !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.7) !important;
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  padding: 14px 24px !important;
-  border-radius: 12px !important;
-  transition: all 0.25s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  min-height: 48px !important;
-  white-space: nowrap !important;
-}
-
-.simple-tab:hover {
-  color: rgba(255, 255, 255, 0.9) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  transform: translateY(-1px) !important;
-}
-
-.simple-tab[data-state="active"] {
-  color: #ff0066 !important;
-  background: rgba(255, 0, 102, 0.15) !important;
-  font-weight: 600 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 16px rgba(255, 0, 102, 0.2) !important;
-}
-
-.simple-tab svg {
-  width: 18px !important;
-  height: 18px !important;
-  flex-shrink: 0 !important;
-}
-
-/* Remove default tab styling */
-[role="tablist"] [role="tab"] {
-  all: unset !important;
-}
-
 /* Enhanced Typography Classes */
 .heading-xl {
   font-size: 2.25rem;

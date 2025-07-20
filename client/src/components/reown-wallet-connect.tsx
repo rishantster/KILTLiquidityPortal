@@ -119,9 +119,6 @@ export function ReownWalletConnect() {
             <span className="text-sm font-medium">Wallet Status</span>
             {getStatusBadge()}
           </div>
-          <div className="text-xs text-gray-400">
-            Base Network
-          </div>
         </div>
 
         {/* Connected Wallet Info */}

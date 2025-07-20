@@ -824,6 +824,111 @@ a:hover {
   letter-spacing: -0.005em;
 }
 
+/* ===== CYBERPUNK NEON TEXT EFFECTS ===== */
+
+/* Neon text shadows for cyberpunk effect */
+.text-shadow-neon-pink {
+  text-shadow: 
+    0 0 5px #ff0066,
+    0 0 10px #ff0066,
+    0 0 15px #ff0066,
+    0 0 20px #ff0066,
+    0 0 35px #ff0066,
+    0 0 40px #ff0066;
+}
+
+.text-shadow-neon-cyan {
+  text-shadow: 
+    0 0 5px #00ffff,
+    0 0 10px #00ffff,
+    0 0 15px #00ffff,
+    0 0 20px #00ffff,
+    0 0 35px #00ffff,
+    0 0 40px #00ffff;
+}
+
+.text-shadow-neon-green {
+  text-shadow: 
+    0 0 5px #00ff41,
+    0 0 10px #00ff41,
+    0 0 15px #00ff41,
+    0 0 20px #00ff41,
+    0 0 35px #00ff41,
+    0 0 40px #00ff41;
+}
+
+/* Advanced cyberpunk glitch animations */
+@keyframes glitch-1 {
+  0%, 100% { 
+    transform: translate(0, 0);
+    opacity: 0.7;
+  }
+  2% { 
+    transform: translate(-2px, 2px);
+    opacity: 0.8;
+  }
+  4% { 
+    transform: translate(-2px, -2px);
+    opacity: 0.7;
+  }
+  6% { 
+    transform: translate(2px, 2px);
+    opacity: 0.9;
+  }
+  8% { 
+    transform: translate(2px, -2px);
+    opacity: 0.6;
+  }
+  10% { 
+    transform: translate(-2px, 2px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { 
+    transform: translate(0, 0);
+    opacity: 0.6;
+  }
+  3% { 
+    transform: translate(2px, -2px);
+    opacity: 0.7;
+  }
+  6% { 
+    transform: translate(-2px, 2px);
+    opacity: 0.8;
+  }
+  9% { 
+    transform: translate(2px, 2px);
+    opacity: 0.6;
+  }
+}
+
+/* Cyberpunk matrix rain effect */
+@keyframes matrix-rain {
+  0% { opacity: 0; transform: translateY(-100px); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(100px); }
+}
+
+/* Pulsing neon border effect */
+@keyframes neon-pulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 5px #ff0066,
+      0 0 10px #ff0066,
+      0 0 15px #ff0066,
+      inset 0 0 5px rgba(255, 0, 102, 0.1);
+  }
+  50% { 
+    box-shadow: 
+      0 0 10px #ff0066,
+      0 0 20px #ff0066,
+      0 0 30px #ff0066,
+      inset 0 0 10px rgba(255, 0, 102, 0.2);
+  }
+}
+
 .numeric-large {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
   font-variant-numeric: tabular-nums;

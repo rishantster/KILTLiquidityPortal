@@ -773,16 +773,17 @@ export function LiquidityMint({
                         {kiltBalanceNum.toFixed(4)}
                       </span> KILT
                     </span>
-                    {hasKiltBalance ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handlePercentageSelect(100)}
-                        className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 px-2 py-1 font-semibold text-xs h-6"
-                      >
-                        MAX
-                      </Button>
-                    ) : (
+                    <div className="flex items-center gap-2">
+                      {hasKiltBalance && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handlePercentageSelect(100)}
+                          className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 px-2 py-1 font-semibold text-xs h-6"
+                        >
+                          MAX
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -790,9 +791,9 @@ export function LiquidityMint({
                         className="bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white border-0 px-3 py-1.5 font-bold text-xs h-7 transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 touch-manipulation"
                       >
                         <ArrowUpDown className="h-3 w-3 mr-1" />
-                        Buy KILT
+                        {hasKiltBalance ? "More KILT" : "Buy KILT"}
                       </Button>
-                    )}
+                    </div>
                   </div>
                   
                   {!hasKiltBalance && (

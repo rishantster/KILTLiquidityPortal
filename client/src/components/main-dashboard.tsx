@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   ArrowRight,
   ExternalLink,
-  BarChart3
+  BarChart3,
+  ArrowUpDown
 } from 'lucide-react';
 
 // Lazy-loaded components for faster initial load
@@ -41,6 +42,7 @@ import { WalletConnect } from './wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
+import { SwapModal } from './swap-modal';
 
 
 // Lazy load heavy components
@@ -128,6 +130,7 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
+  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const { toast } = useToast();
 
   // Navigation function for components to use
@@ -708,6 +711,22 @@ export function MainDashboard() {
                             </div>
                           </div>
                         </div>
+                        
+                        {/* Buy KILT Button */}
+                        <div className="mt-3 flex justify-center">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsSwapModalOpen(true)}
+                            className="bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white border-0 px-4 py-2 font-bold text-sm h-9 transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 touch-manipulation"
+                          >
+                            <ArrowUpDown className="h-4 w-4 mr-2" />
+                            {(() => {
+                              const kiltBalanceNum = kiltBalance ? parseFloat(kiltBalance) : 0;
+                              return kiltBalanceNum > 0 ? "More KILT" : "Buy KILT";
+                            })()}
+                          </Button>
+                        </div>
                       </div>
 
                       {/* Percentage Selector */}
@@ -888,6 +907,12 @@ export function MainDashboard() {
 
         </Tabs>
       </div>
+      
+      {/* Swap Modal */}
+      <SwapModal 
+        isOpen={isSwapModalOpen} 
+        onClose={() => setIsSwapModalOpen(false)} 
+      />
     </div>
   );
 }

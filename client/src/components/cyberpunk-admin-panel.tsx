@@ -69,7 +69,7 @@ export function CyberpunkAdminPanel() {
       
       return apiRequest('/api/admin/treasury/config', {
         method: 'POST',
-        body: JSON.stringify(configWithCalculations)
+        data: configWithCalculations
       });
     },
     onSuccess: (data) => {
@@ -94,8 +94,8 @@ export function CyberpunkAdminPanel() {
   const settingsMutation = useMutation({
     mutationFn: (settings: ProgramSettings) => 
       apiRequest('/api/admin/program/settings', {
-        method: 'POST', 
-        body: JSON.stringify(settings)
+        method: 'POST',
+        data: settings
       }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/program/settings'] });

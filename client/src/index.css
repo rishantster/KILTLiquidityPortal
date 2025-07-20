@@ -628,16 +628,14 @@ html {
   font-weight: 600;
   letter-spacing: 0.025em;
   text-transform: uppercase;
+  margin: 1rem 0;
+  position: relative;
 }
-    margin: 1rem 0;
-    position: relative;
-  }
-  
-  /* Force proper stacking context */
-  .mobile-stack-fix {
-    transform: translateZ(0);
-    position: relative;
-  }
+
+/* Force proper stacking context */
+.mobile-stack-fix {
+  transform: translateZ(0);
+  position: relative;
 }
 
 /* CONSISTENT HEX #ff0066 COLOR CLASSES */

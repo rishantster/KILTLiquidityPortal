@@ -115,7 +115,7 @@ export function ReownWalletConnect() {
         <div className="flex items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-            <span className="text-sm text-gray-400 font-mono">
+            <span className="text-sm text-white font-mono">
               {address?.slice(0, 6)}...{address?.slice(-4)}
             </span>
           </div>
@@ -226,7 +226,7 @@ export function ReownWalletConnect() {
       {/* Network Status Indicator */}
       <div className="flex items-center justify-center gap-2 p-2">
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-        <span className="text-xs text-gray-400">Base Mainnet</span>
+        <span className="text-xs text-white">Base Mainnet</span>
       </div>
     </div>
   );

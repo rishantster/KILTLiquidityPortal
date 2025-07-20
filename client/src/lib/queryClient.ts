@@ -30,7 +30,7 @@ export async function apiRequest<T = unknown>(
       if (!controller.signal.aborted) {
         controller.abort();
       }
-    }, 15000); // 15 second timeout for faster loading
+    }, 6000); // 6 second timeout to prevent hanging
 
     const res = await fetch(url, {
       method: options?.method || 'GET',
@@ -73,7 +73,7 @@ export const getQueryFn: <T>(options: {
       if (!controller.signal.aborted) {
         controller.abort();
       }
-    }, 15000); // 15 second timeout for faster loading
+    }, 6000); // 6 second timeout to prevent hanging
 
     try {
       const res = await fetch(queryKey[0] as string, {

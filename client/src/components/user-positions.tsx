@@ -349,7 +349,15 @@ export function UserPositions() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.location.reload()}
+                  onClick={() => {
+                    if (address) {
+                      queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+                      toast({
+                        title: "Refreshing Positions",
+                        description: "Updated position data loading...",
+                      });
+                    }
+                  }}
                   className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 border-slate-600/50 hover:border-slate-500/80 text-white hover:text-white h-9 px-3 backdrop-blur-sm"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />

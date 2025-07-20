@@ -39,8 +39,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-// Removed ThirdwebWalletConnect - now on landing page
-// Removed gas estimation card - consolidated into main interface
+import { ThirdwebWalletConnect } from './thirdweb-wallet-connect';
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
 

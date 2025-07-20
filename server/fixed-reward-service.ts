@@ -259,27 +259,21 @@ export class FixedRewardService {
       return this.liquidityCache.value;
     }
 
-    try {
-      // Get real pool TVL from Uniswap V3 contracts
-      const { uniswapIntegrationService } = await import('./uniswap-integration-service.js');
-      
-      const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
-      const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
-      
-      // Use real TVL from Uniswap as single source of truth
-      const realPoolTVL = poolData.tvlUSD;
-      const finalTVL = realPoolTVL > 0 ? realPoolTVL : 80000;
-      
-      // Cache the result
-      this.liquidityCache = { value: finalTVL, timestamp: Date.now() };
-      
-      return finalTVL;
-    } catch (error) {
-      // Fallback to minimum realistic pool size for proportional distribution
-      const fallbackTVL = 80000;
-      this.liquidityCache = { value: fallbackTVL, timestamp: Date.now() };
-      return fallbackTVL;
+    // Get real pool TVL from Uniswap V3 contracts - NO FALLBACKS
+    const { uniswapIntegrationService } = await import('./uniswap-integration-service.js');
+    
+    const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
+    const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
+    
+    // Only use real TVL from Uniswap - throw error if not available
+    if (!poolData || !poolData.tvlUSD || poolData.tvlUSD <= 0) {
+      throw new Error('Real-time pool TVL data required - fallback values disabled');
     }
+    
+    // Cache the real result
+    this.liquidityCache = { value: poolData.tvlUSD, timestamp: Date.now() };
+    
+    return poolData.tvlUSD;
   }
 
   /**
@@ -471,38 +465,37 @@ export class FixedRewardService {
     const timeBoostCoeff = parseFloat(settings.timeBoostCoefficient);
     const fullRangeBonusCoeff = parseFloat(settings.fullRangeBonus);
     
-    // Get REAL pool data from blockchain instead of assumptions
-    let currentPoolTVL = 0;
-    let averagePositionValue = 0;
-    let actualLiquidityShare = 0;
+    // Get REAL pool data from blockchain - NO FALLBACKS ALLOWED
+    const { uniswapIntegrationService } = await import('./uniswap-integration-service');
     
-    try {
-      // Get actual pool TVL from Uniswap V3 integration
-      const { uniswapIntegrationService } = await import('./uniswap-integration-service');
-      
-      // Use the direct pool address instead of blockchain config service
-      const KILT_ETH_POOL_ADDRESS = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
-      const poolData = await uniswapIntegrationService.getPoolData(KILT_ETH_POOL_ADDRESS);
-      currentPoolTVL = poolData.tvlUSD || 0;
-      
-      // Get actual position data from database (ONLY app-registered positions are reward-eligible)
-      // Note: This excludes direct Uniswap positions that haven't registered on our app
-      const activePositions = await this.getAllActiveParticipants();
-      
-      if (activePositions.length > 0) {
-        const totalPositionValue = activePositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUSD || '0'), 0);
-        averagePositionValue = totalPositionValue / activePositions.length;
-        // Calculate share based on app-registered positions only (not all pool liquidity)
-        actualLiquidityShare = averagePositionValue / Math.max(currentPoolTVL, totalPositionValue);
-      }
-    } catch (error) {
-      // Continue with fallback values if real data unavailable
+    // Use the direct pool address for real-time data
+    const KILT_ETH_POOL_ADDRESS = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
+    const poolData = await uniswapIntegrationService.getPoolData(KILT_ETH_POOL_ADDRESS);
+    
+    if (!poolData || !poolData.tvlUSD || poolData.tvlUSD <= 0) {
+      throw new Error('Real-time pool TVL data required for APR calculation - fallback values disabled');
     }
     
-    // Use real data if available, otherwise use realistic DeFi scenarios
-    const poolTVL = currentPoolTVL > 0 ? currentPoolTVL : 500000; // Realistic $500K pool for DeFi
-    const typicalPositionValue = averagePositionValue > 0 ? averagePositionValue : 2000; // Realistic $2K position size
-    const liquidityShare = actualLiquidityShare > 0 ? actualLiquidityShare : (typicalPositionValue / poolTVL);
+    const currentPoolTVL = poolData.tvlUSD;
+    
+    // Get actual position data from database (ONLY app-registered positions are reward-eligible)
+    const activePositions = await this.getAllActiveParticipants();
+    
+    if (activePositions.length === 0) {
+      throw new Error('No active positions found for APR calculation - real user data required');
+    }
+    
+    const totalPositionValue = activePositions.reduce((sum, pos) => sum + parseFloat(pos.positionValueUSD || '0'), 0);
+    const averagePositionValue = totalPositionValue / activePositions.length;
+    
+    if (averagePositionValue <= 0) {
+      throw new Error('Invalid position values - real position data required for APR calculation');
+    }
+    
+    // Calculate share based on app-registered positions only (not all pool liquidity)
+    const liquidityShare = averagePositionValue / Math.max(currentPoolTVL, totalPositionValue);
+    const poolTVL = currentPoolTVL;
+    const typicalPositionValue = averagePositionValue;
     
     // Debug APR calculation with admin values
     // Calculate APR for full range positions using REAL data (gets FRB bonus)

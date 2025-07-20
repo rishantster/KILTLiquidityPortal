@@ -114,7 +114,7 @@ export function ReownWalletConnect() {
       <div className="p-3">
         <div className="flex items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
             <span className="text-sm text-gray-400 font-mono">
               {address?.slice(0, 6)}...{address?.slice(-4)}
             </span>

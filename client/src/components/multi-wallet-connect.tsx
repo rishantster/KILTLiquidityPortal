@@ -56,16 +56,18 @@ export function MultiWalletConnect() {
       id: 'metamask',
       name: 'MetaMask',
       icon: (
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg">
-          <svg width="20" height="20" viewBox="0 0 318.6 318.6" fill="white">
-            <path d="m274.1 35.76-99.5 73.27L193.4 65.8z"/>
-            <path d="m44.4 35.76 98.7 74.13-17.9-43.23z"/>
-            <path d="m238.3 206.8-34.84 53.44 74.6 20.58 21.46-72.9z"/>
-            <path d="m19.11 207.9 21.4 72.9 74.6-20.58-34.84-53.44z"/>
-            <path d="m111.3 138.8-16.2 24.3 74.1 1.97-.69-79.87z"/>
-            <path d="m207.2 138.8-57.15-53.63-.69 79.87 74.1-1.97z"/>
-            <path d="m115.1 260.2 44.19-21.53-38.12-29.71z"/>
-            <path d="m159.4 238.7 44.19 21.53-6.07-51.24z"/>
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 212 189" fill="none">
+            <g clipPath="url(#clip0)">
+              <path d="M40.8 1.7 L26 46.1 L54.5 26.8 Z" fill="#E2761B" stroke="#E2761B"/>
+              <path d="M171.1 1.7 L185.7 46.1 L157.4 26.8 Z" fill="#E4761B" stroke="#E4761B"/>
+              <path d="M37.9 136.4 L16.3 168.1 L69.3 165.1 Z" fill="#E4761B" stroke="#E4761B"/>
+              <path d="M174.1 136.4 L195.7 168.1 L142.7 165.1 Z" fill="#E4761B" stroke="#E4761B"/>
+              <path d="M68.4 106.9 L76.2 90.8 L136.3 90.8 Z" fill="#F6851B" stroke="#F6851B"/>
+              <path d="M143.6 106.9 L135.8 90.8 L75.7 90.8 Z" fill="#F6851B" stroke="#F6851B"/>
+              <path d="M68.9 165.7 L94.6 153.1 L72.3 138.1 Z" fill="#F6851B" stroke="#F6851B"/>
+              <path d="M143.1 165.7 L117.4 153.1 L139.7 138.1 Z" fill="#F6851B" stroke="#F6851B"/>
+            </g>
           </svg>
         </div>
       ),
@@ -79,8 +81,10 @@ export function MultiWalletConnect() {
       name: 'Coinbase Wallet',
       icon: (
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg">
-          <svg width="20" height="20" viewBox="0 0 28 28" fill="white">
-            <path d="M14 0C6.27 0 0 6.27 0 14s6.27 14 14 14 14-6.27 14-14S21.73 0 14 0zm-3.5 21c-2.46 0-4.45-1.99-4.45-4.45s1.99-4.45 4.45-4.45c1.04 0 2.01.36 2.77.96l-1.13 1.08c-.51-.4-1.16-.64-1.84-.64-1.66 0-3.01 1.35-3.01 3.01s1.35 3.01 3.01 3.01c1.22 0 2.27-.74 2.73-1.8h-2.73v-1.44h4.32c.05.24.08.48.08.74 0 2.46-1.99 4.45-4.45 4.45zm7.5-3.5h-3v-3h3v3z"/>
+          <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="14" fill="#0052FF"/>
+            <path d="M14 22c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z" fill="white"/>
+            <path d="M14 18c2.209 0 4-1.791 4-4s-1.791-4-4-4-4 1.791-4 4 1.791 4 4 4z" fill="#0052FF"/>
           </svg>
         </div>
       ),
@@ -94,9 +98,9 @@ export function MultiWalletConnect() {
       id: 'walletconnect',
       name: 'WalletConnect',
       icon: (
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-            <path d="M7.5 6.5C7.5 8.981 5.481 11 3 11s-4.5-2.019-4.5-4.5S0.519 2 3 2s4.5 2.019 4.5 4.5zM3 13c-2.481 0-4.5 2.019-4.5 4.5S0.519 22 3 22s4.5-2.019 4.5-4.5S5.481 13 3 13zm18 0c-2.481 0-4.5 2.019-4.5 4.5S18.519 22 21 22s4.5-2.019 4.5-4.5S23.481 13 21 13zm0-11C18.519 2 16.5 4.019 16.5 6.5S18.519 11 21 11s4.5-2.019 4.5-4.5S23.481 2 21 2zM12 8c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4z"/>
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 480 332" fill="none">
+            <path d="M126.613 93.9842C162.109 58.4877 219.441 58.4877 254.937 93.9842L260.718 99.7651C262.718 101.765 262.718 105.073 260.718 107.073L238.236 129.555C237.236 130.555 235.564 130.555 234.564 129.555L227.473 122.464C208.139 103.13 176.851 103.13 157.517 122.464L149.738 130.243C148.738 131.243 147.066 131.243 146.066 130.243L123.584 107.761C121.584 105.761 121.584 102.453 123.584 100.453L126.613 93.9842ZM321.978 146.487L341.616 166.125C343.616 168.125 343.616 171.433 341.616 173.433L265.654 249.395C263.654 251.395 260.346 251.395 258.346 249.395L190.775 181.824C190.275 181.324 189.401 181.324 188.901 181.824L121.33 249.395C119.33 251.395 116.022 251.395 114.022 249.395L38.0596 173.433C36.0596 171.433 36.0596 168.125 38.0596 166.125L57.6977 146.487C59.6977 144.487 63.0058 144.487 65.0058 146.487L132.577 214.058C133.077 214.558 133.951 214.558 134.451 214.058L202.022 146.487C204.022 144.487 207.33 144.487 209.33 146.487L276.901 214.058C277.401 214.558 278.275 214.558 278.775 214.058L346.346 146.487C348.346 144.487 351.654 144.487 353.654 146.487L321.978 146.487Z" fill="white"/>
           </svg>
         </div>
       ),
@@ -109,9 +113,9 @@ export function MultiWalletConnect() {
       id: 'trust',
       name: 'Trust Wallet',
       icon: (
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center shadow-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zM12 7c1.4 0 2.8 1.1 2.8 2.5V11c.6 0 1.2.4 1.2 1v4c0 .6-.6 1-1.2 1H9.2c-.6 0-1.2-.4-1.2-1v-4c0-.6.6-1 1.2-1V9.5C9.2 8.1 10.6 7 12 7zm0 1.2c-.8 0-1.5.7-1.5 1.5V11h3V9.7c0-.8-.7-1.5-1.5-1.5z"/>
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 64 64" fill="white">
+            <path d="M32 2C23.16 2 16 9.16 16 18v8h-2c-1.1 0-2 .9-2 2v32c0 1.1.9 2 2 2h36c1.1 0 2-.9 2-2V28c0-1.1-.9-2-2-2h-2v-8c0-8.84-7.16-16-16-16zm0 4c6.63 0 12 5.37 12 12v8H20v-8c0-6.63 5.37-12 12-12z"/>
           </svg>
         </div>
       ),
@@ -129,21 +133,10 @@ export function MultiWalletConnect() {
       id: 'rainbow',
       name: 'Rainbow',
       icon: (
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg">
-          <svg width="20" height="20" viewBox="0 0 120 120" fill="white">
-            <defs>
-              <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ff6b6b"/>
-                <stop offset="25%" stopColor="#4ecdc4"/>
-                <stop offset="50%" stopColor="#45b7d1"/>
-                <stop offset="75%" stopColor="#f9ca24"/>
-                <stop offset="100%" stopColor="#f0932b"/>
-              </linearGradient>
-            </defs>
-            <circle cx="60" cy="60" r="50" fill="url(#rainbow)" opacity="0.8"/>
-            <circle cx="60" cy="40" r="15" fill="white"/>
-            <circle cx="40" cy="70" r="12" fill="white"/>
-            <circle cx="80" cy="70" r="12" fill="white"/>
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 via-yellow-500 via-green-500 via-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
+            <circle cx="12" cy="12" r="2" fill="white"/>
           </svg>
         </div>
       ),
@@ -156,8 +149,11 @@ export function MultiWalletConnect() {
       name: 'Phantom',
       icon: (
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-800 flex items-center justify-center shadow-lg">
-          <svg width="20" height="20" viewBox="0 0 128 128" fill="white">
-            <path d="M64 8C35.8 8 13.4 25.6 8.2 49.6c-.3 1.4-.5 2.9-.6 4.4-.1 1.5-.1 3-.1 4.5 0 1.5 0 3 .1 4.5.1 1.5.3 3 .6 4.4C13.4 91.4 35.8 109 64 109s50.6-17.6 55.8-41.6c.3-1.4.5-2.9.6-4.4.1-1.5.1-3 .1-4.5 0-1.5 0-3-.1-4.5-.1-1.5-.3-3-.6-4.4C114.6 25.6 92.2 8 64 8zm0 16c19.9 0 37.1 11.6 45.2 28.4-.8.3-1.6.6-2.4.9-4.8 1.8-9.8 2.7-14.8 2.7s-10-.9-14.8-2.7c-.8-.3-1.6-.6-2.4-.9C82.9 35.6 74.1 24 64 24s-18.9 11.6-10.8 28.4c-.8.3-1.6.6-2.4.9-4.8 1.8-9.8 2.7-14.8 2.7s-10-.9-14.8-2.7c-.8-.3-1.6-.6-2.4-.9C26.9 35.6 44.1 24 64 24z"/>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 2.74 1.58 5.11 3.88 6.26L7 19h10l-1.88-3.74C17.42 14.11 19 11.74 19 9c0-3.87-3.13-7-7-7z"/>
+            <circle cx="9" cy="8" r="1.5" fill="#AB47BC"/>
+            <circle cx="15" cy="8" r="1.5" fill="#AB47BC"/>
+            <path d="M12 10c1.11 0 2 .89 2 2s-.89 2-2 2-2-.89-2-2 .89-2 2-2z" fill="#7B1FA2"/>
           </svg>
         </div>
       ),

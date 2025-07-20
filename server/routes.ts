@@ -1893,11 +1893,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         res.json({
           totalAllocation: parseFloat(config.totalAllocation),
           programDurationDays: config.programDurationDays,
-          programStartDate: config.programStartDate ? config.programStartDate.toISOString().split('T')[0] : '',
+          programStartDate: config.programStartDate && config.programStartDate instanceof Date 
+            ? config.programStartDate.toISOString().split('T')[0] 
+            : '',
           treasuryWalletAddress: config.treasuryWalletAddress || '',
           isActive: config.isActive,
           // Auto-calculated read-only fields
-          programEndDate: config.programEndDate ? config.programEndDate.toISOString().split('T')[0] : '',
+          programEndDate: config.programEndDate && config.programEndDate instanceof Date 
+            ? config.programEndDate.toISOString().split('T')[0] 
+            : '',
           dailyRewardsCap: parseFloat(config.dailyRewardsCap || '0')
         });
       }
@@ -1911,16 +1915,30 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const config = req.body;
       
-      // Validate required fields - no fallback defaults
-      if (!config.treasuryWalletAddress || !config.totalAllocation || !config.programStartDate || !config.programDurationDays) {
+      // Validate required fields - check for valid values
+      const validationErrors = [];
+      if (!config.treasuryWalletAddress || config.treasuryWalletAddress.trim() === '') {
+        validationErrors.push('Treasury wallet address is required');
+      }
+      if (!config.totalAllocation || config.totalAllocation <= 0) {
+        validationErrors.push('Total allocation must be greater than 0');
+      }
+      if (!config.programStartDate || config.programStartDate.trim() === '') {
+        validationErrors.push('Program start date is required');
+      }
+      if (!config.programDurationDays || config.programDurationDays <= 0) {
+        validationErrors.push('Program duration must be greater than 0 days');
+      }
+
+      if (validationErrors.length > 0) {
         return res.status(400).json({ 
-          error: 'Missing required treasury configuration fields',
-          required: ['treasuryWalletAddress', 'totalAllocation', 'programStartDate', 'programDurationDays'],
+          error: 'Validation failed',
+          details: validationErrors,
           received: {
-            treasuryWalletAddress: !!config.treasuryWalletAddress,
-            totalAllocation: !!config.totalAllocation,
-            programStartDate: !!config.programStartDate,
-            programDurationDays: !!config.programDurationDays
+            treasuryWalletAddress: config.treasuryWalletAddress?.slice(0, 10) + '...',
+            totalAllocation: config.totalAllocation,
+            programStartDate: config.programStartDate,
+            programDurationDays: config.programDurationDays
           }
         });
       }

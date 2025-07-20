@@ -274,7 +274,7 @@ export function CyberpunkAdminPanel() {
                         treasuryWalletAddress: e.target.value
                       })}
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                      placeholder="0x... (wallet holding KILT tokens for rewards)"
+                      placeholder="0x1234...abcd (complete wallet address required)"
                     />
                     <div className="text-xs text-gray-500 mt-1">
                       Treasury wallet that holds and distributes KILT token rewards

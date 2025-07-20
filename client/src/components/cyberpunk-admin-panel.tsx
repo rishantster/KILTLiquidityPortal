@@ -65,6 +65,8 @@ export function CyberpunkAdminPanel() {
         ...derivedValues
       };
       
+      console.log('Sending treasury config:', configWithCalculations);
+      
       return apiRequest('/api/admin/treasury/config', {
         method: 'POST',
         body: JSON.stringify(configWithCalculations)

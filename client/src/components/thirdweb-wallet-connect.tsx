@@ -1,6 +1,7 @@
 import { ConnectButton } from "thirdweb/react";
 import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { client } from "@/lib/thirdweb";
+import { useLocation } from "wouter";
 
 // Configure wallets with Thirdweb
 const wallets = [
@@ -22,11 +23,17 @@ const wallets = [
 ];
 
 export function ThirdwebWalletConnect() {
+  const [, setLocation] = useLocation();
+
   return (
     <ConnectButton
       client={client}
       wallets={wallets}
       theme="dark"
+      onConnect={(wallet) => {
+        console.log('Wallet connected via Thirdweb, navigating to dashboard');
+        setLocation('/dashboard');
+      }}
       connectModal={{
         size: "wide",
         showThirdwebBranding: false,

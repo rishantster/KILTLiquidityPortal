@@ -15,8 +15,7 @@ import {
   CheckCircle2,
   ArrowRight,
   ExternalLink,
-  BarChart3,
-  Sparkles
+  BarChart3
 } from 'lucide-react';
 
 // Lazy-loaded components for faster initial load
@@ -38,8 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { EnhancedReownWallet } from './enhanced-reown-wallet';
-import { ReownFeaturesShowcase } from './reown-features-showcase';
+import { UnifiedWalletConnect } from './unified-wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -309,11 +307,8 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <EnhancedReownWallet />
+                <UnifiedWalletConnect />
               </div>
-              <p className="text-white/80 text-lg font-medium text-center">
-                Enhanced with Reown technology. Social login, gas sponsorship, and more.
-              </p>
             </div>
 
             {/* Clean Feature Grid */}
@@ -457,7 +452,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <EnhancedReownWallet />
+              <UnifiedWalletConnect />
             </div>
           </div>
         </div>
@@ -470,7 +465,7 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl">
+          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl">
             <TabsTrigger 
               value="overview" 
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
@@ -499,13 +494,7 @@ export function MainDashboard() {
               <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
               <span className="text-sm font-medium truncate">Positions</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="features" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
-            >
-              <Sparkles className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Features</span>
-            </TabsTrigger>
+
           </TabsList>
 
           {/* Overview Tab */}
@@ -866,12 +855,7 @@ export function MainDashboard() {
             </Suspense>
           </TabsContent>
 
-          {/* Enhanced Features Tab */}
-          <TabsContent value="features">
-            <Suspense fallback={<OptimizedLoadingFallback height="600px" />}>
-              <ReownFeaturesShowcase />
-            </Suspense>
-          </TabsContent>
+
 
         </Tabs>
       </div>

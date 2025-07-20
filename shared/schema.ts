@@ -161,10 +161,10 @@ export const treasuryConfig = pgTable("treasury_config", {
   id: serial("id").primaryKey(),
   treasuryWalletAddress: text("treasury_wallet_address").notNull(),
   totalAllocation: numeric("total_allocation", { precision: 30, scale: 18 }).notNull(),
-  programStartDate: timestamp("program_start_date").notNull(),
+  programStartDate: date("program_start_date").notNull(),
   programDurationDays: integer("program_duration_days").notNull(),
   // Auto-calculated fields
-  programEndDate: timestamp("program_end_date").notNull(), // Calculated from startDate + durationDays
+  programEndDate: date("program_end_date").notNull(), // Calculated from startDate + durationDays
   dailyRewardsCap: numeric("daily_rewards_cap", { precision: 30, scale: 18 }).notNull(), // Calculated from totalAllocation / durationDays
   isActive: boolean("is_active").default(true).notNull(),
   createdBy: text("created_by").notNull(),

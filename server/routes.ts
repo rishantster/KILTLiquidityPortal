@@ -1891,45 +1891,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           error: 'Treasury configuration not found. Please configure via admin panel first.' 
         });
       } else {
+        // Debug logging to see what we get from database
+        console.log('Treasury config from DB:', {
+          programStartDate: config.programStartDate,
+          programStartDateType: typeof config.programStartDate,
+          programEndDate: config.programEndDate,
+          programEndDateType: typeof config.programEndDate
+        });
+
         // Return existing config with auto-calculated fields
         res.json({
           totalAllocation: parseFloat(config.totalAllocation),
           programDurationDays: config.programDurationDays,
-          programStartDate: (() => {
-            try {
-              if (!config.programStartDate) return '';
-              if (config.programStartDate instanceof Date) {
-                return config.programStartDate.toISOString().split('T')[0];
-              }
-              // Handle string dates
-              const dateStr = config.programStartDate.toString();
-              if (dateStr.includes('T')) {
-                return dateStr.split('T')[0];
-              }
-              return dateStr;
-            } catch (e) {
-              return '';
-            }
-          })(),
+          programStartDate: config.programStartDate || '',
           treasuryWalletAddress: config.treasuryWalletAddress || '',
           isActive: config.isActive,
           // Auto-calculated read-only fields
-          programEndDate: (() => {
-            try {
-              if (!config.programEndDate) return '';
-              if (config.programEndDate instanceof Date) {
-                return config.programEndDate.toISOString().split('T')[0];
-              }
-              // Handle string dates
-              const dateStr = config.programEndDate.toString();
-              if (dateStr.includes('T')) {
-                return dateStr.split('T')[0];
-              }
-              return dateStr;
-            } catch (e) {
-              return '';
-            }
-          })(),
+          programEndDate: config.programEndDate || '',
           dailyRewardsCap: parseFloat(config.dailyRewardsCap || '0')
         });
       }

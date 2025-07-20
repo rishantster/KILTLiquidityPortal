@@ -272,6 +272,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             // Only log when there's a potential change to reduce noise
             const hasChange = currentAddress !== address;
             
+            // Debug: Log every 10 seconds to show detection is working
+            if (Date.now() % 10000 < 500) {
+              console.log('DETECTION STATUS:', {
+                currentAddress,
+                storedAddress: address,
+                hasChange,
+                isConnected,
+                accounts: accounts?.length || 0
+              });
+            }
+            
             // Aggressive detection: Force refresh if any account mismatch detected
             if (accounts && accounts.length > 0) {
               // Always force a fresh request to ensure MetaMask gives us the real current account
@@ -305,9 +316,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 selectedAddress 
               });
               
-              // Clear the interval immediately to prevent loops
-              clearInterval(intervalCheck);
-              
               // Address changed - update immediately
               setAddress(currentAddress);
               setIsConnected(true);
@@ -335,9 +343,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                   console.log('Auto network switch failed:', error);
                 }
               }
-              
-              // Return early to prevent further processing
-              return;
             } else if (!currentAddress && address) {
               console.log('WALLET DISCONNECT DETECTED:', { previousAddress: address });
               

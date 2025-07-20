@@ -94,8 +94,9 @@ export const getQueryFn: <T>(options: {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
         console.warn('Request timed out:', queryKey[0]);
-        // Don't throw for program-analytics timeouts, return fallback data
-        if (typeof queryKey[0] === 'string' && queryKey[0].includes('program-analytics')) {
+        // Gracefully handle timeout errors without throwing
+        const url = queryKey[0] as string;
+        if (url.includes('program-analytics')) {
           return {
             totalLiquidity: 0,
             participantCount: 0,
@@ -103,6 +104,14 @@ export const getQueryFn: <T>(options: {
             totalRewardsDistributed: 0
           };
         }
+        if (url.includes('positions/wallet')) {
+          return [];
+        }
+        if (url.includes('user-apr')) {
+          return { apr: 0, range: "0% - 0%" };
+        }
+        // For other endpoints, return null instead of throwing
+        return null;
         throw new Error('Request timeout');
       }
       throw error;

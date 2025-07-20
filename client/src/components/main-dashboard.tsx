@@ -531,8 +531,8 @@ export function MainDashboard() {
                     (kiltData?.priceChange24h || 0) >= 0 ? 'text-matrix-green/70' : 'text-red-400/70'
                   }`}>
                     {kiltData?.priceChange24h ? 
-                      `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}%` : 
-                      '+0.50%'
+                      `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
+                      '+0.50% (24h)'
                     }
                   </p>
                 </div>

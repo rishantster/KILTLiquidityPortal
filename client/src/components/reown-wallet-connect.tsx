@@ -32,10 +32,10 @@ const MOBILE_WALLETS: MobileWallet[] = [
     icon: '🔵'
   },
   {
-    name: 'Rainbow',
-    deepLink: 'https://rnbwapp.com/dapp/',
-    downloadLink: 'https://rainbow.me/',
-    icon: '🌈'
+    name: 'WalletConnect',
+    deepLink: 'wc:',
+    downloadLink: 'https://walletconnect.com/wallets',
+    icon: '🔗'
   }
 ];
 

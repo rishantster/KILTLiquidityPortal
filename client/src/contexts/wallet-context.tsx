@@ -146,34 +146,27 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const newAddress = accounts[0];
         console.log('WalletContext: Checking address change', { currentAddress: address, newAddress });
         
-        // Get current address at the time of the event
-        setAddress(currentAddress => {
-          console.log('WalletContext: setAddress callback', { currentAddress, newAddress });
-          if (currentAddress !== newAddress) {
-            // Address actually changed
-            console.log('WalletContext: Address changed, updating state and clearing cache');
-            setIsConnected(true);
-            setManuallyDisconnected(false); // Reset flag when switching accounts
-            
-            // Clear all user-specific cache for the previous account
-            queryClient.removeQueries({ queryKey: ['user-positions'] });
-            queryClient.removeQueries({ queryKey: ['rewards'] });
-            queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
-            queryClient.removeQueries({ queryKey: ['user-analytics'] });
-            queryClient.removeQueries({ queryKey: ['kilt-balance'] });
-            queryClient.removeQueries({ queryKey: ['weth-balance'] });
-            
-            // Trigger immediate re-fetch for new account
-            queryClient.invalidateQueries();
-            
-            toast({
-              title: "Account switched",
-              description: `Switched to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`,
-            });
-          } else {
-            console.log('WalletContext: Address unchanged, no action needed');
-          }
-          return newAddress;
+        // Always update address when MetaMask fires accountsChanged event
+        console.log('WalletContext: Address update from MetaMask event', { currentAddress: address, newAddress });
+        
+        setAddress(newAddress);
+        setIsConnected(true);
+        setManuallyDisconnected(false);
+        
+        // Always clear cache when address changes (MetaMask knows best)
+        queryClient.removeQueries({ queryKey: ['user-positions'] });
+        queryClient.removeQueries({ queryKey: ['rewards'] });
+        queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+        queryClient.removeQueries({ queryKey: ['user-analytics'] });
+        queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+        queryClient.removeQueries({ queryKey: ['weth-balance'] });
+        
+        // Trigger immediate re-fetch for new account
+        queryClient.invalidateQueries();
+        
+        toast({
+          title: "Account switched",
+          description: `Now connected to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`,
         });
       }
     };
@@ -252,170 +245,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       ethereum.on('connect', handleConnect);
       ethereum.on('disconnect', handleDisconnect);
       
-      // Enhanced automatic detection system
-      const intervalCheck = setInterval(async () => {
-        if (isActive && ethereum) {
-          try {
-            // Multiple detection methods for maximum reliability
-            const accounts = await ethereum.request({ method: 'eth_accounts' });
-            const selectedAddress = ethereum.selectedAddress;
-            const chainId = await ethereum.request({ method: 'eth_chainId' });
-            
-            // Get the most reliable current address
-            let currentAddress = null;
-            if (accounts && accounts.length > 0) {
-              currentAddress = accounts[0];
-            } else if (selectedAddress) {
-              currentAddress = selectedAddress;
-            }
-            
-            // Only log when there's a potential change to reduce noise
-            const hasChange = currentAddress !== address;
-            
-            // Debug: Log every 10 seconds to show detection is working
-            if (Date.now() % 10000 < 500) {
-              console.log('DETECTION STATUS:', {
-                currentAddress,
-                storedAddress: address,
-                hasChange,
-                isConnected,
-                accounts: accounts?.length || 0
-              });
-            }
-            
-            // Aggressive detection: Force refresh if any account mismatch detected
-            if (accounts && accounts.length > 0) {
-              // Always force a fresh request to ensure MetaMask gives us the real current account
-              try {
-                const freshAccounts = await ethereum.request({ method: 'eth_requestAccounts' });
-                if (freshAccounts && freshAccounts.length > 0) {
-                  currentAddress = freshAccounts[0];
-                  
-                  // Check if there's any difference between what we expected and what we got
-                  if (currentAddress !== accounts[0] || currentAddress !== selectedAddress) {
-                    console.log('FORCED ACCOUNT DETECTION:', {
-                      ethAccounts: accounts[0],
-                      selectedAddress,
-                      freshResult: currentAddress,
-                      storedAddress: address
-                    });
-                  }
-                }
-              } catch (error) {
-                // If fresh request fails, use the best available option
-                currentAddress = accounts[0] || selectedAddress;
-              }
-            }
-            
-            if (hasChange && currentAddress && currentAddress.toLowerCase() !== address?.toLowerCase()) {
-              console.log('WALLET CHANGE DETECTED:', { 
-                previousAddress: address,
-                newAddress: currentAddress,
-                method: 'auto-detection',
-                accounts,
-                selectedAddress 
-              });
-              
-              // Address changed - update immediately
-              setAddress(currentAddress);
-              setIsConnected(true);
-              setManuallyDisconnected(false);
-              
-              // Clear all user-specific cache for clean state
-              queryClient.removeQueries({ queryKey: ['user-positions'] });
-              queryClient.removeQueries({ queryKey: ['rewards'] });
-              queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
-              queryClient.removeQueries({ queryKey: ['user-analytics'] });
-              queryClient.removeQueries({ queryKey: ['kilt-balance'] });
-              queryClient.removeQueries({ queryKey: ['weth-balance'] });
-              queryClient.invalidateQueries();
-              
-              toast({
-                title: "Wallet account changed",
-                description: `Automatically switched to ${currentAddress.slice(0, 6)}...${currentAddress.slice(-4)}`,
-              });
-              
-              // Ensure we're on Base network
-              if (chainId !== '0x2105') {
-                try {
-                  await switchToBase();
-                } catch (error) {
-                  console.log('Auto network switch failed:', error);
-                }
-              }
-            } else if (!currentAddress && address) {
-              console.log('WALLET DISCONNECT DETECTED:', { previousAddress: address });
-              
-              // Wallet disconnected
-              setAddress(null);
-              setIsConnected(false);
-              setManuallyDisconnected(true);
-              
-              // Clear all user-specific cache
-              queryClient.removeQueries({ queryKey: ['user-positions'] });
-              queryClient.removeQueries({ queryKey: ['rewards'] });
-              queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
-              queryClient.removeQueries({ queryKey: ['user-analytics'] });
-              queryClient.removeQueries({ queryKey: ['kilt-balance'] });
-              queryClient.removeQueries({ queryKey: ['weth-balance'] });
-              
-              toast({
-                title: "Wallet disconnected",
-                description: "Your wallet has been automatically disconnected.",
-              });
-            }
-          } catch (error) {
-            // Only log significant errors
-            if (error.message && !error.message.includes('User rejected')) {
-              console.log('WalletContext: Auto-detection error', error);
-            }
-          }
-        }
-      }, 500); // Check every 500ms for very fast detection
-      
-      // Additional aggressive detection - monitor page focus events
-      const handlePageFocus = async () => {
-        if (document.hasFocus() && ethereum) {
-          try {
-            console.log('PAGE FOCUS - Checking for wallet changes...');
-            const freshAccounts = await ethereum.request({ method: 'eth_requestAccounts' });
-            if (freshAccounts && freshAccounts.length > 0 && freshAccounts[0] !== address) {
-              console.log('FOCUS DETECTION - Address changed:', { 
-                old: address, 
-                new: freshAccounts[0] 
-              });
-              
-              setAddress(freshAccounts[0]);
-              setIsConnected(true);
-              setManuallyDisconnected(false);
-              
-              // Clear cache
-              queryClient.removeQueries({ queryKey: ['user-positions'] });
-              queryClient.removeQueries({ queryKey: ['rewards'] });
-              queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
-              queryClient.removeQueries({ queryKey: ['user-analytics'] });
-              queryClient.removeQueries({ queryKey: ['kilt-balance'] });
-              queryClient.removeQueries({ queryKey: ['weth-balance'] });
-              queryClient.invalidateQueries();
-              
-              toast({
-                title: "Wallet account changed",
-                description: `Detected new account: ${freshAccounts[0].slice(0, 6)}...${freshAccounts[0].slice(-4)}`,
-              });
-            }
-          } catch (error) {
-            // Silently handle errors
-          }
-        }
-      };
-      
-      window.addEventListener('focus', handlePageFocus);
-      document.addEventListener('visibilitychange', handlePageFocus);
+      console.log('WALLET CONTEXT: Setting up pure event listener system');
       
       // Cleanup function
       return () => {
         isActive = false;
-        clearInterval(intervalCheck);
         
         if (ethereum?.removeListener) {
           ethereum.removeListener('accountsChanged', handleAccountsChanged);
@@ -423,9 +257,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           ethereum.removeListener('connect', handleConnect);
           ethereum.removeListener('disconnect', handleDisconnect);
         }
-        
-        window.removeEventListener('focus', handlePageFocus);
-        document.removeEventListener('visibilitychange', handlePageFocus);
       };
     } else {
       if (isActive) setInitialized(true);

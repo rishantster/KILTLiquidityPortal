@@ -22,7 +22,28 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
+  
+  // Persist manually disconnected state across page reloads
+  const [manuallyDisconnected, setManuallyDisconnectedState] = useState(() => {
+    try {
+      return localStorage.getItem('manually-disconnected') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  
+  const setManuallyDisconnected = (value: boolean) => {
+    setManuallyDisconnectedState(value);
+    try {
+      if (value) {
+        localStorage.setItem('manually-disconnected', 'true');
+      } else {
+        localStorage.removeItem('manually-disconnected');
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  };
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -404,6 +425,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('walletconnect');
       localStorage.removeItem('wallet-connected');
       localStorage.removeItem('wallet-address');
+      // Don't remove 'manually-disconnected' - we want to keep this flag
     } catch (error) {
       // Ignore localStorage errors
     }

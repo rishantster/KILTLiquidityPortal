@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Plus, 
   Coins, 
@@ -15,7 +16,9 @@ import {
   Target,
   Zap,
   TrendingUp,
-  Clock
+  Clock,
+  ExternalLink,
+  ArrowUpDown
 } from 'lucide-react';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useWallet } from '@/contexts/wallet-context';
@@ -42,6 +45,112 @@ const EthereumLogo = ({ className = "w-5 h-5" }) => (
     <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
   </svg>
 );
+
+// SwapModal component for embedded Uniswap interface
+const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void; }) => {
+  const { data: kiltData } = useKiltTokenData();
+  const { address } = useWallet();
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md bg-black/95 backdrop-blur-xl border border-gray-800/50 text-white">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3 text-xl">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-5 w-5 text-[#ff0066]" />
+              <span>Buy KILT</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+              <span className="text-sm text-gray-400">
+                ${kiltData?.price?.toFixed(4) || '0.0185'}
+              </span>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Swap Interface */}
+          <div className="p-4 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg">
+            <div className="text-center space-y-3">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <EthereumLogo className="w-6 h-6" />
+                <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
+              </div>
+              
+              <h3 className="text-lg font-semibold text-white">ETH → KILT Swap</h3>
+              <p className="text-sm text-gray-400">
+                Get KILT tokens to provide liquidity and earn rewards
+              </p>
+              
+              {/* Embedded Uniswap Widget */}
+              <div className="mt-4 border border-gray-700/50 rounded-lg overflow-hidden">
+                <iframe
+                  src={`https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&theme=dark`}
+                  width="100%"
+                  height="400"
+                  style={{ border: 'none', borderRadius: '8px' }}
+                  allow="clipboard-write"
+                  title="Uniswap Swap Interface"
+                  className="bg-gray-900"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="space-y-2">
+            <Button
+              onClick={() => {
+                const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
+                window.open(swapUrl, '_blank');
+              }}
+              className="w-full bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white font-semibold transition-all duration-200"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Open in New Tab
+            </Button>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="text-gray-300 border-gray-600 hover:bg-gray-800 hover:text-white"
+              >
+                Close
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (address) {
+                    const portfolioUrl = `https://app.uniswap.org/#/portfolio/${address}`;
+                    window.open(portfolioUrl, '_blank');
+                  }
+                }}
+                className="text-blue-400 border-blue-600 hover:bg-blue-600/20 hover:text-blue-300"
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Portfolio
+              </Button>
+            </div>
+          </div>
+          
+          {/* Info */}
+          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <div className="flex items-start gap-2">
+              <Info className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="text-xs text-blue-300 space-y-1">
+                <p><strong>Tip:</strong> You need KILT tokens to provide liquidity and earn treasury rewards.</p>
+                <p>After swapping, return to the Add Liquidity tab to create your position.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 interface LiquidityMintProps {
   kiltBalance: string;
@@ -80,6 +189,7 @@ export function LiquidityMint({
   const [selectedStrategy, setSelectedStrategy] = useState('full');
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isManualInput, setIsManualInput] = useState(false);
+  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   
   // Approval state tracking
   const [isKiltApproved, setIsKiltApproved] = useState(false);
@@ -676,19 +786,10 @@ export function LiquidityMint({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
-                          // Mobile-optimized: Check if we're on mobile and use appropriate opening method
-                          if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                            // Mobile: Open in same tab to avoid popup blockers
-                            window.location.href = swapUrl;
-                          } else {
-                            // Desktop: Open in new tab
-                            window.open(swapUrl, '_blank');
-                          }
-                        }}
-                        className="text-[#ff0066] hover:text-white hover:bg-[#ff0066] border-[#ff0066]/50 hover:border-[#ff0066] px-2 py-1 font-semibold text-xs h-6 transition-all duration-200 touch-manipulation"
+                        onClick={() => setIsSwapModalOpen(true)}
+                        className="bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white border-0 px-3 py-1.5 font-bold text-xs h-7 transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 touch-manipulation"
                       >
+                        <ArrowUpDown className="h-3 w-3 mr-1" />
                         Buy KILT
                       </Button>
                     )}
@@ -1028,6 +1129,9 @@ export function LiquidityMint({
           </p>
         </div>
       </div>
+      
+      {/* Swap Modal */}
+      <SwapModal isOpen={isSwapModalOpen} onClose={() => setIsSwapModalOpen(false)} />
       </div>
     </div>
   );

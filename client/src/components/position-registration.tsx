@@ -122,8 +122,9 @@ export function PositionRegistration() {
         const registeredPositions = registeredResponse.ok ? await registeredResponse.json() : [];
         
         // Get both app-created and manually registered positions
-        const appCreatedNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === true).map((p: any) => p.nftTokenId));
-        const manuallyRegisteredNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === false).map((p: any) => p.nftTokenId));
+        // CRITICAL FIX: Ensure string comparison by converting to string
+        const appCreatedNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === true).map((p: any) => p.nftTokenId.toString()));
+        const manuallyRegisteredNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === false).map((p: any) => p.nftTokenId.toString()));
         
         // Filter logic: Only show positions that aren't app-created and aren't manually registered
         

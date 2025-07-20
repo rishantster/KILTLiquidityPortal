@@ -398,11 +398,12 @@ export class PositionRegistrationService {
         .from(lpPositions)
         .where(eq(lpPositions.userId, user.id));
       
-      const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId));
+      // CRITICAL FIX: Ensure string comparison consistency
+      const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId.toString()));
       
       // Filter out already registered positions
       const unregisteredPositions = kiltPositions.filter(position => 
-        !registeredNftIds.has(position.tokenId)
+        !registeredNftIds.has(position.tokenId.toString())
       );
       
       // Transform to expected format for frontend

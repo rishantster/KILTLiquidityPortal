@@ -210,7 +210,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Get already registered positions
       const registeredPositions = await storage.getRegisteredPositions(userAddress);
-      const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId));
+      // CRITICAL FIX: Ensure string comparison consistency
+      const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId.toString()));
       
       // Get KILT token address from blockchain configuration
       const blockchainConfig = await blockchainConfigService.getConfiguration();

@@ -296,7 +296,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
               }
             }
             
-            if (hasChange && currentAddress) {
+            if (hasChange && currentAddress && currentAddress.toLowerCase() !== address?.toLowerCase()) {
               console.log('WALLET CHANGE DETECTED:', { 
                 previousAddress: address,
                 newAddress: currentAddress,
@@ -304,6 +304,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 accounts,
                 selectedAddress 
               });
+              
+              // Clear the interval immediately to prevent loops
+              clearInterval(intervalCheck);
               
               // Address changed - update immediately
               setAddress(currentAddress);
@@ -332,6 +335,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                   console.log('Auto network switch failed:', error);
                 }
               }
+              
+              // Return early to prevent further processing
+              return;
             } else if (!currentAddress && address) {
               console.log('WALLET DISCONNECT DETECTED:', { previousAddress: address });
               

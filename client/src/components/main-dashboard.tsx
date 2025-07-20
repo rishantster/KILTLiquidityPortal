@@ -100,12 +100,7 @@ function FormulaProgramAPR() {
   );
 }
 
-// Base logo component
-const BaseLogo = ({ className = "w-5 h-5" }) => (
-  <svg className={className} viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 21.3467 0.309448 48.8335H72.8914V61.2005H0.309448C2.35281 88.6873 26.0432 110.034 54.921 110.034Z" fill="#0052FF"/>
-  </svg>
-);
+
 
 export function MainDashboard() {
   const { address, isConnected, initialized } = useWallet();
@@ -451,20 +446,6 @@ export function MainDashboard() {
           </div>
           
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <Badge 
-              className={`hidden sm:flex px-3 py-1.5 text-xs font-medium border rounded-full transition-all duration-200 font-mono ${
-                isConnected && isBaseNetworkConnected 
-                  ? 'bg-pink-500/20 text-white border-pink-500/30' 
-                  : 'bg-gray-500/20 text-white border-gray-500/30'
-              }`}
-            >
-              <BaseLogo className="w-4 h-4 mr-1.5" />
-              Base Network
-              {isConnected && isBaseNetworkConnected && (
-                <div className="w-2 h-2 rounded-full ml-2 bg-[#03ff40]" style={{ backgroundColor: '#ff0066' }} />
-              )}
-            </Badge>
-
             <div className="flex-shrink-0">
               <UnifiedWalletConnect />
             </div>

@@ -175,9 +175,9 @@ export function UnifiedWalletConnect() {
 
       {/* Wallet Selection Modal */}
       <Dialog open={showWalletModal} onOpenChange={setShowWalletModal}>
-        <DialogContent className="sm:max-w-md bg-black/90 backdrop-blur-lg border-gray-800/50">
-          <DialogHeader>
-            <DialogTitle className="text-white text-center">
+        <DialogContent className="sm:max-w-md bg-black/95 backdrop-blur-xl border border-[#ff0066]/20 shadow-2xl shadow-[#ff0066]/10">
+          <DialogHeader className="pb-6">
+            <DialogTitle className="text-white text-xl font-bold text-center bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               Connect your wallet
             </DialogTitle>
           </DialogHeader>
@@ -190,22 +190,24 @@ export function UnifiedWalletConnect() {
                   key={wallet.id}
                   onClick={wallet.action}
                   variant="ghost"
-                  className="w-full justify-start p-4 h-auto border border-gray-800/50 bg-white/5 hover:bg-white/10 transition-all duration-200"
+                  className="w-full justify-start p-4 h-auto border border-gray-700/50 bg-gradient-to-r from-gray-900/50 to-gray-800/50 hover:from-[#ff0066]/10 hover:to-purple-600/10 hover:border-[#ff0066]/30 transition-all duration-300 group"
                 >
-                  <div className="flex items-center space-x-3 w-full">
-                    <span className="text-2xl">{wallet.icon}</span>
+                  <div className="flex items-center space-x-4 w-full">
+                    <span className="text-3xl">{wallet.icon}</span>
                     <div className="flex-1 text-left">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-medium">{wallet.name}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-white font-semibold group-hover:text-white transition-colors">{wallet.name}</span>
                         {wallet.recommended && (
-                          <Badge className="bg-[#ff0066]/20 text-[#ff0066] border-[#ff0066]/30 text-xs px-2">
+                          <Badge className="bg-[#ff0066]/30 text-[#ff0066] border-[#ff0066]/40 text-xs px-2 py-0.5 font-medium">
                             Recommended
                           </Badge>
                         )}
                       </div>
-                      <p className="text-gray-400 text-sm">{wallet.description}</p>
+                      <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">{wallet.description}</p>
                     </div>
-                    {isMobile ? <Smartphone className="h-4 w-4 text-gray-400" /> : <Monitor className="h-4 w-4 text-gray-400" />}
+                    <div className="bg-gray-800/50 p-2 rounded-lg group-hover:bg-[#ff0066]/20 transition-colors">
+                      {isMobile ? <Smartphone className="h-4 w-4 text-gray-400 group-hover:text-[#ff0066]" /> : <Monitor className="h-4 w-4 text-gray-400 group-hover:text-[#ff0066]" />}
+                    </div>
                   </div>
                 </Button>
               ))}
@@ -213,31 +215,26 @@ export function UnifiedWalletConnect() {
 
             {/* Mobile Direct Links */}
             {isMobile && (
-              <div className="pt-4 border-t border-gray-800/50">
-                <p className="text-gray-400 text-sm text-center mb-3">
+              <div className="pt-4 border-t border-gray-700/50">
+                <p className="text-gray-400 text-sm text-center mb-4 font-medium">
                   Or open directly in your wallet app:
                 </p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3">
                   {mobileWalletLinks.map((wallet) => (
                     <Button
                       key={wallet.name}
                       onClick={wallet.action}
                       variant="ghost"
                       size="sm"
-                      className="flex flex-col items-center p-3 h-auto bg-white/5 hover:bg-white/10 border border-gray-800/50"
+                      className="flex flex-col items-center p-4 h-auto bg-gradient-to-b from-gray-800/50 to-gray-900/50 hover:from-[#ff0066]/20 hover:to-purple-600/20 border border-gray-700/50 hover:border-[#ff0066]/30 transition-all duration-300 group"
                     >
-                      <span className="text-lg mb-1">{wallet.icon}</span>
-                      <span className="text-xs text-gray-300">{wallet.name.split(' ')[0]}</span>
+                      <span className="text-2xl mb-2">{wallet.icon}</span>
+                      <span className="text-xs text-gray-300 group-hover:text-white font-medium">{wallet.name.split(' ')[0]}</span>
                     </Button>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Connection Status */}
-            <div className="text-center text-xs text-gray-500 pt-2 border-t border-gray-800/50">
-              Connecting to Base Network • Secure • No fees for connecting
-            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -478,31 +478,31 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1.5 rounded-2xl mb-8 h-12 gap-1 shadow-2xl">
+          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl">
             <TabsTrigger 
               value="overview" 
-              className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/30 data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2.5 flex items-center justify-center min-w-0 hover:bg-white/5 group tab-elegant"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
               <span className="text-sm font-medium truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/30 data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2.5 flex items-center justify-center min-w-0 hover:bg-white/5 group tab-elegant"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
               <span className="text-sm font-medium truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/30 data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2.5 flex items-center justify-center min-w-0 hover:bg-white/5 group tab-elegant"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
               <span className="text-sm font-medium truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-white/30 data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2.5 flex items-center justify-center min-w-0 hover:bg-white/5 group tab-elegant"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
               <span className="text-sm font-medium truncate">Active Position</span>

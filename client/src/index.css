@@ -832,18 +832,18 @@ a:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-/* ===== TERMINAL CYBERPUNK TAB DESIGN ===== */
+/* ===== CLEAN TERMINAL TAB DESIGN ===== */
 .terminal-tab {
-  /* Base terminal styling */
+  /* Base terminal styling - cleaner approach */
   background: transparent !important;
-  color: #00ff41 !important;
-  font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
   font-weight: 400 !important;
-  font-size: 11px !important;
-  letter-spacing: 0.5px !important;
-  padding: 8px 16px !important;
+  font-size: 12px !important;
+  letter-spacing: 0.3px !important;
+  padding: 10px 20px !important;
   border: none !important;
-  border-right: 1px solid rgba(255, 0, 102, 0.2) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
   transition: all 0.2s ease !important;
   display: flex !important;
   align-items: center !important;
@@ -859,95 +859,49 @@ a:hover {
 }
 
 .terminal-tab:hover {
-  background: rgba(0, 255, 65, 0.05) !important;
-  color: #00ff41 !important;
-  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .terminal-tab[data-state="active"] {
   background: rgba(255, 0, 102, 0.1) !important;
   color: #ff0066 !important;
-  border-right-color: rgba(255, 0, 102, 0.4) !important;
-  text-shadow: 0 0 8px rgba(255, 0, 102, 0.8) !important;
-  box-shadow: inset 0 0 20px rgba(255, 0, 102, 0.1) !important;
+  border-right-color: rgba(255, 0, 102, 0.3) !important;
 }
 
 .terminal-tab[data-state="active"]:hover {
   background: rgba(255, 0, 102, 0.15) !important;
-  text-shadow: 0 0 12px rgba(255, 0, 102, 1) !important;
 }
 
-/* Terminal bracket styling */
+/* Terminal bracket styling - simplified */
 .terminal-bracket {
   color: rgba(255, 255, 255, 0.4) !important;
-  font-weight: 700 !important;
-  transition: all 0.2s ease !important;
+  font-weight: 600 !important;
+  margin: 0 2px !important;
+  transition: color 0.2s ease !important;
 }
 
 .terminal-tab[data-state="active"] .terminal-bracket {
   color: #ff0066 !important;
-  text-shadow: 0 0 4px rgba(255, 0, 102, 0.6) !important;
 }
 
 .terminal-tab:hover .terminal-bracket {
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* Terminal text styling */
+/* Terminal text styling - clean */
 .terminal-text {
   font-weight: 400 !important;
-  transition: all 0.2s ease !important;
+  transition: color 0.2s ease !important;
 }
 
-/* Terminal icon styling */
+/* Terminal icon styling - minimal effects */
 .terminal-tab svg {
-  transition: all 0.2s ease !important;
-  filter: none !important;
-}
-
-.terminal-tab:hover svg {
-  filter: drop-shadow(0 0 4px rgba(0, 255, 65, 0.6)) !important;
+  transition: color 0.2s ease !important;
 }
 
 .terminal-tab[data-state="active"] svg {
   color: #ff0066 !important;
-  filter: drop-shadow(0 0 6px rgba(255, 0, 102, 0.8)) !important;
-}
-
-/* Cursor blink effect for active tab */
-.terminal-tab[data-state="active"]::after {
-  content: '_';
-  color: #ff0066;
-  margin-left: 4px;
-  animation: terminal-blink 1s infinite;
-}
-
-@keyframes terminal-blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-/* Terminal scanline effect */
-.terminal-tab::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 255, 65, 0.03) 50%,
-    transparent
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.terminal-tab:hover::before {
-  opacity: 1;
 }
 
 /* Remove default tab styling */

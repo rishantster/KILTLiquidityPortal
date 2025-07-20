@@ -34,6 +34,12 @@ export function CyberpunkAdminPanel() {
     isActive: true
   });
 
+  // Clear cache and force refresh when component mounts
+  useEffect(() => {
+    queryClient.removeQueries({ queryKey: ['/api/admin/treasury/config'] });
+    queryClient.removeQueries({ queryKey: ['/api/admin/program/settings'] });
+  }, []);
+
   // Auto-calculate derived values
   const calculateDerivedValues = (config: TreasuryConfig) => {
     const dailyRewardsCap = config.totalAllocation && config.programDurationDays 
@@ -115,9 +121,13 @@ export function CyberpunkAdminPanel() {
     }
   });
 
-  // Load existing treasury configuration
+  // Load existing treasury configuration with forced refresh
   const { data: existingTreasuryConfig, isLoading: treasuryLoading } = useQuery({
     queryKey: ['/api/admin/treasury/config'],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   // Load existing program settings
@@ -128,7 +138,13 @@ export function CyberpunkAdminPanel() {
   // Update state when data loads
   useEffect(() => {
     if (existingTreasuryConfig && !treasuryLoading) {
-      setTreasuryConfig(existingTreasuryConfig);
+      console.log('Loading treasury config:', existingTreasuryConfig);
+      setTreasuryConfig({
+        ...existingTreasuryConfig,
+        // Ensure dates are properly set
+        programStartDate: existingTreasuryConfig.programStartDate || '',
+        programEndDate: existingTreasuryConfig.programEndDate || ''
+      });
     }
   }, [existingTreasuryConfig, treasuryLoading]);
 

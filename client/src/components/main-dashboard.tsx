@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { WalletConnect } from './wallet-connect';
+import { UnifiedWalletConnect } from './unified-wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';

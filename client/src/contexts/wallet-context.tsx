@@ -91,12 +91,44 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        // Always get fresh accounts - never trust cached state
         const accounts = await (window as any).ethereum.request({
           method: 'eth_accounts',
         });
+        
+        const currentAddress = accounts && accounts.length > 0 ? accounts[0] : null;
+        
+        console.log('WALLET CONTEXT: Connection check', {
+          currentAddress,
+          storedAddress: address,
+          accountsLength: accounts?.length || 0,
+          manuallyDisconnected
+        });
 
-        if (isActive && accounts && accounts.length > 0 && !manuallyDisconnected) {
-          setAddress(accounts[0]);
+        if (isActive && currentAddress && !manuallyDisconnected) {
+          // Always update to the real current address (don't trust stored state)
+          if (currentAddress !== address) {
+            console.log('WALLET CONTEXT: Address change detected during reconnection', {
+              old: address,
+              new: currentAddress
+            });
+            
+            // Clear cache when address changes
+            queryClient.removeQueries({ queryKey: ['user-positions'] });
+            queryClient.removeQueries({ queryKey: ['rewards'] });
+            queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+            queryClient.removeQueries({ queryKey: ['user-analytics'] });
+            queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+            queryClient.removeQueries({ queryKey: ['weth-balance'] });
+            queryClient.invalidateQueries();
+            
+            toast({
+              title: "Account detected",
+              description: `Connected to ${currentAddress.slice(0, 6)}...${currentAddress.slice(-4)}`,
+            });
+          }
+          
+          setAddress(currentAddress);
           setIsConnected(true);
           
           // Check if we're on Base mainnet and switch if needed
@@ -108,9 +140,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
               // Failed to switch automatically
             }
           }
+        } else if (isActive && !currentAddress) {
+          // No current address - ensure disconnected state
+          setAddress(null);
+          setIsConnected(false);
         }
       } catch (error) {
-        // Error checking connection
+        console.log('WALLET CONTEXT: Connection check error', error);
+        if (isActive) {
+          setAddress(null);
+          setIsConnected(false);
+        }
       } finally {
         if (isActive) setInitialized(true);
       }
@@ -279,12 +319,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
     setIsConnecting(true);
     try {
+      // Always request fresh accounts - never trust cached state
       const accounts = await (window as any).ethereum.request({
         method: 'eth_requestAccounts',
       });
 
       if (accounts && accounts.length > 0) {
         const connectedAddress = accounts[0];
+        
+        console.log('WALLET CONTEXT: Manual connect to fresh address', {
+          connectedAddress,
+          previousAddress: address
+        });
+        
+        // Clear all cache when connecting (fresh start)
+        queryClient.clear();
+        
         setAddress(connectedAddress);
         setIsConnected(true);
         setManuallyDisconnected(false); // Reset flag when manually connecting
@@ -330,16 +380,38 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   };
 
   const disconnect = () => {
+    console.log('WALLET CONTEXT: Manual disconnect - clearing all state and cache');
+    
+    // Clear wallet state
     setAddress(null);
     setIsConnected(false);
     setManuallyDisconnected(true); // Set flag to prevent auto-reconnection
     
+    // Completely clear all cached data
+    queryClient.clear(); // This clears ALL cache
+    
+    // Also specifically remove user-related queries for extra safety
+    queryClient.removeQueries({ queryKey: ['user-positions'] });
+    queryClient.removeQueries({ queryKey: ['rewards'] });
+    queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+    queryClient.removeQueries({ queryKey: ['user-analytics'] });
+    queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+    queryClient.removeQueries({ queryKey: ['weth-balance'] });
+    queryClient.removeQueries({ queryKey: ['users'] });
+    
+    // Clear any localStorage wallet data
+    try {
+      localStorage.removeItem('walletconnect');
+      localStorage.removeItem('wallet-connected');
+      localStorage.removeItem('wallet-address');
+    } catch (error) {
+      // Ignore localStorage errors
+    }
+    
     toast({
       title: "Wallet disconnected",
-      description: "Successfully disconnected from your wallet.",
+      description: "Your wallet has been disconnected and all cache cleared.",
     });
-    
-    // Wallet disconnected - Context state updated
   };
 
   const forceRefreshWallet = async () => {

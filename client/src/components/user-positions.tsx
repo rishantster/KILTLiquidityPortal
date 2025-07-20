@@ -699,272 +699,164 @@ export function UserPositions() {
           )}
         </CardContent>
       </Card>
-      {/* Position Management Modal - Uniswap Style */}
+      {/* Uniswap-Style Position Management Modal */}
       {selectedPosition && managementMode && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <Card className="cluely-card rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center justify-between text-white font-heading">
-                <span>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl max-w-lg w-full shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div>
+                <h2 className="text-xl font-semibold text-white">
                   {managementMode === 'increase' && 'Add Liquidity'}
                   {managementMode === 'decrease' && 'Remove Liquidity'}
                   {managementMode === 'collect' && 'Collect Fees'}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedPosition(null);
-                    setManagementMode(null);
-                    setAmount0('');
-                    setAmount1('');
-                    setLiquidityAmount('');
-                  }}
-                  className="text-white/60 hover:text-white p-2"
-                >
-                  ×
-                </Button>
-              </CardTitle>
-              <p className="text-white/60 text-sm">Position #{selectedPosition}</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {managementMode === 'decrease' && (
-                <div className="space-y-4">
-                  {/* Amount to Remove */}
-                  <div>
-                    <Label className="text-white/80 text-sm font-medium">Amount</Label>
-                    <div className="mt-2 bg-white/5 border border-white/20 rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-white text-sm">% of Position</span>
-                        <span className="text-white text-sm">Max</span>
-                      </div>
-                      <Input
-                        type="number"
-                        value={liquidityAmount}
-                        onChange={(e) => setLiquidityAmount(e.target.value)}
-                        placeholder="0"
-                        className="bg-transparent border-0 text-white text-2xl font-bold p-0 h-auto focus:ring-0"
-                        style={{ boxShadow: 'none' }}
-                      />
-                      
-                      {/* Percentage Buttons */}
-                      <div className="flex gap-2 mt-4">
-                        {[25, 50, 75, 100].map((percentage) => (
-                          <Button
-                            key={percentage}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setLiquidityAmount(percentage.toString())}
-                            className={`flex-1 border transition-all duration-200 ${
-                              liquidityAmount === percentage.toString()
-                                ? 'text-white font-bold border-2'
-                                : 'text-white/80 hover:bg-white/10 hover:text-white hover:border-white/50'
-                            }`}
-                            style={liquidityAmount === percentage.toString() ? {
-                              backgroundColor: '#ff0066',
-                              borderColor: '#ff0066',
-                              color: 'white'
-                            } : {
-                              borderColor: 'rgba(255, 255, 255, 0.2)'
-                            }}
-                          >
-                            {percentage}%
-                          </Button>
-                        ))}
-                      </div>
-                      
-                      {/* DEBUG: Show exact liquidity calculation */}
-                      {liquidityAmount && (
-                        <div className="mt-2 text-xs text-white/80">
-                          <div>Current Liquidity: {(() => {
-                            const pos = positionsData.find(p => p.tokenId === selectedPosition);
-                            return pos?.liquidity || 'N/A';
-                          })()}</div>
-                          <div>Removing: {(() => {
-                            const pos = positionsData.find(p => p.tokenId === selectedPosition);
-                            if (!pos || !liquidityAmount) return 'N/A';
-                            const percentage = parseFloat(liquidityAmount) / 100;
-                            return (BigInt(pos.liquidity) * BigInt(Math.floor(percentage * 100)) / BigInt(100)).toString();
-                          })()}</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* You'll Receive */}
-                  <div>
-                    <Label className="text-white/80 text-sm font-medium">You'll Receive</Label>
-                    <div className="mt-2 space-y-2">
-                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">Ξ</span>
-                            </div>
-                            <span className="text-white font-medium">ETH</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-white font-medium">
-                              {(() => {
-                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
-                                if (!currentPosition || !liquidityAmount) return '0.000';
-                                
-                                const percentage = parseFloat(liquidityAmount) / 100;
-                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.token0Amount, 18) || '0') * percentage;
-                                return ethAmount.toFixed(3);
-                              })()}
-                            </div>
-                            <div className="text-white/60 text-xs">
-                              ${(() => {
-                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
-                                if (!currentPosition || !liquidityAmount) return '0.00';
-                                
-                                const percentage = parseFloat(liquidityAmount) / 100;
-                                const ethAmount = parseFloat(formatTokenAmount(currentPosition.token0Amount, 18) || '0') * percentage;
-                                return (ethAmount * 3635).toFixed(2); // ETH price
-                              })()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">K</span>
-                            </div>
-                            <span className="text-white font-medium">KILT</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-white font-medium">
-                              {(() => {
-                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
-                                if (!currentPosition || !liquidityAmount) return '0';
-                                
-                                const percentage = parseFloat(liquidityAmount) / 100;
-                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.token1Amount, 18) || '0') * percentage;
-                                return kiltAmount.toFixed(0);
-                              })()}
-                            </div>
-                            <div className="text-white/60 text-xs">
-                              ${(() => {
-                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
-                                if (!currentPosition || !liquidityAmount || !kiltData?.price) return '0.00';
-                                
-                                const percentage = parseFloat(liquidityAmount) / 100;
-                                const kiltAmount = parseFloat(formatTokenAmount(currentPosition.token1Amount, 18) || '0') * percentage;
-                                return (kiltAmount * kiltData.price).toFixed(2);
-                              })()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
+                </h2>
+                <p className="text-sm text-gray-400 mt-1">Position #{selectedPosition}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedPosition(null);
+                  setManagementMode(null);
+                  setAmount0('');
+                  setAmount1('');
+                  setLiquidityAmount('');
+                }}
+                className="text-gray-400 hover:text-white hover:bg-gray-800 p-2"
+              >
+                ×
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
               {managementMode === 'increase' && (
                 <div className="space-y-4">
-                  <div>
-                    <Label className="text-white/80 text-sm font-medium">Add Liquidity</Label>
-                    <div className="mt-2 space-y-2">
-                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">Ξ</span>
-                            </div>
-                            <span className="text-white font-medium">ETH</span>
-                          </div>
-                          <span className="text-white/60 text-xs">Balance: {formatTokenAmount(wethBalance, 18) || '0'}</span>
+                  {/* ETH Input */}
+                  <div className="bg-gray-800 border border-gray-600 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">Ξ</span>
                         </div>
-                        <Input
-                          type="number"
-                          value={amount1}
-                          onChange={(e) => setAmount1(e.target.value)}
-                          placeholder="0.0"
-                          className="bg-transparent border-0 text-white text-xl font-bold p-0 h-auto focus:ring-0"
-                          style={{ boxShadow: 'none' }}
-                        />
+                        <span className="text-white font-medium">ETH</span>
                       </div>
-                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">K</span>
-                            </div>
-                            <span className="text-white font-medium">KILT</span>
-                          </div>
-                          <span className="text-white/60 text-xs">Balance: {formatTokenAmount(kiltBalance, 18) || '0'}</span>
+                      <span className="text-gray-400 text-sm">Balance: 0.0000</span>
+                    </div>
+                    <Input
+                      type="number"
+                      value={amount1}
+                      onChange={(e) => setAmount1(e.target.value)}
+                      placeholder="0.0"
+                      className="bg-transparent border-0 text-white text-2xl font-medium p-0 h-auto focus:ring-0 focus:outline-0"
+                    />
+                  </div>
+
+                  {/* KILT Input */}
+                  <div className="bg-gray-800 border border-gray-600 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">K</span>
                         </div>
-                        <Input
-                          type="number"
-                          value={amount0}
-                          onChange={(e) => setAmount0(e.target.value)}
-                          placeholder="0.0"
-                          className="bg-transparent border-0 text-white text-xl font-bold p-0 h-auto focus:ring-0"
-                          style={{ boxShadow: 'none' }}
-                        />
+                        <span className="text-white font-medium">KILT</span>
                       </div>
+                      <span className="text-gray-400 text-sm">Balance: 0.0000</span>
+                    </div>
+                    <Input
+                      type="number"
+                      value={amount0}
+                      onChange={(e) => setAmount0(e.target.value)}
+                      placeholder="0.0"
+                      className="bg-transparent border-0 text-white text-2xl font-medium p-0 h-auto focus:ring-0 focus:outline-0"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {managementMode === 'decrease' && (
+                <div className="space-y-4">
+                  <div className="bg-gray-800 border border-gray-600 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-white font-medium">Amount to Remove</span>
+                      <span className="text-gray-400 text-sm">Max</span>
+                    </div>
+                    <Input
+                      type="number"
+                      value={liquidityAmount}
+                      onChange={(e) => setLiquidityAmount(e.target.value)}
+                      placeholder="0"
+                      className="bg-transparent border-0 text-white text-2xl font-medium p-0 h-auto focus:ring-0 focus:outline-0 mb-3"
+                    />
+                    <span className="text-gray-400 text-sm">%</span>
+                    
+                    <div className="flex gap-2 mt-4">
+                      {[25, 50, 75, 100].map((percentage) => (
+                        <Button
+                          key={percentage}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setLiquidityAmount(percentage.toString())}
+                          className={`flex-1 ${
+                            liquidityAmount === percentage.toString()
+                              ? 'bg-pink-600 border-pink-600 text-white'
+                              : 'border-gray-600 text-gray-300 hover:border-gray-500'
+                          }`}
+                        >
+                          {percentage}%
+                        </Button>
+                      ))}
                     </div>
                   </div>
                 </div>
               )}
-              
+
               {managementMode === 'collect' && (
                 <div className="space-y-4">
-                  <div>
-                    <Label className="text-white/80 text-sm font-medium">Collect Fees</Label>
-                    <div className="mt-2 space-y-2">
-                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">Ξ</span>
-                            </div>
-                            <span className="text-white font-medium">ETH</span>
+                  <p className="text-gray-400 text-sm">Available fees to collect:</p>
+                  <div className="space-y-2">
+                    <div className="bg-gray-800 border border-gray-600 rounded-xl p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">Ξ</span>
                           </div>
-                          <div className="text-right">
-                            <div className="text-white font-medium">0.001</div>
-                            <div className="text-white/60 text-xs">$3.64</div>
-                          </div>
+                          <span className="text-white">ETH</span>
                         </div>
-                      </div>
-                      <div className="bg-white/5 border border-white/20 rounded-lg p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">K</span>
-                            </div>
-                            <span className="text-white font-medium">KILT</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-white font-medium">234</div>
-                            <div className="text-white/60 text-xs">$4.22</div>
-                          </div>
+                        <div className="text-right">
+                          <div className="text-white">0.001</div>
+                          <div className="text-gray-400 text-sm">$3.64</div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5" />
-                      <div className="text-sm">
-                        <div className="text-yellow-500 font-medium">Collect fees</div>
-                        <div className="text-white/60">Collecting fees will not remove your liquidity.</div>
+                    <div className="bg-gray-800 border border-gray-600 rounded-xl p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">K</span>
+                          </div>
+                          <span className="text-white">KILT</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-white">234</div>
+                          <div className="text-gray-400 text-sm">$4.22</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
-              
-              {/* Action Buttons */}
-              <div className="space-y-2">
+
+              {/* Action Button */}
+              <div className="mt-6">
                 <Button
                   onClick={handleLiquidityManagement}
-                  disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-medium py-3 text-base"
+                  disabled={isProcessing || 
+                    (managementMode === 'increase' && (!amount0 || !amount1)) ||
+                    (managementMode === 'decrease' && !liquidityAmount)
+                  }
+                  className="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessing ? (
                     <>
@@ -979,63 +871,9 @@ export function UserPositions() {
                     </>
                   )}
                 </Button>
-                
-                {/* REMOVE ALL BUTTON for guaranteed complete removal */}
-                {managementMode === 'decrease' && (
-                  <Button
-                    onClick={async () => {
-                      try {
-                        setIsProcessing(true);
-                        const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
-                        if (!currentPosition) {
-                          throw new Error('Position not found');
-                        }
-                        
-                        // Remove 100% of liquidity
-                        await decreaseLiquidity({
-                          tokenId: selectedPosition,
-                          liquidity: currentPosition.liquidity,
-                          amount0Min: '0',
-                          amount1Min: '0'
-                        });
-                        
-                        setManagementMode(null);
-                        setSelectedPosition(null);
-                        setLiquidityAmount('');
-                        
-                        // INSTANT UI UPDATE - Remove position immediately from UI
-                        queryClient.setQueryData([`/api/positions/wallet/${address}`], (oldData: any) => {
-                          if (!oldData) return oldData;
-                          return oldData.filter((pos: any) => pos.tokenId !== selectedPosition);
-                        });
-                        
-                        // Force refresh
-                        queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
-                        queryClient.refetchQueries({ queryKey: [`/api/positions/wallet/${address}`] });
-                        
-                        toast({
-                          title: "Complete Removal",
-                          description: "Position completely removed",
-                        });
-                      } catch (error) {
-                        toast({
-                          title: "Error",
-                          description: (error as Error)?.message || "Failed to remove position",
-                          variant: "destructive",
-                        });
-                      } finally {
-                        setIsProcessing(false);
-                      }
-                    }}
-                    disabled={isProcessing}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium py-2 text-sm"
-                  >
-                    Remove All (100%)
-                  </Button>
-                )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
       {/* Rewards Summary */}

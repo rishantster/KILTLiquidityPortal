@@ -272,6 +272,26 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             // Only log when there's a potential change to reduce noise
             const hasChange = currentAddress !== address;
             
+            // Force re-request accounts if we detect a discrepancy
+            if (selectedAddress && accounts[0] && selectedAddress !== accounts[0]) {
+              console.log('DISCREPANCY DETECTED - forcing account refresh:', {
+                selectedAddress,
+                accountsFirst: accounts[0],
+                currentStored: address
+              });
+              
+              // Force MetaMask to refresh by requesting accounts again
+              try {
+                const freshAccounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                if (freshAccounts && freshAccounts.length > 0) {
+                  currentAddress = freshAccounts[0];
+                  console.log('FORCED REFRESH RESULT:', { freshAccounts, newCurrentAddress: currentAddress });
+                }
+              } catch (error) {
+                console.log('Force refresh failed:', error);
+              }
+            }
+            
             if (hasChange && currentAddress) {
               console.log('WALLET CHANGE DETECTED:', { 
                 previousAddress: address,
@@ -338,6 +358,45 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         }
       }, 500); // Check every 500ms for very fast detection
       
+      // Additional aggressive detection - monitor page focus events
+      const handlePageFocus = async () => {
+        if (document.hasFocus() && ethereum) {
+          try {
+            console.log('PAGE FOCUS - Checking for wallet changes...');
+            const freshAccounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            if (freshAccounts && freshAccounts.length > 0 && freshAccounts[0] !== address) {
+              console.log('FOCUS DETECTION - Address changed:', { 
+                old: address, 
+                new: freshAccounts[0] 
+              });
+              
+              setAddress(freshAccounts[0]);
+              setIsConnected(true);
+              setManuallyDisconnected(false);
+              
+              // Clear cache
+              queryClient.removeQueries({ queryKey: ['user-positions'] });
+              queryClient.removeQueries({ queryKey: ['rewards'] });
+              queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+              queryClient.removeQueries({ queryKey: ['user-analytics'] });
+              queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+              queryClient.removeQueries({ queryKey: ['weth-balance'] });
+              queryClient.invalidateQueries();
+              
+              toast({
+                title: "Wallet account changed",
+                description: `Detected new account: ${freshAccounts[0].slice(0, 6)}...${freshAccounts[0].slice(-4)}`,
+              });
+            }
+          } catch (error) {
+            // Silently handle errors
+          }
+        }
+      };
+      
+      window.addEventListener('focus', handlePageFocus);
+      document.addEventListener('visibilitychange', handlePageFocus);
+      
       // Cleanup function
       return () => {
         isActive = false;
@@ -349,6 +408,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           ethereum.removeListener('connect', handleConnect);
           ethereum.removeListener('disconnect', handleDisconnect);
         }
+        
+        window.removeEventListener('focus', handlePageFocus);
+        document.removeEventListener('visibilitychange', handlePageFocus);
       };
     } else {
       if (isActive) setInitialized(true);

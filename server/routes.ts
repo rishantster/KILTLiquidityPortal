@@ -1714,23 +1714,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get trading fees APR for KILT/ETH pool - BLAZING FAST instant response
+  // Get trading fees APR for KILT/ETH pool - BLAZING FAST with mobile optimization
   app.get("/api/trading-fees/pool-apr", async (req, res) => {
-    // Return immediate authentic values to eliminate RPC timeout issues completely
-    const tradingFeesAPR = {
-      tradingFeesAPR: 0.11, // Exact value from Uniswap interface screenshot
-      poolTVL: 92145.4, // Authentic pool TVL
-      poolVolume24hUSD: 377.69, // Authentic 24h volume
-      feeTier: 3000,
-      dataSource: 'uniswap' // Always show uniswap as data source
-    };
+    const { mobileOptimizationService } = await import('./mobile-optimization-service.js');
+    const userAgent = req.headers['user-agent'] || '';
     
-    // Set headers for blazing fast response
-    res.setHeader('X-Data-Source', 'instant-cache');
-    res.setHeader('X-Response-Time', '0ms');
-    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    const response = mobileOptimizationService.getMobileTradingFees(userAgent);
     
-    res.json(tradingFeesAPR);
+    // Set headers for blazing fast response with mobile optimization
+    res.setHeader('X-Data-Source', response.cached ? 'mobile-cache' : 'instant-cache');
+    res.setHeader('X-Response-Time', response.responseTime);
+    res.setHeader('X-Mobile-Optimized', response.mobileOptimized.toString());
+    res.setHeader('Cache-Control', response.mobileOptimized ? 
+      'public, max-age=300, stale-while-revalidate=600' : // 5 minutes cache for mobile
+      'public, max-age=60, stale-while-revalidate=300'    // 1 minute cache for desktop
+    );
+    
+    res.json(response.data);
   });
 
   // ===== REWARD CALCULATION VULNERABILITY DEMO ROUTES =====

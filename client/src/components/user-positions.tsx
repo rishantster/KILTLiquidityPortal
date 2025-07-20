@@ -56,12 +56,34 @@ export function UserPositions() {
   // KILT data hook
   const { data: kiltData } = useKiltTokenData();
 
-  // Uniswap V3 Integration - use wallet positions hook for live data
+  // Mobile device detection for performance optimization
+  const isMobile = typeof window !== 'undefined' && (
+    window.innerWidth <= 768 || 
+    /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+
+  // Mobile-optimized blazing fast position loading
+  const mobileOptimizedConfig = isMobile ? {
+    staleTime: 2 * 60 * 1000, // 2 minutes for mobile to save bandwidth
+    gcTime: 10 * 60 * 1000, // 10 minutes retention
+    refetchInterval: false, // No background refresh on mobile to save battery
+    refetchOnWindowFocus: false,
+    retry: 2, // Fewer retries for mobile
+    networkMode: 'online' as const,
+  } : {
+    staleTime: 30 * 1000, // 30 seconds for desktop
+    gcTime: 5 * 60 * 1000, // 5 minutes retention
+    refetchInterval: 60 * 1000, // Background refresh for desktop
+    refetchOnWindowFocus: false,
+    retry: 3,
+    networkMode: 'online' as const,
+  };
+
+  // Blazing fast wallet positions with mobile optimization
   const { data: walletPositions, isLoading: walletPositionsLoading } = useQuery({
     queryKey: ['/api/positions/wallet/' + address],
     enabled: !!address && isConnected,
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000 // 10 second stale time for faster loading
+    ...mobileOptimizedConfig
   });
 
   // Legacy Uniswap integration for management functions
@@ -93,13 +115,7 @@ export function UserPositions() {
   // Use real wallet positions from the blazing fast API endpoint
   const allKiltPositions = walletPositions || [];
   
-  console.log('UserPositions Debug:', {
-    address,
-    isConnected,
-    walletPositionsLoading,
-    walletPositionsCount: walletPositions?.length || 0,
-    walletPositions: walletPositions || []
-  });
+
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 

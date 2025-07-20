@@ -28,6 +28,7 @@ import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
 import { useBlazingDashboard } from '@/hooks/use-blazing-fast-queries';
+import { useMobileBlazingFast, useMobileDashboard } from '@/hooks/use-mobile-blazing-fast';
 import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';

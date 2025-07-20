@@ -56,10 +56,18 @@ export function UserPositions() {
   // KILT data hook
   const { data: kiltData } = useKiltTokenData();
 
-  // Uniswap V3 Integration
+  // Uniswap V3 Integration - use wallet positions hook for live data
+  const { data: walletPositions, isLoading: walletPositionsLoading } = useQuery({
+    queryKey: ['/api/positions/wallet/' + address],
+    enabled: !!address && isConnected,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 10000 // 10 second stale time for faster loading
+  });
+
+  // Legacy Uniswap integration for management functions
   const {
     userPositions,
-    kiltEthPositions,
+    kiltEthPositions: legacyKiltEthPositions,
     poolData,
     kiltBalance,
     wethBalance,
@@ -82,14 +90,16 @@ export function UserPositions() {
   const safeBigIntRender = (value: bigint | number | string) => 
     typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
-  // Use real positions from connected wallet only - kiltEthPositions comes from the API that already filters for KILT positions
-  const allKiltPositions = kiltEthPositions || [];
+  // Use real wallet positions from the blazing fast API endpoint
+  const allKiltPositions = walletPositions || [];
   
-  // Position data loads correctly from API via React Query
-  // The API already handles all KILT position filtering and deduplication
-  // No need to combine with other sources as the API returns all KILT positions
-  
-  // Position data successfully loaded and displaying
+  console.log('UserPositions Debug:', {
+    address,
+    isConnected,
+    walletPositionsLoading,
+    walletPositionsCount: walletPositions?.length || 0,
+    walletPositions: walletPositions || []
+  });
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
@@ -240,7 +250,7 @@ export function UserPositions() {
     );
   }
 
-  if (uniswapLoading) {
+  if (walletPositionsLoading || uniswapLoading) {
     return (
       <Card className="cluely-card rounded-lg">
         <CardHeader className="pb-2">

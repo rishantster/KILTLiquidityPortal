@@ -30,23 +30,29 @@ export function ThirdwebWalletConnect() {
       connectModal={{
         size: "wide",
         showThirdwebBranding: false,
-        title: "Connect your wallet",
+        title: "Connect to KILT Portal",
         titleIcon: "",
+        className: "cyberpunk-wallet-modal",
       }}
       connectButton={{
         label: "Connect Wallet",
         style: {
-          background: "linear-gradient(to right, rgba(255, 0, 102, 0.2), rgba(168, 85, 247, 0.2))",
+          background: "rgba(255, 0, 102, 0.2)",
           backdropFilter: "blur(8px)",
-          border: "0",
+          border: "1px solid rgba(255, 0, 102, 0.4)",
           borderRadius: "8px",
           color: "white",
           fontSize: "14px",
           fontWeight: "500",
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
           padding: "12px 24px",
           transition: "all 0.2s ease",
           cursor: "pointer",
           minWidth: "140px",
+          textAlign: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         },
       }}
       detailsButton={{

@@ -635,6 +635,12 @@ export function LiquidityMint({
           });
           
           console.log('✅ Position recorded in database as app-created:', nftTokenId);
+          
+          // CRITICAL: Immediately invalidate position registration cache to prevent newly created positions 
+          // from appearing in "Eligible Positions" section
+          queryClient.invalidateQueries({ queryKey: ['unregistered-positions', address] });
+          queryClient.invalidateQueries({ queryKey: ['user-positions'] });
+          queryClient.invalidateQueries({ queryKey: ['positions'] });
         } else {
           console.warn('⚠️ Could not extract NFT token ID from transaction logs');
         }

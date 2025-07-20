@@ -90,6 +90,7 @@ export function PositionRegistration() {
   const { data: unregisteredPositionsData, isLoading: loadingPositions } = useQuery({
     queryKey: ['unregistered-positions', address],
     staleTime: 0, // Force fresh data to pick up newly created positions
+    refetchInterval: 2000, // Poll every 2 seconds to catch database updates
     queryFn: async () => {
       if (!address) return { eligiblePositions: [], totalPositions: 0, message: '' };
       
@@ -126,6 +127,14 @@ export function PositionRegistration() {
         // CRITICAL FIX: Ensure string comparison by converting to string
         const appCreatedNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === true).map((p: any) => p.nftTokenId.toString()));
         const manuallyRegisteredNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === false).map((p: any) => p.nftTokenId.toString()));
+
+        // TEMP DEBUG: Log current filtering state
+        console.log('🔧 Current filtering state:', {
+          totalRegistered: registeredPositions.length,
+          appCreatedIds: Array.from(appCreatedNftIds),
+          manualRegisteredIds: Array.from(manuallyRegisteredNftIds),
+          walletPositionIds: walletPositions.map((p: any) => p.tokenId.toString())
+        });
         
 
         

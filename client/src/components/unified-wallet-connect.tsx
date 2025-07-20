@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useWallet } from '@/contexts/wallet-context';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2, Wifi, WifiOff, AlertTriangle, CheckCircle, Smartphone, Monitor } from 'lucide-react';
@@ -45,20 +45,7 @@ export function UnifiedWalletConnect() {
     }
   };
 
-  const getStatusBadge = () => {
-    switch (connectionStatus) {
-      case 'connected':
-        return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Connected</Badge>;
-      case 'connecting':
-        return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">Connecting...</Badge>;
-      case 'error':
-        return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Error</Badge>;
-      case 'network_error':
-        return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20">Network Error</Badge>;
-      default:
-        return <Badge className="bg-gray-500/10 text-gray-500 border-gray-500/20">Disconnected</Badge>;
-    }
-  };
+  
 
   const handleWalletSelect = (action: () => void) => {
     setShowWalletModal(false);
@@ -121,7 +108,6 @@ export function UnifiedWalletConnect() {
             <span className="text-sm text-white font-mono">
               {address?.slice(0, 6)}...{address?.slice(-4)}
             </span>
-            {getStatusBadge()}
           </div>
           <button
             onClick={disconnect}

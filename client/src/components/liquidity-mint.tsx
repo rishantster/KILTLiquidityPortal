@@ -320,14 +320,14 @@ export function LiquidityMint({
       const strategy = getSelectedStrategy();
       
       const validationParams: LiquidityParams = {
-        token0: WETH_TOKEN.toLowerCase(),
-        token1: KILT_TOKEN.toLowerCase(),
+        token0: WETH_TOKEN,
+        token1: KILT_TOKEN,
         amount0Desired: parseUnits(ethAmt, 18),
         amount1Desired: parseUnits(kiltAmt, 18),
         amount0Min: (parseUnits(ethAmt, 18) * 95n) / 100n, // 5% slippage
         amount1Min: (parseUnits(kiltAmt, 18) * 95n) / 100n, // 5% slippage
-        tickLower: strategy.tickLower || -887220,
-        tickUpper: strategy.tickUpper || 887220,
+        tickLower: -887220,
+        tickUpper: 887220,
         fee: 3000,
         deadline: currentTime + 1200, // 20 minutes
         userAddress: address,
@@ -646,7 +646,7 @@ export function LiquidityMint({
           </CardHeader>
           <CardContent className="space-y-2 p-3">
             {(() => {
-              const kiltBalanceNum = kiltBalance ? parseFloat(formatTokenAmount(kiltBalance, 18)) : 0;
+              const kiltBalanceNum = kiltBalance ? parseFloat(formatTokenAmount(kiltBalance)) : 0;
               const hasKiltBalance = kiltBalanceNum > 0;
               
               return (

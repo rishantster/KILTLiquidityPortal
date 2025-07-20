@@ -371,11 +371,11 @@ export function LiquidityMint({
       const maxUint256 = BigInt('115792089237316195423570985008687907853269984665640564039457584007913129639935');
       
       // Approve KILT
-      await approveToken({ tokenAddress: TOKENS.KILT as `0x${string}`, amount: maxUint256 });
+      await approveToken(TOKENS.KILT as `0x${string}`, maxUint256);
       setIsKiltApproved(true);
       
       // Always approve WETH (needed for both ETH and WETH)
-      await approveToken({ tokenAddress: TOKENS.WETH as `0x${string}`, amount: maxUint256 });
+      await approveToken(TOKENS.WETH as `0x${string}`, maxUint256);
       setIsEthApproved(true);
       
       // Mark tokens as approved
@@ -412,17 +412,29 @@ export function LiquidityMint({
         return;
       }
 
-      const kiltAmountParsed = parseUnits(kiltAmount, 18);
-      const ethAmountParsed = parseUnits(ethAmount, 18);
+      // Validate input amounts first
+      const kiltAmountFloat = parseFloat(kiltAmount);
+      const ethAmountFloat = parseFloat(ethAmount);
+      
+      if (kiltAmountFloat <= 0 || ethAmountFloat <= 0 || isNaN(kiltAmountFloat) || isNaN(ethAmountFloat)) {
+        throw new Error('Invalid token amounts - must be positive numbers');
+      }
+      
+      const kiltAmountParsed = parseTokenAmount(kiltAmount, 18);
+      const ethAmountParsed = parseTokenAmount(ethAmount, 18);
+      
+      if (kiltAmountParsed <= 0n || ethAmountParsed <= 0n) {
+        throw new Error('Token amounts must be greater than zero');
+      }
       
       // Debug: Log the parsed amounts
       console.log('Liquidity amounts:', {
-        kiltAmount: kiltAmount,
-        ethAmount: ethAmount,
+        kiltAmount,
+        ethAmount,
         kiltAmountParsed: kiltAmountParsed.toString(),
         ethAmountParsed: ethAmountParsed.toString(),
-        kiltAmountReadable: formatTokenAmount(kiltAmountParsed),
-        ethAmountReadable: formatTokenAmount(ethAmountParsed)
+        kiltAmountFloat,
+        ethAmountFloat
       });
       
       const deadlineTime = Math.floor(Date.now() / 1000) + 1200; // 20 minutes from now for better execution
@@ -437,13 +449,22 @@ export function LiquidityMint({
       // For liquidity provision, we always use WETH address but send ETH value if needed
       const ethTokenAddress = TOKENS.WETH;
       
-      // Determine token order based on address comparison (Uniswap V3 standard)
-      const token0 = ethTokenAddress.toLowerCase() < TOKENS.KILT.toLowerCase() ? ethTokenAddress : TOKENS.KILT;
-      const token1 = ethTokenAddress.toLowerCase() < TOKENS.KILT.toLowerCase() ? TOKENS.KILT : ethTokenAddress;
+      // KILT/ETH pool has specific token order: token0=WETH, token1=KILT
+      // Based on pool address 0x82Da478b1382B951cBaD01Beb9eD459cDB16458E
+      const token0 = TOKENS.WETH;  // WETH is token0
+      const token1 = TOKENS.KILT;  // KILT is token1
       
-      // Set amounts based on token order
-      const amount0Desired = token0.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
-      const amount1Desired = token1.toLowerCase() === TOKENS.KILT.toLowerCase() ? kiltAmountParsed : ethAmountParsed;
+      // Set amounts based on known token order
+      const amount0Desired = ethAmountParsed;  // WETH amount
+      const amount1Desired = kiltAmountParsed; // KILT amount
+      
+      console.log('Token order and amounts:', {
+        token0, token1,
+        amount0Desired: amount0Desired.toString(),
+        amount1Desired: amount1Desired.toString(),
+        ethAmountParsed: ethAmountParsed.toString(),
+        kiltAmountParsed: kiltAmountParsed.toString()
+      });
 
       // Use proper tick values based on pool info and selected strategy
       let tickLower, tickUpper;

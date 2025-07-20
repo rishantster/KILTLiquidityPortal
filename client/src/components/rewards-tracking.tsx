@@ -64,6 +64,20 @@ export function RewardsTracking() {
   const unifiedData = useUnifiedDashboard();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Get maximum APR data for accurate display (same source as main dashboard)
+  const { data: maxAPRData } = useQuery({
+    queryKey: ['maxAPR'],
+    queryFn: async () => {
+      const response = await fetch('/api/rewards/maximum-apr');
+      if (!response.ok) throw new Error('Failed to fetch APR data');
+      return response.json();
+    },
+    refetchInterval: 3000, // Blazing fast refresh every 3 seconds for admin changes
+    staleTime: 1000, // Consider data stale after 1 second for instant updates
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: true // Always refetch on component mount
+  });
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
 
   // Logo animation timing
@@ -369,8 +383,8 @@ export function RewardsTracking() {
               </div>
               
               <div className="text-center p-2 bg-matrix-green-glow rounded border border-matrix-green">
-                <div className="text-matrix-green text-xs mb-1">APR Range</div>
-                <div className="text-sm font-bold text-matrix-green">{programAnalytics?.estimatedAPR?.low || 0}% - {programAnalytics?.estimatedAPR?.high || 0}%</div>
+                <div className="text-matrix-green text-xs mb-1">Program APR</div>
+                <div className="text-sm font-bold text-matrix-green">{maxAPRData?.maxAPR || 171}%</div>
               </div>
               
               <div className="space-y-2">

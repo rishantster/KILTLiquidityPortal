@@ -664,13 +664,13 @@ export function LiquidityMint({
                         : 'bg-red-900/20 border-red-500/30 text-red-300 cursor-not-allowed'
                     }`}
                   />
-                  <div className="flex justify-between items-center">
-                    <span className="text-bright text-xs">
-                      Balance: <span className={`font-bold ${hasKiltBalance ? 'text-super-bright' : 'text-red-400'}`}>
-                        {kiltBalanceNum.toFixed(4)}
-                      </span> KILT
-                    </span>
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-bright text-xs">
+                        Balance: <span className={`font-bold ${hasKiltBalance ? 'text-super-bright' : 'text-red-400'}`}>
+                          {kiltBalanceNum.toFixed(4)}
+                        </span> KILT
+                      </span>
                       {hasKiltBalance && (
                         <Button
                           variant="ghost"
@@ -681,19 +681,20 @@ export function LiquidityMint({
                           MAX
                         </Button>
                       )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
-                          window.open(swapUrl, '_blank');
-                        }}
-                        className="bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white border-0 px-3 py-1.5 font-bold text-xs h-7 transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 touch-manipulation"
-                      >
-                        <ArrowUpDown className="h-3 w-3 mr-1" />
-                        {hasKiltBalance ? "More KILT" : "Buy KILT"}
-                      </Button>
                     </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
+                        window.open(swapUrl, '_blank');
+                      }}
+                      className="w-full bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white border-0 px-4 py-2 font-bold text-sm h-8 transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 touch-manipulation"
+                    >
+                      <ArrowUpDown className="h-4 w-4 mr-2" />
+                      {hasKiltBalance ? "More KILT" : "Buy KILT"}
+                    </Button>
                   </div>
                   
                   {!hasKiltBalance && (

@@ -549,7 +549,7 @@ export function LiquidityMint({
 
       const txHash = await mintPosition({
         ...mintParams,
-        useNativeETH: selectedEthToken === 'ETH'
+        useNativeETH: false // On Base, ETH is native - no special handling needed
       });
 
       toast({

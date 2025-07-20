@@ -124,8 +124,9 @@ export function useSimpleUniswapV3() {
         deadline: BigInt(params.deadline),
       };
 
-      // Calculate ETH value for native ETH
-      const value = params.useNativeETH ? params.amount1Desired : 0n;
+      // On Base network, ETH is native so we always send 0 value to contract
+      // The contract handles WETH wrapping internally
+      const value = 0n;
 
       console.log('Minting with params:', {
         ...mintParams,
@@ -133,7 +134,9 @@ export function useSimpleUniswapV3() {
         amount1Desired: mintParams.amount1Desired.toString(),
         amount0Min: mintParams.amount0Min.toString(),
         amount1Min: mintParams.amount1Min.toString(),
-        value: value.toString()
+        value: value.toString(),
+        valueInETH: Number(value) / 1e18,
+        useNativeETH: params.useNativeETH
       });
 
       const hash = await walletClient.writeContract({

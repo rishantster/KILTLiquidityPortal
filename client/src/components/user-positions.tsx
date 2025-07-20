@@ -114,16 +114,14 @@ export function UserPositions() {
 
   // Use real wallet positions from the blazing fast API endpoint
   const allKiltPositions = walletPositions || [];
+  const positionsData = walletPositions || [];
   
 
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
     ? allKiltPositions 
-    : allKiltPositions.filter(pos => {
-
-        return pos.liquidity > 0n;
-      });
+    : allKiltPositions.filter(pos => pos.liquidity > 0n);
     
 
   
@@ -196,7 +194,7 @@ export function UserPositions() {
           break;
         case 'decrease':
           // Calculate actual liquidity amount from percentage
-          const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+          const currentPosition = walletPositions?.find(pos => pos.tokenId === selectedPosition);
           if (!currentPosition) {
             throw new Error('Position not found');
           }
@@ -301,7 +299,7 @@ export function UserPositions() {
   return (
     <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
-      <Card key={`positions-${kiltEthPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
+      <Card key={`positions-${allKiltPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
         <CardHeader className="flex flex-col space-y-1.5 p-6 pb-4 from-slate-900/50 to-slate-800/50 backdrop-blur-sm border-b border-white/10 bg-[#000000]">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Left Side - Title and Stats */}
@@ -385,7 +383,7 @@ export function UserPositions() {
           )}
         </CardHeader>
         <CardContent className="p-0 w-full">
-          {!kiltPositions || kiltPositions.length === 0 ? (
+          {!allKiltPositions || allKiltPositions.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>
               <p className="text-white/40 text-xs">Add liquidity to pools containing KILT token to get started</p>
@@ -402,7 +400,7 @@ export function UserPositions() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
-              {kiltPositions && kiltPositions.map((position) => {
+              {(showClosedPositions ? allKiltPositions : allKiltPositions.filter(pos => pos.liquidity > 0n)).map((position) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = position.isInRange; // Use backend-calculated range status
                 const isClosed = position.liquidity === 0n;
@@ -770,11 +768,11 @@ export function UserPositions() {
                       {liquidityAmount && (
                         <div className="mt-2 text-xs text-white/80">
                           <div>Current Liquidity: {(() => {
-                            const pos = allKiltPositions.find(p => p.tokenId === selectedPosition);
+                            const pos = positionsData.find(p => p.tokenId === selectedPosition);
                             return pos?.liquidity || 'N/A';
                           })()}</div>
                           <div>Removing: {(() => {
-                            const pos = allKiltPositions.find(p => p.tokenId === selectedPosition);
+                            const pos = positionsData.find(p => p.tokenId === selectedPosition);
                             if (!pos || !liquidityAmount) return 'N/A';
                             const percentage = parseFloat(liquidityAmount) / 100;
                             return (BigInt(pos.liquidity) * BigInt(Math.floor(percentage * 100)) / BigInt(100)).toString();
@@ -799,7 +797,7 @@ export function UserPositions() {
                           <div className="text-right">
                             <div className="text-white font-medium">
                               {(() => {
-                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
                                 if (!currentPosition || !liquidityAmount) return '0.000';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
@@ -809,7 +807,7 @@ export function UserPositions() {
                             </div>
                             <div className="text-white/60 text-xs">
                               ${(() => {
-                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
                                 if (!currentPosition || !liquidityAmount) return '0.00';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
@@ -831,7 +829,7 @@ export function UserPositions() {
                           <div className="text-right">
                             <div className="text-white font-medium">
                               {(() => {
-                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
                                 if (!currentPosition || !liquidityAmount) return '0';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
@@ -841,7 +839,7 @@ export function UserPositions() {
                             </div>
                             <div className="text-white/60 text-xs">
                               ${(() => {
-                                const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                                const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
                                 if (!currentPosition || !liquidityAmount || !kiltData?.price) return '0.00';
                                 
                                 const percentage = parseFloat(liquidityAmount) / 100;
@@ -979,7 +977,7 @@ export function UserPositions() {
                     onClick={async () => {
                       try {
                         setIsProcessing(true);
-                        const currentPosition = allKiltPositions.find(pos => pos.tokenId === selectedPosition);
+                        const currentPosition = positionsData.find(pos => pos.tokenId === selectedPosition);
                         if (!currentPosition) {
                           throw new Error('Position not found');
                         }

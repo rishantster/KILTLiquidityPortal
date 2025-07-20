@@ -811,6 +811,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Initialize rewards for a specific position
+  app.post("/api/rewards/initialize/:userId/:nftTokenId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const nftTokenId = req.params.nftTokenId;
+      
+      await fixedRewardService.initializeRewardsForPosition(userId, nftTokenId);
+      res.json({ success: true, message: `Rewards initialized for position ${nftTokenId}` });
+    } catch (error) {
+      res.status(500).json({ error: `Failed to initialize rewards: ${error.message}` });
+    }
+  });
+
   // BLAZING FAST Get program analytics (open participation) - SIMPLIFIED VERSION
   app.get("/api/rewards/program-analytics", blazingCacheMiddleware(120), timingMiddleware(), async (req, res) => {
     try {

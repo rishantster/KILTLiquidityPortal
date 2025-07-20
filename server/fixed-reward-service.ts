@@ -261,10 +261,9 @@ export class FixedRewardService {
 
     try {
       // Get real pool TVL from Uniswap V3 contracts
-      const { uniswapIntegrationService } = await import('./uniswap-integration-service');
-      const { blockchainConfigService } = await import('./blockchain-config-service');
+      const { uniswapIntegrationService } = await import('./uniswap-integration-service.js');
       
-      const poolAddress = await blockchainConfigService.getPoolAddress();
+      const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
       const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
       
       // Use real TVL from Uniswap as single source of truth
@@ -644,6 +643,71 @@ export class FixedRewardService {
       }
     } catch (error) {
       // Error updating daily rewards
+    }
+  }
+
+  /**
+   * Initialize rewards for a specific position (useful for manual triggering)
+   */
+  async initializeRewardsForPosition(userId: number, nftTokenId: string): Promise<void> {
+    try {
+      // Get the position first to ensure it exists
+      const [position] = await this.database
+        .select()
+        .from(lpPositions)
+        .where(
+          and(
+            eq(lpPositions.userId, userId),
+            eq(lpPositions.nftTokenId, nftTokenId)
+          )
+        )
+        .limit(1);
+
+      if (!position) {
+        throw new Error(`Position not found for user ${userId}, NFT ${nftTokenId}`);
+      }
+
+      const rewardCalculation = await this.calculatePositionRewards(userId, nftTokenId);
+      
+      // Ensure we have meaningful accumulated rewards
+      if (rewardCalculation.accumulatedRewards === 0) {
+        // Force calculation with days active
+        const daysActive = Math.floor((Date.now() - position.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        const currentValueUSD = parseFloat(position.currentValueUSD?.toString() || '0');
+        
+        if (daysActive > 0 && currentValueUSD > 0) {
+          // Force create a reward record with meaningful values
+          await this.database
+            .insert(rewards)
+            .values({
+              userId,
+              positionId: position.id,
+              nftTokenId,
+              positionValueUSD: currentValueUSD.toString(),
+              dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
+              accumulatedAmount: (rewardCalculation.dailyRewards * daysActive).toString(),
+              liquidityAddedAt: position.createdAt,
+              stakingStartDate: position.createdAt,
+              lastRewardCalculation: new Date(),
+              isEligibleForClaim: daysActive >= 7,
+              claimedAmount: '0',
+            })
+            .onConflictDoUpdate({
+              target: [rewards.positionId],
+              set: {
+                dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
+                accumulatedAmount: (rewardCalculation.dailyRewards * daysActive).toString(),
+                positionValueUSD: currentValueUSD.toString(),
+                lastRewardCalculation: new Date(),
+                isEligibleForClaim: daysActive >= 7,
+              },
+            });
+        }
+      } else {
+        await this.updateRewardRecord(userId, nftTokenId, rewardCalculation);
+      }
+    } catch (error) {
+      throw new Error(`Failed to initialize rewards for position ${nftTokenId}: ${error}`);
     }
   }
 

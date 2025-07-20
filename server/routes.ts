@@ -1893,12 +1893,12 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         res.json({
           totalAllocation: parseFloat(config.totalAllocation),
           programDurationDays: config.programDurationDays,
-          programStartDate: config.programStartDate.toISOString().split('T')[0],
-          treasuryWalletAddress: config.treasuryWalletAddress,
+          programStartDate: config.programStartDate ? config.programStartDate.toISOString().split('T')[0] : '',
+          treasuryWalletAddress: config.treasuryWalletAddress || '',
           isActive: config.isActive,
           // Auto-calculated read-only fields
-          programEndDate: config.programEndDate.toISOString().split('T')[0],
-          dailyRewardsCap: parseFloat(config.dailyRewardsCap)
+          programEndDate: config.programEndDate ? config.programEndDate.toISOString().split('T')[0] : '',
+          dailyRewardsCap: parseFloat(config.dailyRewardsCap || '0')
         });
       }
     } catch (error) {
@@ -1913,7 +1913,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Validate required fields - no fallback defaults
       if (!config.treasuryWalletAddress || !config.totalAllocation || !config.programStartDate || !config.programDurationDays) {
-        return res.status(400).json({ error: 'Missing required treasury configuration fields' });
+        return res.status(400).json({ 
+          error: 'Missing required treasury configuration fields',
+          required: ['treasuryWalletAddress', 'totalAllocation', 'programStartDate', 'programDurationDays'],
+          received: {
+            treasuryWalletAddress: !!config.treasuryWalletAddress,
+            totalAllocation: !!config.totalAllocation,
+            programStartDate: !!config.programStartDate,
+            programDurationDays: !!config.programDurationDays
+          }
+        });
       }
 
       // Auto-calculate derived values

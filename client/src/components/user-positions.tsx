@@ -114,29 +114,25 @@ export function UserPositions() {
     typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
   // Use real wallet positions from the blazing fast API endpoint
-  const allKiltPositions = walletPositions || [];
-  const positionsData = walletPositions || [];
-  
-
+  const allKiltPositions = Array.isArray(walletPositions) ? walletPositions : [];
+  const positionsData = Array.isArray(walletPositions) ? walletPositions : [];
   
   // Filter positions based on toggle state
   const kiltPositions = showClosedPositions 
     ? allKiltPositions 
-    : allKiltPositions.filter(pos => pos.liquidity > 0n);
+    : allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) > 0n);
     
-
-  
   // Count open and closed positions
-  const openPositions = allKiltPositions.filter(pos => pos.liquidity > 0n);
-  const closedPositions = allKiltPositions.filter(pos => pos.liquidity === 0n);
+  const openPositions = allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) > 0n);
+  const closedPositions = allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) === 0n);
   
   // Count non-KILT positions
-  const nonKiltPositions = (userPositions || []).filter(pos => {
+  const nonKiltPositions = Array.isArray(userPositions) ? userPositions.filter((pos: any) => {
     const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8"; // Retrieved from blockchain config
     const hasKilt = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
                    pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
     return !hasKilt;
-  });
+  }) : [];
   
 
 
@@ -195,7 +191,7 @@ export function UserPositions() {
           break;
         case 'decrease':
           // Calculate actual liquidity amount from percentage
-          const currentPosition = walletPositions?.find(pos => pos.tokenId === selectedPosition);
+          const currentPosition = Array.isArray(walletPositions) ? walletPositions.find((pos: any) => pos.tokenId === selectedPosition) : null;
           if (!currentPosition) {
             throw new Error('Position not found');
           }
@@ -300,7 +296,7 @@ export function UserPositions() {
   return (
     <div className="space-y-4 h-full overflow-y-auto">
       {/* Main Positions Grid */}
-      <Card key={`positions-${allKiltPositions?.length || 0}`} className="cluely-card rounded-lg min-h-0">
+      <Card key={`positions-${Array.isArray(allKiltPositions) ? allKiltPositions.length : 0}`} className="cluely-card rounded-lg min-h-0">
         <CardHeader className="flex flex-col space-y-1.5 p-6 pb-4 from-slate-900/50 to-slate-800/50 backdrop-blur-sm border-b border-white/10 bg-[#000000]">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Left Side - Title and Stats */}
@@ -325,18 +321,18 @@ export function UserPositions() {
               <div className="flex items-center space-x-6 bg-white/5 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white text-sm numeric-mono">{allKiltPositions.length}</span>
+                  <span className="text-white text-sm numeric-mono">{Array.isArray(allKiltPositions) ? allKiltPositions.length : 0}</span>
                   <span className="text-white/60 text-sm">total</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-emerald-400 text-sm numeric-mono">{openPositions.length}</span>
+                  <span className="text-emerald-400 text-sm numeric-mono">{Array.isArray(openPositions) ? openPositions.length : 0}</span>
                   <span className="text-white/60 text-sm">active</span>
                 </div>
-                {closedPositions.length > 0 && (
+                {Array.isArray(closedPositions) && closedPositions.length > 0 && (
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    <span className="text-gray-400 text-sm numeric-mono">{closedPositions.length}</span>
+                    <span className="text-gray-400 text-sm numeric-mono">{Array.isArray(closedPositions) ? closedPositions.length : 0}</span>
                     <span className="text-white/60 text-sm">closed</span>
                   </div>
                 )}
@@ -396,12 +392,12 @@ export function UserPositions() {
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>
               <p className="text-white/40 text-xs">Add liquidity to pools containing KILT token to get started</p>
-              {allKiltPositions.length > 0 && (
+              {Array.isArray(allKiltPositions) && allKiltPositions.length > 0 && (
                 <p className="text-white/40 text-xs mt-1">
                   Found {allKiltPositions.length} KILT position(s) in wallet
                 </p>
               )}
-              {nonKiltPositions.length > 0 && (
+              {Array.isArray(nonKiltPositions) && nonKiltPositions.length > 0 && (
                 <p className="text-white/40 text-xs mt-1">
                   Found {nonKiltPositions.length} non-KILT Uniswap V3 position(s) in wallet
                 </p>
@@ -409,7 +405,9 @@ export function UserPositions() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
-              {(showClosedPositions ? allKiltPositions : allKiltPositions.filter(pos => pos.liquidity > 0n)).map((position) => {
+              {(Array.isArray(allKiltPositions) ? 
+                (showClosedPositions ? allKiltPositions : allKiltPositions.filter((pos: any) => pos.liquidity > 0n)) : []
+              ).map((position: any) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = position.isInRange; // Use backend-calculated range status
                 const isClosed = position.liquidity === 0n;

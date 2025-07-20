@@ -73,6 +73,9 @@ import { LiquidityService } from '@/services/liquidity-service';
 // Universal logo components
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 
+// New Uniswap-style modal
+import { UniswapStyleModal } from './uniswap-style-modal';
+
 // Component for formula-based program APR display using existing maximum-apr endpoint
 function FormulaProgramAPR() {
   const { data, isLoading, error } = useQuery({
@@ -130,6 +133,7 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
+  const [showUniswapModal, setShowUniswapModal] = useState(false);
 
   const { toast } = useToast();
 
@@ -825,6 +829,15 @@ export function MainDashboard() {
                         );
                       })()}
 
+                      {/* Uniswap-Style Modal Button */}
+                      <Button 
+                        onClick={() => setShowUniswapModal(true)}
+                        variant="outline"
+                        className="w-full font-semibold py-1.5 h-8 rounded-lg transition-all duration-300 text-sm border-[#ff0066]/30 text-[#ff0066] hover:bg-[#ff0066]/10 hover:border-[#ff0066]/50"
+                      >
+                        <ArrowUpDown className="h-3 w-3 mr-1.5" />
+                        Uniswap-Style Interface
+                      </Button>
                       
                     </div>
                   </CardContent>
@@ -871,6 +884,12 @@ export function MainDashboard() {
 
         </Tabs>
       </div>
+
+      {/* Uniswap-Style Modal */}
+      <UniswapStyleModal 
+        isOpen={showUniswapModal}
+        onClose={() => setShowUniswapModal(false)}
+      />
     </div>
   );
 }

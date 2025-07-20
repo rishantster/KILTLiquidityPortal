@@ -112,14 +112,7 @@ export function ReownWalletConnect() {
   if (isConnected) {
     return (
       <div className="flex flex-col gap-3">
-        {/* Connection Status Display */}
-        <div className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-          <div className="flex items-center gap-2">
-            {getStatusIcon()}
-            <span className="text-sm font-medium">Wallet Status</span>
-            {getStatusBadge()}
-          </div>
-        </div>
+        
 
         {/* Connected Wallet Info */}
         <div className="p-3 bg-emerald-500/5 backdrop-blur-sm rounded-lg border border-emerald-500/20">

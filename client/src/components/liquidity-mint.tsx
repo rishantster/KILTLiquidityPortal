@@ -638,27 +638,69 @@ export function LiquidityMint({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 p-3">
-            <Input
-              type="number"
-              value={kiltAmount}
-              onChange={(e) => handleKiltAmountChange(e.target.value)}
-              placeholder="Enter KILT amount"
-              min="0"
-              className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
-            />
-            <div className="flex justify-between items-center">
-              <span className="text-bright text-xs">
-                Balance: <span className="font-bold text-super-bright">{kiltBalance ? parseFloat(kiltBalance).toFixed(4) : '0.0000'}</span> KILT
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handlePercentageSelect(100)}
-                className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 px-2 py-1 font-semibold text-xs h-6"
-              >
-                MAX
-              </Button>
-            </div>
+            {(() => {
+              const kiltBalanceNum = kiltBalance ? parseFloat(formatTokenAmount(kiltBalance, 18)) : 0;
+              const hasKiltBalance = kiltBalanceNum > 0;
+              
+              return (
+                <>
+                  <Input
+                    type="number"
+                    value={kiltAmount}
+                    onChange={(e) => handleKiltAmountChange(e.target.value)}
+                    placeholder={hasKiltBalance ? "Enter KILT amount" : "No KILT balance - Buy KILT first"}
+                    min="0"
+                    disabled={!hasKiltBalance}
+                    className={`text-sm h-10 text-center font-bold rounded-lg transition-all duration-200 ${
+                      hasKiltBalance 
+                        ? 'bg-white/5 border-white/10 text-white' 
+                        : 'bg-red-900/20 border-red-500/30 text-red-300 cursor-not-allowed'
+                    }`}
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className="text-bright text-xs">
+                      Balance: <span className={`font-bold ${hasKiltBalance ? 'text-super-bright' : 'text-red-400'}`}>
+                        {kiltBalanceNum.toFixed(4)}
+                      </span> KILT
+                    </span>
+                    {hasKiltBalance ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handlePercentageSelect(100)}
+                        className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 px-2 py-1 font-semibold text-xs h-6"
+                      >
+                        MAX
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
+                          window.open(swapUrl, '_blank');
+                        }}
+                        className="text-[#ff0066] hover:text-white hover:bg-[#ff0066] border-[#ff0066]/50 hover:border-[#ff0066] px-2 py-1 font-semibold text-xs h-6 transition-all duration-200"
+                      >
+                        Buy KILT
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {!hasKiltBalance && (
+                    <div className="mt-2 p-2 bg-amber-900/20 border border-amber-500/30 rounded-lg">
+                      <div className="flex items-center gap-2 text-amber-400 text-xs">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>You need KILT tokens to provide liquidity</span>
+                      </div>
+                      <p className="text-amber-300/80 text-xs mt-1">
+                        Click "Buy KILT" to swap ETH for KILT on Uniswap
+                      </p>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </CardContent>
         </Card>
 

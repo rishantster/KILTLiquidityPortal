@@ -183,14 +183,17 @@ export const tokenPoolConfig = pgTable("token_pool_config", {
 // Admin operations audit log
 export const adminOperations = pgTable("admin_operations", {
   id: serial("id").primaryKey(),
-  operationType: text("operation_type").notNull(), // 'treasury_update', 'settings_change', 'rewards_cap_change'
-  operationDetails: text("operation_details").notNull(), // JSON string with operation details
-  treasuryAddress: text("treasury_address"),
+  operation: text("operation").notNull(), // Legacy column for compatibility
+  operationType: text("operation_type"), // 'treasury_update', 'settings_change', 'rewards_cap_change'
+  operationDetails: text("operation_details"), // JSON string with operation details
   amount: numeric("amount", { precision: 30, scale: 18 }),
-  reason: text("reason").notNull(),
-  performedBy: text("performed_by").notNull(), // Admin wallet address or username
+  fromAddress: text("from_address"),
+  toAddress: text("to_address"),
+  reason: text("reason"),
+  settings: text("settings"),
+  performedBy: text("performed_by"), // Admin wallet address or username
   transactionHash: text("transaction_hash"), // If blockchain transaction involved
-  success: boolean("success").notNull(),
+  success: boolean("success").default(true),
   errorMessage: text("error_message"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
@@ -214,11 +217,14 @@ export const liquidityEvents = pgTable("liquidity_events", {
 
 // Insert/select schemas for admin operations audit log
 export const insertAdminOperationSchema = createInsertSchema(adminOperations).pick({
+  operation: true,
   operationType: true,
   operationDetails: true,
-  treasuryAddress: true,
   amount: true,
+  fromAddress: true,
+  toAddress: true,
   reason: true,
+  settings: true,
   performedBy: true,
   transactionHash: true,
   success: true,

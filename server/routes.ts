@@ -66,12 +66,14 @@ async function logAdminOperation(
   try {
     const { adminOperations } = await import('../shared/schema');
     await db.insert(adminOperations).values({
+      operation: operationType, // For compatibility with old schema
       operationType,
       operationDetails: JSON.stringify({
         timestamp: new Date().toISOString(),
         performedBy,
         amount,
-        transactionHash
+        transactionHash,
+        reason
       }),
       reason,
       performedBy,

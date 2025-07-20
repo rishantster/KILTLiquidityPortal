@@ -12,6 +12,7 @@ interface WalletContextType {
   disconnect: () => void;
   switchToBase: () => Promise<void>;
   validateBaseNetwork: () => Promise<boolean>;
+  forceRefreshWallet: () => Promise<void>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -118,9 +119,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const handleAccountsChanged = (accounts: string[]) => {
       if (!isActive) return;
       
+      console.log('WalletContext: accountsChanged event fired', { accounts, currentAddress: address });
+      
       // Accounts changed event
       if (accounts.length === 0) {
         // User disconnected their wallet
+        console.log('WalletContext: Wallet disconnected via accountsChanged');
         setAddress(null);
         setIsConnected(false);
         setManuallyDisconnected(true); // Mark as manually disconnected
@@ -140,11 +144,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       } else {
         // User switched accounts or connected for the first time
         const newAddress = accounts[0];
+        console.log('WalletContext: Checking address change', { currentAddress: address, newAddress });
         
         // Get current address at the time of the event
         setAddress(currentAddress => {
+          console.log('WalletContext: setAddress callback', { currentAddress, newAddress });
           if (currentAddress !== newAddress) {
             // Address actually changed
+            console.log('WalletContext: Address changed, updating state and clearing cache');
             setIsConnected(true);
             setManuallyDisconnected(false); // Reset flag when switching accounts
             
@@ -163,6 +170,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
               title: "Account switched",
               description: `Switched to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`,
             });
+          } else {
+            console.log('WalletContext: Address unchanged, no action needed');
           }
           return newAddress;
         });
@@ -244,12 +253,24 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       ethereum.on('disconnect', handleDisconnect);
       
       // Additional periodic check for wallet changes (fallback)
-      const intervalCheck = setInterval(() => {
-        if (isActive && ethereum?.selectedAddress) {
-          const currentSelectedAddress = ethereum.selectedAddress;
-          setAddress(currentAddress => {
-            if (currentAddress !== currentSelectedAddress && currentSelectedAddress) {
+      const intervalCheck = setInterval(async () => {
+        if (isActive && ethereum) {
+          try {
+            // Get current accounts directly from wallet
+            const accounts = await ethereum.request({ method: 'eth_accounts' });
+            const currentSelectedAddress = ethereum.selectedAddress || (accounts && accounts[0]);
+            
+            console.log('WalletContext: Periodic check', { 
+              currentSelectedAddress, 
+              storedAddress: address, 
+              accounts,
+              selectedAddress: ethereum.selectedAddress 
+            });
+            
+            if (currentSelectedAddress && currentSelectedAddress !== address) {
+              console.log('WalletContext: Address changed detected via periodic check');
               // Address changed without event
+              setAddress(currentSelectedAddress);
               setIsConnected(true);
               setManuallyDisconnected(false);
               
@@ -266,11 +287,31 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 title: "Account detected",
                 description: `Switched to ${currentSelectedAddress.slice(0, 6)}...${currentSelectedAddress.slice(-4)}`,
               });
+            } else if (!currentSelectedAddress && address) {
+              console.log('WalletContext: Wallet disconnected detected via periodic check');
+              // Wallet was disconnected
+              setAddress(null);
+              setIsConnected(false);
+              setManuallyDisconnected(true);
+              
+              // Clear all user-specific cache
+              queryClient.removeQueries({ queryKey: ['user-positions'] });
+              queryClient.removeQueries({ queryKey: ['rewards'] });
+              queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+              queryClient.removeQueries({ queryKey: ['user-analytics'] });
+              queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+              queryClient.removeQueries({ queryKey: ['weth-balance'] });
+              
+              toast({
+                title: "Wallet disconnected",
+                description: "Your wallet has been disconnected.",
+              });
             }
-            return currentSelectedAddress;
-          });
+          } catch (error) {
+            console.log('WalletContext: Error during periodic check', error);
+          }
         }
-      }, 2000); // Check every 2 seconds
+      }, 1000); // Check every 1 second for faster detection
       
       // Cleanup function
       return () => {
@@ -368,6 +409,70 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     // Wallet disconnected - Context state updated
   };
 
+  const forceRefreshWallet = async () => {
+    const ethereum = (window as any).ethereum;
+    if (!ethereum) {
+      toast({
+        title: "Wallet not found",
+        description: "Please install MetaMask or another Web3 wallet to connect.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      console.log('forceRefreshWallet: Starting forced wallet refresh');
+      
+      // Force request accounts to trigger MetaMask to update connection
+      const accounts = await ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+
+      console.log('forceRefreshWallet: Got accounts from eth_requestAccounts:', accounts);
+      
+      if (accounts && accounts.length > 0) {
+        const newAddress = accounts[0];
+        
+        if (newAddress !== address) {
+          console.log('forceRefreshWallet: Address changed!', { oldAddress: address, newAddress });
+          
+          setAddress(newAddress);
+          setIsConnected(true);
+          setManuallyDisconnected(false);
+          
+          // Clear all user-specific cache
+          queryClient.removeQueries({ queryKey: ['user-positions'] });
+          queryClient.removeQueries({ queryKey: ['rewards'] });
+          queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+          queryClient.removeQueries({ queryKey: ['user-analytics'] });
+          queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+          queryClient.removeQueries({ queryKey: ['weth-balance'] });
+          
+          // Trigger immediate re-fetch for new account
+          queryClient.invalidateQueries();
+          
+          toast({
+            title: "Wallet refreshed",
+            description: `Now connected to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`,
+          });
+        } else {
+          console.log('forceRefreshWallet: No address change detected');
+          toast({
+            title: "Wallet up to date",
+            description: "No account changes detected.",
+          });
+        }
+      }
+    } catch (error) {
+      console.error('forceRefreshWallet: Error during force refresh:', error);
+      toast({
+        title: "Refresh failed",
+        description: "Could not refresh wallet connection.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <WalletContext.Provider
       value={{
@@ -379,6 +484,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         disconnect,
         switchToBase,
         validateBaseNetwork,
+        forceRefreshWallet,
       }}
     >
       {children}

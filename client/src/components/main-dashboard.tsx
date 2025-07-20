@@ -41,6 +41,7 @@ import { WalletConnect } from './wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
+import { WalletDebugPanel } from './wallet-debug-panel';
 
 // Lazy load heavy components
 const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
@@ -848,6 +849,13 @@ export function MainDashboard() {
                 </Card>
               </div>
             </div>
+
+            {/* Debug Panel - Development Only */}
+            {import.meta.env.DEV && (
+              <div className="mt-6">
+                <WalletDebugPanel />
+              </div>
+            )}
           </TabsContent>
 
           {/* Add Liquidity Tab */}

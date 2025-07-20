@@ -478,34 +478,34 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 mb-8 h-auto gap-3">
+          <TabsList className="flex w-full bg-transparent mb-12 h-auto gap-8 justify-center">
             <TabsTrigger 
               value="overview" 
-              className="cyber-tab-clean"
+              className="minimal-dot-tab"
             >
               <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Overview</span>
+              <span className="text-sm font-medium truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="cyber-tab-clean"
+              className="minimal-dot-tab"
             >
               <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Add Liquidity</span>
+              <span className="text-sm font-medium truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="cyber-tab-clean"
+              className="minimal-dot-tab"
             >
               <Award className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Rewards</span>
+              <span className="text-sm font-medium truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="cyber-tab-clean"
+              className="minimal-dot-tab"
             >
               <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Active Position</span>
+              <span className="text-sm font-medium truncate">Position</span>
             </TabsTrigger>
           </TabsList>
 

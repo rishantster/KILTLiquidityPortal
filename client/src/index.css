@@ -832,58 +832,123 @@ a:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-/* ===== CLEAN CYBERPUNK TAB SYSTEM ===== */
-.cyber-tab-clean {
+/* ===== MODERN PILL TAB DESIGN ===== */
+.modern-pill-tab {
   /* Base styles */
-  background: rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 16px !important;
-  color: rgba(255, 255, 255, 0.7) !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.6) !important;
   font-weight: 500 !important;
-  padding: 12px 16px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 8px 16px !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   min-width: 0 !important;
+  flex: 1 !important;
+  border: none !important;
   position: relative !important;
   overflow: hidden !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 }
 
-.cyber-tab-clean:hover {
-  background: rgba(0, 0, 0, 0.4) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+.modern-pill-tab:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
-.cyber-tab-clean[data-state="active"] {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
+.modern-pill-tab[data-state="active"] {
+  background: linear-gradient(135deg, #ff0066, #ff0066) !important;
   color: white !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
-  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(255, 0, 102, 0.3) !important;
 }
 
-.cyber-tab-clean[data-state="active"]:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+.modern-pill-tab[data-state="active"]:hover {
+  background: linear-gradient(135deg, #ff0066, #e6005c) !important;
+  box-shadow: 0 6px 16px rgba(255, 0, 102, 0.4) !important;
 }
 
-/* Subtle glow effect for icons on hover */
-.cyber-tab-clean:hover svg {
-  color: #ff0066 !important;
-  filter: drop-shadow(0 0 6px rgba(255, 0, 102, 0.5)) !important;
+/* Icon styling */
+.modern-pill-tab svg {
+  transition: all 0.2s ease !important;
 }
 
-.cyber-tab-clean[data-state="active"] svg {
+.modern-pill-tab[data-state="active"] svg {
   color: white !important;
 }
 
-/* Remove all other tab styling overrides */
+/* Alternative Design Options */
+
+/* Option 2: Underline Style */
+.underline-tab {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease !important;
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+.underline-tab:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-bottom-color: rgba(255, 0, 102, 0.5) !important;
+}
+
+.underline-tab[data-state="active"] {
+  color: white !important;
+  border-bottom-color: #ff0066 !important;
+  background: rgba(255, 0, 102, 0.1) !important;
+}
+
+/* Option 3: Minimal Dots */
+.minimal-dot-tab {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  border: none !important;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease !important;
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+.minimal-dot-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.minimal-dot-tab:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.minimal-dot-tab:hover::after {
+  background: rgba(255, 0, 102, 0.5);
+}
+
+.minimal-dot-tab[data-state="active"] {
+  color: white !important;
+}
+
+.minimal-dot-tab[data-state="active"]::after {
+  background: #ff0066;
+}
+
+/* Remove default tab styling */
 [role="tablist"] [role="tab"] {
   all: unset !important;
 }

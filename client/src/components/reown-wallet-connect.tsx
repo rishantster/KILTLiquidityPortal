@@ -111,19 +111,22 @@ export function ReownWalletConnect() {
 
   if (isConnected) {
     return (
-      <div className="p-3 bg-emerald-500/5 backdrop-blur-sm rounded-lg">
+      <div className="p-4 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm rounded-lg border border-white/10">
         <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm font-medium text-emerald-400">Connected</div>
-            <div className="text-xs text-gray-400 font-mono">
-              {address?.slice(0, 6)}...{address?.slice(-4)}
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <div>
+              <div className="text-sm font-medium text-white">Connected</div>
+              <div className="text-xs text-gray-400 font-mono">
+                {address?.slice(0, 6)}...{address?.slice(-4)}
+              </div>
             </div>
           </div>
           <Button
             onClick={disconnect}
             variant="outline"
             size="sm"
-            className="border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10"
+            className="bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 transition-all duration-200"
           >
             Disconnect
           </Button>
@@ -159,7 +162,7 @@ export function ReownWalletConnect() {
         <Button
           onClick={connect}
           disabled={isConnecting}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+          className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border border-white/10 backdrop-blur-sm transition-all duration-200"
         >
           {isConnecting ? (
             <>
@@ -182,7 +185,7 @@ export function ReownWalletConnect() {
             <Button
               onClick={() => setShowMobileOptions(true)}
               disabled={isConnecting}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border border-white/10 backdrop-blur-sm transition-all duration-200"
             >
               {isConnecting ? (
                 <>
@@ -206,7 +209,7 @@ export function ReownWalletConnect() {
                   key={wallet.name}
                   onClick={() => handleMobileConnect(wallet)}
                   variant="outline"
-                  className="w-full justify-start bg-white/5 border-white/10 hover:bg-white/10"
+                  className="w-full justify-start bg-gradient-to-r from-white/5 to-white/10 border-white/10 hover:from-white/10 hover:to-white/15 backdrop-blur-sm transition-all duration-200 text-white"
                 >
                   <span className="mr-3 text-lg">{wallet.icon}</span>
                   <span>{wallet.name}</span>
@@ -216,7 +219,7 @@ export function ReownWalletConnect() {
                 onClick={() => setShowMobileOptions(false)}
                 variant="ghost"
                 size="sm"
-                className="w-full mt-2 text-gray-400"
+                className="w-full mt-2 text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200"
               >
                 Back
               </Button>
@@ -226,9 +229,9 @@ export function ReownWalletConnect() {
       )}
 
       {/* Network Status Indicator */}
-      <div className="flex items-center justify-center gap-2 p-2 text-xs text-gray-500">
+      <div className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm rounded-lg border border-white/10">
         <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
-        <span>Base Mainnet</span>
+        <span className="text-xs text-gray-300">Base Mainnet</span>
       </div>
     </div>
   );

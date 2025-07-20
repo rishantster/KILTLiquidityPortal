@@ -832,18 +832,16 @@ a:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-/* ===== CLEAN TERMINAL TAB DESIGN ===== */
-.terminal-tab {
-  /* Base terminal styling - cleaner approach */
+/* ===== CLEAN CYBERPUNK TAB DESIGN ===== */
+.clean-cyber-tab {
+  /* Clean professional styling */
   background: transparent !important;
   color: rgba(255, 255, 255, 0.7) !important;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
-  font-weight: 400 !important;
-  font-size: 12px !important;
-  letter-spacing: 0.3px !important;
-  padding: 10px 20px !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  padding: 8px 16px !important;
   border: none !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
   transition: all 0.2s ease !important;
   display: flex !important;
   align-items: center !important;
@@ -851,56 +849,29 @@ a:hover {
   min-width: 0 !important;
   flex: 1 !important;
   position: relative !important;
-  text-transform: lowercase !important;
 }
 
-.terminal-tab:last-child {
-  border-right: none !important;
-}
-
-.terminal-tab:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
+.clean-cyber-tab:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
-.terminal-tab[data-state="active"] {
-  background: rgba(255, 0, 102, 0.1) !important;
-  color: #ff0066 !important;
-  border-right-color: rgba(255, 0, 102, 0.3) !important;
-}
-
-.terminal-tab[data-state="active"]:hover {
+.clean-cyber-tab[data-state="active"] {
   background: rgba(255, 0, 102, 0.15) !important;
-}
-
-/* Terminal bracket styling - simplified */
-.terminal-bracket {
-  color: rgba(255, 255, 255, 0.4) !important;
-  font-weight: 600 !important;
-  margin: 0 2px !important;
-  transition: color 0.2s ease !important;
-}
-
-.terminal-tab[data-state="active"] .terminal-bracket {
   color: #ff0066 !important;
+  font-weight: 600 !important;
 }
 
-.terminal-tab:hover .terminal-bracket {
-  color: rgba(255, 255, 255, 0.8) !important;
+.clean-cyber-tab[data-state="active"]:hover {
+  background: rgba(255, 0, 102, 0.2) !important;
 }
 
-/* Terminal text styling - clean */
-.terminal-text {
-  font-weight: 400 !important;
+/* Clean icon styling */
+.clean-cyber-tab svg {
   transition: color 0.2s ease !important;
 }
 
-/* Terminal icon styling - minimal effects */
-.terminal-tab svg {
-  transition: color 0.2s ease !important;
-}
-
-.terminal-tab[data-state="active"] svg {
+.clean-cyber-tab[data-state="active"] svg {
   color: #ff0066 !important;
 }
 

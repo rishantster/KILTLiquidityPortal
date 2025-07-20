@@ -478,42 +478,34 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="flex w-full bg-black/70 border border-white/10 mb-8 h-12 gap-0 rounded-sm">
+          <TabsList className="flex w-full bg-white/5 backdrop-blur-sm border border-white/10 mb-8 h-12 gap-1 rounded-lg">
             <TabsTrigger 
               value="overview" 
-              className="terminal-tab"
+              className="clean-cyber-tab"
             >
-              <span className="terminal-bracket">[</span>
-              <TrendingUp className="h-4 w-4 mx-2 flex-shrink-0" />
-              <span className="terminal-text">overview</span>
-              <span className="terminal-bracket">]</span>
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="terminal-tab"
+              className="clean-cyber-tab"
             >
-              <span className="terminal-bracket">[</span>
-              <Plus className="h-4 w-4 mx-2 flex-shrink-0" />
-              <span className="terminal-text">liquidity</span>
-              <span className="terminal-bracket">]</span>
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="terminal-tab"
+              className="clean-cyber-tab"
             >
-              <span className="terminal-bracket">[</span>
-              <Award className="h-4 w-4 mx-2 flex-shrink-0" />
-              <span className="terminal-text">rewards</span>
-              <span className="terminal-bracket">]</span>
+              <Award className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="terminal-tab"
+              className="clean-cyber-tab"
             >
-              <span className="terminal-bracket">[</span>
-              <Wallet className="h-4 w-4 mx-2 flex-shrink-0" />
-              <span className="terminal-text">positions</span>
-              <span className="terminal-bracket">]</span>
+              <Wallet className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Positions</span>
             </TabsTrigger>
           </TabsList>
 

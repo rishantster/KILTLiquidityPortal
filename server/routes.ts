@@ -1895,15 +1895,41 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         res.json({
           totalAllocation: parseFloat(config.totalAllocation),
           programDurationDays: config.programDurationDays,
-          programStartDate: config.programStartDate 
-            ? (typeof config.programStartDate === 'string' ? config.programStartDate : config.programStartDate.toISOString().split('T')[0])
-            : '',
+          programStartDate: (() => {
+            try {
+              if (!config.programStartDate) return '';
+              if (config.programStartDate instanceof Date) {
+                return config.programStartDate.toISOString().split('T')[0];
+              }
+              // Handle string dates
+              const dateStr = config.programStartDate.toString();
+              if (dateStr.includes('T')) {
+                return dateStr.split('T')[0];
+              }
+              return dateStr;
+            } catch (e) {
+              return '';
+            }
+          })(),
           treasuryWalletAddress: config.treasuryWalletAddress || '',
           isActive: config.isActive,
           // Auto-calculated read-only fields
-          programEndDate: config.programEndDate 
-            ? (typeof config.programEndDate === 'string' ? config.programEndDate : config.programEndDate.toISOString().split('T')[0])
-            : '',
+          programEndDate: (() => {
+            try {
+              if (!config.programEndDate) return '';
+              if (config.programEndDate instanceof Date) {
+                return config.programEndDate.toISOString().split('T')[0];
+              }
+              // Handle string dates
+              const dateStr = config.programEndDate.toString();
+              if (dateStr.includes('T')) {
+                return dateStr.split('T')[0];
+              }
+              return dateStr;
+            } catch (e) {
+              return '';
+            }
+          })(),
           dailyRewardsCap: parseFloat(config.dailyRewardsCap || '0')
         });
       }

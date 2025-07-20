@@ -8,16 +8,12 @@ import { Toaster } from "@/components/ui/toaster";
 interface TreasuryConfig {
   totalAllocation: number;
   programDurationDays: number;
-  dailyBudget: number;
+  dailyRewardsCap: number;
   programStartDate: string;
   programEndDate: string;
   treasuryWalletAddress: string;
+  annualRewardsBudget: number;
   isActive: boolean;
-  rewardTokenAddress: string;
-  distributionWalletAddress: string;
-  emergencyContactAddress: string;
-  maxDailyDistribution: number;
-  vestingPeriodDays: number;
 }
 
 interface ProgramSettings {
@@ -33,16 +29,12 @@ export function CyberpunkAdminPanel() {
   const [treasuryConfig, setTreasuryConfig] = useState<TreasuryConfig>({
     totalAllocation: 0,
     programDurationDays: 0,
-    dailyBudget: 0,
+    dailyRewardsCap: 0,
     programStartDate: '',
     programEndDate: '',
     treasuryWalletAddress: '',
-    isActive: true,
-    rewardTokenAddress: '',
-    distributionWalletAddress: '',
-    emergencyContactAddress: '',
-    maxDailyDistribution: 0,
-    vestingPeriodDays: 0
+    annualRewardsBudget: 0,
+    isActive: true
   });
   
   const [programSettings, setProgramSettings] = useState<ProgramSettings>({
@@ -268,87 +260,31 @@ export function CyberpunkAdminPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">DAILY_BUDGET:</label>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">DAILY_REWARDS_CAP:</label>
                     <input
                       type="number"
                       step="0.01"
-                      value={treasuryConfig.dailyBudget || ''}
+                      value={treasuryConfig.dailyRewardsCap || ''}
                       onChange={(e) => setTreasuryConfig({
                         ...treasuryConfig,
-                        dailyBudget: Number(e.target.value) || 0
+                        dailyRewardsCap: Number(e.target.value) || 0
                       })}
-                      placeholder="Enter daily budget"
+                      placeholder="Daily rewards distribution cap"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">REWARD_TOKEN_ADDRESS:</label>
-                    <input
-                      type="text"
-                      value={treasuryConfig.rewardTokenAddress || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        rewardTokenAddress: e.target.value
-                      })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                      placeholder="0x... (KILT token address)"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">DISTRIBUTION_WALLET:</label>
-                    <input
-                      type="text"
-                      value={treasuryConfig.distributionWalletAddress || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        distributionWalletAddress: e.target.value
-                      })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                      placeholder="0x... (Distribution wallet)"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">EMERGENCY_CONTACT:</label>
-                    <input
-                      type="text"
-                      value={treasuryConfig.emergencyContactAddress || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        emergencyContactAddress: e.target.value
-                      })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                      placeholder="0x... (Emergency contact)"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">MAX_DAILY_DISTRIBUTION:</label>
+                    <label className="block text-green-400 text-sm mb-2 font-mono">ANNUAL_REWARDS_BUDGET:</label>
                     <input
                       type="number"
                       step="0.01"
-                      value={treasuryConfig.maxDailyDistribution || ''}
+                      value={treasuryConfig.annualRewardsBudget || ''}
                       onChange={(e) => setTreasuryConfig({
                         ...treasuryConfig,
-                        maxDailyDistribution: Number(e.target.value) || 0
+                        annualRewardsBudget: Number(e.target.value) || 0
                       })}
-                      placeholder="Maximum daily distribution cap"
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">VESTING_PERIOD_DAYS:</label>
-                    <input
-                      type="number"
-                      value={treasuryConfig.vestingPeriodDays || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        vestingPeriodDays: Number(e.target.value) || 0
-                      })}
-                      placeholder="Token vesting period"
+                      placeholder="Total annual budget allocation"
                       className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
                     />
                   </div>

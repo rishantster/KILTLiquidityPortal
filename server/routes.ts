@@ -1878,17 +1878,51 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Treasury configuration endpoints
   app.get('/api/admin/treasury/config', async (req, res) => {
     try {
-      // Return mock treasury config for cyberpunk admin panel
-      res.json({
-        totalAllocation: 500000,
-        programDurationDays: 90,
-        dailyBudget: 5555.56,
-        programStartDate: new Date().toISOString().split('T')[0],
-        programEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
-        isActive: true
-      });
+      // Get real treasury configuration from database
+      const [config] = await db.select().from(treasuryConfig).limit(1);
+      
+      if (!config) {
+        // If no config exists, create default one
+        const defaultConfig = {
+          treasuryWalletAddress: '0x0000000000000000000000000000000000000000',
+          totalAllocation: '500000',
+          annualRewardsBudget: '500000',
+          dailyRewardsCap: '5555.56',
+          programStartDate: new Date(),
+          programEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+          programDurationDays: 90,
+          isActive: true,
+          createdBy: 'admin'
+        };
+        
+        const [newConfig] = await db.insert(treasuryConfig).values(defaultConfig).returning();
+        
+        // Return with exact field names as admin panel expects
+        res.json({
+          totalAllocation: parseFloat(newConfig.totalAllocation),
+          programDurationDays: newConfig.programDurationDays,
+          dailyRewardsCap: parseFloat(newConfig.dailyRewardsCap),
+          programStartDate: newConfig.programStartDate.toISOString().split('T')[0],
+          programEndDate: newConfig.programEndDate.toISOString().split('T')[0],
+          treasuryWalletAddress: newConfig.treasuryWalletAddress,
+          annualRewardsBudget: parseFloat(newConfig.annualRewardsBudget),
+          isActive: newConfig.isActive
+        });
+      } else {
+        // Return existing config with exact field names as admin panel expects
+        res.json({
+          totalAllocation: parseFloat(config.totalAllocation),
+          programDurationDays: config.programDurationDays,
+          dailyRewardsCap: parseFloat(config.dailyRewardsCap),
+          programStartDate: config.programStartDate.toISOString().split('T')[0],
+          programEndDate: config.programEndDate.toISOString().split('T')[0],
+          treasuryWalletAddress: config.treasuryWalletAddress,
+          annualRewardsBudget: parseFloat(config.annualRewardsBudget),
+          isActive: config.isActive
+        });
+      }
     } catch (error) {
+      console.error('Treasury config error:', error);
       res.status(500).json({ error: 'Failed to get treasury config' });
     }
   });
@@ -1897,13 +1931,41 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const config = req.body;
       
-      // Mock treasury configuration update
+      // Use exact field names from admin panel - no mapping needed
+      const dbConfig = {
+        treasuryWalletAddress: config.treasuryWalletAddress || '0x0000000000000000000000000000000000000000',
+        totalAllocation: config.totalAllocation?.toString() || '500000',
+        annualRewardsBudget: config.annualRewardsBudget?.toString() || config.totalAllocation?.toString() || '500000',
+        dailyRewardsCap: config.dailyRewardsCap?.toString() || '5555.56',
+        programStartDate: new Date(config.programStartDate || new Date()),
+        programEndDate: new Date(config.programEndDate || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)),
+        programDurationDays: config.programDurationDays || 90,
+        isActive: config.isActive !== false,
+        createdBy: 'admin',
+        updatedAt: new Date()
+      };
+      
+      // Check if config exists
+      const [existingConfig] = await db.select().from(treasuryConfig).limit(1);
+      
+      if (existingConfig) {
+        // Update existing config
+        await db.update(treasuryConfig)
+          .set(dbConfig)
+          .where(eq(treasuryConfig.id, existingConfig.id));
+      } else {
+        // Insert new config
+        await db.insert(treasuryConfig).values(dbConfig);
+      }
+      
+      console.log('Admin POST /api/admin/treasury/config');
       res.json({
         success: true,
         message: 'Treasury configuration updated successfully',
-        config
+        config: dbConfig
       });
     } catch (error) {
+      console.error('Treasury config update error:', error);
       res.status(500).json({ error: 'Failed to update treasury configuration' });
     }
   });
@@ -1911,14 +1973,36 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Program settings endpoints
   app.get('/api/admin/program/settings', async (req, res) => {
     try {
-      // Return mock program settings
-      res.json({
-        timeBoostCoefficient: 0.6,
-        fullRangeBonus: 1.2,
-        minimumPositionValue: 10,
-        lockPeriod: 7
-      });
+      // Get real program settings from database
+      const [settings] = await db.select().from(programSettings).limit(1);
+      
+      if (!settings) {
+        // If no settings exist, create default ones
+        const defaultSettings = {
+          timeBoostCoefficient: 0.6,
+          fullRangeBonus: 1.2,
+          minimumPositionValue: 10,
+          lockPeriod: 7
+        };
+        
+        const [newSettings] = await db.insert(programSettings).values(defaultSettings).returning();
+        
+        res.json({
+          timeBoostCoefficient: newSettings.timeBoostCoefficient,
+          fullRangeBonus: newSettings.fullRangeBonus,
+          minimumPositionValue: newSettings.minimumPositionValue,
+          lockPeriod: newSettings.lockPeriod
+        });
+      } else {
+        res.json({
+          timeBoostCoefficient: settings.timeBoostCoefficient,
+          fullRangeBonus: settings.fullRangeBonus,
+          minimumPositionValue: settings.minimumPositionValue,
+          lockPeriod: settings.lockPeriod
+        });
+      }
     } catch (error) {
+      console.error('Program settings error:', error);
       res.status(500).json({ error: 'Failed to get program settings' });
     }
   });

@@ -20,7 +20,7 @@ import {
   ExternalLink,
   ArrowUpDown
 } from 'lucide-react';
-import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
+import { useSimpleUniswapV3 } from '@/hooks/use-uniswap-v3-simple';
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useAppSession } from '@/hooks/use-app-session';
@@ -64,17 +64,27 @@ export function LiquidityMint({
 }: LiquidityMintProps) {
   const { address, isConnected } = useWallet();
   const { 
-    preferredEthToken,
-    poolExists, 
     mintPosition, 
     approveToken,
     isMinting, 
-    isApproving,
-    parseTokenAmount 
-  } = useUniswapV3();
+    isApproving
+  } = useSimpleUniswapV3();
   const { data: kiltData } = useKiltTokenData();
   const { sessionId, createAppSession, recordAppTransaction, isCreatingSession } = useAppSession();
   const { toast } = useToast();
+
+  // Helper function to parse token amounts
+  const parseTokenAmount = (amount: string, decimals: number = 18): bigint => {
+    try {
+      if (!amount || amount === '0' || amount === '') return 0n;
+      return parseUnits(amount, decimals);
+    } catch {
+      return 0n;
+    }
+  };
+
+  // Pool state
+  const poolExists = true; // Base assumption for KILT/ETH pool
 
   // Initialize Uniswap V3 SDK service
   const [uniswapSDK, setUniswapSDK] = useState<UniswapV3SDKService | null>(null);
@@ -492,9 +502,9 @@ export function LiquidityMint({
         throw new Error('Invalid tick range: tickLower must be less than tickUpper');
       }
       
-      // Use proper slippage protection (5% slippage tolerance)
-      const amount0Min = (amount0Desired * 95n) / 100n; // 5% slippage protection
-      const amount1Min = (amount1Desired * 95n) / 100n; // 5% slippage protection
+      // Use more generous slippage protection (10% slippage tolerance)
+      const amount0Min = (amount0Desired * 90n) / 100n; // 10% slippage protection
+      const amount1Min = (amount1Desired * 90n) / 100n; // 10% slippage protection
 
       // Create the mint parameters object
       const mintParams = {

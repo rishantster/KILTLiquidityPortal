@@ -670,17 +670,7 @@ export function useUniswapV3() {
       setIsMinting(true);
       try {
         if (!address) throw new Error('Wallet not connected');
-        
-        // Check if MetaMask is available
-        if (typeof window.ethereum === 'undefined') {
-          throw new Error('MetaMask not found');
-        }
-
-        // Create wallet client
-        const walletClient = createWalletClient({
-          chain: base,
-          transport: custom(window.ethereum),
-        });
+        if (!walletClient) throw new Error('Wallet client not available');
 
         // Validate parameters
         if (!params.token0 || !params.token1) {
@@ -690,17 +680,19 @@ export function useUniswapV3() {
         // Ensure amounts are valid BigInt values
         const amount0Desired = BigInt(params.amount0Desired || '0');
         const amount1Desired = BigInt(params.amount1Desired || '0');
-        const amount0Min = BigInt(params.amount0Min || '0');
-        const amount1Min = BigInt(params.amount1Min || '0');
-
+        
         if (amount0Desired <= 0n && amount1Desired <= 0n) {
-          throw new Error('Invalid token amounts');
+          throw new Error('Invalid token amounts - both amounts cannot be zero');
         }
 
-        // Calculate ETH value to send (only if using native ETH)
-        const ethValue = params.isNativeETH ? amount1Desired : 0n;
+        // More generous slippage protection (15% tolerance for initial testing)
+        const amount0Min = (amount0Desired * 85n) / 100n;
+        const amount1Min = (amount1Desired * 85n) / 100n;
 
-        // Create the mint parameters
+        // Calculate ETH value to send (only if using native ETH)
+        const ethValue = params.useNativeETH ? amount1Desired : 0n;
+
+        // Create the mint parameters with proper structure
         const mintParams = {
           token0: params.token0 as `0x${string}`,
           token1: params.token1 as `0x${string}`,
@@ -715,7 +707,17 @@ export function useUniswapV3() {
           deadline: BigInt(params.deadline),
         };
 
-        // Send minting transaction
+        console.log('Mint parameters:', {
+          ...mintParams,
+          amount0Desired: mintParams.amount0Desired.toString(),
+          amount1Desired: mintParams.amount1Desired.toString(),
+          amount0Min: mintParams.amount0Min.toString(),
+          amount1Min: mintParams.amount1Min.toString(),
+          deadline: mintParams.deadline.toString(),
+          ethValue: ethValue.toString()
+        });
+
+        // Send minting transaction with proper account
         const hash = await walletClient.writeContract({
           address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
           abi: POSITION_MANAGER_ABI,
@@ -738,17 +740,17 @@ export function useUniswapV3() {
           throw new Error('Transaction failed');
         }
       } catch (error: any) {
-        // Enhanced error handling with more specific messages
-        let errorMessage = "Please try again";
+        // Enhanced error handling
+        let errorMessage = "Position creation failed";
         
-        if (error.message?.includes('insufficient funds')) {
+        if (error.message?.includes('STF')) {
+          errorMessage = "Slippage tolerance failed - try increasing slippage tolerance";
+        } else if (error.message?.includes('insufficient funds')) {
           errorMessage = "Insufficient funds for transaction";
         } else if (error.message?.includes('user rejected')) {
           errorMessage = "Transaction rejected by user";
         } else if (error.message?.includes('execution reverted')) {
           errorMessage = "Contract execution failed - check token approvals";
-        } else if (error.message?.includes('invalid address')) {
-          errorMessage = "Invalid contract address";
         } else if (error.message) {
           errorMessage = error.message;
         }

@@ -54,34 +54,30 @@ export const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 Get KILT tokens to provide liquidity and earn rewards
               </p>
               
-              {/* Embedded Uniswap Widget */}
-              <div className="mt-4 border border-gray-700/50 rounded-lg overflow-hidden">
-                <iframe
-                  src={`https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&theme=dark`}
-                  width="100%"
-                  height="400"
-                  style={{ border: 'none', borderRadius: '8px' }}
-                  allow="clipboard-write"
-                  title="Uniswap Swap Interface"
-                  className="bg-gray-900"
-                />
+              {/* Swap Action Button */}
+              <div className="mt-4 p-6 border border-gray-700/50 rounded-lg bg-gradient-to-r from-[#ff0066]/10 to-pink-600/10">
+                <div className="text-center space-y-4">
+                  <div className="text-2xl font-bold text-white">Ready to Swap?</div>
+                  <p className="text-gray-300">
+                    Click below to open Uniswap and swap ETH for KILT tokens
+                  </p>
+                  <Button
+                    onClick={() => {
+                      const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
+                      window.open(swapUrl, '_blank');
+                    }}
+                    className="w-full bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white font-bold py-4 text-lg transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105"
+                  >
+                    <ExternalLink className="h-5 w-5 mr-2" />
+                    Open Uniswap Swap
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
           
           {/* Quick Actions */}
           <div className="space-y-2">
-            <Button
-              onClick={() => {
-                const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
-                window.open(swapUrl, '_blank');
-              }}
-              className="w-full bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white font-semibold transition-all duration-200"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Open in New Tab
-            </Button>
-            
             <Button 
               onClick={onClose}
               variant="outline" 

@@ -20,7 +20,7 @@ export function GasEstimationCard() {
 
   // Use optimized queries with aggressive caching
   const { address } = useWallet();
-  const { calculations, aprData, isLoading: dataLoading } = useOptimizedQueries(address);
+  const { calculations, aprData, isLoading: dataLoading } = useOptimizedQueries(address || undefined);
 
   // Memoize break-even calculation to prevent recalculation on each render
   const breakEvenDays = useMemo(() => {
@@ -45,29 +45,40 @@ export function GasEstimationCard() {
         setIsLoading(true);
         setError(null);
         
-        // Simulate gas estimation - in real app, this would call actual gas estimation API
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Fetch real-time Base network gas estimation
+        const response = await fetch('/api/gas/estimate');
+        if (!response.ok) {
+          throw new Error('Failed to fetch gas estimate');
+        }
         
-        // Realistic Base network gas costs - much cheaper than mainnet
-        const mockGasEstimate: GasEstimate = {
+        const realGasEstimate = await response.json();
+        
+        // Convert to expected format with cost USD included
+        const gasEstimate: GasEstimate = {
           approve: {
-            gasLimit: '50000',
-            gasPrice: '0.000001', // Base has very low gas prices
-            cost: '0.00005' // ~$0.18 for approval
+            gasLimit: realGasEstimate.approve.gasLimit,
+            gasPrice: realGasEstimate.approve.gasPrice,
+            cost: realGasEstimate.approve.cost
           },
           mint: {
-            gasLimit: '200000',
-            gasPrice: '0.000001',
-            cost: '0.0002' // ~$0.70 for minting
+            gasLimit: realGasEstimate.mint.gasLimit,
+            gasPrice: realGasEstimate.mint.gasPrice,
+            cost: realGasEstimate.mint.cost
           },
           total: {
-            gasLimit: '250000',
-            gasPrice: '0.000001',
-            cost: '0.00025' // ~$0.88 total - realistic for Base
+            gasLimit: realGasEstimate.total.gasLimit,
+            gasPrice: realGasEstimate.total.gasPrice,
+            cost: realGasEstimate.total.cost
           }
         };
         
-        setGasEstimate(mockGasEstimate);
+        setGasEstimate(gasEstimate);
+        console.log('✅ Authentic Base network gas data loaded:', {
+          approve: `${realGasEstimate.approve.costUSD} (${realGasEstimate.approve.cost} ETH)`,
+          mint: `${realGasEstimate.mint.costUSD} (${realGasEstimate.mint.cost} ETH)`,
+          total: `${realGasEstimate.total.costUSD} (${realGasEstimate.total.cost} ETH)`,
+          source: 'Real Base RPC'
+        });
       } catch (err) {
         setError('Failed to estimate gas costs');
         console.error('Gas estimation error:', err);

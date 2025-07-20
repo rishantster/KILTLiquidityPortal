@@ -2162,6 +2162,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Real-time Base network gas estimation
+  app.get('/api/gas/estimate', async (req, res) => {
+    try {
+      const { simpleGasService } = await import('./simple-gas-service');
+      const gasEstimate = await simpleGasService.estimateTransactionCosts();
+      res.json(gasEstimate);
+    } catch (error) {
+      console.error('Gas estimation error:', error);
+      res.status(500).json({ error: 'Failed to estimate gas costs' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

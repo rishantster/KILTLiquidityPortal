@@ -320,8 +320,8 @@ export function LiquidityMint({
       const strategy = getSelectedStrategy();
       
       const validationParams: LiquidityParams = {
-        token0: WETH_TOKEN,
-        token1: KILT_TOKEN,
+        token0: WETH_TOKEN.address,
+        token1: KILT_TOKEN.address,
         amount0Desired: parseUnits(ethAmt, 18),
         amount1Desired: parseUnits(kiltAmt, 18),
         amount0Min: (parseUnits(ethAmt, 18) * 95n) / 100n, // 5% slippage
@@ -903,29 +903,6 @@ export function LiquidityMint({
         <GasEstimationCard />
       </div>
       {/* Compact Actions */}
-      <div className="space-y-2">
-        {!tokensApproved && (
-          <div className="text-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setTokensApproved(true);
-                setIsKiltApproved(true);
-                setIsEthApproved(true);
-                localStorage.setItem(`tokens_approved_${address}`, 'true');
-                toast({
-                  title: "Approval State Updated",
-                  description: "Marked tokens as approved. You can now add liquidity.",
-                });
-              }}
-              className="text-xs text-matrix-green hover:text-terminal-green cyberpunk-button-green"
-            >
-              Already approved tokens? Click here
-            </Button>
-          </div>
-        )}
-        
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button
           onClick={handleApproveTokens}
@@ -1030,8 +1007,6 @@ export function LiquidityMint({
             <strong>MetaMask Note:</strong> KILT may appear as "0x5D0DD...ad2d8" in transaction details - this is normal and the transaction is correct.
           </p>
         </div>
-      </div>
-      
       </div>
     </div>
   );

@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useWallet } from '@/contexts/wallet-context';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Loader2, Wifi, WifiOff, AlertTriangle, CheckCircle, Smartphone, Monitor, Wallet } from 'lucide-react';
+import { Loader2, Wifi, WifiOff, AlertTriangle, CheckCircle, Smartphone, Monitor, Wallet, Chrome, Globe } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface WalletOption {
   id: string;
   name: string;
-  icon: string;
+  icon: React.ReactNode;
   description: string;
   action: () => void;
   recommended?: boolean;
@@ -55,7 +55,20 @@ export function MultiWalletConnect() {
     {
       id: 'metamask',
       name: 'MetaMask',
-      icon: '🦊',
+      icon: (
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 318.6 318.6" fill="white">
+            <path d="m274.1 35.76-99.5 73.27L193.4 65.8z"/>
+            <path d="m44.4 35.76 98.7 74.13-17.9-43.23z"/>
+            <path d="m238.3 206.8-34.84 53.44 74.6 20.58 21.46-72.9z"/>
+            <path d="m19.11 207.9 21.4 72.9 74.6-20.58-34.84-53.44z"/>
+            <path d="m111.3 138.8-16.2 24.3 74.1 1.97-.69-79.87z"/>
+            <path d="m207.2 138.8-57.15-53.63-.69 79.87 74.1-1.97z"/>
+            <path d="m115.1 260.2 44.19-21.53-38.12-29.71z"/>
+            <path d="m159.4 238.7 44.19 21.53-6.07-51.24z"/>
+          </svg>
+        </div>
+      ),
       description: 'Connect with MetaMask browser extension',
       action: () => handleWalletSelect(connect),
       recommended: !isMobile,
@@ -64,7 +77,13 @@ export function MultiWalletConnect() {
     {
       id: 'coinbase',
       name: 'Coinbase Wallet',
-      icon: '🔵',
+      icon: (
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 28 28" fill="white">
+            <path d="M14 0C6.27 0 0 6.27 0 14s6.27 14 14 14 14-6.27 14-14S21.73 0 14 0zm-3.5 21c-2.46 0-4.45-1.99-4.45-4.45s1.99-4.45 4.45-4.45c1.04 0 2.01.36 2.77.96l-1.13 1.08c-.51-.4-1.16-.64-1.84-.64-1.66 0-3.01 1.35-3.01 3.01s1.35 3.01 3.01 3.01c1.22 0 2.27-.74 2.73-1.8h-2.73v-1.44h4.32c.05.24.08.48.08.74 0 2.46-1.99 4.45-4.45 4.45zm7.5-3.5h-3v-3h3v3z"/>
+          </svg>
+        </div>
+      ),
       description: 'Connect with Coinbase Wallet extension',
       action: () => handleWalletSelect(connect),
       category: 'browser'
@@ -74,7 +93,13 @@ export function MultiWalletConnect() {
     {
       id: 'walletconnect',
       name: 'WalletConnect',
-      icon: '🔗',
+      icon: (
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M7.5 6.5C7.5 8.981 5.481 11 3 11s-4.5-2.019-4.5-4.5S0.519 2 3 2s4.5 2.019 4.5 4.5zM3 13c-2.481 0-4.5 2.019-4.5 4.5S0.519 22 3 22s4.5-2.019 4.5-4.5S5.481 13 3 13zm18 0c-2.481 0-4.5 2.019-4.5 4.5S18.519 22 21 22s4.5-2.019 4.5-4.5S23.481 13 21 13zm0-11C18.519 2 16.5 4.019 16.5 6.5S18.519 11 21 11s4.5-2.019 4.5-4.5S23.481 2 21 2zM12 8c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4z"/>
+          </svg>
+        </div>
+      ),
       description: 'Scan QR code with any mobile wallet',
       action: () => handleWalletSelect(connectWithWalletConnect),
       recommended: isMobile,
@@ -83,7 +108,13 @@ export function MultiWalletConnect() {
     {
       id: 'trust',
       name: 'Trust Wallet',
-      icon: '🛡️',
+      icon: (
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zM12 7c1.4 0 2.8 1.1 2.8 2.5V11c.6 0 1.2.4 1.2 1v4c0 .6-.6 1-1.2 1H9.2c-.6 0-1.2-.4-1.2-1v-4c0-.6.6-1 1.2-1V9.5C9.2 8.1 10.6 7 12 7zm0 1.2c-.8 0-1.5.7-1.5 1.5V11h3V9.7c0-.8-.7-1.5-1.5-1.5z"/>
+          </svg>
+        </div>
+      ),
       description: 'Connect with Trust Wallet mobile app',
       action: () => {
         if (isMobile) {
@@ -97,7 +128,25 @@ export function MultiWalletConnect() {
     {
       id: 'rainbow',
       name: 'Rainbow',
-      icon: '🌈',
+      icon: (
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 120 120" fill="white">
+            <defs>
+              <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#ff6b6b"/>
+                <stop offset="25%" stopColor="#4ecdc4"/>
+                <stop offset="50%" stopColor="#45b7d1"/>
+                <stop offset="75%" stopColor="#f9ca24"/>
+                <stop offset="100%" stopColor="#f0932b"/>
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r="50" fill="url(#rainbow)" opacity="0.8"/>
+            <circle cx="60" cy="40" r="15" fill="white"/>
+            <circle cx="40" cy="70" r="12" fill="white"/>
+            <circle cx="80" cy="70" r="12" fill="white"/>
+          </svg>
+        </div>
+      ),
       description: 'Connect with Rainbow mobile wallet',
       action: () => handleWalletSelect(connectWithWalletConnect),
       category: 'mobile'
@@ -105,7 +154,13 @@ export function MultiWalletConnect() {
     {
       id: 'phantom',
       name: 'Phantom',
-      icon: '👻',
+      icon: (
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-800 flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 128 128" fill="white">
+            <path d="M64 8C35.8 8 13.4 25.6 8.2 49.6c-.3 1.4-.5 2.9-.6 4.4-.1 1.5-.1 3-.1 4.5 0 1.5 0 3 .1 4.5.1 1.5.3 3 .6 4.4C13.4 91.4 35.8 109 64 109s50.6-17.6 55.8-41.6c.3-1.4.5-2.9.6-4.4.1-1.5.1-3 .1-4.5 0-1.5 0-3-.1-4.5-.1-1.5-.3-3-.6-4.4C114.6 25.6 92.2 8 64 8zm0 16c19.9 0 37.1 11.6 45.2 28.4-.8.3-1.6.6-2.4.9-4.8 1.8-9.8 2.7-14.8 2.7s-10-.9-14.8-2.7c-.8-.3-1.6-.6-2.4-.9C82.9 35.6 74.1 24 64 24s-18.9 11.6-10.8 28.4c-.8.3-1.6.6-2.4.9-4.8 1.8-9.8 2.7-14.8 2.7s-10-.9-14.8-2.7c-.8-.3-1.6-.6-2.4-.9C26.9 35.6 44.1 24 64 24z"/>
+          </svg>
+        </div>
+      ),
       description: 'Multi-chain wallet (Ethereum & Solana)',
       action: () => handleWalletSelect(connectWithWalletConnect),
       category: 'mobile'
@@ -199,7 +254,7 @@ export function MultiWalletConnect() {
                     className="w-full justify-start p-4 h-auto bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-200"
                   >
                     <div className="flex items-center gap-3 w-full">
-                      <div className="text-2xl">{wallet.icon}</div>
+                      <div className="flex-shrink-0">{wallet.icon}</div>
                       <div className="flex-1 text-left">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-white">{wallet.name}</span>
@@ -232,7 +287,7 @@ export function MultiWalletConnect() {
                     className="w-full justify-start p-4 h-auto bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-200"
                   >
                     <div className="flex items-center gap-3 w-full">
-                      <div className="text-2xl">{wallet.icon}</div>
+                      <div className="flex-shrink-0">{wallet.icon}</div>
                       <div className="flex-1 text-left">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-white">{wallet.name}</span>

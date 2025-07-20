@@ -142,7 +142,23 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Initialize blazing fast services after server starts
+    try {
+      const { blazingFastService } = await import('./blazing-fast-service.js');
+      const { parallelDataLoader } = await import('./parallel-data-loader.js');
+      
+      // Preload critical data
+      await blazingFastService.preloadCriticalData();
+      
+      // Start background refresh
+      await parallelDataLoader.startBackgroundRefresh();
+      
+      console.log('✓ Blazing fast services initialized - app will be lightning fast!');
+    } catch (error) {
+      console.error('Failed to initialize blazing services:', error);
+    }
   });
 })();

@@ -627,10 +627,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get real-time KILT token data
+  // Get real-time KILT token data with BLAZING FAST caching
   app.get("/api/kilt-data", async (req, res) => {
     try {
-      const kiltData = await fetchKiltTokenData();
+      const { blazingFastService } = await import('./blazing-fast-service.js');
+      
+      const kiltData = await blazingFastService.cachedQuery('kilt-data', async () => {
+        return await fetchKiltTokenData();
+      }, 30); // 30 second cache for blazing speed
+      
+      res.setHeader('X-Optimized', 'blazing-cache');
       res.json(kiltData);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch KILT token data" });
@@ -824,8 +830,22 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // BLAZING FAST Get unified dashboard data - ALL DATA IN PARALLEL
+  app.get("/api/dashboard/unified/:userAddress", async (req, res) => {
+    try {
+      const userAddress = req.params.userAddress;
+      const { parallelDataLoader } = await import('./parallel-data-loader.js');
+      
+      const dashboardData = await parallelDataLoader.loadDashboardData(userAddress);
+      res.setHeader('X-Optimized', 'blazing-parallel');
+      res.json(dashboardData);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load dashboard data" });
+    }
+  });
+
   // BLAZING FAST Get program analytics (open participation) - SIMPLIFIED VERSION
-  app.get("/api/rewards/program-analytics", blazingCacheMiddleware(120), timingMiddleware(), async (req, res) => {
+  app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
       // Get basic analytics that don't require blockchain integration
       const analytics = await fixedRewardService.getProgramAnalytics();
@@ -1526,7 +1546,24 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   });
 
   // ULTRA-FAST OPTIMIZED: Uniswap positions with aggressive caching
-  app.get("/api/positions/wallet/:userAddress", blazingCacheMiddleware(60), timingMiddleware(), async (req, res) => {
+  app.get("/api/positions/wallet/:userAddress", async (req, res) => {
+    try {
+      const userAddress = req.params.userAddress;
+      const { blazingFastService } = await import('./blazing-fast-service.js');
+      
+      const positions = await blazingFastService.cachedQuery(`positions-${userAddress}`, async () => {
+        return await uniswapIntegrationService.getUserPositions(userAddress);
+      }, 30); // 30 second cache for positions
+      
+      res.setHeader('X-Optimized', 'blazing-cache');
+      res.json(positions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch wallet positions" });
+    }
+  });
+
+  // LEGACY - Get wallet positions for connected user with caching
+  app.get("/api/positions/wallet-legacy/:userAddress", blazingCacheMiddleware(60), timingMiddleware(), async (req, res) => {
     try {
       const { userAddress } = req.params;
       const { positionCacheOptimizer } = await import('./position-cache-optimizer');

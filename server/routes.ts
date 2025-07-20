@@ -13,6 +13,8 @@ declare global {
   }
 }
 import { storage } from "./storage";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { 
   insertUserSchema, 
   insertLpPositionSchema, 
@@ -43,7 +45,7 @@ import { blockchainConfigService } from "./blockchain-config-service";
 
 
 import { claimBasedRewards } from "./claim-based-rewards";
-import { db } from "./db";
+
 
 
 import rewardDistributionRoutes from "./routes/reward-distribution";
@@ -1893,14 +1895,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         res.json({
           totalAllocation: parseFloat(config.totalAllocation),
           programDurationDays: config.programDurationDays,
-          programStartDate: config.programStartDate && config.programStartDate instanceof Date 
-            ? config.programStartDate.toISOString().split('T')[0] 
+          programStartDate: config.programStartDate 
+            ? (typeof config.programStartDate === 'string' ? config.programStartDate : config.programStartDate.toISOString().split('T')[0])
             : '',
           treasuryWalletAddress: config.treasuryWalletAddress || '',
           isActive: config.isActive,
           // Auto-calculated read-only fields
-          programEndDate: config.programEndDate && config.programEndDate instanceof Date 
-            ? config.programEndDate.toISOString().split('T')[0] 
+          programEndDate: config.programEndDate 
+            ? (typeof config.programEndDate === 'string' ? config.programEndDate : config.programEndDate.toISOString().split('T')[0])
             : '',
           dailyRewardsCap: parseFloat(config.dailyRewardsCap || '0')
         });

@@ -676,32 +676,45 @@ export class FixedRewardService {
         const currentValueUSD = parseFloat(position.currentValueUSD?.toString() || '0');
         
         if (daysActive > 0 && currentValueUSD > 0) {
-          // Force create a reward record with meaningful values
-          await this.database
-            .insert(rewards)
-            .values({
-              userId,
-              positionId: position.id,
-              nftTokenId,
-              positionValueUSD: currentValueUSD.toString(),
-              dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
-              accumulatedAmount: (rewardCalculation.dailyRewards * daysActive).toString(),
-              liquidityAddedAt: position.createdAt,
-              stakingStartDate: position.createdAt,
-              lastRewardCalculation: new Date(),
-              isEligibleForClaim: daysActive >= 7,
-              claimedAmount: '0',
-            })
-            .onConflictDoUpdate({
-              target: [rewards.positionId],
-              set: {
+          // Check if reward record already exists
+          const existingReward = await this.database
+            .select()
+            .from(rewards)
+            .where(eq(rewards.positionId, position.id))
+            .limit(1);
+
+          if (existingReward.length === 0) {
+            // Create new reward record
+            await this.database
+              .insert(rewards)
+              .values({
+                userId,
+                positionId: position.id,
+                nftTokenId,
+                amount: (rewardCalculation.dailyRewards * daysActive).toString(), // Required amount field
+                positionValueUSD: currentValueUSD.toString(),
+                dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
+                accumulatedAmount: (rewardCalculation.dailyRewards * daysActive).toString(),
+                liquidityAddedAt: position.createdAt,
+                stakingStartDate: position.createdAt,
+                lastRewardCalculation: new Date(),
+                isEligibleForClaim: daysActive >= 7,
+                claimedAmount: '0',
+              });
+          } else {
+            // Update existing record
+            await this.database
+              .update(rewards)
+              .set({
+                amount: (rewardCalculation.dailyRewards * daysActive).toString(), // Update amount field too
                 dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
                 accumulatedAmount: (rewardCalculation.dailyRewards * daysActive).toString(),
                 positionValueUSD: currentValueUSD.toString(),
                 lastRewardCalculation: new Date(),
                 isEligibleForClaim: daysActive >= 7,
-              },
-            });
+              })
+              .where(eq(rewards.id, existingReward[0].id));
+          }
         }
       } else {
         await this.updateRewardRecord(userId, nftTokenId, rewardCalculation);
@@ -744,6 +757,7 @@ export class FixedRewardService {
         await this.database
           .update(rewards)
           .set({
+            amount: calculation.accumulatedRewards.toString(), // Update amount field
             dailyRewardAmount: calculation.dailyRewards.toString(),
             accumulatedAmount: calculation.accumulatedRewards.toString(),
             positionValueUSD: calculation.liquidityAmount.toString(),
@@ -758,12 +772,15 @@ export class FixedRewardService {
             userId,
             positionId: position.id,
             nftTokenId,
+            amount: calculation.accumulatedRewards.toString(), // Required amount field
             positionValueUSD: calculation.liquidityAmount.toString(),
             dailyRewardAmount: calculation.dailyRewards.toString(),
             accumulatedAmount: calculation.accumulatedRewards.toString(),
             liquidityAddedAt: new Date(),
             stakingStartDate: new Date(),
             lastRewardCalculation: new Date(),
+            isEligibleForClaim: false,
+            claimedAmount: '0',
           });
       }
     } catch (error) {

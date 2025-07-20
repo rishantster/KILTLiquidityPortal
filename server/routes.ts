@@ -58,7 +58,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Blockchain configuration endpoint
   app.get("/api/blockchain-config", async (req, res) => {
     try {
-      const config = await blockchainConfigService.getConfiguration();
+      const config = await blockchainConfigService.getAllConfigs();
       res.setHeader('Content-Type', 'application/json');
       res.json(config);
     } catch (error) {

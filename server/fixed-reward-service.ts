@@ -623,9 +623,12 @@ export class FixedRewardService {
       const programEndDate = new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000);
       const programDaysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
       
+      // Count unique users instead of individual positions
+      const uniqueUserIds = new Set(activeParticipants.map(p => p.userId));
+      
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100,
-        activeParticipants: activeParticipants.length,
+        activeParticipants: uniqueUserIds.size,
         dailyBudget: Math.round(dailyBudget * 100) / 100,
         averageAPR: Math.round(averageAPR * 10000) / 10000,
         programDaysRemaining,

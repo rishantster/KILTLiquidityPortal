@@ -530,7 +530,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       // Step 3: Wait a moment to let MetaMask clear state
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Step 4: Force fresh connection with current account
+      // Step 4: Nuclear option - Force MetaMask to completely refresh connection
+      // First try to disconnect from MetaMask's perspective
+      try {
+        await ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }]
+        });
+      } catch (error) {
+        console.log('Permission reset failed, continuing with reconnection...');
+      }
+      
+      // Force fresh connection with current account
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts',
       });

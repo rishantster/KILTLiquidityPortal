@@ -78,7 +78,19 @@ export function WalletDebugPanel() {
             Force Reconnect Current Account
           </Button>
           <p className="text-xs text-gray-400">
-            Completely disconnects and reconnects to your currently selected MetaMask account
+            Nuclear option: Resets MetaMask permissions and forces fresh connection
+          </p>
+          
+          <Button 
+            onClick={() => window.location.reload()}
+            variant="outline"
+            size="sm"
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            Refresh Page (Ultimate Fix)
+          </Button>
+          <p className="text-xs text-gray-400">
+            If MetaMask is stuck, refresh the page and reconnect manually
           </p>
         </div>
       </CardContent>

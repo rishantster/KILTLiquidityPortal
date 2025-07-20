@@ -712,24 +712,7 @@ export function MainDashboard() {
                           </div>
                         </div>
                         
-                        {/* Buy KILT Button */}
-                        <div className="mt-3 flex justify-center">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base`;
-                              window.open(swapUrl, '_blank');
-                            }}
-                            className="bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white border-0 px-4 py-2 font-bold text-sm h-9 transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 touch-manipulation"
-                          >
-                            <ArrowUpDown className="h-4 w-4 mr-2" />
-                            {(() => {
-                              const kiltBalanceNum = kiltBalance ? parseFloat(kiltBalance) : 0;
-                              return kiltBalanceNum > 0 ? "More KILT" : "Buy KILT";
-                            })()}
-                          </Button>
-                        </div>
+                        
                       </div>
 
                       {/* Percentage Selector */}

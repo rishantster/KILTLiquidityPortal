@@ -13,9 +13,11 @@ export function MinimalWalletConnect() {
 
   // Check connection status on mount
   useEffect(() => {
+    let isActive = true;
+    
     const checkConnection = () => {
       const ethereum = (window as any).ethereum;
-      if (ethereum?.selectedAddress) {
+      if (ethereum?.selectedAddress && isActive) {
         setIsConnected(true);
         setAddress(ethereum.selectedAddress);
       }
@@ -27,6 +29,8 @@ export function MinimalWalletConnect() {
     const ethereum = (window as any).ethereum;
     if (ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
+        if (!isActive) return;
+        
         if (accounts.length > 0) {
           setIsConnected(true);
           setAddress(accounts[0]);
@@ -36,9 +40,47 @@ export function MinimalWalletConnect() {
         }
       };
 
+      const handleConnect = () => {
+        if (!isActive) return;
+        checkConnection();
+      };
+
+      const handleDisconnect = () => {
+        if (!isActive) return;
+        setIsConnected(false);
+        setAddress(null);
+      };
+
+      // Enhanced event listening
       ethereum.on('accountsChanged', handleAccountsChanged);
-      return () => ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      ethereum.on('connect', handleConnect);
+      ethereum.on('disconnect', handleDisconnect);
+      
+      // Periodic check for address changes (fallback)
+      const intervalCheck = setInterval(() => {
+        if (isActive && ethereum?.selectedAddress) {
+          const currentSelectedAddress = ethereum.selectedAddress;
+          setAddress(currentAddress => {
+            if (currentAddress !== currentSelectedAddress) {
+              setIsConnected(true);
+            }
+            return currentSelectedAddress;
+          });
+        }
+      }, 2000);
+      
+      return () => {
+        isActive = false;
+        clearInterval(intervalCheck);
+        ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        ethereum.removeListener('connect', handleConnect);
+        ethereum.removeListener('disconnect', handleDisconnect);
+      };
     }
+    
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   const connectWallet = async () => {

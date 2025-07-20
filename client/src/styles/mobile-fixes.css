@@ -1,0 +1,171 @@
+/* Mobile Optimization CSS - Fixes for display issues */
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  /* Fix text truncation and spacing */
+  .mobile-fix-text {
+    font-size: 0.75rem !important; /* 12px */
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  
+  .mobile-fix-text-wrap {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+  }
+  
+  /* Position card mobile fixes */
+  .position-card-mobile {
+    padding: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .position-value-mobile {
+    font-size: 1rem !important; /* 16px */
+    line-height: 1.2 !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .position-label-mobile {
+    font-size: 0.625rem !important; /* 10px */
+    margin-bottom: 0.125rem !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+  
+  /* Badge mobile fixes */
+  .badge-mobile {
+    font-size: 0.625rem !important; /* 10px */
+    padding: 0.125rem 0.25rem !important;
+    white-space: nowrap !important;
+  }
+  
+  /* Grid mobile fixes */
+  .mobile-grid-fix {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Token amount mobile fixes */
+  .token-amount-mobile {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.2 !important;
+  }
+  
+  .token-label-mobile {
+    font-size: 0.625rem !important; /* 10px */
+    margin-bottom: 0.125rem !important;
+  }
+  
+  /* Button mobile fixes */
+  .button-mobile {
+    font-size: 0.75rem !important; /* 12px */
+    padding: 0.25rem 0.5rem !important;
+    height: auto !important;
+    min-height: 2rem !important;
+  }
+  
+  /* Wallet balance mobile fixes */
+  .wallet-balance-mobile {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    padding: 0.375rem !important;
+  }
+  
+  .wallet-balance-text-mobile {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  
+  /* Logo mobile fixes */
+  .logo-mobile {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Range display mobile fixes */
+  .range-display-mobile {
+    font-size: 0.625rem !important;
+    padding: 0.125rem !important;
+  }
+  
+  /* Fee display mobile fixes */
+  .fee-display-mobile {
+    font-size: 0.625rem !important;
+    line-height: 1.1 !important;
+  }
+  
+  /* Card header mobile fixes */
+  .card-header-mobile {
+    padding: 0.5rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+  
+  .card-content-mobile {
+    padding: 0.5rem !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Tab navigation mobile fixes */
+  .tab-mobile {
+    font-size: 0.625rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+  
+  /* Responsive container fixes */
+  .container-mobile {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Position registration mobile fixes */
+  .position-registration-mobile {
+    padding: 0.375rem !important;
+  }
+  
+  .position-registration-grid-mobile {
+    grid-template-columns: 1fr !important;
+    gap: 0.375rem !important;
+  }
+  
+  /* NFT token ID mobile fixes */
+  .nft-token-mobile {
+    max-width: 4rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  
+  /* Status badge mobile fixes */
+  .status-badge-mobile {
+    font-size: 0.5rem !important;
+    padding: 0.125rem 0.25rem !important;
+    line-height: 1 !important;
+  }
+}
+
+/* Ultra-small screen fixes (iPhone SE, etc.) */
+@media (max-width: 375px) {
+  .position-value-mobile {
+    font-size: 0.875rem !important; /* 14px */
+  }
+  
+  .token-amount-mobile {
+    font-size: 0.75rem !important; /* 12px */
+  }
+  
+  .mobile-fix-text {
+    font-size: 0.625rem !important; /* 10px */
+  }
+  
+  .button-mobile {
+    font-size: 0.625rem !important; /* 10px */
+    padding: 0.25rem 0.375rem !important;
+  }
+}

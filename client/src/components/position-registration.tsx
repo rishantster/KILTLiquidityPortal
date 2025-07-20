@@ -413,93 +413,93 @@ export function PositionRegistration() {
               {unregisteredPositions.map((position) => (
                 <div 
                   key={position.nftTokenId}
-                  className="bg-gradient-to-br from-gray-900/90 to-gray-800/70 backdrop-blur-sm rounded-xl p-6 border border-gray-600/40 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:border-gray-500/50 hover:from-gray-900/95 hover:to-gray-800/80"
+                  className="bg-gradient-to-br from-gray-900/90 to-gray-800/70 backdrop-blur-sm rounded-xl p-3 sm:p-6 border border-gray-600/40 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:border-gray-500/50 hover:from-gray-900/95 hover:to-gray-800/80"
                 >
-                  {/* Header Section */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
+                  {/* Header Section - Mobile Optimized */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <input
                         type="checkbox"
                         checked={selectedPositions.includes(position.nftTokenId)}
                         onChange={() => handleToggleSelection(position.nftTokenId)}
-                        className="w-5 h-5 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
                       />
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-bold text-lg">Position</span>
-                        <div className="px-2 py-1 bg-black/20 backdrop-blur-sm rounded-full border border-white/10">
-                          <span className="text-emerald-300 text-sm font-medium">In Range</span>
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="text-white font-bold text-sm sm:text-lg">Position</span>
+                        <div className="px-1 sm:px-2 py-0.5 sm:py-1 bg-black/20 backdrop-blur-sm rounded-full border border-white/10">
+                          <span className="text-emerald-300 text-xs sm:text-sm font-medium">In Range</span>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-white">
+                    <div className="text-left sm:text-right">
+                      <div className="text-lg sm:text-3xl font-bold text-white">
                         ${position.currentValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
-                      <div className="text-sm text-gray-400">Position Value</div>
+                      <div className="text-xs sm:text-sm text-gray-400">Position Value</div>
                     </div>
                   </div>
 
-                  {/* Token Amounts Section */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-4 border border-white/10">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-6 h-6 bg-gradient-to-r from-[#ff0066] to-[#ff0066] rounded-full flex items-center justify-center">
+                  {/* Token Amounts Section - Mobile Optimized */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-3 sm:p-4 border border-white/10">
+                      <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="w-4 h-4 sm:w-6 sm:h-6 bg-gradient-to-r from-[#ff0066] to-[#ff0066] rounded-full flex items-center justify-center">
                           <span className="text-xs font-bold text-white">E</span>
                         </div>
-                        <span className="text-white font-medium">WETH</span>
+                        <span className="text-white font-medium text-sm sm:text-base">WETH</span>
                       </div>
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-base sm:text-xl font-bold text-white">
                         {(parseFloat(position.amount0 || '0') / 1e18).toFixed(4)}
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-xs sm:text-sm text-gray-400">
                         ${((parseFloat(position.amount0 || '0') / 1e18) * 2500).toFixed(2)}
                       </div>
                     </div>
-                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-4 border border-white/10">
-                      <div className="flex items-center gap-2 mb-3">
-                        <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
-                        <span className="text-pink-300 font-medium">KILT</span>
+                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-3 sm:p-4 border border-white/10">
+                      <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                        <img src={kiltLogo} alt="KILT" className="w-4 h-4 sm:w-6 sm:h-6" />
+                        <span className="text-pink-300 font-medium text-sm sm:text-base">KILT</span>
                       </div>
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-base sm:text-xl font-bold text-white">
                         {(parseFloat(position.amount1 || '0') / 1e18).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-xs sm:text-sm text-gray-400">
                         ${((parseFloat(position.amount1 || '0') / 1e18) * 0.018).toFixed(2)}
                       </div>
                     </div>
                   </div>
 
-                  {/* Position Details */}
-                  <div className="grid grid-cols-3 gap-4 mb-6 text-sm">
+                  {/* Position Details - Mobile Optimized */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6 text-xs sm:text-sm">
                     <div>
                       <div className="text-gray-400 mb-1">NFT ID</div>
-                      <div className="text-white font-bold">#{position.nftTokenId}</div>
+                      <div className="text-white font-bold text-sm sm:text-base">#{position.nftTokenId}</div>
                     </div>
                     <div>
                       <div className="text-gray-400 mb-1">Fee Tier</div>
-                      <div className="text-white font-bold">{(position.feeTier / 10000)}%</div>
+                      <div className="text-white font-bold text-sm sm:text-base">{(position.feeTier / 10000)}%</div>
                     </div>
                     <div>
                       <div className="text-gray-400 mb-1">Range</div>
-                      <div className="text-white font-bold">Full Range</div>
+                      <div className="text-white font-bold text-sm sm:text-base">Full Range</div>
                     </div>
                   </div>
 
-                  {/* Action Button */}
+                  {/* Action Button - Mobile Optimized */}
                   <Button
                     onClick={() => registerMutation.mutate(position)}
                     disabled={registerMutation.isPending}
-                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-12 text-base font-medium"
+                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-10 sm:h-12 text-sm sm:text-base font-medium"
                   >
                     {registerMutation.isPending ? (
                       <div className="flex items-center gap-2">
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>Registering Position...</span>
+                        <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                        <span className="text-sm sm:text-base">Registering...</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <Plus className="h-5 w-5" />
-                        <span>Register Position</span>
+                        <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="text-sm sm:text-base">Register Position</span>
                       </div>
                     )}
                   </Button>

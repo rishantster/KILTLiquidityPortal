@@ -265,7 +265,12 @@ export function UserPositions() {
   }
 
   const unclaimedRewards = Array.isArray(rewards) ? rewards.filter((r: { claimedAt?: Date | null }) => !r.claimedAt) : [];
-  const totalUnclaimed = unclaimedRewards.reduce((sum: number, r: { amount: string | number }) => sum + parseFloat(r.amount.toString()), 0);
+  const totalUnclaimed = unclaimedRewards.reduce((sum: number, r: { amount: string | number }) => {
+    // Safe null check before toString()
+    const amount = r.amount;
+    if (amount === null || amount === undefined) return sum;
+    return sum + parseFloat(amount.toString());
+  }, 0);
 
   return (
     <div className="space-y-4 h-full overflow-y-auto">

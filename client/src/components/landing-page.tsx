@@ -72,17 +72,23 @@ export function LandingPage() {
 
           {/* Connection Section */}
           <div className="mb-16 flex flex-col items-center">
-            <div className="mb-4">
-              {isWalletConnected ? (
+            <div className="mb-4 space-y-3">
+              <ThirdwebWalletConnect />
+              {isWalletConnected && (
                 <button
                   onClick={() => setLocation('/dashboard')}
-                  className="bg-pink-500/20 hover:bg-pink-500/30 backdrop-blur-sm border border-pink-500/40 hover:border-pink-500/60 rounded-lg px-8 py-3 text-white font-medium transition-all duration-300 hover:scale-105"
+                  className="block w-full bg-pink-500/20 hover:bg-pink-500/30 backdrop-blur-sm border border-pink-500/40 hover:border-pink-500/60 rounded-lg px-8 py-3 text-white font-medium transition-all duration-300 hover:scale-105"
                 >
                   Go to Dashboard
                 </button>
-              ) : (
-                <ThirdwebWalletConnect />
               )}
+              {/* Direct dashboard link for troubleshooting */}
+              <button
+                onClick={() => setLocation('/dashboard')}
+                className="block w-full bg-blue-500/20 hover:bg-blue-500/30 backdrop-blur-sm border border-blue-500/40 hover:border-blue-500/60 rounded-lg px-6 py-2 text-white text-sm transition-all duration-300"
+              >
+                Access Dashboard (Direct Link)
+              </button>
             </div>
             <p className="text-white/80 text-lg font-medium text-center">
               {isWalletConnected 

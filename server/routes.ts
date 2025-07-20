@@ -19,7 +19,9 @@ import {
   insertRewardSchema, 
   insertPoolStatsSchema,
   insertAppTransactionSchema,
-  insertPositionEligibilitySchema
+  insertPositionEligibilitySchema,
+  treasuryConfig,
+  programSettings
 } from "@shared/schema";
 import { 
   blazingCacheMiddleware, 
@@ -1887,16 +1889,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           error: 'Treasury configuration not found. Please configure via admin panel first.' 
         });
       } else {
-        // Return existing config with exact field names as admin panel expects
+        // Return existing config with auto-calculated fields
         res.json({
           totalAllocation: parseFloat(config.totalAllocation),
           programDurationDays: config.programDurationDays,
-          dailyRewardsCap: parseFloat(config.dailyRewardsCap),
           programStartDate: config.programStartDate.toISOString().split('T')[0],
-          programEndDate: config.programEndDate.toISOString().split('T')[0],
           treasuryWalletAddress: config.treasuryWalletAddress,
-          annualRewardsBudget: parseFloat(config.annualRewardsBudget),
-          isActive: config.isActive
+          isActive: config.isActive,
+          // Auto-calculated read-only fields
+          programEndDate: config.programEndDate.toISOString().split('T')[0],
+          dailyRewardsCap: parseFloat(config.dailyRewardsCap)
         });
       }
     } catch (error) {
@@ -1909,19 +1911,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const config = req.body;
       
-      // Use exact field names from admin panel - no fallback defaults, require real values
-      if (!config.treasuryWalletAddress || !config.totalAllocation || !config.dailyRewardsCap) {
+      // Validate required fields - no fallback defaults
+      if (!config.treasuryWalletAddress || !config.totalAllocation || !config.programStartDate || !config.programDurationDays) {
         return res.status(400).json({ error: 'Missing required treasury configuration fields' });
       }
+
+      // Auto-calculate derived values
+      const programStartDate = new Date(config.programStartDate);
+      const programEndDate = new Date(programStartDate.getTime() + (config.programDurationDays * 24 * 60 * 60 * 1000));
+      const dailyRewardsCap = config.totalAllocation / config.programDurationDays;
       
       const dbConfig = {
         treasuryWalletAddress: config.treasuryWalletAddress,
         totalAllocation: config.totalAllocation.toString(),
-        annualRewardsBudget: config.annualRewardsBudget?.toString() || config.totalAllocation.toString(),
-        dailyRewardsCap: config.dailyRewardsCap.toString(),
-        programStartDate: new Date(config.programStartDate),
-        programEndDate: new Date(config.programEndDate),
+        programStartDate,
+        programEndDate,
         programDurationDays: config.programDurationDays,
+        dailyRewardsCap: dailyRewardsCap.toString(),
         isActive: config.isActive !== false,
         createdBy: 'admin',
         updatedAt: new Date()

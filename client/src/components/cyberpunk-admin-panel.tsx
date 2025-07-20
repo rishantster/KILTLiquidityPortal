@@ -8,12 +8,12 @@ import { Toaster } from "@/components/ui/toaster";
 interface TreasuryConfig {
   totalAllocation: number;
   programDurationDays: number;
-  dailyRewardsCap: number;
   programStartDate: string;
-  programEndDate: string;
   treasuryWalletAddress: string;
-  annualRewardsBudget: number;
   isActive: boolean;
+  // Auto-calculated fields (read-only)
+  programEndDate?: string;
+  dailyRewardsCap?: number;
 }
 
 interface ProgramSettings {
@@ -29,13 +29,25 @@ export function CyberpunkAdminPanel() {
   const [treasuryConfig, setTreasuryConfig] = useState<TreasuryConfig>({
     totalAllocation: 0,
     programDurationDays: 0,
-    dailyRewardsCap: 0,
     programStartDate: '',
-    programEndDate: '',
     treasuryWalletAddress: '',
-    annualRewardsBudget: 0,
     isActive: true
   });
+
+  // Auto-calculate derived values
+  const calculateDerivedValues = (config: TreasuryConfig) => {
+    const dailyRewardsCap = config.totalAllocation && config.programDurationDays 
+      ? config.totalAllocation / config.programDurationDays 
+      : 0;
+    
+    const programEndDate = config.programStartDate && config.programDurationDays
+      ? new Date(new Date(config.programStartDate).getTime() + (config.programDurationDays * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
+      : '';
+
+    return { dailyRewardsCap, programEndDate };
+  };
+
+  const derivedValues = calculateDerivedValues(treasuryConfig);
   
   const [programSettings, setProgramSettings] = useState<ProgramSettings>({
     timeBoostCoefficient: 0,
@@ -46,11 +58,18 @@ export function CyberpunkAdminPanel() {
 
   // Save Treasury Configuration
   const treasuryMutation = useMutation({
-    mutationFn: (config: TreasuryConfig) => 
-      apiRequest('/api/admin/treasury/config', {
+    mutationFn: (config: TreasuryConfig) => {
+      // Include auto-calculated values in the request
+      const configWithCalculations = {
+        ...config,
+        ...derivedValues
+      };
+      
+      return apiRequest('/api/admin/treasury/config', {
         method: 'POST',
-        body: JSON.stringify(config)
-      }),
+        body: JSON.stringify(configWithCalculations)
+      });
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/treasury/config'] });
       toast({
@@ -260,33 +279,13 @@ export function CyberpunkAdminPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">DAILY_REWARDS_CAP:</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={treasuryConfig.dailyRewardsCap || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        dailyRewardsCap: Number(e.target.value) || 0
-                      })}
-                      placeholder="Daily rewards distribution cap"
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">ANNUAL_REWARDS_BUDGET:</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={treasuryConfig.annualRewardsBudget || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        annualRewardsBudget: Number(e.target.value) || 0
-                      })}
-                      placeholder="Total annual budget allocation"
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                    />
+                    <label className="block text-green-400 text-sm mb-2 font-mono">DAILY_REWARDS_CAP: (Auto-calculated)</label>
+                    <div className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-gray-400 font-mono">
+                      {derivedValues.dailyRewardsCap.toFixed(2)} KILT/day
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      = {treasuryConfig.totalAllocation.toLocaleString()} ÷ {treasuryConfig.programDurationDays} days
+                    </div>
                   </div>
 
                   <div>
@@ -303,16 +302,13 @@ export function CyberpunkAdminPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-green-400 text-sm mb-2 font-mono">PROGRAM_END_DATE:</label>
-                    <input
-                      type="date"
-                      value={treasuryConfig.programEndDate || ''}
-                      onChange={(e) => setTreasuryConfig({
-                        ...treasuryConfig,
-                        programEndDate: e.target.value
-                      })}
-                      className="w-full p-3 bg-gray-900 border border-green-400/50 rounded text-green-400 font-mono focus:border-green-400 focus:outline-none"
-                    />
+                    <label className="block text-green-400 text-sm mb-2 font-mono">PROGRAM_END_DATE: (Auto-calculated)</label>
+                    <div className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-gray-400 font-mono">
+                      {derivedValues.programEndDate || 'dd/mm/yyyy'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      = Start Date + {treasuryConfig.programDurationDays} days
+                    </div>
                   </div>
                 </div>
 

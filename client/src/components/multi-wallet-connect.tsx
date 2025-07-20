@@ -130,17 +130,17 @@ export function MultiWalletConnect() {
       category: 'mobile'
     },
     {
-      id: 'rainbow',
-      name: 'Rainbow',
+      id: 'web3modal',
+      name: 'Web3Modal v3',
       icon: (
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 via-yellow-500 via-green-500 via-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
             <circle cx="12" cy="12" r="2" fill="white"/>
           </svg>
         </div>
       ),
-      description: 'Connect with Rainbow mobile wallet',
+      description: 'Universal wallet connector (200+ wallets)',
       action: () => handleWalletSelect(connectWithWalletConnect),
       category: 'mobile'
     },

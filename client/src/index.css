@@ -832,6 +832,35 @@ a:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
+/* ===== TAB STYLING OVERRIDES ===== */
+/* Force override any existing tab active states */
+[role="tablist"] [role="tab"][data-state="active"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+[role="tablist"] [role="tab"][data-state="active"]:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Remove any pink backgrounds from tabs */
+[role="tablist"] [role="tab"] {
+  background: transparent !important;
+}
+
+[role="tablist"] [role="tab"]:not([data-state="active"]) {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+[role="tablist"] [role="tab"]:not([data-state="active"]):hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
 /* Enhanced Typography Classes */
 .heading-xl {
   font-size: 2.25rem;

@@ -89,6 +89,7 @@ export function PositionRegistration() {
   // Get unregistered positions from real Uniswap V3 contracts
   const { data: unregisteredPositionsData, isLoading: loadingPositions } = useQuery({
     queryKey: ['unregistered-positions', address],
+    staleTime: 0, // Force fresh data to pick up newly created positions
     queryFn: async () => {
       if (!address) return { eligiblePositions: [], totalPositions: 0, message: '' };
       
@@ -126,18 +127,27 @@ export function PositionRegistration() {
         const appCreatedNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === true).map((p: any) => p.nftTokenId.toString()));
         const manuallyRegisteredNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === false).map((p: any) => p.nftTokenId.toString()));
         
+
+        
         // Filter logic: Only show positions that aren't app-created and aren't manually registered
         
         // Filter out app-created positions (they're automatically enrolled) and manually registered positions
         // Also filter out out-of-range positions since they don't earn rewards
         const eligiblePositions = walletPositions
           .filter((pos: any) => {
+            const tokenIdString = pos.tokenId.toString();
+            const isAppCreated = appCreatedNftIds.has(tokenIdString);
+            const isManuallyRegistered = manuallyRegisteredNftIds.has(tokenIdString);
+            const isInRange = pos.isInRange;
+            
+
+            
             // Must not be app-created or manually registered
-            if (appCreatedNftIds.has(pos.tokenId.toString()) || manuallyRegisteredNftIds.has(pos.tokenId.toString())) {
+            if (isAppCreated || isManuallyRegistered) {
               return false;
             }
             // Must be in-range to earn rewards (critical fix)
-            if (!pos.isInRange) {
+            if (!isInRange) {
               return false;
             }
             return true;

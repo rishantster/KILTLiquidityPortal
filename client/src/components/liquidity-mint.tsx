@@ -552,9 +552,101 @@ export function LiquidityMint({
         useNativeETH: selectedEthToken === 'ETH' // Send ETH for WETH conversion
       });
 
+      // Critical: Wait for transaction confirmation and record position in database
+      console.log('⏳ Waiting for transaction confirmation to extract NFT token ID...');
+      
+      try {
+        // Import viem for transaction receipt parsing
+        const { createPublicClient, http, decodeEventLog } = await import('viem');
+        const { base } = await import('viem/chains');
+        
+        // Create public client to get transaction receipt
+        const publicClient = createPublicClient({
+          chain: base,
+          transport: http()
+        });
+        
+        // Wait for transaction confirmation
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash as `0x${string}`,
+          timeout: 30000 // 30 second timeout
+        });
+        
+        console.log('📄 Transaction confirmed, parsing logs...');
+        
+        // Parse the Mint event to extract NFT token ID
+        const mintEventAbi = [{
+          anonymous: false,
+          inputs: [
+            { indexed: true, name: "tokenId", type: "uint256" },
+            { indexed: false, name: "liquidity", type: "uint128" },
+            { indexed: false, name: "amount0", type: "uint256" },
+            { indexed: false, name: "amount1", type: "uint256" }
+          ],
+          name: "IncreaseLiquidity",
+          type: "event"
+        }];
+        
+        // Find the NFT mint event (from Position Manager)
+        let nftTokenId = null;
+        for (const log of receipt.logs) {
+          if (log.address.toLowerCase() === '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1'.toLowerCase()) {
+            try {
+              // Try to decode as mint or increase liquidity event
+              const decodedLog = decodeEventLog({
+                abi: mintEventAbi,
+                data: log.data,
+                topics: log.topics
+              });
+              if (decodedLog.args && 'tokenId' in decodedLog.args && decodedLog.args.tokenId) {
+                nftTokenId = decodedLog.args.tokenId.toString();
+                break;
+              }
+            } catch (e) {
+              // Try another event signature or continue
+            }
+          }
+        }
+        
+        if (nftTokenId) {
+          console.log('🎯 Successfully extracted NFT token ID:', nftTokenId);
+          
+          // Record position in database as app-created
+          const user = await fetch(`/api/users/${address}`).then(r => r.json());
+          await fetch('/api/positions/create-app-position', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.id,
+              nftTokenId,
+              poolAddress: '0x0389879e0156033202C44BF784ac18FC02edeE4f',
+              token0Address: token0,
+              token1Address: token1,
+              token0Amount: mintParams.amount0Desired.toString(),
+              token1Amount: mintParams.amount1Desired.toString(),
+              tickLower,
+              tickUpper,
+              feeTier: 3000,
+              liquidity: '0', // Will be updated by position sync
+              currentValueUSD: parseFloat(kiltAmount) * 0.018 + parseFloat(ethAmount) * 2500, // Rough estimate
+              userAddress: address,
+              transactionHash: txHash
+            })
+          });
+          
+          console.log('✅ Position recorded in database as app-created:', nftTokenId);
+        } else {
+          console.warn('⚠️ Could not extract NFT token ID from transaction logs');
+        }
+        
+      } catch (receiptError) {
+        console.error('❌ Failed to get transaction receipt or parse events:', receiptError);
+      }
+      
+      // Show success message first
       toast({
         title: "Position Created!",
-        description: "Your liquidity position has been successfully created",
+        description: "Your liquidity position has been successfully created. It will appear in Active Positions shortly.",
       });
       
       // Note: MetaMask may show token address instead of "KILT" name

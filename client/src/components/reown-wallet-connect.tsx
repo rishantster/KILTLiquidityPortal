@@ -47,6 +47,7 @@ export function ReownWalletConnect() {
     lastError, 
     address, 
     connect, 
+    connectWithWalletConnect,
     disconnect, 
     clearError 
   } = useWallet();
@@ -84,13 +85,19 @@ export function ReownWalletConnect() {
   };
 
   const handleMobileConnect = (wallet: MobileWallet) => {
-    // WalletConnect uses the standard connect flow, not deep links
+    // WalletConnect uses the new WalletConnect v2 flow
     if (wallet.name === 'WalletConnect') {
+      connectWithWalletConnect();
+      return;
+    }
+    
+    // Handle other wallets with deep links to MetaMask
+    if (wallet.name === 'MetaMask') {
       connect();
       return;
     }
     
-    // Handle other wallets with deep links
+    // For Trust Wallet and Coinbase Wallet, use deep links
     const currentUrl = window.location.href;
     const encodedUrl = encodeURIComponent(currentUrl);
     
@@ -159,25 +166,51 @@ export function ReownWalletConnect() {
         </Alert>
       )}
 
-      {/* Desktop Connection */}
+      {/* Desktop Connection Options */}
       {!isMobile && (
-        <Button
-          onClick={connect}
-          disabled={isConnecting}
-          className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border-0 transition-all duration-200"
-        >
-          {isConnecting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Connecting...
-            </>
-          ) : (
-            <>
-              <Wifi className="mr-2 h-4 w-4" />
-              Connect Wallet
-            </>
-          )}
-        </Button>
+        <div className="space-y-2">
+          <div className="text-sm text-gray-400 text-center mb-3">
+            Choose your connection method:
+          </div>
+          
+          {/* MetaMask Connection */}
+          <Button
+            onClick={connect}
+            disabled={isConnecting}
+            className="w-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-white border-0 transition-all duration-200"
+          >
+            {isConnecting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                <span className="mr-2 text-lg">🦊</span>
+                Connect MetaMask
+              </>
+            )}
+          </Button>
+          
+          {/* WalletConnect Option */}
+          <Button
+            onClick={connectWithWalletConnect}
+            disabled={isConnecting}
+            className="w-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 text-white border-0 transition-all duration-200"
+          >
+            {isConnecting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                <span className="mr-2 text-lg">🔗</span>
+                WalletConnect v2
+              </>
+            )}
+          </Button>
+        </div>
       )}
 
       {/* Mobile Connection Options */}

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { getWalletConnectService } from '@/services/walletconnect-service';
 
 
 interface WalletContextType {
@@ -11,6 +12,7 @@ interface WalletContextType {
   connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'error' | 'network_error';
   lastError: string | null;
   connect: () => Promise<void>;
+  connectWithWalletConnect: () => Promise<void>;
   disconnect: () => void;
   switchToBase: () => Promise<void>;
   validateBaseNetwork: () => Promise<boolean>;
@@ -499,8 +501,96 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const disconnect = () => {
+  const connectWithWalletConnect = async () => {
+    try {
+      setIsConnecting(true);
+      setConnectionStatus('connecting');
+      setLastError(null);
+      setManuallyDisconnected(false);
+      
+      toast({
+        title: "Initializing WalletConnect",
+        description: "Setting up WalletConnect v2 connection...",
+      });
+      
+      // Initialize WalletConnect service
+      const wcService = getWalletConnectService();
+      await wcService.initialize();
+      
+      // Check if already connected
+      if (wcService.isConnected()) {
+        const sessions = wcService.getActiveSessions();
+        const session = Object.values(sessions)[0];
+        
+        if (session && session.namespaces?.eip155?.accounts) {
+          const account = session.namespaces.eip155.accounts[0];
+          const address = account.split(':')[2]; // Extract address from 'eip155:8453:0x...'
+          
+          setAddress(address);
+          setIsConnected(true);
+          setConnectionStatus('connected');
+          
+          toast({
+            title: "WalletConnect Connected",
+            description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)}`,
+          });
+          
+          return;
+        }
+      }
+      
+      // Show QR code or open mobile wallet
+      const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // On mobile, use deep linking
+        const currentUrl = window.location.href;
+        const walletConnectUrl = `wc:${currentUrl}`;
+        window.location.href = walletConnectUrl;
+      } else {
+        // On desktop, show QR code modal (implement QR modal separately)
+        toast({
+          title: "WalletConnect Ready",
+          description: "Scan QR code with your mobile wallet",
+        });
+        
+        // TODO: Show QR code modal for desktop users
+        // For now, we'll just notify that WalletConnect is ready
+      }
+      
+      setConnectionStatus('connected');
+      
+    } catch (error: unknown) {
+      const wcError = error as { message?: string };
+      
+      setConnectionStatus('error');
+      setIsConnected(false);
+      setAddress(null);
+      setLastError(wcError.message || 'WalletConnect initialization failed');
+      
+      toast({
+        title: "WalletConnect Error",
+        description: wcError.message || "Failed to initialize WalletConnect",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const disconnect = async () => {
     console.log('WALLET CONTEXT: Manual disconnect - clearing all state and cache');
+    
+    // Disconnect WalletConnect sessions if any exist
+    try {
+      const wcService = getWalletConnectService();
+      if (wcService.isConnected()) {
+        await wcService.disconnect();
+        console.log('WalletConnect sessions disconnected');
+      }
+    } catch (error) {
+      console.log('WalletConnect disconnect error (non-critical):', error);
+    }
     
     // Clear wallet state
     setAddress(null);
@@ -624,6 +714,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         connectionStatus,
         lastError,
         connect,
+        connectWithWalletConnect,
         disconnect,
         switchToBase,
         validateBaseNetwork,

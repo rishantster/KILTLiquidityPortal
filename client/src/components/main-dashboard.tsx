@@ -304,7 +304,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <WalletConnect />
+                <UnifiedWalletConnect />
               </div>
               <p className="text-white/80 text-lg font-medium text-center">
                 No signup required. Connect and start earning in seconds.
@@ -466,7 +466,7 @@ export function MainDashboard() {
             </Badge>
 
             <div className="flex-shrink-0">
-              <WalletConnect />
+              <UnifiedWalletConnect />
             </div>
           </div>
         </div>

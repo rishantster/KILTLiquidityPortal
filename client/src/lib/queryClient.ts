@@ -26,7 +26,11 @@ export async function apiRequest<T = unknown>(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for faster loading
+    const timeoutId = setTimeout(() => {
+      if (!controller.signal.aborted) {
+        controller.abort();
+      }
+    }, 15000); // 15 second timeout for faster loading
 
     const res = await fetch(url, {
       method: options?.method || 'GET',
@@ -65,7 +69,11 @@ export const getQueryFn: <T>(options: {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for faster loading
+    const timeoutId = setTimeout(() => {
+      if (!controller.signal.aborted) {
+        controller.abort();
+      }
+    }, 15000); // 15 second timeout for faster loading
 
     try {
       const res = await fetch(queryKey[0] as string, {

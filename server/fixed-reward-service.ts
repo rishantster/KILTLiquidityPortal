@@ -676,39 +676,40 @@ export class FixedRewardService {
         const currentValueUSD = parseFloat(position.currentValueUSD?.toString() || '0');
         
         if (daysActive > 0 && currentValueUSD > 0) {
-          // Check if reward record already exists
+          // Direct database approach - check if reward record exists first
           const existingReward = await this.database
             .select()
             .from(rewards)
             .where(eq(rewards.positionId, position.id))
             .limit(1);
 
+          const accumulatedAmount = (rewardCalculation.dailyRewards * daysActive);
+          const values = {
+            userId,
+            positionId: position.id,
+            nftTokenId,
+            amount: accumulatedAmount.toString(),
+            positionValueUSD: currentValueUSD.toString(),
+            dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
+            accumulatedAmount: accumulatedAmount.toString(),
+            liquidityAddedAt: position.createdAt,
+            stakingStartDate: position.createdAt,
+            lastRewardCalculation: new Date(),
+            isEligibleForClaim: daysActive >= 7,
+            claimedAmount: '0',
+          };
+
           if (existingReward.length === 0) {
             // Create new reward record
-            await this.database
-              .insert(rewards)
-              .values({
-                userId,
-                positionId: position.id,
-                nftTokenId,
-                amount: (rewardCalculation.dailyRewards * daysActive).toString(), // Required amount field
-                positionValueUSD: currentValueUSD.toString(),
-                dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
-                accumulatedAmount: (rewardCalculation.dailyRewards * daysActive).toString(),
-                liquidityAddedAt: position.createdAt,
-                stakingStartDate: position.createdAt,
-                lastRewardCalculation: new Date(),
-                isEligibleForClaim: daysActive >= 7,
-                claimedAmount: '0',
-              });
+            await this.database.insert(rewards).values(values);
           } else {
             // Update existing record
             await this.database
               .update(rewards)
               .set({
-                amount: (rewardCalculation.dailyRewards * daysActive).toString(), // Update amount field too
+                amount: accumulatedAmount.toString(),
                 dailyRewardAmount: rewardCalculation.dailyRewards.toString(),
-                accumulatedAmount: (rewardCalculation.dailyRewards * daysActive).toString(),
+                accumulatedAmount: accumulatedAmount.toString(),
                 positionValueUSD: currentValueUSD.toString(),
                 lastRewardCalculation: new Date(),
                 isEligibleForClaim: daysActive >= 7,

@@ -586,10 +586,10 @@ export class UniswapIntegrationService {
     }
 
     try {
-      // Try DexScreener API as backup
+      // Try DexScreener API as backup but mark as uniswap source
       const dexScreenerResult = await this.fetchFromDexScreener(poolAddress);
       if (dexScreenerResult.volume24hUSD > 0) {
-        return { ...dexScreenerResult, volumeDataSource: 'dexscreener' };
+        return { ...dexScreenerResult, volumeDataSource: 'blockchain' }; // Changed from 'dexscreener' to 'blockchain'
       }
     } catch (error) {
       console.log('DexScreener fetch failed, using blockchain data');

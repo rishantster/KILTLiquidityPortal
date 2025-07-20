@@ -1707,7 +1707,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         poolTVL: poolData.tvlUSD,
         poolVolume24hUSD: poolData.volume24hUSD,
         feeTier: poolData.feeTier,
-        dataSource: poolData.volumeDataSource || 'blockchain'
+        dataSource: 'uniswap' // Always show uniswap as data source
       });
     } catch (error) {
       // Return fallback data if pool fetch fails

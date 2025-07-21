@@ -23,17 +23,20 @@ const wagmiConfig = createConfig({
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
     }),
-    // WalletConnect with Base-specific configuration
-    walletConnect({
-      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
-      metadata: {
-        name: 'KILT Liquidity Portal',
-        description: 'KILT token liquidity incentive program on Base',
-        url: window.location.origin,
-        icons: ['https://avatars.githubusercontent.com/u/37784886']
-      },
-      showQrModal: true
-    })
+    // WalletConnect with Base-specific configuration (conditionally enabled)
+    ...(import.meta.env.VITE_WALLETCONNECT_PROJECT_ID && 
+        import.meta.env.VITE_WALLETCONNECT_PROJECT_ID !== 'demo-project-id' ? [
+      walletConnect({
+        projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
+        metadata: {
+          name: 'KILT Liquidity Portal',
+          description: 'KILT token liquidity incentive program on Base',
+          url: window.location.origin,
+          icons: ['https://avatars.githubusercontent.com/u/37784886']
+        },
+        showQrModal: true
+      })
+    ] : [])
   ],
   transports: {
     // Base-optimized RPC with batching and retry logic

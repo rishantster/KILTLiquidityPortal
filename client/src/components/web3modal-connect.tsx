@@ -77,42 +77,42 @@ export function Web3ModalConnect() {
     const iconMap: { [key: string]: JSX.Element } = {
       metamask: (
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 212 189" fill="none">
-            <path d="M210.51 68.2L195.9 46.11L170.6 10.56L129.8 41.87L97.05 69.81L89.06 75.91L94.72 81.28L102.56 88.34L89.99 110.72L81.45 131.22L76.47 148.81L82.33 175.52L97.8 186.92L138.7 155.61L171.45 127.67L179.44 121.57L173.78 116.2L165.94 109.14L178.51 86.76L187.05 66.26L192.03 48.67L186.17 21.96L170.7 10.56L129.8 41.87M82.13 175.72L76.27 149.01L81.25 131.42L89.79 110.92L102.36 88.54L94.52 81.48L88.86 76.11L96.85 70.01L129.6 42.07L170.5 10.76L185.97 22.16L191.83 48.87L186.85 66.46L178.31 86.96L165.74 109.34L173.58 116.4L179.24 121.77L171.25 127.87L138.5 155.81L97.6 187.12L82.13 175.72Z" fill="#E2761B" stroke="#E2761B" strokeWidth="0.25"/>
-            <path d="M138.7 155.61L97.8 186.92L82.33 175.52L76.47 148.81L81.45 131.22L89.99 110.72L102.56 88.34L94.72 81.28L89.06 75.91L97.05 69.81L129.8 41.87L170.7 10.56L186.17 21.96L192.03 48.67L187.05 66.26L178.51 86.76L165.94 109.14L173.78 116.2L179.44 121.57L171.45 127.67L138.7 155.61Z" fill="#E4761B"/>
-            <path d="M195.9 46.11L170.6 10.56L186.07 21.96L191.93 48.67L186.95 66.26L178.41 86.76L165.84 109.14L173.68 116.2L179.34 121.57L171.35 127.67L138.6 155.61L179.5 124.3L210.41 68.2L195.9 46.11Z" fill="#E4761B"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M22.46 12.96L21.73 11.73L20.67 9.5L18.8 6.5L15.5 10L12.77 12.5L12 13.2L13.04 14.15L14.67 15.6L13.23 18L12.15 20L11.48 21.5L12.48 23.5L14.67 24.5L18.8 21L21.73 18L22.46 16.5L21.73 15.2L20.67 13L18.8 10L15.5 14L12.77 16.5M12.48 23.7L11.48 21.7L12.15 20.2L13.23 18.2L14.67 15.8L13.04 14.35L12 13.4L12.77 12.7L15.5 10.2L18.8 6.7L20.67 9.7L21.73 11.9L22.46 13.16L21.73 15.4L20.67 17.6L18.8 20.6L14.67 24.7L12.48 23.7Z" fill="#E17726"/>
+            <path d="M18.8 21L14.67 24.5L12.48 23.5L11.48 21.5L12.15 20L13.23 18L14.67 15.6L13.04 14.15L12 13.2L12.77 12.5L15.5 10L18.8 6.5L20.67 9.5L21.73 11.73L22.46 12.96L21.73 15.2L20.67 17.4L18.8 20.4L14.67 23.9L18.8 21Z" fill="#E27625"/>
           </svg>
         </div>
       ),
       coinbase: (
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 1024 1024" fill="none">
-            <circle cx="512" cy="512" r="512" fill="#0052FF"/>
-            <path d="M512 692C607.41 692 684 615.41 684 520C684 424.59 607.41 348 512 348C416.59 348 340 424.59 340 520C340 615.41 416.59 692 512 692Z" fill="white"/>
-            <path d="M512 580C547.35 580 576 551.35 576 516C576 480.65 547.35 452 512 452C476.65 452 448 480.65 448 516C448 551.35 476.65 580 512 580Z" fill="#0052FF"/>
+        <div className="w-10 h-10 rounded-lg bg-[#0052FF] flex items-center justify-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="12" fill="#0052FF"/>
+            <circle cx="12" cy="12" r="8" fill="white"/>
+            <circle cx="12" cy="12" r="4" fill="#0052FF"/>
           </svg>
         </div>
       ),
       walletconnect: (
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 480 332" fill="none">
-            <path d="M126.613 93.9842C162.109 58.4877 219.441 58.4877 254.937 93.9842L341.616 166.125C365.306 178.481 365.306 202.019 341.616 214.375L254.937 286.516C219.441 322.012 162.109 322.012 126.613 286.516L39.934 214.375C16.244 202.019 16.244 178.481 39.934 166.125L126.613 93.9842Z" fill="white" stroke="#3B99FC" strokeWidth="2"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M6 10c3-3 8-3 11 0l1 1c.3.3.3.8 0 1.1l-.4.4c-.2.2-.4.2-.6 0l-.9-.9c-2.1-2.1-5.5-2.1-7.6 0l-1 1c-.2.2-.4.2-.6 0l-.4-.4c-.3-.3-.3-.8 0-1.1L6 10z" fill="white"/>
+            <path d="M16.8 13.2l.4.4c.3.3.3.8 0 1.1l-5.2 5.2c-.2.2-.4.2-.6 0l-5.2-5.2c-.3-.3-.3-.8 0-1.1l.4-.4c.2-.2.4-.2.6 0L12 17.6l4.8-4.8c.2-.2.4-.2.6 0z" fill="white"/>
           </svg>
         </div>
       ),
       trust: (
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 336 336" fill="none">
-            <circle cx="168" cy="168" r="168" fill="white"/>
-            <path d="M168 48L273 120V192C273 248 228 288 168 288C108 288 63 248 63 192V120L168 48ZM168 96L108 136V192C108 220 136 248 168 248C200 248 228 220 228 192V136L168 96Z" fill="#3375BB"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="12" fill="white"/>
+            <path d="M12 2l7 4v6c0 4-3 7-7 7s-7-3-7-7V6l7-4zm0 3L8 7v5c0 2 2 4 4 4s4-2 4-4V7l-4-2z" fill="#3375BB"/>
           </svg>
         </div>
       ),
       phantom: (
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-800 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 128 128" fill="none">
-            <circle cx="64" cy="64" r="64" fill="url(#phantomGradient)"/>
-            <path d="M90 32H38C33.6 32 30 35.6 30 40V88C30 92.4 33.6 96 38 96H56L64 104L72 96H90C94.4 96 98 92.4 98 88V40C98 35.6 94.4 32 90 32ZM58 72C54.7 72 52 69.3 52 66C52 62.7 54.7 60 58 60C61.3 60 64 62.7 64 66C64 69.3 61.3 72 58 72ZM70 72C66.7 72 64 69.3 64 66C64 62.7 66.7 60 70 60C73.3 60 76 62.7 76 66C76 69.3 73.3 72 70 72Z" fill="white"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="12" fill="url(#phantomGradient)"/>
+            <path d="M18 6H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h4l2 2 2-2h4c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 14c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm4 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z" fill="white"/>
             <defs>
               <linearGradient id="phantomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#AB9FF2"/>

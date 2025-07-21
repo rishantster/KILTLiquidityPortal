@@ -21,7 +21,7 @@ export function useFastPositionData() {
   const processedPositions = useMemo(() => {
     if (!positionsQuery.data) return [];
     
-    return positionsQuery.data.map((position: any) => ({
+    return (positionsQuery.data as any[]).map((position: any) => ({
       ...position,
       // Pre-calculate display values
       displayValue: `$${position.currentValueUSD?.toFixed(2) || '0.00'}`,

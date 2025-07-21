@@ -324,7 +324,8 @@ export function useUniswapV3() {
           }
         ],
         functionName: 'approve',
-        args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount]
+        args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount],
+        account: address as `0x${string}`
       });
 
       // Wait for transaction confirmation
@@ -417,7 +418,7 @@ export function useUniswapV3() {
       
       if (params.useNativeETH) {
         // Use multicall with mint + refundETH for native ETH handling
-        const mintCalldata = walletClient.encodeFunctionData({
+        const mintCalldata = (walletClient as any).encodeFunctionData({
           abi: [
             {
               inputs: [
@@ -467,7 +468,7 @@ export function useUniswapV3() {
           ]
         });
 
-        const refundETHCalldata = walletClient.encodeFunctionData({
+        const refundETHCalldata = (walletClient as any).encodeFunctionData({
           abi: [
             {
               inputs: [],
@@ -497,7 +498,8 @@ export function useUniswapV3() {
           ],
           functionName: 'multicall',
           args: [[mintCalldata, refundETHCalldata]],
-          value: ethValue
+          value: ethValue,
+          account: address as `0x${string}`
         });
       } else {
         // Standard mint call for WETH-only transactions
@@ -550,7 +552,8 @@ export function useUniswapV3() {
               deadline: BigInt(params.deadline)
             }
           ],
-          value: ethValue
+          value: ethValue,
+          account: address as `0x${string}`
         });
       }
 

@@ -111,13 +111,13 @@ class UnifiedAPRService {
         const appRegisteredPositions = await db
           .select({
             positionId: lpPositions.id,
-            positionValueUsd: lpPositions.positionValueUsd,
+            positionValueUsd: lpPositions.currentValueUSD,
             isActive: lpPositions.isActive
           })
           .from(lpPositions)
           .innerJoin(positionEligibility, sql`${lpPositions.nftTokenId} = ${positionEligibility.nftTokenId}`)
           .where(
-            sql`${lpPositions.positionValueUsd} > 0 AND ${lpPositions.isActive} = true AND ${positionEligibility.isEligible} = true`
+            sql`${lpPositions.currentValueUSD} > 0 AND ${lpPositions.isActive} = true AND ${positionEligibility.isEligible} = true`
           );
         
         if (appRegisteredPositions.length === 0) {

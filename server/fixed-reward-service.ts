@@ -106,8 +106,9 @@ export class FixedRewardService {
       dailyBudget,
       lockPeriodDays,
       minimumPositionValue,
-      timeBoostCoefficient,
-      fullRangeBonus
+      timeBoostCoefficient: parseFloat(timeBoostCoefficient?.toString() || '0.4'),
+      fullRangeBonus: parseFloat(fullRangeBonus?.toString() || '1.2'),
+      treasuryTotal: treasuryAllocation // Add missing property
     };
   }
 
@@ -468,14 +469,15 @@ export class FixedRewardService {
     const fullRangeBonusCoeff = parseFloat(settings.fullRangeBonus);
     
     // Use the EXACT same TVL source as program analytics endpoint (pure DexScreener blockchain data)
-    const { dexScreenerService } = await import('./dex-screener-service.js');
-    const poolData = await dexScreenerService.getKILTPoolData();
+    // Use existing pool data service instead of missing dex-screener-service
+    const { uniswapIntegrationService } = await import('./uniswap-integration-service.js');
+    const poolData = await uniswapIntegrationService.getPoolInfo();
     
-    if (!poolData || !poolData.liquidity || poolData.liquidity.usd <= 0) {
-      throw new Error('Real blockchain TVL data required - DexScreener API unavailable');
+    if (!poolData || !poolData.totalValueUSD || poolData.totalValueUSD <= 0) {
+      throw new Error('Real blockchain TVL data required - Uniswap integration unavailable');
     }
     
-    const currentPoolTVL = poolData.liquidity.usd;
+    const currentPoolTVL = poolData.totalValueUSD;
     
     // Landing page APR calculation based on actual pool analysis
     // Query all active positions to determine realistic position size distribution
@@ -492,16 +494,16 @@ export class FixedRewardService {
         .from(lpPositions)
         .where(
           and(
-            gt(lpPositions.currentValueUSD, 0), // Only active positions
+            sql`CAST(${lpPositions.currentValueUSD} AS DECIMAL) > 0`, // Only active positions
             isNotNull(lpPositions.currentValueUSD)
           )
         );
 
       // Calculate median position size for realistic benchmark
       const positionValues = activePositions
-        .map(p => p.positionValueUSD)
-        .filter(v => v && v > 0)
-        .sort((a, b) => a - b);
+        .map((p: any) => parseFloat(p.positionValueUSD || '0'))
+        .filter((v: number) => v && v > 0)
+        .sort((a: number, b: number) => a - b);
       
       if (positionValues.length > 0) {
         // Use median of actual positions as benchmark

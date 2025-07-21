@@ -233,7 +233,10 @@ export class UniswapIntegrationService {
       const ethPrice = 3000;
 
       // Determine which token is KILT and calculate TVL
-      const kiltTokenAddress = config.kiltTokenAddress?.toLowerCase();
+      // Get blockchain configuration
+      const { blockchainConfigService } = await import('./blockchain-config-service.js');
+      const blockchainConfig = await blockchainConfigService.getConfig();
+      const kiltTokenAddress = blockchainConfig.kiltTokenAddress?.toLowerCase();
       const isToken0KILT = (token0 as string).toLowerCase() === kiltTokenAddress;
       
       let totalValueUSD = 0;

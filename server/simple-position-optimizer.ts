@@ -15,6 +15,7 @@ export class SimplePositionOptimizer {
    */
   static async getCachedPositions(userAddress: string, fetcher: () => Promise<any>): Promise<any> {
     const cacheKey = `positions:${userAddress}`;
+    
     const cached = this.cache.get(cacheKey);
 
     if (cached) {
@@ -27,11 +28,11 @@ export class SimplePositionOptimizer {
     console.log(`🔄 Fetching fresh positions for: ${userAddress}`);
     
     try {
-      // Extended timeout for blockchain calls (20 seconds)
+      // Extended timeout for blockchain calls (45 seconds)
       const positions = await Promise.race([
         fetcher(),
         new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Position fetch timeout')), 20000)
+          setTimeout(() => reject(new Error('Position fetch timeout')), 45000)
         )
       ]);
 

@@ -555,7 +555,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {queries?.calculations?.feeAPR || '0.1'}%
+                    {queries?.tradingFeesAPR?.tradingFeesAPR?.toFixed(2) || '0.11'}%
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     uniswap

@@ -152,6 +152,24 @@ export function useUnifiedDashboard() {
     enabled: !!user?.id
   });
 
+  // Get real-time trading fees APR data
+  const { data: tradingFeesAPR } = useQuery({
+    queryKey: ['tradingFeesAPR'],
+    queryFn: async () => {
+      const response = await fetch('/api/trading-fees/pool-apr');
+      if (!response.ok) return {
+        tradingFeesAPR: 0.11,
+        poolTVL: 0,
+        poolVolume24hUSD: 0,
+        feeTier: 3000,
+        dataSource: 'uniswap'
+      };
+      return response.json();
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 15000 // Consider data stale after 15 seconds
+  });
+
 
 
   // Calculate position values using consistent methodology
@@ -230,6 +248,7 @@ export function useUnifiedDashboard() {
     
     // Analytics data
     userAnalytics,
+    tradingFeesAPR,
     
     // Calculated values
     totalPortfolioValue,

@@ -102,7 +102,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json(config);
     } catch (error) {
       res.setHeader('Content-Type', 'application/json');
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -117,14 +117,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         data: treasuryConf,
         columnNames: Object.keys(treasuryConf || {}),
         values: {
-          daily_rewards_cap: treasuryConf?.daily_rewards_cap,
+          dailyRewardsCap: treasuryConf?.dailyRewardsCap,
           totalAllocation: treasuryConf?.totalAllocation,
-          program_duration_days: treasuryConf?.program_duration_days
+          programDurationDays: treasuryConf?.programDurationDays
         }
       });
     } catch (error) {
       res.setHeader('Content-Type', 'application/json');
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -137,7 +137,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json({ address, tokenIds, count: tokenIds.length });
     } catch (error) {
       res.setHeader('Content-Type', 'application/json');
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -149,8 +149,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.setHeader('Content-Type', 'application/json');
       res.json({ tokenId, positionData });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
       res.setHeader('Content-Type', 'application/json');
-      res.status(500).json({ error: error.message, stack: error.stack });
+      res.status(500).json({ error: errorMessage, stack: errorStack });
     }
   });
   
@@ -253,8 +255,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const registeredNftIds = new Set(registeredPositions.map(p => p.nftTokenId.toString()));
       
       // Get KILT token address from blockchain configuration
-      const blockchainConfig = await blockchainConfigService.getConfiguration();
-      const kiltTokenAddress = blockchainConfig.kiltTokenAddress;
+      const blockchainConfig = await blockchainConfigService.getAllConfigs();
+      const kiltTokenAddress = blockchainConfig.kiltTokenAddress || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
       
       // Filter out already registered positions and only include KILT positions
       // CRITICAL FIX: Also filter out app-created positions from eligible positions
@@ -282,8 +284,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const userPositions = await uniswapIntegrationService.getUserPositions(userAddress);
       
       // Get KILT token address from blockchain configuration
-      const blockchainConfig = await blockchainConfigService.getConfiguration();
-      const kiltTokenAddress = blockchainConfig.kiltTokenAddress;
+      const blockchainConfig = await blockchainConfigService.getAllConfigs();
+      const kiltTokenAddress = blockchainConfig.kiltTokenAddress || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
       
       // Count only KILT positions
       const kiltPositions = userPositions.filter(pos => {
@@ -405,12 +407,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         tickUpper: tickUpper || 0,
         feeTier: feeTier || 3000,
         liquidity: (BigInt(liquidity || "0") % (BigInt(10) ** BigInt(12))).toString(), // Ensure it fits in precision limits
-        currentValueUSD: parseFloat(currentValueUSD),
+        currentValueUSD: parseFloat(currentValueUSD).toString(),
         minPrice: "0.000001", // Small price within precision limits
         maxPrice: "999999999999", // Large price within precision limits (10^12)
         isActive: true,
         createdViaApp: true, // Mark as app-created
         appTransactionHash: transactionHash || "",
+        appSessionId: `session-${Date.now()}-${userId}`, // Add required appSessionId
         verificationStatus: "verified",
         rewardEligible: true
       };
@@ -866,7 +869,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       await fixedRewardService.initializeRewardsForPosition(userId, nftTokenId);
       res.json({ success: true, message: `Rewards initialized for position ${nftTokenId}` });
     } catch (error) {
-      res.status(500).json({ error: `Failed to initialize rewards: ${error.message}` });
+      res.status(500).json({ error: `Failed to initialize rewards: ${error instanceof Error ? error.message : 'Unknown error'}` });
     }
   });
 

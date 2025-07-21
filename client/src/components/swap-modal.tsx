@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, ExternalLink } from 'lucide-react';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
-import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
+import { useWallet } from '@/hooks/use-wallet';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Ethereum Logo Component
@@ -19,7 +19,7 @@ const EthereumLogo = ({ className = "w-5 h-5" }) => (
 
 export const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void; }) => {
   const { data: kiltData } = useKiltTokenData();
-  const { address } = useWalletWagmi();
+  const { address } = useWallet();
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

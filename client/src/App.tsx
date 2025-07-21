@@ -1,11 +1,7 @@
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider } from 'wagmi';
-import { wagmiConfig } from "@/lib/wagmi-config";
+import { WalletProvider } from "./components/wallet-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { WagmiConnectModal } from "@/components/wallet/wagmi-connect-modal";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
@@ -174,17 +170,14 @@ function App() {
   }, []);
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          {/* CYBERPUNK VIDEO BACKGROUND */}
-          <CyberpunkVideoBackground />
-          <Toaster />
-          <WagmiConnectModal />
-          <Router />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <WalletProvider>
+      <TooltipProvider>
+        {/* CYBERPUNK VIDEO BACKGROUND */}
+        <CyberpunkVideoBackground />
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </WalletProvider>
   );
 }
 

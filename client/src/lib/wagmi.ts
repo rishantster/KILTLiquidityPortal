@@ -1,12 +1,11 @@
 import { http, createConfig } from 'wagmi'
-import { base, mainnet } from 'wagmi/chains'
+import { base } from 'wagmi/chains'
 import { injected, walletConnect } from 'wagmi/connectors'
 
-// WalletConnect project ID - get from https://cloud.walletconnect.com
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '2a1306d3c7b6b3b4e8a9f0e5d4c2b1a0'
 
 export const wagmiConfig = createConfig({
-  chains: [base, mainnet],
+  chains: [base],
   connectors: [
     injected(),
     walletConnect({
@@ -21,8 +20,7 @@ export const wagmiConfig = createConfig({
   ],
   transports: {
     [base.id]: http(),
-    [mainnet.id]: http(),
   },
 })
 
-export { projectId }
+export const BASE_CHAIN_ID = base.id

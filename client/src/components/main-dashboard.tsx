@@ -22,7 +22,7 @@ import {
 import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
-import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
+import { useWallet } from '@/hooks/use-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { WalletConnectButton } from './wallet/wallet-connect-button';
+import { WalletConnectButton } from './connect-button';
 import { NetworkSwitchBanner } from './network-switch-banner';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
@@ -104,7 +104,7 @@ function FormulaProgramAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected, isCorrectNetwork } = useWalletWagmi();
+  const { address, isConnected, isCorrectNetwork } = useWallet();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();

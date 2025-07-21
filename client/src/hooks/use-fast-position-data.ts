@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
+import { useWallet } from '@/hooks/use-wallet';
 import { useMemo } from 'react';
 
 // Ultra-fast position data hook with smart caching
 export function useFastPositionData() {
-  const { address, isConnected } = useWalletWagmi();
+  const { address, isConnected } = useWallet();
 
   // Cache position data aggressively
   const positionsQuery = useQuery({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
+import { useWallet } from '@/hooks/use-wallet';
 import { useToast } from './use-toast';
 import { createPublicClient, createWalletClient, custom, http, formatUnits, parseUnits, maxUint256 } from 'viem';
 import { base } from 'viem/chains';
@@ -156,7 +156,7 @@ function useBlockchainConfig() {
 }
 
 export function useUniswapV3() {
-  const { address, isConnected } = useWalletWagmi();
+  const { address, isConnected } = useWallet();
   const { toast } = useToast();
 
   // Create wallet client for transactions

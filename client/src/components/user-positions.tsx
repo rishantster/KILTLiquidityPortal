@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
+import { useWallet } from '@/hooks/use-wallet';
 import { useUserPositions, useUserRewards } from '@/hooks/use-pool-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -35,7 +35,7 @@ import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 
 export function UserPositions() {
-  const { address, isConnected } = useWalletWagmi();
+  const { address, isConnected, isCorrectNetwork } = useWallet();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const unifiedData = useUnifiedDashboard();

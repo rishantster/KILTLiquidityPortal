@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, TrendingUp, Clock, AlertCircle } from 'lucide-react';
-import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
+import { useWallet } from '@/hooks/use-wallet';
 import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
 
 interface GasEstimate {
@@ -13,7 +13,7 @@ interface GasEstimate {
 }
 
 export function GasEstimationCard() {
-  const { isConnected, address } = useWalletWagmi();
+  const { isConnected, address } = useWallet();
   const [gasEstimate, setGasEstimate] = useState<GasEstimate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

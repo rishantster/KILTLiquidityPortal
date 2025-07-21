@@ -2,11 +2,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
-import { useWalletWagmi } from '@/hooks/use-wallet-wagmi'
+import { useWallet } from '@/hooks/use-wallet'
+import { useSwitchChain } from 'wagmi'
 import { base } from 'wagmi/chains'
 
 export function NetworkSwitchBanner() {
-  const { isConnected, chainId, isCorrectNetwork, networkName, switchToBase, isSwitchingChain } = useWalletWagmi()
+  const { isConnected, chainId, isCorrectNetwork } = useWallet()
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+  
+  const networkName = chainId ? `Chain ${chainId}` : 'Unknown'
+  const switchToBase = () => switchChain({ chainId: 8453 })
 
   // Don't show banner if not connected or already on correct network
   if (!isConnected || isCorrectNetwork) {

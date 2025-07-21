@@ -235,12 +235,16 @@ export function MainDashboard() {
     });
   };
 
-  // Render loading state - checking if core data is ready
-  const isLoading = !kiltData || unifiedData.isLoading;
-  if (isLoading) {
+  // Render loading state - only show loading if absolutely no data is available
+  // Remove dependency on unifiedData.isLoading as it may get stuck
+  const hasMinimalData = kiltData && kiltData.price;
+  if (!hasMinimalData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-white">Loading KILT data...</div>
+        </div>
       </div>
     );
   }

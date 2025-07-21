@@ -12,7 +12,7 @@ import {
   Loader2,
   Gift
 } from 'lucide-react';
-import { useWallet } from '@/contexts/wallet-context';
+import { useCleanWallet } from '@/contexts/clean-wallet-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -61,7 +61,7 @@ interface RegistrationResult {
 }
 
 export function PositionRegistration() {
-  const { address, isConnected } = useWallet();
+  const { address, isConnected } = useCleanWallet();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);

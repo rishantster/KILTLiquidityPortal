@@ -22,7 +22,7 @@ import {
 import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
-import { useWallet } from '@/contexts/wallet-context';
+import { useCleanWallet } from '@/contexts/clean-wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { Web3ModalConnect } from './web3modal-connect';
+import { CleanWalletConnect } from './clean-wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -103,7 +103,7 @@ function FormulaProgramAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected, initialized } = useWallet();
+  const { address, isConnected, isConnecting } = useCleanWallet();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
@@ -234,11 +234,11 @@ export function MainDashboard() {
     });
   };
 
-  // Render loading state or disconnected state after all hooks are called
-  if (!initialized) {
+  // Show loading state while connecting
+  if (isConnecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="text-white">Connecting wallet...</div>
       </div>
     );
   }
@@ -307,7 +307,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <Web3ModalConnect />
+                <CleanWalletConnect />
               </div>
             </div>
 
@@ -452,7 +452,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <Web3ModalConnect />
+              <CleanWalletConnect />
             </div>
           </div>
         </div>

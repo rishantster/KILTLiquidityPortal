@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useWallet } from "@/contexts/wallet-context";
+import { useCleanWallet } from "@/contexts/clean-wallet-context";
 import { CyberpunkAdminPanel } from "@/components/cyberpunk-admin-panel";
 
 export default function AdminPage() {
-  const { isConnected, address, connect } = useWallet();
+  const { isConnected, address, connect } = useCleanWallet();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

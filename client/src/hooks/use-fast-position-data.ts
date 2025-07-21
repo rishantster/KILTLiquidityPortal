@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWallet } from '@/contexts/wallet-context';
+import { useCleanWallet } from '@/contexts/clean-wallet-context';
 import { useMemo } from 'react';
 
 // Ultra-fast position data hook with smart caching
 export function useFastPositionData() {
-  const { address, isConnected } = useWallet();
+  const { address, isConnected } = useCleanWallet();
 
   // Cache position data aggressively
   const positionsQuery = useQuery({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWallet } from '@/contexts/wallet-context';
+import { useCleanWallet } from '@/contexts/clean-wallet-context';
 import { useToast } from './use-toast';
 import { createPublicClient, createWalletClient, custom, http, formatUnits, parseUnits, maxUint256 } from 'viem';
 import { base } from 'viem/chains';
@@ -156,7 +156,7 @@ function useBlockchainConfig() {
 }
 
 export function useUniswapV3() {
-  const { address, isConnected } = useWallet();
+  const { address, isConnected } = useCleanWallet();
   const { toast } = useToast();
 
   // Create wallet client for transactions

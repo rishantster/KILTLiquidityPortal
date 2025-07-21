@@ -90,6 +90,10 @@ async function logAdminOperation(
 
 export async function registerRoutes(app: Express, security: any): Promise<Server> {
   
+  // Setup cache performance monitoring
+  const { setupCachePerformanceEndpoint } = await import('./cache-performance-endpoint');
+  setupCachePerformanceEndpoint(app);
+  
   // Blockchain configuration endpoint
   app.get("/api/blockchain-config", async (req, res) => {
     try {
@@ -920,7 +924,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   });
 
   // Get maximum theoretical APR calculation - BLAZING FAST with aggressive caching
-  app.get("/api/rewards/maximum-apr", blazingCacheMiddleware(180), timingMiddleware(), async (req, res) => {
+  app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
       const cacheKey = 'maximum-apr-calculation';
       const cachedResult = await QueryOptimizer.cachedQuery(
@@ -939,7 +943,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         calculationDetails: cachedResult
       });
     } catch (error) {
-      performanceMonitor.recordSlowRequest('/api/rewards/maximum-apr', Date.now());
+      console.error('Failed to calculate maximum APR:', error);
       res.status(500).json({ error: "Failed to calculate maximum APR", details: error.message });
     }
   });
@@ -1606,39 +1610,50 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // ULTRA-FAST OPTIMIZED: Positions with blazing cache and timeout protection
-  app.get("/api/positions/wallet/:userAddress", 
-    BlazingFastOptimizer.blazingPositionCache(),
-    BlazingFastOptimizer.positionTimeout(15000),
-    performanceMonitor,
-    async (req, res) => {
-      try {
-        const userAddress = req.params.userAddress;
-        console.log(`🚀 POSITION REQUEST: ${userAddress}`);
-        
-        // Direct optimized call with timeout protection
-        const positions = await Promise.race([
-          uniswapIntegrationService.getUserPositions(userAddress),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Position fetch timeout')), 10000)
-          )
-        ]);
-        
-        res.setHeader('X-Optimized', 'blazing-position-cache');
-        res.setHeader('X-Cache-TTL', '30s');
-        res.json(positions);
-      } catch (error) {
-        console.error('Position fetch error:', error);
-        res.status(500).json({ 
-          error: "Failed to fetch wallet positions",
-          details: error instanceof Error ? error.message : 'Unknown error'
-        });
+  // OPTIMIZED POSITION ENDPOINT - Simple and fast
+  app.get("/api/positions/wallet/:userAddress", async (req, res) => {
+    const startTime = Date.now();
+    const userAddress = req.params.userAddress;
+    
+    try {
+      console.log(`🚀 POSITION REQUEST: ${userAddress}`);
+      
+      const { SimplePositionOptimizer } = await import('./simple-position-optimizer');
+      
+      const positions = await SimplePositionOptimizer.getCachedPositions(
+        userAddress,
+        () => uniswapIntegrationService.getUserPositions(userAddress)
+      );
+      
+      const duration = Date.now() - startTime;
+      
+      res.setHeader('X-Response-Time', `${duration}ms`);
+      res.setHeader('X-Optimized', 'simple-position-cache');
+      
+      if (duration < 1000) {
+        console.log(`🚀 FAST RESPONSE: ${userAddress} in ${duration}ms`);
+        res.setHeader('X-Cache', 'HIT');
+      } else {
+        console.log(`💾 Fresh fetch: ${userAddress} in ${duration}ms`);
+        res.setHeader('X-Cache', 'MISS');
       }
+      
+      res.json(positions);
+      
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      console.error(`❌ Position fetch failed for ${userAddress} after ${duration}ms:`, error);
+      
+      res.status(500).json({ 
+        error: "Failed to fetch wallet positions",
+        duration: `${duration}ms`,
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
-  );
+  });
 
   // LEGACY - Get wallet positions for connected user with caching
-  app.get("/api/positions/wallet-legacy/:userAddress", blazingCacheMiddleware(60), timingMiddleware(), async (req, res) => {
+  app.get("/api/positions/wallet-legacy/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;
       const { positionCacheOptimizer } = await import('./position-cache-optimizer');

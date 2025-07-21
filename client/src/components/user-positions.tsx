@@ -33,7 +33,7 @@ import { useState, useEffect } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
-import { PositionManagementModal } from '@/components/position-management-modal';
+import { UniswapModal } from '@/components/uniswap-modal';
 
 export function UserPositions() {
   const { address, isConnected } = useWagmiWallet();
@@ -538,8 +538,8 @@ export function UserPositions() {
         </CardContent>
       </Card>
 
-      {/* Position Management Modal */}
-      <PositionManagementModal
+      {/* Uniswap-Style Position Management Modal */}
+      <UniswapModal
         isOpen={modalPosition !== null && modalMode !== null}
         onClose={() => {
           setModalPosition(null);

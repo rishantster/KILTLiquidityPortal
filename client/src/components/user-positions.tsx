@@ -33,6 +33,8 @@ import { useState, useEffect } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { PositionNotifications } from './position-notifications';
+import { TransactionStatusTracker } from './transaction-status-tracker';
 
 export function UserPositions() {
   const { address, isConnected } = useWallet();
@@ -47,6 +49,10 @@ export function UserPositions() {
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentTransaction, setCurrentTransaction] = useState<{
+    operation: 'mint' | 'increase' | 'decrease' | 'collect' | 'burn';
+    txHash?: string;
+  } | null>(null);
 
   // Logo animation timing - optimize with single effect
   useEffect(() => {
@@ -295,6 +301,36 @@ export function UserPositions() {
 
   return (
     <div className="space-y-4 h-full overflow-y-auto">
+      {/* Position Notifications */}
+      <PositionNotifications 
+        userAddress={address}
+        positions={allKiltPositions || []}
+      />
+      
+      {/* Transaction Status Tracker */}
+      {currentTransaction && (
+        <TransactionStatusTracker
+          operation={currentTransaction.operation}
+          transactionHash={currentTransaction.txHash}
+          onComplete={() => {
+            setCurrentTransaction(null);
+            setIsProcessing(false);
+            // Refresh position data
+            if (address) {
+              queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+            }
+          }}
+          onError={(error) => {
+            toast({
+              title: "Transaction Failed",
+              description: error,
+              variant: "destructive"
+            });
+            setCurrentTransaction(null);
+            setIsProcessing(false);
+          }}
+        />
+      )}
       {/* Main Positions Grid */}
       <Card key={`positions-${Array.isArray(allKiltPositions) ? allKiltPositions.length : 0}`} className="cluely-card rounded-lg min-h-0">
         <CardHeader className="flex flex-col space-y-1.5 p-6 pb-4 from-slate-900/50 to-slate-800/50 backdrop-blur-sm border-b border-white/10 bg-[#000000]">

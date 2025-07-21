@@ -208,11 +208,11 @@ export function MobileWalletConnect() {
                   key={wallet.id}
                   onClick={() => handleMobileWalletConnect(wallet)}
                   disabled={isPending}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors flex items-center"
                 >
                   <div className="flex items-center gap-3 w-full">
-                    <Wallet className="h-4 w-4" />
-                    <span>{wallet.name}</span>
+                    <Wallet className="h-4 w-4 text-white" />
+                    <span className="text-white">{wallet.name}</span>
                   </div>
                 </Button>
               ))}
@@ -230,17 +230,17 @@ export function MobileWalletConnect() {
                   key={connector.id}
                   onClick={() => handleDesktopConnect(connector)}
                   disabled={isPending}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors flex items-center"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="mr-3 h-4 w-4 animate-spin" />
-                      Connecting...
+                      <Loader2 className="mr-3 h-4 w-4 animate-spin text-white" />
+                      <span className="text-white">Connecting...</span>
                     </>
                   ) : (
                     <>
-                      <Wallet className="mr-3 h-4 w-4" />
-                      {connector.name}
+                      <Wallet className="mr-3 h-4 w-4 text-white" />
+                      <span className="text-white">{connector.name}</span>
                     </>
                   )}
                 </Button>

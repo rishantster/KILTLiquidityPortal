@@ -17,6 +17,9 @@ export function WagmiWalletConnect() {
   const { switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
   const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
+  
+  // Debug log for connectors
+  console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -168,17 +171,17 @@ export function WagmiWalletConnect() {
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors flex items-center"
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="mr-3 h-4 w-4 animate-spin" />
-                    Connecting...
+                    <Loader2 className="mr-3 h-4 w-4 animate-spin text-white" />
+                    <span className="text-white">Connecting...</span>
                   </>
                 ) : (
                   <>
-                    <Wallet className="mr-3 h-4 w-4" />
-                    {connector.name}
+                    <Wallet className="mr-3 h-4 w-4 text-white" />
+                    <span className="text-white">{connector.name}</span>
                   </>
                 )}
               </Button>

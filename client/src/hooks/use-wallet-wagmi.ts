@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 
 export function useWalletWagmi() {
   const { address, isConnected, isConnecting, isDisconnected, connector, status } = useAccount()
-  const { disconnect } = useDisconnect()
+  const { disconnect: wagmiDisconnect } = useDisconnect()
   const { connect } = useConnect()
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
   const connectors = useConnectors()
@@ -69,7 +69,7 @@ export function useWalletWagmi() {
       },
       
       disconnect: () => {
-        disconnect()
+        wagmiDisconnect()
         setIsModalOpen(false)
       },
       
@@ -92,7 +92,7 @@ export function useWalletWagmi() {
   }, [
     address, isConnected, isConnecting, isDisconnected, status, connector,
     chainId, kiltBalance, ethBalance, kiltLoading, ethLoading, isSwitchingChain,
-    connectors, connect, disconnect, switchChain, isModalOpen
+    connectors, connect, wagmiDisconnect, switchChain, isModalOpen
   ])
 
   return walletState

@@ -5,6 +5,8 @@ interface IconProps {
   className?: string;
 }
 
+// Force component refresh - v2.1 Updated July 21, 2025
+
 // MetaMask - Official Fox Logo
 export function MetaMaskIcon({ className }: IconProps) {
   return (

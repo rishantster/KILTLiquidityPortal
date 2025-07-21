@@ -60,6 +60,7 @@ export class FixedRewardService {
 
   // NO DEFAULT VALUES - Admin panel is the only source of truth
   // All configuration must come from admin panel database
+  private readonly DEFAULT_LOCK_PERIOD_DAYS = 7; // 7-day lock period fallback
 
   /**
    * Get admin configuration values (single source of truth)
@@ -832,15 +833,55 @@ export class FixedRewardService {
   }
 
   /**
-   * Get user reward statistics
+   * Get user reward statistics with real-time daily reward calculation
    */
   async getUserRewardStats(userId: number): Promise<{
     totalAccumulated: number;
     totalClaimable: number;
     totalClaimed: number;
     activePositions: number;
+    avgDailyRewards: number;
   }> {
     try {
+      // Get user's active positions
+      const userPositions = await this.database
+        .select()
+        .from(lpPositions)
+        .where(
+          and(
+            eq(lpPositions.userId, userId),
+            eq(lpPositions.isActive, true),
+            eq(lpPositions.rewardEligible, true)
+          )
+        );
+
+      if (userPositions.length === 0) {
+        return {
+          totalAccumulated: 0,
+          totalClaimable: 0,
+          totalClaimed: 0,
+          activePositions: 0,
+          avgDailyRewards: 0,
+        };
+      }
+
+      // Calculate real-time daily rewards for all active positions
+      let totalDailyRewards = 0;
+      for (const position of userPositions) {
+        try {
+          const rewardCalc = await this.calculatePositionRewards(
+            userId,
+            position.nftTokenId,
+            new Date(position.createdAt)
+          );
+          totalDailyRewards += rewardCalc.dailyRewards || 0;
+        } catch (error) {
+          console.error(`Error calculating rewards for position ${position.nftTokenId}:`, error);
+          // Continue with other positions even if one fails
+        }
+      }
+
+      // Get existing reward stats from database
       const stats = await this.database
         .select({
           totalAccumulated: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
@@ -862,15 +903,17 @@ export class FixedRewardService {
         totalAccumulated: Math.round(rawStats.totalAccumulated * 10000) / 10000, // 4 decimal places
         totalClaimable: Math.round(rawStats.totalClaimable * 10000) / 10000, // 4 decimal places
         totalClaimed: Math.round(rawStats.totalClaimed * 10000) / 10000, // 4 decimal places
-        activePositions: rawStats.activePositions,
+        activePositions: userPositions.length, // Use actual active positions count
+        avgDailyRewards: Math.round(totalDailyRewards * 1000) / 1000, // 3 decimal places for daily rewards
       };
     } catch (error) {
-      // Error getting user reward stats
+      console.error('Error getting user reward stats:', error);
       return {
         totalAccumulated: 0,
         totalClaimable: 0,
         totalClaimed: 0,
         activePositions: 0,
+        avgDailyRewards: 0,
       };
     }
   }

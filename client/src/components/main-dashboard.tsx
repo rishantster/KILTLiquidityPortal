@@ -337,7 +337,7 @@ export function MainDashboard() {
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <p className="text-gray-300 text-sm leading-relaxed">
-                      Receive attractive rewards from <span className="text-pink-400 font-semibold">{unifiedData?.programAnalytics?.totalBudget ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M KILT` : '1.5M KILT'}</span> treasury allocation with secure smart contract distribution.
+                      Receive attractive rewards from <span className="text-pink-400 font-semibold">{unifiedData?.programAnalytics?.totalBudget ? (unifiedData.programAnalytics.totalBudget >= 1000000 ? `${(unifiedData.programAnalytics.totalBudget / 1000000).toFixed(1)}M KILT` : `${(unifiedData.programAnalytics.totalBudget / 1000).toFixed(0)}K KILT`) : '500K KILT'}</span> treasury allocation with secure smart contract distribution.
                     </p>
                   </div>
                 </div>

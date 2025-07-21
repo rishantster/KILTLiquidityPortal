@@ -414,7 +414,7 @@ export function RewardsTracking() {
               <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
                 <div className="text-purple-400 text-xs mb-1">Program Budget</div>
                 <div className="text-sm text-white flex items-center justify-center gap-2 numeric-display">
-                  {programAnalytics?.totalBudget ? ((programAnalytics.totalBudget / 1000000).toFixed(1) + 'M') : '...'} <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
+                  {programAnalytics?.totalBudget ? (programAnalytics.totalBudget >= 1000000 ? ((programAnalytics.totalBudget / 1000000).toFixed(1) + 'M') : ((programAnalytics.totalBudget / 1000).toFixed(0) + 'K')) : '...'} <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
                 </div>
               </div>
               

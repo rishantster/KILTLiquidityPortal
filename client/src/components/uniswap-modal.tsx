@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { X, Plus, ArrowUpDown, Settings } from 'lucide-react';
+import { X, Plus, ArrowUpDown, Settings, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 

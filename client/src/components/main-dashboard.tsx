@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { OptimalWalletConnect } from './optimal-wallet-connect';
+import { SimpleWalletConnect } from './simple-wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -308,7 +308,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <OptimalWalletConnect />
+                <SimpleWalletConnect />
               </div>
             </div>
 
@@ -453,7 +453,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <OptimalWalletConnect />
+              <SimpleWalletConnect />
             </div>
           </div>
         </div>

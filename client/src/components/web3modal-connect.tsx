@@ -14,6 +14,13 @@ import {
 import { useWallet } from '@/contexts/wallet-context';
 import { web3ModalService, type WalletOption } from '@/services/web3modal-service';
 
+// Import wallet logos
+import metamaskLogo from '@assets/image_1753057696583.png';
+import coinbaseLogo from '@assets/image_1753057740918.png';
+import walletconnectLogo from '@assets/image_1753057768625.png';
+import trustLogo from '@assets/image_1753057819760.png';
+import phantomLogo from '@assets/image_1753057840313.png';
+
 export function Web3ModalConnect() {
   const { 
     isConnected, 
@@ -76,56 +83,48 @@ export function Web3ModalConnect() {
   const getWalletIcon = (walletId: string) => {
     const iconMap: { [key: string]: JSX.Element } = {
       metamask: (
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-          {/* Authentic MetaMask Fox Logo */}
-          <svg width="20" height="20" viewBox="0 0 318.6 318.6" fill="none">
-            <path d="m274.1 35.5-99.5 73.9L193 65.8z" fill="#e2761b" stroke="#e2761b" strokeWidth=".27"/>
-            <path d="m44.4 35.5 98.7 74.6-17.5-44.3z" fill="#e4761b" stroke="#e4761b" strokeWidth=".27"/>
-            <path d="m238.3 206.8-26.5 40.6 56.7 15.6 16.3-55.3z" fill="#e4761b" stroke="#e4761b" strokeWidth=".27"/>
-            <path d="m33.9 207.7 16.2 55.3 56.7-15.6-26.5-40.6z" fill="#e4761b" stroke="#e4761b" strokeWidth=".27"/>
-            <path d="m103.6 138.2-15.8 23.9 56.3 2.5-1.9-60.6z" fill="#e4761b" stroke="#e4761b" strokeWidth=".27"/>
-            <path d="m214.9 138.2-39-34.8-1.3 61.2 56.2-2.5z" fill="#e4761b" stroke="#e4761b" strokeWidth=".27"/>
-            <path d="m106.8 247.4 33.8-16.5-29.2-22.8z" fill="#e4761b" stroke="#e4761b" strokeWidth=".27"/>
-            <path d="m177.9 230.9 33.9 16.5-4.7-39.3z" fill="#e4761b" stroke="#e4761b" strokeWidth=".27"/>
-          </svg>
+        <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center">
+          <img 
+            src={metamaskLogo} 
+            alt="MetaMask" 
+            className="w-8 h-8 object-contain drop-shadow-sm"
+          />
         </div>
       ),
       coinbase: (
-        <div className="w-10 h-10 rounded-lg bg-[#0052FF] flex items-center justify-center shadow-lg">
-          {/* Authentic Coinbase Logo */}
-          <svg width="20" height="20" viewBox="0 0 1024 1024" fill="none">
-            <circle cx="512" cy="512" r="400" fill="white"/>
-            <rect x="360" y="360" width="304" height="304" rx="152" fill="#0052FF"/>
-          </svg>
+        <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center">
+          <img 
+            src={coinbaseLogo} 
+            alt="Coinbase Wallet" 
+            className="w-8 h-8 object-contain drop-shadow-sm"
+          />
         </div>
       ),
       walletconnect: (
-        <div className="w-10 h-10 rounded-lg bg-[#3B99FC] flex items-center justify-center shadow-lg">
-          {/* Authentic WalletConnect Logo */}
-          <svg width="20" height="20" viewBox="0 0 400 400" fill="none">
-            <path d="M100 150c55-55 145-55 200 0l7 7c3 3 3 8 0 11l-25 25c-1.5 1.5-4 1.5-5.5 0l-10-10c-38-38-100-38-138 0l-11 11c-1.5 1.5-4 1.5-5.5 0l-25-25c-3-3-3-8 0-11l7.5-7.5z" fill="white"/>
-            <path d="M318 210l22 22c3 3 3 8 0 11l-100 100c-3 3-8 3-11 0l-100-100c-3-3-3-8 0-11l22-22c3-3 8-3 11 0l78 78c1.5 1.5 4 1.5 5.5 0l78-78c3-3 8-3 11 0z" fill="white"/>
-          </svg>
+        <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center">
+          <img 
+            src={walletconnectLogo} 
+            alt="WalletConnect" 
+            className="w-8 h-8 object-contain drop-shadow-sm"
+          />
         </div>
       ),
       trust: (
-        <div className="w-10 h-10 rounded-lg bg-[#3375BB] flex items-center justify-center shadow-lg">
-          {/* Authentic Trust Wallet Logo */}
-          <svg width="20" height="20" viewBox="0 0 128 128" fill="none">
-            <path d="M64 8L112 32v32c0 35.2-24 64-48 64s-48-28.8-48-64V32L64 8z" fill="white"/>
-            <path d="M64 24L88 36v28c0 22.4-12.8 40-24 40s-24-17.6-24-40V36L64 24z" fill="#3375BB"/>
-          </svg>
+        <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center">
+          <img 
+            src={trustLogo} 
+            alt="Trust Wallet" 
+            className="w-8 h-8 object-contain drop-shadow-sm"
+          />
         </div>
       ),
       phantom: (
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#AB9FF2] to-[#4E44CE] flex items-center justify-center shadow-lg">
-          {/* Authentic Phantom Ghost Logo */}
-          <svg width="20" height="20" viewBox="0 0 128 128" fill="none">
-            <path d="M64 16C81.6 16 96 30.4 96 48v40c0 8.8-7.2 16-16 16h-8l-8 8-8-8h-8c-8.8 0-16-7.2-16-16V48c0-17.6 14.4-32 32-32z" fill="white"/>
-            <circle cx="52" cy="60" r="6" fill="#4E44CE"/>
-            <circle cx="76" cy="60" r="6" fill="#4E44CE"/>
-            <path d="M44 96c4 4 8 4 12 0s8-4 12 0 8 4 12 0 8-4 12 0" stroke="white" strokeWidth="4" fill="none"/>
-          </svg>
+        <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center">
+          <img 
+            src={phantomLogo} 
+            alt="Phantom" 
+            className="w-8 h-8 object-contain drop-shadow-sm"
+          />
         </div>
       )
     };

@@ -417,276 +417,109 @@ export function UserPositions() {
                 const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
                 
                 return (
-                  <div key={position.tokenId.toString()} className="relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] from-slate-900/90 to-slate-800/70 border-[#ff0066]/50 hover:border-[#ff0066]/80 shadow-lg shadow-[#ff0066]/20 hover:shadow-[#ff0066]/40 hover:shadow-2xl bg-[#000000]" style={!isClosed ? {
-                    boxShadow: `0 0 20px rgba(255, 0, 102, 0.3), 0 0 40px rgba(255, 0, 102, 0.1)`,
-                    filter: 'drop-shadow(0 0 8px rgba(255, 0, 102, 0.4))'
-                  } : {}}>
-                    {/* Animated Neon Pulse Background */}
-                    {!isClosed && (
-                      <div className="absolute inset-0 rounded-2xl opacity-50 animate-pulse" style={{
-                        background: 'linear-gradient(45deg, rgba(255, 0, 102, 0.1) 0%, rgba(255, 0, 102, 0.05) 50%, rgba(255, 0, 102, 0.1) 100%)',
-                        animation: 'neonPulse 3s ease-in-out infinite'
-                      }}></div>
-                    )}
-                    {/* Header */}
-                    <div className="p-3 pb-2 relative z-10">
+                  <div key={position.tokenId.toString()} className={`futuristic-position-card ${isClosed ? 'opacity-60' : ''}`}>
+                    {/* Cyberpunk Header */}
+                    <div className="cyberpunk-header">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white font-bold text-sm" style={{
-                          color: '#ffffff',
-                          textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
-                        }}>Position</span>
-                        <Badge 
-                          variant={inRange ? "default" : "secondary"}
-                          className={`${inRange ? "bg-emerald-500/30 text-emerald-300 border-emerald-400/50" : "bg-amber-500/30 text-amber-300 border-amber-400/50"} text-sm px-3 py-1 font-bold`}
-                          style={{
-                            textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                          }}
-                        >
+                        <span className="text-white font-bold text-sm uppercase tracking-wider">Position</span>
+                        <div className={`holographic-status ${inRange ? 'text-green-300' : 'text-yellow-300'}`}>
+                          <div className={`w-2 h-2 rounded-full ${inRange ? 'bg-green-400' : 'bg-yellow-400'} animate-pulse`}></div>
                           {inRange ? 'In Range' : 'Out of Range'}
-                        </Badge>
+                        </div>
                       </div>
-                      <div className="text-2xl text-white relative numeric-large">
-                        <span className="relative z-10" style={{
-                          textShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.6), 0 0 24px rgba(255, 0, 102, 0.4)',
-                          color: '#ffffff'
-                        }}>
-                          ${positionValue.toFixed(2)}
-                        </span>
+                      <div className="neon-value">
+                        ${positionValue.toFixed(2)}
                       </div>
                     </div>
-                    {/* Token Holdings */}
-                    <div className="px-3 pb-2 relative z-10">
-                      <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div className="bg-white/5 rounded-lg p-2">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="flex-shrink-0 w-4 h-4 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                              <svg className="w-3 h-3" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 2px rgba(255,255,255,0.3))' }}>
-                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                              </svg>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white text-sm numeric-display" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
-                              }}>
-                                {ethAmount} WETH
-                              </div>
-                              <div className="text-white font-medium text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                              }}>
-                                ${(parseFloat(ethAmount) * 3635).toFixed(2)}
-                              </div>
-                            </div>
+                    {/* Cyber Stats Grid */}
+                    <div className="cyber-stat-grid">
+                      <div className="cyber-stat-item">
+                        <div className="cyber-stat-label">WETH Holdings</div>
+                        <div className="cyber-stat-value flex items-center gap-2">
+                          <div className="w-3 h-3 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
+                            <svg className="w-2 h-2" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                              <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                              <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                              <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                              <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                              <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                            </svg>
                           </div>
-                        </div>
-                        <div className="bg-white/5 rounded-lg p-2">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="flex-shrink-0 w-4 h-4 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                              <img 
-                                src="/attached_assets/KILT_400x400_transparent_1751723574123.png" 
-                                alt="KILT" 
-                                className="w-3 h-3"
-                                style={{ 
-                                  filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 2px rgba(255,255,255,0.3))'
-                                }}
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white text-sm numeric-display" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
-                              }}>
-                                {kiltAmount} KILT
-                              </div>
-                              <div className="text-white font-medium text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                              }}>
-                                ${(parseFloat(kiltAmount) * 0.01816).toFixed(2)}
-                              </div>
-                            </div>
-                          </div>
+                          <span>{ethAmount} WETH</span>
                         </div>
                       </div>
-
-                      {/* Fees Earned */}
-                      <div className="bg-white/5 rounded-lg p-2 mb-2 relative overflow-hidden" style={{
-                        boxShadow: 'inset 0 0 10px rgba(255, 0, 102, 0.1)',
-                        border: '1px solid rgba(255, 0, 102, 0.2)'
-                      }}>
-                        <div className="text-white font-bold text-sm mb-2" style={{
-                          color: '#ffffff',
-                          textShadow: '0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4)'
-                        }}>Fees earned</div>
-                        <div className="text-lg text-white mb-2 relative numeric-large">
-                          <span style={{
-                            textShadow: '0 0 6px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 255, 255, 0.6), 0 0 18px rgba(255, 0, 102, 0.4)',
-                            color: '#ffffff'
-                          }}>
-                            ${(parseFloat(ethFees) * 3635 + parseFloat(kiltFees) * 0.01816).toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <div className="flex-shrink-0 w-3 h-3 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                <svg className="w-2 h-2" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2)' }}>
-                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                                </svg>
-                              </div>
-                              <span className="text-white text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                              }}>48.99%</span>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-white text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
-                              }}>${(parseFloat(ethFees) * 3635).toFixed(2)}</div>
-                              <div className="text-white font-medium text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                              }}>{ethFees} WETH</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <div className="flex-shrink-0 w-3 h-3 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                <img 
-                                  src="/attached_assets/KILT_400x400_transparent_1751723574123.png" 
-                                  alt="KILT" 
-                                  className="w-2 h-2"
-                                  style={{ 
-                                    filter: 'brightness(1.5) contrast(1.2)'
-                                  }}
-                                />
-                              </div>
-                              <span className="text-white text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                              }}>51.01%</span>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-white text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
-                              }}>${(parseFloat(kiltFees) * 0.01816).toFixed(2)}</div>
-                              <div className="text-white font-medium text-sm numeric-mono" style={{
-                                color: '#ffffff',
-                                textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                              }}>{kiltFees} KILT</div>
-                            </div>
-                          </div>
+                      
+                      <div className="cyber-stat-item">
+                        <div className="cyber-stat-label">KILT Holdings</div>
+                        <div className="cyber-stat-value flex items-center gap-2">
+                          <img src="/attached_assets/KILT_400x400_transparent_1751723574123.png" className="w-3 h-3 rounded-full" alt="KILT" />
+                          <span>{kiltAmount} KILT</span>
                         </div>
                       </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-2 mb-2 relative z-10">
-                        {!isClosed ? (
-                          <>
-                            {/* Add Liquidity Button - Emerald/Green Theme */}
-                            <button
-                              onClick={() => {
-                                setSelectedPosition(position.tokenId);
-                                setManagementMode('increase');
-                              }}
-                              className="flex-1 bg-gradient-to-r from-emerald-600/90 to-emerald-500/90 hover:from-emerald-500 hover:to-emerald-400 text-white border border-emerald-400/30 shadow-lg hover:shadow-emerald-400/30 transition-all duration-300 h-9 text-sm font-bold relative overflow-hidden group rounded-lg backdrop-blur-sm"
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                              <div className="relative z-10 flex items-center justify-center">
-                                <Plus className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
-                                <span className="tracking-wide">Add</span>
-                              </div>
-                            </button>
-                            
-                            {/* Remove Liquidity Button - Red/Orange Theme */}
-                            <button
-                              onClick={() => {
-                                setSelectedPosition(position.tokenId);
-                                setManagementMode('decrease');
-                              }}
-                              className="flex-1 bg-gradient-to-r from-red-600/90 to-orange-600/90 hover:from-red-500 hover:to-orange-500 text-white border border-red-400/30 shadow-lg hover:shadow-red-400/30 transition-all duration-300 h-9 text-sm font-bold relative overflow-hidden group rounded-lg backdrop-blur-sm"
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                              <div className="relative z-10 flex items-center justify-center">
-                                <Minus className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
-                                <span className="tracking-wide">Remove</span>
-                              </div>
-                            </button>
-                            
-                            {/* Collect Fees Button - Pink/Purple Theme */}
-                            <button
-                              onClick={() => {
-                                setSelectedPosition(position.tokenId);
-                                setManagementMode('collect');
-                              }}
-                              className="flex-1 bg-gradient-to-r from-[#ff0066]/90 to-purple-600/90 hover:from-[#ff0066] hover:to-purple-500 text-white border border-[#ff0066]/30 shadow-lg hover:shadow-[#ff0066]/30 transition-all duration-300 h-9 text-sm font-bold relative overflow-hidden group rounded-lg backdrop-blur-sm"
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-r from-[#ff0066]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                              <div className="relative z-10 flex items-center justify-center">
-                                <DollarSign className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
-                                <span className="tracking-wide">Collect</span>
-                              </div>
-                            </button>
-                          </>
-                        ) : (
-                          <div className="flex-1 text-center py-2 text-white/40 text-xs">
-                            Position Closed
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Position Details */}
-                      <div className="pt-2 border-t border-white/10 relative z-10">
-                        <div className="grid grid-cols-3 gap-2 text-sm">
-                          <div>
-                            <div className="text-white font-bold mb-1" style={{
-                              color: '#ffffff',
-                              textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                            }}>NFT ID</div>
-                            <div className="text-white font-bold" style={{
-                              color: '#ffffff',
-                              textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
-                            }}>#{position.tokenId}</div>
-                          </div>
-                          <div>
-                            <div className="text-white font-bold mb-1" style={{
-                              color: '#ffffff',
-                              textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                            }}>Fee Tier</div>
-                            <div className="text-white font-bold" style={{
-                              color: '#ffffff',
-                              textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
-                            }}>{(position.feeTier / 10000).toFixed(2)}%</div>
-                          </div>
-                          <div>
-                            <div className="text-white font-bold mb-1" style={{
-                              color: '#ffffff',
-                              textShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-                            }}>Range</div>
-                            <div className="text-white font-bold" style={{
-                              color: '#ffffff',
-                              textShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
-                            }}>
-                              {position.tickLower === -887220 && position.tickUpper === 887220 
-                                ? 'Full Range' 
-                                : 'Concentrated'
-                              }
-                            </div>
-                          </div>
+                      
+                      <div className="cyber-stat-item">
+                        <div className="cyber-stat-label">Fees Earned</div>
+                        <div className="cyber-stat-value">
+                          ${((parseFloat(ethFees) * 3800) + (parseFloat(kiltFees) * 0.018)).toFixed(2)}
                         </div>
+                      </div>
+                      
+                      <div className="cyber-stat-item">
+                        <div className="cyber-stat-label">Trading Fees APR</div>
+                        <div className="cyber-stat-value text-green-400">
+                          48.99%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="action-grid">
+                      <button 
+                        className="cyber-action-btn add"
+                        onClick={() => {
+                          setManagementMode('increase');
+                          setSelectedPosition(position.tokenId);
+                        }}
+                        disabled={isProcessing}
+                      >
+                        + Add
+                      </button>
+                      <button 
+                        className="cyber-action-btn remove"
+                        onClick={() => {
+                          setManagementMode('decrease');
+                          setSelectedPosition(position.tokenId);
+                        }}
+                        disabled={isProcessing}
+                      >
+                        - Remove
+                      </button>
+                      <button 
+                        className="cyber-action-btn collect"
+                        onClick={() => {
+                          setManagementMode('collect');
+                          setSelectedPosition(position.tokenId);
+                        }}
+                        disabled={isProcessing}
+                      >
+                        $ Collect
+                      </button>
+                    </div>
+
+                    {/* NFT Info Bar */}
+                    <div className="nft-info-bar">
+                      <div className="nft-info-item">
+                        <div className="nft-info-label">NFT ID</div>
+                        <div className="nft-info-value">#{position.tokenId}</div>
+                      </div>
+                      <div className="nft-info-item">
+                        <div className="nft-info-label">Fee Tier</div>
+                        <div className="nft-info-value">0.30%</div>
+                      </div>
+                      <div className="nft-info-item">
+                        <div className="nft-info-label">Range</div>
+                        <div className="nft-info-value">Full Range</div>
                       </div>
                     </div>
                   </div>

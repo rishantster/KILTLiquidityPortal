@@ -687,6 +687,230 @@ a:hover {
   transform: translateY(-2px);
 }
 
+/* ===== FUTURISTIC POSITION CARD DESIGNS ===== */
+
+.futuristic-position-card {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 30, 0.9) 50%, rgba(0, 0, 0, 0.9) 100%);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 0, 102, 0.2);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(255, 0, 102, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.futuristic-position-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 0, 102, 0.8), transparent);
+  animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.futuristic-position-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(255, 0, 102, 0.4);
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 0, 102, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.cyberpunk-header {
+  background: linear-gradient(135deg, rgba(255, 0, 102, 0.1) 0%, rgba(0, 150, 255, 0.1) 100%);
+  border-bottom: 1px solid rgba(255, 0, 102, 0.3);
+  padding: 1rem;
+  border-radius: 20px 20px 0 0;
+  position: relative;
+}
+
+.cyberpunk-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 0, 102, 0.8), transparent);
+}
+
+.holographic-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(0, 255, 150, 0.2) 0%, rgba(0, 200, 255, 0.2) 100%);
+  border: 1px solid rgba(0, 255, 150, 0.4);
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 10px rgba(0, 255, 150, 0.3);
+  animation: pulse-hologram 2s ease-in-out infinite;
+}
+
+@keyframes pulse-hologram {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(0, 255, 150, 0.3);
+    border-color: rgba(0, 255, 150, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(0, 255, 150, 0.5);
+    border-color: rgba(0, 255, 150, 0.6);
+  }
+}
+
+.neon-value {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff 0%, #00ff96 50%, #0096ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(0, 255, 150, 0.5);
+  letter-spacing: -0.02em;
+}
+
+.cyber-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.cyber-stat-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.75rem;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.cyber-stat-item:hover {
+  background: rgba(255, 0, 102, 0.05);
+  border-color: rgba(255, 0, 102, 0.2);
+}
+
+.cyber-stat-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.cyber-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cyber-action-btn {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 0.625rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.cyber-action-btn:hover::before {
+  left: 100%;
+}
+
+.cyber-action-btn.add:hover {
+  background: rgba(0, 150, 0, 0.2);
+  border-color: rgba(0, 255, 150, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 150, 0.3);
+  color: rgba(0, 255, 150, 1);
+}
+
+.cyber-action-btn.remove:hover {
+  background: rgba(150, 0, 0, 0.2);
+  border-color: rgba(255, 50, 50, 0.5);
+  box-shadow: 0 0 15px rgba(255, 50, 50, 0.3);
+  color: rgba(255, 50, 50, 1);
+}
+
+.cyber-action-btn.collect:hover {
+  background: rgba(150, 0, 150, 0.2);
+  border-color: rgba(255, 0, 255, 0.5);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+  color: rgba(255, 0, 255, 1);
+}
+
+.nft-info-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0 0 20px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nft-info-item {
+  text-align: center;
+}
+
+.nft-info-label {
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.nft-info-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .enhanced-text-primary {
   color: rgba(255, 255, 255, 0.98);
   font-weight: 600;

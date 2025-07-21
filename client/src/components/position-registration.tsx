@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 interface ExternalPosition {
+  tokenId: string; // Changed from nftTokenId to tokenId for consistency
   nftTokenId: string;
   poolAddress: string;
   token0Address: string;
@@ -31,6 +32,7 @@ interface ExternalPosition {
   feeTier: number;
   createdAt: string;
   isKiltPosition: boolean;
+  positionStatus?: string;
   // Historical validation data
   creationBlockNumber?: number;
   creationTransactionHash?: string;
@@ -142,7 +144,7 @@ export function PositionRegistration() {
         body: JSON.stringify({
           userId: user.id,
           userAddress: address,
-          nftTokenId: position.nftTokenId,
+          nftTokenId: position.tokenId,
           poolAddress: position.poolAddress,
           token0Address: position.token0Address,
           token1Address: position.token1Address,
@@ -196,7 +198,7 @@ export function PositionRegistration() {
           userId: user.id,
           userAddress: address,
           positions: positions.map(pos => ({
-            nftTokenId: pos.nftTokenId,
+            nftTokenId: pos.tokenId, // Use tokenId consistently
             poolAddress: pos.poolAddress,
             token0Address: pos.token0Address,
             token1Address: pos.token1Address,
@@ -225,12 +227,19 @@ export function PositionRegistration() {
     }
   });
 
-  const handleToggleSelection = (nftTokenId: string) => {
+  const handleToggleSelection = (tokenId: string) => {
     setSelectedPositions(prev => 
-      prev.includes(nftTokenId) 
-        ? prev.filter(id => id !== nftTokenId)
-        : [...prev, nftTokenId]
+      prev.includes(tokenId) 
+        ? prev.filter(id => id !== tokenId)
+        : [...prev, tokenId]
     );
+  };
+
+  const handleRegisterPosition = (tokenId: string) => {
+    const position = unregisteredPositions.find(p => p.tokenId === tokenId);
+    if (position) {
+      registerMutation.mutate(position);
+    }
   };
 
   const handleBulkRegister = () => {
@@ -379,7 +388,9 @@ export function PositionRegistration() {
             </div>
           ) : (
             <div className="space-y-3">
-              {unregisteredPositions.map((position: any) => (
+              {unregisteredPositions
+                .filter((position: any) => position.positionStatus === 'IN_RANGE') // Only show in-range positions
+                .map((position: any) => (
                 <div 
                   key={position.tokenId}
                   className="bg-gradient-to-r from-black/90 via-[#ff0066]/10 to-black/90 backdrop-blur-sm rounded border border-[#ff0066]/30 shadow-lg hover:shadow-[#ff0066]/20 transition-all duration-300 hover:border-[#ff0066]/50 p-3"
@@ -407,7 +418,7 @@ export function PositionRegistration() {
 
                     {/* Right: Register Button */}
                     <Button
-                      onClick={() => registerMutation.mutate(position)}
+                      onClick={() => handleRegisterPosition(position.tokenId)}
                       disabled={registerMutation.isPending}
                       className="bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-[#ff0066]/20 transition-all duration-200 h-7 px-3 text-xs font-medium"
                     >

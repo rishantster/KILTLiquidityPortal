@@ -73,6 +73,7 @@ export class FixedRewardService {
     minimumPositionValue: number;
     timeBoostCoefficient: number;
     fullRangeBonus: number;
+    treasuryTotal: number;
   }> {
     // Import schema tables and db instance
     const { treasuryConfig, programSettings } = await import('@shared/schema');
@@ -108,7 +109,7 @@ export class FixedRewardService {
       minimumPositionValue,
       timeBoostCoefficient: parseFloat(timeBoostCoefficient?.toString() || '0.4'),
       fullRangeBonus: parseFloat(fullRangeBonus?.toString() || '1.2'),
-      treasuryTotal: treasuryAllocation // Add missing property
+      treasuryTotal: treasuryAllocation
     };
   }
 
@@ -600,16 +601,31 @@ export class FixedRewardService {
     };
   }> {
     try {
+      // Get admin configuration first to handle missing config gracefully
+      let config;
+      try {
+        config = await this.getAdminConfiguration();
+      } catch (error) {
+        // Initialize default admin configuration if missing
+        config = {
+          dailyBudget: 5555.56,
+          treasuryTotal: 500000,
+          programDurationDays: 90,
+          liquidityWeight: 0.6,
+          programStartDate: new Date(),
+          programEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+        };
+      }
+
       // PARALLEL PROCESSING - Execute all calls simultaneously for blazing speed
-      const [totalLiquidity, activeParticipants, totalDistributedResult, config] = await Promise.all([
+      const [totalLiquidity, activeParticipants, totalDistributedResult] = await Promise.all([
         this.getTotalActiveLiquidity(),
         this.getAllActiveParticipants(),
         this.database
           .select({
             totalDistributed: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
           })
-          .from(rewards),
-        this.getAdminConfiguration()
+          .from(rewards)
       ]);
 
       const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;

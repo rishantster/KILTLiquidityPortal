@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useWallet } from '@/contexts/wallet-context';
 import { useToast } from '@/hooks/use-toast';
-import { WalletConnectService } from '@/services/walletconnect-service';
+import { WalletConnectModal } from './wallet-connect-modal';
 import { Wallet, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface WalletOption {
@@ -18,6 +18,7 @@ interface WalletOption {
 export function SimpleWalletConnect() {
   const { isConnected, isConnecting, address, connect, disconnect } = useWallet();
   const [showModal, setShowModal] = useState(false);
+  const [showWalletConnectModal, setShowWalletConnectModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -33,34 +34,9 @@ export function SimpleWalletConnect() {
     }
   };
 
-  const handleWalletConnect = async () => {
-    setError(null);
-    try {
-      const walletConnectService = new WalletConnectService({
-        projectId: 'demo-project',
-        metadata: {
-          name: 'KILT Liquidity Portal',
-          description: 'KILT DeFi Liquidity Incentive Platform',
-          url: window.location.origin,
-          icons: ['https://kilt.io/favicon.ico']
-        }
-      });
-      
-      await walletConnectService.connect();
-      setShowModal(false);
-      toast({
-        title: "WalletConnect",
-        description: "Check your mobile wallet to approve the connection.",
-      });
-    } catch (err) {
-      console.error('WalletConnect failed:', err);
-      setError(err instanceof Error ? err.message : 'WalletConnect failed');
-      toast({
-        title: "Connection Failed",
-        description: err instanceof Error ? err.message : 'Could not connect via WalletConnect.',
-        variant: "destructive"
-      });
-    }
+  const handleWalletConnect = () => {
+    setShowModal(false);
+    setShowWalletConnectModal(true);
   };
 
   const detectWallet = () => {
@@ -278,6 +254,11 @@ export function SimpleWalletConnect() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <WalletConnectModal
+        isOpen={showWalletConnectModal}
+        onClose={() => setShowWalletConnectModal(false)}
+      />
     </>
   );
 }

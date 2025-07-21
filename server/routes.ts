@@ -943,7 +943,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get claimable rewards
+  // Get claimable rewards by user ID
   app.get("/api/rewards/user/:userId/claimable", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
@@ -957,6 +957,31 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         positions: [],
         canClaim: false,
         nextClaimDate: null
+      });
+    }
+  });
+
+  // Get reward claimability by wallet address (frontend expects this route)
+  app.get("/api/rewards/claimability/:address", async (req, res) => {
+    try {
+      const userAddress = req.params.address;
+      const claimableRewards = await claimBasedRewards.checkClaimability(userAddress);
+      res.json({
+        claimable: claimableRewards.totalClaimable,
+        canClaim: claimableRewards.canClaim,
+        daysRemaining: claimableRewards.daysRemaining,
+        lockExpired: claimableRewards.lockExpired,
+        lockExpiryDate: claimableRewards.lockExpiryDate,
+        totalClaimable: claimableRewards.totalClaimable
+      });
+    } catch (error) {
+      // Return fallback for claimability check
+      res.json({
+        claimable: 0,
+        canClaim: false,
+        daysRemaining: 7,
+        lockExpired: false,
+        totalClaimable: 0
       });
     }
   });

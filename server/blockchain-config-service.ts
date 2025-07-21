@@ -169,6 +169,12 @@ export class BlockchainConfigService {
     return parseInt(feeTier || '3000', 10);
   }
 
+  // Get pool address (CRITICAL METHOD MISSING - add it here)
+  async getPoolAddress(): Promise<string> {
+    const address = await this.getConfig('KILT_ETH_POOL_ADDRESS');
+    return address || '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E'; // Fallback to known pool address
+  }
+
   // Clear cache (useful for testing or forced refresh)
   clearCache(): void {
     this.configCache.clear();

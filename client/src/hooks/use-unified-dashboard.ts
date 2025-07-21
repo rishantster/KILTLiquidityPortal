@@ -90,9 +90,9 @@ export function useUnifiedDashboard() {
   const { data: personalAPR } = useQuery({
     queryKey: ['personalAPR', address],
     queryFn: async () => {
-      if (!address) return { effectiveAPR: 0, rank: null, totalParticipants: 100 };
+      if (!address) return { effectiveAPR: 0, rank: null, totalParticipants: 0 };
       const response = await fetch(`/api/rewards/user-apr/${address}`);
-      if (!response.ok) return { effectiveAPR: 0, rank: null, totalParticipants: 100 };
+      if (!response.ok) return { effectiveAPR: 0, rank: null, totalParticipants: 0 };
       return response.json();
     },
     enabled: !!address && isConnected

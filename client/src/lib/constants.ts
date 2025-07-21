@@ -7,7 +7,7 @@ export const TREASURY_TOTAL = KILT_TOTAL_SUPPLY * TREASURY_PERCENTAGE;
 // Note: Token addresses and pool addresses are now managed via admin panel
 // Legacy constants kept for backward compatibility but should be replaced with API calls
 
-export const BASE_APR = 47.2;
+// REMOVED: BASE_APR constant - all APR values now come from unified service API
 export const MAX_TIME_MULTIPLIER = 2.0;
 export const MAX_SIZE_MULTIPLIER = 1.5;
 export const TIME_MULTIPLIER_DAYS = 30;

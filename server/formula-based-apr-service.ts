@@ -105,24 +105,8 @@ class FormulaBasedAPRService {
       };
 
     } catch (error) {
-      // Fallback to conservative calculation
-      return {
-        programAPR: 8.5,
-        formulaDetails: {
-          liquidityShare: 0.02,
-          timeBoost: 1.6,
-          inRangeMultiplier: 1.0,
-          fullRangeBonus: 1.2,
-          dailyBudget: 11111,
-          kiltPrice: 0.0176,
-          userPosition: 2000,
-          totalLiquidity: 91431
-        },
-        assumptions: [
-          'Fallback calculation - admin configuration unavailable',
-          'Conservative 8.5% APR estimate based on typical DeFi treasury programs'
-        ]
-      };
+      // NO FALLBACK VALUES ALLOWED - admin configuration required
+      throw new Error(`Formula-based APR service requires admin configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

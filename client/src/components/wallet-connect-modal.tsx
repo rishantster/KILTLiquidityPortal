@@ -183,6 +183,28 @@ export function WalletConnectModal({ isOpen, onClose }: WalletConnectModalProps)
                 <span>Coinbase</span>
                 <ExternalLink className="w-3 h-3" />
               </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openInWallet('Phantom', 'https://phantom.app/ul/browse/' + encodeURIComponent(window.location.origin) + '?ref=wc&uri=')}
+                className="flex items-center justify-center space-x-2"
+              >
+                <div className="w-4 h-4 bg-gradient-to-r from-purple-600 to-blue-500 rounded"></div>
+                <span>Phantom</span>
+                <ExternalLink className="w-3 h-3" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openInWallet('Binance', 'https://app.binance.com/cedefi/wc?uri=')}
+                className="flex items-center justify-center space-x-2"
+              >
+                <div className="w-4 h-4 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded"></div>
+                <span>Binance</span>
+                <ExternalLink className="w-3 h-3" />
+              </Button>
             </div>
           </div>
 

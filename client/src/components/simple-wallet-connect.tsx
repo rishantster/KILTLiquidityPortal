@@ -246,6 +246,66 @@ export function SimpleWalletConnect() {
                   </span>
                 </div>
               </button>
+
+              {/* Phantom Wallet */}
+              <button
+                onClick={() => {
+                  if (isMobile) {
+                    window.open('https://phantom.app/ul/browse/' + encodeURIComponent(window.location.href), '_self');
+                  } else {
+                    toast({
+                      title: "Download Phantom",
+                      description: "Phantom is available as a browser extension and mobile app. Visit phantom.app to get started.",
+                    });
+                    window.open('https://phantom.app/', '_blank');
+                    setShowModal(false);
+                  }
+                }}
+                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">P</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-medium">Phantom</div>
+                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Phantom mobile app' : 'Download Phantom'}</div>
+                  </div>
+                </div>
+                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">
+                  {isMobile ? 'Mobile' : 'Extension'}
+                </span>
+              </button>
+
+              {/* Binance Wallet */}
+              <button
+                onClick={() => {
+                  if (isMobile) {
+                    window.open('https://app.binance.com/cedefi?ref=wallet', '_self');
+                  } else {
+                    toast({
+                      title: "Download Binance Wallet",
+                      description: "Binance Wallet is available as a browser extension and mobile app. Visit binance.com to get started.",
+                    });
+                    window.open('https://www.binance.com/en/wallet', '_blank');
+                    setShowModal(false);
+                  }
+                }}
+                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 flex items-center justify-center">
+                    <span className="text-black font-bold text-sm">B</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-medium">Binance Wallet</div>
+                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Binance mobile app' : 'Download Binance Wallet'}</div>
+                  </div>
+                </div>
+                <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded">
+                  {isMobile ? 'Mobile' : 'Extension'}
+                </span>
+              </button>
             </div>
 
             <div className="text-center text-xs text-gray-500">

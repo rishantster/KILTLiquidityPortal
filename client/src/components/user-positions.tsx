@@ -35,6 +35,8 @@ import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { PositionNotifications } from './position-notifications';
 import { TransactionStatusTracker } from './transaction-status-tracker';
+import { usePositionManager } from '@/hooks/use-position-manager';
+import { BlockchainPositionActions } from './blockchain-position-actions';
 
 export function UserPositions() {
   const { address, isConnected } = useWallet();
@@ -53,6 +55,9 @@ export function UserPositions() {
     operation: 'mint' | 'increase' | 'decrease' | 'collect' | 'burn';
     txHash?: string;
   } | null>(null);
+  
+  // Real blockchain position manager
+  const positionManager = usePositionManager();
 
   // Logo animation timing - optimize with single effect
   useEffect(() => {
@@ -185,37 +190,69 @@ export function UserPositions() {
 
     setIsProcessing(true);
     try {
+      let result;
+      
       switch (managementMode) {
         case 'increase':
-          await increaseLiquidity({
-            tokenId: selectedPosition,
-            amount0Desired: parseTokenAmount(amount0),
-            amount1Desired: parseTokenAmount(amount1),
-            amount0Min: '0',
-            amount1Min: '0'
+          if (!amount0 || !amount1) {
+            throw new Error('Please enter token amounts');
+          }
+          
+          setCurrentTransaction({
+            operation: 'increase',
           });
+          
+          result = await positionManager.increaseLiquidity({
+            tokenId: selectedPosition,
+            amount0Desired: amount0,
+            amount1Desired: amount1,
+            amount0Min: (parseFloat(amount0) * 0.95).toString(), // 5% slippage
+            amount1Min: (parseFloat(amount1) * 0.95).toString(), // 5% slippage
+          });
+          
+          setCurrentTransaction(prev => prev ? { ...prev, txHash: result.hash } : null);
           break;
+          
         case 'decrease':
-          // Calculate actual liquidity amount from percentage
-          const currentPosition = Array.isArray(walletPositions) ? walletPositions.find((pos: any) => pos.tokenId === selectedPosition) : null;
+          if (!liquidityAmount) {
+            throw new Error('Please enter liquidity percentage to remove');
+          }
+          
+          // Get current position to calculate liquidity amount
+          const currentPosition = Array.isArray(allKiltPositions) ? 
+            allKiltPositions.find((pos: any) => pos.tokenId.toString() === selectedPosition) : null;
+          
           if (!currentPosition) {
             throw new Error('Position not found');
           }
           
           const percentage = parseFloat(liquidityAmount) / 100;
-          const actualLiquidityAmount = (BigInt(currentPosition.liquidity) * BigInt(Math.floor(percentage * 100)) / BigInt(100)).toString();
+          const liquidityToRemove = (BigInt(currentPosition.liquidity) * BigInt(Math.floor(percentage * 100)) / BigInt(100)).toString();
           
-          await decreaseLiquidity({
+          setCurrentTransaction({
+            operation: 'decrease',
+          });
+          
+          result = await positionManager.decreaseLiquidity({
             tokenId: selectedPosition,
-            liquidity: actualLiquidityAmount,
-            amount0Min: '0',
-            amount1Min: '0'
+            liquidity: liquidityToRemove,
+            amount0Min: '0', // Accept any amount of tokens back
+            amount1Min: '0',
           });
+          
+          setCurrentTransaction(prev => prev ? { ...prev, txHash: result.hash } : null);
           break;
+          
         case 'collect':
-          await collectFees({
-            tokenId: selectedPosition
+          setCurrentTransaction({
+            operation: 'collect',
           });
+          
+          result = await positionManager.collectFees({
+            tokenId: selectedPosition,
+          });
+          
+          setCurrentTransaction(prev => prev ? { ...prev, txHash: result.hash } : null);
           break;
       }
       
@@ -509,38 +546,32 @@ export function UserPositions() {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Real Blockchain Position Actions */}
                     <div className="action-grid">
-                      <button 
-                        className="cyber-action-btn add"
-                        onClick={() => {
-                          setManagementMode('increase');
-                          setSelectedPosition(position.tokenId);
+                      <BlockchainPositionActions
+                        position={{
+                          tokenId: position.tokenId.toString(),
+                          liquidity: position.liquidity.toString(),
+                          currentValueUSD: positionValue.toFixed(2),
+                          feesEarned: ((parseFloat(ethFees) * 3640) + (parseFloat(kiltFees) * 0.018)).toFixed(2), // Rough USD value
+                          token0Amount: ethAmount,
+                          token1Amount: kiltAmount,
                         }}
-                        disabled={isProcessing}
-                      >
-                        + Add
-                      </button>
-                      <button 
-                        className="cyber-action-btn remove"
-                        onClick={() => {
-                          setManagementMode('decrease');
-                          setSelectedPosition(position.tokenId);
+                        onTransactionStart={(operation, txHash) => {
+                          setCurrentTransaction({
+                            operation: operation as 'mint' | 'increase' | 'decrease' | 'collect' | 'burn',
+                            txHash,
+                          });
                         }}
-                        disabled={isProcessing}
-                      >
-                        - Remove
-                      </button>
-                      <button 
-                        className="cyber-action-btn collect"
-                        onClick={() => {
-                          setManagementMode('collect');
-                          setSelectedPosition(position.tokenId);
+                        onTransactionComplete={() => {
+                          setCurrentTransaction(null);
+                          // Refresh position data
+                          if (address) {
+                            queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+                            queryClient.invalidateQueries({ queryKey: ['/api/rewards/program-analytics'] });
+                          }
                         }}
-                        disabled={isProcessing}
-                      >
-                        $ Collect
-                      </button>
+                      />
                     </div>
 
                     {/* NFT Info Bar */}

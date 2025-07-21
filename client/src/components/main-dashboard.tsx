@@ -41,6 +41,7 @@ import { SimpleWalletConnect } from './simple-wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
+import { LiquidityService } from '@/services/liquidity-service';
 
 
 

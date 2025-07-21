@@ -1774,36 +1774,69 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get trading fees APR for KILT/WETH pool - Direct authentic calculation
+  // Get trading fees APR for KILT/WETH pool - Direct DexScreener API integration
   app.get("/api/trading-fees/pool-apr", async (req, res) => {
     try {
-      // Direct calculation using authentic DexScreener TVL data
-      const correctTVL = 102487.48; // Authentic TVL from DexScreener confirmed by user
-      const estimatedDailyVolume = 500; // Conservative daily volume estimate  
-      const feeRate = 0.003; // 0.3% fee tier for KILT/WETH Uniswap V3 pool
-      const dailyFees = estimatedDailyVolume * feeRate;
-      const calculatedAPR = (dailyFees * 365) / correctTVL * 100; // Should be ~0.53%
+      // Get KILT token data from DexScreener API (finds the KILT/WETH pool automatically)
+      const kiltTokenAddress = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8'; // KILT token on Base
+      const dexScreenerUrl = `https://api.dexscreener.com/latest/dex/tokens/${kiltTokenAddress}`;
+      
+      const response = await fetch(dexScreenerUrl);
+      if (!response.ok) {
+        throw new Error(`DexScreener API failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const kiltWethPair = data.pairs?.find(pair => 
+        pair.chainId === 'base' && 
+        pair.quoteToken.symbol === 'WETH' &&
+        pair.baseToken.symbol === 'KILT'
+      );
+      
+      if (!kiltWethPair) {
+        throw new Error('KILT/WETH pool not found on DexScreener');
+      }
+      
+      // Calculate trading fees APR from authentic DexScreener data
+      const poolTVL = parseFloat(kiltWethPair.liquidity?.usd || '0');
+      const volume24h = parseFloat(kiltWethPair.volume?.h24 || '0');
+      const feeRate = 0.003; // 0.3% fee tier for Uniswap V3
+      
+      const dailyFees = volume24h * feeRate;
+      const tradingFeesAPR = poolTVL > 0 ? (dailyFees * 365) / poolTVL * 100 : 0;
       
       const result = {
-        tradingFeesAPR: calculatedAPR,
-        positionSpecificAPR: calculatedAPR,
-        poolVolume24hUSD: estimatedDailyVolume,
+        tradingFeesAPR,
+        positionSpecificAPR: tradingFeesAPR,
+        poolVolume24hUSD: volume24h,
         poolFees24hUSD: dailyFees,
-        poolTVL: correctTVL,
+        poolTVL,
         feeTier: 3000,
-        dataSource: 'dexscreener',
+        dataSource: 'dexscreener-api',
         userPositionShare: 0,
-        calculationMethod: 'pool-average'
+        calculationMethod: 'api-direct',
+        priceUsd: parseFloat(kiltWethPair.priceUsd || '0'),
+        priceChange24h: parseFloat(kiltWethPair.priceChange?.h24 || '0'),
+        poolAddress: kiltWethPair.pairAddress,
+        txnCount24h: (kiltWethPair.txns?.h24?.buys || 0) + (kiltWethPair.txns?.h24?.sells || 0)
       };
       
-      // Set headers for fast response with authentic data
-      res.setHeader('X-Data-Source', 'dexscreener');
-      res.setHeader('Cache-Control', 'no-cache'); // Force fresh calculation each time
+      // Set headers for authentic DexScreener API data
+      res.setHeader('X-Data-Source', 'dexscreener-api');
+      res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minute cache for API data
+      
+      console.log('DexScreener Trading Fees APR:', {
+        poolTVL: poolTVL,
+        volume24h: volume24h,
+        dailyFees: dailyFees,
+        tradingFeesAPR: tradingFeesAPR,
+        poolAddress: kiltWethPair.pairAddress
+      });
       
       res.json(result);
     } catch (error) {
-      console.error('Trading fees APR error:', error);
-      res.status(500).json({ error: 'Failed to calculate trading fees APR' });
+      console.error('DexScreener API error:', error);
+      res.status(500).json({ error: 'Failed to fetch from DexScreener API', details: error.message });
     }
   });
 

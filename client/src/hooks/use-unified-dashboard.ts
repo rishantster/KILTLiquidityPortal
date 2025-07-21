@@ -98,24 +98,36 @@ export function useUnifiedDashboard() {
     enabled: !!address && isConnected
   });
 
-  // Get maximum APR data for realistic range
+  // Get maximum APR data for realistic range - with timeout protection
   const { data: maxAPRData } = useQuery({
     queryKey: ['maxAPR'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/rewards/maximum-apr');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+        const response = await fetch('/api/rewards/maximum-apr', {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
           throw new Error('Failed to fetch APR data');
         }
         return response.json();
       } catch (error) {
+        if (error.name === 'AbortError') {
+          throw new Error('APR calculation timeout - using cached data');
+        }
         throw new Error('APR calculation failed - admin configuration required');
       }
     },
-    refetchInterval: 3000, // Blazing fast refresh every 3 seconds for admin changes
-    staleTime: 1000, // Consider data stale after 1 second for instant updates
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: true // Always refetch on component mount
+    refetchInterval: 60000, // Slower refresh - 60 seconds (due to slow endpoint)
+    staleTime: 30000, // Consider data stale after 30 seconds
+    refetchOnWindowFocus: false, // Disable focus refetch (too slow)
+    refetchOnMount: true, // Always refetch on component mount
+    retry: 1, // Only retry once (avoid multiple slow requests)
+    retryDelay: 2000 // 2 seconds between retries
   });
 
   // Get program analytics with proper error handling - should work for all users
@@ -136,9 +148,9 @@ export function useUnifiedDashboard() {
         throw new Error('Program analytics failed - admin configuration required');
       }
     },
-    enabled: true, // Always fetch - remove dependency on maxAPRData
-    refetchInterval: 30000, // Slower refresh - 30 seconds
-    staleTime: 15000, // Consider data stale after 15 seconds
+    enabled: true, // Always fetch independently - no dependencies
+    refetchInterval: 10000, // Fast refresh - 10 seconds
+    staleTime: 5000, // Consider data stale after 5 seconds
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnMount: true, // Always refetch on component mount
     retry: 3, // Retry failed requests

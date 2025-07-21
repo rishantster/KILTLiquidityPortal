@@ -163,7 +163,7 @@ export function WagmiWalletConnect() {
               <span className="text-sm">Available Wallets</span>
             </div>
             
-            {connectors.map((connector) => (
+            {connectors.filter(connector => connector.name !== 'Injected').map((connector) => (
               <Button
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
@@ -183,6 +183,25 @@ export function WagmiWalletConnect() {
                 )}
               </Button>
             ))}
+            
+            {/* Binance Wallet Button */}
+            <Button
+              onClick={() => {
+                if (window.ethereum?.isBinance) {
+                  const binanceConnector = connectors.find(c => c.id === 'binance');
+                  if (binanceConnector) {
+                    handleConnect(binanceConnector);
+                  }
+                } else {
+                  window.open('https://www.binance.com/en/web3wallet', '_blank');
+                }
+              }}
+              disabled={isPending}
+              className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+            >
+              <Wallet className="mr-4 h-5 w-5" />
+              Binance Wallet
+            </Button>
           </div>
 
           <div className="text-sm text-gray-500 text-center mt-6">

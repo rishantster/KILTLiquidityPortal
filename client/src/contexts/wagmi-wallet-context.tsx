@@ -7,21 +7,40 @@ import { ReactNode } from 'react';
 const wagmiConfig = createConfig({
   chains: [base],
   connectors: [
-    // Injected first for better wallet detection
-    injected({ shimDisconnect: true }),
+    // Injected first for better wallet detection (includes Binance Wallet)
+    injected({ 
+      shimDisconnect: true,
+      target() {
+        return {
+          id: 'injected',
+          name: 'Injected',
+          provider: window.ethereum
+        };
+      }
+    }),
     // MetaMask with enhanced mobile detection
     metaMask({
       dappMetadata: {
         name: 'KILT Liquidity Portal',
         url: window.location.origin
-      },
-      shimDisconnect: true
+      }
     }),
     // Coinbase Wallet with Base-optimized mobile support
     coinbaseWallet({
       appName: 'KILT Liquidity Portal',
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
+    }),
+    // Binance Wallet via injected provider
+    injected({
+      shimDisconnect: true,
+      target() {
+        return {
+          id: 'binance',
+          name: 'Binance Wallet',
+          provider: window.ethereum?.isBinance ? window.ethereum : undefined
+        };
+      }
     }),
     // WalletConnect with Base-specific configuration (conditionally enabled)
     ...(import.meta.env.VITE_WALLETCONNECT_PROJECT_ID && 

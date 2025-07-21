@@ -45,6 +45,15 @@ export const MOBILE_WALLET_LINKS: WalletDeepLink[] = [
     icon: '🌈',
     description: 'Beautiful Ethereum wallet',
     isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isRainbow
+  },
+  {
+    name: 'Binance Wallet',
+    id: 'binance',
+    deepLink: (url: string) => `bnc://app.binance.com/cedefi/eth-dapp?url=${encodeURIComponent(url)}`,
+    installLink: 'https://www.binance.com/en/web3wallet',
+    icon: '🟡',
+    description: 'Binance Web3 Wallet',
+    isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isBinance
   }
 ];
 
@@ -97,6 +106,6 @@ export function getRecommendedWallets(): WalletDeepLink[] {
     return available;
   }
   
-  // Return top 3 if none are available
-  return MOBILE_WALLET_LINKS.slice(0, 3);
+  // Return top 4 wallets including Binance if none are detected
+  return MOBILE_WALLET_LINKS.slice(0, 4);
 }

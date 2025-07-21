@@ -865,23 +865,7 @@ export class FixedRewardService {
         };
       }
 
-      // Calculate real-time daily rewards for all active positions
-      let totalDailyRewards = 0;
-      for (const position of userPositions) {
-        try {
-          const rewardCalc = await this.calculatePositionRewards(
-            userId,
-            position.nftTokenId,
-            new Date(position.createdAt)
-          );
-          totalDailyRewards += rewardCalc.dailyRewards || 0;
-        } catch (error) {
-          console.error(`Error calculating rewards for position ${position.nftTokenId}:`, error);
-          // Continue with other positions even if one fails
-        }
-      }
-
-      // Get existing reward stats from database
+      // Get existing reward stats from database first
       const stats = await this.database
         .select({
           totalAccumulated: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
@@ -899,12 +883,31 @@ export class FixedRewardService {
         activePositions: 0,
       };
 
+      // Calculate actual historical daily reward rate instead of theoretical current rate
+      // This provides more accurate representation of actual earning rate
+      let actualDailyRate = 0;
+      
+      if (userPositions.length > 0) {
+        // Calculate total days since first position was created
+        const oldestPosition = userPositions.reduce((oldest: any, current: any) => 
+          new Date(current.createdAt) < new Date(oldest.createdAt) ? current : oldest
+        );
+        
+        const daysSinceStart = Math.max(1, Math.floor(
+          (new Date().getTime() - new Date(oldestPosition.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        ));
+        
+        // Calculate actual daily rate based on total accumulated divided by days active
+        // This shows real performance rather than theoretical projections
+        actualDailyRate = (rawStats.totalAccumulated || 0) / daysSinceStart;
+      }
+
       return {
         totalAccumulated: Math.round(rawStats.totalAccumulated * 10000) / 10000, // 4 decimal places
         totalClaimable: Math.round(rawStats.totalClaimable * 10000) / 10000, // 4 decimal places
         totalClaimed: Math.round(rawStats.totalClaimed * 10000) / 10000, // 4 decimal places
         activePositions: userPositions.length, // Use actual active positions count
-        avgDailyRewards: Math.round(totalDailyRewards * 1000) / 1000, // 3 decimal places for daily rewards
+        avgDailyRewards: Math.round(actualDailyRate * 1000) / 1000, // Actual historical daily rate instead of theoretical
       };
     } catch (error) {
       console.error('Error getting user reward stats:', error);

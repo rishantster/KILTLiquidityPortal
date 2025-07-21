@@ -71,7 +71,7 @@ export const getQueryFn: <T>(options: {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
-        controller.abort();
+        controller.abort('Request timeout after 25 seconds');
       }
     }, 25000); // 25 second timeout for query functions
 

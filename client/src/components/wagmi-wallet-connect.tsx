@@ -149,7 +149,8 @@ export function WagmiWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-sm w-[90vw] max-h-[90vh] overflow-y-auto rounded-2xl overflow-hidden relative m-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
+        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 w-[400px] max-w-[90vw] max-h-[80vh] overflow-y-auto rounded-2xl z-50 p-6">
           {/* Cyberpunk background grid effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-purple-500/5 pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.03),transparent_70%)] pointer-events-none" />

@@ -97,11 +97,11 @@ export function ModernWalletConnect() {
       }
     },
     {
-      name: 'Rainbow',
-      icon: '🌈',
+      name: 'Web3Modal v3',
+      icon: '🔗',
       color: 'from-purple-500/20 to-pink-500/20',
       action: () => {
-        window.open(`https://rnbwapp.com/`, '_blank');
+        window.open(`https://walletconnect.com/`, '_blank');
       }
     }
   ];

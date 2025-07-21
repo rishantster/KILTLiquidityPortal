@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { MultiWalletConnect } from './multi-wallet-connect';
+import { Web3ModalConnect } from './web3modal-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -307,7 +307,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <MultiWalletConnect />
+                <Web3ModalConnect />
               </div>
             </div>
 
@@ -452,7 +452,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <MultiWalletConnect />
+              <Web3ModalConnect />
             </div>
           </div>
         </div>

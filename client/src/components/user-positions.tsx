@@ -468,7 +468,7 @@ export function UserPositions() {
                       <div className="cyber-stat-item">
                         <div className="cyber-stat-label">Trading Fees APR</div>
                         <div className="cyber-stat-value text-green-400">
-                          48.99%
+                          2.11%
                         </div>
                       </div>
                     </div>

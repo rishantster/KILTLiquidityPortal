@@ -187,8 +187,7 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
-        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 w-[400px] max-w-[90vw] max-h-[80vh] overflow-y-auto rounded-2xl z-50 p-6">
+        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-md rounded-2xl overflow-hidden relative">
           {/* Cyberpunk background grid effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-purple-500/5 pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.03),transparent_70%)] pointer-events-none" />
@@ -221,7 +220,7 @@ export function MobileWalletConnect() {
                   key={wallet.id}
                   onClick={() => handleMobileWalletConnect(wallet)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-12 text-base font-bold justify-start px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-16 text-lg font-bold justify-start px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {/* Animated background glow */}
@@ -255,7 +254,7 @@ export function MobileWalletConnect() {
                   key={connector.id}
                   onClick={() => handleDesktopConnect(connector)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-12 text-base font-bold justify-start px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-16 text-lg font-bold justify-start px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {/* Animated background glow */}

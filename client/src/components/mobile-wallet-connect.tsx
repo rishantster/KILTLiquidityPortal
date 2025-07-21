@@ -208,7 +208,7 @@ export function MobileWalletConnect() {
                   key={wallet.id}
                   onClick={() => handleMobileWalletConnect(wallet)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
                 >
                   <div className="flex items-center gap-4 w-full">
                     <Wallet className="h-5 w-5" />
@@ -232,7 +232,7 @@ export function MobileWalletConnect() {
                   key={connector.id}
                   onClick={() => handleDesktopConnect(connector)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
                 >
                   {isPending ? (
                     <>
@@ -261,7 +261,7 @@ export function MobileWalletConnect() {
                   }
                 }}
                 disabled={isPending}
-                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
               >
                 <Wallet className="mr-4 h-5 w-5" />
                 Binance Wallet

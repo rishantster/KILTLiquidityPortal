@@ -133,7 +133,7 @@ export function WagmiWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isPending}
-        className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+        className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
       >
         {isPending ? (
           <>
@@ -168,7 +168,7 @@ export function WagmiWalletConnect() {
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
-                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
               >
                 {isPending ? (
                   <>
@@ -197,7 +197,7 @@ export function WagmiWalletConnect() {
                 }
               }}
               disabled={isPending}
-              className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+              className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
             >
               <Wallet className="mr-4 h-5 w-5" />
               Binance Wallet

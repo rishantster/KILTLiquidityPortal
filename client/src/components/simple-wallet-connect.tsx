@@ -1,56 +1,59 @@
+import React from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useWallet } from '@/contexts/wallet-context';
 import { useToast } from '@/hooks/use-toast';
 import { WalletConnectModal } from './wallet-connect-modal';
-import { Wallet, CheckCircle, AlertCircle } from 'lucide-react';
-
-interface WalletOption {
-  id: string;
-  name: string;
-  description: string;
-  detected: boolean;
-  recommended: boolean;
-  action: () => Promise<void>;
-}
+import { walletDetection } from '@/services/wallet-detection';
+import { MetaMaskIcon, TrustWalletIcon, RainbowIcon, CoinbaseIcon, PhantomIcon, BinanceIcon, WalletConnectIcon } from './wallet-icons';
+import { Wallet, CheckCircle, AlertCircle, ExternalLink, Smartphone, Monitor } from 'lucide-react';
 
 export function SimpleWalletConnect() {
   const { isConnected, isConnecting, address, connect, disconnect } = useWallet();
   const [showModal, setShowModal] = useState(false);
   const [showWalletConnectModal, setShowWalletConnectModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detectedWallets, setDetectedWallets] = useState(walletDetection.detectWallets());
   const { toast } = useToast();
-
-  const clearError = () => setError(null);
-
-  const handleConnect = async () => {
-    try {
-      clearError();
-      await connect();
-      setShowModal(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Connection failed');
-    }
-  };
 
   const handleWalletConnect = () => {
     setShowModal(false);
     setShowWalletConnectModal(true);
   };
 
-  const detectWallet = () => {
-    const ethereum = (window as any).ethereum;
-    return {
-      metamask: ethereum?.isMetaMask,
-      coinbase: ethereum?.isCoinbaseWallet || ethereum?.selectedProvider?.isCoinbaseWallet,
-      trust: ethereum?.isTrustWallet,
-      rainbow: ethereum?.isRainbow
-    };
+  const handleDirectWalletConnect = async (walletName: string) => {
+    setError(null);
+    try {
+      const accounts = await walletDetection.connectWallet(walletName);
+      if (accounts && accounts.length > 0) {
+        setShowModal(false);
+        toast({
+          title: "Wallet Connected",
+          description: `Successfully connected to ${walletName}`,
+        });
+      }
+    } catch (err) {
+      console.error(`Failed to connect to ${walletName}:`, err);
+      setError(err instanceof Error ? err.message : `Failed to connect to ${walletName}`);
+      toast({
+        title: "Connection Failed",
+        description: err instanceof Error ? err.message : `Could not connect to ${walletName}`,
+        variant: "destructive"
+      });
+    }
   };
 
-  const wallets = detectWallet();
-  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  const handleMobileWallet = (walletName: string) => {
+    walletDetection.openMobileWallet(walletName);
+    setShowModal(false);
+  };
+
+  const refreshWallets = () => {
+    setDetectedWallets(walletDetection.detectWallets());
+  };
+
+  const isMobile = walletDetection.isMobile();
 
   if (isConnected && address) {
     return (
@@ -84,7 +87,7 @@ export function SimpleWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-md bg-gray-900 border-gray-700">
+        <DialogContent className="sm:max-w-md bg-gray-900 border-gray-700 max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white text-center">Connect Your Wallet</DialogTitle>
           </DialogHeader>
@@ -98,111 +101,78 @@ export function SimpleWalletConnect() {
             )}
 
             {/* Browser Extensions */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h3 className="text-sm font-medium text-gray-400 flex items-center space-x-2">
-                <Wallet className="w-4 h-4" />
+                <Monitor className="w-4 h-4" />
                 <span>Browser Extensions</span>
               </h3>
-              
+
               {/* MetaMask */}
               <button
-                onClick={handleConnect}
+                onClick={() => handleDirectWalletConnect('MetaMask')}
+                onFocus={refreshWallets}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">M</span>
-                  </div>
+                  <MetaMaskIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-medium">MetaMask</div>
-                    <div className="text-gray-400 text-sm">Connect with MetaMask browser extension</div>
+                    <div className="text-gray-400 text-sm">
+                      {detectedWallets.find(w => w.name === 'MetaMask')?.detected 
+                        ? 'Ready to connect' 
+                        : 'Download MetaMask'
+                      }
+                    </div>
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  {wallets.metamask && (
+                  {detectedWallets.find(w => w.name === 'MetaMask')?.detected && (
                     <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
                       Detected
                     </span>
                   )}
-                  <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
-                    Recommended
+                  <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded">
+                    Popular
                   </span>
                 </div>
               </button>
 
               {/* Coinbase Wallet */}
               <button
-                onClick={handleConnect}
+                onClick={() => handleDirectWalletConnect('Coinbase Wallet')}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">C</span>
-                  </div>
+                  <CoinbaseIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-medium">Coinbase Wallet</div>
-                    <div className="text-gray-400 text-sm">Connect with Coinbase Wallet extension</div>
+                    <div className="text-gray-400 text-sm">
+                      {detectedWallets.find(w => w.name === 'Coinbase Wallet')?.detected 
+                        ? 'Ready to connect' 
+                        : 'Download Coinbase Wallet'
+                      }
+                    </div>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  {wallets.coinbase && (
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
-                      Detected
-                    </span>
-                  )}
-                </div>
-              </button>
-            </div>
-
-            {/* Universal/Mobile Wallets Section */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-400 flex items-center space-x-2">
-                <Wallet className="w-4 h-4" />
-                <span>{isMobile ? 'Mobile Wallets' : 'Universal Wallets'}</span>
-              </h3>
-              
-              {/* WalletConnect */}
-              <button
-                onClick={handleWalletConnect}
-                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">W</span>
-                  </div>
-                  <div className="text-left">
-                    <div className="text-white font-medium">WalletConnect</div>
-                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with any mobile wallet' : 'Connect via QR code'}</div>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">
-                  Universal
-                </span>
+                {detectedWallets.find(w => w.name === 'Coinbase Wallet')?.detected && (
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                    Detected
+                  </span>
+                )}
               </button>
 
               {/* Trust Wallet */}
               <button
-                onClick={() => {
-                  if (isMobile) {
-                    window.open('https://link.trustwallet.com/open_url?coin_id=60&url=' + encodeURIComponent(window.location.href), '_self');
-                  } else {
-                    toast({
-                      title: "Download Trust Wallet",
-                      description: "Trust Wallet is primarily a mobile app. Download it from the App Store or Google Play.",
-                    });
-                    window.open('https://trustwallet.com/', '_blank');
-                    setShowModal(false);
-                  }
-                }}
+                onClick={() => isMobile ? handleMobileWallet('Trust Wallet') : handleDirectWalletConnect('Trust Wallet')}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">T</span>
-                  </div>
+                  <TrustWalletIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-medium">Trust Wallet</div>
-                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Trust Wallet mobile app' : 'Download Trust Wallet'}</div>
+                    <div className="text-gray-400 text-sm">
+                      {isMobile ? 'Open Trust Wallet app' : 'Mobile-first wallet'}
+                    </div>
                   </div>
                 </div>
                 <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
@@ -212,98 +182,98 @@ export function SimpleWalletConnect() {
 
               {/* Rainbow Wallet */}
               <button
-                onClick={() => {
-                  if (isMobile) {
-                    window.open('https://rnbwapp.com/open?url=' + encodeURIComponent(window.location.href), '_self');
-                  } else {
-                    toast({
-                      title: "Download Rainbow",
-                      description: "Rainbow is available as a mobile app and browser extension. Visit rainbow.me to get started.",
-                    });
-                    window.open('https://rainbow.me/', '_blank');
-                    setShowModal(false);
-                  }
-                }}
+                onClick={() => isMobile ? handleMobileWallet('Rainbow') : handleDirectWalletConnect('Rainbow')}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">R</span>
-                  </div>
+                  <RainbowIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-medium">Rainbow</div>
-                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Rainbow mobile app' : 'Download Rainbow'}</div>
+                    <div className="text-gray-400 text-sm">
+                      {detectedWallets.find(w => w.name === 'Rainbow')?.detected 
+                        ? 'Ready to connect' 
+                        : 'Beautiful wallet with great UX'
+                      }
+                    </div>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  {wallets.rainbow && (
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
-                      Detected
-                    </span>
-                  )}
-                  <span className="px-2 py-1 bg-pink-500/20 text-pink-400 text-xs rounded">
-                    {isMobile ? 'Mobile' : 'Download'}
+                {detectedWallets.find(w => w.name === 'Rainbow')?.detected && (
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                    Detected
                   </span>
-                </div>
+                )}
               </button>
 
               {/* Phantom Wallet */}
               <button
-                onClick={() => {
-                  if (isMobile) {
-                    window.open('https://phantom.app/ul/browse/' + encodeURIComponent(window.location.href), '_self');
-                  } else {
-                    toast({
-                      title: "Download Phantom",
-                      description: "Phantom is available as a browser extension and mobile app. Visit phantom.app to get started.",
-                    });
-                    window.open('https://phantom.app/', '_blank');
-                    setShowModal(false);
-                  }
-                }}
+                onClick={() => isMobile ? handleMobileWallet('Phantom') : handleDirectWalletConnect('Phantom')}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">P</span>
-                  </div>
+                  <PhantomIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-medium">Phantom</div>
-                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Phantom mobile app' : 'Download Phantom'}</div>
+                    <div className="text-gray-400 text-sm">
+                      {detectedWallets.find(w => w.name === 'Phantom')?.detected 
+                        ? 'Ready to connect' 
+                        : 'Multi-chain wallet'
+                      }
+                    </div>
                   </div>
                 </div>
-                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">
-                  {isMobile ? 'Mobile' : 'Extension'}
-                </span>
+                {detectedWallets.find(w => w.name === 'Phantom')?.detected && (
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                    Detected
+                  </span>
+                )}
               </button>
 
               {/* Binance Wallet */}
               <button
-                onClick={() => {
-                  if (isMobile) {
-                    window.open('https://app.binance.com/cedefi?ref=wallet', '_self');
-                  } else {
-                    toast({
-                      title: "Download Binance Wallet",
-                      description: "Binance Wallet is available as a browser extension and mobile app. Visit binance.com to get started.",
-                    });
-                    window.open('https://www.binance.com/en/wallet', '_blank');
-                    setShowModal(false);
-                  }
-                }}
+                onClick={() => isMobile ? handleMobileWallet('Binance Wallet') : handleDirectWalletConnect('Binance Wallet')}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 flex items-center justify-center">
-                    <span className="text-black font-bold text-sm">B</span>
-                  </div>
+                  <BinanceIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-medium">Binance Wallet</div>
-                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Binance mobile app' : 'Download Binance Wallet'}</div>
+                    <div className="text-gray-400 text-sm">
+                      {detectedWallets.find(w => w.name === 'Binance Wallet')?.detected 
+                        ? 'Ready to connect' 
+                        : 'Exchange wallet'
+                      }
+                    </div>
                   </div>
                 </div>
-                <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded">
-                  {isMobile ? 'Mobile' : 'Extension'}
+                {detectedWallets.find(w => w.name === 'Binance Wallet')?.detected && (
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                    Detected
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Mobile & Universal */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-gray-400 flex items-center space-x-2">
+                <Smartphone className="w-4 h-4" />
+                <span>Mobile & Universal</span>
+              </h3>
+
+              {/* WalletConnect */}
+              <button
+                onClick={handleWalletConnect}
+                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <WalletConnectIcon className="w-10 h-10" />
+                  <div className="text-left">
+                    <div className="text-white font-medium">WalletConnect</div>
+                    <div className="text-gray-400 text-sm">Connect with QR code</div>
+                  </div>
+                </div>
+                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
+                  Universal
                 </span>
               </button>
             </div>

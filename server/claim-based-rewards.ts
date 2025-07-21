@@ -26,7 +26,6 @@ export interface RewardClaimability {
 export class ClaimBasedRewards {
   private provider: ethers.JsonRpcProvider;
   private readonly blockchainConfigService = blockchainConfigService;
-  private readonly LOCK_PERIOD_DAYS = 7;
   private readonly KILT_TOKEN_ABI = [
     'function transfer(address to, uint256 amount) returns (bool)',
     'function balanceOf(address account) view returns (uint256)',
@@ -39,17 +38,34 @@ export class ClaimBasedRewards {
   }
 
   /**
-   * Check if a user can claim their rewards (rolling 7-day lock per reward)
+   * Get the current lock period from admin configuration
+   */
+  private async getLockPeriodDays(): Promise<number> {
+    try {
+      const { programSettings } = await import('../shared/schema');
+      const [settings] = await db.select().from(programSettings).limit(1);
+      return settings?.lockPeriod || 0; // Default to 0 days if not configured
+    } catch (error) {
+      // Fallback to 0 days if admin configuration unavailable
+      return 0;
+    }
+  }
+
+  /**
+   * Check if a user can claim their rewards (dynamic lock period from admin config)
    */
   async checkClaimability(userAddress: string): Promise<RewardClaimability> {
     try {
+      // Get the current lock period from admin configuration
+      const lockPeriodDays = await this.getLockPeriodDays();
+      
       // Get user from database
       const [user] = await db.select().from(users).where(eq(users.address, userAddress));
       if (!user) {
         return {
           canClaim: false,
           lockExpired: false,
-          daysRemaining: 7,
+          daysRemaining: lockPeriodDays,
           totalClaimable: 0,
           lockExpiryDate: new Date()
         };
@@ -69,23 +85,38 @@ export class ClaimBasedRewards {
         return {
           canClaim: false,
           lockExpired: false,
-          daysRemaining: 7, // Show 7 days as countdown until user creates positions
+          daysRemaining: lockPeriodDays, // Show configured lock period as countdown
           totalClaimable: 0,
           lockExpiryDate: new Date()
         };
       }
 
-      // FIXED LOGIC: 7-day initial lock, then daily claims
+      // DYNAMIC LOCK LOGIC: Admin-configured lock period, then daily claims
       const now = new Date();
+      
+      // If lock period is 0 days, rewards are immediately claimable
+      if (lockPeriodDays === 0) {
+        const totalClaimable = userRewards.reduce((sum, reward) => {
+          return sum + parseFloat(reward.dailyRewardAmount || '0');
+        }, 0);
+        
+        return {
+          canClaim: totalClaimable > 0,
+          lockExpired: true,
+          daysRemaining: 0,
+          totalClaimable,
+          lockExpiryDate: new Date() // Lock already expired
+        };
+      }
       
       // Find the earliest reward (when lock period started)
       const earliestReward = userRewards.reduce((earliest, reward) => {
         return reward.createdAt < earliest.createdAt ? reward : earliest;
       });
 
-      // Calculate when the 7-day lock period expires from first reward
+      // Calculate when the lock period expires from first reward
       const lockExpiryDate = new Date(earliestReward.createdAt);
-      lockExpiryDate.setDate(lockExpiryDate.getDate() + this.LOCK_PERIOD_DAYS);
+      lockExpiryDate.setDate(lockExpiryDate.getDate() + lockPeriodDays);
       
       // Check if initial 7-day lock period has expired
       if (now >= lockExpiryDate) {

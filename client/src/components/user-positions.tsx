@@ -33,6 +33,7 @@ import { useState, useEffect } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { PositionManagementModal } from '@/components/position-management-modal';
 
 export function UserPositions() {
   const { address, isConnected } = useWagmiWallet();
@@ -40,10 +41,8 @@ export function UserPositions() {
   const queryClient = useQueryClient();
   const unifiedData = useUnifiedDashboard();
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
-  const [managementMode, setManagementMode] = useState<'increase' | 'decrease' | 'collect' | null>(null);
-  const [liquidityAmount, setLiquidityAmount] = useState('');
-  const [amount0, setAmount0] = useState('');
-  const [amount1, setAmount1] = useState('');
+  const [modalPosition, setModalPosition] = useState<any>(null);
+  const [modalMode, setModalMode] = useState<'add' | 'remove' | 'collect' | null>(null);
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -480,37 +479,39 @@ export function UserPositions() {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="action-grid">
-                      <button 
-                        className="cyber-action-btn add"
+                    {/* Uniswap-Style Action Buttons */}
+                    <div className="flex gap-2 mt-4">
+                      <button
                         onClick={() => {
-                          setManagementMode('increase');
-                          setSelectedPosition(position.tokenId);
+                          setModalPosition(position);
+                          setModalMode('add');
                         }}
-                        disabled={isProcessing}
+                        className="uniswap-action-btn add"
+                        disabled={isClosed}
                       >
-                        + Add
+                        <Plus className="w-4 h-4" />
+                        ADD
                       </button>
-                      <button 
-                        className="cyber-action-btn remove"
+                      <button
                         onClick={() => {
-                          setManagementMode('decrease');
-                          setSelectedPosition(position.tokenId);
+                          setModalPosition(position);
+                          setModalMode('remove');
                         }}
-                        disabled={isProcessing}
+                        className="uniswap-action-btn remove"
+                        disabled={isClosed}
                       >
-                        - Remove
+                        <Minus className="w-4 h-4" />
+                        REMOVE
                       </button>
-                      <button 
-                        className="cyber-action-btn collect"
+                      <button
                         onClick={() => {
-                          setManagementMode('collect');
-                          setSelectedPosition(position.tokenId);
+                          setModalPosition(position);
+                          setModalMode('collect');
                         }}
-                        disabled={isProcessing}
+                        className="uniswap-action-btn collect"
                       >
-                        $ Collect
+                        <DollarSign className="w-4 h-4" />
+                        COLLECT
                       </button>
                     </div>
 
@@ -536,7 +537,19 @@ export function UserPositions() {
           )}
         </CardContent>
       </Card>
-      {/* Uniswap-Style Position Management Modal */}
+
+      {/* Position Management Modal */}
+      <PositionManagementModal
+        isOpen={modalPosition !== null && modalMode !== null}
+        onClose={() => {
+          setModalPosition(null);
+          setModalMode(null);
+        }}
+        position={modalPosition}
+        mode={modalMode}
+      />
+
+      {/* Legacy Modal - Remove this section when replaced */}
       {selectedPosition && managementMode && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 border border-gray-700 rounded-2xl max-w-lg w-full shadow-2xl">

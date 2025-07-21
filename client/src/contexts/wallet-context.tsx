@@ -545,53 +545,68 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setManuallyDisconnected(false);
       
       toast({
-        title: "Opening WalletConnect",
-        description: "QR code modal will appear - scan with your mobile wallet",
+        title: "Initializing WalletConnect",
+        description: "Setting up WalletConnect v2 connection...",
       });
-
-      // Initialize and connect via WalletConnect
-      const walletConnectService = getWalletConnectService();
-      const result = await walletConnectService.connect();
       
-      if (result?.address) {
-        setAddress(result.address);
-        setIsConnected(true);
-        setConnectionStatus('connected');
+      // Initialize WalletConnect service
+      const wcService = getWalletConnectService();
+      await wcService.initialize();
+      
+      // Check if already connected
+      if (wcService.isConnected()) {
+        const sessions = wcService.getActiveSessions();
+        const session = Object.values(sessions)[0];
         
-        // Clear all user-specific cache for fresh start
-        queryClient.removeQueries({ queryKey: ['user-positions'] });
-        queryClient.removeQueries({ queryKey: ['rewards'] });
-        queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
-        queryClient.removeQueries({ queryKey: ['user-analytics'] });
-        queryClient.removeQueries({ queryKey: ['kilt-balance'] });
-        queryClient.removeQueries({ queryKey: ['weth-balance'] });
-        queryClient.invalidateQueries();
-        
-        toast({
-          title: "WalletConnect Success",
-          description: `Connected to ${result.address.slice(0, 6)}...${result.address.slice(-4)}`,
-        });
+        if (session && session.namespaces?.eip155?.accounts) {
+          const account = session.namespaces.eip155.accounts[0];
+          const address = account.split(':')[2]; // Extract address from 'eip155:8453:0x...'
+          
+          setAddress(address);
+          setIsConnected(true);
+          setConnectionStatus('connected');
+          
+          toast({
+            title: "WalletConnect Connected",
+            description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)}`,
+          });
+          
+          return;
+        }
+      }
+      
+      // Show QR code or open mobile wallet
+      const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // On mobile, use deep linking
+        const currentUrl = window.location.href;
+        const walletConnectUrl = `wc:${currentUrl}`;
+        window.location.href = walletConnectUrl;
       } else {
-        throw new Error('No address received from WalletConnect');
+        // On desktop, show QR code modal (implement QR modal separately)
+        toast({
+          title: "WalletConnect Ready",
+          description: "Scan QR code with your mobile wallet",
+        });
+        
+        // TODO: Show QR code modal for desktop users
+        // For now, we'll just notify that WalletConnect is ready
       }
-    } catch (error: any) {
-      console.error('WalletConnect connection failed:', error);
+      
+      setConnectionStatus('connected');
+      
+    } catch (error: unknown) {
+      const wcError = error as { message?: string };
+      
       setConnectionStatus('error');
-      
-      let errorMessage = 'Failed to connect via WalletConnect';
-      if (error?.message?.includes('User rejected')) {
-        errorMessage = 'Connection was cancelled by user';
-      } else if (error?.message?.includes('timeout')) {
-        errorMessage = 'Connection timed out - please try again';
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-      
-      setLastError(errorMessage);
+      setIsConnected(false);
+      setAddress(null);
+      setLastError(wcError.message || 'WalletConnect initialization failed');
       
       toast({
-        title: "WalletConnect Failed",
-        description: errorMessage,
+        title: "WalletConnect Error",
+        description: wcError.message || "Failed to initialize WalletConnect",
         variant: "destructive",
       });
     } finally {

@@ -62,12 +62,6 @@
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   --space-2xl: 3rem;
-
-  /* Cyberpunk Effects */
-  --cyberpunk-pink: hsl(320, 100%, 60%);
-  --cyberpunk-cyan: hsl(180, 100%, 60%);
-  --cyberpunk-violet: hsl(270, 100%, 70%);
-  --cyberpunk-neon-glow: 0 0 10px var(--cyberpunk-pink), 0 0 20px var(--cyberpunk-pink), 0 0 30px var(--cyberpunk-pink);
 }
 
 /* Enhanced Base Layer with Better Defaults */
@@ -81,74 +75,6 @@
   outline: 2px solid var(--accent-pink);
   outline-offset: 2px;
   transition: outline var(--transition-fast);
-}
-
-/* Cyberpunk Modal Animations */
-.cyberpunk-modal {
-  animation: cyberpunk-modal-enter 0.3s ease-out;
-  background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,0,40,0.95) 100%);
-}
-
-@keyframes cyberpunk-modal-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.cyberpunk-glow:hover {
-  box-shadow: 0 0 15px rgba(255, 20, 147, 0.3), 0 0 25px rgba(255, 20, 147, 0.2);
-  transform: translateY(-1px);
-}
-
-/* Wallet State Management Animations */
-.wallet-connecting {
-  animation: pulse-cyberpunk 2s infinite;
-}
-
-@keyframes pulse-cyberpunk {
-  0%, 100% { 
-    box-shadow: 0 0 5px rgba(255, 20, 147, 0.5); 
-  }
-  50% { 
-    box-shadow: 0 0 20px rgba(255, 20, 147, 0.8), 0 0 30px rgba(0, 255, 255, 0.4); 
-  }
-}
-
-.wallet-connected {
-  animation: connected-glow 0.5s ease-out;
-}
-
-@keyframes connected-glow {
-  0% { 
-    box-shadow: 0 0 0px rgba(0, 255, 127, 0); 
-  }
-  50% { 
-    box-shadow: 0 0 25px rgba(0, 255, 127, 0.8); 
-  }
-  100% { 
-    box-shadow: 0 0 10px rgba(0, 255, 127, 0.4); 
-  }
-}
-
-/* Enhanced wallet state indicators */
-.wallet-status-online {
-  animation: online-pulse 2s infinite;
-}
-
-@keyframes online-pulse {
-  0%, 100% { 
-    background-color: rgba(34, 197, 94, 0.2);
-    border-color: rgba(34, 197, 94, 0.3);
-  }
-  50% { 
-    background-color: rgba(34, 197, 94, 0.3);
-    border-color: rgba(34, 197, 94, 0.5);
-  }
 }
 
 body {

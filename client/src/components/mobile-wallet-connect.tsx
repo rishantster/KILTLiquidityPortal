@@ -187,7 +187,7 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-md rounded-2xl overflow-hidden relative">
+        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-md rounded-2xl overflow-hidden relative mt-[-734px] mb-[-734px]">
           {/* Cyberpunk background grid effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-purple-500/5 pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.03),transparent_70%)] pointer-events-none" />

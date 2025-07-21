@@ -105,6 +105,16 @@ export function WagmiWalletConnect() {
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-white/10" />
               <DropdownMenuItem 
+                onClick={() => {
+                  disconnect();
+                  setShowModal(true);
+                }}
+                className="hover:bg-blue-500/20 focus:bg-blue-500/20 hover:text-blue-400 focus:text-blue-400 cursor-pointer"
+              >
+                <RefreshCw className="mr-2 h-3 w-3" />
+                Switch Wallet
+              </DropdownMenuItem>
+              <DropdownMenuItem 
                 onClick={() => disconnect()}
                 className="hover:bg-red-500/20 focus:bg-red-500/20 hover:text-red-400 focus:text-red-400 cursor-pointer"
               >

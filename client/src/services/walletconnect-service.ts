@@ -13,8 +13,8 @@ export interface WalletConnectServiceConfig {
 }
 
 export class WalletConnectService {
-  private web3wallet: Web3Wallet | null = null;
-  private core: Core | null = null;
+  private web3wallet: InstanceType<typeof Web3Wallet> | null = null;
+  private core: InstanceType<typeof Core> | null = null;
   private isInitialized = false;
   private config: WalletConnectServiceConfig;
 
@@ -151,7 +151,7 @@ export class WalletConnectService {
     });
 
     // Session delete listener
-    this.web3wallet.on('session_delete', (event) => {
+    this.web3wallet.on('session_delete', (event: any) => {
       console.log('Session deleted:', event);
     });
   }

@@ -98,36 +98,27 @@ export function useUnifiedDashboard() {
     enabled: !!address && isConnected
   });
 
-  // Get maximum APR data for realistic range - with timeout protection
+  // Get maximum APR data for realistic range - simplified without timeout
   const { data: maxAPRData } = useQuery({
     queryKey: ['maxAPR'],
     queryFn: async () => {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-
-        const response = await fetch('/api/rewards/maximum-apr', {
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
+        const response = await fetch('/api/rewards/maximum-apr');
         if (!response.ok) {
           throw new Error('Failed to fetch APR data');
         }
         return response.json();
       } catch (error) {
-        if (error.name === 'AbortError') {
-          throw new Error('APR calculation timeout - using cached data');
-        }
+        console.error('APR calculation error:', error);
         throw new Error('APR calculation failed - admin configuration required');
       }
     },
-    refetchInterval: 60000, // Slower refresh - 60 seconds (due to slow endpoint)
-    staleTime: 30000, // Consider data stale after 30 seconds
+    refetchInterval: 120000, // Very slow refresh - 2 minutes (due to slow endpoint)
+    staleTime: 60000, // Consider data stale after 1 minute
     refetchOnWindowFocus: false, // Disable focus refetch (too slow)
     refetchOnMount: true, // Always refetch on component mount
     retry: 1, // Only retry once (avoid multiple slow requests)
-    retryDelay: 2000 // 2 seconds between retries
+    retryDelay: 5000 // 5 seconds between retries
   });
 
   // Get program analytics with proper error handling - should work for all users

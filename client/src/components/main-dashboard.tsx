@@ -38,6 +38,7 @@ import { useQuery } from '@tanstack/react-query';
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
 import { WalletConnectButton } from './wallet/wallet-connect-button';
+import { NetworkSwitchBanner } from './network-switch-banner';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -103,7 +104,7 @@ function FormulaProgramAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected } = useWalletWagmi();
+  const { address, isConnected, isCorrectNetwork } = useWalletWagmi();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
@@ -247,6 +248,7 @@ export function MainDashboard() {
   if (!isConnected) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
+        <NetworkSwitchBanner />
         {/* Background Video */}
         <div className="absolute inset-0" style={{ zIndex: 1 }}>
           <video 
@@ -308,7 +310,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <Web3ModalConnect />
+                <WalletConnectButton />
               </div>
             </div>
 
@@ -420,8 +422,10 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden relative">
-      {/* Background Video - Testing higher z-index */}
+    <div className="min-h-screen bg-black">
+      <NetworkSwitchBanner />
+      <div className={`min-h-screen text-white overflow-x-hidden relative ${!isCorrectNetwork ? 'pt-20' : ''}`}>
+        {/* Background Video - Testing higher z-index */}
       <video 
         autoPlay 
         muted 
@@ -860,8 +864,7 @@ export function MainDashboard() {
 
         </Tabs>
       </div>
-
-      
+      </div>
     </div>
   );
 }

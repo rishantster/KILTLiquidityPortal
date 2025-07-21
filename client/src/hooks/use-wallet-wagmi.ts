@@ -1,4 +1,4 @@
-import { useAccount, useConnect, useDisconnect, useBalance, useChainId, useConnectors } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useBalance, useChainId, useConnectors, useSwitchChain } from 'wagmi'
 import { base } from 'wagmi/chains'
 import { useMemo, useState } from 'react'
 
@@ -6,6 +6,7 @@ export function useWalletWagmi() {
   const { address, isConnected, isConnecting, isDisconnected, connector, status } = useAccount()
   const { disconnect } = useDisconnect()
   const { connect } = useConnect()
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
   const connectors = useConnectors()
   const chainId = useChainId()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -36,7 +37,8 @@ export function useWalletWagmi() {
       // Network state
       chainId,
       isCorrectNetwork: chainId === base.id,
-      networkName: chainId === base.id ? 'Base' : 'Unknown',
+      networkName: chainId === base.id ? 'Base' : (chainId === 1 ? 'Ethereum' : `Chain ${chainId}`),
+      isSwitchingChain,
       
       // Balance state
       kiltBalance: kiltBalance?.value || 0n,
@@ -71,6 +73,12 @@ export function useWalletWagmi() {
         setIsModalOpen(false)
       },
       
+      switchToBase: () => {
+        if (switchChain) {
+          switchChain({ chainId: base.id })
+        }
+      },
+      
       openConnectModal: () => setIsModalOpen(true),
       closeModal: () => setIsModalOpen(false),
       
@@ -79,12 +87,12 @@ export function useWalletWagmi() {
       hasEthBalance: ethBalance ? ethBalance.value > 0n : false,
       
       // Loading states
-      isLoading: isConnecting || kiltLoading || ethLoading,
+      isLoading: isConnecting || kiltLoading || ethLoading || isSwitchingChain,
     }
   }, [
     address, isConnected, isConnecting, isDisconnected, status, connector,
-    chainId, kiltBalance, ethBalance, kiltLoading, ethLoading,
-    connectors, connect, disconnect, isModalOpen
+    chainId, kiltBalance, ethBalance, kiltLoading, ethLoading, isSwitchingChain,
+    connectors, connect, disconnect, switchChain, isModalOpen
   ])
 
   return walletState

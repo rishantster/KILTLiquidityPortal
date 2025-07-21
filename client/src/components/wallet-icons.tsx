@@ -5,185 +5,144 @@ interface IconProps {
   className?: string;
 }
 
-// MetaMask - Official Fox Logo (based on cryptologos.cc)
+// MetaMask - Official Fox Logo
 export function MetaMaskIcon({ className }: IconProps) {
   return (
-    <div className={`${className} flex items-center justify-center`}>
-      <img 
-        src="https://cryptologos.cc/logos/metamask-mask-logo.png" 
-        alt="MetaMask"
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          // Fallback SVG if external image fails
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.nextElementSibling.style.display = 'block';
-        }}
-      />
-      <svg 
-        className="w-full h-full hidden" 
-        viewBox="0 0 64 64" 
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect width="64" height="64" rx="12" fill="#F6851B"/>
-        <path d="M50.5 16L32 28L35.5 20.5L50.5 16Z" fill="#E2761B"/>
-        <path d="M13.5 16L31.5 28.2L28 20.5L13.5 16Z" fill="#E4761B"/>
-        <path d="M43 40L38.5 47.5L49.5 50.5L52.5 40L43 40Z" fill="#E4761B"/>
-        <path d="M11.5 40L14.5 50.5L25.5 47.5L21 40L11.5 40Z" fill="#E4761B"/>
-        <path d="M25 32L22 36.5L32.5 37L32 29L25 32Z" fill="#E4761B"/>
-        <path d="M39 32L32 29L32.5 37L42 36.5L39 32Z" fill="#E4761B"/>
-        <path d="M25.5 47.5L30.5 45L26 40.5L25.5 47.5Z" fill="#D7C1B3"/>
-        <path d="M33.5 45L38.5 47.5L38 40.5L33.5 45Z" fill="#D7C1B3"/>
-      </svg>
-    </div>
+    <svg 
+      className={className}
+      viewBox="0 0 40 40" 
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <rect width="40" height="40" rx="8" fill="#F6851B"/>
+      <path d="M32.5 8L20 16.5L22.5 11.5L32.5 8Z" fill="#E2761B"/>
+      <path d="M7.5 8L19.5 16.7L17 11.5L7.5 8Z" fill="#E4761B"/>
+      <path d="M27.5 26L24.5 30.5L31.5 32.5L33.5 26L27.5 26Z" fill="#E4761B"/>
+      <path d="M6.5 26L8.5 32.5L15.5 30.5L12.5 26L6.5 26Z" fill="#E4761B"/>
+      <path d="M15 20L13 23.5L20.5 24L20 18L15 20Z" fill="#E4761B"/>
+      <path d="M25 20L20 18L20.5 24L27 23.5L25 20Z" fill="#E4761B"/>
+      <path d="M15.5 30.5L18.5 29L15.5 26.5L15.5 30.5Z" fill="#D7C1B3"/>
+      <path d="M21.5 29L24.5 30.5L24.5 26.5L21.5 29Z" fill="#D7C1B3"/>
+      <path d="M24.5 30.5L21.5 29L21.5 31L24.5 32.5L24.5 30.5Z" fill="#233447"/>
+      <path d="M15.5 30.5L15.5 32.5L18.5 31L18.5 29L15.5 30.5Z" fill="#233447"/>
+    </svg>
   );
 }
 
 // Trust Wallet - Official Shield Logo
 export function TrustWalletIcon({ className }: IconProps) {
   return (
-    <div className={`${className} flex items-center justify-center`}>
-      <img 
-        src="https://cryptologos.cc/logos/trust-wallet-token-twt-logo.png" 
-        alt="Trust Wallet"
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.nextElementSibling.style.display = 'block';
-        }}
-      />
-      <svg className="w-full h-full hidden" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="12" fill="#3375BB"/>
-        <path d="M32 8L48 16V28C48 42 32 54 32 54S16 42 16 28V16L32 8Z" fill="white"/>
-        <path d="M32 12L44 18V28C44 38 32 48 32 48S20 38 20 28V18L32 12Z" fill="#3375BB"/>
-        <path d="M28 26L30 28L36 22" stroke="white" strokeWidth="2" fill="none"/>
-      </svg>
-    </div>
+    <svg 
+      className={className}
+      viewBox="0 0 40 40" 
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <rect width="40" height="40" rx="8" fill="#0B65C6"/>
+      <path d="M20 6L30 10V18C30 26 20 32 20 32S10 26 10 18V10L20 6Z" fill="white"/>
+      <path d="M20 8L28 11V18C28 24 20 29 20 29S12 24 12 18V11L20 8Z" fill="#0B65C6"/>
+      <path d="M17.5 17L19 18.5L23 14.5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
   );
 }
 
 // Coinbase Wallet - Official Blue Logo
 export function CoinbaseIcon({ className }: IconProps) {
   return (
-    <div className={`${className} flex items-center justify-center`}>
-      <img 
-        src="https://cryptologos.cc/logos/coinbase-coin-logo.png" 
-        alt="Coinbase Wallet"
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.nextElementSibling.style.display = 'block';
-        }}
-      />
-      <svg className="w-full h-full hidden" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="12" fill="#0052FF"/>
-        <circle cx="32" cy="32" r="18" fill="white"/>
-        <rect x="26" y="26" width="12" height="12" rx="2" fill="#0052FF"/>
-      </svg>
-    </div>
+    <svg 
+      className={className}
+      viewBox="0 0 40 40" 
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <rect width="40" height="40" rx="8" fill="#0052FF"/>
+      <circle cx="20" cy="20" r="12" fill="white"/>
+      <rect x="16" y="16" width="8" height="8" rx="1.5" fill="#0052FF"/>
+    </svg>
   );
 }
 
-// Rainbow Wallet - Official Colorful Logo
+// Rainbow Wallet - Official Colorful Logo  
 export function RainbowIcon({ className }: IconProps) {
   return (
-    <div className={`${className} flex items-center justify-center`}>
-      <img 
-        src="https://cryptologos.cc/logos/rainbow-token-rbt-logo.png" 
-        alt="Rainbow"
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.nextElementSibling.style.display = 'block';
-        }}
-      />
-      <svg className="w-full h-full hidden" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="12" fill="#1A1B23"/>
-        <defs>
-          <linearGradient id="rainbow1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#FF4081"/>
-            <stop offset="33%" stopColor="#9C27B0"/>
-            <stop offset="67%" stopColor="#3F51B5"/>
-            <stop offset="100%" stopColor="#2196F3"/>
-          </linearGradient>
-        </defs>
-        <path d="M32 44C42 44 50 36 50 26H46C46 34 40 40 32 40S18 34 18 26H14C14 36 22 44 32 44Z" fill="url(#rainbow1)"/>
-        <path d="M32 36C38 36 42 32 42 26H38C38 30 35 34 32 34S26 30 26 26H22C22 32 26 36 32 36Z" fill="#FFC107"/>
-      </svg>
-    </div>
+    <svg 
+      className={className}
+      viewBox="0 0 40 40" 
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <rect width="40" height="40" rx="8" fill="#1A1B23"/>
+      <defs>
+        <linearGradient id="rainbow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#FF4081"/>
+          <stop offset="25%" stopColor="#9C27B0"/>
+          <stop offset="50%" stopColor="#3F51B5"/>
+          <stop offset="75%" stopColor="#2196F3"/>
+          <stop offset="100%" stopColor="#00BCD4"/>
+        </linearGradient>
+      </defs>
+      <path d="M20 28C26 28 31 23 31 17H29C29 22 25 26 20 26S11 22 11 17H9C9 23 14 28 20 28Z" fill="url(#rainbow-grad)"/>
+      <path d="M20 24C24 24 27 21 27 17H25C25 20 23 22 20 22S15 20 15 17H13C13 21 16 24 20 24Z" fill="#FFD700"/>
+      <path d="M20 20C22 20 23 19 23 17H21C21 18 21 18 20 18S19 18 19 17H17C17 19 18 20 20 20Z" fill="#FF6B35"/>
+    </svg>
   );
 }
 
 // Phantom Wallet - Official Purple Logo
 export function PhantomIcon({ className }: IconProps) {
   return (
-    <div className={`${className} flex items-center justify-center`}>
-      <img 
-        src="https://cryptologos.cc/logos/phantom-ftm-logo.png" 
-        alt="Phantom"
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.nextElementSibling.style.display = 'block';
-        }}
-      />
-      <svg className="w-full h-full hidden" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="12" fill="#AB9FF2"/>
-        <path d="M32 8C44 8 48 20 48 26C48 38 32 48 32 48C32 48 16 38 16 26C16 20 20 8 32 8Z" fill="white"/>
-        <circle cx="26" cy="24" r="2" fill="#AB9FF2"/>
-        <circle cx="38" cy="24" r="2" fill="#AB9FF2"/>
-        <path d="M20 36C20 32 24 28 32 28C40 28 44 32 44 36C44 44 32 50 32 50C32 50 20 44 20 36Z" fill="white"/>
-      </svg>
-    </div>
+    <svg 
+      className={className}
+      viewBox="0 0 40 40" 
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <rect width="40" height="40" rx="8" fill="#AB9FF2"/>
+      <path d="M20 6C28 6 30 13 30 17C30 25 20 32 20 32C20 32 10 25 10 17C10 13 12 6 20 6Z" fill="white"/>
+      <circle cx="16" cy="15" r="1.5" fill="#AB9FF2"/>
+      <circle cx="24" cy="15" r="1.5" fill="#AB9FF2"/>
+      <path d="M13 22C13 20 15 18 20 18C25 18 27 20 27 22C27 27 20 32 20 32C20 32 13 27 13 22Z" fill="white"/>
+      <path d="M15 24C15 24 17 26 20 26C23 26 25 24 25 24" stroke="#AB9FF2" strokeWidth="1" fill="none" strokeLinecap="round"/>
+    </svg>
   );
 }
 
 // Binance Wallet - Official Gold Logo
 export function BinanceIcon({ className }: IconProps) {
   return (
-    <div className={`${className} flex items-center justify-center`}>
-      <img 
-        src="https://cryptologos.cc/logos/bnb-bnb-logo.png" 
-        alt="Binance Wallet"
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.nextElementSibling.style.display = 'block';
-        }}
-      />
-      <svg className="w-full h-full hidden" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="12" fill="#F0B90B"/>
-        <g fill="white">
-          <path d="M24 20L32 12L40 20L36 24L32 20L28 24Z"/>
-          <path d="M16 28L20 24L24 28L20 32Z"/>
-          <path d="M44 28L48 24L44 20L40 24Z"/>
-          <path d="M24 36L32 44L40 36L36 32L32 36L28 32Z"/>
-        </g>
-      </svg>
-    </div>
+    <svg 
+      className={className}
+      viewBox="0 0 40 40" 
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <rect width="40" height="40" rx="8" fill="#F0B90B"/>
+      <g fill="white">
+        <polygon points="15,13 20,8 25,13 23,15 20,12 17,15"/>
+        <polygon points="10,18 12,16 15,18 12,21"/>
+        <polygon points="28,18 30,16 28,13 25,16"/>
+        <polygon points="15,23 20,28 25,23 23,21 20,24 17,21"/>
+        <polygon points="20,15 22,17 20,19 18,17"/>
+      </g>
+    </svg>
   );
 }
 
 // WalletConnect - Official Blue Logo
 export function WalletConnectIcon({ className }: IconProps) {
   return (
-    <div className={`${className} flex items-center justify-center`}>
-      <img 
-        src="https://cryptologos.cc/logos/walletconnect-wct-logo.png" 
-        alt="WalletConnect"
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.nextElementSibling.style.display = 'block';
-        }}
-      />
-      <svg className="w-full h-full hidden" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="12" fill="#3B99FC"/>
-        <path d="M20 26C26 20 38 20 44 26L42 28C37 23 27 23 22 28L20 26Z" fill="white"/>
-        <circle cx="24" cy="36" r="2" fill="white"/>
-        <circle cx="32" cy="36" r="2" fill="white"/>
-        <circle cx="40" cy="36" r="2" fill="white"/>
-        <path d="M16 42C28 30 36 30 48 42" stroke="white" strokeWidth="2" fill="none"/>
-      </svg>
-    </div>
+    <svg 
+      className={className}
+      viewBox="0 0 40 40" 
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <rect width="40" height="40" rx="8" fill="#3B99FC"/>
+      <path d="M13 17C17 13 23 13 27 17L26 18C23 15 17 15 14 18L13 17Z" fill="white"/>
+      <circle cx="15" cy="24" r="1.5" fill="white"/>
+      <circle cx="20" cy="24" r="1.5" fill="white"/>
+      <circle cx="25" cy="24" r="1.5" fill="white"/>
+      <path d="M10 28C18 20 22 20 30 28" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+    </svg>
   );
 }

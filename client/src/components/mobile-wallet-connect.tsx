@@ -187,91 +187,60 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-sm w-[90vw] sm:max-w-md rounded-2xl overflow-hidden relative p-4 sm:p-6">
-          {/* Cyberpunk background grid effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-purple-500/5 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.03),transparent_70%)] pointer-events-none" />
-          
-          <DialogHeader className="relative z-10">
-            <DialogTitle className="text-white text-xl sm:text-2xl font-bold flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 drop-shadow-lg">
-              <div className="relative">
-                <Wallet className="h-6 w-6 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" />
-                <div className="absolute inset-0 h-6 w-6 bg-pink-500/20 blur-sm rounded-full" />
-              </div>
-              <span className="bg-gradient-to-r from-white to-pink-200 bg-clip-text text-transparent">
-                Connect Your Wallet
-              </span>
+        <DialogContent className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 max-w-md w-[90vw] sm:max-w-md rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white text-xl font-semibold flex items-center gap-3 mb-4">
+              <Wallet className="h-5 w-5" />
+              Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
           
           {/* Mobile Section */}
           {isMobile ? (
-            <div className="space-y-3 sm:space-y-4 relative z-10">
-              <div className="flex items-center gap-2 sm:gap-3 text-gray-400 mb-3 sm:mb-6">
-                <div className="relative">
-                  <Smartphone className="h-4 w-4 drop-shadow-[0_0_4px_rgba(236,72,153,0.6)]" />
-                  <div className="absolute inset-0 h-4 w-4 bg-pink-500/10 blur-sm rounded-full" />
-                </div>
-                <span className="text-sm font-medium tracking-wider uppercase">Available Wallets</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-4">
+                <Smartphone className="h-4 w-4" />
+                <span className="text-sm">Available Wallets</span>
               </div>
               
-              {getRecommendedWallets().map((wallet, index) => (
+              {getRecommendedWallets().map((wallet) => (
                 <Button
                   key={wallet.id}
                   onClick={() => handleMobileWalletConnect(wallet)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-12 sm:h-16 text-base sm:text-lg font-bold justify-start px-4 sm:px-6 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors"
                 >
-                  {/* Animated background glow */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-600/0 via-pink-400/20 to-pink-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  
-                  <div className="flex items-center gap-4 w-full relative z-10">
-                    <div className="relative">
-                      <Wallet className="h-5 w-5 drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]" />
-                      <div className="absolute inset-0 h-5 w-5 bg-white/20 blur-sm rounded-full" />
-                    </div>
-                    <span className="font-bold tracking-wide">{wallet.name}</span>
+                  <div className="flex items-center gap-3 w-full">
+                    <Wallet className="h-4 w-4" />
+                    <span>{wallet.name}</span>
                   </div>
                 </Button>
               ))}
-
-
             </div>
           ) : (
             // Desktop Section
-            <div className="space-y-3 sm:space-y-4 relative z-10">
-              <div className="flex items-center gap-2 sm:gap-3 text-gray-400 mb-3 sm:mb-6">
-                <div className="relative">
-                  <Monitor className="h-4 w-4 drop-shadow-[0_0_4px_rgba(236,72,153,0.6)]" />
-                  <div className="absolute inset-0 h-4 w-4 bg-pink-500/10 blur-sm rounded-full" />
-                </div>
-                <span className="text-sm font-medium tracking-wider uppercase">Available Wallets</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-4">
+                <Monitor className="h-4 w-4" />
+                <span className="text-sm">Available Wallets</span>
               </div>
               
-              {connectors.map((connector, index) => (
+              {connectors.map((connector) => (
                 <Button
                   key={connector.id}
                   onClick={() => handleDesktopConnect(connector)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-12 sm:h-16 text-base sm:text-lg font-bold justify-start px-4 sm:px-6 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors"
                 >
-                  {/* Animated background glow */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-600/0 via-pink-400/20 to-pink-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  
                   {isPending ? (
                     <>
-                      <Loader2 className="mr-4 h-5 w-5 animate-spin drop-shadow-[0_0_4px_rgba(255,255,255,0.8)] relative z-10" />
-                      <span className="tracking-wide relative z-10">Connecting...</span>
+                      <Loader2 className="mr-3 h-4 w-4 animate-spin" />
+                      Connecting...
                     </>
                   ) : (
                     <>
-                      <div className="relative mr-4 z-10">
-                        <Wallet className="h-5 w-5 drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]" />
-                        <div className="absolute inset-0 h-5 w-5 bg-white/20 blur-sm rounded-full" />
-                      </div>
-                      <span className="tracking-wide font-bold relative z-10">{connector.name}</span>
+                      <Wallet className="mr-3 h-4 w-4" />
+                      {connector.name}
                     </>
                   )}
                 </Button>
@@ -285,17 +254,9 @@ export function MobileWalletConnect() {
             </div>
           )}
 
-          <div className="text-xs sm:text-sm text-gray-400 text-center mt-4 sm:mt-8 relative z-10 font-medium tracking-wide">
-            <span className="bg-gradient-to-r from-gray-400 to-gray-300 bg-clip-text text-transparent">
-              By connecting, you agree to the Terms of Service and Privacy Policy
-            </span>
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6">
+            By connecting, you agree to the Terms of Service and Privacy Policy
           </div>
-          
-          {/* Cyberpunk corner accents */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-pink-500/50" />
-          <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-pink-500/50" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-pink-500/50" />
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-pink-500/50" />
         </DialogContent>
       </Dialog>
     </>

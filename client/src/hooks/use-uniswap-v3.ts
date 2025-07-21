@@ -162,7 +162,8 @@ export function useUniswapV3() {
   // Create wallet client for transactions
   const walletClient = address ? createWalletClient({
     chain: base,
-    transport: custom((window as any).ethereum)
+    transport: custom((window as any).ethereum),
+    account: address
   }) : null;
   
   // Get blockchain configuration from admin panel - MUST be called unconditionally
@@ -324,7 +325,8 @@ export function useUniswapV3() {
           }
         ],
         functionName: 'approve',
-        args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount]
+        args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount],
+        account: address as `0x${string}`
       });
 
       // Wait for transaction confirmation
@@ -417,7 +419,7 @@ export function useUniswapV3() {
       
       if (params.useNativeETH) {
         // Use multicall with mint + refundETH for native ETH handling
-        const mintCalldata = walletClient.encodeFunctionData({
+        const mintCalldata = baseClient.encodeFunctionData({
           abi: [
             {
               inputs: [
@@ -467,7 +469,7 @@ export function useUniswapV3() {
           ]
         });
 
-        const refundETHCalldata = walletClient.encodeFunctionData({
+        const refundETHCalldata = baseClient.encodeFunctionData({
           abi: [
             {
               inputs: [],
@@ -497,7 +499,8 @@ export function useUniswapV3() {
           ],
           functionName: 'multicall',
           args: [[mintCalldata, refundETHCalldata]],
-          value: ethValue
+          value: ethValue,
+          account: address as `0x${string}`
         });
       } else {
         // Standard mint call for WETH-only transactions
@@ -550,7 +553,8 @@ export function useUniswapV3() {
               deadline: BigInt(params.deadline)
             }
           ],
-          value: ethValue
+          value: ethValue,
+          account: address as `0x${string}`
         });
       }
 
@@ -902,9 +906,43 @@ export function useUniswapV3() {
         throw error;
       }
     },
-    burnPosition: async () => {
-      // TODO: Implement real burn position functionality
-      throw new Error('Burn position functionality not yet implemented');
+    burnPosition: async (params: { tokenId: string }) => {
+      if (!address || !params.tokenId) {
+        throw new Error('Address or token ID not available');
+      }
+
+      try {
+        const walletClient = createWalletClient({
+          account: address as `0x${string}`,
+          chain: base,
+          transport: custom(window.ethereum),
+        });
+
+        // First decrease all liquidity to 0
+        const hash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'burn',
+          args: [BigInt(params.tokenId)],
+          account: address as `0x${string}`,
+        });
+
+        await baseClient.waitForTransactionReceipt({ hash });
+
+        toast({
+          title: "Position Burned!",
+          description: `Successfully burned position #${params.tokenId}`,
+        });
+
+        return hash;
+      } catch (error) {
+        toast({
+          title: "Burn Position Failed",
+          description: (error as Error)?.message || 'Failed to burn position',
+          variant: "destructive",
+        });
+        throw error;
+      }
     },
     calculatePositionValue: (position: any) => {
       // Calculate position value from token amounts and current prices

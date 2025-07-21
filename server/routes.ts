@@ -897,6 +897,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Get basic analytics that don't require blockchain integration
       const analytics = await fixedRewardService.getProgramAnalytics();
       
+      // Get unified APR calculation for consistent display
+      const { unifiedAPRService } = await import('./unified-apr-service.js');
+      const unifiedAPR = await unifiedAPRService.getUnifiedAPRCalculation();
+      
       // Get treasury configuration
       const { treasuryConfig } = await import('../shared/schema');
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
@@ -905,7 +909,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const programEndDate = treasuryConf?.programEndDate ? new Date(treasuryConf.programEndDate) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
       const daysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
       
-      // Create simplified analytics response
+      // Create simplified analytics response with UNIFIED APR VALUES
       const unifiedAnalytics = {
         ...analytics,
         // Override with admin-configured values (camelCase from database)
@@ -917,7 +921,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         programEndDate: treasuryConf?.programEndDate || analytics.programEndDate,
         isActive: treasuryConf?.isActive !== undefined ? treasuryConf.isActive : analytics.isActive,
         // Calculate treasuryRemaining from admin configuration
-        treasuryRemaining: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analytics.totalDistributed || 0) : analytics.treasuryRemaining
+        treasuryRemaining: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analytics.totalDistributed || 0) : analytics.treasuryRemaining,
+        // USE UNIFIED APR VALUES for consistent display across app
+        averageAPR: unifiedAPR.maxAPR, // Use same APR value throughout app
+        estimatedAPR: {
+          low: unifiedAPR.minAPR,
+          average: unifiedAPR.maxAPR,
+          high: unifiedAPR.maxAPR
+        }
       };
       
       res.json(unifiedAnalytics);
@@ -935,15 +946,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
       const cacheKey = 'maximum-apr-calculation';
-      // Direct calculation without QueryOptimizer
-      const cachedResult = await fixedRewardService.calculateMaximumTheoreticalAPR();
+      // Use UNIFIED APR SERVICE as single source of truth
+      const { unifiedAPRService } = await import('./unified-apr-service.js');
+      const unifiedResult = await unifiedAPRService.getUnifiedAPRCalculation();
       
-      res.setHeader('X-Optimized', 'blazing-cache');
+      res.setHeader('X-Unified-Source', 'true');
       res.json({
-        maxAPR: cachedResult.maxAPR,
-        minAPR: cachedResult.minAPR,
-        aprRange: cachedResult.aprRange,
-        calculationDetails: cachedResult
+        maxAPR: unifiedResult.maxAPR,
+        minAPR: unifiedResult.minAPR,
+        aprRange: unifiedResult.aprRange,
+        calculationDetails: unifiedResult.calculationDetails
       });
     } catch (error) {
       console.error('Failed to calculate maximum APR:', error);

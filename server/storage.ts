@@ -31,6 +31,7 @@ export interface IStorage {
   // Position registration methods
   getUserPositions(address: string): Promise<any[]>;
   getRegisteredPositions(address: string): Promise<any[]>;
+  getAppTransactionsByUserId(userId: number): Promise<any[]>;
   
   // Reward methods
   getRewardsByUserId(userId: number): Promise<Reward[]>;
@@ -143,6 +144,11 @@ export class MemStorage implements IStorage {
     if (!user) return [];
     
     return Array.from(this.lpPositions.values()).filter(pos => pos.userId === user.id);
+  }
+
+  async getAppTransactionsByUserId(userId: number): Promise<any[]> {
+    // Return empty array for in-memory storage - handled by database
+    return [];
   }
 
   async getRewardsByUserId(userId: number): Promise<Reward[]> {
@@ -337,6 +343,11 @@ export class DatabaseStorage implements IStorage {
       }).returning();
       return result[0];
     }
+  }
+
+  async getAppTransactionsByUserId(userId: number): Promise<any[]> {
+    const { appTransactions } = await import('@shared/schema');
+    return await db.select().from(appTransactions).where(eq(appTransactions.userId, userId));
   }
 }
 

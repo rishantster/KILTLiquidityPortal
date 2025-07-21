@@ -38,11 +38,24 @@ export function registerUniswapOptimizedRoutes(app: Express) {
             return token0Lower === kiltAddressLower || token1Lower === kiltAddressLower;
           });
         },
-        // Fetch registered positions
+        // Fetch registered positions AND app-created positions
         async () => {
           const user = await storage.getUserByAddress(userAddress);
           if (!user) return [];
-          return await storage.getLpPositionsByUserId(user.id);
+          
+          // Get both registered positions and app-created transactions
+          const [registeredPositions, appTransactions] = await Promise.all([
+            storage.getLpPositionsByUserId(user.id),
+            storage.getAppTransactionsByUserId(user.id)
+          ]);
+          
+          // Combine registered positions with app-created NFT IDs
+          const allExcludedIds = new Set([
+            ...registeredPositions.map(p => p.nftTokenId),
+            ...appTransactions.filter(tx => tx.nftTokenId).map(tx => tx.nftTokenId)
+          ]);
+          
+          return Array.from(allExcludedIds).map(nftId => ({ nftTokenId: nftId }));
         }
       );
 

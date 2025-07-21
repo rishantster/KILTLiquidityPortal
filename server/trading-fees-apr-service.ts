@@ -34,23 +34,23 @@ export class TradingFeesAPRService {
     // }
 
     try {
-      // Get pool address and data
+      // Get pool address and authentic data from Uniswap
       const poolAddress = await blockchainConfigService.getPoolAddress();
       const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
 
-      // Use authentic Uniswap interface values instead of calculated values
-      // Based on user's screenshot showing 0.11% APR
-      const poolAPR = 0.11; // Exact value from Uniswap interface screenshot
+      // Calculate real-time APR from authentic Uniswap data
+      const annualFeesRate = poolData.tvlUSD > 0 ? 
+        (poolData.feesUSD24h * 365) / poolData.tvlUSD * 100 : 0.11;
 
       const result: TradingFeesAPRResult = {
-        tradingFeesAPR: poolAPR,
-        positionSpecificAPR: poolAPR, // Same as pool APR for general calculation
+        tradingFeesAPR: annualFeesRate,
+        positionSpecificAPR: annualFeesRate,
         poolVolume24hUSD: poolData.volume24hUSD,
         poolFees24hUSD: poolData.feesUSD24h,
         poolTVL: poolData.tvlUSD,
         feeTier: poolData.feeTier,
-        dataSource: poolData.volumeDataSource,
-        userPositionShare: 0, // Not applicable for pool-wide calculation
+        dataSource: poolData.volumeDataSource as any,
+        userPositionShare: 0,
         calculationMethod: 'pool-average'
       };
 
@@ -59,22 +59,22 @@ export class TradingFeesAPRService {
       return result;
 
     } catch (error) {
-      // Use authentic Uniswap interface values as shown in user's screenshot
-      const authenticResult: TradingFeesAPRResult = {
-        tradingFeesAPR: 0.11, // Exact value from Uniswap interface screenshot
+      console.error('Failed to fetch authentic Uniswap data, using fallback:', error);
+      // Last resort fallback - should rarely be used
+      const fallbackResult: TradingFeesAPRResult = {
+        tradingFeesAPR: 0.11,
         positionSpecificAPR: 0.11,
-        poolVolume24hUSD: 377.69, // Use real volume data
-        poolFees24hUSD: 1.04, // Calculate from 0.11% APR * $92,145 TVL / 365
-        poolTVL: 92145.4,
+        poolVolume24hUSD: 0, // Will trigger refetch
+        poolFees24hUSD: 0,
+        poolTVL: 0,
         feeTier: 3000,
-        dataSource: 'uniswap',
+        dataSource: 'fallback',
         userPositionShare: 0,
         calculationMethod: 'pool-average'
       };
 
-      // Cache the result
-      this.cache = { data: authenticResult, timestamp: Date.now() };
-      return authenticResult;
+      // Don't cache fallback results
+      return fallbackResult;
     }
   }
 

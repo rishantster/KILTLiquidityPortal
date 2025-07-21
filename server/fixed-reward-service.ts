@@ -466,18 +466,15 @@ export class FixedRewardService {
     const timeBoostCoeff = parseFloat(settings.timeBoostCoefficient);
     const fullRangeBonusCoeff = parseFloat(settings.fullRangeBonus);
     
-    // Get REAL pool data from blockchain - NO FALLBACKS ALLOWED
-    const { uniswapIntegrationService } = await import('./uniswap-integration-service');
+    // Use the EXACT same TVL source as program analytics endpoint (pure DexScreener blockchain data)
+    const { dexScreenerService } = await import('./dex-screener-service.js');
+    const poolData = await dexScreenerService.getKILTPoolData();
     
-    // Use the direct pool address for real-time data
-    const KILT_ETH_POOL_ADDRESS = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
-    const poolData = await uniswapIntegrationService.getPoolData(KILT_ETH_POOL_ADDRESS);
-    
-    if (!poolData || !poolData.tvlUSD || poolData.tvlUSD <= 0) {
-      throw new Error('Real-time pool TVL data required for APR calculation - fallback values disabled');
+    if (!poolData || !poolData.liquidity || poolData.liquidity.usd <= 0) {
+      throw new Error('Real blockchain TVL data required - DexScreener API unavailable');
     }
     
-    const currentPoolTVL = poolData.tvlUSD;
+    const currentPoolTVL = poolData.liquidity.usd;
     
     // Landing page APR calculation based on actual pool analysis
     // Query all active positions to determine realistic position size distribution

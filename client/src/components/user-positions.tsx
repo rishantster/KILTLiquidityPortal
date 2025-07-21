@@ -388,29 +388,22 @@ export function UserPositions() {
           )}
         </CardHeader>
         <CardContent className="p-0 w-full">
-          {!allKiltPositions || allKiltPositions.length === 0 ? (
+          {!Array.isArray(allKiltPositions) || allKiltPositions.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">No KILT positions found</p>
               <p className="text-white/40 text-xs">Add liquidity to pools containing KILT token to get started</p>
-              {Array.isArray(allKiltPositions) && allKiltPositions.length > 0 && (
-                <p className="text-white/40 text-xs mt-1">
-                  Found {allKiltPositions.length} KILT position(s) in wallet
-                </p>
-              )}
-              {Array.isArray(nonKiltPositions) && nonKiltPositions.length > 0 && (
-                <p className="text-white/40 text-xs mt-1">
-                  Found {nonKiltPositions.length} non-KILT Uniswap V3 position(s) in wallet
-                </p>
+              {walletPositionsLoading && (
+                <p className="text-white/40 text-xs mt-1">Loading positions...</p>
               )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
               {(Array.isArray(allKiltPositions) ? 
-                (showClosedPositions ? allKiltPositions : allKiltPositions.filter((pos: any) => pos.liquidity > 0n)) : []
+                (showClosedPositions ? allKiltPositions : allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) > 0n)) : []
               ).map((position: any) => {
                 const positionValue = position.currentValueUSD || calculatePositionValue(position);
                 const inRange = position.isInRange; // Use backend-calculated range status
-                const isClosed = position.liquidity === 0n;
+                const isClosed = BigInt(position.liquidity || 0) === 0n;
                 const ethAmount = position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(3) : '0.000';
                 const kiltAmount = position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(0) : '0';
                 const ethFees = position.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(4) : '0.0000';

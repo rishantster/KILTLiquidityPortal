@@ -27,11 +27,11 @@ export class SimplePositionOptimizer {
     console.log(`🔄 Fetching fresh positions for: ${userAddress}`);
     
     try {
-      // Optimized timeout for real-time blockchain calls (8 seconds)
+      // Extended timeout for blockchain calls (20 seconds)
       const positions = await Promise.race([
         fetcher(),
         new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Position fetch timeout')), 8000)
+          setTimeout(() => reject(new Error('Position fetch timeout')), 20000)
         )
       ]);
 
@@ -42,8 +42,8 @@ export class SimplePositionOptimizer {
     } catch (error) {
       console.error(`❌ Real-time position fetch failed for ${userAddress}:`, error);
       
-      // Return empty array on timeout to prevent UI breaking
-      // This ensures we always show current blockchain state
+      // Return empty array on timeout but log the issue
+      console.log(`💡 SUGGESTION: Consider increasing timeout or optimizing blockchain calls`);
       return [];
     }
   }

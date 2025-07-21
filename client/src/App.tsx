@@ -7,6 +7,7 @@ import { WalletProvider } from "@/contexts/wallet-context";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
+import LiquidityTestPage from "@/pages/liquidity-test";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -15,6 +16,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/liquidity" component={LiquidityTestPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -314,6 +314,36 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       });
     };
 
+    // Listen for custom wallet connection events from Web3Modal service
+    const handleWalletConnected = (event: CustomEvent) => {
+      if (!isActive) return;
+      
+      const { address: connectedAddress, wallet } = event.detail;
+      console.log('WALLET CONTEXT: Custom wallet-connected event', { connectedAddress, wallet });
+      
+      if (connectedAddress) {
+        setAddress(connectedAddress);
+        setIsConnected(true);
+        setConnectionStatus('connected');
+        setManuallyDisconnected(false); // Clear manual disconnect flag
+        setLastError(null);
+        
+        // Clear and refresh cache for new connection
+        queryClient.removeQueries({ queryKey: ['user-positions'] });
+        queryClient.removeQueries({ queryKey: ['rewards'] });
+        queryClient.removeQueries({ queryKey: ['unregistered-positions'] });
+        queryClient.removeQueries({ queryKey: ['user-analytics'] });
+        queryClient.removeQueries({ queryKey: ['kilt-balance'] });
+        queryClient.removeQueries({ queryKey: ['weth-balance'] });
+        queryClient.invalidateQueries();
+        
+        toast({
+          title: "Wallet connected",
+          description: `Connected to ${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)}`,
+        });
+      }
+    };
+
     if ((window as any).ethereum) {
       checkConnection();
       
@@ -324,6 +354,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       ethereum.on('chainChanged', handleChainChanged);
       ethereum.on('connect', handleConnect);
       ethereum.on('disconnect', handleDisconnect);
+      
+      // Listen for custom wallet connection events
+      window.addEventListener('wallet-connected', handleWalletConnected as EventListener);
       
       console.log('WALLET CONTEXT: Setting up pure event listener system');
       
@@ -337,6 +370,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           ethereum.removeListener('connect', handleConnect);
           ethereum.removeListener('disconnect', handleDisconnect);
         }
+        
+        // Remove custom event listener
+        window.removeEventListener('wallet-connected', handleWalletConnected as EventListener);
       };
     } else {
       if (isActive) setInitialized(true);

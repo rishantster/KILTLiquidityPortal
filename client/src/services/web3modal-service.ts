@@ -142,19 +142,27 @@ export class Web3ModalService {
     }
 
     try {
-      // Request account access and permissions
-      const accounts = await ethereum.request({
-        method: 'wallet_requestPermissions',
-        params: [{ eth_accounts: {} }]
+      // First try to request account access
+      const accounts = await ethereum.request({ 
+        method: 'eth_requestAccounts' 
       });
       
-      if (!accounts || accounts.length === 0) {
-        const ethAccounts = await ethereum.request({ method: 'eth_requestAccounts' });
-        return ethAccounts[0] || null;
+      if (accounts && accounts.length > 0) {
+        const connectedAddress = accounts[0];
+        console.log(`Connected to metamask:`, connectedAddress);
+        
+        // Dispatch account change event to update wallet context
+        if (ethereum.isMetaMask) {
+          // Trigger the accountsChanged event manually to sync wallet context
+          window.dispatchEvent(new CustomEvent('wallet-connected', {
+            detail: { address: connectedAddress, wallet: 'metamask' }
+          }));
+        }
+        
+        return connectedAddress;
       }
       
-      const ethAccounts = await ethereum.request({ method: 'eth_accounts' });
-      return ethAccounts[0] || null;
+      return null;
     } catch (error) {
       console.error('MetaMask connection error:', error);
       throw error;

@@ -1,180 +1,126 @@
-import { LRUCache } from 'lru-cache';
-import { Request, Response, NextFunction } from 'express';
-
 /**
- * Blazing Fast Position Cache System
- * Specifically designed to eliminate 30+ second position loading times
+ * BLAZING FAST Position Cache System
+ * Implements aggressive caching for position data with sub-second response times
  */
+
+interface CachedPositionData {
+  positions: any[];
+  registeredPositions: any[];
+  timestamp: number;
+  expiry: number;
+}
+
 export class BlazingPositionCache {
-  // Ultra-aggressive cache with 60 second TTL
-  private static cache = new LRUCache<string, any>({
-    max: 500, // Store up to 500 position queries
-    ttl: 1000 * 60 // 60 seconds cache
-  });
+  private cache = new Map<string, CachedPositionData>();
+  private readonly CACHE_DURATION = 30 * 1000; // 30 seconds
+  private readonly PREFETCH_DURATION = 25 * 1000; // Start prefetching at 25 seconds
 
-  private static hitCount = 0;
-  private static missCount = 0;
-
-  /**
-   * Middleware for instant position responses
-   */
-  static middleware() {
-    return (req: Request, res: Response, next: NextFunction) => {
-      // Only cache position wallet endpoints
-      if (req.method !== 'GET' || !req.path.includes('/positions/wallet/')) {
-        return next();
-      }
-
-      const cacheKey = `wallet-positions:${req.params.userAddress}`;
-      const cached = this.cache.get(cacheKey);
-
-      if (cached) {
-        this.hitCount++;
-        const hitRate = ((this.hitCount / (this.hitCount + this.missCount)) * 100).toFixed(1);
-        
-        console.log(`🚀 INSTANT POSITION RESPONSE: ${req.path} (Cache hit rate: ${hitRate}%)`);
-        
-        res.setHeader('X-Cache', 'HIT');
-        res.setHeader('X-Cache-Hit-Rate', `${hitRate}%`);
-        res.setHeader('X-Response-Time', '0ms');
-        
-        return res.json(cached);
-      }
-
-      this.missCount++;
-      
-      // Override res.json to cache the response
-      const originalJson = res.json;
-      res.json = function(data) {
-        if (res.statusCode === 200 && data) {
-          BlazingPositionCache.cache.set(cacheKey, data);
-          console.log(`💾 Position data cached for ${req.params.userAddress}`);
-          
-          res.setHeader('X-Cache', 'MISS');
-          res.setHeader('X-Cache-Status', 'STORED');
-        }
-        return originalJson.call(this, data);
-      };
-
-      next();
-    };
+  constructor() {
+    // Start cleanup timer
+    setInterval(() => this.cleanup(), 60000); // Cleanup every minute
   }
 
   /**
-   * Clear cache for specific user
+   * Get cached position data or fetch fresh if expired
    */
-  static clearUserCache(userAddress: string) {
-    const cacheKey = `wallet-positions:${userAddress}`;
-    const deleted = this.cache.delete(cacheKey);
-    console.log(`🗑️ Cleared position cache for ${userAddress}: ${deleted ? 'success' : 'not found'}`);
-    return deleted;
+  async getCachedPositions(
+    userAddress: string,
+    fetchFn: () => Promise<any[]>,
+    fetchRegisteredFn: () => Promise<any[]>
+  ): Promise<{ positions: any[]; registeredPositions: any[] }> {
+    const key = userAddress.toLowerCase();
+    const now = Date.now();
+    const cached = this.cache.get(key);
+
+    // Return cached data if still valid
+    if (cached && now < cached.expiry) {
+      console.log(`⚡ BLAZING CACHE HIT: ${userAddress} (${Math.round((cached.expiry - now) / 1000)}s remaining)`);
+      return {
+        positions: cached.positions,
+        registeredPositions: cached.registeredPositions
+      };
+    }
+
+    console.log(`🔄 CACHE MISS: Fetching fresh data for ${userAddress}`);
+    const start = Date.now();
+
+    try {
+      // Fetch both in parallel for blazing speed
+      const [positions, registeredPositions] = await Promise.all([
+        fetchFn(),
+        fetchRegisteredFn()
+      ]);
+
+      // Cache the results
+      this.cache.set(key, {
+        positions,
+        registeredPositions,
+        timestamp: now,
+        expiry: now + this.CACHE_DURATION
+      });
+
+      const duration = Date.now() - start;
+      console.log(`💾 CACHED: ${userAddress} in ${duration}ms (${positions.length} positions, ${registeredPositions.length} registered)`);
+
+      return { positions, registeredPositions };
+    } catch (error) {
+      console.error(`❌ CACHE FETCH FAILED: ${userAddress}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Invalidate cache for specific user
+   */
+  invalidateUser(userAddress: string): void {
+    const key = userAddress.toLowerCase();
+    this.cache.delete(key);
+    console.log(`🗑️ CACHE INVALIDATED: ${userAddress}`);
+  }
+
+  /**
+   * Clear all cached data
+   */
+  clearAll(): void {
+    this.cache.clear();
+    console.log('🗑️ ALL CACHE CLEARED');
   }
 
   /**
    * Get cache statistics
    */
-  static getStats() {
-    const hitRate = this.hitCount + this.missCount > 0 
-      ? ((this.hitCount / (this.hitCount + this.missCount)) * 100).toFixed(1) 
-      : '0.0';
-
+  getStats() {
     return {
-      size: this.cache.size,
-      maxSize: this.cache.max,
-      hitCount: this.hitCount,
-      missCount: this.missCount,
-      hitRate: `${hitRate}%`,
-      ttl: '60 seconds'
+      totalCached: this.cache.size,
+      cacheEntries: Array.from(this.cache.entries()).map(([key, data]) => ({
+        address: key,
+        positionCount: data.positions.length,
+        registeredCount: data.registeredPositions.length,
+        age: Math.round((Date.now() - data.timestamp) / 1000),
+        expiresIn: Math.round((data.expiry - Date.now()) / 1000)
+      }))
     };
   }
 
   /**
-   * Preload positions for a user (background task)
+   * Cleanup expired entries
    */
-  static async preloadUserPositions(userAddress: string, fetcher: () => Promise<any>) {
-    try {
-      const cacheKey = `wallet-positions:${userAddress}`;
-      
-      if (!this.cache.has(cacheKey)) {
-        console.log(`🔄 Preloading positions for ${userAddress}...`);
-        const positions = await fetcher();
-        this.cache.set(cacheKey, positions);
-        console.log(`✅ Preloaded ${positions?.length || 0} positions for ${userAddress}`);
+  private cleanup(): void {
+    const now = Date.now();
+    let cleaned = 0;
+
+    for (const [key, data] of this.cache.entries()) {
+      if (now > data.expiry) {
+        this.cache.delete(key);
+        cleaned++;
       }
-    } catch (error) {
-      console.error(`❌ Failed to preload positions for ${userAddress}:`, error);
+    }
+
+    if (cleaned > 0) {
+      console.log(`🧹 CACHE CLEANUP: Removed ${cleaned} expired entries`);
     }
   }
 }
 
-/**
- * Timeout protection middleware for position endpoints
- */
-export function positionTimeoutMiddleware(timeoutMs = 12000) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.path.includes('/positions/')) {
-      return next();
-    }
-
-    const timeout = setTimeout(() => {
-      if (!res.headersSent) {
-        console.error(`⏰ POSITION TIMEOUT: ${req.path} exceeded ${timeoutMs}ms`);
-        
-        res.status(408).json({
-          success: false,
-          error: 'Position loading timed out',
-          message: 'Request exceeded maximum time limit',
-          timeout: true,
-          timeoutMs
-        });
-      }
-    }, timeoutMs);
-
-    // Clean up timeout on response completion
-    const cleanup = () => clearTimeout(timeout);
-    res.on('finish', cleanup);
-    res.on('close', cleanup);
-    res.on('error', cleanup);
-
-    next();
-  };
-}
-
-/**
- * Performance monitoring for position endpoints
- */
-export function positionPerformanceMonitor() {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.path.includes('/positions/wallet/')) {
-      return next();
-    }
-
-    const startTime = Date.now();
-    const startMemory = process.memoryUsage().heapUsed;
-
-    res.on('finish', () => {
-      const duration = Date.now() - startTime;
-      const endMemory = process.memoryUsage().heapUsed;
-      const memoryDelta = Math.round((endMemory - startMemory) / 1024 / 1024 * 100) / 100;
-
-      // Log performance metrics
-      const perfLog = `📊 POSITION PERF: ${req.path} | ${duration}ms | ${memoryDelta}MB | Status: ${res.statusCode}`;
-      
-      if (duration > 15000) {
-        console.error(`🚨 CRITICAL SLOW: ${perfLog}`);
-      } else if (duration > 5000) {
-        console.warn(`⚠️ SLOW: ${perfLog}`);
-      } else if (duration < 1000) {
-        console.log(`🚀 FAST: ${perfLog}`);
-      } else {
-        console.log(perfLog);
-      }
-
-      // Set performance headers
-      res.setHeader('X-Response-Time', `${duration}ms`);
-      res.setHeader('X-Memory-Delta', `${memoryDelta}MB`);
-    });
-
-    next();
-  };
-}
+// Export singleton instance
+export const blazingPositionCache = new BlazingPositionCache();

@@ -51,6 +51,7 @@ import { claimBasedRewards } from "./claim-based-rewards";
 
 import rewardDistributionRoutes from "./routes/reward-distribution";
 import { registerPerformanceRoutes } from "./routes/performance";
+import { registerUniswapOptimizedRoutes } from "./routes/uniswap-optimized";
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes
 
@@ -93,6 +94,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Setup cache performance monitoring
   const { setupCachePerformanceEndpoint } = await import('./cache-performance-endpoint');
   setupCachePerformanceEndpoint(app);
+  
+  // Register Uniswap-optimized routes for blazing fast performance
+  registerUniswapOptimizedRoutes(app);
   
   // Blockchain configuration endpoint
   app.get("/api/blockchain-config", async (req, res) => {

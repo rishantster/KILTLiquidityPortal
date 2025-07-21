@@ -86,110 +86,41 @@ export function PositionRegistration() {
     enabled: !!address
   });
 
-  // Get unregistered positions from real Uniswap V3 contracts
+  // BLAZING FAST eligible positions using Uniswap-optimized endpoint
   const { data: unregisteredPositionsData, isLoading: loadingPositions } = useQuery({
-    queryKey: ['unregistered-positions', address],
-    staleTime: 0, // Force fresh data to pick up newly created positions
-    refetchInterval: 2000, // Poll every 2 seconds to catch database updates
+    queryKey: ['eligible-positions-uniswap', address],
+    staleTime: 30 * 1000, // 30 seconds cache like Uniswap
+    gcTime: 5 * 60 * 1000, // 5 minutes retention
+    refetchInterval: false, // No polling needed with smart caching
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       if (!address) return { eligiblePositions: [], totalPositions: 0, message: '' };
       
       try {
-        // Fetch actual Uniswap V3 positions containing KILT token (using working endpoint)
-        const response = await fetch(`/api/positions/wallet/${address}`);
+        console.log('⚡ Using Uniswap-optimized eligible endpoint');
+        
+        // Use blazing fast optimized endpoint
+        const response = await fetch(`/api/positions/eligible/${address}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch positions');
+          throw new Error('Failed to fetch eligible positions');
         }
         
-        const walletPositions = await response.json();
+        const result = await response.json();
+        const timing = response.headers.get('X-Response-Time') || 'unknown';
+        const cacheStatus = response.headers.get('X-Cache-Status') || 'unknown';
         
-        // Get already registered positions to filter them out
-        // First get/create user to get userId
-        const userResponse = await fetch(`/api/users/${address}`);
-        let userId;
-        if (!userResponse.ok) {
-          const createResponse = await fetch('/api/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ address })
-          });
-          const userData = await createResponse.json();
-          userId = userData.id;
-        } else {
-          const userData = await userResponse.json();
-          userId = userData.id;
-        }
-        
-        const registeredResponse = await fetch(`/api/positions/user/${userId}`);
-        const registeredPositions = registeredResponse.ok ? await registeredResponse.json() : [];
-        
-        // Get both app-created and manually registered positions
-        // CRITICAL FIX: Ensure string comparison by converting to string
-        const appCreatedNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === true).map((p: any) => p.nftTokenId.toString()));
-        const manuallyRegisteredNftIds = new Set(registeredPositions.filter((p: any) => p.createdViaApp === false).map((p: any) => p.nftTokenId.toString()));
-
-        // TEMP DEBUG: Log current filtering state
-        console.log('🔧 Current filtering state:', {
-          totalRegistered: registeredPositions.length,
-          appCreatedIds: Array.from(appCreatedNftIds),
-          manualRegisteredIds: Array.from(manuallyRegisteredNftIds),
-          walletPositionIds: walletPositions.map((p: any) => p.tokenId.toString())
-        });
-        
-
-        
-        // Filter logic: Only show positions that aren't app-created and aren't manually registered
-        
-        // Filter out app-created positions (they're automatically enrolled) and manually registered positions
-        // Also filter out out-of-range positions since they don't earn rewards
-        const eligiblePositions = walletPositions
-          .filter((pos: any) => {
-            const tokenIdString = pos.tokenId.toString();
-            const isAppCreated = appCreatedNftIds.has(tokenIdString);
-            const isManuallyRegistered = manuallyRegisteredNftIds.has(tokenIdString);
-            const isInRange = pos.isInRange;
-            
-
-            
-            // Must not be app-created or manually registered
-            if (isAppCreated || isManuallyRegistered) {
-              return false;
-            }
-            // Must be in-range to earn rewards (critical fix)
-            if (!isInRange) {
-              return false;
-            }
-            return true;
-          })
-          .map((pos: any) => ({
-            nftTokenId: pos.tokenId.toString(),
-            poolAddress: pos.poolAddress,
-            token0Address: pos.token0,
-            token1Address: pos.token1,
-            amount0: pos.token0Amount,
-            amount1: pos.token1Amount,
-            liquidity: pos.liquidity,
-            currentValueUSD: pos.currentValueUSD,
-            feeTier: pos.feeTier,
-            tickLower: pos.tickLower,
-            tickUpper: pos.tickUpper,
-            isActive: pos.isActive,
-            fees: pos.fees,
-            // Add additional fields for registration
-            minPrice: pos.tickLower,
-            maxPrice: pos.tickUpper,
-            createdAt: new Date().toISOString()
-          }));
+        console.log(`⚡ UNISWAP-SPEED: Eligible positions in ${timing} (${cacheStatus})`);
         
         return {
-          eligiblePositions,
-          totalPositions: walletPositions.length,
-          appCreatedCount: appCreatedNftIds.size,
-          manuallyRegisteredCount: manuallyRegisteredNftIds.size,
-          message: eligiblePositions.length > 0 ? `Found ${eligiblePositions.length} unregistered positions` : ''
+          eligiblePositions: result.eligiblePositions || [],
+          totalPositions: result.totalPositions || 0,
+          registeredCount: result.registeredCount || 0,
+          message: result.message || '',
+          timing,
+          cacheStatus
         };
       } catch (error) {
-        // Error fetching unregistered positions
+        console.error('⚠️ Uniswap-optimized endpoint failed:', error);
         return { eligiblePositions: [], totalPositions: 0, message: '' };
       }
     },

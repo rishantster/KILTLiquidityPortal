@@ -40,24 +40,24 @@ export function useOptimizedQueries(userAddress?: string) {
     enabled: !!userAddress, // Only fetch if user address provided
   });
 
-  // Cache real trading fees APR data
+  // Cache real trading fees APR data with forced fresh fetch
   const tradingFeesData = useQuery({
     queryKey: ['/api/trading-fees/pool-apr'],
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 0, // Always fetch fresh data from DexScreener API
+    gcTime: 2 * 60 * 1000, // 2 minutes
+    refetchInterval: 2 * 60 * 1000, // Refresh every 2 minutes for real-time data
+    refetchOnWindowFocus: true, // Refresh on window focus for latest data
   });
 
   // Memoized calculations to prevent unnecessary re-renders
   const calculations = useMemo(() => {
     // Use real trading fees APR from our service instead of flawed calculation
-    const feeAPR = tradingFeesData.data?.tradingFeesAPR || 0;
-    const poolTVL = tradingFeesData.data?.poolTVL || programAnalytics.data?.totalLiquidity || 91431.8;
-    const dailyVolume = tradingFeesData.data?.poolVolume24hUSD || kiltData.data?.volume || 426;
+    const feeAPR = (tradingFeesData.data as any)?.tradingFeesAPR || 0;
+    const poolTVL = (tradingFeesData.data as any)?.poolTVL || (programAnalytics.data as any)?.totalLiquidity || 91431.8;
+    const dailyVolume = (tradingFeesData.data as any)?.poolVolume24hUSD || (kiltData.data as any)?.volume || 426;
     
     // Use user-specific APR if available, otherwise fall back to maximum APR
-    const kiltRewardAPR = userAprData.data?.incentiveAPR || aprData.data?.maxAPR || 0;
+    const kiltRewardAPR = (userAprData.data as any)?.incentiveAPR || (aprData.data as any)?.maxAPR || 0;
     const totalAPR = feeAPR + kiltRewardAPR;
 
     return {
@@ -66,8 +66,8 @@ export function useOptimizedQueries(userAddress?: string) {
       totalAPR: totalAPR.toFixed(0),
       dailyVolume,
       poolTVL,
-      dataSource: tradingFeesData.data?.dataSource || 'fallback',
-      feeTier: tradingFeesData.data?.feeTier || 3000,
+      dataSource: (tradingFeesData.data as any)?.dataSource || 'fallback',
+      feeTier: (tradingFeesData.data as any)?.feeTier || 3000,
     };
   }, [kiltData.data, programAnalytics.data, aprData.data, userAprData.data, tradingFeesData.data]);
 

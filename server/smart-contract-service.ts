@@ -111,8 +111,8 @@ export class SmartContractService {
         // this.kiltTokenContract will be set in initializeKiltContract method
         this.isContractDeployed = true;
         // Smart contracts initialized successfully
-      } catch (error) {
-        // Failed to initialize smart contracts
+      } catch (error: unknown) {
+        console.error('Failed to initialize smart contracts:', error instanceof Error ? error.message : 'Unknown error');
         this.isContractDeployed = false;
       }
     } else {
@@ -126,7 +126,7 @@ export class SmartContractService {
    */
   private async initializeKiltContract(): Promise<void> {
     if (!this.kiltTokenContract && this.wallet) {
-      const { kilt } = await blockchainConfigService.getTokenAddresses();
+      const kilt = await blockchainConfigService.getKiltTokenAddress();
       this.kiltTokenContract = new ethers.Contract(
         kilt,
         KILT_TOKEN_ABI,

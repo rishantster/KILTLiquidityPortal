@@ -91,14 +91,14 @@ export class SchemaValidator {
         }
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         isValid: false,
         errors: [{
           table: 'system',
           recordId: 'validation',
           field: 'schema',
-          message: `Schema validation failed: ${error.message}`,
+          message: `Schema validation failed: ${error instanceof Error ? error.message : 'Unknown validation error'}`,
           severity: 'error'
         }],
         warnings: [],
@@ -140,12 +140,12 @@ export class SchemaValidator {
           }
 
           validCount++;
-        } catch (error) {
+        } catch (error: unknown) {
           errors.push({
             table: 'users',
             recordId: user.id,
             field: 'address',
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown address validation error',
             severity: 'error'
           });
         }
@@ -163,14 +163,14 @@ export class SchemaValidator {
         }
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         isValid: false,
         errors: [{
           table: 'users',
           recordId: 'table',
           field: 'validation',
-          message: `Table validation failed: ${error.message}`,
+          message: `Table validation failed: ${error instanceof Error ? error.message : 'Unknown table validation error'}`,
           severity: 'error'
         }],
         warnings: [],
@@ -242,12 +242,12 @@ export class SchemaValidator {
 
           if (isValid) validCount++;
 
-        } catch (error) {
+        } catch (error: unknown) {
           errors.push({
             table: 'lpPositions',
             recordId: position.id,
             field: 'validation',
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown position validation error',
             severity: 'error'
           });
         }
@@ -265,14 +265,14 @@ export class SchemaValidator {
         }
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         isValid: false,
         errors: [{
           table: 'lpPositions',
           recordId: 'table',
           field: 'validation',
-          message: `Table validation failed: ${error.message}`,
+          message: `Table validation failed: ${error instanceof Error ? error.message : 'Unknown table validation error'}`,
           severity: 'error'
         }],
         warnings: [],
@@ -334,12 +334,12 @@ export class SchemaValidator {
 
           if (isValid) validCount++;
 
-        } catch (error) {
+        } catch (error: unknown) {
           errors.push({
             table: 'rewards',
             recordId: reward.id,
             field: 'validation',
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown reward validation error',
             severity: 'error'
           });
         }
@@ -357,14 +357,14 @@ export class SchemaValidator {
         }
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         isValid: false,
         errors: [{
           table: 'rewards',
           recordId: 'table',
           field: 'validation',
-          message: `Table validation failed: ${error.message}`,
+          message: `Table validation failed: ${error instanceof Error ? error.message : 'Unknown table validation error'}`,
           severity: 'error'
         }],
         warnings: [],

@@ -6,8 +6,8 @@ import * as schema from "@shared/schema";
 // Configure WebSocket constructor properly
 try {
   neonConfig.webSocketConstructor = ws;
-} catch (error) {
-  // WebSocket configuration warning
+} catch (error: unknown) {
+  console.warn('WebSocket configuration warning:', error instanceof Error ? error.message : 'Unknown error');
 }
 
 if (!process.env.DATABASE_URL) {
@@ -25,8 +25,8 @@ export const pool = new Pool({
 });
 
 // Handle pool errors gracefully
-pool.on('error', (err) => {
-  // Database pool error
+pool.on('error', (err: unknown) => {
+  console.error('Database pool error:', err instanceof Error ? err.message : 'Unknown error');
 });
 
 export const db = drizzle({ client: pool, schema });

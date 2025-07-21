@@ -50,8 +50,8 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
         volume24h = kiltData.usd_24h_vol || volume24h;
         priceChange24h = kiltData.usd_24h_change || priceChange24h;
       }
-    } catch (error) {
-      // Use calculated values if CoinGecko fails
+    } catch (error: unknown) {
+      console.warn('CoinGecko API unavailable, using calculated values:', error instanceof Error ? error.message : 'Unknown error');
     }
     
     // Calculate treasury metrics based on actual reward wallet balance

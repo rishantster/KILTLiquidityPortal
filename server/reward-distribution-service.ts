@@ -72,8 +72,8 @@ export class RewardDistributionService {
       });
 
       return formatEther(balance);
-    } catch (error) {
-      console.error('Failed to get treasury balance:', error);
+    } catch (error: unknown) {
+      console.error('Failed to get treasury balance:', error instanceof Error ? error.message : 'Unknown error');
       return '0';
     }
   }
@@ -160,10 +160,11 @@ export class RewardDistributionService {
             errorMessage: null,
           });
 
-        } catch (error) {
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown transfer error';
           failedTransfers.push({
             ...recipient,
-            error: error.message
+            error: errorMessage
           });
 
           // Log failed operation
@@ -176,7 +177,7 @@ export class RewardDistributionService {
             performedBy: 'automated_system',
             transactionHash: null,
             success: false,
-            errorMessage: error.message,
+            errorMessage: errorMessage,
           });
         }
       }
@@ -192,11 +193,11 @@ export class RewardDistributionService {
         distributedAmount: distributedAmount.toString()
       };
 
-    } catch (error) {
-      console.error('Reward distribution failed:', error);
+    } catch (error: unknown) {
+      console.error('Reward distribution failed:', error instanceof Error ? error.message : 'Unknown error');
       return {
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown distribution error',
         distributedAmount: '0'
       };
     }
@@ -223,8 +224,8 @@ export class RewardDistributionService {
         reason: `Liquidity rewards for position ${reward.nftTokenId}`
       }));
 
-    } catch (error) {
-      console.error('Failed to get eligible users:', error);
+    } catch (error: unknown) {
+      console.error('Failed to get eligible users:', error instanceof Error ? error.message : 'Unknown error');
       return [];
     }
   }
@@ -259,13 +260,13 @@ export class RewardDistributionService {
         error: result.error
       };
 
-    } catch (error) {
-      console.error('Daily distribution failed:', error);
+    } catch (error: unknown) {
+      console.error('Daily distribution failed:', error instanceof Error ? error.message : 'Unknown error');
       return {
         success: false,
         distributedAmount: '0',
         recipientCount: 0,
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown distribution error'
       };
     }
   }

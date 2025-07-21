@@ -45,8 +45,8 @@ export class ClaimBasedRewards {
       const { programSettings } = await import('../shared/schema');
       const [settings] = await db.select().from(programSettings).limit(1);
       return settings?.lockPeriod || 0; // Default to 0 days if not configured
-    } catch (error) {
-      // Fallback to 0 days if admin configuration unavailable
+    } catch (error: unknown) {
+      console.error('Error fetching lock period from admin config:', error instanceof Error ? error.message : 'Unknown error');
       return 0;
     }
   }

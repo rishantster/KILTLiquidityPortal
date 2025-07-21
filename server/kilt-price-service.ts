@@ -79,8 +79,8 @@ class KiltPriceService {
             newPrice = parseFloat(tokenPrices[kiltAddress]);
           }
         }
-      } catch (error) {
-        // GeckoTerminal failed, try fallback
+      } catch (error: unknown) {
+        console.warn('GeckoTerminal API failed:', error instanceof Error ? error.message : 'Unknown error');
       }
       
       // Fallback to CoinGecko if GeckoTerminal fails
@@ -92,8 +92,8 @@ class KiltPriceService {
           if (data && data['kilt-protocol'] && data['kilt-protocol'].usd) {
             newPrice = data['kilt-protocol'].usd;
           }
-        } catch (error) {
-          // Both endpoints failed
+        } catch (error: unknown) {
+          console.warn('CoinGecko fallback failed:', error instanceof Error ? error.message : 'Unknown error');
         }
       }
       
@@ -118,8 +118,8 @@ class KiltPriceService {
         // Invalid price data, using fallback
         this.currentPrice = this.getIntelligentFallbackPrice();
       }
-    } catch (error) {
-      // All APIs failed, using fallback
+    } catch (error: unknown) {
+      console.warn('All price APIs failed, using fallback:', error instanceof Error ? error.message : 'Unknown error');
       this.currentPrice = this.getIntelligentFallbackPrice();
     }
   }

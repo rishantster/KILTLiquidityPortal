@@ -83,8 +83,8 @@ async function logAdminOperation(
       success,
       errorMessage
     });
-  } catch (error) {
-    console.error('Failed to log admin operation:', error);
+  } catch (error: unknown) {
+    console.error('Failed to log admin operation:', error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -1073,9 +1073,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         for (let i = 99; i >= 0; i--) {
           const position = top100[i];
           const positionDaysActive = Math.floor(
-            (Date.now() - new Date(position.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+            (Date.now() - new Date(position.createdAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24)
           );
-          const positionScore = position.currentValueUSD * positionDaysActive;
+          const positionScore = parseFloat(position.currentValueUSD) * positionDaysActive;
           
           if (userScore > positionScore) {
             projectedRank = i + 1;

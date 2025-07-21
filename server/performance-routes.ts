@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { DatabaseOptimizer } from './database-optimizer';
 import { PerformanceMiddleware, QueryOptimizer } from './performance-middleware';
 import { ErrorHandler, asyncHandler, requestTimeout } from './error-handler';
@@ -15,7 +15,7 @@ export function setupPerformanceRoutes(app: Express): void {
   app.use(requestTimeout(30000)); // 30 second timeout
 
   // Performance analytics endpoint
-  app.get('/api/performance/analytics', asyncHandler(async (req, res) => {
+  app.get('/api/performance/analytics', asyncHandler(async (req: Request, res: Response) => {
     const analytics = PerformanceMiddleware.getAnalytics();
     const cacheStats = QueryOptimizer.getCacheStats();
     const dbHealth = await DatabaseOptimizer.getHealthStatus();
@@ -32,7 +32,7 @@ export function setupPerformanceRoutes(app: Express): void {
   }));
 
   // Health check endpoint
-  app.get('/api/health', asyncHandler(async (req, res) => {
+  app.get('/api/health', asyncHandler(async (req: Request, res: Response) => {
     const healthStatus = PerformanceMiddleware.getHealthStatus();
     const dbHealth = await DatabaseOptimizer.getHealthStatus();
 
@@ -55,7 +55,7 @@ export function setupPerformanceRoutes(app: Express): void {
   }));
 
   // Database optimization endpoint (admin only)
-  app.post('/api/admin/optimize-database', asyncHandler(async (req, res) => {
+  app.post('/api/admin/optimize-database', asyncHandler(async (req: Request, res: Response) => {
     // Add authentication check here in production
     
     const indexResults = await DatabaseOptimizer.optimizeIndexes();
@@ -72,7 +72,7 @@ export function setupPerformanceRoutes(app: Express): void {
   }));
 
   // Cache management endpoint
-  app.post('/api/admin/clear-cache', asyncHandler(async (req, res) => {
+  app.post('/api/admin/clear-cache', asyncHandler(async (req: Request, res: Response) => {
     const { pattern } = req.body;
     
     if (pattern) {

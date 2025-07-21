@@ -139,9 +139,9 @@ export class ParallelDataLoader {
       const { fixedRewardService } = await import('./fixed-reward-service.js');
       return fixedRewardService.calculatePositionRewards(
         user.id,
+        positions[0].id,
         positions[0].nftTokenId,
-        new Date(positions[0].createdAt),
-        new Date(positions[0].createdAt)
+        parseFloat(positions[0].currentValueUSD || '0')
       );
     }, 60); // 60 second cache
   }

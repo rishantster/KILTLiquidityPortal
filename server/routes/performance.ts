@@ -11,7 +11,8 @@ export function registerPerformanceRoutes(app: Express) {
     try {
       const report = performanceMonitor.getOptimizationReport();
       res.json(report);
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Performance metrics error:', error instanceof Error ? error.message : 'Unknown error');
       res.status(500).json({ error: "Failed to get performance metrics" });
     }
   });
@@ -33,7 +34,8 @@ export function registerPerformanceRoutes(app: Express) {
           ]
         }
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Slow requests analysis error:', error instanceof Error ? error.message : 'Unknown error');
       res.status(500).json({ error: "Failed to analyze slow requests" });
     }
   });
@@ -51,7 +53,8 @@ export function registerPerformanceRoutes(app: Express) {
         timestamp: new Date().toISOString(),
         status: 'blazing-fast'
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Performance summary error:', error instanceof Error ? error.message : 'Unknown error');
       res.status(500).json({ error: "Failed to get performance summary" });
     }
   });

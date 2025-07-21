@@ -93,8 +93,8 @@ class UnifiedAPRService {
         if (activeParticipants.length > 0) {
           actualPositionValue = activeParticipants.reduce((sum, p) => sum + p.currentValueUsd, 0) / activeParticipants.length;
         }
-      } catch (error) {
-        throw new Error('Real blockchain data required - data fetch failed');
+      } catch (error: unknown) {
+        throw new Error(`Real blockchain data required - data fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
 
       // Require actual blockchain data
@@ -138,9 +138,9 @@ class UnifiedAPRService {
         poolTVL = poolInfo.totalValueUSD;
         usingRealData = true;
         
-      } catch (error) {
+      } catch (error: unknown) {
         // No fallbacks allowed - throw error if real data unavailable
-        throw new Error('Unable to fetch real blockchain data - admin configuration and blockchain integration required');
+        throw new Error(`Unable to fetch real blockchain data - admin configuration and blockchain integration required: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
       
       // Calculate base APR using REAL data
@@ -205,9 +205,9 @@ class UnifiedAPRService {
 
       return result;
 
-    } catch (error) {
+    } catch (error: unknown) {
       // No fallback values allowed - admin panel must be configured
-      throw new Error('UnifiedAPRService requires admin configuration - no fallback values allowed');
+      throw new Error(`UnifiedAPRService requires admin configuration - no fallback values allowed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

@@ -8,7 +8,8 @@ router.get('/treasury/balance', async (req, res) => {
   try {
     const balance = await rewardDistributionService.getTreasuryBalance();
     res.json({ balance });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Treasury balance error:', error instanceof Error ? error.message : 'Unknown error');
     res.status(500).json({ error: 'Failed to get treasury balance' });
   }
 });
@@ -18,7 +19,8 @@ router.get('/eligible-users', async (req, res) => {
   try {
     const eligibleUsers = await rewardDistributionService.getEligibleUsers();
     res.json({ eligibleUsers });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Eligible users error:', error instanceof Error ? error.message : 'Unknown error');
     res.status(500).json({ error: 'Failed to get eligible users' });
   }
 });
@@ -34,7 +36,8 @@ router.post('/distribute', async (req, res) => {
 
     const result = await rewardDistributionService.distributeRewards(recipients);
     res.json(result);
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Distribute rewards error:', error instanceof Error ? error.message : 'Unknown error');
     res.status(500).json({ error: 'Failed to distribute rewards' });
   }
 });
@@ -44,7 +47,8 @@ router.post('/daily-distribution', async (req, res) => {
   try {
     const result = await rewardDistributionService.performDailyDistribution();
     res.json(result);
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Daily distribution error:', error instanceof Error ? error.message : 'Unknown error');
     res.status(500).json({ error: 'Failed to perform daily distribution' });
   }
 });
@@ -58,7 +62,8 @@ router.get('/history', async (req, res) => {
       Number(limit)
     );
     res.json(history);
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Distribution history error:', error instanceof Error ? error.message : 'Unknown error');
     res.status(500).json({ error: 'Failed to get distribution history' });
   }
 });
@@ -68,7 +73,8 @@ router.get('/stats', async (req, res) => {
   try {
     const stats = await rewardDistributionService.getDistributionStats();
     res.json(stats);
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Distribution statistics error:', error instanceof Error ? error.message : 'Unknown error');
     res.status(500).json({ error: 'Failed to get distribution statistics' });
   }
 });

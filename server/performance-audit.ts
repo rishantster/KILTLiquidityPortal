@@ -206,7 +206,7 @@ export class PerformanceAuditor {
         recommendations: [],
         criticalIssues: [{
           type: 'audit_failure',
-          description: `Performance audit failed: ${error.message}`,
+          description: `Performance audit failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
           severity: 'critical',
           action: 'Investigate audit system failure',
           timeframe: 'immediate'

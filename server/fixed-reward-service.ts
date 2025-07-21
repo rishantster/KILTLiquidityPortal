@@ -191,8 +191,8 @@ export class FixedRewardService {
       // For concentrated positions, assume 70% in-range performance
       // This is a reasonable default for active liquidity positions
       return 0.7;
-    } catch (error) {
-      // Error calculating in-range multiplier
+    } catch (error: unknown) {
+      console.error('Error calculating in-range multiplier:', error instanceof Error ? error.message : 'Unknown error');
       return 0.5;
     }
   }
@@ -214,8 +214,8 @@ export class FixedRewardService {
       // Full range detection logic implemented
       
       return isFullRange;
-    } catch (error) {
-      // Error checking full range position
+    } catch (error: unknown) {
+      console.error('Error checking full range position:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
   }
@@ -242,8 +242,8 @@ export class FixedRewardService {
         );
 
       return participants;
-    } catch (error) {
-      // Error getting active participants
+    } catch (error: unknown) {
+      console.error('Error getting active participants:', error instanceof Error ? error.message : 'Unknown error');
       return [];
     }
   }

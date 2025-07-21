@@ -322,8 +322,8 @@ export class UniswapIntegrationService {
             ],
             functionName: 'tokenOfOwnerByIndex',
             args: [userAddress as `0x${string}`, BigInt(i)],
-          }).catch(error => {
-            console.error(`Failed to get token ID at index ${i}:`, error);
+          }).catch((error: unknown) => {
+            console.error(`Failed to get token ID at index ${i}:`, error instanceof Error ? error.message : 'Unknown error');
             return null;
           })
         );
@@ -340,8 +340,8 @@ export class UniswapIntegrationService {
       }
 
       return tokenIds;
-    } catch (error) {
-      console.error('Failed to fetch user token IDs:', error);
+    } catch (error: unknown) {
+      console.error('Failed to fetch user token IDs:', error instanceof Error ? error.message : 'Unknown error');
       return [];
     }
   }
@@ -385,8 +385,8 @@ export class UniswapIntegrationService {
       console.log(`getUserPositions - Valid positions after filtering:`, validPositions.length);
       
       return validPositions;
-    } catch (error) {
-      console.error('getUserPositions error:', error);
+    } catch (error: unknown) {
+      console.error('getUserPositions error:', error instanceof Error ? error.message : 'Unknown error');
       return [];
     }
   }
@@ -417,8 +417,8 @@ export class UniswapIntegrationService {
       });
 
       return poolAddress as string;
-    } catch (error) {
-      console.error('Failed to get pool address:', error);
+    } catch (error: unknown) {
+      console.error('Failed to get pool address:', error instanceof Error ? error.message : 'Unknown error');
       throw error;
     }
   }
@@ -686,7 +686,8 @@ export class UniswapIntegrationService {
         functionName: 'fee',
       });
       return fee as number;
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Failed to get pool fee tier:', error instanceof Error ? error.message : 'Unknown error');
       return 3000; // Default to 0.3% if unable to fetch
     }
   }

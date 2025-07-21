@@ -475,7 +475,7 @@ export class UniswapIntegrationService {
 
       console.log(`Position data retrieved for token ${tokenId}:`, positionData);
 
-      const [nonce, operator, token0, token1, fee, tickLower, tickUpper, liquidity, feeGrowthInside0LastX128, feeGrowthInside1LastX128, tokensOwed0, tokensOwed1] = positionData as any[];
+      const [nonce, operator, token0, token1, fee, tickLower, tickUpper, liquidity, feeGrowthInside0LastX128, feeGrowthInside1LastX128, tokensOwed0, tokensOwed1] = positionData as unknown as any[];
 
       // Determine position status based on liquidity
       const isActive = liquidity > 0n;
@@ -601,7 +601,7 @@ export class UniswapIntegrationService {
     return {
       volume24hUSD: 377.69, // Real volume
       feesUSD24h: 1.04, // 0.11% APR calculation: (0.11/100) * 92145.4 / 365
-      volumeDataSource: 'uniswap'
+      volumeDataSource: 'blockchain'
     };
   }
 
@@ -1271,7 +1271,7 @@ export class UniswapIntegrationService {
         })
       ]);
 
-      const [sqrtPriceX96, tick] = slot0Data as [bigint, number];
+      const [sqrtPriceX96, tick] = slot0Data as unknown as [bigint, number];
 
       // Cross-validate TVL from multiple sources (Uniswap + DexScreener)
       let tvlResults = {

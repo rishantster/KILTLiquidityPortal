@@ -904,12 +904,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         unifiedAPR = await unifiedAPRService.getUnifiedAPRCalculation();
       } catch (error: unknown) {
         console.error('UnifiedAPR calculation failed, using fallback values:', error instanceof Error ? error.message : 'Unknown error');
-        // Use fallback APR values when unified service fails
-        unifiedAPR = {
-          minAPR: 52,
-          maxAPR: 52,
-          aprRange: "52%"
-        };
+        // Throw proper error instead of using fallback values per user requirements
+        throw new Error('UnifiedAPR calculation required - no fallback values allowed: ' + (error instanceof Error ? error.message : 'Unknown error'));
       }
       
       // Get treasury configuration

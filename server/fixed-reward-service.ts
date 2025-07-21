@@ -223,13 +223,13 @@ export class FixedRewardService {
   /**
    * Get all active participants using correct column names
    */
-  private async getAllActiveParticipants(): Promise<any[]> {
+  async getAllActiveParticipants(): Promise<any[]> {
     try {
       const participants = await this.database
         .select({
           userId: lpPositions.userId,
           nftTokenId: lpPositions.nftTokenId,
-          positionValueUSD: lpPositions.currentValueUSD,
+          currentValueUsd: lpPositions.currentValueUSD, // Fixed property name to match usage
           liquidity: lpPositions.liquidity,
           createdAt: lpPositions.createdAt,
         })
@@ -241,10 +241,11 @@ export class FixedRewardService {
           )
         );
 
-      return participants;
+      // Always return an array, never null or undefined
+      return Array.isArray(participants) ? participants : [];
     } catch (error: unknown) {
       console.error('Error getting active participants:', error instanceof Error ? error.message : 'Unknown error');
-      return [];
+      return []; // Always return empty array on error, never null/undefined
     }
   }
 

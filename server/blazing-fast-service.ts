@@ -117,9 +117,9 @@ export class BlazingFastService {
         }, 30),
         this.cachedQuery('blockchain-config', async () => {
           try {
-            return await blockchainConfigService.getConfig();
+            return await blockchainConfigService.getAllConfigs();
           } catch (error) {
-            return []; // Fallback config
+            return null; // Return null on error - no fallback data allowed
           }
         }, 300),
         // Cache authentic trading fees APR immediately

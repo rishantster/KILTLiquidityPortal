@@ -90,8 +90,8 @@ class UnifiedAPRService {
           usingRealData = true;
         }
         
-        if (activeParticipants.length > 0) {
-          actualPositionValue = activeParticipants.reduce((sum, p) => sum + p.currentValueUsd, 0) / activeParticipants.length;
+        if (activeParticipants && Array.isArray(activeParticipants) && activeParticipants.length > 0) {
+          actualPositionValue = activeParticipants.reduce((sum, p) => sum + (p?.currentValueUsd || 0), 0) / activeParticipants.length;
         }
       } catch (error: unknown) {
         throw new Error(`Real blockchain data required - data fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);

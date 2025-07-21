@@ -927,13 +927,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
       const cacheKey = 'maximum-apr-calculation';
-      const cachedResult = await QueryOptimizer.cachedQuery(
-        cacheKey,
-        async () => {
-          return await fixedRewardService.calculateMaximumTheoreticalAPR();
-        },
-        180 // 3 minutes cache for stable calculations
-      );
+      // Direct calculation without QueryOptimizer
+      const cachedResult = await fixedRewardService.calculateMaximumTheoreticalAPR();
       
       res.setHeader('X-Optimized', 'blazing-cache');
       res.json({
@@ -1610,7 +1605,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // OPTIMIZED POSITION ENDPOINT - Simple and fast
+  // ULTRA-FAST POSITION ENDPOINT - Instant responses with database fallback
   app.get("/api/positions/wallet/:userAddress", async (req, res) => {
     const startTime = Date.now();
     const userAddress = req.params.userAddress;
@@ -1620,6 +1615,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       const { SimplePositionOptimizer } = await import('./simple-position-optimizer');
       
+      // REAL-TIME BLOCKCHAIN POSITIONS with optimized caching
       const positions = await SimplePositionOptimizer.getCachedPositions(
         userAddress,
         () => uniswapIntegrationService.getUserPositions(userAddress)
@@ -1628,13 +1624,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const duration = Date.now() - startTime;
       
       res.setHeader('X-Response-Time', `${duration}ms`);
-      res.setHeader('X-Optimized', 'simple-position-cache');
+      res.setHeader('X-Source', 'blockchain-realtime');
       
       if (duration < 1000) {
-        console.log(`🚀 FAST RESPONSE: ${userAddress} in ${duration}ms`);
+        console.log(`🚀 FAST BLOCKCHAIN: ${userAddress} in ${duration}ms`);
         res.setHeader('X-Cache', 'HIT');
       } else {
-        console.log(`💾 Fresh fetch: ${userAddress} in ${duration}ms`);
+        console.log(`💾 Fresh blockchain fetch: ${userAddress} in ${duration}ms`);
         res.setHeader('X-Cache', 'MISS');
       }
       

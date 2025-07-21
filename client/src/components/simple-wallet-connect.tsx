@@ -32,8 +32,41 @@ export function SimpleWalletConnect() {
     }
     
     try {
-      // Use wallet context connect method for proper state management
-      await connect();
+      // Check if wallet is detected and available
+      const walletInfo = detectedWallets.find(w => w.name === walletName);
+      
+      if (!walletInfo?.detected && walletName !== 'WalletConnect') {
+        // For non-detected wallets on desktop, redirect to installation
+        if (!isMobile) {
+          window.open(walletInfo?.downloadUrl || `https://metamask.io/download/`, '_blank');
+          setShowModal(false);
+          return;
+        } else {
+          // On mobile, try to open the wallet app
+          handleMobileWallet(walletName);
+          return;
+        }
+      }
+      
+      // For detected wallets, use the appropriate connection method
+      if (walletName === 'MetaMask' || !walletInfo?.provider) {
+        // Use default MetaMask connection for MetaMask or fallback
+        await connect();
+      } else {
+        // For other wallets, try to connect via their specific provider
+        const provider = walletInfo.provider;
+        if (provider && provider.request) {
+          const accounts = await provider.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            // Set the provider as the primary ethereum provider temporarily
+            (window as any).ethereum = provider;
+            await connect();
+          }
+        } else {
+          // Fallback to MetaMask connection
+          await connect();
+        }
+      }
       
       // Add success animation
       if (buttonElement) {

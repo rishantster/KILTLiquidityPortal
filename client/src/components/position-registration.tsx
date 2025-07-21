@@ -299,7 +299,7 @@ export function PositionRegistration() {
                     if (selectedPositions.length === unregisteredPositions.length) {
                       setSelectedPositions([]);
                     } else {
-                      setSelectedPositions(unregisteredPositions.map(p => p.nftTokenId));
+                      setSelectedPositions(unregisteredPositions.map(p => p.tokenId));
                     }
                   }}
                   variant="outline"
@@ -381,7 +381,7 @@ export function PositionRegistration() {
             <div className="space-y-3">
               {unregisteredPositions.map((position: any) => (
                 <div 
-                  key={position.nftTokenId}
+                  key={position.tokenId}
                   className="bg-gradient-to-r from-black/90 via-[#ff0066]/10 to-black/90 backdrop-blur-sm rounded border border-[#ff0066]/30 shadow-lg hover:shadow-[#ff0066]/20 transition-all duration-300 hover:border-[#ff0066]/50 p-3"
                 >
                   <div className="flex items-center justify-between">
@@ -389,12 +389,12 @@ export function PositionRegistration() {
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        checked={selectedPositions.includes(position.nftTokenId)}
-                        onChange={() => handleToggleSelection(position.nftTokenId)}
+                        checked={selectedPositions.includes(position.tokenId)}
+                        onChange={() => handleToggleSelection(position.tokenId)}
                         className="w-3 h-3 text-[#ff0066] bg-black border-[#ff0066] rounded focus:ring-[#ff0066] focus:ring-1"
                       />
                       <div className="font-mono text-[#ff0066] text-sm font-bold">
-                        #{position.nftTokenId}
+                        #{position.tokenId || 'N/A'}
                       </div>
                     </div>
                     

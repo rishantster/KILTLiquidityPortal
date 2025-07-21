@@ -18,7 +18,7 @@ import {
   Gift,
   Plus
 } from 'lucide-react';
-import { useWallet } from '@/contexts/wallet-context';
+import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -59,7 +59,7 @@ interface ClaimResult {
 }
 
 export function RewardsTracking() {
-  const { address, isConnected } = useWallet();
+  const { address, isConnected } = useWalletWagmi();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const { toast } = useToast();

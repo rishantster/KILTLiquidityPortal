@@ -1,13 +1,14 @@
-import { useAccount, useConnect, useDisconnect, useBalance, useChainId } from 'wagmi'
-import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { useAccount, useConnect, useDisconnect, useBalance, useChainId, useConnectors } from 'wagmi'
 import { base } from 'wagmi/chains'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 export function useWalletWagmi() {
   const { address, isConnected, isConnecting, isDisconnected, connector, status } = useAccount()
   const { disconnect } = useDisconnect()
-  const { open, close } = useWeb3Modal()
+  const { connect } = useConnect()
+  const connectors = useConnectors()
   const chainId = useChainId()
+  const [isModalOpen, setIsModalOpen] = useState(false)
   
   // Get KILT balance
   const { data: kiltBalance, isLoading: kiltLoading } = useBalance({
@@ -46,10 +47,32 @@ export function useWalletWagmi() {
       ethBalanceFormatted: ethBalance?.formatted || '0',
       ethBalanceLoading: ethLoading,
       
+      // Modal state
+      isModalOpen,
+      setIsModalOpen,
+      
+      // Available connectors
+      connectors,
+      
       // Actions
-      connect: () => open(),
-      disconnect: () => disconnect(),
-      closeModal: () => close(),
+      connect: (connectorId?: string) => {
+        const targetConnector = connectorId 
+          ? connectors.find(c => c.id === connectorId) 
+          : connectors.find(c => c.type === 'injected') || connectors[0]
+        
+        if (targetConnector) {
+          connect({ connector: targetConnector })
+        }
+        setIsModalOpen(false)
+      },
+      
+      disconnect: () => {
+        disconnect()
+        setIsModalOpen(false)
+      },
+      
+      openConnectModal: () => setIsModalOpen(true),
+      closeModal: () => setIsModalOpen(false),
       
       // Helper computed values
       hasKiltBalance: kiltBalance ? kiltBalance.value > 0n : false,
@@ -61,7 +84,7 @@ export function useWalletWagmi() {
   }, [
     address, isConnected, isConnecting, isDisconnected, status, connector,
     chainId, kiltBalance, ethBalance, kiltLoading, ethLoading,
-    open, disconnect, close
+    connectors, connect, disconnect, isModalOpen
   ])
 
   return walletState

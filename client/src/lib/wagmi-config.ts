@@ -1,38 +1,28 @@
-import { createWeb3Modal } from '@web3modal/wagmi/react'
-import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
-import { WagmiProvider } from 'wagmi'
+import { http, createConfig } from 'wagmi'
 import { base, mainnet } from 'wagmi/chains'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { injected, walletConnect } from 'wagmi/connectors'
 
-// 1. Get projectId from https://cloud.walletconnect.com
-const projectId = process.env.VITE_WALLETCONNECT_PROJECT_ID || 'fallback_project_id'
+// WalletConnect project ID - get from https://cloud.walletconnect.com
+const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '2a1306d3c7b6b3b4e8a9f0e5d4c2b1a0'
 
-// 2. Create wagmiConfig
-const metadata = {
-  name: 'KILT Liquidity Incentive Portal',
-  description: 'DeFi liquidity management with treasury rewards',
-  url: 'https://liq.kilt.io', // Your domain
-  icons: ['https://avatars.githubusercontent.com/u/37784886']
-}
-
-const chains = [base, mainnet] as const
-export const wagmiConfig = defaultWagmiConfig({
-  chains,
-  projectId,
-  metadata,
-})
-
-// 3. Create modal
-createWeb3Modal({
-  projectId,
-  wagmiConfig,
-  defaultChain: base,
-  enableAnalytics: true,
-  themeMode: 'dark',
-  themeVariables: {
-    '--w3m-color-mix': '#ff0066',
-    '--w3m-accent': '#ff0066',
-  }
+export const wagmiConfig = createConfig({
+  chains: [base, mainnet],
+  connectors: [
+    injected(),
+    walletConnect({
+      projectId,
+      metadata: {
+        name: 'KILT Liquidity Portal',
+        description: 'DeFi liquidity management with treasury rewards',
+        url: 'https://liq.kilt.io',
+        icons: ['https://avatars.githubusercontent.com/u/37784886']
+      }
+    }),
+  ],
+  transports: {
+    [base.id]: http(),
+    [mainnet.id]: http(),
+  },
 })
 
 export { projectId }

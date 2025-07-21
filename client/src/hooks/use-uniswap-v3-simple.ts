@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useWallet } from '@/contexts/wallet-context';
+import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
 import { useToast } from './use-toast';
 import { createWalletClient, custom, parseUnits, maxUint256 } from 'viem';
 import { base } from 'viem/chains';
@@ -56,7 +56,7 @@ const APPROVE_ABI = [
 ] as const;
 
 export function useSimpleUniswapV3() {
-  const { address } = useWallet();
+  const { address } = useWalletWagmi();
   const { toast } = useToast();
   const [isMinting, setIsMinting] = useState(false);
   const [isApproving, setIsApproving] = useState(false);

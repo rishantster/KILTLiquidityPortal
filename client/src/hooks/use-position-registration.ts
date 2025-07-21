@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { useWallet } from '@/contexts/wallet-context';
+import { useWalletWagmi } from '@/hooks/use-wallet-wagmi';
 
 interface PositionRegistrationData {
   nftTokenId: string;
@@ -39,7 +39,7 @@ interface PositionRegistrationResult {
 export const usePositionRegistration = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { address } = useWallet();
+  const { address } = useWalletWagmi();
   
   const registerPositionMutation = useMutation({
     mutationFn: async (positionData: PositionRegistrationData): Promise<PositionRegistrationResult> => {

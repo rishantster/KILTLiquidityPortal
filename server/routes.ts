@@ -262,13 +262,22 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const blockchainConfig = await blockchainConfigService.getAllConfigs();
       const kiltTokenAddress = blockchainConfig.kiltTokenAddress || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
       
-      // Filter out already registered positions and only include KILT positions
-      // CRITICAL FIX: Also filter out app-created positions from eligible positions
+      // Get user for app transaction checking
+      const user = await storage.getUserByAddress(userAddress);
+      let appCreatedNftIds = new Set<string>();
+      
+      if (user) {
+        // Get app transactions to identify app-created positions
+        const appTransactions = await storage.getAppTransactionsByUserId(user.id);
+        appCreatedNftIds = new Set(appTransactions.map(tx => tx.nftTokenId?.toString()).filter(Boolean));
+      }
+      
+      // Filter out already registered positions and app-created positions
       const unregisteredPositions = userPositions.filter(pos => {
         const isKiltPosition = pos.token0?.toLowerCase() === kiltTokenAddress.toLowerCase() || 
                               pos.token1?.toLowerCase() === kiltTokenAddress.toLowerCase();
         const isAlreadyRegistered = registeredNftIds.has(pos.tokenId.toString());
-        const isAppCreated = pos.createdViaApp === true; // Filter out app-created positions
+        const isAppCreated = appCreatedNftIds.has(pos.tokenId.toString()); // Check app transactions
         return !isAlreadyRegistered && !isAppCreated && isKiltPosition;
       });
       

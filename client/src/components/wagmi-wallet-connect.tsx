@@ -149,45 +149,72 @@ export function WagmiWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black border border-gray-800 max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">
-              <Wallet className="h-6 w-6" />
-              Connect Your Wallet
+        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-md rounded-2xl overflow-hidden relative">
+          {/* Cyberpunk background grid effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.03),transparent_70%)] pointer-events-none" />
+          
+          <DialogHeader className="relative z-10">
+            <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6 drop-shadow-lg">
+              <div className="relative">
+                <Wallet className="h-6 w-6 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" />
+                <div className="absolute inset-0 h-6 w-6 bg-pink-500/20 blur-sm rounded-full" />
+              </div>
+              <span className="bg-gradient-to-r from-white to-pink-200 bg-clip-text text-transparent">
+                Connect Your Wallet
+              </span>
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-gray-400 mb-4">
-              <Monitor className="h-4 w-4" />
-              <span className="text-sm">Available Wallets</span>
+          <div className="space-y-4 relative z-10">
+            <div className="flex items-center gap-3 text-gray-400 mb-6">
+              <div className="relative">
+                <Monitor className="h-4 w-4 drop-shadow-[0_0_4px_rgba(236,72,153,0.6)]" />
+                <div className="absolute inset-0 h-4 w-4 bg-pink-500/10 blur-sm rounded-full" />
+              </div>
+              <span className="text-sm font-medium tracking-wider uppercase">Available Wallets</span>
             </div>
             
-            {connectors.map((connector) => (
+            {connectors.map((connector, index) => (
               <Button
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
-                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-16 text-lg font-bold justify-start px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
+                {/* Animated background glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-600/0 via-pink-400/20 to-pink-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                
                 {isPending ? (
                   <>
-                    <Loader2 className="mr-4 h-5 w-5 animate-spin" />
-                    Connecting...
+                    <Loader2 className="mr-4 h-5 w-5 animate-spin drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]" />
+                    <span className="tracking-wide">Connecting...</span>
                   </>
                 ) : (
                   <>
-                    <Wallet className="mr-4 h-5 w-5" />
-                    {connector.name}
+                    <div className="relative mr-4">
+                      <Wallet className="h-5 w-5 drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]" />
+                      <div className="absolute inset-0 h-5 w-5 bg-white/20 blur-sm rounded-full" />
+                    </div>
+                    <span className="tracking-wide font-bold">{connector.name}</span>
                   </>
                 )}
               </Button>
             ))}
           </div>
 
-          <div className="text-sm text-gray-500 text-center mt-6">
-            By connecting, you agree to the Terms of Service and Privacy Policy
+          <div className="text-sm text-gray-400 text-center mt-8 relative z-10 font-medium tracking-wide">
+            <span className="bg-gradient-to-r from-gray-400 to-gray-300 bg-clip-text text-transparent">
+              By connecting, you agree to the Terms of Service and Privacy Policy
+            </span>
           </div>
+          
+          {/* Cyberpunk corner accents */}
+          <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-pink-500/50" />
+          <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-pink-500/50" />
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-pink-500/50" />
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-pink-500/50" />
         </DialogContent>
       </Dialog>
     </>

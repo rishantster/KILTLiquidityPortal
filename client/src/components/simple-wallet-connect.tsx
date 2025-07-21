@@ -34,11 +34,14 @@ export function SimpleWalletConnect() {
     const ethereum = (window as any).ethereum;
     return {
       metamask: ethereum?.isMetaMask,
-      coinbase: ethereum?.isCoinbaseWallet || ethereum?.selectedProvider?.isCoinbaseWallet
+      coinbase: ethereum?.isCoinbaseWallet || ethereum?.selectedProvider?.isCoinbaseWallet,
+      trust: ethereum?.isTrustWallet,
+      rainbow: ethereum?.isRainbow
     };
   };
 
   const wallets = detectWallet();
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
   if (isConnected && address) {
     return (
@@ -114,6 +117,119 @@ export function SimpleWalletConnect() {
                   )}
                   <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
                     Recommended
+                  </span>
+                </div>
+              </button>
+
+              {/* Coinbase Wallet */}
+              <button
+                onClick={handleConnect}
+                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">C</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-medium">Coinbase Wallet</div>
+                    <div className="text-gray-400 text-sm">Connect with Coinbase Wallet extension</div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  {wallets.coinbase && (
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                      Detected
+                    </span>
+                  )}
+                </div>
+              </button>
+            </div>
+
+            {/* Universal/Mobile Wallets Section */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-400 flex items-center space-x-2">
+                <Wallet className="w-4 h-4" />
+                <span>{isMobile ? 'Mobile Wallets' : 'Universal Wallets'}</span>
+              </h3>
+              
+              {/* WalletConnect */}
+              <button
+                onClick={() => {
+                  if (isMobile) {
+                    window.open('https://metamask.app.link/dapp/' + window.location.hostname, '_self');
+                  } else {
+                    alert('WalletConnect QR modal coming soon! For now, please use MetaMask extension or mobile deep links.');
+                  }
+                }}
+                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">W</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-medium">WalletConnect</div>
+                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with any mobile wallet' : 'Connect via QR code'}</div>
+                  </div>
+                </div>
+                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">
+                  Universal
+                </span>
+              </button>
+
+              {/* Trust Wallet */}
+              <button
+                onClick={() => {
+                  if (isMobile) {
+                    window.open('https://link.trustwallet.com/open_url?coin_id=60&url=' + encodeURIComponent(window.location.href), '_self');
+                  } else {
+                    window.open('https://trustwallet.com/', '_blank');
+                  }
+                }}
+                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">T</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-medium">Trust Wallet</div>
+                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Trust Wallet mobile app' : 'Download Trust Wallet'}</div>
+                  </div>
+                </div>
+                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
+                  {isMobile ? 'Mobile' : 'Download'}
+                </span>
+              </button>
+
+              {/* Rainbow Wallet */}
+              <button
+                onClick={() => {
+                  if (isMobile) {
+                    window.open('https://rnbwapp.com/open?url=' + encodeURIComponent(window.location.href), '_self');
+                  } else {
+                    window.open('https://rainbow.me/', '_blank');
+                  }
+                }}
+                className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">R</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-medium">Rainbow</div>
+                    <div className="text-gray-400 text-sm">{isMobile ? 'Connect with Rainbow mobile app' : 'Download Rainbow'}</div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  {wallets.rainbow && (
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                      Detected
+                    </span>
+                  )}
+                  <span className="px-2 py-1 bg-pink-500/20 text-pink-400 text-xs rounded">
+                    {isMobile ? 'Mobile' : 'Download'}
                   </span>
                 </div>
               </button>

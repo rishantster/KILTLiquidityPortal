@@ -38,6 +38,7 @@ import { useQuery } from '@tanstack/react-query';
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
 import { WagmiWalletConnect } from './wagmi-wallet-connect';
+import { WalletTest } from './wallet-test';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -824,7 +825,14 @@ export function MainDashboard() {
             {/* Debug Panel - Development Only */}
             {import.meta.env.DEV && (
               <div className="mt-6">
-
+                <Card className="bg-black/40 backdrop-blur-sm border-gray-800">
+                  <CardHeader>
+                    <CardTitle className="text-white text-sm">Wallet Debug</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <WalletTest />
+                  </CardContent>
+                </Card>
               </div>
             )}
           </TabsContent>

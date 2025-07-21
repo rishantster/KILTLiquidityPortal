@@ -10,7 +10,13 @@ const wagmiConfig = createConfig({
     metaMask(),
     injected(),
     walletConnect({
-      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'your-project-id',
+      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
+      metadata: {
+        name: 'KILT Liquidity Portal',
+        description: 'KILT token liquidity incentive program',
+        url: window.location.origin,
+        icons: ['https://avatars.githubusercontent.com/u/37784886']
+      }
     }),
   ],
   transports: {

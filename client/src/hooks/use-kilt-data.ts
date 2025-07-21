@@ -35,9 +35,6 @@ export function useKiltTokenData() {
     queryKey: ['/api/kilt-data'],
     refetchInterval: 60000, // Refetch every minute
     staleTime: 30000, // Consider data stale after 30 seconds
-    retry: 3,
-    retryDelay: 1000,
-    timeout: 10000, // 10 second timeout
   });
 }
 

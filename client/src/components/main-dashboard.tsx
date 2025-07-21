@@ -22,7 +22,7 @@ import {
 import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -37,8 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { WalletConnectButton } from './connect-button';
-import { NetworkSwitchBanner } from './network-switch-banner';
+import { Web3ModalConnect } from './web3modal-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -104,7 +103,7 @@ function FormulaProgramAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected, isCorrectNetwork } = useWallet();
+  const { address, isConnected, initialized } = useWallet();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
@@ -235,18 +234,11 @@ export function MainDashboard() {
     });
   };
 
-  // Allow app to load with minimal data - don't block on KILT data loading
-  // The app should work even if KILT data is still loading
-  const shouldShowApp = true; // Always show the app, handle loading states within components
-  
-  // Only show loading screen if we're in a critical error state
-  if (!shouldShowApp) {
+  // Render loading state or disconnected state after all hooks are called
+  if (!initialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-white">Initializing...</div>
-        </div>
+        <div className="text-white">Loading...</div>
       </div>
     );
   }
@@ -254,7 +246,6 @@ export function MainDashboard() {
   if (!isConnected) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
-        <NetworkSwitchBanner />
         {/* Background Video */}
         <div className="absolute inset-0" style={{ zIndex: 1 }}>
           <video 
@@ -316,7 +307,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <WalletConnectButton />
+                <Web3ModalConnect />
               </div>
             </div>
 
@@ -428,10 +419,8 @@ export function MainDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      <NetworkSwitchBanner />
-      <div className={`min-h-screen text-white overflow-x-hidden relative ${!isCorrectNetwork ? 'pt-20' : ''}`}>
-        {/* Background Video - Testing higher z-index */}
+    <div className="min-h-screen text-white overflow-x-hidden relative">
+      {/* Background Video - Testing higher z-index */}
       <video 
         autoPlay 
         muted 
@@ -463,7 +452,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <WalletConnectButton />
+              <Web3ModalConnect />
             </div>
           </div>
         </div>
@@ -870,7 +859,8 @@ export function MainDashboard() {
 
         </Tabs>
       </div>
-      </div>
+
+      
     </div>
   );
 }

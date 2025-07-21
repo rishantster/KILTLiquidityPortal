@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useWallet } from "@/hooks/use-wallet";
+import { useWallet } from "@/contexts/wallet-context";
 import { CyberpunkAdminPanel } from "@/components/cyberpunk-admin-panel";
 
 export default function AdminPage() {

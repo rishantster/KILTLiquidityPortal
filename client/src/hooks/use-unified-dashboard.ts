@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useUniswapV3 } from './use-uniswap-v3';
 import { useKiltTokenData } from './use-kilt-data';
 import { useAdminSync } from './use-admin-sync';
@@ -219,8 +219,8 @@ export function useUnifiedDashboard() {
     if (!kiltBalance || !wethBalance || !kiltData?.price) return 0;
     
     try {
-      const kiltBalanceStr = typeof kiltBalance === 'string' ? kiltBalance : String(kiltBalance || '0');
-      const wethBalanceStr = typeof wethBalance === 'string' ? wethBalance : String(wethBalance || '0');
+      const kiltBalanceStr = typeof kiltBalance === 'string' ? kiltBalance : kiltBalance.toString();
+      const wethBalanceStr = typeof wethBalance === 'string' ? wethBalance : wethBalance.toString();
       
       const kiltValue = parseFloat(kiltBalanceStr) / (10**18) * kiltData.price;
       const ethValue = parseFloat(wethBalanceStr) / (10**18) * 2500;

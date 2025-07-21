@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useToast } from './use-toast';
 import { createPublicClient, createWalletClient, custom, http, formatUnits, parseUnits, maxUint256 } from 'viem';
 import { base } from 'viem/chains';
@@ -324,8 +324,7 @@ export function useUniswapV3() {
           }
         ],
         functionName: 'approve',
-        args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount],
-        account: address as `0x${string}`
+        args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount]
       });
 
       // Wait for transaction confirmation
@@ -418,7 +417,7 @@ export function useUniswapV3() {
       
       if (params.useNativeETH) {
         // Use multicall with mint + refundETH for native ETH handling
-        const mintCalldata = (walletClient as any).encodeFunctionData({
+        const mintCalldata = walletClient.encodeFunctionData({
           abi: [
             {
               inputs: [
@@ -468,7 +467,7 @@ export function useUniswapV3() {
           ]
         });
 
-        const refundETHCalldata = (walletClient as any).encodeFunctionData({
+        const refundETHCalldata = walletClient.encodeFunctionData({
           abi: [
             {
               inputs: [],
@@ -498,8 +497,7 @@ export function useUniswapV3() {
           ],
           functionName: 'multicall',
           args: [[mintCalldata, refundETHCalldata]],
-          value: ethValue,
-          account: address as `0x${string}`
+          value: ethValue
         });
       } else {
         // Standard mint call for WETH-only transactions
@@ -552,8 +550,7 @@ export function useUniswapV3() {
               deadline: BigInt(params.deadline)
             }
           ],
-          value: ethValue,
-          account: address as `0x${string}`
+          value: ethValue
         });
       }
 

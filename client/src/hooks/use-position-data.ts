@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 
 export interface Position {
   nftTokenId: string;

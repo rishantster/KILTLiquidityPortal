@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useMemo } from 'react';
 
 // Ultra-fast position data hook with smart caching
@@ -21,7 +21,7 @@ export function useFastPositionData() {
   const processedPositions = useMemo(() => {
     if (!positionsQuery.data) return [];
     
-    return (positionsQuery.data as any[]).map((position: any) => ({
+    return positionsQuery.data.map((position: any) => ({
       ...position,
       // Pre-calculate display values
       displayValue: `$${position.currentValueUSD?.toFixed(2) || '0.00'}`,

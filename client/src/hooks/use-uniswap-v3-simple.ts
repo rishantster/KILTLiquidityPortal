@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useWallet } from '@/hooks/use-wallet';
+import { useWallet } from '@/contexts/wallet-context';
 import { useToast } from './use-toast';
 import { createWalletClient, custom, parseUnits, maxUint256 } from 'viem';
 import { base } from 'viem/chains';

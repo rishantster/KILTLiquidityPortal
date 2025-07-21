@@ -352,13 +352,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       );
       
       if (!result.success) {
-        res.status(400).json({ error: result.error });
+        res.status(400).json({ error: result.error || 'Transaction recording failed' });
         return;
       }
       
       res.json({ 
         success: true,
-        transactionId: result.transactionId,
+        transactionId: result.transactionId || 'unknown',
         message: "Transaction recorded successfully",
         status: "pending_verification"
       });
@@ -470,12 +470,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
       const positionData = {
         userId,
-        nftId,
+        nftTokenId: nftId.toString(),
         poolAddress,
-        tokenIds,
-        minPrice,
-        maxPrice,
-        liquidity,
+        token0Address: "0x4200000000000000000000000000000000000006", // WETH on Base
+        token1Address: "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8", // KILT on Base
+        token0Amount: "0",
+        token1Amount: "0",
+        tickLower: 0,
+        tickUpper: 0,
+        feeTier: 3000,
+        liquidity: liquidity.toString(),
+        currentValueUSD: positionValueUSD.toString(),
+        minPrice: minPrice.toString(),
+        maxPrice: maxPrice.toString(),
         isActive: true,
         createdViaApp: true, // Mark as app-created
         appTransactionHash: "pending", // Will be updated after blockchain verification
@@ -491,8 +498,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const eligibilityCreated = await appTransactionService.createPositionEligibility(
         position.id,
         nftId.toString(),
-        appTransactionId,
-        "app_created"
+        appTransactionId
       );
       
       if (!eligibilityCreated) {
@@ -512,9 +518,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         userId,
         position.id,
         nftId.toString(),
-        positionValueUSD,
-        liquidityAddedAt,
-        liquidityAddedAt // Both liquidity and staking start at same time
+        positionValueUSD
       );
       
       res.json({
@@ -919,9 +923,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json(unifiedAnalytics);
     } catch (error) {
       // Program analytics error
+      console.error('Program analytics error:', error);
       res.status(500).json({ 
         error: 'Internal server error',
-        details: error.message 
+        details: error instanceof Error ? error.message : 'Unknown error' 
       });
     }
   });
@@ -942,7 +947,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
     } catch (error) {
       console.error('Failed to calculate maximum APR:', error);
-      res.status(500).json({ error: "Failed to calculate maximum APR", details: error.message });
+      res.status(500).json({ 
+        error: "Failed to calculate maximum APR", 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      });
     }
   });
 
@@ -999,7 +1007,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const activePositions = positions.filter(p => p.isActive);
       
       // Sort by liquidity value (descending)
-      const sortedPositions = activePositions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
+      const sortedPositions = activePositions.sort((a, b) => parseFloat(b.currentValueUSD) - parseFloat(a.currentValueUSD));
       
       res.json({
         openParticipation: true,
@@ -1037,7 +1045,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Get current Top 100
       const positions = await storage.getAllLpPositions();
       const activePositions = positions.filter(p => p.isActive);
-      const sortedPositions = activePositions.sort((a, b) => b.currentValueUSD - a.currentValueUSD);
+      const sortedPositions = activePositions.sort((a, b) => parseFloat(b.currentValueUSD) - parseFloat(a.currentValueUSD));
       const top100 = sortedPositions.slice(0, 100);
       
       if (top100.length < 100) {
@@ -1055,9 +1063,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Calculate rank 100 score
       const rank100Position = top100[99];
       const rank100DaysActive = Math.floor(
-        (Date.now() - new Date(rank100Position.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        (Date.now() - new Date(rank100Position.createdAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24)
       );
-      const rank100Score = rank100Position.currentValueUSD * rank100DaysActive;
+      const rank100Score = parseFloat(rank100Position.currentValueUSD) * rank100DaysActive;
       
       if (userScore > rank100Score) {
         // Find what rank they would achieve
@@ -1130,9 +1138,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       const rewardCalc = await fixedRewardService.calculatePositionRewards(
         user.id,
+        position.id,
         position.nftTokenId,
-        new Date(position.createdAt),
-        new Date(position.createdAt)
+        parseFloat(position.currentValueUSD)
       );
       
       res.json({ 
@@ -1160,7 +1168,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
 
       // Get position details
-      const position = await storage.getLpPositionById(positionId);
+      const position = await storage.getLpPosition(positionId);
       if (!position) {
         res.status(404).json({ error: 'Position not found' });
         return;
@@ -1168,10 +1176,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
       // Calculate rewards (includes both trading fees and incentives)
       const rewardResult = await fixedRewardService.calculatePositionRewards(
-        position.userId,
+        position.userId || 0,
+        position.id,
         position.nftTokenId,
-        Number(position.currentValueUSD),
-        new Date(position.createdAt)
+        parseFloat(position.currentValueUSD)
       );
 
       res.json({

@@ -187,10 +187,10 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black/90 backdrop-blur-md border border-white/10 max-w-md">
+        <DialogContent className="bg-black border border-gray-800 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl font-bold flex items-center gap-2">
-              <Wallet className="h-5 w-5" />
+            <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">
+              <Wallet className="h-6 w-6" />
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
@@ -198,9 +198,9 @@ export function MobileWalletConnect() {
           {/* Mobile Section */}
           {isMobile ? (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-3 text-gray-400 mb-4">
                 <Smartphone className="h-4 w-4" />
-                <span>Mobile Wallets</span>
+                <span className="text-sm">Available Wallets</span>
               </div>
               
               {getRecommendedWallets().map((wallet) => (
@@ -208,37 +208,23 @@ export function MobileWalletConnect() {
                   key={wallet.id}
                   onClick={() => handleMobileWalletConnect(wallet)}
                   disabled={isPending}
-                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white justify-start h-14 px-4"
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
                 >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="text-2xl">{wallet.icon}</div>
-                    <div className="flex-1 text-left">
-                      <div className="font-medium">{wallet.name}</div>
-                      <div className="text-xs text-gray-400">{wallet.description}</div>
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center gap-4 w-full">
+                    <Wallet className="h-5 w-5" />
+                    <span className="font-medium">{wallet.name}</span>
                   </div>
                 </Button>
               ))}
 
-              <div className="text-center">
-                <Button
-                  variant="ghost"
-                  className="text-emerald-400 hover:text-emerald-300"
-                  onClick={() => {
-                    connectors.length > 0 && handleDesktopConnect(connectors[0]);
-                  }}
-                >
-                  Or try WalletConnect
-                </Button>
-              </div>
+
             </div>
           ) : (
             // Desktop Section
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-3 text-gray-400 mb-4">
                 <Monitor className="h-4 w-4" />
-                <span>Available Wallets</span>
+                <span className="text-sm">Available Wallets</span>
               </div>
               
               {connectors.map((connector) => (
@@ -246,16 +232,16 @@ export function MobileWalletConnect() {
                   key={connector.id}
                   onClick={() => handleDesktopConnect(connector)}
                   disabled={isPending}
-                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white justify-start h-12"
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                      <Loader2 className="mr-4 h-5 w-5 animate-spin" />
                       Connecting...
                     </>
                   ) : (
                     <>
-                      <Wallet className="mr-3 h-5 w-5" />
+                      <Wallet className="mr-4 h-5 w-5" />
                       {connector.name}
                     </>
                   )}
@@ -270,7 +256,7 @@ export function MobileWalletConnect() {
             </div>
           )}
 
-          <div className="text-xs text-gray-400 text-center">
+          <div className="text-sm text-gray-500 text-center mt-6">
             By connecting, you agree to the Terms of Service and Privacy Policy
           </div>
         </DialogContent>

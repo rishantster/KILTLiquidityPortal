@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Wallet, AlertTriangle, Loader2, ChevronDown, RefreshCw } from 'lucide-react';
+import { Wallet, AlertTriangle, Loader2, ChevronDown, RefreshCw, Monitor } from 'lucide-react';
 import { useState } from 'react';
 import { base } from 'wagmi/chains';
 
@@ -149,30 +149,35 @@ export function WagmiWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black/90 backdrop-blur-md border border-white/10">
+        <DialogContent className="bg-black border border-gray-800 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl font-bold flex items-center gap-2">
-              <Wallet className="h-5 w-5" />
-              Connect Wallet
+            <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">
+              <Wallet className="h-6 w-6" />
+              Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 text-gray-400 mb-4">
+              <Monitor className="h-4 w-4" />
+              <span className="text-sm">Available Wallets</span>
+            </div>
+            
             {connectors.map((connector) => (
               <Button
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
-                className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white justify-start h-12"
+                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                    <Loader2 className="mr-4 h-5 w-5 animate-spin" />
                     Connecting...
                   </>
                 ) : (
                   <>
-                    <Wallet className="mr-3 h-5 w-5" />
+                    <Wallet className="mr-4 h-5 w-5" />
                     {connector.name}
                   </>
                 )}
@@ -180,7 +185,7 @@ export function WagmiWalletConnect() {
             ))}
           </div>
 
-          <div className="text-xs text-gray-400 text-center mt-4">
+          <div className="text-sm text-gray-500 text-center mt-6">
             By connecting, you agree to the Terms of Service and Privacy Policy
           </div>
         </DialogContent>

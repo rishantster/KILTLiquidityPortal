@@ -1,0 +1,209 @@
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Wallet, Smartphone, Monitor, ExternalLink, Loader2, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { toast } from '@/hooks/use-toast';
+import { MOBILE_WALLET_LINKS, isMobileDevice, openMobileWallet, getRecommendedWallets } from '@/utils/mobile-wallet-links';
+
+export function MobileWalletConnect() {
+  const { address, isConnected } = useAccount();
+  const { connect, connectors, isPending, error } = useConnect();
+  const { disconnect } = useDisconnect();
+  const [showModal, setShowModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleMobileWalletConnect = async (wallet: any) => {
+    try {
+      // Find the matching connector
+      const connector = connectors.find(c => 
+        c.id === wallet.id || 
+        c.name.toLowerCase().includes(wallet.name.toLowerCase())
+      );
+
+      if (connector && !isMobile) {
+        // Desktop: use direct connector
+        connect({ connector });
+        setShowModal(false);
+      } else if (isMobile) {
+        // Mobile: use deep link
+        const success = openMobileWallet(wallet.id);
+        if (success) {
+          setShowModal(false);
+          toast({
+            title: "Opening Wallet",
+            description: `Redirecting to ${wallet.name}...`,
+          });
+        } else {
+          toast({
+            title: "Install Required",
+            description: `Please install ${wallet.name} first`,
+          });
+        }
+      } else {
+        // Fallback: direct connection attempt
+        if (connector) {
+          connect({ connector });
+          setShowModal(false);
+        }
+      }
+    } catch (err) {
+      console.error('Wallet connection error:', err);
+      toast({
+        title: "Connection Failed",
+        description: `Could not connect to ${wallet.name}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDesktopConnect = (connector: any) => {
+    connect({ connector });
+    setShowModal(false);
+  };
+
+  if (isConnected && address) {
+    return (
+      <div className="flex items-center gap-3">
+        <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
+          <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+          Connected
+        </Badge>
+        <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2">
+          <Wallet className="h-4 w-4 text-emerald-400" />
+          <span className="font-mono text-sm">{address.slice(0, 6)}...{address.slice(-4)}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => disconnect()}
+            className="ml-2 h-6 px-2 text-xs hover:bg-red-500/20 hover:text-red-400"
+          >
+            Disconnect
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Button
+        onClick={() => setShowModal(true)}
+        disabled={isPending}
+        className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+      >
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Connecting...
+          </>
+        ) : (
+          <>
+            <Wallet className="mr-2 h-4 w-4" />
+            Connect Wallet
+          </>
+        )}
+      </Button>
+
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="bg-black/90 backdrop-blur-md border border-white/10 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl font-bold flex items-center gap-2">
+              <Wallet className="h-5 w-5" />
+              Connect Your Wallet
+            </DialogTitle>
+          </DialogHeader>
+          
+          {/* Mobile Section */}
+          {isMobile ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <Smartphone className="h-4 w-4" />
+                <span>Mobile Wallets</span>
+              </div>
+              
+              {getRecommendedWallets().map((wallet) => (
+                <Button
+                  key={wallet.id}
+                  onClick={() => handleMobileWalletConnect(wallet)}
+                  disabled={isPending}
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white justify-start h-14 px-4"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="text-2xl">{wallet.icon}</div>
+                    <div className="flex-1 text-left">
+                      <div className="font-medium">{wallet.name}</div>
+                      <div className="text-xs text-gray-400">{wallet.description}</div>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-gray-400" />
+                  </div>
+                </Button>
+              ))}
+
+              <div className="text-center">
+                <Button
+                  variant="ghost"
+                  className="text-emerald-400 hover:text-emerald-300"
+                  onClick={() => {
+                    connectors.length > 0 && handleDesktopConnect(connectors[0]);
+                  }}
+                >
+                  Or try WalletConnect
+                </Button>
+              </div>
+            </div>
+          ) : (
+            // Desktop Section
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <Monitor className="h-4 w-4" />
+                <span>Available Wallets</span>
+              </div>
+              
+              {connectors.map((connector) => (
+                <Button
+                  key={connector.id}
+                  onClick={() => handleDesktopConnect(connector)}
+                  disabled={isPending}
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white justify-start h-12"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : (
+                    <>
+                      <Wallet className="mr-3 h-5 w-5" />
+                      {connector.name}
+                    </>
+                  )}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 text-sm">{error.message}</p>
+            </div>
+          )}
+
+          <div className="text-xs text-gray-400 text-center">
+            By connecting, you agree to the Terms of Service and Privacy Policy
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { WagmiWalletConnect } from './wagmi-wallet-connect';
+import { MobileWalletConnect } from './mobile-wallet-connect';
 import { WalletTest } from './wallet-test';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
@@ -308,7 +308,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <WagmiWalletConnect />
+                <MobileWalletConnect />
               </div>
             </div>
 
@@ -453,7 +453,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <WagmiWalletConnect />
+              <MobileWalletConnect />
             </div>
           </div>
         </div>

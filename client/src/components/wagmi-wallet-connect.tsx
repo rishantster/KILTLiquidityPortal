@@ -149,7 +149,7 @@ export function WagmiWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-md rounded-2xl overflow-hidden relative">
+        <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl shadow-pink-500/20 max-w-sm w-[90vw] max-h-[90vh] overflow-y-auto rounded-2xl overflow-hidden relative m-4">
           {/* Cyberpunk background grid effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-purple-500/5 pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.03),transparent_70%)] pointer-events-none" />
@@ -180,7 +180,7 @@ export function WagmiWalletConnect() {
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
-                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-16 text-lg font-bold justify-start px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
+                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-12 text-base font-bold justify-start px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Animated background glow */}

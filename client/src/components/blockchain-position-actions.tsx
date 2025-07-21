@@ -128,20 +128,20 @@ export function BlockchainPositionActions({
       } ${positionManager.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {positionManager.isLoading && positionManager.currentOperation === action ? (
-        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+        <Loader2 className="w-3 h-3 animate-spin" />
       ) : (
-        <Icon className="w-3 h-3 mr-1" />
+        <Icon className="w-3 h-3" />
       )}
-      {label}
+      <span className="text-xs mt-1 font-mono">{label}</span>
     </button>
   );
 
   return (
     <>
       <div className="grid grid-cols-3 gap-1">
-        <ActionButton action="increase" icon={Plus} label="+ Add" />
-        <ActionButton action="decrease" icon={Minus} label="- Remove" />
-        <ActionButton action="collect" icon={DollarSign} label="$ Collect" />
+        <ActionButton action="increase" icon={Plus} label="ADD" />
+        <ActionButton action="decrease" icon={Minus} label="REM" />
+        <ActionButton action="collect" icon={DollarSign} label="COL" />
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

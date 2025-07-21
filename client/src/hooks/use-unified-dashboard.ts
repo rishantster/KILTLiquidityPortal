@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCleanWallet } from '@/contexts/clean-wallet-context';
+import { useWagmiWallet } from './use-wagmi-wallet';
 import { useUniswapV3 } from './use-uniswap-v3';
 import { useKiltTokenData } from './use-kilt-data';
 import { useAdminSync } from './use-admin-sync';
@@ -9,7 +9,7 @@ import { useAdminSync } from './use-admin-sync';
  * This ensures Overview, Analytics, Rewards, and Positions all share the same data sources
  */
 export function useUnifiedDashboard() {
-  const { address, isConnected } = useCleanWallet();
+  const { address, isConnected } = useWagmiWallet();
   const { kiltEthPositions, poolData, kiltBalance, wethBalance, ethBalance, isLoading: uniswapLoading } = useUniswapV3();
   
   // Enable blazing fast admin synchronization

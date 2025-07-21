@@ -22,7 +22,7 @@ import {
 import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
-import { useCleanWallet } from '@/contexts/clean-wallet-context';
+import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { CleanWalletConnect } from './clean-wallet-connect';
+import { WagmiWalletConnect } from './wagmi-wallet-connect';
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
@@ -103,7 +103,7 @@ function FormulaProgramAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected, isConnecting } = useCleanWallet();
+  const { address, isConnected, isConnecting } = useWagmiWallet();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
@@ -307,7 +307,7 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
-                <CleanWalletConnect />
+                <WagmiWalletConnect />
               </div>
             </div>
 
@@ -452,7 +452,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <CleanWalletConnect />
+              <WagmiWalletConnect />
             </div>
           </div>
         </div>

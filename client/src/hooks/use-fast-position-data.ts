@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCleanWallet } from '@/contexts/clean-wallet-context';
+import { useWagmiWallet } from './use-wagmi-wallet';
 import { useMemo } from 'react';
 
 // Ultra-fast position data hook with smart caching
 export function useFastPositionData() {
-  const { address, isConnected } = useCleanWallet();
+  const { address, isConnected } = useWagmiWallet();
 
   // Cache position data aggressively
   const positionsQuery = useQuery({
@@ -21,7 +21,7 @@ export function useFastPositionData() {
   const processedPositions = useMemo(() => {
     if (!positionsQuery.data) return [];
     
-    return positionsQuery.data.map((position: any) => ({
+    return (positionsQuery.data as any[])?.map((position: any) => ({
       ...position,
       // Pre-calculate display values
       displayValue: `$${position.currentValueUSD?.toFixed(2) || '0.00'}`,

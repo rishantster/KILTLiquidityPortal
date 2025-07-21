@@ -31,9 +31,6 @@ export function WalletConnectButton() {
           <div className="text-gray-400">
             {address.slice(0, 6)}...{address.slice(-4)}
           </div>
-          <div className="text-gray-500">
-            {formatEther(ethBalance)} ETH • {formatEther(kiltBalance)} KILT
-          </div>
         </div>
         
         {/* Disconnect button */}

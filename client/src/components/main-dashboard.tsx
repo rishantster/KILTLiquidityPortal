@@ -235,15 +235,17 @@ export function MainDashboard() {
     });
   };
 
-  // Render loading state - only show loading if absolutely no data is available
-  // Remove dependency on unifiedData.isLoading as it may get stuck
-  const hasMinimalData = kiltData && kiltData.price;
-  if (!hasMinimalData) {
+  // Allow app to load with minimal data - don't block on KILT data loading
+  // The app should work even if KILT data is still loading
+  const shouldShowApp = true; // Always show the app, handle loading states within components
+  
+  // Only show loading screen if we're in a critical error state
+  if (!shouldShowApp) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-white">Loading KILT data...</div>
+          <div className="text-white">Initializing...</div>
         </div>
       </div>
     );

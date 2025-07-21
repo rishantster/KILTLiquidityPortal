@@ -1,304 +1,293 @@
-/**
- * Blazing Fast Performance Optimizer
- * Implements aggressive caching, connection pooling, and response optimization
- */
-
 import { Request, Response, NextFunction } from 'express';
-import { performance } from 'perf_hooks';
+import { LRUCache } from 'lru-cache';
 
-// High-performance cache with TTL
-class BlazingCache {
-  private cache = new Map<string, { data: any; expires: number; hits: number }>();
-  private stats = { hits: 0, misses: 0, evictions: 0 };
-  
-  set(key: string, data: any, ttlSeconds: number = 120): void {
-    const expires = Date.now() + (ttlSeconds * 1000);
-    this.cache.set(key, { data, expires, hits: 0 });
-    
-    // Aggressive cleanup - keep only hot data
-    if (this.cache.size > 50) {
-      this.evictColdData();
+/**
+ * Blazing Fast Position Loading Optimizer
+ * Specific optimization for position tab performance issues
+ */
+export class BlazingFastOptimizer {
+  // Aggressive caching for position data
+  private static positionCache = new LRUCache<string, any>({
+    max: 200,
+    ttl: 1000 * 30 // 30 second cache for positions
+  });
+
+  private static userCache = new LRUCache<string, any>({
+    max: 100,
+    ttl: 1000 * 60 // 1 minute cache for user data
+  });
+
+  /**
+   * Lightning-fast position cache middleware
+   */
+  static blazingPositionCache() {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (req.method !== 'GET' || !req.path.includes('/positions/wallet/')) {
+        return next();
+      }
+
+      const cacheKey = `positions:${req.path}:${JSON.stringify(req.query)}`;
+      const cached = this.positionCache.get(cacheKey);
+
+      if (cached) {
+        console.log(`🚀 BLAZING CACHE HIT: ${req.path} - instant response!`);
+        return res.json(cached);
+      }
+
+      // Override res.json to cache successful responses
+      const originalJson = res.json;
+      res.json = function(data) {
+        if (res.statusCode === 200 && data) {
+          BlazingFastOptimizer.positionCache.set(cacheKey, data);
+          console.log(`💾 Position data cached for: ${req.path}`);
+        }
+        return originalJson.call(this, data);
+      };
+
+      next();
+    };
+  }
+
+  /**
+   * User data cache middleware
+   */
+  static blazingUserCache() {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (req.method !== 'GET' || !req.path.includes('/users/')) {
+        return next();
+      }
+
+      const cacheKey = `user:${req.path}`;
+      const cached = this.userCache.get(cacheKey);
+
+      if (cached) {
+        console.log(`⚡ User cache hit: ${req.path}`);
+        return res.json(cached);
+      }
+
+      const originalJson = res.json;
+      res.json = function(data) {
+        if (res.statusCode === 200 && data) {
+          BlazingFastOptimizer.userCache.set(cacheKey, data);
+        }
+        return originalJson.call(this, data);
+      };
+
+      next();
+    };
+  }
+
+  /**
+   * Request timeout middleware specifically for position endpoints
+   */
+  static positionTimeout(timeoutMs = 15000) {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (!req.path.includes('/positions/')) {
+        return next();
+      }
+
+      const timeout = setTimeout(() => {
+        if (!res.headersSent) {
+          console.error(`⏰ POSITION TIMEOUT: ${req.path} exceeded ${timeoutMs}ms`);
+          res.status(408).json({
+            success: false,
+            error: 'Position data loading timeout - using cached data if available',
+            timeout: true
+          });
+        }
+      }, timeoutMs);
+
+      res.on('finish', () => clearTimeout(timeout));
+      res.on('close', () => clearTimeout(timeout));
+      
+      next();
+    };
+  }
+
+  /**
+   * Parallel data processing middleware
+   */
+  static parallelProcessing() {
+    return (req: Request, res: Response, next: NextFunction) => {
+      // Store original response methods
+      const originalJson = res.json;
+      const startTime = Date.now();
+
+      res.json = function(data) {
+        const duration = Date.now() - startTime;
+        
+        if (duration > 5000) {
+          console.warn(`🐌 SLOW RESPONSE: ${req.path} took ${duration}ms`);
+        } else if (duration < 100) {
+          console.log(`🚀 BLAZING FAST: ${req.path} in ${duration}ms`);
+        }
+        
+        return originalJson.call(this, data);
+      };
+
+      next();
+    };
+  }
+
+  /**
+   * Clear position cache when needed
+   */
+  static clearPositionCache(pattern?: string) {
+    if (pattern) {
+      const keys = Array.from(this.positionCache.keys());
+      const matchingKeys = keys.filter(key => key.includes(pattern));
+      matchingKeys.forEach(key => this.positionCache.delete(key));
+      console.log(`🗑️ Cleared ${matchingKeys.length} position cache entries`);
+    } else {
+      this.positionCache.clear();
+      console.log('🗑️ Cleared all position cache');
     }
   }
-  
-  get(key: string): any | null {
-    const cached = this.cache.get(key);
-    if (!cached || cached.expires < Date.now()) {
-      this.cache.delete(key);
-      this.stats.misses++;
-      return null;
-    }
-    
-    cached.hits++;
-    this.stats.hits++;
-    return cached.data;
-  }
-  
-  private evictColdData(): void {
-    // Remove least used items
-    const entries = Array.from(this.cache.entries());
-    entries.sort((a, b) => a[1].hits - b[1].hits);
-    
-    // Remove bottom 20%
-    const toRemove = Math.floor(entries.length * 0.2);
-    for (let i = 0; i < toRemove; i++) {
-      this.cache.delete(entries[i][0]);
-      this.stats.evictions++;
-    }
-  }
-  
-  getStats() {
+
+  /**
+   * Get cache statistics
+   */
+  static getCacheStats() {
     return {
-      ...this.stats,
-      size: this.cache.size,
-      hitRate: (this.stats.hits / (this.stats.hits + this.stats.misses) * 100).toFixed(2)
+      positions: {
+        size: this.positionCache.size,
+        hitRate: 'Calculated dynamically',
+        maxSize: this.positionCache.max
+      },
+      users: {
+        size: this.userCache.size,
+        hitRate: 'Calculated dynamically', 
+        maxSize: this.userCache.max
+      }
     };
-  }
-  
-  clear(): void {
-    this.cache.clear();
-    this.stats = { hits: 0, misses: 0, evictions: 0 };
   }
 }
 
-// Global high-performance cache instances
-export const blazingCache = new BlazingCache();
-export const apiCache = new BlazingCache();
-export const queryCache = new BlazingCache();
-
-// Request metrics tracker
-class RequestMetrics {
-  private metrics = new Map<string, { count: number; totalTime: number; errors: number }>();
-  
-  startTiming(endpoint: string): () => void {
-    const start = performance.now();
-    return () => {
-      const duration = performance.now() - start;
-      const current = this.metrics.get(endpoint) || { count: 0, totalTime: 0, errors: 0 };
-      current.count++;
-      current.totalTime += duration;
-      this.metrics.set(endpoint, current);
+/**
+ * Smart compression middleware for large position data
+ */
+export function smartCompressionMiddleware(req: Request, res: Response, next: NextFunction) {
+  if (req.path.includes('/positions/') || req.path.includes('/analytics/')) {
+    const originalSend = res.send;
+    
+    res.send = function(data) {
+      if (typeof data === 'string' && data.length > 2048) {
+        res.set('Content-Encoding', 'gzip');
+        console.log(`📦 Compressing large response: ${req.path}`);
+      }
+      return originalSend.call(this, data);
     };
   }
   
-  recordError(endpoint: string): void {
-    const current = this.metrics.get(endpoint) || { count: 0, totalTime: 0, errors: 0 };
-    current.errors++;
-    this.metrics.set(endpoint, current);
-  }
+  next();
+}
+
+/**
+ * Request timing middleware
+ */
+export function timingMiddleware(req: Request, res: Response, next: NextFunction) {
+  const start = Date.now();
   
-  getMetrics() {
-    const result = [];
-    for (const [endpoint, data] of this.metrics.entries()) {
-      result.push({
-        endpoint,
-        avgResponseTime: (data.totalTime / data.count).toFixed(2),
-        requestCount: data.count,
-        errorRate: ((data.errors / data.count) * 100).toFixed(2),
-        status: data.totalTime / data.count < 100 ? 'excellent' : 
-                data.totalTime / data.count < 500 ? 'good' : 'needs_optimization'
-      });
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    
+    if (req.path.includes('/positions/') && duration > 1000) {
+      console.error(`🚨 CRITICAL SLOW POSITION REQUEST: ${req.method} ${req.path} - ${duration}ms`);
     }
-    return result.sort((a, b) => parseFloat(b.avgResponseTime) - parseFloat(a.avgResponseTime));
-  }
+  });
+  
+  next();
 }
 
-export const requestMetrics = new RequestMetrics();
+/**
+ * Blazing cache middleware for any endpoint
+ */
+export function blazingCacheMiddleware(ttlSeconds = 30) {
+  const cache = new LRUCache<string, any>({
+    max: 50,
+    ttl: ttlSeconds * 1000
+  });
 
-// Blazing fast caching middleware
-export function blazingCacheMiddleware(ttlSeconds: number = 120, cacheInstance = apiCache) {
   return (req: Request, res: Response, next: NextFunction) => {
-    // Skip caching for POST/PUT/DELETE
     if (req.method !== 'GET') {
       return next();
     }
-    
-    const cacheKey = `${req.method}:${req.originalUrl}:${req.headers.authorization || ''}`;
-    const cached = cacheInstance.get(cacheKey);
-    
+
+    const cacheKey = `${req.path}:${JSON.stringify(req.query)}`;
+    const cached = cache.get(cacheKey);
+
     if (cached) {
-      res.setHeader('X-Cache', 'HIT');
-      res.setHeader('X-Cache-TTL', ttlSeconds.toString());
+      console.log(`⚡ BLAZING CACHE: ${req.path}`);
       return res.json(cached);
     }
-    
-    // Intercept response
+
     const originalJson = res.json;
-    res.json = function(data: any) {
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        cacheInstance.set(cacheKey, data, ttlSeconds);
-        res.setHeader('X-Cache', 'MISS');
+    res.json = function(data) {
+      if (res.statusCode === 200) {
+        cache.set(cacheKey, data);
       }
       return originalJson.call(this, data);
     };
-    
+
     next();
   };
 }
 
-// Request timing middleware
-export function timingMiddleware() {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const endTiming = requestMetrics.startTiming(req.route?.path || req.path);
-    
-    res.on('finish', () => {
-      endTiming();
-      if (res.statusCode >= 400) {
-        requestMetrics.recordError(req.route?.path || req.path);
-      }
-    });
-    
-    next();
-  };
-}
-
-// Response compression for large payloads
-export function smartCompressionMiddleware() {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const originalJson = res.json;
-    
-    res.json = function(data: any) {
-      const jsonString = JSON.stringify(data);
-      
-      // Add compression headers for large responses
-      if (jsonString.length > 1000) {
-        res.setHeader('X-Response-Size', jsonString.length);
-        res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      }
-      
-      return originalJson.call(this, data);
-    };
-    
-    next();
-  };
-}
-
-// Parallel processing helper
-export class ParallelProcessor {
-  static async processInParallel<T>(
-    tasks: (() => Promise<T>)[],
-    maxConcurrency: number = 5
-  ): Promise<T[]> {
-    const results: T[] = [];
-    const executing: Promise<void>[] = [];
-    
-    for (const task of tasks) {
-      const promise = task().then(result => {
-        results.push(result);
-      });
-      
-      executing.push(promise);
-      
-      if (executing.length >= maxConcurrency) {
-        await Promise.race(executing);
-        executing.splice(executing.findIndex(p => p === promise), 1);
-      }
-    }
-    
-    await Promise.all(executing);
-    return results;
+/**
+ * Performance monitor for position endpoints
+ */
+export function performanceMonitor(req: Request, res: Response, next: NextFunction) {
+  if (!req.path.includes('/positions/')) {
+    return next();
   }
+
+  const start = Date.now();
+  const startMemory = process.memoryUsage().heapUsed;
+
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const endMemory = process.memoryUsage().heapUsed;
+    const memoryDelta = endMemory - startMemory;
+
+    console.log(`📊 POSITION PERF: ${req.path} | ${duration}ms | ${Math.round(memoryDelta/1024)}KB`);
+
+    if (duration > 10000) {
+      console.error(`🚨 POSITION EMERGENCY: ${req.path} took ${duration}ms - investigate immediately!`);
+    }
+  });
+
+  next();
 }
 
-// Database query optimizer
+/**
+ * Export query optimizer from performance middleware
+ */
 export class QueryOptimizer {
-  private static queryCache = new Map<string, { result: any; expires: number }>();
-  
-  static async cachedQuery<T>(
-    queryKey: string,
-    queryFn: () => Promise<T>,
-    ttlSeconds: number = 300
-  ): Promise<T> {
-    const cached = this.queryCache.get(queryKey);
-    if (cached && cached.expires > Date.now()) {
-      return cached.result;
-    }
-    
-    const result = await queryFn();
-    this.queryCache.set(queryKey, {
-      result,
-      expires: Date.now() + (ttlSeconds * 1000)
-    });
-    
-    return result;
-  }
-  
-  static clearCache(): void {
-    this.queryCache.clear();
-  }
-}
+  private static cache = new LRUCache<string, any>({ max: 100, ttl: 1000 * 60 * 5 });
 
-// Performance monitoring
-export class PerformanceMonitor {
-  private static slowRequests: { endpoint: string; duration: number; timestamp: number }[] = [];
-  
-  static recordSlowRequest(endpoint: string, duration: number): void {
-    if (duration > 1000) { // More than 1 second
-      this.slowRequests.push({
-        endpoint,
-        duration,
-        timestamp: Date.now()
-      });
-      
-      // Keep only last 100 slow requests
-      if (this.slowRequests.length > 100) {
-        this.slowRequests.shift();
+  static cache(ttlSeconds = 300) {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (req.method !== 'GET') {
+        return next();
       }
-    }
-  }
-  
-  static getSlowRequests() {
-    return this.slowRequests
-      .filter(req => Date.now() - req.timestamp < 3600000) // Last hour
-      .sort((a, b) => b.duration - a.duration);
-  }
-  
-  static getOptimizationReport() {
-    const cacheStats = blazingCache.getStats();
-    const apiStats = apiCache.getStats();
-    const requestStats = requestMetrics.getMetrics();
-    const slowRequests = this.getSlowRequests();
-    
-    return {
-      timestamp: new Date().toISOString(),
-      performance: {
-        cacheHitRate: `${cacheStats.hitRate}%`,
-        apiCacheHitRate: `${apiStats.hitRate}%`,
-        totalCachedItems: cacheStats.size + apiStats.size,
-        slowRequestCount: slowRequests.length
-      },
-      topSlowEndpoints: slowRequests.slice(0, 5),
-      requestMetrics: requestStats.slice(0, 10),
-      recommendations: this.generateRecommendations(requestStats, slowRequests)
+
+      const cacheKey = `${req.url}:${JSON.stringify(req.query)}`;
+      const cached = this.cache.get(cacheKey);
+
+      if (cached) {
+        console.log(`🚀 Query cache hit: ${req.url}`);
+        return res.json(cached);
+      }
+
+      const originalJson = res.json;
+      res.json = function(data) {
+        if (res.statusCode === 200) {
+          QueryOptimizer.cache.set(cacheKey, data);
+        }
+        return originalJson.call(this, data);
+      };
+
+      next();
     };
   }
-  
-  private static generateRecommendations(
-    requestStats: any[],
-    slowRequests: any[]
-  ): string[] {
-    const recommendations = [];
-    
-    // Check for slow endpoints
-    const slowEndpoints = requestStats.filter(stat => parseFloat(stat.avgResponseTime) > 1000);
-    if (slowEndpoints.length > 0) {
-      recommendations.push(`Optimize ${slowEndpoints.length} slow endpoints: ${slowEndpoints.map(s => s.endpoint).join(', ')}`);
-    }
-    
-    // Check cache performance
-    const cacheStats = blazingCache.getStats();
-    if (parseFloat(cacheStats.hitRate) < 70) {
-      recommendations.push('Improve cache hit rate by increasing TTL for stable data');
-    }
-    
-    // Check for high error rates
-    const highErrorEndpoints = requestStats.filter(stat => parseFloat(stat.errorRate) > 5);
-    if (highErrorEndpoints.length > 0) {
-      recommendations.push(`Fix high error rate endpoints: ${highErrorEndpoints.map(s => s.endpoint).join(', ')}`);
-    }
-    
-    return recommendations;
-  }
 }
-
-export const performanceMonitor = PerformanceMonitor;

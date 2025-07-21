@@ -26,6 +26,7 @@ import {
   programSettings
 } from "@shared/schema";
 import { 
+  BlazingFastOptimizer,
   blazingCacheMiddleware, 
   timingMiddleware, 
   smartCompressionMiddleware,
@@ -1605,22 +1606,36 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // ULTRA-FAST OPTIMIZED: Uniswap positions with aggressive caching
-  app.get("/api/positions/wallet/:userAddress", async (req, res) => {
-    try {
-      const userAddress = req.params.userAddress;
-      const { blazingFastService } = await import('./blazing-fast-service.js');
-      
-      const positions = await blazingFastService.cachedQuery(`positions-${userAddress}`, async () => {
-        return await uniswapIntegrationService.getUserPositions(userAddress);
-      }, 30); // 30 second cache for positions
-      
-      res.setHeader('X-Optimized', 'blazing-cache');
-      res.json(positions);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch wallet positions" });
+  // ULTRA-FAST OPTIMIZED: Positions with blazing cache and timeout protection
+  app.get("/api/positions/wallet/:userAddress", 
+    BlazingFastOptimizer.blazingPositionCache(),
+    BlazingFastOptimizer.positionTimeout(15000),
+    performanceMonitor,
+    async (req, res) => {
+      try {
+        const userAddress = req.params.userAddress;
+        console.log(`🚀 POSITION REQUEST: ${userAddress}`);
+        
+        // Direct optimized call with timeout protection
+        const positions = await Promise.race([
+          uniswapIntegrationService.getUserPositions(userAddress),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Position fetch timeout')), 10000)
+          )
+        ]);
+        
+        res.setHeader('X-Optimized', 'blazing-position-cache');
+        res.setHeader('X-Cache-TTL', '30s');
+        res.json(positions);
+      } catch (error) {
+        console.error('Position fetch error:', error);
+        res.status(500).json({ 
+          error: "Failed to fetch wallet positions",
+          details: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
     }
-  });
+  );
 
   // LEGACY - Get wallet positions for connected user with caching
   app.get("/api/positions/wallet-legacy/:userAddress", blazingCacheMiddleware(60), timingMiddleware(), async (req, res) => {

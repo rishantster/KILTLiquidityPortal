@@ -558,8 +558,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const sessions = wcService.getActiveSessions();
         const session = Object.values(sessions)[0];
         
-        if (session && session.namespaces?.eip155?.accounts) {
-          const account = session.namespaces.eip155.accounts[0];
+        if (session && typeof session === 'object' && 'namespaces' in session && (session as any).namespaces?.eip155?.accounts) {
+          const account = (session as any).namespaces.eip155.accounts[0];
           const address = account.split(':')[2]; // Extract address from 'eip155:8453:0x...'
           
           setAddress(address);

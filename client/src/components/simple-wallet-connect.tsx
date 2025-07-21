@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useWallet } from '@/contexts/wallet-context';
+import { useToast } from '@/hooks/use-toast';
+import { WalletConnectService } from '@/services/walletconnect-service';
 import { Wallet, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface WalletOption {
@@ -17,6 +19,7 @@ export function SimpleWalletConnect() {
   const { isConnected, isConnecting, address, connect, disconnect } = useWallet();
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const clearError = () => setError(null);
 
@@ -27,6 +30,36 @@ export function SimpleWalletConnect() {
       setShowModal(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Connection failed');
+    }
+  };
+
+  const handleWalletConnect = async () => {
+    setError(null);
+    try {
+      const walletConnectService = new WalletConnectService({
+        projectId: 'demo-project',
+        metadata: {
+          name: 'KILT Liquidity Portal',
+          description: 'KILT DeFi Liquidity Incentive Platform',
+          url: window.location.origin,
+          icons: ['https://kilt.io/favicon.ico']
+        }
+      });
+      
+      await walletConnectService.connect();
+      setShowModal(false);
+      toast({
+        title: "WalletConnect",
+        description: "Check your mobile wallet to approve the connection.",
+      });
+    } catch (err) {
+      console.error('WalletConnect failed:', err);
+      setError(err instanceof Error ? err.message : 'WalletConnect failed');
+      toast({
+        title: "Connection Failed",
+        description: err instanceof Error ? err.message : 'Could not connect via WalletConnect.',
+        variant: "destructive"
+      });
     }
   };
 
@@ -154,13 +187,7 @@ export function SimpleWalletConnect() {
               
               {/* WalletConnect */}
               <button
-                onClick={() => {
-                  if (isMobile) {
-                    window.open('https://metamask.app.link/dapp/' + window.location.hostname, '_self');
-                  } else {
-                    alert('WalletConnect QR modal coming soon! For now, please use MetaMask extension or mobile deep links.');
-                  }
-                }}
+                onClick={handleWalletConnect}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-3">
@@ -183,7 +210,12 @@ export function SimpleWalletConnect() {
                   if (isMobile) {
                     window.open('https://link.trustwallet.com/open_url?coin_id=60&url=' + encodeURIComponent(window.location.href), '_self');
                   } else {
+                    toast({
+                      title: "Download Trust Wallet",
+                      description: "Trust Wallet is primarily a mobile app. Download it from the App Store or Google Play.",
+                    });
                     window.open('https://trustwallet.com/', '_blank');
+                    setShowModal(false);
                   }
                 }}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
@@ -208,7 +240,12 @@ export function SimpleWalletConnect() {
                   if (isMobile) {
                     window.open('https://rnbwapp.com/open?url=' + encodeURIComponent(window.location.href), '_self');
                   } else {
+                    toast({
+                      title: "Download Rainbow",
+                      description: "Rainbow is available as a mobile app and browser extension. Visit rainbow.me to get started.",
+                    });
                     window.open('https://rainbow.me/', '_blank');
+                    setShowModal(false);
                   }
                 }}
                 className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"

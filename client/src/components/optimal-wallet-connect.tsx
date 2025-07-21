@@ -45,12 +45,13 @@ export function OptimalWalletConnect() {
   const walletProviders = detectWalletProviders();
 
   const handleWalletAction = async (action: () => Promise<void>) => {
-    setShowModal(false);
     clearError();
     try {
       await action();
+      setShowModal(false);
     } catch (error) {
       console.error('Wallet action failed:', error);
+      // Keep modal open on error to show error state
     }
   };
 

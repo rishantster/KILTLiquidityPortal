@@ -865,12 +865,12 @@ export class FixedRewardService {
         };
       }
 
-      // Get existing reward stats from database first
+      // Get existing reward stats from database first (using correct columns)
       const stats = await this.database
         .select({
           totalAccumulated: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
-          totalClaimable: sql<number>`COALESCE(SUM(CASE WHEN ${rewards.isEligibleForClaim} = true THEN CAST(${rewards.accumulatedAmount} AS DECIMAL) - CAST(${rewards.claimedAmount} AS DECIMAL) ELSE 0 END), 0)`,
-          totalClaimed: sql<number>`COALESCE(SUM(CAST(${rewards.claimedAmount} AS DECIMAL)), 0)`,
+          totalClaimable: sql<number>`COALESCE(SUM(CASE WHEN ${rewards.claimedAt} IS NULL THEN CAST(${rewards.dailyRewardAmount} AS DECIMAL) ELSE 0 END), 0)`,
+          totalClaimed: sql<number>`COALESCE(SUM(CASE WHEN ${rewards.claimedAt} IS NOT NULL THEN CAST(${rewards.dailyRewardAmount} AS DECIMAL) ELSE 0 END), 0)`,
           activePositions: sql<number>`COUNT(*)`,
         })
         .from(rewards)

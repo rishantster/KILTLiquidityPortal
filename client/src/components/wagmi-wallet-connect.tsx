@@ -2,9 +2,12 @@ import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } fro
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Wallet, AlertTriangle, Loader2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Wallet, AlertTriangle, Loader2, ChevronDown, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { base } from 'wagmi/chains';
+
+
 
 export function WagmiWalletConnect() {
   const { address, isConnected } = useAccount();
@@ -13,6 +16,7 @@ export function WagmiWalletConnect() {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
+  const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -21,6 +25,23 @@ export function WagmiWalletConnect() {
   const handleConnect = (connector: any) => {
     connect({ connector });
     setShowModal(false);
+  };
+
+  const handleSwitchAccount = async () => {
+    setIsSwitchingAccount(true);
+    try {
+      // Use wallet_requestPermissions to force account selection dialog
+      if ((window as any).ethereum) {
+        await (window as any).ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }],
+        });
+      }
+    } catch (error) {
+      console.error('Account switch error:', error);
+    } finally {
+      setIsSwitchingAccount(false);
+    }
   };
 
   const isWrongNetwork = chainId !== base.id;
@@ -53,14 +74,45 @@ export function WagmiWalletConnect() {
         <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2">
           <Wallet className="h-4 w-4 text-emerald-400" />
           <span className="font-mono text-sm">{formatAddress(address)}</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => disconnect()}
-            className="ml-2 h-6 px-2 text-xs hover:bg-red-500/20 hover:text-red-400"
-          >
-            Disconnect
-          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-2 h-6 px-2 text-xs hover:bg-white/10 hover:text-white"
+              >
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-black/90 backdrop-blur-md border border-white/10 text-white">
+              <DropdownMenuItem 
+                onClick={handleSwitchAccount}
+                disabled={isSwitchingAccount}
+                className="hover:bg-white/10 focus:bg-white/10 cursor-pointer"
+              >
+                {isSwitchingAccount ? (
+                  <>
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Switching...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-3 w-3" />
+                    Switch Account
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuItem 
+                onClick={() => disconnect()}
+                className="hover:bg-red-500/20 focus:bg-red-500/20 hover:text-red-400 focus:text-red-400 cursor-pointer"
+              >
+                <Wallet className="mr-2 h-3 w-3" />
+                Disconnect
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     );

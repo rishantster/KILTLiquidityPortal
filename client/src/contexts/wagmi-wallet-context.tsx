@@ -3,40 +3,45 @@ import { base } from 'wagmi/chains';
 import { metaMask, walletConnect, injected, coinbaseWallet } from 'wagmi/connectors';
 import { ReactNode } from 'react';
 
-// Enhanced Wagmi configuration with mobile deep linking support
+// Enhanced Wagmi configuration optimized for Base chain with mobile deep linking support
 const wagmiConfig = createConfig({
   chains: [base],
   connectors: [
-    // MetaMask with mobile detection
+    // Injected first for better wallet detection
+    injected({ shimDisconnect: true }),
+    // MetaMask with enhanced mobile detection
     metaMask({
       dappMetadata: {
         name: 'KILT Liquidity Portal',
         url: window.location.origin
-      }
+      },
+      shimDisconnect: true
     }),
-    // Coinbase Wallet with mobile support
+    // Coinbase Wallet with Base-optimized mobile support
     coinbaseWallet({
       appName: 'KILT Liquidity Portal',
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
     }),
-    // Enhanced WalletConnect with proper mobile linking
+    // WalletConnect with Base-specific configuration
     walletConnect({
       projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
       metadata: {
         name: 'KILT Liquidity Portal',
-        description: 'KILT token liquidity incentive program',
+        description: 'KILT token liquidity incentive program on Base',
         url: window.location.origin,
         icons: ['https://avatars.githubusercontent.com/u/37784886']
       },
-      showQrModal: true,
-      enableExplorer: true
-    }),
-    // Generic injected for other wallets
-    injected(),
+      showQrModal: true
+    })
   ],
   transports: {
-    [base.id]: http('https://mainnet.base.org'),
+    // Base-optimized RPC with batching and retry logic
+    [base.id]: http('https://mainnet.base.org', {
+      batch: true,
+      retryCount: 3,
+      retryDelay: 150
+    }),
   },
 });
 

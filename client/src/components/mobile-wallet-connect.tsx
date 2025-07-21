@@ -1,4 +1,5 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useBaseNetwork } from '@/hooks/use-base-network';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,7 @@ export function MobileWalletConnect() {
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending, error } = useConnect();
   const { disconnect } = useDisconnect();
+  const { isOnBase, shouldSwitchToBase, switchToBase } = useBaseNetwork();
   const [showModal, setShowModal] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -75,10 +77,17 @@ export function MobileWalletConnect() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-3">
-        <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
-          <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-          Connected
-        </Badge>
+        {shouldSwitchToBase ? (
+          <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-orange-500/30 cursor-pointer" onClick={switchToBase}>
+            <div className="w-2 h-2 bg-orange-400 rounded-full mr-2 animate-pulse"></div>
+            Switch to Base
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+            Connected • Base
+          </Badge>
+        )}
         <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2">
           <Wallet className="h-4 w-4 text-emerald-400" />
           <span className="font-mono text-sm">{address.slice(0, 6)}...{address.slice(-4)}</span>

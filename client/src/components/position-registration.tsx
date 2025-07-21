@@ -129,6 +129,7 @@ export function PositionRegistration() {
 
   const unregisteredPositions = unregisteredPositionsData?.eligiblePositions || [];
   const totalPositions = unregisteredPositionsData?.totalPositions || 0;
+  const registeredCount = unregisteredPositionsData?.registeredCount || 0;
 
   // Register position mutation
   const registerMutation = useMutation({
@@ -233,7 +234,7 @@ export function PositionRegistration() {
   };
 
   const handleBulkRegister = () => {
-    const positionsToRegister = unregisteredPositions.filter(pos => 
+    const positionsToRegister = unregisteredPositions.filter((pos: any) => 
       selectedPositions.includes(pos.nftTokenId)
     );
     bulkRegisterMutation.mutate(positionsToRegister);
@@ -291,20 +292,37 @@ export function PositionRegistration() {
             <CardTitle className="text-white font-heading text-sm">
               Eligible Positions
             </CardTitle>
-            {selectedPositions.length > 0 && (
-              <Button 
-                onClick={handleBulkRegister}
-                disabled={bulkRegisterMutation.isPending}
-                className="bg-[#ff0066] hover:bg-[#e6005c] text-xs py-1 px-2 h-6"
-              >
-                {bulkRegisterMutation.isPending ? (
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                ) : (
-                  <Plus className="h-3 w-3 mr-1" />
-                )}
-                Register ({selectedPositions.length})
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {unregisteredPositions.length > 1 && (
+                <Button 
+                  onClick={() => {
+                    if (selectedPositions.length === unregisteredPositions.length) {
+                      setSelectedPositions([]);
+                    } else {
+                      setSelectedPositions(unregisteredPositions.map(p => p.nftTokenId));
+                    }
+                  }}
+                  variant="outline"
+                  className="border-[#ff0066]/30 hover:bg-[#ff0066]/10 text-xs py-1 px-2 h-6"
+                >
+                  {selectedPositions.length === unregisteredPositions.length ? 'Deselect All' : 'Select All'}
+                </Button>
+              )}
+              {selectedPositions.length > 0 && (
+                <Button 
+                  onClick={handleBulkRegister}
+                  disabled={bulkRegisterMutation.isPending}
+                  className="bg-[#ff0066] hover:bg-[#e6005c] text-xs py-1 px-2 h-6"
+                >
+                  {bulkRegisterMutation.isPending ? (
+                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                  ) : (
+                    <Plus className="h-3 w-3 mr-1" />
+                  )}
+                  Register ({selectedPositions.length})
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
@@ -325,14 +343,9 @@ export function PositionRegistration() {
                   <div className="flex gap-2 justify-center">
                     <Button 
                       onClick={() => {
-                        // Navigate to liquidity tab using proper callback
-                        if (window.navigateToTab) {
-                          window.navigateToTab('liquidity');
-                        } else {
-                          // Fallback to querySelector
-                          const liquidityTabButton = document.querySelector('[data-value="liquidity"]') as HTMLElement;
-                          liquidityTabButton?.click();
-                        }
+                        // Navigate to liquidity tab using querySelector
+                        const liquidityTabButton = document.querySelector('[data-value="liquidity"]') as HTMLElement;
+                        liquidityTabButton?.click();
                       }}
                       className="bg-[#ff0066] hover:bg-[#e6005c] text-xs py-1 px-2 h-6"
                     >
@@ -353,107 +366,58 @@ export function PositionRegistration() {
                 <>
                   <CheckCircle className="h-6 w-6 text-[#ff0066] mx-auto mb-3" />
                   <h3 className="text-white font-semibold mb-3 text-lg">All Set!</h3>
-                  <p className="text-white/60 text-sm max-w-xs">
-                    All your KILT positions are already registered and earning rewards.
+                  <p className="text-white/60 text-sm max-w-xs mb-3">
+                    All your {totalPositions} KILT position{totalPositions !== 1 ? 's are' : ' is'} already registered and earning rewards.
                   </p>
+                  {registeredCount > 0 && (
+                    <div className="text-xs text-[#ff0066] font-medium">
+                      {registeredCount} position{registeredCount !== 1 ? 's' : ''} enrolled in reward program
+                    </div>
+                  )}
                 </>
               )}
             </div>
           ) : (
             <div className="space-y-3">
-              {unregisteredPositions.map((position) => (
+              {unregisteredPositions.map((position: any) => (
                 <div 
                   key={position.nftTokenId}
-                  className="bg-gradient-to-br from-gray-900/90 to-gray-800/70 backdrop-blur-sm rounded-xl p-3 sm:p-6 border border-gray-600/40 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:border-gray-500/50 hover:from-gray-900/95 hover:to-gray-800/80"
+                  className="bg-gradient-to-r from-black/90 via-[#ff0066]/10 to-black/90 backdrop-blur-sm rounded border border-[#ff0066]/30 shadow-lg hover:shadow-[#ff0066]/20 transition-all duration-300 hover:border-[#ff0066]/50 p-3"
                 >
-                  {/* Header Section - Mobile Optimized */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
-                    <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex items-center justify-between">
+                    {/* Left: NFT ID with cyberpunk styling */}
+                    <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={selectedPositions.includes(position.nftTokenId)}
                         onChange={() => handleToggleSelection(position.nftTokenId)}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
+                        className="w-3 h-3 text-[#ff0066] bg-black border-[#ff0066] rounded focus:ring-[#ff0066] focus:ring-1"
                       />
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <span className="text-white font-bold text-sm sm:text-lg">Position</span>
-                        <div className="px-1 sm:px-2 py-0.5 sm:py-1 bg-black/20 backdrop-blur-sm rounded-full border border-white/10">
-                          <span className="text-emerald-300 text-xs sm:text-sm font-medium">In Range</span>
-                        </div>
+                      <div className="font-mono text-[#ff0066] text-sm font-bold">
+                        #{position.nftTokenId}
                       </div>
                     </div>
-                    <div className="text-left sm:text-right">
-                      <div className="text-lg sm:text-3xl font-bold text-white">
+                    
+                    {/* Center: Position Value */}
+                    <div className="text-center">
+                      <div className="text-white font-bold text-lg font-mono">
                         ${position.currentValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
-                      <div className="text-xs sm:text-sm text-gray-400">Position Value</div>
                     </div>
-                  </div>
 
-                  {/* Token Amounts Section - Mobile Optimized */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-3 sm:p-4 border border-white/10">
-                      <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                        <div className="w-4 h-4 sm:w-6 sm:h-6 bg-gradient-to-r from-[#ff0066] to-[#ff0066] rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-white">E</span>
-                        </div>
-                        <span className="text-white font-medium text-sm sm:text-base">WETH</span>
-                      </div>
-                      <div className="text-base sm:text-xl font-bold text-white">
-                        {(parseFloat(position.amount0 || '0') / 1e18).toFixed(4)}
-                      </div>
-                      <div className="text-xs sm:text-sm text-gray-400">
-                        ${((parseFloat(position.amount0 || '0') / 1e18) * 2500).toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="bg-black/20 backdrop-blur-xl rounded-lg p-3 sm:p-4 border border-white/10">
-                      <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                        <img src={kiltLogo} alt="KILT" className="w-4 h-4 sm:w-6 sm:h-6" />
-                        <span className="text-pink-300 font-medium text-sm sm:text-base">KILT</span>
-                      </div>
-                      <div className="text-base sm:text-xl font-bold text-white">
-                        {(parseFloat(position.amount1 || '0') / 1e18).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      </div>
-                      <div className="text-xs sm:text-sm text-gray-400">
-                        ${((parseFloat(position.amount1 || '0') / 1e18) * 0.018).toFixed(2)}
-                      </div>
-                    </div>
+                    {/* Right: Register Button */}
+                    <Button
+                      onClick={() => registerMutation.mutate(position)}
+                      disabled={registerMutation.isPending}
+                      className="bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-[#ff0066]/20 transition-all duration-200 h-7 px-3 text-xs font-medium"
+                    >
+                      {registerMutation.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Plus className="h-3 w-3" />
+                      )}
+                    </Button>
                   </div>
-
-                  {/* Position Details - Mobile Optimized */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6 text-xs sm:text-sm">
-                    <div>
-                      <div className="text-gray-400 mb-1">NFT ID</div>
-                      <div className="text-white font-bold text-sm sm:text-base">#{position.nftTokenId}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 mb-1">Fee Tier</div>
-                      <div className="text-white font-bold text-sm sm:text-base">{(position.feeTier / 10000)}%</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 mb-1">Range</div>
-                      <div className="text-white font-bold text-sm sm:text-base">Full Range</div>
-                    </div>
-                  </div>
-
-                  {/* Action Button - Mobile Optimized */}
-                  <Button
-                    onClick={() => registerMutation.mutate(position)}
-                    disabled={registerMutation.isPending}
-                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 h-10 sm:h-12 text-sm sm:text-base font-medium"
-                  >
-                    {registerMutation.isPending ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                        <span className="text-sm sm:text-base">Registering...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="text-sm sm:text-base">Register Position</span>
-                      </div>
-                    )}
-                  </Button>
                 </div>
               ))}
             </div>

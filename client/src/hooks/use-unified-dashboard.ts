@@ -45,7 +45,7 @@ export function useUnifiedDashboard() {
     enabled: !!address && isConnected
   });
 
-  // Get user's reward statistics with proper error handling
+  // Get user's reward statistics with proper error handling and real-time updates
   const { data: rewardStats } = useQuery({
     queryKey: ['rewardStats', user?.id],
     queryFn: async () => {
@@ -60,6 +60,7 @@ export function useUnifiedDashboard() {
       try {
         const response = await fetch(`/api/rewards/user/${user.id}/stats`);
         if (!response.ok) {
+          console.error(`Failed to fetch reward stats for user ${user.id}:`, response.status);
           return {
             totalAccumulated: 0,
             totalClaimed: 0,
@@ -68,8 +69,9 @@ export function useUnifiedDashboard() {
             avgDailyRewards: 0
           };
         }
-        return response.json();
+        return await response.json();
       } catch (error) {
+        console.error('Error fetching reward stats:', error);
         return {
           totalAccumulated: 0,
           totalClaimed: 0,
@@ -80,7 +82,8 @@ export function useUnifiedDashboard() {
       }
     },
     enabled: !!user?.id,
-    refetchInterval: 30000
+    refetchInterval: 30000, // Refresh every 30 seconds 
+    staleTime: 15000 // Consider data stale after 15 seconds
   });
 
   // Get user's personal APR

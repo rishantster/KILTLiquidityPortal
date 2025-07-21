@@ -1,20 +1,20 @@
 // Authentic wallet logos - PNG imports with transparent backgrounds
 import React from 'react';
-import metamaskLogo from '@assets/metamask-logo.png';
-import trustWalletLogo from '@assets/trust-wallet-logo.png';
-import coinbaseLogo from '@assets/coinbase-logo.png';
-import rainbowLogo from '@assets/rainbow-wallet-logo.png';
-import phantomLogo from '@assets/phantom-wallet-logo.png';
+import metamaskLogo from '@assets/metamask.png';
+import trustwalletLogo from '@assets/trustwallet.png';
+import coinbaseLogo from '@assets/coinbase.png';
+import rainbowLogo from '@assets/rainbow-logo.png';
+import phantomLogo from '@assets/phantom-logo.png';
 import walletconnectLogo from '@assets/walletconnect-logo.png';
-import binanceLogo from '@assets/binance-wallet-logo.png';
+import binanceLogo from '@assets/binance-logo.png';
 
 interface IconProps {
   className?: string;
 }
 
-// Force component refresh - v3.0 PNG Implementation July 21, 2025
+// Force component refresh - v5.0 Authentic PNG Implementation July 21, 2025
 
-// MetaMask - Official PNG Logo
+// MetaMask - Authentic PNG Logo
 export function MetaMaskIcon({ className }: IconProps) {
   return (
     <img 
@@ -26,11 +26,11 @@ export function MetaMaskIcon({ className }: IconProps) {
   );
 }
 
-// Trust Wallet - Official PNG Logo
+// Trust Wallet - Authentic PNG Logo
 export function TrustWalletIcon({ className }: IconProps) {
   return (
     <img 
-      src={trustWalletLogo} 
+      src={trustwalletLogo} 
       alt="Trust Wallet"
       className={className}
       style={{ objectFit: 'contain' }}
@@ -38,7 +38,7 @@ export function TrustWalletIcon({ className }: IconProps) {
   );
 }
 
-// Coinbase Wallet - Official PNG Logo
+// Coinbase Wallet - Authentic PNG Logo
 export function CoinbaseIcon({ className }: IconProps) {
   return (
     <img 
@@ -50,7 +50,7 @@ export function CoinbaseIcon({ className }: IconProps) {
   );
 }
 
-// Rainbow Wallet - Official PNG Logo
+// Rainbow Wallet - Authentic PNG Logo
 export function RainbowIcon({ className }: IconProps) {
   return (
     <img 
@@ -62,7 +62,7 @@ export function RainbowIcon({ className }: IconProps) {
   );
 }
 
-// Phantom Wallet - Official PNG Logo
+// Phantom Wallet - Authentic PNG Logo
 export function PhantomIcon({ className }: IconProps) {
   return (
     <img 
@@ -74,7 +74,7 @@ export function PhantomIcon({ className }: IconProps) {
   );
 }
 
-// Binance Wallet - Official PNG Logo
+// Binance Wallet - Authentic PNG Logo
 export function BinanceIcon({ className }: IconProps) {
   return (
     <img 
@@ -86,7 +86,7 @@ export function BinanceIcon({ className }: IconProps) {
   );
 }
 
-// WalletConnect - Official PNG Logo
+// WalletConnect - Authentic PNG Logo
 export function WalletConnectIcon({ className }: IconProps) {
   return (
     <img 

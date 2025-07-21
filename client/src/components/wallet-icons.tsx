@@ -16,7 +16,7 @@ export function MetaMaskIcon({ className }: IconProps) {
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
     >
-      <rect width="40" height="40" rx="8" fill="#F6851B"/>
+      <rect width="40" height="40" rx="8" fill="#F6851B" stroke="red" strokeWidth="2"/>
       <path d="M32.5 8L20 16.5L22.5 11.5L32.5 8Z" fill="#E2761B"/>
       <path d="M7.5 8L19.5 16.7L17 11.5L7.5 8Z" fill="#E4761B"/>
       <path d="M27.5 26L24.5 30.5L31.5 32.5L33.5 26L27.5 26Z" fill="#E4761B"/>

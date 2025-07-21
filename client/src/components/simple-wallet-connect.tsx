@@ -139,7 +139,7 @@ export function SimpleWalletConnect() {
                 className="w-full flex items-center justify-between p-4 bg-gray-900/50 hover:bg-pink-500/10 rounded border border-gray-800/50 hover:border-pink-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/20 cyberpunk-glow"
               >
                 <div className="flex items-center space-x-3">
-                  <MetaMaskIcon className="w-10 h-10" />
+                  <MetaMaskIcon className="w-10 h-10 border-2 border-red-500" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">MetaMask</div>
                     <div className="text-cyan-400 text-xs font-mono">

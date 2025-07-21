@@ -2,6 +2,9 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
+import { setupPerformanceRoutes } from "./performance-routes";
+import { enhancedErrorHandler } from "./error-handler";
+import { DatabaseOptimizer } from "./database-optimizer";
 import { kiltPriceService } from "./kilt-price-service.js";
 import { blockchainConfigService } from "./blockchain-config-service";
 import compression from "compression";
@@ -15,6 +18,11 @@ kiltPriceService; // This will start the background price fetching
 
 // Initialize blockchain configuration with defaults
 blockchainConfigService.initializeDefaults();
+
+// Initialize essential database optimizations on startup
+import('./db-migration-optimizer').then(({ DbMigrationOptimizer }) => {
+  DbMigrationOptimizer.runEssentialOptimizations();
+}).catch(console.error);
 
 const app = express();
 

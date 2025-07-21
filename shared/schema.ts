@@ -340,8 +340,8 @@ export const insertPoolStatsSchema = createInsertSchema(poolStats).pick({
 
 // New schema validators for admin features
 export const insertProgramSettingsSchema = createInsertSchema(programSettings).pick({
-  programDuration: true,
-  liquidityWeight: true,
+  timeBoostCoefficient: true,
+  fullRangeBonus: true,
   minimumPositionValue: true,
   lockPeriod: true,
 });
@@ -349,7 +349,6 @@ export const insertProgramSettingsSchema = createInsertSchema(programSettings).p
 export const insertTreasuryConfigSchema = createInsertSchema(treasuryConfig).pick({
   treasuryWalletAddress: true,
   totalAllocation: true,
-  annualRewardsBudget: true,
   dailyRewardsCap: true,
   programStartDate: true,
   programEndDate: true,

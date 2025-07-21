@@ -7,7 +7,9 @@ const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '2a1306d3c7b6
 export const wagmiConfig = createConfig({
   chains: [base],
   connectors: [
-    injected(),
+    injected({ 
+      target: 'metaMask',
+    }),
     walletConnect({
       projectId,
       metadata: {
@@ -15,12 +17,14 @@ export const wagmiConfig = createConfig({
         description: 'DeFi liquidity management with treasury rewards',
         url: 'https://liq.kilt.io',
         icons: ['https://avatars.githubusercontent.com/u/37784886']
-      }
+      },
+      showQrModal: true,
     }),
   ],
   transports: {
     [base.id]: http(),
   },
+  ssr: false,
 })
 
 export const BASE_CHAIN_ID = base.id

@@ -17,9 +17,6 @@ export function WagmiWalletConnect() {
   const { switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
   const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
-  
-  // Debug log for connectors
-  console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -152,16 +149,16 @@ export function WagmiWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 max-w-md w-[90vw] sm:max-w-md rounded-lg">
+        <DialogContent className="bg-black border border-gray-800 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-gray-900 dark:text-white text-xl font-semibold flex items-center gap-3 mb-4">
-              <Wallet className="h-5 w-5" />
+            <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">
+              <Wallet className="h-6 w-6" />
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-4">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 text-gray-400 mb-4">
               <Monitor className="h-4 w-4" />
               <span className="text-sm">Available Wallets</span>
             </div>
@@ -171,24 +168,24 @@ export function WagmiWalletConnect() {
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-12 text-sm font-medium justify-start px-4 rounded-md transition-colors flex items-center"
+                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="mr-3 h-4 w-4 animate-spin text-white" />
-                    <span className="text-white">Connecting...</span>
+                    <Loader2 className="mr-4 h-5 w-5 animate-spin" />
+                    Connecting...
                   </>
                 ) : (
                   <>
-                    <Wallet className="mr-3 h-4 w-4 text-white" />
-                    <span className="text-white">{connector.name}</span>
+                    <Wallet className="mr-4 h-5 w-5" />
+                    {connector.name}
                   </>
                 )}
               </Button>
             ))}
           </div>
 
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6">
+          <div className="text-sm text-gray-500 text-center mt-6">
             By connecting, you agree to the Terms of Service and Privacy Policy
           </div>
         </DialogContent>

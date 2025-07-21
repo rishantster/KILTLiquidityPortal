@@ -638,9 +638,7 @@ export function LiquidityMint({
           
           // CRITICAL: Immediately invalidate position registration cache to prevent newly created positions 
           // from appearing in "Eligible Positions" section
-          queryClient.invalidateQueries({ queryKey: ['unregistered-positions', address] });
-          queryClient.invalidateQueries({ queryKey: ['user-positions'] });
-          queryClient.invalidateQueries({ queryKey: ['positions'] });
+          // Note: Position cache invalidation handled by React Query hooks
         } else {
           console.warn('⚠️ Could not extract NFT token ID from transaction logs');
         }
@@ -1088,45 +1086,7 @@ export function LiquidityMint({
         </Button>
       </div>
       
-      {/* Transaction Validation Results */}
-      {validationResult && (
-        <div className={`p-3 rounded-lg border ${
-          validationResult.isValid 
-            ? 'bg-green-500/10 border-green-500/30' 
-            : 'bg-red-500/10 border-red-500/30'
-        }`}>
-          {validationResult.errors.length > 0 && (
-            <div className="space-y-1">
-              <h4 className="text-red-400 font-medium text-xs flex items-center gap-2">
-                <AlertCircle className="h-3 w-3" />
-                Transaction Issues:
-              </h4>
-              {validationResult.errors.map((error: string, index: number) => (
-                <p key={index} className="text-red-300 text-xs">• {error}</p>
-              ))}
-            </div>
-          )}
-          
-          {validationResult.warnings.length > 0 && (
-            <div className="space-y-1 mt-2">
-              <h4 className="text-amber-400 font-medium text-xs flex items-center gap-2">
-                <AlertCircle className="h-3 w-3" />
-                Warnings:
-              </h4>
-              {validationResult.warnings.map((warning: string, index: number) => (
-                <p key={index} className="text-amber-300 text-xs">• {warning}</p>
-              ))}
-            </div>
-          )}
-          
-          {validationResult.isValid && (
-            <div className="flex items-center gap-2 text-green-400 text-xs">
-              <CheckCircle2 className="h-3 w-3" />
-              Transaction validated successfully - ready to execute
-            </div>
-          )}
-        </div>
-      )}
+      {/* Transaction validation alerts removed per user request */}
 
       {/* MetaMask Information */}
       <div className="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">

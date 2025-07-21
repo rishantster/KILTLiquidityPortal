@@ -389,7 +389,7 @@ export function PositionRegistration() {
           ) : (
             <div className="space-y-3">
               {unregisteredPositions
-                .filter((position: any) => position.positionStatus === 'IN_RANGE') // Only show in-range positions
+                .filter((position: any) => position.positionStatus === 'ACTIVE_IN_RANGE' || position.positionStatus === 'IN_RANGE') // Only show in-range positions
                 .map((position: any) => (
                 <div 
                   key={position.tokenId}

@@ -1,11 +1,11 @@
 // Authentic wallet logos - PNG imports with transparent backgrounds
 import React from 'react';
-import metamaskLogo from '@assets/metamask.png';
+import metamaskLogo from '@assets/image_1753103050476.png';
 import trustwalletLogo from '@assets/trustwallet.png';
-import coinbaseLogo from '@assets/coinbase.png';
+import coinbaseLogo from '@assets/image_1753103070920.png';
 import rainbowLogo from '@assets/rainbow-logo.png';
 import phantomLogo from '@assets/phantom-logo.png';
-import walletconnectLogo from '@assets/walletconnect-logo.png';
+import walletconnectLogo from '@assets/image_1753103096495.png';
 import binanceLogo from '@assets/binance-logo.png';
 
 interface IconProps {

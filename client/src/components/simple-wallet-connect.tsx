@@ -46,7 +46,7 @@ export function SimpleWalletConnect() {
       
       setShowModal(false);
       toast({
-        title: "Neural Link Established",
+        title: "Wallet Connected",
         description: `Successfully connected to ${walletName}`,
       });
     } catch (err) {
@@ -112,7 +112,7 @@ export function SimpleWalletConnect() {
         <DialogContent className="sm:max-w-md bg-black/95 backdrop-blur-xl border border-pink-500/30 shadow-2xl shadow-pink-500/20 max-h-[80vh] overflow-y-auto cyberpunk-modal">
           <DialogHeader>
             <DialogTitle className="text-transparent bg-gradient-to-r from-pink-400 via-violet-400 to-cyan-400 bg-clip-text text-center text-xl font-bold tracking-wide">
-              CONNECT NEURAL LINK
+              Connect Wallet
             </DialogTitle>
           </DialogHeader>
           
@@ -128,7 +128,7 @@ export function SimpleWalletConnect() {
             <div className="space-y-3">
               <h3 className="text-xs font-mono text-cyan-400 flex items-center space-x-2 uppercase tracking-wider">
                 <Monitor className="w-4 h-4 text-pink-400" />
-                <span>BROWSER NEURAL INTERFACES</span>
+                <span>Browser Extensions</span>
               </h3>
 
               {/* MetaMask */}
@@ -142,12 +142,6 @@ export function SimpleWalletConnect() {
                   <MetaMaskIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">MetaMask</div>
-                    <div className="text-cyan-400 text-xs font-mono">
-                      {detectedWallets.find(w => w.name === 'MetaMask')?.detected 
-                        ? 'NEURAL LINK ACTIVE' 
-                        : 'INSTALL REQUIRED'
-                      }
-                    </div>
                   </div>
                 </div>
                 <div className="flex space-x-2">
@@ -172,12 +166,7 @@ export function SimpleWalletConnect() {
                   <CoinbaseIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">Coinbase Wallet</div>
-                    <div className="text-cyan-400 text-xs font-mono">
-                      {detectedWallets.find(w => w.name === 'Coinbase Wallet')?.detected 
-                        ? 'NEURAL LINK ACTIVE' 
-                        : 'INSTALL REQUIRED'
-                      }
-                    </div>
+
                   </div>
                 </div>
                 {detectedWallets.find(w => w.name === 'Coinbase Wallet')?.detected && (
@@ -197,9 +186,7 @@ export function SimpleWalletConnect() {
                   <TrustWalletIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">Trust Wallet</div>
-                    <div className="text-cyan-400 text-xs font-mono">
-                      {isMobile ? 'MOBILE BRIDGE READY' : 'QUANTUM SECURE'}
-                    </div>
+
                   </div>
                 </div>
                 <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-wider border border-cyan-500/30">
@@ -217,12 +204,7 @@ export function SimpleWalletConnect() {
                   <RainbowIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">Rainbow</div>
-                    <div className="text-cyan-400 text-xs font-mono">
-                      {detectedWallets.find(w => w.name === 'Rainbow')?.detected 
-                        ? 'NEURAL LINK ACTIVE' 
-                        : 'AESTHETIC PROTOCOL'
-                      }
-                    </div>
+
                   </div>
                 </div>
                 {detectedWallets.find(w => w.name === 'Rainbow')?.detected && (
@@ -242,12 +224,7 @@ export function SimpleWalletConnect() {
                   <PhantomIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">Phantom</div>
-                    <div className="text-cyan-400 text-xs font-mono">
-                      {detectedWallets.find(w => w.name === 'Phantom')?.detected 
-                        ? 'NEURAL LINK ACTIVE' 
-                        : 'GHOST PROTOCOL'
-                      }
-                    </div>
+
                   </div>
                 </div>
                 {detectedWallets.find(w => w.name === 'Phantom')?.detected && (
@@ -267,12 +244,7 @@ export function SimpleWalletConnect() {
                   <BinanceIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">Binance Wallet</div>
-                    <div className="text-cyan-400 text-xs font-mono">
-                      {detectedWallets.find(w => w.name === 'Binance Wallet')?.detected 
-                        ? 'NEURAL LINK ACTIVE' 
-                        : 'EXCHANGE BRIDGE'
-                      }
-                    </div>
+
                   </div>
                 </div>
                 {detectedWallets.find(w => w.name === 'Binance Wallet')?.detected && (
@@ -287,7 +259,7 @@ export function SimpleWalletConnect() {
             <div className="space-y-3">
               <h3 className="text-xs font-mono text-violet-400 flex items-center space-x-2 uppercase tracking-wider">
                 <Smartphone className="w-4 h-4 text-cyan-400" />
-                <span>MOBILE QUANTUM BRIDGE</span>
+                <span>Mobile Wallets</span>
               </h3>
 
               {/* WalletConnect */}
@@ -300,7 +272,7 @@ export function SimpleWalletConnect() {
                   <WalletConnectIcon className="w-10 h-10" />
                   <div className="text-left">
                     <div className="text-white font-mono font-medium tracking-wide">WalletConnect</div>
-                    <div className="text-violet-400 text-xs font-mono">QUANTUM ENTANGLEMENT</div>
+                    <div className="text-violet-400 text-xs font-mono">Universal Protocol</div>
                   </div>
                 </div>
                 <span className="px-2 py-1 bg-violet-500/20 text-violet-400 text-xs font-mono uppercase tracking-wider border border-violet-500/30">
@@ -310,8 +282,8 @@ export function SimpleWalletConnect() {
             </div>
 
             <div className="text-center text-xs font-mono text-gray-600 border-t border-gray-800/50 pt-4">
-              <span className="text-pink-400">⚠</span> NEURAL INTERFACE CONNECTION PROTOCOL <span className="text-pink-400">⚠</span>
-              <div className="text-gray-500 mt-1">By connecting, you accept quantum entanglement terms</div>
+              <span className="text-pink-400">⚠</span> Secure Wallet Connection <span className="text-pink-400">⚠</span>
+              <div className="text-gray-500 mt-1">By connecting, you accept the wallet terms and conditions</div>
             </div>
           </div>
         </DialogContent>

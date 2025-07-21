@@ -78,7 +78,7 @@ export function calculatePrice(amount0: string, amount1: string, decimals0: numb
 
 export function isValidAddress(address: string): boolean {
   try {
-    ethers.utils.getAddress(address);
+    ethers.getAddress(address);
     return true;
   } catch {
     return false;

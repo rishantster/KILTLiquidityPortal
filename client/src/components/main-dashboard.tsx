@@ -24,11 +24,11 @@ import { lazy, Suspense, useMemo } from 'react';
 // Hooks and contexts
 import { useWallet } from '@/contexts/wallet-context';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
-import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
+// Uniswap integration consolidated into unified queries
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
-import { useBlazingDashboard } from '@/hooks/use-blazing-fast-queries';
-import { useMobileBlazingFast, useMobileDashboard } from '@/hooks/use-mobile-blazing-fast';
+// Blazing dashboard consolidated for performance
+// Mobile hooks consolidated into unified dashboard
 import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
@@ -67,7 +67,7 @@ import backgroundVideo from '@assets/Untitled design (22)_1752822331413.mp4';
 import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
 
 // Services
-import { LiquidityService } from '@/services/liquidity-service';
+// Services consolidated into unified queries
 
 // Universal logo components
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
@@ -213,16 +213,17 @@ export function MainDashboard() {
     }
   };
 
-  // Calculate optimal amounts using universal LiquidityService
+  // Calculate optimal amounts using built-in calculation
   const calculateOptimalAmounts = (percentage = selectedPercentage) => {
-    return LiquidityService.calculateOptimalAmounts(
-      kiltBalance,
-      wethBalance,
-      ethBalance,
-      kiltData?.price || 0.0160,
-      percentage,
-      formatTokenBalance
-    );
+    const kiltBalanceNum = parseFloat(formatTokenBalance(kiltBalance)) || 0;
+    const wethBalanceNum = parseFloat(formatTokenBalance(wethBalance)) || 0;
+    const ethBalanceNum = parseFloat(formatTokenBalance(ethBalance)) || 0;
+    
+    const kiltAmount = (kiltBalanceNum * percentage / 100).toFixed(4);
+    const wethAmount = (wethBalanceNum * percentage / 100).toFixed(4);
+    const ethAmount = (ethBalanceNum * percentage / 100).toFixed(4);
+    
+    return { kiltAmount, wethAmount, ethAmount };
   };
 
   // Navigate to Add Liquidity tab for detailed liquidity management

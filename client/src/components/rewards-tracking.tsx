@@ -423,10 +423,10 @@ export function RewardsTracking() {
                   <span className="text-white/60">Remaining:</span>
                   <span className="text-white">{programAnalytics?.treasuryRemaining ? programAnalytics.treasuryRemaining.toLocaleString() : '...'} KILT</span>
                 </div>
-                <Progress value={programAnalytics?.totalBudget ? ((programAnalytics.totalBudget - (programAnalytics.treasuryRemaining || 0)) / programAnalytics.totalBudget * 100) : 0} className="h-2 rounded-full bg-[#ffc4c4]" />
+                <Progress value={programAnalytics?.treasuryTotal ? ((programAnalytics.treasuryTotal - (programAnalytics.treasuryRemaining || 0)) / programAnalytics.treasuryTotal * 100) : 0} className="h-2 rounded-full bg-[#ffc4c4]" />
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Distributed:</span>
-                  <span className="text-white">{programAnalytics?.totalBudget ? (programAnalytics.totalBudget - (programAnalytics.treasuryRemaining || 0)).toLocaleString() : '...'} KILT</span>
+                  <span className="text-white">{programAnalytics?.treasuryTotal ? (programAnalytics.treasuryTotal - (programAnalytics.treasuryRemaining || 0)).toLocaleString() : '...'} KILT</span>
                 </div>
               </div>
               

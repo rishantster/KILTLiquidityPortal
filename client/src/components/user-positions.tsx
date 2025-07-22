@@ -517,7 +517,7 @@ export function UserPositions() {
                     <div className="nft-info-bar">
                       <div className="nft-info-item">
                         <div className="nft-info-label">NFT ID</div>
-                        <div className="nft-info-value">#{position.tokenId}</div>
+                        <div className="nft-info-value">#{position.tokenId || position.nftTokenId || position.id}</div>
                       </div>
                       <div className="nft-info-item">
                         <div className="nft-info-label">Fee Tier</div>

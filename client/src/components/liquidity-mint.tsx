@@ -220,7 +220,14 @@ export function LiquidityMint({
             const kiltAmountCalculated = (ethAmountCalculated * ethPrice) / kiltPrice;
             
             if (kiltAmountCalculated >= 0) {
-              setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
+              // Check KILT balance constraint - never exceed wallet KILT holdings
+              if (kiltBalance) {
+                const kiltBalanceNum = parseFloat(formatTokenAmount(kiltBalance));
+                const finalKiltAmount = Math.min(kiltAmountCalculated, kiltBalanceNum);
+                setKiltAmount(finalKiltAmount.toFixed(3)); // 3 decimal places, capped to balance
+              } else {
+                setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
+              }
             }
           }
         }
@@ -234,6 +241,16 @@ export function LiquidityMint({
     // Prevent negative values
     const numValue = parseFloat(value);
     if (numValue < 0) return;
+    
+    // Check KILT balance constraint - never exceed wallet KILT holdings
+    if (kiltBalance && value) {
+      const kiltBalanceNum = parseFloat(formatTokenAmount(kiltBalance));
+      if (numValue > kiltBalanceNum) {
+        // Cap KILT amount to maximum available balance
+        setKiltAmount(kiltBalanceNum.toFixed(3));
+        return;
+      }
+    }
     
     setIsManualInput(true);
     setKiltAmount(value);
@@ -283,7 +300,14 @@ export function LiquidityMint({
       const kiltAmountCalculated = (numValue * ethPrice) / kiltPrice;
       
       if (kiltAmountCalculated >= 0) {
-        setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
+        // Check KILT balance constraint - never exceed wallet KILT holdings
+        if (kiltBalance) {
+          const kiltBalanceNum = parseFloat(formatTokenAmount(kiltBalance));
+          const finalKiltAmount = Math.min(kiltAmountCalculated, kiltBalanceNum);
+          setKiltAmount(finalKiltAmount.toFixed(3)); // 3 decimal places, capped to balance
+        } else {
+          setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
+        }
         
         // Update position size slider based on selected ETH token balance (limiting factor)
         const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;

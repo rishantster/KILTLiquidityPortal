@@ -787,8 +787,8 @@ export function LiquidityMint({
                     disabled={!hasKiltBalance}
                     className={`text-sm h-10 text-center font-bold rounded-lg transition-all duration-200 ${
                       hasKiltBalance 
-                        ? 'bg-white/5 border-white/10 text-white' 
-                        : 'bg-red-900/20 border-red-500/30 text-red-300 cursor-not-allowed'
+                        ? 'bg-black/60 border-white/30 text-white placeholder:text-white/50' 
+                        : 'bg-red-900/20 border-red-500/30 text-red-300 cursor-not-allowed placeholder:text-red-400/70'
                     }`}
                   />
                   <div className="space-y-2">
@@ -856,7 +856,7 @@ export function LiquidityMint({
               onChange={(e) => handleEthAmountChange(e.target.value)}
               placeholder={`Enter ${selectedEthToken} amount`}
               min="0"
-              className="bg-white/5 border-white/10 text-white text-sm h-10 text-center font-bold rounded-lg"
+              className="bg-black/60 border-white/30 text-white text-sm h-10 text-center font-bold rounded-lg placeholder:text-white/50"
             />
             <div className="flex justify-between items-center">
               <span className="text-white/90 text-xs font-medium">

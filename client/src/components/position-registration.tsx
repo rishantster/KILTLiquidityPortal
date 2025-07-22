@@ -244,7 +244,7 @@ export function PositionRegistration() {
 
   const handleBulkRegister = () => {
     const positionsToRegister = unregisteredPositions.filter((pos: any) => 
-      selectedPositions.includes(pos.nftTokenId)
+      selectedPositions.includes(pos.tokenId)
     );
     bulkRegisterMutation.mutate(positionsToRegister);
   };

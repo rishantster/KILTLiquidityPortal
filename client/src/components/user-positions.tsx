@@ -472,7 +472,7 @@ export function UserPositions() {
                       <div className="cyber-stat-item">
                         <div className="cyber-stat-label">Trading Fees APR</div>
                         <div className="cyber-stat-value text-green-400">
-                          2.11%
+                          {unifiedData?.calculations?.feeAPR || '8.0'}%
                         </div>
                       </div>
                     </div>

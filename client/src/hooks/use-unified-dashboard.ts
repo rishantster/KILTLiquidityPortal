@@ -132,7 +132,7 @@ export function useUnifiedDashboard() {
           throw new Error('Failed to fetch program analytics');
         }
         const data = await response.json();
-        console.log('Program analytics loaded:', data.totalBudget);
+        console.log('Program analytics loaded:', data.treasuryTotal);
         return data;
       } catch (error) {
         console.error('Program analytics error:', error);

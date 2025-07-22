@@ -245,10 +245,11 @@ export class PositionRegistrationService {
       };
 
     } catch (error) {
-      // Error registering external position
+      // Log the actual error for debugging
+      console.error('Position registration error:', error);
       return {
         success: false,
-        message: 'Failed to register position. Please try again.',
+        message: `Failed to register position: ${error instanceof Error ? error.message : 'Unknown error'}`,
         eligibilityStatus: 'ineligible'
       };
     }
@@ -259,35 +260,18 @@ export class PositionRegistrationService {
    */
   private async validateKiltPosition(positionData: ExternalPositionData): Promise<boolean> {
     try {
-      console.log('🔍 KILT Validation Debug - Position:', positionData.nftTokenId);
-      console.log('📍 Token addresses:', {
-        token0: positionData.token0Address,
-        token1: positionData.token1Address
-      });
-      
       // Check if required token addresses exist
       if (!positionData.token0Address || !positionData.token1Address) {
-        console.log('❌ KILT Validation FAILED - Missing token addresses');
         return false;
       }
       
       const { kilt } = await blockchainConfigService.getTokenAddresses();
-      console.log('🎯 KILT Token address from config:', kilt);
       
-      const isMatch = (
+      return (
         positionData.token0Address.toLowerCase() === kilt.toLowerCase() ||
         positionData.token1Address.toLowerCase() === kilt.toLowerCase()
       );
-      
-      console.log('🔍 KILT Validation Result:', {
-        token0Match: positionData.token0Address.toLowerCase() === kilt.toLowerCase(),
-        token1Match: positionData.token1Address.toLowerCase() === kilt.toLowerCase(),
-        finalResult: isMatch
-      });
-      
-      return isMatch;
     } catch (error) {
-      console.log('❌ KILT Validation Error:', error);
       return false;
     }
   }
@@ -381,7 +365,8 @@ export class PositionRegistrationService {
         // If user doesn't exist, no registered positions
         return {
           eligiblePositions: kiltPositions.map(position => ({
-            nftTokenId: position.tokenId,
+            tokenId: position.tokenId, // Fix: use tokenId not nftTokenId for frontend consistency
+            nftTokenId: position.tokenId, // Keep both for compatibility
             poolAddress: position.poolAddress,
             token0Address: position.token0,
             token1Address: position.token1,
@@ -417,7 +402,8 @@ export class PositionRegistrationService {
       
       // Transform to expected format for frontend
       const eligiblePositions = unregisteredPositions.map(position => ({
-        nftTokenId: position.tokenId,
+        tokenId: position.tokenId, // Fix: use tokenId not nftTokenId for frontend consistency
+        nftTokenId: position.tokenId, // Keep both for compatibility
         poolAddress: position.poolAddress,
         token0Address: position.token0,
         token1Address: position.token1,

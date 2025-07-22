@@ -160,7 +160,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
   
-  // Ultra-fast position endpoint for instant loading
+  // Ultra-fast position endpoint for instant loading - ONLY KILT REWARDS POSITIONS
   app.get("/api/positions/fast/:address", async (req, res) => {
     try {
       const { address } = req.params;
@@ -175,10 +175,20 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Get user positions from database (fast)
       const userPositions = await storage.getLpPositionsByUserId(user.id);
       
+      // CRITICAL FIX: Only return KILT positions that are registered for rewards
+      const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+      const kiltPositions = userPositions.filter(position => {
+        const hasKiltToken = (
+          position.token0Address.toLowerCase() === kiltTokenAddress.toLowerCase() ||
+          position.token1Address.toLowerCase() === kiltTokenAddress.toLowerCase()
+        );
+        // Only return positions that contain KILT token AND are reward eligible
+        return hasKiltToken && position.rewardEligible;
+      });
+      
       // Transform to fast format with proper schema mapping
-      const fastPositions = userPositions.map(position => {
+      const fastPositions = kiltPositions.map(position => {
         // Determine if KILT is token0 or token1
-        const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
         const isKiltToken0 = position.token0Address.toLowerCase() === kiltTokenAddress.toLowerCase();
         
         return {
@@ -398,6 +408,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
+      // CRITICAL FIX: Validate KILT token eligibility before marking as reward-eligible
+      const kiltTokenAddress = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+      const isKiltPosition = (
+        token0Address.toLowerCase() === kiltTokenAddress.toLowerCase() ||
+        token1Address.toLowerCase() === kiltTokenAddress.toLowerCase()
+      );
+      
       // Create LP position in database
       const positionData = {
         userId,
@@ -419,7 +436,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         appTransactionHash: transactionHash || "",
         appSessionId: `session-${Date.now()}-${userId}`, // Add required appSessionId
         verificationStatus: "verified",
-        rewardEligible: true
+        rewardEligible: isKiltPosition // ONLY KILT positions are reward eligible
       };
       
       const position = await storage.createLpPosition(positionData);
@@ -427,8 +444,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json({
         success: true,
         position,
-        message: "App position created successfully",
-        rewardEligible: true
+        message: isKiltPosition ? "KILT position created - eligible for rewards" : "Position created - not eligible for rewards (non-KILT token)",
+        rewardEligible: isKiltPosition
       });
     } catch (error) {
       // Failed to create app position - registration required

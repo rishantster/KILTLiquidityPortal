@@ -290,6 +290,17 @@ export function LiquidityMint({
     const numValue = parseFloat(value);
     if (numValue < 0) return;
     
+    // Check ETH balance constraint - never exceed wallet ETH/WETH holdings
+    const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;
+    if (selectedBalance && value) {
+      const ethBalanceNum = parseFloat(formatTokenAmount(selectedBalance));
+      if (numValue > ethBalanceNum) {
+        // Cap ETH amount to maximum available balance
+        setEthAmount(ethBalanceNum.toFixed(6));
+        return;
+      }
+    }
+    
     setIsManualInput(true);
     setEthAmount(value);
     

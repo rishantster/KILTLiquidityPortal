@@ -509,7 +509,7 @@ export function UserPositions() {
                         className="uniswap-action-btn collect"
                       >
                         <DollarSign className="w-3 h-3" />
-                        COLLECT
+                        FEES
                       </button>
                     </div>
 

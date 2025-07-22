@@ -19,63 +19,62 @@ export function registerUniswapOptimizedRoutes(app: Express) {
     try {
       console.log(`⚡ UNISWAP-STYLE ELIGIBLE: ${userAddress}`);
       
-      // Parallel data fetching (Uniswap multicall pattern)
-      const result = await uniswapStyleOptimizer.getOptimizedPositions(
-        userAddress,
-        // Fetch wallet positions
-        async () => {
-          const { uniswapIntegrationService } = await import('../uniswap-integration-service');
-          const { blockchainConfigService } = await import('../blockchain-config-service');
-          
-          const allPositions = await uniswapIntegrationService.getUserPositions(userAddress);
-          const kiltTokenAddress = await blockchainConfigService.getKiltTokenAddress();
-          const kiltAddressLower = kiltTokenAddress.toLowerCase();
-          
-          // Filter for KILT positions only
-          return allPositions.filter(pos => {
-            const token0Lower = pos.token0?.toLowerCase() || '';
-            const token1Lower = pos.token1?.toLowerCase() || '';
-            return token0Lower === kiltAddressLower || token1Lower === kiltAddressLower;
-          });
-        },
-        // Fetch registered positions AND app-created positions
-        async () => {
-          const user = await storage.getUserByAddress(userAddress);
-          if (!user) return [];
-          
-          // Get both registered positions and app-created transactions
-          const [registeredPositions, appTransactions] = await Promise.all([
-            storage.getLpPositionsByUserId(user.id),
-            storage.getAppTransactionsByUserId(user.id)
-          ]);
-          
-          // Combine registered positions with app-created NFT IDs
-          const allExcludedIds = new Set([
-            ...registeredPositions.map(p => p.nftTokenId),
-            ...appTransactions.filter(tx => tx.nftTokenId).map(tx => tx.nftTokenId)
-          ]);
-          
-          return Array.from(allExcludedIds).map(nftId => ({ nftTokenId: nftId }));
-        }
+      // CRITICAL FIX: Skip cache and fetch real-time unregistered positions directly
+      const { uniswapIntegrationService } = await import('../uniswap-integration-service');
+      const { blockchainConfigService } = await import('../blockchain-config-service');
+      
+      // Get all user positions from blockchain
+      const allPositions = await uniswapIntegrationService.getUserPositions(userAddress);
+      const kiltTokenAddress = await blockchainConfigService.getKiltTokenAddress();
+      const kiltAddressLower = kiltTokenAddress.toLowerCase();
+      
+      // Filter for KILT positions only
+      const kiltPositions = allPositions.filter(pos => {
+        const token0Lower = pos.token0?.toLowerCase() || '';
+        const token1Lower = pos.token1?.toLowerCase() || '';
+        return token0Lower === kiltAddressLower || token1Lower === kiltAddressLower;
+      });
+      
+      // Get already registered positions
+      const user = await storage.getUserByAddress(userAddress);
+      let registeredIds = new Set<string>();
+      
+      if (user) {
+        // Get both registered positions and app-created transactions
+        const [registeredPositions, appTransactions] = await Promise.all([
+          storage.getLpPositionsByUserId(user.id),
+          storage.getAppTransactionsByUserId(user.id)
+        ]);
+        
+        // Combine registered positions with app-created NFT IDs
+        registeredIds = new Set([
+          ...registeredPositions.map(p => p.nftTokenId),
+          ...appTransactions.filter(tx => tx.nftTokenId).map(tx => tx.nftTokenId)
+        ]);
+      }
+      
+      // Filter unregistered positions
+      const eligiblePositions = kiltPositions.filter(pos => 
+        !registeredIds.has(pos.tokenId) && pos.isActive
       );
 
       const duration = Date.now() - start;
       
       // Uniswap-style response headers
       res.setHeader('X-Response-Time', `${duration}ms`);
-      res.setHeader('X-Cache-Status', result.source);
+      res.setHeader('X-Cache-Status', 'fresh');
       res.setHeader('X-Optimization', 'uniswap-style');
       
-      console.log(`⚡ UNISWAP-SPEED: ${userAddress} eligible in ${duration}ms (${result.source})`);
+      console.log(`⚡ UNISWAP-SPEED: ${userAddress} eligible in ${duration}ms (fresh)`);
       
       res.json({
-        eligiblePositions: result.eligiblePositions,
-        totalPositions: result.positions.length,
-        registeredCount: result.registeredIds.size,
-        cacheStatus: result.source,
+        eligiblePositions,
+        totalPositions: kiltPositions.length,
+        registeredCount: registeredIds.size,
+        cacheStatus: 'fresh',
         timing: duration,
-        message: result.eligiblePositions.length > 0 
-          ? `Found ${result.eligiblePositions.length} unregistered positions` 
+        message: eligiblePositions.length > 0 
+          ? `Found ${eligiblePositions.length} unregistered positions` 
           : 'All positions registered or no KILT positions found'
       });
       

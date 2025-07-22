@@ -106,7 +106,7 @@ export class FixedRewardService {
       programDurationDays,
       dailyBudget,
       lockPeriodDays,
-      minimumPositionValue,
+      minimumPositionValue: parseFloat(minimumPositionValue?.toString() || '10'),
       timeBoostCoefficient: parseFloat(timeBoostCoefficient?.toString() || '0.4'),
       fullRangeBonus: parseFloat(fullRangeBonus?.toString() || '1.2'),
       treasuryTotal: treasuryAllocation

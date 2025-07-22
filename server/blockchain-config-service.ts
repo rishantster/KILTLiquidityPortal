@@ -175,6 +175,22 @@ export class BlockchainConfigService {
     return address || '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E'; // Fallback to known pool address
   }
 
+  // Get token addresses (method that was missing and causing the error)
+  async getTokenAddresses(): Promise<{
+    kilt: string;
+    weth: string;
+  }> {
+    const [kilt, weth] = await Promise.all([
+      this.getKiltTokenAddress(),
+      this.getWethTokenAddress()
+    ]);
+    
+    return {
+      kilt,
+      weth
+    };
+  }
+
   // Clear cache (useful for testing or forced refresh)
   clearCache(): void {
     this.configCache.clear();

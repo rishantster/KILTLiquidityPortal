@@ -398,20 +398,20 @@ export function UserPositions() {
           )}
         </CardHeader>
         <CardContent className="p-0 w-full">
-          {walletPositionsLoading ? (
+          {registeredPositionsLoading ? (
             <div className="text-center py-4">
-              <p className="text-white/60 text-xs">Loading positions...</p>
+              <p className="text-white/60 text-xs">Loading registered positions...</p>
               <div className="animate-spin w-4 h-4 border-2 border-white/20 border-t-pink-500 rounded-full mx-auto mt-2"></div>
             </div>
-          ) : walletPositionsError ? (
+          ) : registeredPositionsError ? (
             <div className="text-center py-4">
-              <p className="text-red-400 text-xs">Error loading positions</p>
-              <p className="text-white/40 text-xs">{String(walletPositionsError)}</p>
+              <p className="text-red-400 text-xs">Error loading registered positions</p>
+              <p className="text-white/40 text-xs">{String(registeredPositionsError)}</p>
             </div>
           ) : !Array.isArray(allKiltPositions) || allKiltPositions.length === 0 ? (
             <div className="text-center py-4">
-              <p className="text-white/60 text-xs">No KILT positions found</p>
-              <p className="text-white/40 text-xs">Add liquidity to pools containing KILT token to get started</p>
+              <p className="text-white/60 text-xs">No registered KILT positions found</p>
+              <p className="text-white/40 text-xs">Register your positions in the Overview tab to start earning rewards</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">

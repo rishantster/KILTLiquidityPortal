@@ -34,6 +34,7 @@ import { TOKENS } from '@/lib/uniswap-v3';
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { UniswapModal } from '@/components/uniswap-modal';
+import { useValidatedPositions } from '@/hooks/use-validated-positions';
 
 export function UserPositions() {
   const { address, isConnected } = useWagmiWallet();
@@ -83,17 +84,8 @@ export function UserPositions() {
     networkMode: 'online' as const,
   };
 
-  // Get registered positions from database only (not all blockchain positions)
-  const { data: registeredPositions, isLoading: registeredPositionsLoading, error: registeredPositionsError } = useQuery({
-    queryKey: ['/api/positions/user/' + unifiedData?.user?.id],
-    enabled: !!unifiedData?.user?.id && isConnected,
-    staleTime: 5 * 1000, // 5 seconds - shorter to force refresh
-    gcTime: 1 * 60 * 1000, // 1 minute retention
-    refetchInterval: false,
-    refetchOnWindowFocus: false,
-    retry: 1, // Only retry once
-    networkMode: 'online' as const,
-  });
+  // Get validated positions (database-registered AND blockchain-verified)
+  const { data: validatedPositions, isLoading: validatedPositionsLoading, error: validatedPositionsError } = useValidatedPositions(unifiedData?.user?.id);
 
   // Legacy Uniswap integration for management functions
   const {
@@ -121,9 +113,9 @@ export function UserPositions() {
   const safeBigIntRender = (value: bigint | number | string) => 
     typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
-  // Use registered positions from database only (not all blockchain positions)
-  const allKiltPositions = Array.isArray(registeredPositions) ? registeredPositions : [];
-  const positionsData = Array.isArray(registeredPositions) ? registeredPositions : [];
+  // Use validated positions (database-registered AND blockchain-verified)
+  const allKiltPositions = Array.isArray(validatedPositions) ? validatedPositions : [];
+  const positionsData = Array.isArray(validatedPositions) ? validatedPositions : [];
   
   // Positions are loading correctly - 4 KILT positions with real-time data
   
@@ -201,7 +193,7 @@ export function UserPositions() {
           break;
         case 'decrease':
           // Calculate actual liquidity amount from percentage
-          const currentPosition = Array.isArray(registeredPositions) ? registeredPositions.find((pos: any) => pos.nftTokenId === selectedPosition) : null;
+          const currentPosition = Array.isArray(validatedPositions) ? validatedPositions.find((pos: any) => pos.nftTokenId === selectedPosition) : null;
           if (!currentPosition) {
             throw new Error('Position not found');
           }
@@ -271,7 +263,7 @@ export function UserPositions() {
     );
   }
 
-  if (registeredPositionsLoading || uniswapLoading) {
+  if (validatedPositionsLoading || uniswapLoading) {
     return (
       <Card className="cluely-card rounded-lg">
         <CardHeader className="pb-2">
@@ -398,15 +390,15 @@ export function UserPositions() {
           )}
         </CardHeader>
         <CardContent className="p-0 w-full">
-          {registeredPositionsLoading ? (
+          {validatedPositionsLoading ? (
             <div className="text-center py-4">
-              <p className="text-white/60 text-xs">Loading registered positions...</p>
+              <p className="text-white/60 text-xs">Validating positions...</p>
               <div className="animate-spin w-4 h-4 border-2 border-white/20 border-t-pink-500 rounded-full mx-auto mt-2"></div>
             </div>
-          ) : registeredPositionsError ? (
+          ) : validatedPositionsError ? (
             <div className="text-center py-4">
-              <p className="text-red-400 text-xs">Error loading registered positions</p>
-              <p className="text-white/40 text-xs">{String(registeredPositionsError)}</p>
+              <p className="text-red-400 text-xs">Error validating positions</p>
+              <p className="text-white/40 text-xs">{String(validatedPositionsError)}</p>
             </div>
           ) : !Array.isArray(allKiltPositions) || allKiltPositions.length === 0 ? (
             <div className="text-center py-4">

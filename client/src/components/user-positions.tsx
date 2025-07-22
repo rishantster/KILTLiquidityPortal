@@ -422,65 +422,56 @@ export function UserPositions() {
                 
                 return (
                   <div key={(position.tokenId || position.nftTokenId || position.id).toString()} className={`cyberpunk-position-card ${isClosed ? 'opacity-60' : ''}`}>
-                    {/* Cyberpunk Header */}
+                    {/* Header */}
                     <div className="cyberpunk-header">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded bg-black border-2 border-pink-primary flex items-center justify-center neon-glow-pink">
-                            <Layers className="h-4 w-4 text-pink-primary" />
-                          </div>
-                          <span className="text-pink-primary font-mono text-sm font-bold tracking-wide">NFT #{position.tokenId || position.nftTokenId || position.id}</span>
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-mono text-pink-primary">
+                          #{position.tokenId || position.nftTokenId || position.id}
+                        </span>
                         <div className={`cyberpunk-status ${inRange ? 'status-online' : 'status-warning'}`}>
-                          <div className={`w-2 h-2 rounded-full ${inRange ? 'bg-green-400' : 'bg-red-400'} animate-pulse shadow-[0_0_8px_currentColor]`}></div>
-                          <span className="text-xs font-mono font-bold tracking-wider">{inRange ? 'ONLINE' : 'OUT OF RANGE'}</span>
+                          {inRange ? 'ONLINE' : 'OFFLINE'}
                         </div>
                       </div>
-                      <div className="cyberpunk-value">
-                        <span className="text-3xl font-mono font-bold text-pink-primary neon-text-glow numeric-large">${positionValue.toFixed(2)}</span>
-                        <span className="text-cyan-400 text-sm ml-2 font-mono">USD_VALUE</span>
+                      <div className="mt-2">
+                        <span className="text-lg font-mono text-white">${positionValue.toFixed(2)}</span>
                       </div>
                     </div>
-                    {/* Cyberpunk Terminal Grid */}
+                    {/* Data Grid */}
                     <div className="cyberpunk-terminal-grid">
                       <div className="terminal-block eth-block">
                         <div className="terminal-header">
-                          <EthLogo className="w-4 h-4" />
-                          <span className="terminal-label">WETH_BALANCE</span>
+                          <span className="terminal-label">WETH</span>
                         </div>
-                        <div className="terminal-value text-cyan-400">{ethAmount}</div>
-                        <div className="terminal-sublabel">ETH_HOLDINGS</div>
+                        <div className="terminal-value">{ethAmount}</div>
+                        <div className="terminal-sublabel">${(parseFloat(ethAmount) * 3800).toFixed(2)}</div>
                       </div>
                       
                       <div className="terminal-block kilt-block">
                         <div className="terminal-header">
-                          <KiltLogo className="w-4 h-4" />
-                          <span className="terminal-label">KILT_BALANCE</span>
+                          <span className="terminal-label">KILT</span>
                         </div>
-                        <div className="terminal-value text-pink-primary">{kiltAmount}</div>
-                        <div className="terminal-sublabel">KILT_HOLDINGS</div>
+                        <div className="terminal-value">{kiltAmount}</div>
+                        <div className="terminal-sublabel">${(parseFloat(kiltAmount) * 0.018).toFixed(2)}</div>
                       </div>
                       
                       <div className="terminal-block fees-block">
                         <div className="terminal-header">
-                          <DollarSign className="w-4 h-4 text-green-400" />
-                          <span className="terminal-label">FEES_EARNED</span>
+                          <span className="terminal-label">FEES</span>
                         </div>
-                        <div className="terminal-value text-green-400">${((parseFloat(ethFees) * 3800) + (parseFloat(kiltFees) * 0.018)).toFixed(2)}</div>
-                        <div className="terminal-sublabel">TOTAL_FEES</div>
+                        <div className="terminal-value">${((parseFloat(ethFees) * 3800) + (parseFloat(kiltFees) * 0.018)).toFixed(2)}</div>
+                        <div className="terminal-sublabel">EARNED</div>
                       </div>
                       
                       <div className="terminal-block apr-block">
                         <div className="terminal-header">
-                          <TrendingUp className="w-4 h-4 text-green-400" />
-                          <span className="terminal-label">TRADING_APR</span>
+                          <span className="terminal-label">APR</span>
                         </div>
-                        <div className="terminal-value text-green-400">{unifiedData?.calculations?.feeAPR || '8.0'}%</div>
-                        <div className="terminal-sublabel">YIELD_RATE</div>
+                        <div className="terminal-value">{unifiedData?.calculations?.feeAPR || '8.0'}%</div>
+                        <div className="terminal-sublabel">CURRENT</div>
                       </div>
                     </div>
 
-                    {/* Cyberpunk Terminal Commands */}
+                    {/* Actions */}
                     <div className="cyberpunk-commands">
                       <button
                         onClick={() => {
@@ -490,8 +481,8 @@ export function UserPositions() {
                         className="cyberpunk-cmd cyberpunk-cmd-add"
                         disabled={isClosed}
                       >
-                        <Plus className="w-4 h-4" />
-                        <span className="font-mono">&gt;ADD_LIQUIDITY</span>
+                        <Plus className="w-3 h-3" />
+                        ADD
                       </button>
                       <button
                         onClick={() => {
@@ -501,8 +492,8 @@ export function UserPositions() {
                         className="cyberpunk-cmd cyberpunk-cmd-remove"
                         disabled={isClosed}
                       >
-                        <Minus className="w-4 h-4" />
-                        <span className="font-mono">&gt;REMOVE</span>
+                        <Minus className="w-3 h-3" />
+                        REMOVE
                       </button>
                       <button
                         onClick={() => {
@@ -511,26 +502,12 @@ export function UserPositions() {
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-collect"
                       >
-                        <DollarSign className="w-4 h-4" />
-                        <span className="font-mono">&gt;CLAIM_FEES</span>
+                        <DollarSign className="w-3 h-3" />
+                        CLAIM
                       </button>
                     </div>
 
-                    {/* NFT Info Bar */}
-                    <div className="nft-info-bar">
-                      <div className="nft-info-item">
-                        <div className="nft-info-label">NFT ID</div>
-                        <div className="nft-info-value">#{position.tokenId || position.nftTokenId || position.id}</div>
-                      </div>
-                      <div className="nft-info-item">
-                        <div className="nft-info-label">Fee Tier</div>
-                        <div className="nft-info-value">0.30%</div>
-                      </div>
-                      <div className="nft-info-item">
-                        <div className="nft-info-label">Range</div>
-                        <div className="nft-info-value">Full Range</div>
-                      </div>
-                    </div>
+
                   </div>
                 );
               })}

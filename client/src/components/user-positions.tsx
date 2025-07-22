@@ -478,7 +478,7 @@ export function UserPositions() {
                     </div>
 
                     {/* Uniswap-Style Action Buttons */}
-                    <div className="flex gap-1 mt-2 px-3 pb-3">
+                    <div className="flex gap-1 mt-1 px-2 pb-2">
                       <button
                         onClick={() => {
                           setModalPosition(position);

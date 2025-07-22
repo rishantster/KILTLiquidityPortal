@@ -425,7 +425,7 @@ export function UserPositions() {
                     {/* Header */}
                     <div className="cyberpunk-header">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-mono text-pink-primary">
+                        <span className="text-sm font-semibold text-pink-primary">
                           #{position.tokenId || position.nftTokenId || position.id}
                         </span>
                         <div className={`cyberpunk-status ${inRange ? 'status-online' : 'status-warning'}`}>
@@ -433,7 +433,7 @@ export function UserPositions() {
                         </div>
                       </div>
                       <div className="mt-2">
-                        <span className="text-lg font-mono text-white">${positionValue.toFixed(2)}</span>
+                        <span className="text-lg font-semibold text-white numeric-display">${positionValue.toFixed(2)}</span>
                       </div>
                     </div>
                     {/* Data Grid */}

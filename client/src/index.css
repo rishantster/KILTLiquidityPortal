@@ -2025,34 +2025,40 @@ html {
 }
 
 
-/* ===== CLEAN CYBERPUNK POSITION CARDS ===== */
+/* ===== POSITION CARDS - ALIGNED WITH APP STYLING ===== */
 
 .cyberpunk-position-card {
-  @apply relative bg-black border border-pink-primary p-4 transition-all duration-200;
-  font-family: 'Courier New', monospace;
-  border-width: 1px;
+  @apply relative rounded-2xl border border-gray-800/30 p-6 transition-all duration-200;
+  background: linear-gradient(145deg, rgba(17, 17, 27, 0.8), rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .cyberpunk-position-card:hover {
-  @apply border-cyan-400;
-  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+  @apply border-gray-700/50;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .cyberpunk-header {
-  @apply border-b border-gray-700 pb-3 mb-3;
+  @apply border-b border-gray-800/30 pb-4 mb-4;
 }
 
 .cyberpunk-status {
-  @apply flex items-center gap-2 px-2 py-1 text-xs font-mono font-bold uppercase;
-  border: 1px solid currentColor;
+  @apply px-3 py-1 text-xs font-medium rounded-full;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .status-online {
-  @apply text-green-400 border-green-400;
+  @apply text-green-400;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .status-warning {
-  @apply text-red-400 border-red-400;
+  @apply text-red-400;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .cyberpunk-value {
@@ -2060,63 +2066,73 @@ html {
 }
 
 .cyberpunk-terminal-grid {
-  @apply grid grid-cols-2 gap-2 mb-3;
+  @apply grid grid-cols-2 gap-3 mb-4;
 }
 
 .terminal-block {
-  @apply bg-gray-900 border border-current p-2 font-mono text-xs;
+  @apply rounded-xl border border-gray-800/30 p-3;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
 }
 
 .terminal-header {
-  @apply flex items-center gap-1 mb-1;
+  @apply flex items-center gap-2 mb-2;
 }
 
 .terminal-label {
-  @apply text-xs font-mono uppercase opacity-70;
+  @apply text-xs font-medium text-gray-400 uppercase tracking-wider;
 }
 
 .terminal-value {
-  @apply text-sm font-mono font-bold;
+  @apply text-sm font-semibold numeric-display;
   color: currentColor;
 }
 
 .terminal-sublabel {
-  @apply text-xs font-mono mt-1 opacity-50 uppercase;
+  @apply text-xs text-gray-500 mt-1;
 }
 
 .eth-block {
-  @apply border-cyan-400 text-cyan-400;
+  @apply text-cyan-400;
+  border-color: rgba(6, 182, 212, 0.3);
 }
 
 .kilt-block {
-  @apply border-pink-primary text-pink-primary;
+  @apply text-pink-primary;
+  border-color: rgba(255, 0, 102, 0.3);
 }
 
 .fees-block {
-  @apply border-green-400 text-green-400;
+  @apply text-green-400;
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .apr-block {
-  @apply border-green-400 text-green-400;
+  @apply text-green-400;
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .cyberpunk-commands {
-  @apply flex gap-1;
+  @apply flex gap-2;
 }
 
 .cyberpunk-cmd {
-  @apply flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs font-mono font-bold uppercase transition-all duration-200;
-  @apply border bg-black disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply flex-1 flex items-center justify-center gap-2 px-4 py-2 text-xs font-medium rounded-xl transition-all duration-200;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  backdrop-filter: blur(8px);
 }
 
 .cyberpunk-cmd-add {
-  @apply border-green-400 text-green-400 hover:bg-green-400 hover:text-black;
+  @apply text-green-400 border border-green-400/30 hover:bg-green-400/10;
+  background: rgba(34, 197, 94, 0.05);
 }
 
 .cyberpunk-cmd-remove {
-  @apply border-red-400 text-red-400 hover:bg-red-400 hover:text-black;
+  @apply text-red-400 border border-red-400/30 hover:bg-red-400/10;
+  background: rgba(239, 68, 68, 0.05);
 }
 
 .cyberpunk-cmd-collect {
-  @apply border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black;
+  @apply text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/10;
+  background: rgba(6, 182, 212, 0.05);
 }

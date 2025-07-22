@@ -487,7 +487,7 @@ export function UserPositions() {
                         className="uniswap-action-btn add"
                         disabled={isClosed}
                       >
-                        <Plus className="w-3 h-3" />
+                        <Plus className="w-2.5 h-2.5" />
                         ADD
                       </button>
                       <button
@@ -498,7 +498,7 @@ export function UserPositions() {
                         className="uniswap-action-btn remove"
                         disabled={isClosed}
                       >
-                        <Minus className="w-3 h-3" />
+                        <Minus className="w-2.5 h-2.5" />
                         REMOVE
                       </button>
                       <button
@@ -508,7 +508,7 @@ export function UserPositions() {
                         }}
                         className="uniswap-action-btn collect"
                       >
-                        <DollarSign className="w-3 h-3" />
+                        <DollarSign className="w-2.5 h-2.5" />
                         FEES
                       </button>
                     </div>

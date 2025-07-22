@@ -2113,13 +2113,15 @@ html {
 }
 
 .cyberpunk-commands {
-  @apply flex gap-2;
+  @apply flex gap-1;
 }
 
 .cyberpunk-cmd {
-  @apply flex-1 flex items-center justify-center gap-2 px-4 py-2 text-xs font-medium rounded-xl transition-all duration-200;
+  @apply flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium rounded-xl transition-all duration-200;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
   backdrop-filter: blur(8px);
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .cyberpunk-cmd-add {

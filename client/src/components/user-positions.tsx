@@ -424,7 +424,7 @@ export function UserPositions() {
                   <div key={(position.tokenId || position.nftTokenId || position.id).toString()} className={`futuristic-position-card ${isClosed ? 'opacity-60' : ''}`}>
                     {/* Cyberpunk Header */}
                     <div className="cyberpunk-header">
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center justify-between mb-2">
                         <span className="text-white font-bold text-sm uppercase tracking-wider">Position</span>
                         <div className={`holographic-status ${inRange ? 'text-green-300' : 'text-yellow-300'}`}>
                           <div className={`w-2 h-2 rounded-full ${inRange ? 'bg-green-400' : 'bg-yellow-400'} animate-pulse`}></div>
@@ -478,7 +478,7 @@ export function UserPositions() {
                     </div>
 
                     {/* Uniswap-Style Action Buttons */}
-                    <div className="flex gap-1 mt-1 px-2 pb-2">
+                    <div className="flex gap-2 mt-4 px-4 pb-4">
                       <button
                         onClick={() => {
                           setModalPosition(position);
@@ -487,7 +487,7 @@ export function UserPositions() {
                         className="uniswap-action-btn add"
                         disabled={isClosed}
                       >
-                        <Plus className="w-2.5 h-2.5" />
+                        <Plus className="w-3 h-3" />
                         ADD
                       </button>
                       <button
@@ -498,7 +498,7 @@ export function UserPositions() {
                         className="uniswap-action-btn remove"
                         disabled={isClosed}
                       >
-                        <Minus className="w-2.5 h-2.5" />
+                        <Minus className="w-3 h-3" />
                         REMOVE
                       </button>
                       <button
@@ -508,7 +508,7 @@ export function UserPositions() {
                         }}
                         className="uniswap-action-btn collect"
                       >
-                        <DollarSign className="w-2.5 h-2.5" />
+                        <DollarSign className="w-3 h-3" />
                         FEES
                       </button>
                     </div>

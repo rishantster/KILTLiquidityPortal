@@ -46,6 +46,10 @@ export function UserPositions() {
   const [showClosedPositions, setShowClosedPositions] = useState(false);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [managementMode, setManagementMode] = useState<'increase' | 'decrease' | 'collect' | null>(null);
+  const [amount0, setAmount0] = useState('');
+  const [amount1, setAmount1] = useState('');
+  const [liquidityAmount, setLiquidityAmount] = useState('');
 
   // Logo animation timing - optimize with single effect
   useEffect(() => {
@@ -79,10 +83,10 @@ export function UserPositions() {
     networkMode: 'online' as const,
   };
 
-  // Blazing fast wallet positions with mobile optimization
-  const { data: walletPositions, isLoading: walletPositionsLoading, error: walletPositionsError } = useQuery({
-    queryKey: ['/api/positions/wallet/' + address],
-    enabled: !!address && isConnected,
+  // Get registered positions from database only (not all blockchain positions)
+  const { data: registeredPositions, isLoading: registeredPositionsLoading, error: registeredPositionsError } = useQuery({
+    queryKey: ['/api/positions/user/' + unifiedData?.user?.id],
+    enabled: !!unifiedData?.user?.id && isConnected,
     staleTime: 5 * 1000, // 5 seconds - shorter to force refresh
     gcTime: 1 * 60 * 1000, // 1 minute retention
     refetchInterval: false,
@@ -117,9 +121,9 @@ export function UserPositions() {
   const safeBigIntRender = (value: bigint | number | string) => 
     typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
-  // Use real wallet positions from the blazing fast API endpoint
-  const allKiltPositions = Array.isArray(walletPositions) ? walletPositions : [];
-  const positionsData = Array.isArray(walletPositions) ? walletPositions : [];
+  // Use registered positions from database only (not all blockchain positions)
+  const allKiltPositions = Array.isArray(registeredPositions) ? registeredPositions : [];
+  const positionsData = Array.isArray(registeredPositions) ? registeredPositions : [];
   
   // Positions are loading correctly - 4 KILT positions with real-time data
   
@@ -197,7 +201,7 @@ export function UserPositions() {
           break;
         case 'decrease':
           // Calculate actual liquidity amount from percentage
-          const currentPosition = Array.isArray(walletPositions) ? walletPositions.find((pos: any) => pos.tokenId === selectedPosition) : null;
+          const currentPosition = Array.isArray(registeredPositions) ? registeredPositions.find((pos: any) => pos.nftTokenId === selectedPosition) : null;
           if (!currentPosition) {
             throw new Error('Position not found');
           }
@@ -228,15 +232,15 @@ export function UserPositions() {
       // INSTANT UI UPDATE - Remove position immediately from UI
       if (managementMode === 'decrease' && liquidityAmount === '100') {
         // For 100% removal, immediately remove position from UI
-        queryClient.setQueryData([`/api/positions/wallet/${address}`], (oldData: any) => {
+        queryClient.setQueryData([`/api/positions/user/${unifiedData?.user?.id}`], (oldData: any) => {
           if (!oldData) return oldData;
-          return oldData.filter((pos: any) => pos.tokenId !== selectedPosition);
+          return oldData.filter((pos: any) => pos.nftTokenId !== selectedPosition);
         });
       }
       
-      // BLAZING FAST CACHE INVALIDATION - Force refresh positions data
-      queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
-      queryClient.refetchQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+      // BLAZING FAST CACHE INVALIDATION - Force refresh registered positions data
+      queryClient.invalidateQueries({ queryKey: [`/api/positions/user/${unifiedData?.user?.id}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/positions/user/${unifiedData?.user?.id}`] });
       
       // Also force refresh unified dashboard data
       queryClient.invalidateQueries({ queryKey: ['/api/rewards/program-analytics'] });
@@ -267,7 +271,7 @@ export function UserPositions() {
     );
   }
 
-  if (walletPositionsLoading || uniswapLoading) {
+  if (registeredPositionsLoading || uniswapLoading) {
     return (
       <Card className="cluely-card rounded-lg">
         <CardHeader className="pb-2">

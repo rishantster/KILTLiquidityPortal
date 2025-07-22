@@ -91,7 +91,7 @@ export class PositionRegistrationService {
       }
 
       // Validate that this is a KILT-containing position
-      const isKiltPosition = this.validateKiltPosition(positionData);
+      const isKiltPosition = await this.validateKiltPosition(positionData);
       if (!isKiltPosition) {
         return {
           success: false,
@@ -258,12 +258,21 @@ export class PositionRegistrationService {
    * Validate that position contains KILT token
    */
   private async validateKiltPosition(positionData: ExternalPositionData): Promise<boolean> {
-    const { kilt } = await blockchainConfigService.getTokenAddresses();
-    
-    return (
-      positionData.token0Address.toLowerCase() === kilt.toLowerCase() ||
-      positionData.token1Address.toLowerCase() === kilt.toLowerCase()
-    );
+    try {
+      // Check if required token addresses exist
+      if (!positionData.token0Address || !positionData.token1Address) {
+        return false;
+      }
+      
+      const { kilt } = await blockchainConfigService.getTokenAddresses();
+      
+      return (
+        positionData.token0Address.toLowerCase() === kilt.toLowerCase() ||
+        positionData.token1Address.toLowerCase() === kilt.toLowerCase()
+      );
+    } catch (error) {
+      return false;
+    }
   }
 
   /**

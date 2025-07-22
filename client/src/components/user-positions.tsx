@@ -421,95 +421,98 @@ export function UserPositions() {
                 const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
                 
                 return (
-                  <div key={(position.tokenId || position.nftTokenId || position.id).toString()} className={`futuristic-position-card ${isClosed ? 'opacity-60' : ''}`}>
-                    {/* Cyberpunk Header */}
-                    <div className="cyberpunk-header">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-white font-bold text-sm uppercase tracking-wider">Position</span>
-                        <div className={`holographic-status ${inRange ? 'text-green-300' : 'text-yellow-300'}`}>
-                          <div className={`w-2 h-2 rounded-full ${inRange ? 'bg-green-400' : 'bg-yellow-400'} animate-pulse`}></div>
-                          {inRange ? 'In Range' : 'Out of Range'}
+                  <div key={(position.tokenId || position.nftTokenId || position.id).toString()} className={`modern-position-card ${isClosed ? 'opacity-60' : ''}`}>
+                    {/* Modern Header */}
+                    <div className="modern-header">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-400/30 flex items-center justify-center">
+                            <Layers className="h-4 w-4 text-purple-300" />
+                          </div>
+                          <span className="text-white/90 font-semibold text-sm">NFT #{position.tokenId || position.nftTokenId || position.id}</span>
+                        </div>
+                        <div className={`modern-status ${inRange ? 'status-active' : 'status-warning'}`}>
+                          <div className={`w-2 h-2 rounded-full ${inRange ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`}></div>
+                          <span className="text-xs font-medium">{inRange ? 'Active' : 'Out of Range'}</span>
                         </div>
                       </div>
-                      <div className="neon-value">
-                        ${positionValue.toFixed(2)}
+                      <div className="modern-value">
+                        <span className="text-2xl font-bold text-white numeric-large">${positionValue.toFixed(2)}</span>
+                        <span className="text-white/50 text-sm ml-2">USD Value</span>
                       </div>
                     </div>
-                    {/* Cyber Stats Grid */}
-                    <div className="cyber-stat-grid">
-                      <div className="cyber-stat-item">
-                        <div className="cyber-stat-label">WETH Holdings</div>
-                        <div className="cyber-stat-value flex items-center gap-2">
-                          <div className="w-3 h-3 bg-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                            <svg className="w-2 h-2" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                              <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                              <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                              <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                              <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                              <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                            </svg>
-                          </div>
-                          <span>{ethAmount} WETH</span>
+                    {/* Modern Stats Grid */}
+                    <div className="modern-stats-grid">
+                      <div className="stat-card eth-stat">
+                        <div className="stat-header">
+                          <EthLogo className="w-4 h-4" />
+                          <span className="stat-label">WETH</span>
                         </div>
+                        <div className="stat-value">{ethAmount}</div>
+                        <div className="stat-sublabel">Holdings</div>
                       </div>
                       
-                      <div className="cyber-stat-item">
-                        <div className="cyber-stat-label">KILT Holdings</div>
-                        <div className="cyber-stat-value flex items-center gap-2">
-                          <img src="/attached_assets/KILT_400x400_transparent_1751723574123.png" className="w-3 h-3 rounded-full" alt="KILT" />
-                          <span>{kiltAmount} KILT</span>
+                      <div className="stat-card kilt-stat">
+                        <div className="stat-header">
+                          <KiltLogo className="w-4 h-4" />
+                          <span className="stat-label">KILT</span>
                         </div>
+                        <div className="stat-value">{kiltAmount}</div>
+                        <div className="stat-sublabel">Holdings</div>
                       </div>
                       
-                      <div className="cyber-stat-item">
-                        <div className="cyber-stat-label">Fees Earned</div>
-                        <div className="cyber-stat-value">
-                          ${((parseFloat(ethFees) * 3800) + (parseFloat(kiltFees) * 0.018)).toFixed(2)}
+                      <div className="stat-card fees-stat">
+                        <div className="stat-header">
+                          <DollarSign className="w-4 h-4 text-emerald-400" />
+                          <span className="stat-label">Fees</span>
                         </div>
+                        <div className="stat-value">${((parseFloat(ethFees) * 3800) + (parseFloat(kiltFees) * 0.018)).toFixed(2)}</div>
+                        <div className="stat-sublabel">Earned</div>
                       </div>
                       
-                      <div className="cyber-stat-item">
-                        <div className="cyber-stat-label">Trading Fees APR</div>
-                        <div className="cyber-stat-value text-green-400">
-                          {unifiedData?.calculations?.feeAPR || '8.0'}%
+                      <div className="stat-card apr-stat">
+                        <div className="stat-header">
+                          <TrendingUp className="w-4 h-4 text-green-400" />
+                          <span className="stat-label">APR</span>
                         </div>
+                        <div className="stat-value text-green-400">{unifiedData?.calculations?.feeAPR || '8.0'}%</div>
+                        <div className="stat-sublabel">Trading Fees</div>
                       </div>
                     </div>
 
-                    {/* Uniswap-Style Action Buttons */}
-                    <div className="flex gap-2 mt-4 px-4 pb-4">
+                    {/* Modern Action Buttons */}
+                    <div className="modern-actions">
                       <button
                         onClick={() => {
                           setModalPosition(position);
                           setModalMode('add');
                         }}
-                        className="uniswap-action-btn add"
+                        className="modern-btn modern-btn-add"
                         disabled={isClosed}
                       >
-                        <Plus className="w-3 h-3" />
-                        ADD
+                        <Plus className="w-4 h-4" />
+                        <span>Add Liquidity</span>
                       </button>
                       <button
                         onClick={() => {
                           setModalPosition(position);
                           setModalMode('remove');
                         }}
-                        className="uniswap-action-btn remove"
+                        className="modern-btn modern-btn-remove"
                         disabled={isClosed}
                       >
-                        <Minus className="w-3 h-3" />
-                        REMOVE
+                        <Minus className="w-4 h-4" />
+                        <span>Remove</span>
                       </button>
                       <button
                         onClick={() => {
                           setModalPosition(position);
                           setModalMode('collect');
                         }}
-                        className="uniswap-action-btn collect"
+                        className="modern-btn modern-btn-collect"
                       >
-                        <DollarSign className="w-3 h-3" />
-                        FEES
+                        <DollarSign className="w-4 h-4" />
+                        <span>Collect Fees</span>
                       </button>
                     </div>
 

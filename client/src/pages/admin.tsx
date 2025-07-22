@@ -3,7 +3,7 @@ import { useWagmiWallet } from "@/hooks/use-wagmi-wallet";
 import { CyberpunkAdminPanel } from "@/components/cyberpunk-admin-panel";
 
 export default function AdminPage() {
-  const { isConnected, address, connect } = useWagmiWallet();
+  const { isConnected, address, connect, connectors } = useWagmiWallet();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +21,17 @@ export default function AdminPage() {
     try {
       // First connect wallet if not connected
       if (!isConnected) {
-        await connect();
+        const metaMaskConnector = connectors.find(connector => 
+          connector.name.toLowerCase().includes('metamask') || 
+          connector.name.toLowerCase().includes('injected')
+        );
+        
+        if (!metaMaskConnector) {
+          setError('MetaMask connector not found. Please install MetaMask.');
+          return;
+        }
+        
+        await connect({ connector: metaMaskConnector });
         // Wait a moment for wallet connection to complete
         await new Promise(resolve => setTimeout(resolve, 1000));
       }

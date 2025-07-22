@@ -418,7 +418,9 @@ export function UserPositions() {
               {(Array.isArray(allKiltPositions) ? 
                 (showClosedPositions ? allKiltPositions : allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) > 0n)) : []
               ).map((position: any) => {
-                const positionValue = position.currentValueUSD || calculatePositionValue(position);
+                // Handle different data structures between database and blockchain positions
+                const rawValue = position.currentValueUSD || position.currentValueUsd || calculatePositionValue(position) || 0;
+                const positionValue = typeof rawValue === 'number' ? rawValue : parseFloat(rawValue.toString()) || 0;
                 const inRange = position.isInRange; // Use backend-calculated range status
                 const isClosed = BigInt(position.liquidity || 0) === 0n;
                 const ethAmount = position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(3) : '0.000';
@@ -427,7 +429,7 @@ export function UserPositions() {
                 const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
                 
                 return (
-                  <div key={position.tokenId.toString()} className={`futuristic-position-card ${isClosed ? 'opacity-60' : ''}`}>
+                  <div key={(position.tokenId || position.nftTokenId || position.id).toString()} className={`futuristic-position-card ${isClosed ? 'opacity-60' : ''}`}>
                     {/* Cyberpunk Header */}
                     <div className="cyberpunk-header">
                       <div className="flex items-center justify-between mb-2">

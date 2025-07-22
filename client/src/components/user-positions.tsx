@@ -478,7 +478,7 @@ export function UserPositions() {
                     </div>
 
                     {/* Uniswap-Style Action Buttons */}
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-4 px-4 pb-4">
                       <button
                         onClick={() => {
                           setModalPosition(position);
@@ -487,7 +487,7 @@ export function UserPositions() {
                         className="uniswap-action-btn add"
                         disabled={isClosed}
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3 h-3" />
                         ADD
                       </button>
                       <button
@@ -498,7 +498,7 @@ export function UserPositions() {
                         className="uniswap-action-btn remove"
                         disabled={isClosed}
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="w-3 h-3" />
                         REMOVE
                       </button>
                       <button
@@ -508,7 +508,7 @@ export function UserPositions() {
                         }}
                         className="uniswap-action-btn collect"
                       >
-                        <DollarSign className="w-4 h-4" />
+                        <DollarSign className="w-3 h-3" />
                         COLLECT
                       </button>
                     </div>

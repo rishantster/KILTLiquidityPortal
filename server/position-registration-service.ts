@@ -259,18 +259,35 @@ export class PositionRegistrationService {
    */
   private async validateKiltPosition(positionData: ExternalPositionData): Promise<boolean> {
     try {
+      console.log('🔍 KILT Validation Debug - Position:', positionData.nftTokenId);
+      console.log('📍 Token addresses:', {
+        token0: positionData.token0Address,
+        token1: positionData.token1Address
+      });
+      
       // Check if required token addresses exist
       if (!positionData.token0Address || !positionData.token1Address) {
+        console.log('❌ KILT Validation FAILED - Missing token addresses');
         return false;
       }
       
       const { kilt } = await blockchainConfigService.getTokenAddresses();
+      console.log('🎯 KILT Token address from config:', kilt);
       
-      return (
+      const isMatch = (
         positionData.token0Address.toLowerCase() === kilt.toLowerCase() ||
         positionData.token1Address.toLowerCase() === kilt.toLowerCase()
       );
+      
+      console.log('🔍 KILT Validation Result:', {
+        token0Match: positionData.token0Address.toLowerCase() === kilt.toLowerCase(),
+        token1Match: positionData.token1Address.toLowerCase() === kilt.toLowerCase(),
+        finalResult: isMatch
+      });
+      
+      return isMatch;
     } catch (error) {
+      console.log('❌ KILT Validation Error:', error);
       return false;
     }
   }

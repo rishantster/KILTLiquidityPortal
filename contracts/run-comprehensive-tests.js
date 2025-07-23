@@ -43,22 +43,22 @@ const testCategories = {
 // Example scenarios from original app
 const realWorldScenarios = [
   {
-    name: "Performance Rewards",
-    description: "Admin switches to BTC for top performers",
-    tokens: ["KILT → WBTC"],
-    scenario: "Admin sets WBTC as active token for high-performing users"
+    name: "Token Switching",
+    description: "Admin switches active reward token",
+    tokens: ["KILT → WBTC → ETH"],
+    scenario: "Contract holds multiple tokens, admin switches which is distributed"
   },
   {
-    name: "Milestone Rewards", 
-    description: "TVL milestones trigger token switch to ETH",
-    tokens: ["KILT → WETH"],
-    scenario: "Admin switches to ETH when treasury milestones are achieved"
+    name: "Treasury Management", 
+    description: "Fund with any token, distribute active token",
+    tokens: ["Multiple funding, single distribution"],
+    scenario: "App calculates rewards, contract distributes active token amounts"
   },
   {
-    name: "Ecosystem Integration",
-    description: "Partner launches activate SOL rewards",
-    tokens: ["KILT → SOL"],
-    scenario: "Admin switches to SOL token for cross-chain partnerships"
+    name: "Reward Distribution",
+    description: "App-calculated amounts distributed as active token",
+    tokens: ["App determines amounts"],
+    scenario: "Contract executes distribution of app-calculated reward amounts"
   }
 ];
 
@@ -188,7 +188,8 @@ async function main() {
   console.log("Once all tests pass, the MultiTokenTreasuryPool contract is ready for");
   console.log("production deployment on Base network with complete confidence in:");
   console.log("• Security and functionality");
-  console.log("• Multi-token reward management");
+  console.log("• Single-active-token distribution model");
+  console.log("• App-calculated reward amount execution");
   console.log("• Emergency controls and recovery");
   console.log("• Gas optimization for Base network\n");
   

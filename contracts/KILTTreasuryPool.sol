@@ -9,25 +9,29 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title MultiTokenTreasuryPool
- * @dev Secure treasury-based reward distribution contract for multiple tokens
+ * @dev Secure treasury-based reward distribution contract with single-active-token model
  * 
  * Key Security Features:
  * - Contract holds multiple tokens directly (no external wallets)
  * - Admin-controlled funding and withdrawals for any ERC20 token
  * - Rolling 7-day claim system with individual locks
- * - Multi-token reward support (KILT, BTC, ETH, SOL, BNB, DOT, etc.)
+ * - Single active reward token at any time (KILT, BTC, ETH, SOL, BNB, DOT, etc.)
+ * - Admin can switch active reward token seamlessly
  * - Comprehensive access controls and emergency stops
  * - Automatic position registration and reward tracking
  */
 contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     using SafeERC20 for IERC20;
 
-    // Supported reward tokens
+    // Supported reward tokens (can hold multiple, but only one active for rewards)
     mapping(address => bool) public supportedTokens;
     address[] public supportedTokenList;
     
     // Primary program token (KILT)
     IERC20 public immutable primaryToken;
+    
+    // Current active reward token (only this token is distributed as rewards)
+    address public activeRewardToken;
     
     // Reward configuration
     uint256 public lockPeriodDays = 7;
@@ -50,9 +54,9 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     mapping(uint256 => Position) public positions;
     mapping(address => uint256[]) public userPositions;
     
-    // Multi-token reward tracking with individual locks
+    // Single-token reward tracking with individual locks (uses activeRewardToken)
     struct Reward {
-        address token;        // Token contract address
+        address token;        // Token contract address (must match activeRewardToken at creation)
         uint256 amount;       // Amount of tokens
         uint256 createdAt;    // When reward was created
         uint256 unlockTime;   // When reward unlocks
@@ -73,6 +77,7 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     event TreasuryWithdrawn(address indexed admin, address indexed token, uint256 amount);
     event TokenAdded(address indexed token, string symbol);
     event TokenRemoved(address indexed token);
+    event ActiveRewardTokenChanged(address indexed oldToken, address indexed newToken, string symbol);
     event AdminAuthorized(address indexed admin);
     event AdminRevoked(address indexed admin);
     event LockPeriodUpdated(uint256 newLockPeriodDays);
@@ -92,9 +97,13 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
         supportedTokens[_primaryToken] = true;
         supportedTokenList.push(_primaryToken);
         
+        // Set KILT as initial active reward token
+        activeRewardToken = _primaryToken;
+        
         authorizedAdmins[_initialAdmin] = true;
         
         emit TokenAdded(_primaryToken, "KILT");
+        emit ActiveRewardTokenChanged(address(0), _primaryToken, "KILT");
         emit AdminAuthorized(_initialAdmin);
     }
     
@@ -120,6 +129,7 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     function removeSupportedToken(address token) external onlyOwner {
         require(supportedTokens[token], "Token not supported");
         require(token != address(primaryToken), "Cannot remove primary token");
+        require(token != activeRewardToken, "Cannot remove active reward token");
         
         supportedTokens[token] = false;
         
@@ -133,6 +143,22 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
         }
         
         emit TokenRemoved(token);
+    }
+    
+    /**
+     * @dev Set the active reward token (admin only)
+     * @param token Address of the token to set as active
+     * @param symbol Symbol of the token for events
+     */
+    function setActiveRewardToken(address token, string calldata symbol) external onlyAuthorizedAdmin {
+        require(token != address(0), "Invalid token address");
+        require(supportedTokens[token], "Token not supported");
+        require(token != activeRewardToken, "Token already active");
+        
+        address oldToken = activeRewardToken;
+        activeRewardToken = token;
+        
+        emit ActiveRewardTokenChanged(oldToken, token, symbol);
     }
     
     /**
@@ -200,30 +226,32 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     }
     
     /**
-     * @dev Add reward for user with 7-day lock in any supported token
+     * @dev Add reward for user with 7-day lock in currently active reward token only
      * @param user Address of the user
-     * @param token Address of the reward token
      * @param amount Amount of tokens to reward
      */
-    function addReward(address user, address token, uint256 amount) external onlyAuthorizedAdmin whenNotPaused {
+    function addReward(address user, uint256 amount) external onlyAuthorizedAdmin whenNotPaused {
         require(user != address(0), "Invalid user address");
         require(amount > 0, "Amount must be greater than 0");
-        require(supportedTokens[token], "Token not supported");
+        require(activeRewardToken != address(0), "No active reward token set");
         
-        uint256 contractBalance = IERC20(token).balanceOf(address(this));
+        uint256 contractBalance = IERC20(activeRewardToken).balanceOf(address(this));
         require(contractBalance >= amount, "Insufficient treasury balance");
         
         uint256 unlockTime = block.timestamp + (lockPeriodDays * SECONDS_PER_DAY);
         
         userRewards[user].push(Reward({
-            token: token,
+            token: activeRewardToken,
             amount: amount,
             createdAt: block.timestamp,
             unlockTime: unlockTime,
             claimed: false
         }));
         
-        emit RewardAdded(user, token, amount, unlockTime);
+        totalRewardsDistributedByToken[activeRewardToken] += amount;
+        totalRewardsDistributed += amount;
+        
+        emit RewardAdded(user, activeRewardToken, amount, unlockTime);
     }
     
     /**
@@ -393,6 +421,23 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
      */
     function getSupportedTokens() external view returns (address[] memory) {
         return supportedTokenList;
+    }
+    
+    /**
+     * @dev Get current active reward token
+     * @return Address of the currently active reward token
+     */
+    function getActiveRewardToken() external view returns (address) {
+        return activeRewardToken;
+    }
+    
+    /**
+     * @dev Get current active reward token balance
+     * @return Balance of the active reward token in the contract
+     */
+    function getActiveRewardTokenBalance() external view returns (uint256) {
+        require(activeRewardToken != address(0), "No active reward token set");
+        return IERC20(activeRewardToken).balanceOf(address(this));
     }
     
     /**

@@ -18,13 +18,13 @@ const testCategories = {
     "Contract holds funds directly (no private keys)",
     "Admin authorization system",
     "Individual 7-day reward locks",
-    "Batch claiming across multiple tokens"
+    "Single active reward token distribution"
   ],
-  "Multi-Token Functionality": [
-    "Add/remove supported tokens (BTC, ETH, SOL, BNB, DOT)",
+  "Single-Active-Token Functionality": [
+    "Hold multiple tokens (BTC, ETH, SOL, BNB, DOT)",
     "Fund treasury with any supported token",
-    "Create rewards in multiple tokens",
-    "Claim multiple token types in single transaction"
+    "Only one token active for rewards at a time",
+    "Admin can switch active reward token seamlessly"
   ],
   "Emergency Controls": [
     "Pause/unpause contract",
@@ -44,21 +44,21 @@ const testCategories = {
 const realWorldScenarios = [
   {
     name: "Performance Rewards",
-    description: "Top users get BTC, regular users get KILT",
-    tokens: ["KILT", "WBTC"],
-    scenario: "High-performing liquidity providers receive premium rewards"
+    description: "Admin switches to BTC for top performers",
+    tokens: ["KILT → WBTC"],
+    scenario: "Admin sets WBTC as active token for high-performing users"
   },
   {
     name: "Milestone Rewards", 
-    description: "TVL targets trigger ETH distributions",
-    tokens: ["WETH", "KILT"],
-    scenario: "Treasury milestone achievements unlock ETH bonus rewards"
+    description: "TVL milestones trigger token switch to ETH",
+    tokens: ["KILT → WETH"],
+    scenario: "Admin switches to ETH when treasury milestones are achieved"
   },
   {
     name: "Ecosystem Integration",
-    description: "Partner launches trigger SOL rewards",
-    tokens: ["SOL", "KILT", "WETH"],
-    scenario: "Cross-chain partnership activations distribute diverse rewards"
+    description: "Partner launches activate SOL rewards",
+    tokens: ["KILT → SOL"],
+    scenario: "Admin switches to SOL token for cross-chain partnerships"
   }
 ];
 

@@ -206,10 +206,13 @@ describe("MultiTokenTreasuryPool", function () {
       await treasuryPool.connect(admin).fundTreasury(await wethToken.getAddress(), ethers.parseUnits("100", 18));
     });
 
-    it("Should allow admin to add KILT rewards", async function () {
+    it("Should allow admin to add rewards in active token", async function () {
       const rewardAmount = ethers.parseUnits("100", 18);
       
-      await expect(treasuryPool.connect(admin).addReward(user1.address, await kiltToken.getAddress(), rewardAmount))
+      // KILT is set as active reward token by default
+      expect(await treasuryPool.getActiveRewardToken()).to.equal(await kiltToken.getAddress());
+      
+      await expect(treasuryPool.connect(admin).addReward(user1.address, rewardAmount))
         .to.emit(treasuryPool, "RewardAdded");
 
       const rewards = await treasuryPool.getUserRewards(user1.address);
@@ -218,20 +221,24 @@ describe("MultiTokenTreasuryPool", function () {
       expect(rewards.claimedStatus[0]).to.be.false;
     });
 
-    it("Should allow admin to add multi-token rewards", async function () {
-      const kiltReward = ethers.parseUnits("100", 18);
+    it("Should allow admin to switch active reward token", async function () {
+      // Initially KILT is active
+      expect(await treasuryPool.getActiveRewardToken()).to.equal(await kiltToken.getAddress());
+      
+      // Switch to WBTC as active reward token
+      await expect(treasuryPool.connect(admin).setActiveRewardToken(await wbtcToken.getAddress(), "WBTC"))
+        .to.emit(treasuryPool, "ActiveRewardTokenChanged")
+        .withArgs(await kiltToken.getAddress(), await wbtcToken.getAddress(), "WBTC");
+      
+      expect(await treasuryPool.getActiveRewardToken()).to.equal(await wbtcToken.getAddress());
+      
+      // Add reward in new active token (WBTC)
       const wbtcReward = ethers.parseUnits("0.1", 8);
-      const wethReward = ethers.parseUnits("2", 18);
-
-      await treasuryPool.connect(admin).addReward(user1.address, await kiltToken.getAddress(), kiltReward);
-      await treasuryPool.connect(admin).addReward(user1.address, await wbtcToken.getAddress(), wbtcReward);
-      await treasuryPool.connect(admin).addReward(user1.address, await wethToken.getAddress(), wethReward);
+      await treasuryPool.connect(admin).addReward(user1.address, wbtcReward);
 
       const rewards = await treasuryPool.getUserRewards(user1.address);
-      expect(rewards.tokens.length).to.equal(3);
-      expect(rewards.amounts[0]).to.equal(kiltReward);
-      expect(rewards.amounts[1]).to.equal(wbtcReward);
-      expect(rewards.amounts[2]).to.equal(wethReward);
+      expect(rewards.tokens[0]).to.equal(await wbtcToken.getAddress());
+      expect(rewards.amounts[0]).to.equal(wbtcReward);
     });
 
     it("Should set correct unlock time", async function () {
@@ -253,8 +260,33 @@ describe("MultiTokenTreasuryPool", function () {
       const excessiveReward = ethers.parseUnits("20000", 18); // More than funded amount
       
       await expect(
-        treasuryPool.connect(admin).addReward(user1.address, await kiltToken.getAddress(), excessiveReward)
+        treasuryPool.connect(admin).addReward(user1.address, excessiveReward)
       ).to.be.revertedWith("Insufficient treasury balance");
+    });
+
+    it("Should not allow setting unsupported token as active", async function () {
+      // Deploy another token that's not added to supported list
+      const MockERC20 = await ethers.getContractFactory("MockERC20");
+      const unsupportedToken = await MockERC20.deploy("Unsupported", "UNSUP", 18);
+      
+      await expect(
+        treasuryPool.connect(admin).setActiveRewardToken(await unsupportedToken.getAddress(), "UNSUP")
+      ).to.be.revertedWith("Token not supported");
+    });
+
+    it("Should not allow non-admin to set active reward token", async function () {
+      await expect(
+        treasuryPool.connect(unauthorized).setActiveRewardToken(await wbtcToken.getAddress(), "WBTC")
+      ).to.be.revertedWith("Not authorized admin");
+    });
+
+    it("Should show correct active reward token balance", async function () {
+      // Initially KILT is active with 10000 tokens funded
+      expect(await treasuryPool.getActiveRewardTokenBalance()).to.equal(ethers.parseUnits("10000", 18));
+      
+      // Switch to WBTC
+      await treasuryPool.connect(admin).setActiveRewardToken(await wbtcToken.getAddress(), "WBTC");
+      expect(await treasuryPool.getActiveRewardTokenBalance()).to.equal(ethers.parseUnits("5", 8));
     });
   });
 

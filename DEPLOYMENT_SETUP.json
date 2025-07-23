@@ -1,0 +1,30 @@
+{
+  "name": "multitokentreasury-deployment",
+  "version": "1.0.0",
+  "description": "MultiTokenTreasuryPool smart contract deployment package for Base mainnet",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network base",
+    "verify": "hardhat verify --network base",
+    "test": "hardhat test",
+    "node": "hardhat node"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.0"
+  },
+  "keywords": [
+    "defi",
+    "smart-contracts",
+    "base",
+    "treasury",
+    "rewards",
+    "multi-token",
+    "solidity"
+  ],
+  "author": "KILT Protocol Team",
+  "license": "MIT"
+}

@@ -58,6 +58,7 @@ async function deployContract() {
     console.log('Constructor parameters:');
     console.log(`• Initial Active Token: ${TOKENS.KILT} (KILT)`);
     console.log('• Lock Period: 7 days');
+    console.log('• Daily Distribution Cap: 10,000 KILT (separate from admin panel)');
     console.log('• Supported Tokens: 4 tokens configured');
     console.log('• Owner: Deployer address');
     console.log('• Initial Admin: Deployer address\n');
@@ -77,7 +78,9 @@ async function deployContract() {
     console.log('• Active Token Tracking: getActiveRewardToken()');
     console.log('• Balance Monitoring: getActiveRewardTokenBalance()');
     console.log('• Reward Distribution: addReward(user, amount)');
-    console.log('• Token Switching: setActiveRewardToken(token, symbol)\n');
+    console.log('• Token Switching: setActiveRewardToken(token, symbol)');
+    console.log('• Daily Cap Management: updateDailyDistributionCap(amount)');
+    console.log('• Daily Status Monitoring: getCurrentDayDistributionStatus()\n');
 
     console.log('✅ CONTRACT READY FOR DEPLOYMENT!');
     console.log('The MultiTokenTreasuryPool contract is security-validated and ready');

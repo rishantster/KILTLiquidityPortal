@@ -30,11 +30,13 @@ describe("MultiTokenTreasuryPool", function () {
     await wbtcToken.waitForDeployment();
     await wethToken.waitForDeployment();
 
-    // Deploy MultiTokenTreasuryPool
+    // Deploy MultiTokenTreasuryPool with initial daily cap
     const MultiTokenTreasuryPool = await ethers.getContractFactory("MultiTokenTreasuryPool");
+    const initialDailyCap = ethers.parseUnits("10000", 18); // 10K KILT daily cap
     treasuryPool = await MultiTokenTreasuryPool.deploy(
       await kiltToken.getAddress(),
-      admin.address
+      admin.address,
+      initialDailyCap
     );
     await treasuryPool.waitForDeployment();
 
@@ -287,6 +289,53 @@ describe("MultiTokenTreasuryPool", function () {
       // Switch to WBTC
       await treasuryPool.connect(admin).setActiveRewardToken(await wbtcToken.getAddress(), "WBTC");
       expect(await treasuryPool.getActiveRewardTokenBalance()).to.equal(ethers.parseUnits("5", 8));
+    });
+
+    it("Should enforce daily distribution cap", async function () {
+      // Check initial daily cap (should be set in constructor)
+      const initialCap = await treasuryPool.dailyDistributionCap();
+      expect(initialCap).to.be.gt(0);
+      
+      // Add reward within cap
+      const rewardAmount = ethers.parseUnits("100", 18);
+      await expect(treasuryPool.connect(admin).addReward(user1.address, rewardAmount))
+        .to.emit(treasuryPool, "RewardAdded");
+      
+      // Check daily distribution status
+      const status = await treasuryPool.getCurrentDayDistributionStatus();
+      expect(status.distributed).to.equal(rewardAmount);
+      expect(status.cap).to.equal(initialCap);
+      expect(status.remaining).to.equal(initialCap - rewardAmount);
+    });
+
+    it("Should allow owner to update daily distribution cap", async function () {
+      const newCap = ethers.parseUnits("5000", 18);
+      
+      await expect(treasuryPool.connect(owner).updateDailyDistributionCap(newCap))
+        .to.emit(treasuryPool, "DailyDistributionCapUpdated")
+        .withArgs(newCap);
+      
+      expect(await treasuryPool.dailyDistributionCap()).to.equal(newCap);
+    });
+
+    it("Should prevent rewards when daily cap is exceeded", async function () {
+      // Set a small daily cap
+      const smallCap = ethers.parseUnits("50", 18);
+      await treasuryPool.connect(owner).updateDailyDistributionCap(smallCap);
+      
+      // First reward within cap
+      await treasuryPool.connect(admin).addReward(user1.address, ethers.parseUnits("30", 18));
+      
+      // Second reward that would exceed cap
+      await expect(
+        treasuryPool.connect(admin).addReward(user2.address, ethers.parseUnits("25", 18))
+      ).to.be.revertedWith("Daily distribution cap exceeded");
+    });
+
+    it("Should not allow non-owner to update daily cap", async function () {
+      await expect(
+        treasuryPool.connect(admin).updateDailyDistributionCap(ethers.parseUnits("1000", 18))
+      ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 

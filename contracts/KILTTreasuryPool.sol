@@ -37,6 +37,10 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     uint256 public lockPeriodDays = 7;
     uint256 public constant SECONDS_PER_DAY = 86400;
     
+    // Daily distribution cap (separate from admin panel caps)
+    uint256 public dailyDistributionCap;
+    mapping(uint256 => uint256) public dailyDistributedAmount; // day => amount distributed
+    
     // Treasury management
     mapping(address => bool) public authorizedAdmins;
     uint256 public totalRewardsDistributed;
@@ -81,15 +85,18 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     event AdminAuthorized(address indexed admin);
     event AdminRevoked(address indexed admin);
     event LockPeriodUpdated(uint256 newLockPeriodDays);
+    event DailyDistributionCapUpdated(uint256 newDailyCap);
+    event DailyDistributionLimitReached(uint256 date, uint256 distributedAmount, uint256 cap);
     
     modifier onlyAuthorizedAdmin() {
         require(authorizedAdmins[msg.sender] || msg.sender == owner(), "Not authorized admin");
         _;
     }
     
-    constructor(address _primaryToken, address _initialAdmin) {
+    constructor(address _primaryToken, address _initialAdmin, uint256 _initialDailyCap) {
         require(_primaryToken != address(0), "Invalid primary token address");
         require(_initialAdmin != address(0), "Invalid admin address");
+        require(_initialDailyCap > 0, "Daily cap must be greater than 0");
         
         primaryToken = IERC20(_primaryToken);
         
@@ -100,11 +107,15 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
         // Set KILT as initial active reward token
         activeRewardToken = _primaryToken;
         
+        // Set initial daily distribution cap
+        dailyDistributionCap = _initialDailyCap;
+        
         authorizedAdmins[_initialAdmin] = true;
         
         emit TokenAdded(_primaryToken, "KILT");
         emit ActiveRewardTokenChanged(address(0), _primaryToken, "KILT");
         emit AdminAuthorized(_initialAdmin);
+        emit DailyDistributionCapUpdated(_initialDailyCap);
     }
     
     /**
@@ -237,6 +248,19 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
         
         uint256 contractBalance = IERC20(activeRewardToken).balanceOf(address(this));
         require(contractBalance >= amount, "Insufficient treasury balance");
+        
+        // Check daily distribution cap
+        uint256 currentDay = block.timestamp / SECONDS_PER_DAY;
+        uint256 dailyDistributed = dailyDistributedAmount[currentDay];
+        require(dailyDistributed + amount <= dailyDistributionCap, "Daily distribution cap exceeded");
+        
+        // Update daily distribution tracking
+        dailyDistributedAmount[currentDay] += amount;
+        
+        // Emit event if near cap limit
+        if (dailyDistributedAmount[currentDay] >= dailyDistributionCap) {
+            emit DailyDistributionLimitReached(currentDay, dailyDistributedAmount[currentDay], dailyDistributionCap);
+        }
         
         uint256 unlockTime = block.timestamp + (lockPeriodDays * SECONDS_PER_DAY);
         
@@ -467,6 +491,48 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
         require(newLockPeriodDays <= 365, "Lock period too long");
         lockPeriodDays = newLockPeriodDays;
         emit LockPeriodUpdated(newLockPeriodDays);
+    }
+    
+    /**
+     * @dev Update daily distribution cap (separate from admin panel caps)
+     * @param newDailyCap New daily distribution cap amount
+     */
+    function updateDailyDistributionCap(uint256 newDailyCap) external onlyOwner {
+        require(newDailyCap > 0, "Daily cap must be greater than 0");
+        dailyDistributionCap = newDailyCap;
+        emit DailyDistributionCapUpdated(newDailyCap);
+    }
+    
+    /**
+     * @dev Get daily distribution status for specific day
+     * @param day Day to check (timestamp / SECONDS_PER_DAY)
+     * @return distributed Amount distributed on that day
+     * @return cap Daily distribution cap
+     * @return remaining Amount remaining for that day
+     */
+    function getDailyDistributionStatus(uint256 day) external view returns (
+        uint256 distributed,
+        uint256 cap,
+        uint256 remaining
+    ) {
+        distributed = dailyDistributedAmount[day];
+        cap = dailyDistributionCap;
+        remaining = cap > distributed ? cap - distributed : 0;
+    }
+    
+    /**
+     * @dev Get current day distribution status
+     * @return distributed Amount distributed today
+     * @return cap Daily distribution cap
+     * @return remaining Amount remaining today
+     */
+    function getCurrentDayDistributionStatus() external view returns (
+        uint256 distributed,
+        uint256 cap,
+        uint256 remaining
+    ) {
+        uint256 currentDay = block.timestamp / SECONDS_PER_DAY;
+        return this.getDailyDistributionStatus(currentDay);
     }
     
     /**

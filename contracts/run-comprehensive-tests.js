@@ -26,6 +26,12 @@ const testCategories = {
     "Only one token active for rewards at a time",
     "Admin can switch active reward token seamlessly"
   ],
+  "Daily Distribution Controls": [
+    "Contract-level daily distribution cap (separate from admin panel)",
+    "Owner can set and update daily distribution limits",
+    "Automatic enforcement prevents cap violations",
+    "Real-time tracking of daily distribution status"
+  ],
   "Emergency Controls": [
     "Pause/unpause contract",
     "Emergency withdrawal by owner",

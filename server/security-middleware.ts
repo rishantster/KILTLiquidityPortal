@@ -162,7 +162,7 @@ export const setupSecurity = (app: Express) => {
         imgSrc: ["'self'", "data:", "https:", "blob:"],
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://replit.com"], // Required for Vite
         connectSrc: ["'self'", "https://api.coingecko.com", "https://mainnet.base.org", "wss:", "https:"],
-        frameSrc: ["'self'", "https://dexscreener.com"],
+        frameSrc: ["'self'", "https://dexscreener.com", "https://www.geckoterminal.com"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
       },

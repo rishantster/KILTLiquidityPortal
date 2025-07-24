@@ -898,7 +898,7 @@ export function MainDashboard() {
             <div className="flex-1 p-4">
               <div className="w-full h-full rounded-xl overflow-hidden bg-white/5 border border-white/10">
                 <iframe
-                  src="https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e?embed=1&theme=dark&trades=0&info=0"
+                  src="https://www.geckoterminal.com/base/pools/0x82da478b1382b951cbad01beb9ed459cdb16458e?embed=1&info=0&swaps=0"
                   className="w-full h-full border-0"
                   title="KILT/WETH Price Chart"
                   allowFullScreen
@@ -910,10 +910,10 @@ export function MainDashboard() {
             <div className="p-4 border-t border-white/10">
               <div className="flex items-center justify-between">
                 <div className="text-white/50 text-sm">
-                  Data provided by DexScreener
+                  Data provided by GeckoTerminal
                 </div>
                 <button
-                  onClick={() => window.open('https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e', '_blank')}
+                  onClick={() => window.open('https://www.geckoterminal.com/base/pools/0x82da478b1382b951cbad01beb9ed459cdb16458e?utm_source=coingecko&utm_medium=referral&utm_campaign=livechart', '_blank')}
                   className="flex items-center gap-2 px-3 py-1.5 bg-[#ff0066]/10 hover:bg-[#ff0066]/20 border border-[#ff0066]/30 rounded-lg text-[#ff0066] text-sm transition-all duration-200"
                 >
                   <ExternalLink className="h-3 w-3" />

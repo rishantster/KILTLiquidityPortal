@@ -493,32 +493,38 @@ export function UserPositions() {
                     <div className="cyberpunk-commands">
                       <button
                         onClick={() => {
-                          setModalPosition(position);
-                          setModalMode('add');
+                          const tokenId = position.tokenId || position.nftTokenId || position.id;
+                          const addLiquidityUrl = `https://app.uniswap.org/increase/${tokenId}`;
+                          window.open(addLiquidityUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-add"
                         disabled={isClosed}
+                        title="Add Liquidity on Uniswap"
                       >
                         <Plus className="w-3 h-3" />
                         ADD
                       </button>
                       <button
                         onClick={() => {
-                          setModalPosition(position);
-                          setModalMode('remove');
+                          const tokenId = position.tokenId || position.nftTokenId || position.id;
+                          const removeLiquidityUrl = `https://app.uniswap.org/pool/${tokenId}`;
+                          window.open(removeLiquidityUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-remove"
                         disabled={isClosed}
+                        title="Remove Liquidity on Uniswap"
                       >
                         <Minus className="w-3 h-3" />
                         REMOVE
                       </button>
                       <button
                         onClick={() => {
-                          setModalPosition(position);
-                          setModalMode('collect');
+                          const tokenId = position.tokenId || position.nftTokenId || position.id;
+                          const collectFeesUrl = `https://app.uniswap.org/pool/${tokenId}`;
+                          window.open(collectFeesUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-collect"
+                        title="Collect Fees on Uniswap"
                       >
                         <DollarSign className="w-3 h-3" />
                         CLAIM

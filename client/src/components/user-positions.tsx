@@ -494,8 +494,8 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const addLiquidityUrl = `https://app.uniswap.org/increase/${tokenId}`;
-                          window.open(addLiquidityUrl, '_blank', 'noopener,noreferrer');
+                          const positionUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
+                          window.open(positionUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-add"
                         disabled={isClosed}
@@ -507,8 +507,8 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const removeLiquidityUrl = `https://app.uniswap.org/remove/${tokenId}`;
-                          window.open(removeLiquidityUrl, '_blank', 'noopener,noreferrer');
+                          const positionUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
+                          window.open(positionUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-remove"
                         disabled={isClosed}
@@ -520,8 +520,8 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const collectFeesUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
-                          window.open(collectFeesUrl, '_blank', 'noopener,noreferrer');
+                          const positionUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
+                          window.open(positionUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-collect"
                         title="Collect Fees on Uniswap"

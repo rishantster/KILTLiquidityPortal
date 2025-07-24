@@ -479,7 +479,13 @@ npx hardhat compile
 npx hardhat run scripts/deploy.js --network base
 ```
 
-3. **Verify Contract (if not done automatically)**
+3. **Add Second Admin (after deployment)**
+```bash
+# Create add-admin.js script to authorize additional admin
+npx hardhat run scripts/add-admin.js --network base
+```
+
+4. **Verify Contract (if not done automatically)**
 ```bash
 npx hardhat verify --network base CONTRACT_ADDRESS "0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8" "YOUR_ADMIN_ADDRESS" "10000000000000000000000"
 ```
@@ -510,4 +516,57 @@ After deployment, update your app's configuration with:
 - Network: Base (8453)
 - ABI (generated after compilation)
 
-The contract is ready for immediate use with your KILT liquidity incentive program!
+### Adding Multiple Admin Wallets
+
+Create `scripts/add-admin.js`:
+
+```javascript
+const hre = require("hardhat");
+
+async function main() {
+  const CONTRACT_ADDRESS = "YOUR_DEPLOYED_CONTRACT_ADDRESS"; // Replace with actual address
+  const SECOND_ADMIN = "0x861722f739539CF31d86F1221460Fa96C9baB95C"; // Replace with second admin address
+  
+  console.log("🔐 Adding second admin to MultiTokenTreasuryPool...");
+  
+  // Get contract instance
+  const MultiTokenTreasuryPool = await hre.ethers.getContractFactory("MultiTokenTreasuryPool");
+  const treasuryPool = MultiTokenTreasuryPool.attach(CONTRACT_ADDRESS);
+  
+  // Authorize second admin (only owner can do this)
+  const tx = await treasuryPool.authorizeAdmin(SECOND_ADMIN);
+  await tx.wait();
+  
+  console.log("✅ Second admin authorized successfully!");
+  console.log("📍 Admin Address:", SECOND_ADMIN);
+  console.log("🔗 Transaction Hash:", tx.hash);
+  
+  // Verify admin status
+  const isAuthorized = await treasuryPool.authorizedAdmins(SECOND_ADMIN);
+  console.log("🔍 Admin Authorization Verified:", isAuthorized);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+### Admin Functions Available to Both Admins
+
+✅ **Both admin wallets can:**
+- Switch active reward token: `setActiveRewardToken()`
+- Fund treasury with any token: `fundTreasury()`
+- Add rewards for users: `addReward()`
+- Register LP positions: `registerPosition()`
+
+🔒 **Only owner can:**
+- Add/remove supported tokens: `addSupportedToken()`, `removeSupportedToken()`
+- Authorize/revoke admin wallets: `authorizeAdmin()`, `revokeAdmin()`
+- Update daily distribution cap: `updateDailyDistributionCap()`
+- Emergency withdraw: `emergencyWithdraw()`
+- Pause/unpause contract: `pause()`, `unpause()`
+
+The contract is ready for immediate use with multiple admin support for your KILT liquidity incentive program!

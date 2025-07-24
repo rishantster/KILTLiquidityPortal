@@ -594,6 +594,7 @@ export class FixedRewardService {
     totalDistributed: number;
     treasuryTotal: number;
     treasuryRemaining: number;
+    avgUserLiquidity: number;
     estimatedAPR: {
       low: number;
       average: number;
@@ -643,6 +644,9 @@ export class FixedRewardService {
       // Count unique users instead of individual positions
       const uniqueUserIds = new Set(activeParticipants.map(p => p.userId));
       
+      // Calculate average user liquidity
+      const avgUserLiquidity = uniqueUserIds.size > 0 ? totalLiquidity / uniqueUserIds.size : 0;
+      
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100,
         activeParticipants: uniqueUserIds.size,
@@ -653,6 +657,7 @@ export class FixedRewardService {
         totalDistributed: Math.round(totalDistributed * 100) / 100,
         treasuryTotal,
         treasuryRemaining: treasuryTotal - totalDistributed,
+        avgUserLiquidity: Math.round(avgUserLiquidity * 100) / 100,
         estimatedAPR: {
           low: Math.round(averageAPR * 0.8 * 100) / 100, // Use actual calculated APR
           average: Math.round(averageAPR * 100) / 100,

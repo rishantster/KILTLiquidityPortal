@@ -434,9 +434,18 @@ export function UserPositions() {
                     {/* Header */}
                     <div className="cyberpunk-header">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-pink-primary">
+                        <button
+                          onClick={() => {
+                            const tokenId = position.tokenId || position.nftTokenId || position.id;
+                            const uniswapUrl = `https://app.uniswap.org/pool/${tokenId}`;
+                            window.open(uniswapUrl, '_blank', 'noopener,noreferrer');
+                          }}
+                          className="text-sm font-semibold text-pink-primary hover:text-[#ff0066] transition-colors duration-200 cursor-pointer hover:underline flex items-center gap-1"
+                          title="View on Uniswap"
+                        >
                           #{position.tokenId || position.nftTokenId || position.id}
-                        </span>
+                          <ExternalLink className="h-3 w-3" />
+                        </button>
                         <div className={`cyberpunk-status ${inRange ? 'status-online' : 'status-warning'}`}>
                           {inRange ? 'ONLINE' : 'OFFLINE'}
                         </div>

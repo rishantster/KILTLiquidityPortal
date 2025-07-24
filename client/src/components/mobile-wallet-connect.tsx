@@ -224,7 +224,7 @@ export function MobileWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isPending}
-        className="bg-[#f70363] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] shadow-medium-modern hover:shadow-strong-modern hover:-translate-y-0.5 h-11 py-2.5 from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6 bg-[#f70363]"
       >
         {isPending ? (
           <>
@@ -240,13 +240,16 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black border border-gray-800 max-w-md">
+        <DialogContent className="bg-black border border-gray-800 max-w-md" aria-describedby="wallet-connect-description">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">
               <Wallet className="h-6 w-6" />
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
+          <div id="wallet-connect-description" className="sr-only">
+            Choose your preferred wallet to connect to the KILT Liquidity Portal. Supports MetaMask, Coinbase Wallet, WalletConnect, and other popular wallets.
+          </div>
           
           {/* Mobile Section */}
           {isMobile ? (

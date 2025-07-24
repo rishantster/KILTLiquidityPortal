@@ -270,7 +270,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Get KILT token address from blockchain configuration
       const blockchainConfig = await blockchainConfigService.getAllConfigs();
-      const kiltTokenAddress = blockchainConfig.kiltTokenAddress || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+      const kiltConfig = blockchainConfig.find(c => c.configKey === 'KILT_TOKEN_ADDRESS');
+      const kiltTokenAddress = kiltConfig?.configValue || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
       
       // Filter out already registered positions and only include KILT positions
       // CRITICAL FIX: Also filter out app-created positions from eligible positions
@@ -299,7 +300,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Get KILT token address from blockchain configuration
       const blockchainConfig = await blockchainConfigService.getAllConfigs();
-      const kiltTokenAddress = blockchainConfig.kiltTokenAddress || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+      const kiltConfig = blockchainConfig.find(c => c.configKey === 'KILT_TOKEN_ADDRESS');
+      const kiltTokenAddress = kiltConfig?.configValue || "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
       
       // Count only KILT positions
       const kiltPositions = userPositions.filter(pos => {
@@ -354,13 +356,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      const ipAddress = req.ip || req.connection.remoteAddress;
+      const ipAddress = req.ip || req.connection?.remoteAddress || "unknown";
       const result = await appTransactionService.recordAppTransaction(
         sessionId,
         {
           ...transactionData,
           appVersion: "1.0.0",
-          userAgent: req.headers['user-agent'],
+          userAgent: req.headers['user-agent'] || "unknown",
         },
         ipAddress
       );
@@ -1174,7 +1176,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       const rewardCalc = await fixedRewardService.calculatePositionRewards(
         user.id.toString(),
-        position.id.toString(),
+        position.id,
         position.nftTokenId,
         parseFloat(position.currentValueUSD)
       );
@@ -1213,7 +1215,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Calculate rewards (includes both trading fees and incentives)
       const rewardResult = await fixedRewardService.calculatePositionRewards(
         (position.userId || 0).toString(),
-        position.id.toString(),
+        position.id,
         position.nftTokenId,
         parseFloat(position.currentValueUSD)
       );
@@ -1920,7 +1922,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get detailed vulnerability report showing the fix
   app.get("/api/reward-demo/vulnerability-report", async (req, res) => {
     try {
-      const report = rewardCalculationDemo.generateVulnerabilityReport();
+      // Legacy demo functionality removed for production
+      const report = { message: "Demo functionality removed for production" };
       
       res.json({
         success: true,
@@ -1939,7 +1942,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get detailed comparison of old vs new formula
   app.get("/api/reward-demo/comparison", async (req, res) => {
     try {
-      const comparisons = rewardCalculationDemo.demonstrateVulnerabilityFix();
+      // Legacy demo functionality removed for production
+      const comparisons = [];
       
       res.json({
         success: true,
@@ -2269,8 +2273,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const dbConfig = {
         treasuryWalletAddress: config.treasuryWalletAddress,
         totalAllocation: config.totalAllocation.toString(),
-        programStartDate,
-        programEndDate,
+        programStartDate: programStartDate.toISOString().split('T')[0],
+        programEndDate: programEndDate.toISOString().split('T')[0],
         programDurationDays: config.programDurationDays,
         dailyRewardsCap: dailyRewardsCap.toString(),
         isActive: config.isActive !== false,
@@ -2412,7 +2416,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Transform database format to frontend format
       const operations = dbOperations.map(op => ({
-        action: op.operationType.toUpperCase(),
+        action: (op.operationType || 'unknown').toUpperCase(),
         details: op.reason,
         adminId: op.performedBy, // This will now show the wallet address
         walletAddress: op.performedBy, // Add explicit wallet address field

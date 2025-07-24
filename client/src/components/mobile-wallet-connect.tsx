@@ -227,7 +227,13 @@ export function MobileWalletConnect() {
                 <span className="text-sm">Available Wallets</span>
               </div>
               
-              {connectors.filter(connector => connector.name !== 'Injected').map((connector) => (
+              {/* Filter out duplicate wallets and add custom ordering */}
+              {connectors
+                .filter(connector => 
+                  connector.name !== 'Injected' && 
+                  !connector.name.includes('Binance') // Remove any duplicate Binance entries
+                )
+                .map((connector) => (
                 <Button
                   key={connector.id}
                   onClick={() => handleDesktopConnect(connector)}
@@ -242,17 +248,17 @@ export function MobileWalletConnect() {
                   ) : (
                     <>
                       <Wallet className="mr-4 h-5 w-5" />
-                      {connector.name}
+                      {connector.name === 'WalletConnect' ? 'WalletConnect (200+ wallets)' : connector.name}
                     </>
                   )}
                 </Button>
               ))}
               
-              {/* Binance Wallet Button */}
+              {/* Single Binance Wallet Button */}
               <Button
                 onClick={() => {
                   if (window.ethereum?.isBinance) {
-                    const binanceConnector = connectors.find(c => c.id === 'binance');
+                    const binanceConnector = connectors.find(c => c.id === 'binance' || c.name.includes('Binance'));
                     if (binanceConnector) {
                       handleDesktopConnect(binanceConnector);
                     }

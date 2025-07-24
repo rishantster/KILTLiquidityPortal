@@ -38,15 +38,6 @@ export const MOBILE_WALLET_LINKS: WalletDeepLink[] = [
     isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isTrust
   },
   {
-    name: 'Rainbow',
-    id: 'rainbow',
-    deepLink: (url: string) => `https://rnbwapp.com/open?url=${encodeURIComponent(url)}`,
-    installLink: 'https://rainbow.me/',
-    icon: '🌈',
-    description: 'Beautiful Ethereum wallet',
-    isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isRainbow
-  },
-  {
     name: 'Binance Wallet',
     id: 'binance',
     deepLink: (url: string) => `bnc://app.binance.com/cedefi/eth-dapp?url=${encodeURIComponent(url)}`,
@@ -54,6 +45,15 @@ export const MOBILE_WALLET_LINKS: WalletDeepLink[] = [
     icon: '🟡',
     description: 'Binance Web3 Wallet',
     isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isBinance
+  },
+  {
+    name: 'WalletConnect',
+    id: 'walletConnect',
+    deepLink: (url: string) => `wc://`,
+    installLink: 'https://walletconnect.com/',
+    icon: '🔗',
+    description: 'Connect 200+ wallets',
+    isAvailable: () => true // Always available as it's a protocol
   }
 ];
 

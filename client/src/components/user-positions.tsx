@@ -437,7 +437,7 @@ export function UserPositions() {
                         <button
                           onClick={() => {
                             const tokenId = position.tokenId || position.nftTokenId || position.id;
-                            const uniswapUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
+                            const uniswapUrl = `https://app.uniswap.org/pool/${tokenId}`;
                             window.open(uniswapUrl, '_blank', 'noopener,noreferrer');
                           }}
                           className="text-sm font-semibold text-pink-primary hover:text-[#ff0066] transition-colors duration-200 cursor-pointer hover:underline flex items-center gap-1"
@@ -493,38 +493,32 @@ export function UserPositions() {
                     <div className="cyberpunk-commands">
                       <button
                         onClick={() => {
-                          const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const positionUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
-                          window.open(positionUrl, '_blank', 'noopener,noreferrer');
+                          setModalPosition(position);
+                          setModalMode('add');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-add"
                         disabled={isClosed}
-                        title="Add Liquidity on Uniswap"
                       >
                         <Plus className="w-3 h-3" />
                         ADD
                       </button>
                       <button
                         onClick={() => {
-                          const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const removeUrl = `https://app.uniswap.org/#/remove/${tokenId}`;
-                          window.open(removeUrl, '_blank', 'noopener,noreferrer');
+                          setModalPosition(position);
+                          setModalMode('remove');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-remove"
                         disabled={isClosed}
-                        title="Remove Liquidity on Uniswap"
                       >
                         <Minus className="w-3 h-3" />
                         REMOVE
                       </button>
                       <button
                         onClick={() => {
-                          const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const positionUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
-                          window.open(positionUrl, '_blank', 'noopener,noreferrer');
+                          setModalPosition(position);
+                          setModalMode('collect');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-collect"
-                        title="Collect Fees on Uniswap"
                       >
                         <DollarSign className="w-3 h-3" />
                         CLAIM

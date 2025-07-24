@@ -1635,10 +1635,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/positions/:nftTokenId/fees", async (req, res) => {
     try {
       const { nftTokenId } = req.params;
+      console.log(`🔍 Getting fees for position ${nftTokenId}`);
       
       const fees = await uniswapIntegrationService.getPositionFees(nftTokenId);
+      console.log(`✅ Position ${nftTokenId} fees:`, fees);
       res.json(fees);
     } catch (error) {
+      console.error(`❌ Position fees error for ${req.params.nftTokenId}:`, error);
       // Error getting position fees
       res.status(500).json({ error: "Failed to get position fees" });
     }

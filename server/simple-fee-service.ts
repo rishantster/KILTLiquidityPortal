@@ -1,5 +1,6 @@
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
+import { PriceService } from './price-service';
 
 /**
  * Simple Fee Service - Get authentic unclaimed fees matching Uniswap interface
@@ -10,12 +11,19 @@ export class SimpleFeeService {
     transport: http('https://base.drpc.org')
   });
 
-  private static readonly POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72e919cf822Ed34f1' as `0x${string}`;
+  private static readonly POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1' as `0x${string}`;
 
   /**
    * Get unclaimed fees using collect simulation (exactly like Uniswap interface)
    */
-  static async getUnclaimedFees(tokenId: string): Promise<{ token0: string; token1: string }> {
+  static async getUnclaimedFees(tokenId: string): Promise<{ 
+    token0: string; 
+    token1: string; 
+    usdValue?: number;
+    ethPrice?: number;
+    kiltPrice?: number;
+  }> {
+    console.log(`🚀 SimpleFeeService.getUnclaimedFees called for token ${tokenId}`);
     try {
       // Use the same method as Uniswap interface - simulate collect with max amounts
       const collectParams = [
@@ -49,20 +57,32 @@ export class SimpleFeeService {
 
       const [amount0, amount1] = result.result as [bigint, bigint];
 
-      console.log(`💰 Position ${tokenId} unclaimed fees: ${amount0.toString()} / ${amount1.toString()}`);
+      // Convert to USD using real-time prices
+      const feeConversion = await PriceService.convertFeesToUSD(
+        amount0.toString(),
+        amount1.toString()
+      );
+
+      console.log(`💰 Position ${tokenId} fees: $${feeConversion.totalUSD.toFixed(2)} (ETH: $${feeConversion.ethUSD.toFixed(2)}, KILT: $${feeConversion.kiltUSD.toFixed(2)})`);
 
       return {
         token0: amount0.toString(),
-        token1: amount1.toString()
+        token1: amount1.toString(),
+        usdValue: feeConversion.totalUSD,
+        ethPrice: feeConversion.ethPrice,
+        kiltPrice: feeConversion.kiltPrice
       };
 
     } catch (error) {
       console.error(`❌ Fee simulation failed for position ${tokenId}:`, error);
+      // Avoid JSON.stringify for BigInt serialization issues
+      console.error(`Full error details:`, error);
       
       // Return zero fees if simulation fails
       return {
         token0: '0',
-        token1: '0'
+        token1: '0',
+        usdValue: 0
       };
     }
   }

@@ -1,6 +1,7 @@
 import { createPublicClient, http, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
 import { RPCFallbackService } from './rpc-fallback-service';
+import { SimpleFeeService } from './simple-fee-service';
 
 // Base Network Configuration
 const BASE_CHAIN_ID = 8453;
@@ -391,6 +392,18 @@ export class UniswapIntegrationService {
   }
 
   /**
+   * Get position fees using SimpleFeeService for exact Uniswap interface matching
+   */
+  async getPositionFees(tokenId: string): Promise<{ token0: string; token1: string; usdValue?: number }> {
+    try {
+      return await SimpleFeeService.getUnclaimedFees(tokenId);
+    } catch (error) {
+      console.error(`❌ Failed to get position fees for ${tokenId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Get pool address for a given token pair and fee tier
    */
   async getPoolAddress(token0: string, token1: string, fee: number): Promise<string> {
@@ -503,11 +516,8 @@ export class UniswapIntegrationService {
           tickUpper,
           poolData.tickCurrent
         ),
-        // Use tokensOwed directly from position data (what's ready to collect)
-        Promise.resolve({
-          token0: tokensOwed0.toString(),
-          token1: tokensOwed1.toString()
-        })
+        // Use SimpleFeeService for exact Uniswap interface fee calculation
+        SimpleFeeService.getUnclaimedFees(tokenId)
       ]);
 
       // Calculate USD value

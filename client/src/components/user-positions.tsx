@@ -437,7 +437,7 @@ export function UserPositions() {
                         <button
                           onClick={() => {
                             const tokenId = position.tokenId || position.nftTokenId || position.id;
-                            const uniswapUrl = `https://app.uniswap.org/positions/${tokenId}`;
+                            const uniswapUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
                             window.open(uniswapUrl, '_blank', 'noopener,noreferrer');
                           }}
                           className="text-sm font-semibold text-pink-primary hover:text-[#ff0066] transition-colors duration-200 cursor-pointer hover:underline flex items-center gap-1"
@@ -494,7 +494,7 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const addLiquidityUrl = `https://app.uniswap.org/positions/${tokenId}#add-liquidity`;
+                          const addLiquidityUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}#add-liquidity`;
                           window.open(addLiquidityUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-add"
@@ -507,7 +507,7 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const removeLiquidityUrl = `https://app.uniswap.org/positions/${tokenId}#remove-liquidity`;
+                          const removeLiquidityUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}#remove-liquidity`;
                           window.open(removeLiquidityUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-remove"
@@ -520,7 +520,7 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const collectFeesUrl = `https://app.uniswap.org/positions/${tokenId}#collect-fees`;
+                          const collectFeesUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}#collect-fees`;
                           window.open(collectFeesUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-collect"

@@ -168,6 +168,7 @@ export const setupSecurity = (app: Express) => {
       },
     },
     crossOriginEmbedderPolicy: false, // Disable for Web3 compatibility
+    crossOriginOpenerPolicy: false, // Required for Coinbase Smart Wallet compatibility
   }));
 
   // CORS configuration with broader origin support for admin panel

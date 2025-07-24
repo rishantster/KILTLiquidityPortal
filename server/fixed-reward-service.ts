@@ -713,9 +713,18 @@ export class FixedRewardService {
   /**
    * Update daily rewards for all active positions
    */
-  async updateDailyRewards(): Promise<void> {
+  async updateDailyRewards(): Promise<{
+    success: boolean;
+    updatedPositions: number;
+    totalRewardsDistributed: number;
+    error?: string;
+  }> {
     try {
       const activeParticipants = await this.getAllActiveParticipants();
+      let updatedPositions = 0;
+      let totalRewardsDistributed = 0;
+      
+      console.log(`🎯 Updating daily rewards for ${activeParticipants.length} active positions...`);
       
       for (const participant of activeParticipants) {
         try {
@@ -726,12 +735,31 @@ export class FixedRewardService {
           
           // Update or create reward record
           await this.updateRewardRecord(participant.userId, participant.nftTokenId, rewardCalculation);
+          
+          updatedPositions++;
+          totalRewardsDistributed += rewardCalculation.accumulatedRewards;
+          
+          console.log(`✅ Updated rewards for user ${participant.userId}, position ${participant.nftTokenId}: ${rewardCalculation.accumulatedRewards} KILT`);
         } catch (error) {
-          // Error updating rewards for participant
+          console.error(`❌ Error updating rewards for participant ${participant.userId}:`, error);
         }
       }
+      
+      console.log(`🎉 Daily reward update completed: ${updatedPositions} positions updated, ${totalRewardsDistributed.toFixed(2)} KILT total`);
+      
+      return {
+        success: true,
+        updatedPositions,
+        totalRewardsDistributed
+      };
     } catch (error) {
-      // Error updating daily rewards
+      console.error('❌ Daily reward update failed:', error);
+      return {
+        success: false,
+        updatedPositions: 0,
+        totalRewardsDistributed: 0,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
   }
 
@@ -852,6 +880,8 @@ export class FixedRewardService {
             accumulatedAmount: calculation.accumulatedRewards.toString(),
             positionValueUSD: calculation.liquidityAmount.toString(),
             lastRewardCalculation: new Date(),
+            // Force update timestamp to indicate this was freshly calculated
+            createdAt: new Date(),
           })
           .where(eq(rewards.id, existingReward[0].id));
       } else {

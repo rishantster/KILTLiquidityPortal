@@ -1965,6 +1965,66 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // ===== TREASURY MANAGEMENT ROUTES (REMOVED) =====
   // Note: Treasury management consolidated into admin service
 
+  // ===== REWARD UPDATE ROUTES =====
+
+  // Manual trigger for daily reward updates
+  app.post("/api/admin/update-rewards", async (req, res) => {
+    try {
+      const fixedRewardService = new FixedRewardService(db);
+      
+      console.log('🚀 Manual reward update triggered by admin...');
+      const result = await fixedRewardService.updateDailyRewards();
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: 'Reward update completed successfully',
+          updatedPositions: result.updatedPositions,
+          totalRewardsDistributed: result.totalRewardsDistributed,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: result.error,
+          message: 'Reward update failed'
+        });
+      }
+    } catch (error) {
+      console.error('❌ Manual reward update failed:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        message: 'Failed to update rewards'
+      });
+    }
+  });
+
+  // Get reward update status
+  app.get("/api/admin/reward-status", async (req, res) => {
+    try {
+      const fixedRewardService = new FixedRewardService(db);
+      const activeParticipants = await fixedRewardService.getAllActiveParticipants();
+      
+      res.json({
+        success: true,
+        activePositions: activeParticipants.length,
+        lastUpdateCheck: new Date().toISOString(),
+        nextScheduledUpdate: '24 hours from last run',
+        participants: activeParticipants.map(p => ({
+          userId: p.userId,
+          nftTokenId: p.nftTokenId,
+          liquidityValueUSD: p.liquidityValueUSD
+        }))
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // ===== BLOCKCHAIN CONFIGURATION ROUTES =====
 
   // Get all blockchain configurations

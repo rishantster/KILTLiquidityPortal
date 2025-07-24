@@ -7,6 +7,7 @@ import { enhancedErrorHandler } from "./error-handler";
 import { DatabaseOptimizer } from "./database-optimizer";
 import { kiltPriceService } from "./kilt-price-service.js";
 import { blockchainConfigService } from "./blockchain-config-service";
+import { FixedRewardService } from "./fixed-reward-service";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 
@@ -23,6 +24,58 @@ blockchainConfigService.initializeDefaults();
 import('./db-migration-optimizer').then(({ DbMigrationOptimizer }) => {
   DbMigrationOptimizer.runEssentialOptimizations();
 }).catch(console.error);
+
+// Initialize reward service for background updates
+let rewardService: FixedRewardService | null = null;
+setTimeout(async () => {
+  try {
+    const { getDatabase } = await import('./storage');
+    const db = getDatabase();
+    rewardService = new FixedRewardService(db);
+    console.log('🎯 Reward service initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize reward service:', error);
+  }
+}, 2000);
+
+// Background reward update system
+const REWARD_UPDATE_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours in milliseconds (more frequent updates)
+let rewardUpdateTimer: NodeJS.Timeout | null = null;
+
+async function runDailyRewardUpdate() {
+  if (!rewardService) {
+    console.warn('⚠️ Reward service not initialized, skipping update');
+    return;
+  }
+  
+  try {
+    console.log('🚀 Starting automatic reward update...');
+    const result = await rewardService.updateDailyRewards();
+    
+    if (result.success) {
+      console.log(`✅ Automatic reward update completed: ${result.updatedPositions} positions, ${result.totalRewardsDistributed.toFixed(2)} KILT distributed`);
+    } else {
+      console.error(`❌ Automatic reward update failed: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('❌ Critical error in automatic reward update:', error);
+  }
+}
+
+// Schedule reward updates
+function startRewardUpdateScheduler() {
+  if (rewardUpdateTimer) {
+    clearInterval(rewardUpdateTimer);
+  }
+  
+  // Run every 4 hours for more frequent updates
+  rewardUpdateTimer = setInterval(runDailyRewardUpdate, REWARD_UPDATE_INTERVAL);
+  
+  console.log('⏰ Reward update scheduler started (4-hour intervals)');
+}
+
+// Start scheduler after initialization
+setTimeout(startRewardUpdateScheduler, 5000);
 
 const app = express();
 

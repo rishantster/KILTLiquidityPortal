@@ -353,3 +353,8 @@ export class DatabaseStorage implements IStorage {
 
 // Use database storage instead of in-memory storage
 export const storage = new DatabaseStorage();
+
+// Export database instance for background services
+export function getDatabase() {
+  return db;
+}

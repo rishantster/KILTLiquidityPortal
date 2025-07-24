@@ -437,7 +437,7 @@ export function UserPositions() {
                         <button
                           onClick={() => {
                             const tokenId = position.tokenId || position.nftTokenId || position.id;
-                            const uniswapUrl = `https://app.uniswap.org/pool/${tokenId}`;
+                            const uniswapUrl = `https://app.uniswap.org/positions/${tokenId}`;
                             window.open(uniswapUrl, '_blank', 'noopener,noreferrer');
                           }}
                           className="text-sm font-semibold text-pink-primary hover:text-[#ff0066] transition-colors duration-200 cursor-pointer hover:underline flex items-center gap-1"
@@ -494,7 +494,7 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const addLiquidityUrl = `https://app.uniswap.org/increase/${tokenId}`;
+                          const addLiquidityUrl = `https://app.uniswap.org/positions/${tokenId}`;
                           window.open(addLiquidityUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-add"
@@ -507,7 +507,7 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const removeLiquidityUrl = `https://app.uniswap.org/pool/${tokenId}`;
+                          const removeLiquidityUrl = `https://app.uniswap.org/positions/${tokenId}`;
                           window.open(removeLiquidityUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-remove"
@@ -520,7 +520,7 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const collectFeesUrl = `https://app.uniswap.org/pool/${tokenId}`;
+                          const collectFeesUrl = `https://app.uniswap.org/positions/${tokenId}`;
                           window.open(collectFeesUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-collect"

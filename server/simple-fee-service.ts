@@ -10,7 +10,7 @@ export class SimpleFeeService {
     transport: http('https://base.drpc.org')
   });
 
-  private static readonly POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BF5d70C3568a1935Bd25';
+  private static readonly POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72e919cf822Ed34f1' as `0x${string}`;
 
   /**
    * Get unclaimed fees using collect simulation (exactly like Uniswap interface)

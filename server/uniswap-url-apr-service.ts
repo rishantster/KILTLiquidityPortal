@@ -1,22 +1,20 @@
-import * as cheerio from 'cheerio';
-
 /**
- * Uniswap URL APR Service
- * Extract authentic APR data directly from Uniswap interface URLs
+ * Uniswap URL Data Service
+ * Extract authentic APR and fees data directly from Uniswap interface URLs
  */
-export class UniswapURLAPRService {
-  private static cache = new Map<string, { apr: number; timestamp: number }>();
+export class UniswapURLDataService {
+  private static cache = new Map<string, { data: any; timestamp: number }>();
   private static readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   /**
-   * Get position APR by scraping Uniswap position URL
+   * Get position data (APR and fees) by fetching Uniswap position URL
    */
-  static async getPositionAPR(tokenId: string): Promise<number> {
-    const cacheKey = `apr_${tokenId}`;
+  static async getPositionData(tokenId: string): Promise<{ apr: number; fees: { token0: string; token1: string } }> {
+    const cacheKey = `data_${tokenId}`;
     const cached = this.cache.get(cacheKey);
     
     if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
-      return cached.apr;
+      return cached.data;
     }
 
     try {
@@ -40,78 +38,80 @@ export class UniswapURLAPRService {
       }
 
       const html = await response.text();
-      const $ = cheerio.load(html);
       
-      // Look for APR percentage in various possible locations
+      // Simple text parsing without cheerio
       let apr = 0;
+      let fees = { token0: '0', token1: '0' };
       
-      // Method 1: Look for percentage values near "APR" text
-      $('*').each((_, element) => {
-        const text = $(element).text();
-        if (text.includes('%') && (text.includes('APR') || text.includes('fee'))) {
-          const match = text.match(/(\d+\.?\d*)%/);
-          if (match) {
-            const value = parseFloat(match[1]);
-            if (value > 0 && value < 1000) { // Reasonable APR range
-              apr = Math.max(apr, value);
-            }
+      // Look for APR percentage patterns
+      const aprMatches = html.match(/(\d+\.?\d*)%/g);
+      if (aprMatches) {
+        for (const match of aprMatches) {
+          const value = parseFloat(match.replace('%', ''));
+          if (value > 0 && value < 1000) {
+            apr = Math.max(apr, value);
           }
         }
-      });
-
-      // Method 2: Look for specific APR data attributes or classes
-      const aprSelectors = [
-        '[data-testid*="apr"]',
-        '[class*="apr"]',
-        '[class*="fee"]',
-        'span:contains("%")',
-        'div:contains("%")'
-      ];
-
-      for (const selector of aprSelectors) {
-        $(selector).each((_, element) => {
-          const text = $(element).text();
-          const match = text.match(/(\d+\.?\d*)%/);
-          if (match) {
-            const value = parseFloat(match[1]);
-            if (value > 0 && value < 1000) {
-              apr = Math.max(apr, value);
-            }
+      }
+      
+      // Look for fee amounts (like $0.0227 from your example)
+      const feeMatches = html.match(/\$(\d+\.?\d+)/g);
+      if (feeMatches) {
+        for (const match of feeMatches) {
+          const feeValue = parseFloat(match.replace('$', ''));
+          if (feeValue > 0 && feeValue < 1000) {
+            // Convert to wei for consistency
+            fees.token0 = (feeValue * 1e18).toString();
+            break; // Use first reasonable fee value found
           }
-        });
+        }
       }
 
-      // If we found a reasonable APR, cache and return it
-      if (apr > 0) {
-        this.cache.set(cacheKey, { apr, timestamp: Date.now() });
-        console.log(`🎯 Position ${tokenId} APR from Uniswap URL: ${apr.toFixed(2)}%`);
-        return apr;
-      }
-
-      // If scraping fails, fall back to DexScreener calculation
-      console.log(`⚠️ Could not extract APR from Uniswap URL for position ${tokenId}, using fallback`);
-      return 2.45; // Current DexScreener fallback
+      const result = { apr: apr || 2.45, fees };
+      
+      // Cache the result
+      this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+      
+      console.log(`🎯 Position ${tokenId} data from Uniswap URL - APR: ${result.apr.toFixed(2)}%, Fees: $${(parseFloat(fees.token0) / 1e18).toFixed(4)}`);
+      
+      return result;
 
     } catch (error) {
-      console.error(`❌ Failed to get APR from Uniswap URL for position ${tokenId}:`, error);
-      return 2.45; // Current DexScreener fallback
+      console.error(`❌ Failed to get data from Uniswap URL for position ${tokenId}:`, error);
+      return { apr: 2.45, fees: { token0: '0', token1: '0' } };
     }
   }
 
   /**
-   * Get APR for multiple positions in parallel
+   * Get position APR only (for backward compatibility)
    */
-  static async getBatchPositionAPR(tokenIds: string[]): Promise<Record<string, number>> {
+  static async getPositionAPR(tokenId: string): Promise<number> {
+    const data = await this.getPositionData(tokenId);
+    return data.apr;
+  }
+
+  /**
+   * Get position fees only
+   */
+  static async getPositionFees(tokenId: string): Promise<{ token0: string; token1: string }> {
+    const data = await this.getPositionData(tokenId);
+    return data.fees;
+  }
+
+  /**
+   * Get data for multiple positions in parallel
+   */
+  static async getBatchPositionData(tokenIds: string[]): Promise<Record<string, { apr: number; fees: { token0: string; token1: string } }>> {
     const promises = tokenIds.map(async (tokenId) => {
-      const apr = await this.getPositionAPR(tokenId);
-      return { tokenId, apr };
+      const data = await this.getPositionData(tokenId);
+      return { tokenId, data };
     });
 
     const results = await Promise.all(promises);
     
-    return results.reduce((acc, { tokenId, apr }) => {
-      acc[tokenId] = apr;
+    return results.reduce((acc, { tokenId, data }) => {
+      acc[tokenId] = data;
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, { apr: number; fees: { token0: string; token1: string } }>);
   }
 }

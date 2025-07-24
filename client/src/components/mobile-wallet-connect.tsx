@@ -224,7 +224,7 @@ export function MobileWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isPending}
-        className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+        className="bg-[#f70363] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
       >
         {isPending ? (
           <>

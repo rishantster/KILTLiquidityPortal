@@ -507,8 +507,8 @@ export function UserPositions() {
                       <button
                         onClick={() => {
                           const tokenId = position.tokenId || position.nftTokenId || position.id;
-                          const positionUrl = `https://app.uniswap.org/positions/v3/base/${tokenId}`;
-                          window.open(positionUrl, '_blank', 'noopener,noreferrer');
+                          const removeUrl = `https://app.uniswap.org/#/remove/${tokenId}`;
+                          window.open(removeUrl, '_blank', 'noopener,noreferrer');
                         }}
                         className="cyberpunk-cmd cyberpunk-cmd-remove"
                         disabled={isClosed}

@@ -223,7 +223,7 @@ export function WagmiWalletConnect() {
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
-                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
               >
                 {isPending ? (
                   <>
@@ -252,7 +252,7 @@ export function WagmiWalletConnect() {
                 }
               }}
               disabled={isPending}
-              className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+              className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
             >
               <Wallet className="mr-4 h-5 w-5" />
               Binance Wallet

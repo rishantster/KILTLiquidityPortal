@@ -37,7 +37,7 @@ import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 
 import { fixedRewardService } from "./fixed-reward-service";
-import { TradingFeesAPRService } from "./trading-fees-apr-service";
+import { DexScreenerAPRService } from "./dexscreener-apr-service";
 // Removed realTimePriceService - using kiltPriceService instead
 import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { smartContractService } from "./smart-contract-service";
@@ -1678,26 +1678,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           const user = await storage.getUserByAddress(userAddress);
           if (!user) return position;
           
-          // Calculate both trading fees APR and treasury incentive APR
-          const tradingFeesService = new TradingFeesAPRService(); 
+          // Get simple and reliable trading fees APR from DexScreener
           const positionValue = parseFloat(position.currentValueUSD || '0');
           
-          // Get real-time trading fees APR from Uniswap
-          let tradingFeeAPR = 0;
-          try {
-            const feeResult = await tradingFeesService.calculatePositionSpecificAPR(
-              position.tokenId,
-              positionValue,
-              position.tickLower,
-              position.tickUpper,
-              position.isInRange || false
-            );
-            tradingFeeAPR = feeResult.positionSpecificAPR;
-          } catch (error) {
-            // Use pool-wide APR as fallback
-            const poolResult = await tradingFeesService.calculatePoolTradingFeesAPR();
-            tradingFeeAPR = poolResult.poolAPR;
-          }
+          const tradingFeeAPR = await DexScreenerAPRService.getPositionAPR(
+            position.tickLower || -887220,
+            position.tickUpper || 887220,
+            position.isInRange || false
+          );
           
           // Calculate treasury incentive APR
           const aprResult = await fixedRewardService.calculatePositionRewards(

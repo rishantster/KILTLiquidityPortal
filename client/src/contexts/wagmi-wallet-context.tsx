@@ -20,7 +20,6 @@ const wagmiConfig = createConfig({
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
     }),
-
     // WalletConnect with Base-specific configuration (always enabled for 200+ wallets)
     walletConnect({
       projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
@@ -44,6 +43,8 @@ const wagmiConfig = createConfig({
       }
     })
   ],
+  // Disable auto-reconnection to prevent unwanted wallet connections
+  ssr: false,
   transports: {
     // Base-optimized RPC with batching and retry logic
     [base.id]: http('https://mainnet.base.org', {

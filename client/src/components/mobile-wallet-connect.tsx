@@ -31,6 +31,27 @@ export function MobileWalletConnect() {
 
   const handleMobileWalletConnect = async (wallet: any) => {
     try {
+      // Clear any previous wallet connections first
+      if (isConnected) {
+        // Clear all wallet-related localStorage
+        localStorage.removeItem('wagmi.connected');
+        localStorage.removeItem('wagmi.store');
+        localStorage.removeItem('wagmi.cache');
+        localStorage.removeItem('wagmi.injected.shimDisconnect');
+        
+        // Clear Phantom-specific storage
+        if ((window as any).phantom?.ethereum) {
+          try {
+            (window as any).phantom.ethereum.disconnect?.();
+          } catch (error) {
+            console.log('Phantom disconnect not available');
+          }
+        }
+        
+        disconnect();
+        await new Promise(resolve => setTimeout(resolve, 100)); // Brief delay
+      }
+
       // Find the matching connector
       const connector = connectors.find(c => 
         c.id === wallet.id || 
@@ -144,6 +165,21 @@ export function MobileWalletConnect() {
               <DropdownMenuSeparator className="bg-white/10" />
               <DropdownMenuItem 
                 onClick={() => {
+                  // Clear wallet cache completely
+                  localStorage.removeItem('wagmi.connected');
+                  localStorage.removeItem('wagmi.store');
+                  localStorage.removeItem('wagmi.cache');
+                  localStorage.removeItem('wagmi.injected.shimDisconnect');
+                  
+                  // Clear Phantom-specific storage
+                  if ((window as any).phantom?.ethereum) {
+                    try {
+                      (window as any).phantom.ethereum.disconnect?.();
+                    } catch (error) {
+                      console.log('Phantom disconnect not available');
+                    }
+                  }
+                  
                   disconnect();
                   setShowModal(true);
                 }}
@@ -153,7 +189,24 @@ export function MobileWalletConnect() {
                 Switch Wallet
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={() => disconnect()}
+                onClick={() => {
+                  // Clear all wallet-related localStorage when disconnecting
+                  localStorage.removeItem('wagmi.connected');
+                  localStorage.removeItem('wagmi.store');
+                  localStorage.removeItem('wagmi.cache');
+                  localStorage.removeItem('wagmi.injected.shimDisconnect');
+                  
+                  // Clear Phantom-specific storage
+                  if ((window as any).phantom?.ethereum) {
+                    try {
+                      (window as any).phantom.ethereum.disconnect?.();
+                    } catch (error) {
+                      console.log('Phantom disconnect not available');
+                    }
+                  }
+                  
+                  disconnect();
+                }}
                 className="hover:bg-red-500/20 focus:bg-red-500/20 hover:text-red-400 focus:text-red-400 cursor-pointer"
               >
                 <Wallet className="mr-2 h-3 w-3" />

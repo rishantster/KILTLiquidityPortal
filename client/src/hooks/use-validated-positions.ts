@@ -59,6 +59,10 @@ export function useValidatedPositions(userId: number | undefined) {
             isInRange: blockchainPosition.isInRange,
             fees: blockchainPosition.fees,
             isActive: hasLiquidity,
+            // Include APR data from blockchain position
+            totalAPR: blockchainPosition.totalAPR,
+            tradingFeeAPR: blockchainPosition.tradingFeeAPR,
+            aprBreakdown: blockchainPosition.aprBreakdown,
             // Keep database fields for reward tracking
             rewardEligible: dbPosition.rewardEligible,
             createdViaApp: dbPosition.createdViaApp,

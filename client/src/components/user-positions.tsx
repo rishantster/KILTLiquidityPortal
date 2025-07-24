@@ -484,7 +484,16 @@ export function UserPositions() {
                         <div className="terminal-header">
                           <span className="terminal-label">APR</span>
                         </div>
-                        <div className="terminal-value">{(position.totalAPR || position.tradingFeeAPR || position.aprBreakdown?.totalAPR || 0).toFixed(1)}%</div>
+                        <div className="terminal-value">{(() => {
+                          const aprValue = position.totalAPR || position.tradingFeeAPR || position.aprBreakdown?.totalAPR || 0;
+                          console.log(`Position ${position.nftTokenId || position.tokenId} APR data:`, {
+                            totalAPR: position.totalAPR,
+                            tradingFeeAPR: position.tradingFeeAPR,
+                            aprBreakdown: position.aprBreakdown,
+                            finalValue: aprValue
+                          });
+                          return aprValue.toFixed(1);
+                        })()}%</div>
                         <div className="terminal-sublabel">CURRENT</div>
                       </div>
                     </div>

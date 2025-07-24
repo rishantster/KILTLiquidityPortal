@@ -20,17 +20,7 @@ const wagmiConfig = createConfig({
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
     }),
-    // Phantom Wallet
-    injected({
-      shimDisconnect: true,
-      target() {
-        return {
-          id: 'phantom',
-          name: 'Phantom',
-          provider: (window as any).phantom?.ethereum
-        };
-      }
-    }),
+
     // WalletConnect with Base-specific configuration (always enabled for 200+ wallets)
     walletConnect({
       projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',

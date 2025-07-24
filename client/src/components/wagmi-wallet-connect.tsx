@@ -163,12 +163,13 @@ export function WagmiWalletConnect() {
               <span className="text-sm">Available Wallets</span>
             </div>
             
-            {/* Filter out unwanted wallets and add custom ordering */}
+            {/* Filter out unwanted wallets and remove duplicates */}
             {connectors
-              .filter(connector => 
+              .filter((connector, index, array) => 
                 connector.name !== 'Injected' && 
                 !connector.name.includes('Binance') && // Remove any duplicate Binance entries
-                !connector.name.toLowerCase().includes('keplr') // Remove Keplr
+                !connector.name.toLowerCase().includes('keplr') && // Remove Keplr
+                array.findIndex(c => c.name === connector.name) === index // Remove duplicates
               )
               .map((connector) => (
               <Button

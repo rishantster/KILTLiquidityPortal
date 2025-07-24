@@ -37,6 +37,7 @@ import { z } from "zod";
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 
 import { fixedRewardService } from "./fixed-reward-service";
+import { TradingFeesAPRService } from "./trading-fees-apr-service";
 // Removed realTimePriceService - using kiltPriceService instead
 import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { smartContractService } from "./smart-contract-service";
@@ -1665,10 +1666,64 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const { SimplePositionOptimizer } = await import('./simple-position-optimizer');
       
       // REAL-TIME BLOCKCHAIN POSITIONS with optimized caching
-      const positions = await SimplePositionOptimizer.getCachedPositions(
+      const rawPositions = await SimplePositionOptimizer.getCachedPositions(
         userAddress,
         () => uniswapIntegrationService.getUserPositions(userAddress)
       );
+      
+      // Enhance positions with APR calculations
+      const positions = await Promise.all(rawPositions.map(async (position: any) => {
+        try {
+          // Get user for reward calculations
+          const user = await storage.getUserByAddress(userAddress);
+          if (!user) return position;
+          
+          // Calculate both trading fees APR and treasury incentive APR
+          const tradingFeesService = new TradingFeesAPRService(); 
+          const positionValue = parseFloat(position.currentValueUSD || '0');
+          
+          // Get real-time trading fees APR from Uniswap
+          let tradingFeeAPR = 0;
+          try {
+            const feeResult = await tradingFeesService.calculatePositionSpecificAPR(
+              position.tokenId,
+              positionValue,
+              position.tickLower,
+              position.tickUpper,
+              position.isInRange || false
+            );
+            tradingFeeAPR = feeResult.positionSpecificAPR;
+          } catch (error) {
+            // Use pool-wide APR as fallback
+            const poolResult = await tradingFeesService.calculatePoolTradingFeesAPR();
+            tradingFeeAPR = poolResult.poolAPR;
+          }
+          
+          // Calculate treasury incentive APR
+          const aprResult = await fixedRewardService.calculatePositionRewards(
+            user.id.toString(),
+            position.id || position.tokenId,
+            position.tokenId,
+            positionValue
+          );
+          
+          const totalAPR = tradingFeeAPR + (aprResult.incentiveAPR || 0);
+          
+          return {
+            ...position,
+            aprBreakdown: {
+              totalAPR: totalAPR,
+              tradingFeeAPR: tradingFeeAPR,
+              incentiveAPR: aprResult.incentiveAPR || 0
+            },
+            tradingFeeAPR: tradingFeeAPR,
+            totalAPR: totalAPR
+          };
+        } catch (error) {
+          // If APR calculation fails, return position without APR data
+          return position;
+        }
+      }));
       
       const duration = Date.now() - startTime;
       

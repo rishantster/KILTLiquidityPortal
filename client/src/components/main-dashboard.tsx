@@ -110,6 +110,9 @@ export function MainDashboard() {
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
   
+  // Chart modal state
+  const [showChartModal, setShowChartModal] = useState(false);
+  
   // Get optimized queries for real trading fees APR data
   const queries = useOptimizedQueries(address || undefined);
   
@@ -507,11 +510,20 @@ export function MainDashboard() {
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                      <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
+                        <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                      </div>
+                      <span className="text-white/70 text-sm font-medium">KILT Price</span>
                     </div>
-                    <span className="text-white/70 text-sm font-medium">KILT Price</span>
+                    <button
+                      onClick={() => setShowChartModal(true)}
+                      className="w-6 h-6 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group"
+                      title="View KILT/WETH Chart"
+                    >
+                      <BarChart3 className="h-3 w-3 text-[#ff0066] group-hover:text-white" />
+                    </button>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
                     ${kiltData?.price?.toFixed(4) || '0.0186'}
@@ -857,6 +869,61 @@ export function MainDashboard() {
         </Tabs>
       </div>
 
+      {/* KILT/WETH Chart Modal */}
+      {showChartModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-black/90 backdrop-blur-xl border border-[#ff0066]/30 rounded-2xl w-full max-w-6xl h-[80vh] flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
+                  <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                </div>
+                <h2 className="text-white text-lg font-bold">KILT/WETH Price Chart</h2>
+                <Badge className="bg-[#ff0066]/10 text-[#ff0066] border-[#ff0066]/30">
+                  Live Data
+                </Badge>
+              </div>
+              <button
+                onClick={() => setShowChartModal(false)}
+                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-200 group"
+              >
+                <svg className="w-4 h-4 text-white/70 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Chart Content */}
+            <div className="flex-1 p-4">
+              <div className="w-full h-full rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                <iframe
+                  src="https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e?embed=1&theme=dark&trades=0&info=0"
+                  className="w-full h-full border-0"
+                  title="KILT/WETH Price Chart"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-white/10">
+              <div className="flex items-center justify-between">
+                <div className="text-white/50 text-sm">
+                  Data provided by DexScreener
+                </div>
+                <button
+                  onClick={() => window.open('https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e', '_blank')}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-[#ff0066]/10 hover:bg-[#ff0066]/20 border border-[#ff0066]/30 rounded-lg text-[#ff0066] text-sm transition-all duration-200"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Open Full Chart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
     </div>
   );

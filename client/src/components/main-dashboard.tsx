@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   ArrowRight,
   ExternalLink,
-  BarChart3
+  BarChart3,
+  TrendingUp as ChartIcon
 } from 'lucide-react';
 
 // Lazy-loaded components for faster initial load

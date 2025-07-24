@@ -77,6 +77,7 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     event PositionRegistered(uint256 indexed tokenId, address indexed owner, uint256 liquidityAmount);
     event RewardAdded(address indexed user, address indexed token, uint256 amount, uint256 unlockTime);
     event RewardClaimed(address indexed user, address indexed token, uint256 amount, uint256 rewardIndex);
+    event BatchRewardsClaimed(address indexed user, uint256 rewardCount, uint256 totalAmount);
     event TreasuryFunded(address indexed funder, address indexed token, uint256 amount);
     event TreasuryWithdrawn(address indexed admin, address indexed token, uint256 amount);
     event TokenAdded(address indexed token, string symbol);
@@ -87,6 +88,8 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     event LockPeriodUpdated(uint256 newLockPeriodDays);
     event DailyDistributionCapUpdated(uint256 newDailyCap);
     event DailyDistributionLimitReached(uint256 date, uint256 distributedAmount, uint256 cap);
+    event ContractPaused(address indexed admin);
+    event ContractUnpaused(address indexed admin);
     
     modifier onlyAuthorizedAdmin() {
         require(authorizedAdmins[msg.sender] || msg.sender == owner(), "Not authorized admin");
@@ -279,19 +282,24 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     }
     
     /**
-     * @dev Claim unlocked rewards (supports multiple tokens in single transaction)
+     * @dev Claim unlocked rewards (gas paid by user, supports batch claiming)
      * @param rewardIndexes Array of reward indexes to claim
+     * @notice Users pay gas costs for claiming their own rewards
+     * @notice Batch multiple rewards to save on gas costs
      */
     function claimRewards(uint256[] calldata rewardIndexes) external nonReentrant whenNotPaused {
         require(rewardIndexes.length > 0, "No rewards specified");
+        require(rewardIndexes.length <= 50, "Too many rewards in single batch"); // Gas limit protection
         
         Reward[] storage rewards = userRewards[msg.sender];
         
-        // Track claim amounts by token (use memory for temporary storage)
+        // Track claim amounts by token (gas optimized)
         address[] memory claimTokens = new address[](rewardIndexes.length);
         uint256[] memory claimAmounts = new uint256[](rewardIndexes.length);
         uint256 uniqueTokenCount = 0;
+        uint256 totalClaimedValue = 0;
         
+        // Process rewards and accumulate by token type
         for (uint256 i = 0; i < rewardIndexes.length; i++) {
             uint256 index = rewardIndexes[i];
             require(index < rewards.length, "Invalid reward index");
@@ -301,8 +309,9 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
             require(block.timestamp >= reward.unlockTime, "Reward still locked");
             
             reward.claimed = true;
+            totalClaimedValue += reward.amount;
             
-            // Find existing token in claim arrays or add new one
+            // Find existing token in arrays or add new one
             bool found = false;
             for (uint256 j = 0; j < uniqueTokenCount; j++) {
                 if (claimTokens[j] == reward.token) {
@@ -321,18 +330,35 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
             emit RewardClaimed(msg.sender, reward.token, reward.amount, index);
         }
         
-        // Transfer each token type
+        // Execute transfers for each unique token
         for (uint256 i = 0; i < uniqueTokenCount; i++) {
             address token = claimTokens[i];
             uint256 claimAmount = claimAmounts[i];
             
+            // Verify sufficient treasury balance
             uint256 contractBalance = IERC20(token).balanceOf(address(this));
             require(contractBalance >= claimAmount, "Insufficient treasury balance");
             
+            // Update tracking and transfer
             totalRewardsDistributedByToken[token] += claimAmount;
             tokenBalances[token] -= claimAmount;
             IERC20(token).safeTransfer(msg.sender, claimAmount);
         }
+        
+        // Emit batch claim event
+        emit BatchRewardsClaimed(msg.sender, rewardIndexes.length, totalClaimedValue);
+    }
+    
+    /**
+     * @dev Claim all available rewards for user (convenience function)
+     * @notice Users pay gas costs - use when you want to claim everything at once
+     */
+    function claimAllRewards() external nonReentrant whenNotPaused {
+        (uint256[] memory claimableIndexes,,) = this.getClaimableRewards(msg.sender);
+        require(claimableIndexes.length > 0, "No claimable rewards");
+        require(claimableIndexes.length <= 50, "Too many rewards - use batch claiming");
+        
+        this.claimRewards(claimableIndexes);
     }
     
     /**
@@ -536,16 +562,61 @@ contract MultiTokenTreasuryPool is ReentrancyGuard, Pausable, Ownable {
     }
     
     /**
-     * @dev Pause contract operations
+     * @dev Pause contract operations (emergency stop)
+     * @notice Only owner can pause - stops all operations except emergency withdraw
      */
     function pause() external onlyOwner {
         _pause();
+        emit ContractPaused(msg.sender);
     }
     
     /**
      * @dev Unpause contract operations
+     * @notice Only owner can unpause - resumes normal operations
      */
     function unpause() external onlyOwner {
         _unpause();
+        emit ContractUnpaused(msg.sender);
+    }
+    
+    /**
+     * @dev Check if user has claimable rewards
+     * @param user Address to check
+     * @return hasClaimable True if user has any claimable rewards
+     * @return claimableCount Number of claimable reward entries
+     * @return estimatedGas Estimated gas cost for claiming all rewards
+     */
+    function checkClaimableStatus(address user) external view returns (
+        bool hasClaimable,
+        uint256 claimableCount,
+        uint256 estimatedGas
+    ) {
+        (uint256[] memory claimableIndexes,,) = this.getClaimableRewards(user);
+        claimableCount = claimableIndexes.length;
+        hasClaimable = claimableCount > 0;
+        
+        // Rough gas estimation (Base network optimized)
+        if (claimableCount > 0) {
+            estimatedGas = 50000 + (claimableCount * 15000); // Base cost + per-reward cost
+        }
+    }
+    
+    /**
+     * @dev Get contract statistics
+     * @return totalUsers Number of users with rewards
+     * @return totalRewards Total number of rewards created
+     * @return activeTokens Number of supported tokens
+     * @return contractVersion Version identifier
+     */
+    function getContractStats() external view returns (
+        uint256 totalUsers,
+        uint256 totalRewards,
+        uint256 activeTokens,
+        string memory contractVersion
+    ) {
+        activeTokens = supportedTokenList.length;
+        totalRewards = totalRewardsDistributed;
+        totalUsers = totalPositionsRegistered; // Approximate
+        contractVersion = "MultiTokenTreasuryPool v1.0 - Base Network";
     }
 }

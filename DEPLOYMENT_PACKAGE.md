@@ -495,10 +495,13 @@ npx hardhat verify --network base CONTRACT_ADDRESS "0x5D0DD05bB095fdD6Af4865A1Ad
 - **Multi-Token Support**: Holds KILT, BTC, ETH, SOL, BNB, DOT, or any ERC20 token
 - **Single Active Token**: Only one token distributed as rewards at a time
 - **Contract Security**: Funds held directly in contract (no private keys needed)
+- **User-Paid Gas**: Users pay their own gas costs for claiming rewards (Base network optimized)
+- **Batch Claiming**: Claim up to 50 rewards in single transaction to save gas
 - **Daily Distribution Caps**: Automatic enforcement prevents excessive distributions
 - **Individual Reward Locks**: Each reward has its own 7-day lock period
 - **Admin Controls**: Authorized admins can switch tokens and distribute rewards
 - **Emergency Features**: Owner can pause/unpause and emergency withdraw
+- **Gas Estimation**: Built-in gas cost estimation for claiming operations
 
 ## 🛡️ Security Features
 
@@ -568,5 +571,18 @@ main()
 - Update daily distribution cap: `updateDailyDistributionCap()`
 - Emergency withdraw: `emergencyWithdraw()`
 - Pause/unpause contract: `pause()`, `unpause()`
+
+### User Functions (Gas Paid by User)
+
+👤 **Users pay gas for:**
+- `claimRewards(uint256[] rewardIndexes)`: Claim specific rewards (batch up to 50)
+- `claimAllRewards()`: Claim all available rewards at once
+- `checkClaimableStatus(address user)`: Check claimable rewards and gas estimate
+- `getClaimableRewards(address user)`: View available rewards
+
+💡 **Gas Optimization Tips:**
+- Batch multiple rewards to save gas (up to 50 per transaction)
+- Use `checkClaimableStatus()` to estimate costs before claiming
+- Base network costs: ~$0.01-0.02 per claim transaction
 
 The contract is ready for immediate use with multiple admin support for your KILT liquidity incentive program!

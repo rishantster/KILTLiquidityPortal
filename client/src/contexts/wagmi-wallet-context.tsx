@@ -7,17 +7,6 @@ import { ReactNode } from 'react';
 const wagmiConfig = createConfig({
   chains: [base],
   connectors: [
-    // Injected first for better wallet detection (includes Binance Wallet)
-    injected({ 
-      shimDisconnect: true,
-      target() {
-        return {
-          id: 'injected',
-          name: 'Injected',
-          provider: window.ethereum
-        };
-      }
-    }),
     // MetaMask with enhanced mobile detection
     metaMask({
       dappMetadata: {
@@ -31,7 +20,29 @@ const wagmiConfig = createConfig({
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
     }),
-    // Binance Wallet via injected provider
+    // Phantom Wallet
+    injected({
+      shimDisconnect: true,
+      target() {
+        return {
+          id: 'phantom',
+          name: 'Phantom',
+          provider: (window as any).phantom?.ethereum
+        };
+      }
+    }),
+    // WalletConnect with Base-specific configuration (always enabled for 200+ wallets)
+    walletConnect({
+      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
+      metadata: {
+        name: 'KILT Liquidity Portal',
+        description: 'KILT token liquidity incentive program on Base',
+        url: window.location.origin,
+        icons: ['https://avatars.githubusercontent.com/u/37784886']
+      },
+      showQrModal: true
+    }),
+    // Binance Wallet via injected provider (only if detected)
     injected({
       shimDisconnect: true,
       target() {
@@ -41,21 +52,7 @@ const wagmiConfig = createConfig({
           provider: window.ethereum?.isBinance ? window.ethereum : undefined
         };
       }
-    }),
-    // WalletConnect with Base-specific configuration (conditionally enabled)
-    ...(import.meta.env.VITE_WALLETCONNECT_PROJECT_ID && 
-        import.meta.env.VITE_WALLETCONNECT_PROJECT_ID !== 'demo-project-id' ? [
-      walletConnect({
-        projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
-        metadata: {
-          name: 'KILT Liquidity Portal',
-          description: 'KILT token liquidity incentive program on Base',
-          url: window.location.origin,
-          icons: ['https://avatars.githubusercontent.com/u/37784886']
-        },
-        showQrModal: true
-      })
-    ] : [])
+    })
   ],
   transports: {
     // Base-optimized RPC with batching and retry logic

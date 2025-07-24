@@ -119,10 +119,17 @@ export function UserPositions() {
   
   // Positions are loading correctly - 4 KILT positions with real-time data
   
-  // Filter positions based on toggle state
-  const kiltPositions = showClosedPositions 
+  // Filter positions based on toggle state and sort by value (descending)
+  const filteredPositions = showClosedPositions 
     ? allKiltPositions 
     : allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) > 0n);
+    
+  // Sort positions by value in descending order (biggest first)
+  const kiltPositions = [...filteredPositions].sort((a: any, b: any) => {
+    const valueA = parseFloat(a.currentValueUSD || a.currentValueUsd || calculatePositionValue(a) || 0);
+    const valueB = parseFloat(b.currentValueUSD || b.currentValueUsd || calculatePositionValue(b) || 0);
+    return valueB - valueA; // Descending order (biggest first)
+  });
     
   // Count open and closed positions
   const openPositions = allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) > 0n);
@@ -314,6 +321,10 @@ export function UserPositions() {
                   <div className="flex items-center space-x-2">
                     <span className="text-white/60">Real-time Uniswap V3 positions containing KILT token</span>
                   </div>
+                  <div className="flex items-center space-x-1">
+                    <TrendingUp className="h-3 w-3 text-[#ff0066]" />
+                    <span className="text-[#ff0066] text-xs">sorted by value</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -407,9 +418,7 @@ export function UserPositions() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
-              {(Array.isArray(allKiltPositions) ? 
-                (showClosedPositions ? allKiltPositions : allKiltPositions.filter((pos: any) => BigInt(pos.liquidity || 0) > 0n)) : []
-              ).map((position: any) => {
+              {kiltPositions.map((position: any) => {
                 // Handle different data structures between database and blockchain positions
                 const rawValue = position.currentValueUSD || position.currentValueUsd || calculatePositionValue(position) || 0;
                 const positionValue = typeof rawValue === 'number' ? rawValue : parseFloat(rawValue.toString()) || 0;

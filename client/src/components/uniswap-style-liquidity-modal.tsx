@@ -217,7 +217,7 @@ export function UniswapStyleLiquidityModal({
                         }
                       }}
                       placeholder="0"
-                      className="text-2xl bg-transparent border-0 p-0 h-auto font-mono focus:ring-0"
+                      className="text-2xl bg-gray-900/50 border border-gray-700/30 rounded-md px-3 py-2 h-auto font-mono focus:ring-1 focus:ring-[#ff0066]/50 focus:border-[#ff0066]/50"
                     />
                     <Button 
                       variant="ghost" 
@@ -262,7 +262,7 @@ export function UniswapStyleLiquidityModal({
                         }
                       }}
                       placeholder="0"
-                      className="text-2xl bg-transparent border-0 p-0 h-auto font-mono focus:ring-0"
+                      className="text-2xl bg-gray-900/50 border border-gray-700/30 rounded-md px-3 py-2 h-auto font-mono focus:ring-1 focus:ring-[#ff0066]/50 focus:border-[#ff0066]/50"
                     />
                     <Button 
                       variant="ghost" 
@@ -444,7 +444,7 @@ export function UniswapStyleLiquidityModal({
           {mode !== 'collect' ? (
             <div className="space-y-2">
               {(!ethAmount || !kiltAmount) && mode === 'add' && (
-                <div className="bg-gray-800 rounded-lg p-4 text-center">
+                <div className="bg-black/20 backdrop-blur-sm border border-gray-700/60 rounded-lg p-4 text-center">
                   <span className="text-gray-400">Enter an amount</span>
                 </div>
               )}

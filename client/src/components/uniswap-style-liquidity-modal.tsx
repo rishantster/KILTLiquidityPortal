@@ -169,9 +169,7 @@ export function UniswapStyleLiquidityModal({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex items-center -space-x-1">
-                  <div className="w-6 h-6 rounded-full bg-[#ff0066] flex items-center justify-center text-white text-xs font-bold border-2 border-gray-900">
-                    K
-                  </div>
+                  <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
                   <EthereumLogo className="w-6 h-6" />
                 </div>
                 <span className="font-medium">KILT/ETH</span>

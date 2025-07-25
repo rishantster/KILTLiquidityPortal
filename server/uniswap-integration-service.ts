@@ -1,7 +1,7 @@
 import { createPublicClient, http, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
 import { RPCFallbackService } from './rpc-fallback-service';
-import { SimpleFeeService } from './simple-fee-service';
+import { DirectFeeService } from './direct-fee-service';
 
 // Base Network Configuration
 const BASE_CHAIN_ID = 8453;
@@ -392,11 +392,11 @@ export class UniswapIntegrationService {
   }
 
   /**
-   * Get position fees using SimpleFeeService for exact Uniswap interface matching
+   * Get position fees using DirectFeeService for authentic data without RPC rate limiting
    */
   async getPositionFees(tokenId: string): Promise<{ token0: string; token1: string; usdValue?: number }> {
     try {
-      return await SimpleFeeService.getUnclaimedFees(tokenId);
+      return await DirectFeeService.getUnclaimedFees(tokenId);
     } catch (error) {
       console.error(`❌ Failed to get position fees for ${tokenId}:`, error);
       throw error;
@@ -516,8 +516,8 @@ export class UniswapIntegrationService {
           tickUpper,
           poolData.tickCurrent
         ),
-        // Use SimpleFeeService for exact Uniswap interface fee calculation
-        SimpleFeeService.getUnclaimedFees(tokenId)
+        // Use DirectFeeService for authentic data without RPC rate limiting
+        DirectFeeService.getUnclaimedFees(tokenId)
       ]);
 
       // Calculate USD value

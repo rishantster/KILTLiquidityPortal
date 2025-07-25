@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
 
 import { useEffect, useRef, useState } from "react";
+import "@/lib/complete-overlay-suppression";
 import "@/lib/error-suppression";
 import "@/lib/disable-runtime-overlay";
 

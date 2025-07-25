@@ -52,7 +52,7 @@ declare global {
       return node; // Return the node but don't append it
     }
     
-    return originalAppendChild.call(this, node);
+    return originalAppendChild.call(this, node) as T;
   };
 
   console.log('Vite HMR overlay disabled (client-side equivalent of server.hmr.overlay = false)');

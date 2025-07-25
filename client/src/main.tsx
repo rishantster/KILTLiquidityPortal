@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import App from "./App";
 import "./index.css";
+import "@/lib/complete-overlay-suppression";
 import "@/lib/vite-hmr-override";
 import "@/lib/disable-runtime-overlay";
 

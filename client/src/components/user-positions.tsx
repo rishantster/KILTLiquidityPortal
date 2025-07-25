@@ -369,13 +369,28 @@ export function UserPositions() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
+                  onClick={async () => {
                     if (address) {
-                      queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
-                      toast({
-                        title: "Refreshing Positions",
-                        description: "Updated position data loading...",
-                      });
+                      try {
+                        // Clear server-side cache first for fresh data
+                        await fetch(`/api/positions/clear-cache/${address}`, { method: 'POST' });
+                        
+                        // Then invalidate React Query cache
+                        queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+                        
+                        toast({
+                          title: "Cache Cleared",
+                          description: "Fresh position data loading...",
+                        });
+                      } catch (error) {
+                        // Fallback to just React Query invalidation
+                        queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+                        
+                        toast({
+                          title: "Refreshing Positions",
+                          description: "Updated position data loading...",
+                        });
+                      }
                     }
                   }}
                   className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 border-slate-600/50 hover:border-slate-500/80 text-white hover:text-white h-9 px-3 backdrop-blur-sm"

@@ -2516,6 +2516,43 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // KILT/ETH conversion rate from DexScreener pool
+  app.get('/api/conversion/kilt-eth-rate', async (req, res) => {
+    try {
+      // Get real-time price data from the exact KILT/ETH pool on Base
+      const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/base/${poolAddress}`);
+      const data = await response.json();
+      
+      if (data && data.pair && data.pair.priceNative) {
+        // priceNative gives us KILT price in ETH (how much ETH per KILT)
+        const kiltEthRatio = parseFloat(data.pair.priceNative);
+        
+        const conversionData = {
+          kiltEthRatio, // ETH per KILT (e.g., 0.00000525)
+          ethKiltRatio: 1 / kiltEthRatio, // KILT per ETH 
+          poolAddress,
+          timestamp: Date.now(),
+          source: 'DexScreener Real-time'
+        };
+        
+        res.json(conversionData);
+      } else {
+        throw new Error('Invalid DexScreener response');
+      }
+    } catch (error) {
+      console.error('❌ Failed to fetch pool conversion rate:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch conversion rate',
+        fallback: {
+          kiltEthRatio: 0.00000525, // Current observed rate
+          ethKiltRatio: 190476,
+          source: 'Fallback estimate'
+        }
+      });
+    }
+  });
+
   // Real-time Base network gas estimation
   app.get('/api/gas/estimate', async (req, res) => {
     try {

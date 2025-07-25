@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useKiltEthConversionRate } from '@/hooks/use-conversion-rate';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
@@ -53,6 +54,7 @@ export function UniswapStyleLiquidityModal({
 }: UniswapStyleLiquidityModalProps) {
   const { address, isConnected } = useWagmiWallet();
   const { data: kiltData } = useKiltTokenData();
+  const { data: conversionRate } = useKiltEthConversionRate();
   const { ethBalance, wethBalance, kiltBalance } = useUniswapV3();
   const { toast } = useToast();
 
@@ -71,10 +73,8 @@ export function UniswapStyleLiquidityModal({
   const realKiltBalance = kiltBalance || '0';
   
   // Use accurate KILT/ETH conversion based on current pool price
-  // Real-time conversion: 6403.732 KILT should equal approximately 0.034 ETH
-  // This means: 6403.732 / 0.034 ≈ 188,345 KILT per ETH
-  // Therefore: 1 KILT = 1/188,345 = 0.0000053 ETH
-  const kiltEthRatio = 0.0000053; // More accurate based on your screenshot
+  // Use real-time conversion rate from DexScreener pool
+  const kiltEthRatio = conversionRate?.kiltEthRatio || 0.00000525; // Fallback to current observed rate
 
   useEffect(() => {
     if (!isOpen) {

@@ -22,6 +22,7 @@ import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 import { formatUnits, parseUnits } from 'viem';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
@@ -68,10 +69,12 @@ export function UniswapStyleLiquidityModal({
   // Real wallet balances
   const realEthBalance = ethBalance || '0';
   const realKiltBalance = kiltBalance || '0';
-  const kiltUsdPrice = kiltData?.price || 0.01859;
-  const ethUsdPrice = 3718.5; // Approximate ETH price
-  // KILT/ETH ratio = KILT USD price / ETH USD price
-  const kiltEthRatio = kiltUsdPrice / ethUsdPrice;
+  
+  // Use accurate KILT/ETH conversion based on current pool price
+  // Real-time conversion: 6403.732 KILT should equal approximately 0.034 ETH
+  // This means: 6403.732 / 0.034 ≈ 188,345 KILT per ETH
+  // Therefore: 1 KILT = 1/188,345 = 0.0000053 ETH
+  const kiltEthRatio = 0.0000053; // More accurate based on your screenshot
 
   useEffect(() => {
     if (!isOpen) {

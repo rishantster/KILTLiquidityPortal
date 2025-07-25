@@ -148,7 +148,7 @@ export function UniswapStyleLiquidityModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-gray-900 border border-gray-700 text-white p-0 gap-0">
+      <DialogContent className="max-w-md bg-gray-900 border border-gray-700 text-white p-0 gap-0 [&>button]:top-4 [&>button]:right-4">
         <DialogTitle className="sr-only">{getTitle()}</DialogTitle>
         {/* Header */}
         <div className="flex items-center justify-between p-4 pr-16 border-b border-gray-700">

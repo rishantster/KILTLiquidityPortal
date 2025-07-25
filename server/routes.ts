@@ -34,6 +34,7 @@ import {
   QueryOptimizer
 } from './blazing-fast-optimizer';
 import { z } from "zod";
+import { rpcManager } from './rpc-connection-manager';
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 
 import { fixedRewardService } from "./fixed-reward-service";
@@ -2683,6 +2684,31 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Gas estimation error:', error);
       res.status(500).json({ error: 'Failed to estimate gas costs' });
+    }
+  });
+
+  // RPC Connection Manager status endpoint
+  app.get('/api/rpc/status', async (req, res) => {
+    try {
+      const status = rpcManager.getStatus();
+      res.json({
+        status: 'active',
+        endpoints: status.endpoints.map(ep => ({
+          url: ep.url,
+          isHealthy: ep.isHealthy,
+          consecutiveFailures: ep.consecutiveFailures,  
+          lastError: ep.lastError,
+          lastSuccess: ep.lastSuccess
+        })),
+        currentEndpointIndex: status.currentEndpointIndex,
+        totalRequests: status.totalRequests,
+        totalFailures: status.totalFailures,
+        lastReset: status.lastReset,
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      console.error('RPC status error:', error);
+      res.status(500).json({ error: 'Failed to get RPC status' });
     }
   });
 

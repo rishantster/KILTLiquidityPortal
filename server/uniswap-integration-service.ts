@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
-import { RPCFallbackService } from './rpc-fallback-service';
+import { rpcManager } from './rpc-connection-manager';
 import { DirectFeeService } from './direct-fee-service';
 
 // Base Network Configuration
@@ -13,9 +13,6 @@ const UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919
 
 // Token Addresses
 import { blockchainConfigService } from './blockchain-config-service';
-
-// Create Base network client with RPC fallback
-const baseClient = RPCFallbackService.createResilientClient();
 
 export interface UniswapV3Position {
   tokenId: string;
@@ -55,7 +52,6 @@ export interface PoolData {
 }
 
 export class UniswapIntegrationService {
-  private client = RPCFallbackService.createResilientClient();
   private positionCache = new Map<string, { data: UniswapV3Position, timestamp: number }>();
   private poolAddressCache = new Map<string, string>();
   private poolInfoCache: { data: any; timestamp: number } | null = null;
@@ -103,16 +99,16 @@ export class UniswapIntegrationService {
       return this.poolInfoCache.data;
     }
 
-    try {
-      // Get pool address from blockchain configuration - use hardcoded for now
-      const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
+    // Get pool address from blockchain configuration - use hardcoded for now
+    const poolAddress = '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E';
 
-      if (!poolAddress) {
-        throw new Error('Pool address not configured');
-      }
+    if (!poolAddress) {
+      throw new Error('Pool address not configured');
+    }
 
-      // PARALLEL PROCESSING with RPC fallback - Execute all contract calls simultaneously
-      const [slot0Data, liquidity, token0, token1, fee] = await RPCFallbackService.executeWithFallback(async (client) => Promise.all([
+    // PARALLEL PROCESSING with RPC manager - Execute all contract calls simultaneously
+    return await rpcManager.executeWithRetry(async (client) => {
+      const [slot0Data, liquidity, token0, token1, fee] = await Promise.all([
         client.readContract({
           address: poolAddress as `0x${string}`,
           abi: [
@@ -186,39 +182,39 @@ export class UniswapIntegrationService {
           ],
           functionName: 'fee',
         })
-      ]));
+        ]);
 
-      // Get token balances in pool with RPC fallback
-      const [token0Balance, token1Balance] = await RPCFallbackService.executeWithFallback(async (client) => Promise.all([
-        client.readContract({
-          address: token0 as `0x${string}`,
-          abi: [
-            {
-              inputs: [{ name: 'account', type: 'address' }],
-              name: 'balanceOf',
-              outputs: [{ name: '', type: 'uint256' }],
-              stateMutability: 'view',
-              type: 'function'
-            }
-          ],
-          functionName: 'balanceOf',
-          args: [poolAddress as `0x${string}`],
-        }),
-        this.client.readContract({
-          address: token1 as `0x${string}`,
-          abi: [
-            {
-              inputs: [{ name: 'account', type: 'address' }],
-              name: 'balanceOf',
-              outputs: [{ name: '', type: 'uint256' }],
-              stateMutability: 'view',
-              type: 'function'
-            }
-          ],
-          functionName: 'balanceOf',
-          args: [poolAddress as `0x${string}`],
-        }),
-      ]));
+        // Get token balances in pool 
+        const [token0Balance, token1Balance] = await Promise.all([
+          client.readContract({
+            address: token0 as `0x${string}`,
+            abi: [
+              {
+                inputs: [{ name: 'account', type: 'address' }],
+                name: 'balanceOf',
+                outputs: [{ name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function'
+              }
+            ],
+            functionName: 'balanceOf',
+            args: [poolAddress as `0x${string}`],
+          }),
+          client.readContract({
+            address: token1 as `0x${string}`,
+            abi: [
+              {
+                inputs: [{ name: 'account', type: 'address' }],
+                name: 'balanceOf',
+                outputs: [{ name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function'
+              }
+            ],
+            functionName: 'balanceOf',
+            args: [poolAddress as `0x${string}`],
+          }),
+        ]);
 
       // Calculate real USD value using actual prices
       const token0Amount = parseFloat(formatUnits(token0Balance, 18));
@@ -263,11 +259,7 @@ export class UniswapIntegrationService {
       };
 
       return poolInfo;
-    } catch (error) {
-      console.error('Failed to fetch pool info from blockchain:', error);
-      // Re-throw to maintain "no fallback" policy
-      throw error;
-    }
+    }, `getPoolInfo()`);
   }
 
   /**
@@ -282,9 +274,9 @@ export class UniswapIntegrationService {
       return cached.data;
     }
     
-    try {
+    return await rpcManager.executeWithRetry(async (client) => {
       // Get balance of NFT positions for the user
-      const balance = await this.client.readContract({
+      const balance = await client.readContract({
         address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
         abi: [
           {
@@ -306,7 +298,7 @@ export class UniswapIntegrationService {
       const tokenIdPromises = [];
       for (let i = 0; i < balanceNumber; i++) {
         tokenIdPromises.push(
-          this.client.readContract({
+          client.readContract({
             address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
             abi: [
               {
@@ -339,11 +331,11 @@ export class UniswapIntegrationService {
         }
       }
 
+      // Cache the results
+      this.tokenIdsCache.set(cacheKey, { data: tokenIds, timestamp: Date.now() });
+      
       return tokenIds;
-    } catch (error: unknown) {
-      console.error('Failed to fetch user token IDs:', error instanceof Error ? error.message : 'Unknown error');
-      return [];
-    }
+    }, `getUserTokenIds(${userAddress})`);
   }
 
   /**
@@ -447,7 +439,7 @@ export class UniswapIntegrationService {
       return cached.data;
     }
     
-    try {
+    return await rpcManager.executeWithRetry(async (client) => {
       console.log(`Fetching position data for token ${tokenId}`);
       
       // Check if this is the specific token we're debugging
@@ -456,7 +448,7 @@ export class UniswapIntegrationService {
       }
       
       // Get position data from Uniswap V3 position manager
-      const positionData = await this.client.readContract({
+      const positionData = await client.readContract({
         address: UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER as `0x${string}`,
         abi: [
           {
@@ -570,10 +562,7 @@ export class UniswapIntegrationService {
       this.positionCache.set(cacheKey, { data: position, timestamp: Date.now() });
       
       return position;
-    } catch (error) {
-      console.error(`Error fetching position data for token ${tokenId}:`, error);
-      return null;
-    }
+    }, `getFullPositionData(${tokenId})`) || null;
   }
 
   /**
@@ -680,8 +669,8 @@ export class UniswapIntegrationService {
    * Get pool fee tier from contract
    */
   private async getPoolFeeTier(poolAddress: string): Promise<number> {
-    try {
-      const fee = await this.client.readContract({
+    return await rpcManager.executeWithRetry(async (client) => {
+      const fee = await client.readContract({
         address: poolAddress as `0x${string}`,
         abi: [
           {
@@ -695,10 +684,7 @@ export class UniswapIntegrationService {
         functionName: 'fee',
       });
       return fee as number;
-    } catch (error: unknown) {
-      console.error('Failed to get pool fee tier:', error instanceof Error ? error.message : 'Unknown error');
-      return 3000; // Default to 0.3% if unable to fetch
-    }
+    }, 'getPoolFeeTier') || 3000;
   }
 
   /**

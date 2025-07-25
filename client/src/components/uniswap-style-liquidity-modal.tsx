@@ -153,24 +153,14 @@ export function UniswapStyleLiquidityModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="text-lg font-semibold">{getTitle()}</h2>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setShowSettings(!showSettings)}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 h-8 w-8"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={onClose}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 h-8 w-8"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShowSettings(!showSettings)}
+            className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 h-8 w-8"
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
         </div>
 
         <div className="p-4 space-y-4">

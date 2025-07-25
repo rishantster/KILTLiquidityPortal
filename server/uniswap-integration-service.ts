@@ -399,9 +399,9 @@ export class UniswapIntegrationService {
    * Get pool address for a given token pair and fee tier
    */
   async getPoolAddress(token0: string, token1: string, fee: number): Promise<string> {
-    try {
+    return await rpcManager.executeWithRetry(async (client) => {
       // Use Uniswap V3 Factory to get pool address
-      const poolAddress = await this.client.readContract({
+      const poolAddress = await client.readContract({
         address: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD' as `0x${string}`, // Uniswap V3 Factory on Base
         abi: [
           {
@@ -421,10 +421,7 @@ export class UniswapIntegrationService {
       });
 
       return poolAddress as string;
-    } catch (error: unknown) {
-      console.error('Failed to get pool address:', error instanceof Error ? error.message : 'Unknown error');
-      throw error;
-    }
+    }, 'getPoolAddress');
   }
 
   /**
@@ -1056,24 +1053,24 @@ export class UniswapIntegrationService {
       };
 
       const [feeGrowthGlobal0, feeGrowthGlobal1, lowerTick, upperTick] = await Promise.all([
-        this.client.readContract({
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           ...poolContract,
           functionName: 'feeGrowthGlobal0X128',
-        }),
-        this.client.readContract({
+        }), 'feeGrowthGlobal0X128'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           ...poolContract,
           functionName: 'feeGrowthGlobal1X128',
-        }),
-        this.client.readContract({
+        }), 'feeGrowthGlobal1X128'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           ...poolContract,
           functionName: 'ticks',
           args: [tickLower],
-        }),
-        this.client.readContract({
+        }), 'ticks-lower'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           ...poolContract,
           functionName: 'ticks',
           args: [tickUpper],
-        }),
+        }), 'ticks-upper'),
       ]);
 
       const [, , feeGrowthOutside0Lower, feeGrowthOutside1Lower] = lowerTick as any[];
@@ -1188,7 +1185,7 @@ export class UniswapIntegrationService {
     try {
       // First get basic pool info from blockchain
       const [slot0Data, liquidity, token0, token1, fee] = await Promise.all([
-        this.client.readContract({
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           address: poolAddress as `0x${string}`,
           abi: [
             {
@@ -1208,8 +1205,8 @@ export class UniswapIntegrationService {
             },
           ],
           functionName: 'slot0',
-        }),
-        this.client.readContract({
+        }), 'pool-slot0'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           address: poolAddress as `0x${string}`,
           abi: [
             {
@@ -1221,8 +1218,8 @@ export class UniswapIntegrationService {
             },
           ],
           functionName: 'liquidity',
-        }),
-        this.client.readContract({
+        }), 'pool-liquidity'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           address: poolAddress as `0x${string}`,
           abi: [
             {
@@ -1234,8 +1231,8 @@ export class UniswapIntegrationService {
             },
           ],
           functionName: 'token0',
-        }),
-        this.client.readContract({
+        }), 'pool-token0'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           address: poolAddress as `0x${string}`,
           abi: [
             {
@@ -1247,8 +1244,8 @@ export class UniswapIntegrationService {
             },
           ],
           functionName: 'token1',
-        }),
-        this.client.readContract({
+        }), 'pool-token1'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           address: poolAddress as `0x${string}`,
           abi: [
             {
@@ -1260,7 +1257,7 @@ export class UniswapIntegrationService {
             },
           ],
           functionName: 'fee',
-        }),
+        }), 'pool-fee'),
       ]);
 
       const [sqrtPriceX96, tick] = Array.from(slot0Data) as [bigint, number];
@@ -1349,7 +1346,7 @@ export class UniswapIntegrationService {
 
       // 3. Calculate from token balances as backup (most accurate)
       const [token0Balance, token1Balance] = await Promise.all([
-        this.client.readContract({
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           address: token0 as `0x${string}`,
           abi: [
             {
@@ -1362,8 +1359,8 @@ export class UniswapIntegrationService {
           ],
           functionName: 'balanceOf',
           args: [poolAddress as `0x${string}`],
-        }),
-        this.client.readContract({
+        }), 'token0-balance'),
+        rpcManager.executeWithRetry(async (client) => client.readContract({
           address: token1 as `0x${string}`,
           abi: [
             {
@@ -1376,7 +1373,7 @@ export class UniswapIntegrationService {
           ],
           functionName: 'balanceOf',
           args: [poolAddress as `0x${string}`],
-        }),
+        }), 'token1-balance'),
       ]);
 
       // Calculate USD value using accurate real-time prices

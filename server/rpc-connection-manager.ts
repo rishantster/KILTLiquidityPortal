@@ -12,11 +12,12 @@ interface RpcEndpoint {
 
 class RpcConnectionManager {
   private endpoints: RpcEndpoint[] = [
-    { url: 'https://mainnet.base.org', priority: 1, errorCount: 0, rateLimited: false },
-    { url: 'https://base.drpc.org', priority: 2, errorCount: 0, rateLimited: false },
-    { url: 'https://base-mainnet.g.alchemy.com/v2/demo', priority: 3, errorCount: 0, rateLimited: false },
-    { url: 'https://1rpc.io/base', priority: 4, errorCount: 0, rateLimited: false },
-    { url: 'https://base.blockpi.network/v1/rpc/public', priority: 5, errorCount: 0, rateLimited: false }
+    { url: 'https://api.developer.coinbase.com/rpc/v1/base/FtQSiNzg6tfPcB1Hmirpy4T9SGDGFveA', priority: 1, errorCount: 0, rateLimited: false },
+    { url: 'https://mainnet.base.org', priority: 2, errorCount: 0, rateLimited: false },
+    { url: 'https://base.drpc.org', priority: 3, errorCount: 0, rateLimited: false },
+    { url: 'https://base-mainnet.g.alchemy.com/v2/demo', priority: 4, errorCount: 0, rateLimited: false },
+    { url: 'https://1rpc.io/base', priority: 5, errorCount: 0, rateLimited: false },
+    { url: 'https://base.blockpi.network/v1/rpc/public', priority: 6, errorCount: 0, rateLimited: false }
   ];
   
   private clients: Map<string, PublicClient> = new Map();

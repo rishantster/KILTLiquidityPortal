@@ -71,8 +71,8 @@ export function UserPositions() {
   // Get validated positions (database-registered AND blockchain-verified)
   const { data: validatedPositions, isLoading: validatedPositionsLoading, error: validatedPositionsError } = useValidatedPositions(unifiedData?.user?.id);
   
-  // Get position token IDs for fee fetching
-  const tokenIds = Array.isArray(validatedPositions) ? validatedPositions.map((pos: any) => pos.tokenId || pos.nftTokenId || pos.id?.toString()).filter(Boolean) : [];
+  // Get position token IDs for fee fetching (database positions use nftTokenId)
+  const tokenIds = Array.isArray(validatedPositions) ? validatedPositions.map((pos: any) => pos.nftTokenId || pos.tokenId || pos.id?.toString()).filter(Boolean) : [];
   
   // Fetch fees for all positions
   const { data: positionFees = {} } = useMultiplePositionFees(tokenIds);
@@ -433,8 +433,8 @@ export function UserPositions() {
                 const isClosed = BigInt(position.liquidity || 0) === 0n;
                 const ethAmount = position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(3) : '0.000';
                 const kiltAmount = position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(0) : '0';
-                // Get real-time fees from API
-                const tokenId = position.tokenId || position.nftTokenId || position.id?.toString();
+                // Get real-time fees from API (database positions use nftTokenId)
+                const tokenId = position.nftTokenId || position.tokenId || position.id?.toString();
                 const realFees = positionFees[tokenId];
                 const ethFees = realFees?.token0 ? (parseFloat(realFees.token0) / 1e18).toFixed(4) : '0.0000';
                 const kiltFees = realFees?.token1 ? (parseFloat(realFees.token1) / 1e18).toFixed(2) : '0.00';

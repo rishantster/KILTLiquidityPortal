@@ -204,9 +204,7 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               {userAverageAPR?.activePositions || 0} active positions
             </div>
-            <div className="text-xs text-purple-400 font-medium">
-              Trading: {userAverageAPR?.breakdown?.tradingAPR?.toFixed(1) || '0.0'}% + Rewards: {userAverageAPR?.breakdown?.incentiveAPR?.toFixed(1) || '0.0'}%
-            </div>
+            
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">

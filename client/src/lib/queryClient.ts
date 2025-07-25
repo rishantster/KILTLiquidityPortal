@@ -46,9 +46,15 @@ export async function apiRequest<T = unknown>(
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       console.warn('Request timed out:', url);
-      throw new Error('Request timeout');
+      throw new Error('Request timeout after 25 seconds');
     }
-    throw error;
+    // Handle all errors gracefully to prevent runtime error overlays
+    if (error instanceof Error) {
+      console.warn('API request failed:', url, error.message);
+      throw error;
+    }
+    console.warn('Unknown API error:', url, error);
+    throw new Error('Unknown API error');
   }
 }
 

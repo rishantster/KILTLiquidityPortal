@@ -25,12 +25,22 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.warn('Unhandled promise rejection (gracefully handled):', event.reason);
-      event.preventDefault(); // Prevent the error overlay
+      // Prevent the error overlay for timeout and network errors
+      const reason = event.reason?.toString() || '';
+      if (reason.includes('timeout') || reason.includes('Too many requests') || 
+          reason.includes('Request timeout') || reason.includes('Failed to fetch')) {
+        event.preventDefault();
+      }
     };
 
     const handleError = (event: ErrorEvent) => {
       console.warn('Global error caught:', event.error);
-      event.preventDefault(); // Prevent the error overlay
+      // Prevent overlay for common network and timeout errors
+      const errorMsg = event.error?.toString() || event.message || '';
+      if (errorMsg.includes('timeout') || errorMsg.includes('Failed to fetch') ||
+          errorMsg.includes('Request timeout') || errorMsg.includes('Too many requests')) {
+        event.preventDefault();
+      }
     };
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection);

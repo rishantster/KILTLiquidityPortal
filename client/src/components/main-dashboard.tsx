@@ -70,6 +70,7 @@ import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
 
 // Services
 import { LiquidityService } from '@/services/liquidity-service';
+import { useEthPrice } from '@/hooks/use-eth-price';
 
 // Universal logo components
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
@@ -218,6 +219,9 @@ export function MainDashboard() {
     }
   };
 
+  // Get real-time ETH price
+  const { data: ethPriceData } = useEthPrice();
+
   // Calculate optimal amounts using universal LiquidityService
   const calculateOptimalAmounts = (percentage = selectedPercentage) => {
     return LiquidityService.calculateOptimalAmounts(
@@ -226,7 +230,8 @@ export function MainDashboard() {
       ethBalance,
       kiltData?.price || 0.0160,
       percentage,
-      formatTokenBalance
+      formatTokenBalance,
+      ethPriceData?.ethPrice // Pass real-time ETH price
     );
   };
 

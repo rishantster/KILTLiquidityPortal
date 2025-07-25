@@ -43,6 +43,7 @@ import { DirectFeeService } from "./direct-fee-service";
 import { UniswapURLDataService } from "./uniswap-url-apr-service";
 // Removed realTimePriceService - using kiltPriceService instead
 import { uniswapIntegrationService } from "./uniswap-integration-service";
+import { PriceService } from "./price-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
@@ -2639,6 +2640,21 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Admin operations fetch error:', error);
       res.status(500).json({ error: 'Failed to get operations' });
+    }
+  });
+
+  // Real-time ETH price endpoint
+  app.get('/api/eth-price', async (req, res) => {
+    try {
+      const ethPrice = await PriceService.getETHPrice();
+      res.json({ 
+        ethPrice,
+        timestamp: Date.now(),
+        source: 'CoinGecko API'
+      });
+    } catch (error) {
+      console.warn('Failed to fetch ETH price (gracefully handled):', error);
+      res.status(500).json({ error: 'Failed to fetch ETH price' });
     }
   });
 

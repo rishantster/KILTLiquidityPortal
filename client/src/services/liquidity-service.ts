@@ -23,7 +23,8 @@ export class LiquidityService {
     ethBalance: string | bigint | undefined,
     kiltPrice: number,
     percentage: number = 80,
-    formatTokenBalance: (balance: string | bigint | undefined) => string
+    formatTokenBalance: (balance: string | bigint | undefined) => string,
+    realTimeEthPrice?: number // Optional real-time ETH price parameter
   ): LiquidityCalculation {
     if (!kiltBalance || !kiltPrice) {
       return { 
@@ -35,7 +36,8 @@ export class LiquidityService {
       };
     }
 
-    const ethPrice = 2500; // Approximate ETH price
+    // Use provided ETH price or fallback to approximate price
+    const currentEthPrice = realTimeEthPrice || 3500;
     
     // Convert balances to numbers safely - the balances are already in human-readable format
     const availableKilt = parseFloat(kiltBalance?.toString() || '0');
@@ -44,8 +46,8 @@ export class LiquidityService {
     
     // Calculate total value of each token in USD
     const kiltValueUSD = availableKilt * kiltPrice;
-    const wethValueUSD = availableWeth * ethPrice;
-    const ethValueUSD = availableEth * ethPrice;
+    const wethValueUSD = availableWeth * currentEthPrice;
+    const ethValueUSD = availableEth * currentEthPrice;
     
     // Always pick the bigger amount between ETH and WETH (as per user requirement)
     const useEthNotWeth = ethValueUSD >= wethValueUSD;
@@ -61,8 +63,8 @@ export class LiquidityService {
     const maxEthForBalance = availableEthToken * safetyBuffer;
     
     // Calculate equivalent amounts for balanced liquidity
-    const kiltValueInEth = maxKiltForBalance * kiltPrice / ethPrice;
-    const ethValueInKilt = maxEthForBalance * ethPrice / kiltPrice;
+    const kiltValueInEth = maxKiltForBalance * kiltPrice / currentEthPrice;
+    const ethValueInKilt = maxEthForBalance * currentEthPrice / kiltPrice;
     
     let optimalKilt, optimalEth;
     
@@ -76,7 +78,7 @@ export class LiquidityService {
       optimalEth = maxEthForBalance;
     }
     
-    const totalValue = (optimalKilt * kiltPrice + optimalEth * ethPrice);
+    const totalValue = (optimalKilt * kiltPrice + optimalEth * currentEthPrice);
     
     return {
       kiltAmount: optimalKilt.toFixed(2),

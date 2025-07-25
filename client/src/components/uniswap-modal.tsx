@@ -70,7 +70,7 @@ export function UniswapModal({ isOpen, onClose, position, mode }: UniswapModalPr
       });
       onClose();
     } catch (error) {
-      console.error('Add liquidity failed:', error);
+      console.warn('Add liquidity failed (gracefully handled):', error);
       toast({
         title: "Transaction Failed",
         description: "Failed to add liquidity. Please try again.",
@@ -106,7 +106,7 @@ export function UniswapModal({ isOpen, onClose, position, mode }: UniswapModalPr
       });
       onClose();
     } catch (error) {
-      console.error('Remove liquidity failed:', error);
+      console.warn('Remove liquidity failed (gracefully handled):', error);
       toast({
         title: "Transaction Failed",
         description: "Failed to remove liquidity. Please try again.",

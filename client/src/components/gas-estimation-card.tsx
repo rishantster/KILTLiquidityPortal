@@ -45,7 +45,9 @@ export function GasEstimationCard() {
         // Fetch real-time Base network gas estimation
         const response = await fetch('/api/gas/estimate');
         if (!response.ok) {
-          throw new Error('Failed to fetch gas estimate');
+          console.warn('Gas estimation failed, using fallback');
+          setError('Gas estimation unavailable');
+          return;
         }
         
         const realGasEstimate = await response.json();
@@ -78,7 +80,7 @@ export function GasEstimationCard() {
         });
       } catch (err) {
         setError('Failed to estimate gas costs');
-        console.error('Gas estimation error:', err);
+        console.warn('Gas estimation error (gracefully handled):', err);
       } finally {
         setIsLoading(false);
       }

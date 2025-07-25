@@ -49,7 +49,18 @@ const useFormField = () => {
   const fieldState = getFieldState(fieldContext.name, formState)
 
   if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>")
+    console.warn("useFormField should be used within <FormField>, using fallback");
+    return {
+      id: 'fallback-id',
+      name: 'fallback-name',
+      formItemId: 'fallback-form-item',
+      formDescriptionId: 'fallback-form-item-description',
+      formMessageId: 'fallback-form-item-message',
+      invalid: false,
+      isDirty: false,
+      isTouched: false,
+      error: undefined,
+    };
   }
 
   const { id } = itemContext

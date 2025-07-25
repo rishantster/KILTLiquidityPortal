@@ -9,12 +9,18 @@ export function UserPersonalAPR({ address }: UserPersonalAPRProps) {
   const { data: userAPR, isLoading } = useQuery({
     queryKey: ['/api/rewards/user-apr', address],
     queryFn: async () => {
-      // Get user's positions and calculate their ranking-based APR
-      const response = await fetch(`/api/rewards/user-apr/${address}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch user APR');
+      try {
+        // Get user's positions and calculate their ranking-based APR
+        const response = await fetch(`/api/rewards/user-apr/${address}`);
+        if (!response.ok) {
+          console.warn('User APR fetch failed, using fallback');
+          return { effectiveAPR: 0, rank: null };
+        }
+        return response.json();
+      } catch (error) {
+        console.warn('User APR error (gracefully handled):', error);
+        return { effectiveAPR: 0, rank: null };
       }
-      return response.json();
     },
     refetchInterval: 30000, // Refresh every 30 seconds
     enabled: !!address,

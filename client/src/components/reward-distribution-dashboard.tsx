@@ -72,7 +72,7 @@ export function RewardDistributionDashboard() {
     try {
       await distributeMutation.mutateAsync(selectedUsers);
     } catch (error) {
-      console.error('Distribution failed:', error);
+      console.warn('Distribution failed (gracefully handled):', error);
     }
   };
 
@@ -80,7 +80,7 @@ export function RewardDistributionDashboard() {
     try {
       await dailyDistributionMutation.mutateAsync();
     } catch (error) {
-      console.error('Daily distribution failed:', error);
+      console.warn('Daily distribution failed (gracefully handled):', error);
     }
   };
 

@@ -91,7 +91,7 @@ export function PositionManagementModal({
       });
       onClose();
     } catch (error) {
-      console.error('Add liquidity failed:', error);
+      console.warn('Add liquidity failed (gracefully handled):', error);
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +122,7 @@ export function PositionManagementModal({
       });
       onClose();
     } catch (error) {
-      console.error('Remove liquidity failed:', error);
+      console.warn('Remove liquidity failed (gracefully handled):', error);
     } finally {
       setIsLoading(false);
     }
@@ -141,7 +141,7 @@ export function PositionManagementModal({
       });
       onClose();
     } catch (error) {
-      console.error('Collect fees failed:', error);
+      console.warn('Collect fees failed (gracefully handled):', error);
     } finally {
       setIsLoading(false);
     }

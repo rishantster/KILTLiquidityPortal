@@ -39,6 +39,7 @@ import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kil
 import { fixedRewardService } from "./fixed-reward-service";
 import { DexScreenerAPRService } from "./dexscreener-apr-service";
 import { SimpleFeeService } from "./simple-fee-service";
+import { DirectFeeService } from "./direct-fee-service";
 import { UniswapURLDataService } from "./uniswap-url-apr-service";
 // Removed realTimePriceService - using kiltPriceService instead
 import { uniswapIntegrationService } from "./uniswap-integration-service";
@@ -1631,13 +1632,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get position fees earned
+  // Get position fees earned using DirectFeeService (handles RPC rate limiting)
   app.get("/api/positions/:nftTokenId/fees", async (req, res) => {
     try {
       const { nftTokenId } = req.params;
       console.log(`🔍 Getting fees for position ${nftTokenId}`);
       
-      const fees = await uniswapIntegrationService.getPositionFees(nftTokenId);
+      // Use DirectFeeService for better reliability with rate-limited RPC endpoints
+      const fees = await DirectFeeService.getUnclaimedFees(nftTokenId);
       console.log(`✅ Position ${nftTokenId} fees:`, fees);
       res.json(fees);
     } catch (error) {

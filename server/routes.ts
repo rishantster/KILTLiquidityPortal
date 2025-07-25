@@ -1199,6 +1199,77 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Get user average APR across all positions
+  app.get('/api/rewards/user-average-apr/:address', async (req, res) => {
+    try {
+      const { address } = req.params;
+      
+      // Get user
+      const user = await storage.getUserByAddress(address);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Get user's active positions 
+      const positions = await storage.getLpPositionsByUserId(user.id);
+      if (!positions || positions.length === 0) {
+        return res.json({ 
+          averageAPR: 0, 
+          totalPositions: 0, 
+          breakdown: { tradingAPR: 0, incentiveAPR: 0, totalLiquidity: 0 } 
+        });
+      }
+
+      // Calculate APR for all positions
+      const aprCalculations = await Promise.all(
+        positions.map(async (position) => {
+          try {
+            return await fixedRewardService.calculatePositionRewards(
+              user.id,
+              position.nftTokenId
+            );
+          } catch (error) {
+            console.error(`❌ Error calculating APR for position ${position.nftTokenId}:`, error);
+            return null;
+          }
+        })
+      );
+
+      // Filter out failed calculations
+      const validCalculations = aprCalculations.filter(calc => calc !== null);
+      
+      if (validCalculations.length === 0) {
+        return res.json({ 
+          averageAPR: 0, 
+          totalPositions: positions.length, 
+          breakdown: { tradingAPR: 0, incentiveAPR: 0, totalLiquidity: 0 } 
+        });
+      }
+
+      // Calculate weighted average by liquidity amount
+      const totalLiquidity = validCalculations.reduce((sum, calc) => sum + calc.liquidityAmount, 0);
+      const weightedTradingAPR = validCalculations.reduce((sum, calc) => 
+        sum + (calc.tradingFeeAPR * calc.liquidityAmount), 0) / totalLiquidity;
+      const weightedIncentiveAPR = validCalculations.reduce((sum, calc) => 
+        sum + (calc.incentiveAPR * calc.liquidityAmount), 0) / totalLiquidity;
+      const averageAPR = weightedTradingAPR + weightedIncentiveAPR;
+
+      res.json({
+        averageAPR: Math.round(averageAPR * 100) / 100,
+        totalPositions: positions.length,
+        activePositions: validCalculations.length,
+        breakdown: {
+          tradingAPR: Math.round(weightedTradingAPR * 100) / 100,
+          incentiveAPR: Math.round(weightedIncentiveAPR * 100) / 100,
+          totalLiquidity: Math.round(totalLiquidity * 100) / 100
+        }
+      });
+    } catch (error) {
+      console.error('Error calculating user average APR:', error);
+      res.status(500).json({ error: 'Failed to calculate user average APR' });
+    }
+  });
+
   // APR Analysis Routes
   app.get("/api/positions/:positionId/apr-breakdown", async (req, res) => {
     try {

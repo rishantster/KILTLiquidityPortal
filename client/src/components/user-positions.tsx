@@ -496,10 +496,10 @@ export function UserPositions() {
                       
                       <div className="terminal-block apr-block">
                         <div className="terminal-header">
-                          <span className="terminal-label">APR</span>
+                          <span className="terminal-label">TRADING APR</span>
                         </div>
-                        <div className="terminal-value">{(position.totalAPR || position.tradingFeeAPR || position.aprBreakdown?.totalAPR || 0).toFixed(1)}%</div>
-                        <div className="terminal-sublabel">CURRENT</div>
+                        <div className="terminal-value">{(position.tradingFeeAPR || position.aprBreakdown?.tradingFeeAPR || 0).toFixed(1)}%</div>
+                        <div className="terminal-sublabel">FEES ONLY</div>
                       </div>
                     </div>
 

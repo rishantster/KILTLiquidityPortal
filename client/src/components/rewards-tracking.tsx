@@ -91,6 +91,18 @@ export function RewardsTracking() {
   // Use unified dashboard data
   const { user, rewardStats, programAnalytics } = unifiedData;
 
+  // Get user average APR across all positions
+  const { data: userAverageAPR } = useQuery({
+    queryKey: ['user-average-apr', address],
+    queryFn: async () => {
+      if (!address) return null;
+      const response = await fetch(`/api/rewards/user-average-apr/${address}`);
+      return response.json();
+    },
+    enabled: !!address,
+    refetchInterval: 30000 // Check every 30 seconds
+  });
+
   // Get claimability status (smart contract lock check)
   const { data: claimability } = useQuery({
     queryKey: ['claimability', address],
@@ -178,7 +190,25 @@ export function RewardsTracking() {
   return (
     <div className="space-y-4">
       {/* Detailed Reward Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        {/* User Average APR Card */}
+        <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/50 rounded-lg cluely-card">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-super-bright font-medium text-sm">Avg APR</h3>
+              <BarChart3 className="h-4 w-4 text-purple-400" />
+            </div>
+            <div className="text-lg text-purple-400 font-bold tabular-nums mb-1">
+              {userAverageAPR?.averageAPR ? `${userAverageAPR.averageAPR.toFixed(1)}%` : '0.0%'}
+            </div>
+            <div className="text-xs text-white/60 mb-1">
+              {userAverageAPR?.activePositions || 0} active positions
+            </div>
+            <div className="text-xs text-purple-400 font-medium">
+              Trading: {userAverageAPR?.breakdown?.tradingAPR?.toFixed(1) || '0.0'}% + Rewards: {userAverageAPR?.breakdown?.incentiveAPR?.toFixed(1) || '0.0'}%
+            </div>
+          </CardContent>
+        </Card>
         <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">

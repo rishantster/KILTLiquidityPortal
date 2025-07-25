@@ -148,7 +148,7 @@ export function UniswapStyleLiquidityModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-gray-900 border border-gray-700 text-white p-0 gap-0 [&>button]:top-4 [&>button]:right-4">
+      <DialogContent className="max-w-md bg-gray-900 border border-gray-700 text-white p-0 gap-0 [&>button]:!top-4 [&>button]:!right-4 [&>button]:!absolute [&>button]:!flex [&>button]:!items-center [&>button]:!justify-center [&>button]:!h-8 [&>button]:!w-8">
         <DialogTitle className="sr-only">{getTitle()}</DialogTitle>
         {/* Header */}
         <div className="flex items-center justify-between p-4 pr-16 border-b border-gray-700">
@@ -157,7 +157,7 @@ export function UniswapStyleLiquidityModal({
             variant="ghost" 
             size="sm" 
             onClick={() => setShowSettings(!showSettings)}
-            className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 h-8 w-8"
+            className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 h-8 w-8 flex items-center justify-center"
           >
             <Settings className="w-4 h-4" />
           </Button>

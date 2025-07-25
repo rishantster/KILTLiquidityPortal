@@ -38,7 +38,6 @@ import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kil
 
 import { fixedRewardService } from "./fixed-reward-service";
 import { DexScreenerAPRService } from "./dexscreener-apr-service";
-import { SimpleFeeService } from "./simple-fee-service";
 import { DirectFeeService } from "./direct-fee-service";
 import { UniswapURLDataService } from "./uniswap-url-apr-service";
 // Removed realTimePriceService - using kiltPriceService instead

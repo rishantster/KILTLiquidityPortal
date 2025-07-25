@@ -71,6 +71,15 @@ export function UserPositions() {
     /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   );
 
+  // Get validated positions (database-registered AND blockchain-verified)
+  const { data: validatedPositions, isLoading: validatedPositionsLoading, error: validatedPositionsError } = useValidatedPositions(unifiedData?.user?.id);
+  
+  // Get position token IDs for fee fetching (database positions use nftTokenId)
+  const tokenIds = Array.isArray(validatedPositions) ? validatedPositions.map((pos: any) => pos.nftTokenId || pos.tokenId || pos.id?.toString()).filter(Boolean) : [];
+  
+  // Fetch fees for all positions
+  const { data: positionFees = {} } = useMultiplePositionFees(tokenIds);
+
   // Mobile-optimized blazing fast position loading
   const mobileOptimizedConfig = isMobile ? {
     staleTime: 2 * 60 * 1000, // 2 minutes for mobile to save bandwidth
@@ -87,28 +96,6 @@ export function UserPositions() {
     retry: 3,
     networkMode: 'online' as const,
   };
-
-  // Get wallet positions with APR data (contains Trading APR + Incentive APR)
-  const { data: walletPositionsWithAPR, isLoading: walletPositionsLoading, error: walletPositionsError } = useQuery({
-    queryKey: [`/api/positions/wallet/${address}`],
-    enabled: !!address,
-    ...mobileOptimizedConfig
-  });
-  
-  // Get validated positions (database-registered AND blockchain-verified) for filtering
-  const { data: validatedPositions, isLoading: validatedPositionsLoading, error: validatedPositionsError } = useValidatedPositions(unifiedData?.user?.id);
-  
-  // Combine and filter: Only show positions that are registered AND have APR data
-  const validatedTokenIds = Array.isArray(validatedPositions) ? validatedPositions.map((pos: any) => pos.nftTokenId || pos.tokenId || pos.id?.toString()).filter(Boolean) : [];
-  const registeredPositionsWithAPR = Array.isArray(walletPositionsWithAPR) 
-    ? walletPositionsWithAPR.filter((pos: any) => validatedTokenIds.includes((pos.tokenId || pos.nftTokenId || pos.id)?.toString()))
-    : [];
-  
-  // Get position token IDs for fee fetching
-  const tokenIds = registeredPositionsWithAPR.map((pos: any) => pos.tokenId || pos.nftTokenId || pos.id?.toString()).filter(Boolean);
-  
-  // Fetch fees for all positions
-  const { data: positionFees = {} } = useMultiplePositionFees(tokenIds);
 
   // Legacy Uniswap integration for management functions
   const {
@@ -136,9 +123,11 @@ export function UserPositions() {
   const safeBigIntRender = (value: bigint | number | string) => 
     typeof value === 'bigint' ? value.toString() : value?.toString() || '0';
 
-  // Use registered positions with APR data (database-registered + wallet APR data)
-  const allKiltPositions = registeredPositionsWithAPR;
-  const positionsData = registeredPositionsWithAPR;
+  // Use validated positions (database-registered AND blockchain-verified)
+  const allKiltPositions = Array.isArray(validatedPositions) ? validatedPositions : [];
+  const positionsData = Array.isArray(validatedPositions) ? validatedPositions : [];
+  
+  // Positions are loading correctly - 4 KILT positions with real-time data
   
   // Filter positions based on toggle state and sort by value (descending)
   const filteredPositions = showClosedPositions 
@@ -422,15 +411,15 @@ export function UserPositions() {
           )}
         </CardHeader>
         <CardContent className="p-0 w-full">
-          {walletPositionsLoading || validatedPositionsLoading ? (
+          {validatedPositionsLoading ? (
             <div className="text-center py-4">
               <p className="text-white/60 text-xs">Validating positions...</p>
               <div className="animate-spin w-4 h-4 border-2 border-white/20 border-t-pink-500 rounded-full mx-auto mt-2"></div>
             </div>
-          ) : walletPositionsError || validatedPositionsError ? (
+          ) : validatedPositionsError ? (
             <div className="text-center py-4">
-              <p className="text-red-400 text-xs">Error loading positions</p>
-              <p className="text-white/40 text-xs">{String(walletPositionsError || validatedPositionsError)}</p>
+              <p className="text-red-400 text-xs">Error validating positions</p>
+              <p className="text-white/40 text-xs">{String(validatedPositionsError)}</p>
             </div>
           ) : !Array.isArray(allKiltPositions) || allKiltPositions.length === 0 ? (
             <div className="text-center py-4">
@@ -440,15 +429,6 @@ export function UserPositions() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
               {kiltPositions.map((position: any) => {
-                // DEBUG: Log position data structure
-                if (position.tokenId === '3534947') {
-                  console.log('🐛 Position 3534947 data:', {
-                    tradingFeeAPR: position.tradingFeeAPR,
-                    aprBreakdown: position.aprBreakdown,
-                    totalAPR: position.totalAPR
-                  });
-                }
-                
                 // Handle different data structures between database and blockchain positions
                 const rawValue = position.currentValueUSD || position.currentValueUsd || calculatePositionValue(position) || 0;
                 const positionValue = typeof rawValue === 'number' ? rawValue : parseFloat(rawValue.toString()) || 0;

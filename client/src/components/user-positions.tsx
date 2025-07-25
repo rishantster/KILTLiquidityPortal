@@ -475,7 +475,7 @@ export function UserPositions() {
                           <span className="terminal-label">WETH</span>
                         </div>
                         <div className="terminal-value">{ethAmount}</div>
-                        <div className="terminal-sublabel">${(parseFloat(ethAmount) * (kiltData?.price ? (kiltData.price / (conversionRate?.kiltEthRatio || 0.000004605)) : 3800)).toFixed(2)}</div>
+                        <div className="terminal-sublabel">${(parseFloat(ethAmount) * (kiltData?.price && conversionRate?.kiltEthRatio ? (kiltData.price / conversionRate.kiltEthRatio) : 0)).toFixed(2)}</div>
                       </div>
                       
                       <div className="terminal-block kilt-block">

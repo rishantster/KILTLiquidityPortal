@@ -217,20 +217,22 @@ export function LiquidityMint({
             setEthAmount(ethAmountCalculated.toFixed(3)); // 3 decimal places
             
             // Auto-calculate KILT amount using real-time pool conversion rate
-            const ethPerKilt = conversionRate?.kiltEthRatio || 0.000004605; // Fallback to DexScreener rate
-            const kiltAmountCalculated = ethAmountCalculated / ethPerKilt;
-            
-            if (kiltAmountCalculated >= 0) {
-              // Check KILT balance constraint - never exceed wallet KILT holdings
-              if (kiltBalance) {
-                const kiltBalanceNum = parseFloat(formatTokenAmount(kiltBalance));
-                const finalKiltAmount = Math.min(kiltAmountCalculated, kiltBalanceNum);
-                setKiltAmount(finalKiltAmount.toFixed(3)); // 3 decimal places, capped to balance
-              } else {
-                setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
+            if (conversionRate?.kiltEthRatio) {
+              const ethPerKilt = conversionRate.kiltEthRatio;
+              const kiltAmountCalculated = ethAmountCalculated / ethPerKilt;
+              
+                if (kiltAmountCalculated >= 0) {
+                  // Check KILT balance constraint - never exceed wallet KILT holdings
+                  if (kiltBalance) {
+                    const kiltBalanceNum = parseFloat(formatTokenAmount(kiltBalance));
+                    const finalKiltAmount = Math.min(kiltAmountCalculated, kiltBalanceNum);
+                    setKiltAmount(finalKiltAmount.toFixed(3)); // 3 decimal places, capped to balance
+                  } else {
+                    setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
+                  }
+                }
               }
             }
-          }
         }
       } catch (error) {
         // Error calculating amounts
@@ -257,9 +259,9 @@ export function LiquidityMint({
     setKiltAmount(value);
     
     // Auto-calculate WETH amount using real-time pool conversion rate
-    if (value && !isNaN(numValue)) {
+    if (value && !isNaN(numValue) && conversionRate?.kiltEthRatio) {
       // Use real-time conversion rate from DexScreener pool
-      const ethPerKilt = conversionRate?.kiltEthRatio || 0.000004605; // Fallback to DexScreener rate
+      const ethPerKilt = conversionRate.kiltEthRatio;
       const wethAmountCalculated = numValue * ethPerKilt;
       
       if (wethAmountCalculated >= 0) {
@@ -306,9 +308,9 @@ export function LiquidityMint({
     setEthAmount(value);
     
     // Auto-calculate KILT amount using real-time pool conversion rate
-    if (value && !isNaN(numValue)) {
+    if (value && !isNaN(numValue) && conversionRate?.kiltEthRatio) {
       // Use real-time conversion rate from DexScreener pool
-      const ethPerKilt = conversionRate?.kiltEthRatio || 0.000004605; // Fallback to DexScreener rate
+      const ethPerKilt = conversionRate.kiltEthRatio;
       const kiltAmountCalculated = numValue / ethPerKilt;
       
       if (kiltAmountCalculated >= 0) {

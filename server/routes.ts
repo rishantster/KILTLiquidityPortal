@@ -2543,12 +2543,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('❌ Failed to fetch pool conversion rate:', error);
       res.status(500).json({ 
-        error: 'Failed to fetch conversion rate',
-        fallback: {
-          kiltEthRatio: 0.000004605, // DexScreener observed rate
-          ethKiltRatio: 217155,
-          source: 'Fallback estimate'
-        }
+        error: 'Failed to fetch conversion rate - no fallback data available',
+        message: 'Real-time pool data unavailable'
       });
     }
   });

@@ -73,8 +73,8 @@ export function UniswapStyleLiquidityModal({
   const realKiltBalance = kiltBalance || '0';
   
   // Use accurate KILT/ETH conversion based on current pool price
-  // Use real-time conversion rate from DexScreener pool
-  const kiltEthRatio = conversionRate?.kiltEthRatio || 0.000004605; // Fallback to DexScreener rate
+  // Use real-time conversion rate from DexScreener pool only
+  const kiltEthRatio = conversionRate?.kiltEthRatio;
 
   useEffect(() => {
     if (!isOpen) {
@@ -90,14 +90,18 @@ export function UniswapStyleLiquidityModal({
     if (token === 'eth') {
       const formattedEthBalance = parseFloat(realEthBalance).toFixed(6);
       setEthAmount(formattedEthBalance);
-      // ETH to KILT: divide ETH amount by KILT/ETH ratio
-      const kiltAmount = parseFloat(realEthBalance) / kiltEthRatio;
-      setKiltAmount(kiltAmount.toFixed(0));
+      // ETH to KILT: divide ETH amount by KILT/ETH ratio (only if conversion rate available)
+      if (kiltEthRatio) {
+        const kiltAmount = parseFloat(realEthBalance) / kiltEthRatio;
+        setKiltAmount(kiltAmount.toFixed(0));
+      }
     } else {
       setKiltAmount(realKiltBalance);
-      // KILT to ETH: multiply KILT amount by KILT/ETH ratio
-      const ethAmount = parseFloat(realKiltBalance) * kiltEthRatio;
-      setEthAmount(ethAmount.toFixed(6));
+      // KILT to ETH: multiply KILT amount by KILT/ETH ratio (only if conversion rate available)
+      if (kiltEthRatio) {
+        const ethAmount = parseFloat(realKiltBalance) * kiltEthRatio;
+        setEthAmount(ethAmount.toFixed(6));
+      }
     }
   };
 

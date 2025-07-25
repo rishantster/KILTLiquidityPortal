@@ -10,12 +10,14 @@ import {
   Clock, 
   AlertTriangle,
   Loader2,
-  Gift
+  Gift,
+  Network
 } from 'lucide-react';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
+import { RateLimitBypassModal } from './rate-limit-bypass-modal';
 
 interface ExternalPosition {
   tokenId: string; // Changed from nftTokenId to tokenId for consistency
@@ -67,6 +69,7 @@ export function PositionRegistration() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
+  const [showBypassModal, setShowBypassModal] = useState(false);
 
   // Get user for registration
   const { data: user } = useQuery({
@@ -349,7 +352,7 @@ export function PositionRegistration() {
                   <p className="text-white/60 mb-3 text-xs">
                     You don't have any KILT liquidity positions yet. Create your first position to start earning treasury rewards!
                   </p>
-                  <div className="flex gap-2 justify-center">
+                  <div className="flex gap-2 justify-center flex-wrap">
                     <Button 
                       onClick={() => {
                         // Navigate to liquidity tab using querySelector
@@ -368,6 +371,14 @@ export function PositionRegistration() {
                     >
                       <ExternalLink className="h-3 w-3 mr-1" />
                       Visit Uniswap
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowBypassModal(true)}
+                      className="border-amber-500/30 hover:bg-amber-500/10 text-amber-400 text-xs py-1 px-2 h-6"
+                    >
+                      <Network className="h-3 w-3 mr-1" />
+                      Manual Register
                     </Button>
                   </div>
                 </>

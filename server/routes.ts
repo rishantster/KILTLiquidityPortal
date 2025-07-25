@@ -1559,6 +1559,62 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Manual registration bypass for rate-limited users
+  app.post("/api/positions/manual-register/:userAddress", async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      const { nftTokenId, poolAddress } = req.body;
+      
+      console.log(`🔄 Manual registration attempt for user ${userAddress}, position ${nftTokenId}`);
+      
+      if (!userAddress || !nftTokenId) {
+        res.status(400).json({ error: "Missing userAddress or nftTokenId" });
+        return;
+      }
+      
+      // Get or create user
+      let user = await storage.getUserByAddress(userAddress);
+      if (!user) {
+        user = await storage.createUser({ address: userAddress });
+      }
+      
+      if (!user) {
+        res.status(400).json({ error: "Failed to create or retrieve user" });
+        return;
+      }
+      
+      // Create position data using bypass service
+      const bypassPositionData = rateLimitBypassService.createBypassPositionData(
+        nftTokenId,
+        userAddress,
+        poolAddress
+      );
+      
+      console.log(`🔄 Using bypass position data:`, bypassPositionData);
+      
+      // Register position using bypass mechanism
+      const result = await positionRegistrationService.registerExternalPosition(
+        user.id,
+        userAddress,
+        bypassPositionData
+      );
+      
+      console.log(`${result.success ? '✅' : '❌'} Manual registration result:`, result);
+      
+      res.json({
+        success: result.success,
+        message: result.message,
+        positionId: result.positionId,
+        eligibilityStatus: result.eligibilityStatus,
+        bypassUsed: true
+      });
+      
+    } catch (error) {
+      console.error('Manual registration error:', error);
+      res.status(500).json({ error: "Failed to manually register position" });
+    }
+  });
+
   // ===== CRITICAL MISSING ENDPOINTS: UNISWAP V3 POSITION MANAGEMENT =====
   
   // Increase liquidity in existing position

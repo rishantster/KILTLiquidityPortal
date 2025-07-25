@@ -151,7 +151,7 @@ export function UniswapStyleLiquidityModal({
       <DialogContent className="max-w-md bg-gray-900 border border-gray-700 text-white p-0 gap-0">
         <DialogTitle className="sr-only">{getTitle()}</DialogTitle>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 pr-16 border-b border-gray-700">
           <h2 className="text-lg font-semibold">{getTitle()}</h2>
           <Button 
             variant="ghost" 

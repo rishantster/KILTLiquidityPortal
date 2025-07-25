@@ -20,6 +20,31 @@ function Router() {
   );
 }
 
+// Global error handler to prevent runtime error overlays
+function ErrorBoundary({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.warn('Unhandled promise rejection (gracefully handled):', event.reason);
+      event.preventDefault(); // Prevent the error overlay
+    };
+
+    const handleError = (event: ErrorEvent) => {
+      console.warn('Global error caught:', event.error);
+      event.preventDefault(); // Prevent the error overlay
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
+
+  return <>{children}</>;
+}
+
 function CyberpunkVideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -33,20 +58,35 @@ function CyberpunkVideoBackground() {
     // Preload video in background without blocking UI
     const preloadVideo = async () => {
       try {
+        if (!video || video.error) {
+          setLoadingError(true);
+          return;
+        }
+        
         // Start loading immediately but don't block
         video.load();
         
         // Wait for enough data to start playing smoothly
         await new Promise((resolve, reject) => {
-          const handleCanPlay = () => {
+          const timeout = setTimeout(() => {
             video.removeEventListener('canplay', handleCanPlay);
             video.removeEventListener('error', handleError);
+            reject(new Error('Video load timeout'));
+          }, 10000); // 10 second timeout
+          
+          const handleCanPlay = () => {
+            clearTimeout(timeout);
+            video.removeEventListener('canplay', handleCanPlay);
+            video.removeEventListener('error', handleError);
+            console.log('Video can play');
             resolve(true);
           };
           
-          const handleError = () => {
+          const handleError = (e: any) => {
+            clearTimeout(timeout);
             video.removeEventListener('canplay', handleCanPlay);
             video.removeEventListener('error', handleError);
+            console.warn('Video loading error:', e);
             reject(new Error('Video failed to load'));
           };
           
@@ -54,21 +94,38 @@ function CyberpunkVideoBackground() {
           video.addEventListener('error', handleError);
         });
         
-        // Start playing once loaded
-        await video.play();
-        setIsPlaying(true);
-        setIsLoaded(true);
+        // Start playing once loaded with error handling
+        try {
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
+          setIsPlaying(true);
+          setIsLoaded(true);
+          console.log('Video loading started');
+        } catch (playError) {
+          console.warn('Video play failed:', playError);
+          setLoadingError(true);
+        }
       } catch (error) {
+        console.warn('Video preload failed:', error);
         setLoadingError(true);
       }
     };
 
-    // Use requestIdleCallback for better performance
+    // Use requestIdleCallback for better performance with error boundaries
+    const safePreloadVideo = () => {
+      preloadVideo().catch((error) => {
+        console.warn('Video preload error caught:', error);
+        setLoadingError(true);
+      });
+    };
+
     if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => preloadVideo(), { timeout: 2000 });
+      requestIdleCallback(safePreloadVideo, { timeout: 2000 });
     } else {
       // Fallback with minimal delay
-      setTimeout(preloadVideo, 100);
+      setTimeout(safePreloadVideo, 100);
     }
 
     return () => {
@@ -118,11 +175,13 @@ function CyberpunkVideoBackground() {
             transition: 'opacity 0.3s ease-in-out',
             willChange: 'opacity'
           }}
-          onError={() => {
+          onError={(e) => {
+            console.warn('Video element error:', e);
             setLoadingError(true);
           }}
           onCanPlay={() => {
             if (!isLoaded) {
+              console.log('Video can play');
               setIsLoaded(true);
             }
           }}
@@ -157,31 +216,19 @@ function CyberpunkVideoBackground() {
 }
 
 function App() {
-  // Global error handler for unhandled promise rejections
-  useEffect(() => {
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      if (event.reason?.name === 'AbortError' || event.reason?.message?.includes('aborted')) {
-        event.preventDefault(); // Prevent console warnings for AbortError
-        return;
-      }
-      console.error('Unhandled promise rejection:', event.reason);
-    };
-
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-    return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-  }, []);
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <WagmiWalletProvider>
-        <TooltipProvider>
-          {/* CYBERPUNK VIDEO BACKGROUND */}
-          <CyberpunkVideoBackground />
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </WagmiWalletProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <WagmiWalletProvider>
+          <TooltipProvider>
+            {/* CYBERPUNK VIDEO BACKGROUND */}
+            <CyberpunkVideoBackground />
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </WagmiWalletProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

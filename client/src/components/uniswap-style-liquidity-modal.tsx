@@ -68,7 +68,10 @@ export function UniswapStyleLiquidityModal({
   // Real wallet balances
   const realEthBalance = ethBalance || '0';
   const realKiltBalance = kiltBalance || '0';
-  const currentPrice = kiltData?.price || 0.01859;
+  const kiltUsdPrice = kiltData?.price || 0.01859;
+  const ethUsdPrice = 3718.5; // Approximate ETH price
+  // KILT/ETH ratio = KILT USD price / ETH USD price
+  const kiltEthRatio = kiltUsdPrice / ethUsdPrice;
 
   useEffect(() => {
     if (!isOpen) {
@@ -84,13 +87,13 @@ export function UniswapStyleLiquidityModal({
     if (token === 'eth') {
       const formattedEthBalance = parseFloat(realEthBalance).toFixed(6);
       setEthAmount(formattedEthBalance);
-      // ETH to KILT: divide ETH amount by KILT price to get KILT amount
-      const kiltAmount = parseFloat(realEthBalance) / currentPrice;
+      // ETH to KILT: divide ETH amount by KILT/ETH ratio
+      const kiltAmount = parseFloat(realEthBalance) / kiltEthRatio;
       setKiltAmount(kiltAmount.toFixed(0));
     } else {
       setKiltAmount(realKiltBalance);
-      // KILT to ETH: multiply KILT amount by KILT price to get ETH amount
-      const ethAmount = parseFloat(realKiltBalance) * currentPrice;
+      // KILT to ETH: multiply KILT amount by KILT/ETH ratio
+      const ethAmount = parseFloat(realKiltBalance) * kiltEthRatio;
       setEthAmount(ethAmount.toFixed(6));
     }
   };
@@ -216,8 +219,8 @@ export function UniswapStyleLiquidityModal({
                       onChange={(e) => {
                         setEthAmount(e.target.value);
                         if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                          // ETH to KILT: divide ETH amount by KILT price
-                          const kiltAmount = parseFloat(e.target.value) / currentPrice;
+                          // ETH to KILT: divide ETH amount by KILT/ETH ratio
+                          const kiltAmount = parseFloat(e.target.value) / kiltEthRatio;
                           setKiltAmount(kiltAmount.toFixed(0));
                         } else {
                           setKiltAmount('');
@@ -261,8 +264,8 @@ export function UniswapStyleLiquidityModal({
                       onChange={(e) => {
                         setKiltAmount(e.target.value);
                         if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                          // KILT to ETH: multiply KILT amount by KILT price
-                          const ethAmount = parseFloat(e.target.value) * currentPrice;
+                          // KILT to ETH: multiply KILT amount by KILT/ETH ratio
+                          const ethAmount = parseFloat(e.target.value) * kiltEthRatio;
                           setEthAmount(ethAmount.toFixed(6));
                         } else {
                           setEthAmount('');

@@ -176,12 +176,12 @@ export function LiquidityMint({
   // Set preferred ETH token based on balance amounts (always pick bigger amount)
   useEffect(() => {
     if (ethBalance && wethBalance) {
-      const ethPrice = 2500; // Approximate ETH price
-      const ethValueUSD = parseFloat(ethBalance) * ethPrice;
-      const wethValueUSD = parseFloat(wethBalance) * ethPrice;
+      // Compare actual token amounts instead of USD values for accuracy
+      const ethAmount = parseFloat(ethBalance);
+      const wethAmount = parseFloat(wethBalance);
       
       // Always pick the bigger amount between ETH and WETH
-      const shouldUseEth = ethValueUSD >= wethValueUSD;
+      const shouldUseEth = ethAmount >= wethAmount;
       setSelectedEthToken(shouldUseEth ? 'ETH' : 'WETH');
     }
   }, [ethBalance, wethBalance]);
@@ -214,10 +214,9 @@ export function LiquidityMint({
           if (ethAmountCalculated >= 0) {
             setEthAmount(ethAmountCalculated.toFixed(3)); // 3 decimal places
             
-            // Auto-calculate KILT amount based on current pool ratio
-            const kiltPrice = kiltData?.price || 0.0289;
-            const ethPrice = 3200; // Approximate ETH price
-            const kiltAmountCalculated = (ethAmountCalculated * ethPrice) / kiltPrice;
+            // Auto-calculate KILT amount using accurate pool conversion rate
+            // Use same conversion rate as modal: 1 ETH = 188,679 KILT (0.0000053 ETH per KILT)
+            const kiltAmountCalculated = ethAmountCalculated / 0.0000053;
             
             if (kiltAmountCalculated >= 0) {
               // Check KILT balance constraint - never exceed wallet KILT holdings
@@ -255,11 +254,10 @@ export function LiquidityMint({
     setIsManualInput(true);
     setKiltAmount(value);
     
-    // Auto-calculate WETH amount
+    // Auto-calculate WETH amount using accurate pool conversion rate
     if (value && !isNaN(numValue)) {
-      const kiltPrice = kiltData?.price || 0.0289;
-      const ethPrice = 3200;
-      const wethAmountCalculated = (numValue * kiltPrice) / ethPrice;
+      // Use same conversion rate as modal: 1 KILT = 0.0000053 ETH
+      const wethAmountCalculated = numValue * 0.0000053;
       
       if (wethAmountCalculated >= 0) {
         setEthAmount(wethAmountCalculated.toFixed(3)); // 3 decimal places
@@ -304,11 +302,10 @@ export function LiquidityMint({
     setIsManualInput(true);
     setEthAmount(value);
     
-    // Auto-calculate KILT amount
+    // Auto-calculate KILT amount using accurate pool conversion rate
     if (value && !isNaN(numValue)) {
-      const kiltPrice = kiltData?.price || 0.0289;
-      const ethPrice = 3200;
-      const kiltAmountCalculated = (numValue * ethPrice) / kiltPrice;
+      // Use same conversion rate as modal: 1 ETH = 188,679 KILT (0.0000053 ETH per KILT)
+      const kiltAmountCalculated = numValue / 0.0000053;
       
       if (kiltAmountCalculated >= 0) {
         // Check KILT balance constraint - never exceed wallet KILT holdings

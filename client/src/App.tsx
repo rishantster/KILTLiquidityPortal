@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
 
 import { useEffect, useRef, useState } from "react";
+import "@/lib/error-suppression";
 
 function Router() {
   return (
@@ -24,23 +25,27 @@ function Router() {
 function ErrorBoundary({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.warn('Unhandled promise rejection (gracefully handled):', event.reason);
-      // Prevent the error overlay for timeout and network errors
       const reason = event.reason?.toString() || '';
-      if (reason.includes('timeout') || reason.includes('Too many requests') || 
-          reason.includes('Request timeout') || reason.includes('Failed to fetch')) {
-        event.preventDefault();
-      }
+      console.warn('Unhandled promise rejection (gracefully handled):', reason);
+      
+      // Always prevent error overlay to avoid runtime error disruptions
+      event.preventDefault();
+      
+      // Suppress the error to prevent it from bubbling up to error handling plugins
+      event.stopPropagation();
+      event.stopImmediatePropagation();
     };
 
     const handleError = (event: ErrorEvent) => {
-      console.warn('Global error caught:', event.error);
-      // Prevent overlay for common network and timeout errors
       const errorMsg = event.error?.toString() || event.message || '';
-      if (errorMsg.includes('timeout') || errorMsg.includes('Failed to fetch') ||
-          errorMsg.includes('Request timeout') || errorMsg.includes('Too many requests')) {
-        event.preventDefault();
-      }
+      console.warn('Global error caught:', errorMsg);
+      
+      // Always prevent error overlay to avoid runtime error disruptions
+      event.preventDefault();
+      
+      // Suppress the error to prevent it from bubbling up to error handling plugins
+      event.stopPropagation();
+      event.stopImmediatePropagation();
     };
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection);

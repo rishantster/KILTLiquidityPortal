@@ -144,7 +144,6 @@ export const queryClient = new QueryClient({
     },
     mutations: {
       retry: false,
-
     },
   },
 });

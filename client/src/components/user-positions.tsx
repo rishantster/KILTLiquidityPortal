@@ -36,6 +36,7 @@ import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { UniswapModal } from '@/components/uniswap-modal';
 import { useValidatedPositions } from '@/hooks/use-validated-positions';
 import { useMultiplePositionFees } from '@/hooks/use-position-fees';
+import { UniswapStyleLiquidityModal } from '@/components/uniswap-style-liquidity-modal';
 
 export function UserPositions() {
   const { address, isConnected } = useWagmiWallet();
@@ -546,7 +547,7 @@ export function UserPositions() {
       </Card>
 
       {/* Uniswap-Style Position Management Modal */}
-      <UniswapModal
+      <UniswapStyleLiquidityModal
         isOpen={modalPosition !== null && modalMode !== null}
         onClose={() => {
           setModalPosition(null);

@@ -204,7 +204,6 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               {userAverageAPR?.activePositions || 0} active positions
             </div>
-            
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">

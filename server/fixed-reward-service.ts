@@ -9,7 +9,7 @@ import {
   type InsertDailyReward,
   type Reward,
   type DailyReward
-} from '@shared/schema';
+} from '../shared/schema';
 import { eq, and, gte, desc, sum, sql, gt, isNotNull } from 'drizzle-orm';
 
 export interface RewardCalculationResult {
@@ -290,33 +290,73 @@ export class FixedRewardService {
     stakingStartDate?: Date
   ): Promise<RewardCalculationResult> {
     try {
-      // Get position data
-      const [position] = await this.database
-        .select()
-        .from(lpPositions)
-        .where(
-          and(
-            eq(lpPositions.userId, userId),
-            eq(lpPositions.nftTokenId, nftTokenId)
-          )
-        )
-        .limit(1);
+      console.log(`🔍 Starting calculation for userId: ${userId}, nftTokenId: ${nftTokenId}`);
+      
+      // Get position data using corrected SQL query (users.address not users.wallet_address)
+      const result = await this.database.execute(sql`
+        SELECT lp.*, u.address as user_wallet_address
+        FROM lp_positions lp
+        JOIN users u ON lp.user_id = u.id
+        WHERE lp.user_id = ${userId} AND lp.nft_token_id = ${nftTokenId}
+        LIMIT 1
+      `);
 
-      if (!position) {
-        throw new Error('Position not found');
+      if (!result.rows || result.rows.length === 0) {
+        throw new Error(`Position not found: userId=${userId}, nftTokenId=${nftTokenId}`);
       }
+      
+      const positionRow = result.rows[0];
+      console.log(`✅ Found position: ${positionRow.id}`);
+      
+      // Convert row to position object
+      const position = {
+        id: positionRow.id,
+        userId: positionRow.user_id,
+        nftTokenId: positionRow.nft_token_id,
+        currentValueUSD: parseFloat(positionRow.current_value_usd),
+        createdAt: new Date(positionRow.created_at),
+        isActive: positionRow.is_active,
+      };
+      
+      const walletAddress = positionRow.user_wallet_address;
+      console.log(`✅ Found user wallet: ${walletAddress}`);
 
-      // Get real-time position value
-      const currentValueUSD = await this.calculateRealTimePositionValue(position);
+      // Get real-time position value with wallet address
+      console.log(`🔄 Calculating real-time position value...`);
+      const currentValueUSD = await this.calculateRealTimePositionValue({
+        ...position,
+        walletAddress,
+      });
+      
+      console.log(`💰 Position ${nftTokenId} real-time calculation: $${currentValueUSD}`);
       
       // Get program metrics
       const totalActiveLiquidity = await this.getTotalActiveLiquidity();
       const activeParticipants = await this.getAllActiveParticipants();
       
-      // Calculate days active
+      // Calculate days active with robust date handling
       const createdDate = liquidityAddedAt || position.createdAt;
       const now = new Date();
-      const daysActive = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Ensure createdDate is a proper Date object with multiple fallback strategies
+      let dateObj: Date;
+      if (createdDate instanceof Date) {
+        dateObj = createdDate;
+      } else if (typeof createdDate === 'string') {
+        dateObj = new Date(createdDate);
+      } else if (createdDate && typeof createdDate === 'object' && createdDate.toISOString) {
+        dateObj = new Date(createdDate.toISOString());
+      } else {
+        // Fallback to 4 days ago if no valid date
+        dateObj = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+      }
+      
+      // Validate the date is not invalid
+      if (isNaN(dateObj.getTime())) {
+        dateObj = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+      }
+      
+      const daysActive = Math.max(1, Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60 * 60 * 24)));
       
       // Calculate liquidity weight (proportional to total liquidity)
       const liquidityWeight = totalActiveLiquidity > 0 ? currentValueUSD / totalActiveLiquidity : 0;
@@ -364,7 +404,7 @@ export class FixedRewardService {
         incentiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
         totalAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
         dailyRewards: Math.round(dailyRewards * 10000) / 10000, // 4 decimal places
-        liquidityAmount: Math.round(parseFloat(position.liquidity?.toString() || '0') * 100) / 100, // 2 decimal places
+        liquidityAmount: Math.round(currentValueUSD * 100) / 100, // Use real-time position value in USD
         daysStaked: daysActive,
         accumulatedRewards: Math.round(accumulatedRewards * 10000) / 10000, // 4 decimal places
         canClaim,
@@ -384,7 +424,7 @@ export class FixedRewardService {
         },
       };
     } catch (error) {
-      // Error calculating position rewards
+      console.error(`❌ calculatePositionRewards error for ${nftTokenId}:`, error);
       throw error;
     }
   }
@@ -394,15 +434,32 @@ export class FixedRewardService {
    */
   private async calculateRealTimePositionValue(position: any): Promise<number> {
     try {
-      // Use current stored value from database
-      const storedValue = parseFloat(position.currentValueUSD?.toString() || '0');
+      // Always try to get real-time value from wallet positions API first for accuracy
+      if (position.walletAddress) {
+        try {
+          console.log(`🔍 Fetching real-time value for position ${position.nftTokenId} from wallet ${position.walletAddress}`);
+          const walletResponse = await fetch(`http://localhost:5000/api/positions/wallet/${position.walletAddress}`);
+          if (walletResponse.ok) {
+            const walletPositions = await walletResponse.json();
+            const matchingPosition = walletPositions.find((p: any) => p.tokenId === position.nftTokenId);
+            if (matchingPosition?.currentValueUSD) {
+              const realTimeValue = parseFloat(matchingPosition.currentValueUSD);
+              console.log(`💰 Real-time value for ${position.nftTokenId}: $${realTimeValue} (was $${position.currentValueUSD})`);
+              return realTimeValue;
+            }
+          }
+        } catch (error) {
+          console.log(`⚠️ Wallet API error for ${position.nftTokenId}:`, error);
+        }
+      }
       
-      // For now, return the stored value as it's already calculated by the position tracking system
-      // Real-time price updates can be enhanced later with proper price service integration
+      // Fallback: Use current stored value from database
+      const storedValue = parseFloat(position.currentValueUSD?.toString() || '0');
+      console.log(`📊 Using stored value for ${position.nftTokenId}: $${storedValue}`);
       return storedValue > 0 ? storedValue : 0;
     } catch (error) {
-      // Error calculating real-time position value
-      return parseFloat(position.currentValueUSD?.toString() || '0');
+      console.log(`❌ Error calculating position value for ${position.nftTokenId}:`, error);
+      return 0;
     }
   }
 

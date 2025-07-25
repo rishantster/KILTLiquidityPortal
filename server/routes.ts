@@ -781,7 +781,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       const calculation = await fixedRewardService.calculatePositionRewards(
-        userId,
+        parseInt(userId),
         nftTokenId,
         liquidityAddedAt ? new Date(liquidityAddedAt) : undefined,
         stakingStartDate ? new Date(stakingStartDate) : undefined
@@ -789,6 +789,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.json(calculation);
     } catch (error) {
+      console.error('Route error calculating rewards:', error);
       res.status(500).json({ error: "Failed to calculate rewards" });
     }
   });
@@ -2033,8 +2034,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Manual trigger for daily reward updates
   app.post("/api/admin/update-rewards", async (req, res) => {
     try {
-      const fixedRewardService = new FixedRewardService(db);
-      
       console.log('🚀 Manual reward update triggered by admin...');
       const result = await fixedRewardService.updateDailyRewards();
       
@@ -2066,7 +2065,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get reward update status
   app.get("/api/admin/reward-status", async (req, res) => {
     try {
-      const fixedRewardService = new FixedRewardService(db);
       const activeParticipants = await fixedRewardService.getAllActiveParticipants();
       
       res.json({

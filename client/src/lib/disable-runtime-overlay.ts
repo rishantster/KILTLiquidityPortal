@@ -1,10 +1,23 @@
 // Aggressive runtime error overlay disabling
 // This completely prevents the Vite runtime error plugin from showing overlays
+// Equivalent to setting server.hmr.overlay = false in vite.config.js
 
 // Override the sendError function that triggers the overlay
 const disableRuntimeErrorOverlay = () => {
   // Intercept and disable the specific runtime error function
   if (typeof window !== 'undefined') {
+    // Disable HMR overlay at the client level (equivalent to server.hmr.overlay = false)
+    if (window.__vite_overlay) {
+      window.__vite_overlay.style.display = 'none';
+      window.__vite_overlay.remove();
+    }
+    
+    // Prevent HMR overlay from being created
+    Object.defineProperty(window, '__vite_overlay', {
+      set: () => {}, // Block any attempts to set the overlay
+      get: () => null,
+      configurable: false
+    });
     // Override the global sendError function used by Vite's runtime error plugin
     (window as any).sendError = () => {
       // Do nothing - completely suppress overlay
@@ -16,6 +29,24 @@ const disableRuntimeErrorOverlay = () => {
       hide: () => {},
       sendError: () => {},
     };
+
+    // Disable Vite's HMR error overlay completely (client-side equivalent of server.hmr.overlay = false)
+    (window as any).__vite_is_modern_browser = true;
+    (window as any).__vite_error_overlay_disabled = true;
+    
+    // Override the createHotContext function to disable error overlay
+    if ((window as any).__vite_createHotContext) {
+      const originalCreateHotContext = (window as any).__vite_createHotContext;
+      (window as any).__vite_createHotContext = function(...args: any[]) {
+        const hotContext = originalCreateHotContext.apply(this, args);
+        if (hotContext && hotContext.on) {
+          // Disable error overlay in hot context
+          hotContext.on('vite:error', () => {});
+          hotContext.on('vite:errorCleared', () => {});
+        }
+        return hotContext;
+      };
+    }
 
     // Intercept console.error calls that trigger the overlay
     const originalConsoleError = console.error;

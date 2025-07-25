@@ -313,11 +313,8 @@ export class FixedRewardService {
       const totalActiveLiquidity = await this.getTotalActiveLiquidity();
       const activeParticipants = await this.getAllActiveParticipants();
       
-      // Calculate days active - ensure createdDate is a proper Date object
-      let createdDate = liquidityAddedAt || position.createdAt;
-      if (typeof createdDate === 'string') {
-        createdDate = new Date(createdDate);
-      }
+      // Calculate days active
+      const createdDate = liquidityAddedAt || position.createdAt;
       const now = new Date();
       const daysActive = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
       

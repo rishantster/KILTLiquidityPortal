@@ -1700,9 +1700,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           const user = await storage.getUserByAddress(userAddress);
           if (user) {
             const aprResult = await fixedRewardService.calculatePositionRewards(
-              user.id,
+              user.id.toString(),
+              position.id || position.tokenId,
               position.tokenId,
-              new Date(position.createdAt || Date.now())
+              positionValue
             );
             incentiveAPR = aprResult.incentiveAPR || 0;
           }

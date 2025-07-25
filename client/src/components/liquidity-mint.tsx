@@ -31,6 +31,7 @@ import { BASE_NETWORK_ID } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityService } from '@/services/liquidity-service';
+import { useEthPrice } from '@/hooks/use-eth-price';
 import { UniswapV3SDKService, KILT_TOKEN, WETH_TOKEN } from '@/lib/uniswap-v3-sdk';
 import { transactionValidator, type LiquidityParams } from '@/services/transaction-validator';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -72,6 +73,7 @@ export function LiquidityMint({
   } = useSimpleUniswapV3();
   const { data: kiltData } = useKiltTokenData();
   const { data: conversionRate } = useKiltEthConversionRate();
+  const { data: ethPriceData } = useEthPrice();
   const { sessionId, createAppSession, recordAppTransaction, isCreatingSession } = useAppSession();
   const { toast } = useToast();
 
@@ -188,7 +190,20 @@ export function LiquidityMint({
     }
   }, [ethBalance, wethBalance]);
 
-  // Auto-calculate amounts based on slider percentage - limited by selected ETH token balance
+  // Calculate optimal amounts using unified LiquidityService
+  const calculateOptimalAmounts = (percentage: number) => {
+    return LiquidityService.calculateOptimalAmounts(
+      kiltBalance,
+      wethBalance,
+      ethBalance,
+      kiltData?.price || 0.0160,
+      percentage,
+      formatTokenAmount,
+      ethPriceData?.ethPrice // Pass real-time ETH price
+    );
+  };
+
+  // Auto-calculate amounts based on slider percentage using unified calculation
   useEffect(() => {
     // Don't auto-calculate if user is manually entering values
     if (isManualInput) return;
@@ -202,43 +217,23 @@ export function LiquidityMint({
       return;
     }
     
-    const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;
-    
-    if (selectedBalance && percent > 0) {
+    if (percent > 0) {
       try {
-        const balanceStr = formatTokenAmount(selectedBalance);
-        const maxAmount = parseFloat(balanceStr);
+        const amounts = calculateOptimalAmounts(percent);
         
-        if (!isNaN(maxAmount) && maxAmount > 0) {
-          const ethAmountCalculated = (maxAmount * percent / 100);
-          
-          // Ensure no negative values
-          if (ethAmountCalculated >= 0) {
-            setEthAmount(ethAmountCalculated.toFixed(3)); // 3 decimal places
-            
-            // Auto-calculate KILT amount using real-time pool conversion rate
-            if (conversionRate?.kiltEthRatio) {
-              const ethPerKilt = conversionRate.kiltEthRatio;
-              const kiltAmountCalculated = ethAmountCalculated / ethPerKilt;
-              
-                if (kiltAmountCalculated >= 0) {
-                  // Check KILT balance constraint - never exceed wallet KILT holdings
-                  if (kiltBalance) {
-                    const kiltBalanceNum = parseFloat(formatTokenAmount(kiltBalance));
-                    const finalKiltAmount = Math.min(kiltAmountCalculated, kiltBalanceNum);
-                    setKiltAmount(finalKiltAmount.toFixed(3)); // 3 decimal places, capped to balance
-                  } else {
-                    setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
-                  }
-                }
-              }
-            }
+        if (parseFloat(amounts.kiltAmount) > 0 && parseFloat(amounts.ethAmount) > 0) {
+          setKiltAmount(amounts.kiltAmount);
+          setEthAmount(amounts.ethAmount);
+        } else {
+          setKiltAmount('');
+          setEthAmount('');
         }
       } catch (error) {
         // Error calculating amounts
+        console.warn('Error calculating optimal amounts:', error);
       }
     }
-  }, [positionSizePercent, ethBalance, wethBalance, selectedEthToken, formatTokenAmount, kiltData?.price, isManualInput]);
+  }, [positionSizePercent, ethBalance, wethBalance, kiltBalance, kiltData?.price, ethPriceData?.ethPrice, isManualInput]);
 
   const handleKiltAmountChange = (value: string) => {
     // Prevent negative values
@@ -258,24 +253,27 @@ export function LiquidityMint({
     setIsManualInput(true);
     setKiltAmount(value);
     
-    // Auto-calculate WETH amount using real-time pool conversion rate
-    if (value && !isNaN(numValue) && conversionRate?.kiltEthRatio) {
-      // Use real-time conversion rate from DexScreener pool
-      const ethPerKilt = conversionRate.kiltEthRatio;
-      const wethAmountCalculated = numValue * ethPerKilt;
+    // Auto-calculate ETH amount using consistent pricing
+    if (value && !isNaN(numValue) && kiltData?.price && ethPriceData?.ethPrice) {
+      const kiltPriceUSD = kiltData.price;
+      const ethPriceUSD = ethPriceData.ethPrice;
       
-      if (wethAmountCalculated >= 0) {
-        setEthAmount(wethAmountCalculated.toFixed(3)); // 3 decimal places
+      // Calculate ETH equivalent using USD values for consistency
+      const kiltValueUSD = numValue * kiltPriceUSD;
+      const ethAmountCalculated = kiltValueUSD / ethPriceUSD;
+      
+      if (ethAmountCalculated >= 0) {
+        setEthAmount(ethAmountCalculated.toFixed(6)); // 6 decimal places for ETH
       }
       
-      // Update position size slider based on selected ETH token balance (limiting factor)
+      // Update position size slider based on the ETH amount
       const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;
       if (selectedBalance) {
         try {
           const balanceStr = formatTokenAmount(selectedBalance);
           const maxAmount = parseFloat(balanceStr);
           if (!isNaN(maxAmount) && maxAmount > 0) {
-            const percentageUsed = Math.min(100, Math.max(0, (wethAmountCalculated / maxAmount) * 100));
+            const percentageUsed = Math.min(100, Math.max(0, (ethAmountCalculated / maxAmount) * 100));
             setPositionSizePercent([Math.round(percentageUsed)]);
           }
         } catch (error) {
@@ -307,24 +305,26 @@ export function LiquidityMint({
     setIsManualInput(true);
     setEthAmount(value);
     
-    // Auto-calculate KILT amount using real-time pool conversion rate
-    if (value && !isNaN(numValue) && conversionRate?.kiltEthRatio) {
-      // Use real-time conversion rate from DexScreener pool
-      const ethPerKilt = conversionRate.kiltEthRatio;
-      const kiltAmountCalculated = numValue / ethPerKilt;
+    // Auto-calculate KILT amount using consistent pricing
+    if (value && !isNaN(numValue) && kiltData?.price && ethPriceData?.ethPrice) {
+      const kiltPriceUSD = kiltData.price;
+      const ethPriceUSD = ethPriceData.ethPrice;
+      
+      // Calculate KILT equivalent using USD values for consistency
+      const ethValueUSD = numValue * ethPriceUSD;
+      const kiltAmountCalculated = ethValueUSD / kiltPriceUSD;
       
       if (kiltAmountCalculated >= 0) {
         // Check KILT balance constraint - never exceed wallet KILT holdings
         if (kiltBalance) {
           const kiltBalanceNum = parseFloat(formatTokenAmount(kiltBalance));
           const finalKiltAmount = Math.min(kiltAmountCalculated, kiltBalanceNum);
-          setKiltAmount(finalKiltAmount.toFixed(3)); // 3 decimal places, capped to balance
+          setKiltAmount(finalKiltAmount.toFixed(2)); // 2 decimal places for KILT, capped to balance
         } else {
-          setKiltAmount(kiltAmountCalculated.toFixed(3)); // 3 decimal places
+          setKiltAmount(kiltAmountCalculated.toFixed(2)); // 2 decimal places for KILT
         }
         
-        // Update position size slider based on selected ETH token balance (limiting factor)
-        const selectedBalance = selectedEthToken === 'ETH' ? ethBalance : wethBalance;
+        // Update position size slider based on ETH amount
         if (selectedBalance) {
           try {
             const balanceStr = formatTokenAmount(selectedBalance);
@@ -334,7 +334,7 @@ export function LiquidityMint({
               setPositionSizePercent([Math.round(percentageUsed)]);
             }
           } catch (error) {
-            // Error updating slider from ETH
+            // Error updating slider
           }
         }
       }

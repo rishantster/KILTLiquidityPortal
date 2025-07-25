@@ -195,7 +195,7 @@ export function RewardsTracking() {
         <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/50 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-super-bright font-medium text-sm">Avg APR</h3>
+              <h3 className="text-super-bright font-medium text-sm">Avg Position APR</h3>
               <BarChart3 className="h-4 w-4 text-purple-400" />
             </div>
             <div className="text-lg text-purple-400 font-bold tabular-nums mb-1">

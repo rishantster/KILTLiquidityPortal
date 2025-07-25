@@ -384,18 +384,22 @@ export function UniswapStyleLiquidityModal({
                     <EthereumLogo className="w-4 h-4" />
                     <span>ETH</span>
                   </div>
-                  <span className="font-mono">0.001</span>
+                  <span className="font-mono">
+                    {position?.fees?.token0 ? parseFloat(position.fees.token0).toFixed(6) : '0.000000'}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
                     <span>KILT</span>
                   </div>
-                  <span className="font-mono">226.25</span>
+                  <span className="font-mono">
+                    {position?.fees?.token1 ? parseFloat(position.fees.token1).toLocaleString() : '0'}
+                  </span>
                 </div>
               </div>
               <div className="text-xs text-gray-400">
-                Total value: ~$8.21
+                Total value: ~${position?.fees?.usdValue ? position.fees.usdValue.toFixed(2) : '0.00'}
               </div>
             </div>
           )}

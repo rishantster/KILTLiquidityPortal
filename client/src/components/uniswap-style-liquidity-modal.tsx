@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
 import { formatUnits, parseUnits } from 'viem';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -51,6 +52,7 @@ export function UniswapStyleLiquidityModal({
 }: UniswapStyleLiquidityModalProps) {
   const { address, isConnected } = useWagmiWallet();
   const { data: kiltData } = useKiltTokenData();
+  const { ethBalance, wethBalance, kiltBalance } = useUniswapV3();
   const { toast } = useToast();
 
   // Form state
@@ -63,9 +65,9 @@ export function UniswapStyleLiquidityModal({
   const [isLoading, setIsLoading] = useState(false);
   const [addAsEth, setAddAsEth] = useState(true);
 
-  // Mock balances (would be real in production)
-  const [ethBalance] = useState('0.345');
-  const [kiltBalance] = useState('73130.41');
+  // Real wallet balances
+  const realEthBalance = ethBalance || '0';
+  const realKiltBalance = kiltBalance || '0';
   const currentPrice = kiltData?.price || 0.01859;
 
   useEffect(() => {
@@ -80,11 +82,11 @@ export function UniswapStyleLiquidityModal({
 
   const handleMaxClick = (token: 'eth' | 'kilt') => {
     if (token === 'eth') {
-      setEthAmount(ethBalance);
-      setKiltAmount(String(Math.floor(parseFloat(ethBalance) / currentPrice)));
+      setEthAmount(realEthBalance);
+      setKiltAmount(String(Math.floor(parseFloat(realEthBalance) / currentPrice)));
     } else {
-      setKiltAmount(kiltBalance);
-      setEthAmount(String((parseFloat(kiltBalance) * currentPrice).toFixed(6)));
+      setKiltAmount(realKiltBalance);
+      setEthAmount(String((parseFloat(realKiltBalance) * currentPrice).toFixed(6)));
     }
   };
 
@@ -200,7 +202,7 @@ export function UniswapStyleLiquidityModal({
                       <span className="font-medium">ETH</span>
                     </div>
                     <div className="text-sm text-gray-400">
-                      Balance: {ethBalance} ETH
+                      Balance: {realEthBalance} ETH
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -241,7 +243,7 @@ export function UniswapStyleLiquidityModal({
                       <span className="font-medium">KILT</span>
                     </div>
                     <div className="text-sm text-gray-400">
-                      Balance: {parseFloat(kiltBalance).toLocaleString()} KILT
+                      Balance: {parseFloat(realKiltBalance).toLocaleString()} KILT
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -350,7 +352,7 @@ export function UniswapStyleLiquidityModal({
                       <span>ETH</span>
                     </div>
                     <span className="font-mono">
-                      {(parseFloat(ethBalance) * removePercentage[0] / 100).toFixed(6)}
+                      {(parseFloat(realEthBalance) * removePercentage[0] / 100).toFixed(6)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -359,7 +361,7 @@ export function UniswapStyleLiquidityModal({
                       <span>KILT</span>
                     </div>
                     <span className="font-mono">
-                      {(parseFloat(kiltBalance) * removePercentage[0] / 100).toLocaleString()}
+                      {(parseFloat(realKiltBalance) * removePercentage[0] / 100).toLocaleString()}
                     </span>
                   </div>
                 </div>

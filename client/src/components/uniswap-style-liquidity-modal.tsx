@@ -148,16 +148,16 @@ export function UniswapStyleLiquidityModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-gray-900 border border-gray-700 text-white p-0 gap-0 [&>button]:!top-4 [&>button]:!right-4 [&>button]:!absolute [&>button]:!flex [&>button]:!items-center [&>button]:!justify-center [&>button]:!h-8 [&>button]:!w-8">
+      <DialogContent className="max-w-md bg-black/90 backdrop-blur-sm border border-gray-800/30 text-white p-0 gap-0 [&>button]:!top-4 [&>button]:!right-4 [&>button]:!absolute [&>button]:!flex [&>button]:!items-center [&>button]:!justify-center [&>button]:!h-8 [&>button]:!w-8">
         <DialogTitle className="sr-only">{getTitle()}</DialogTitle>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 pr-16 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 pr-16 border-b border-gray-800/30">
           <h2 className="text-lg font-semibold">{getTitle()}</h2>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => setShowSettings(!showSettings)}
-            className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 h-8 w-8 flex items-center justify-center"
+            className="text-gray-400 hover:text-white hover:bg-black/40 backdrop-blur-sm p-2 h-8 w-8 flex items-center justify-center"
           >
             <Settings className="w-4 h-4" />
           </Button>
@@ -165,7 +165,7 @@ export function UniswapStyleLiquidityModal({
 
         <div className="p-4 space-y-4">
           {/* Pool Info */}
-          <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
+          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-gray-800/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex items-center -space-x-1">
@@ -193,7 +193,7 @@ export function UniswapStyleLiquidityModal({
             <>
               {/* Token Input 1 */}
               <div className="space-y-2">
-                <div className="bg-gray-800/30 rounded-lg border border-gray-700 p-4">
+                <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-gray-800/30 p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <EthereumLogo className="w-5 h-5" />
@@ -232,13 +232,13 @@ export function UniswapStyleLiquidityModal({
 
                 {/* Switch toggle */}
                 <div className="flex justify-center">
-                  <div className="bg-gray-800 border border-gray-700 rounded-full p-2">
+                  <div className="bg-black/40 backdrop-blur-sm border border-gray-800/30 rounded-full p-2">
                     <ArrowUpDown className="w-4 h-4 text-gray-400" />
                   </div>
                 </div>
 
                 {/* Token Input 2 */}
-                <div className="bg-gray-800/30 rounded-lg border border-gray-700 p-4">
+                <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-gray-800/30 p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
@@ -277,7 +277,7 @@ export function UniswapStyleLiquidityModal({
               </div>
 
               {/* Add as ETH Toggle */}
-              <div className="flex items-center justify-between bg-gray-800/30 rounded-lg p-3 border border-gray-700">
+              <div className="flex items-center justify-between bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-gray-800/30">
                 <div className="flex items-center gap-2">
                   <span className="text-sm">Add as ETH</span>
                   <Info className="w-4 h-4 text-gray-400" />
@@ -350,7 +350,7 @@ export function UniswapStyleLiquidityModal({
                 </div>
 
                 {/* Expected Output */}
-                <div className="bg-gray-800/30 rounded-lg border border-gray-700 p-3 space-y-2">
+                <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-gray-800/30 p-3 space-y-2">
                   <div className="text-sm text-gray-400">You will receive</div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -376,7 +376,7 @@ export function UniswapStyleLiquidityModal({
           )}
 
           {mode === 'collect' && (
-            <div className="bg-gray-800/30 rounded-lg border border-gray-700 p-4 space-y-3">
+            <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-gray-800/30 p-4 space-y-3">
               <div className="text-sm text-gray-400">Available to collect</div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -406,7 +406,7 @@ export function UniswapStyleLiquidityModal({
 
           {/* Settings Panel */}
           {showSettings && (
-            <div className="bg-gray-800/30 rounded-lg border border-gray-700 p-4 space-y-4">
+            <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-gray-800/30 p-4 space-y-4">
               <h3 className="font-semibold flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 Transaction Settings

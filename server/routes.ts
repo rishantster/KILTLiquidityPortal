@@ -2545,8 +2545,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.status(500).json({ 
         error: 'Failed to fetch conversion rate',
         fallback: {
-          kiltEthRatio: 0.00000525, // Current observed rate
-          ethKiltRatio: 190476,
+          kiltEthRatio: 0.000004605, // DexScreener observed rate
+          ethKiltRatio: 217155,
           source: 'Fallback estimate'
         }
       });

@@ -74,7 +74,7 @@ export function UniswapStyleLiquidityModal({
   
   // Use accurate KILT/ETH conversion based on current pool price
   // Use real-time conversion rate from DexScreener pool
-  const kiltEthRatio = conversionRate?.kiltEthRatio || 0.00000525; // Fallback to current observed rate
+  const kiltEthRatio = conversionRate?.kiltEthRatio || 0.000004605; // Fallback to DexScreener rate
 
   useEffect(() => {
     if (!isOpen) {

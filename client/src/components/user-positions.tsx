@@ -33,6 +33,7 @@ import { useState, useEffect } from 'react';
 import { TOKENS } from '@/lib/uniswap-v3';
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
+import { useKiltEthConversionRate } from '@/hooks/use-conversion-rate';
 import { UniswapModal } from '@/components/uniswap-modal';
 import { useValidatedPositions } from '@/hooks/use-validated-positions';
 import { useMultiplePositionFees } from '@/hooks/use-position-fees';
@@ -60,8 +61,9 @@ export function UserPositions() {
     return () => clearTimeout(timer);
   }, []);
   
-  // KILT data hook
+  // KILT data hook and real-time conversion rates
   const { data: kiltData } = useKiltTokenData();
+  const { data: conversionRate } = useKiltEthConversionRate();
 
   // Mobile device detection for performance optimization
   const isMobile = typeof window !== 'undefined' && (
@@ -473,7 +475,7 @@ export function UserPositions() {
                           <span className="terminal-label">WETH</span>
                         </div>
                         <div className="terminal-value">{ethAmount}</div>
-                        <div className="terminal-sublabel">${(parseFloat(ethAmount) * 3800).toFixed(2)}</div>
+                        <div className="terminal-sublabel">${(parseFloat(ethAmount) * (kiltData?.price ? (kiltData.price / (conversionRate?.kiltEthRatio || 0.000004605)) : 3800)).toFixed(2)}</div>
                       </div>
                       
                       <div className="terminal-block kilt-block">
@@ -481,7 +483,7 @@ export function UserPositions() {
                           <span className="terminal-label">KILT</span>
                         </div>
                         <div className="terminal-value">{kiltAmount}</div>
-                        <div className="terminal-sublabel">${(parseFloat(kiltAmount) * 0.018).toFixed(2)}</div>
+                        <div className="terminal-sublabel">${(parseFloat(kiltAmount) * (kiltData?.price || 0.01715)).toFixed(2)}</div>
                       </div>
                       
                       <div className="terminal-block fees-block">

@@ -35,6 +35,7 @@ import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { UniswapModal } from '@/components/uniswap-modal';
 import { useValidatedPositions } from '@/hooks/use-validated-positions';
+import { useMultiplePositionFees } from '@/hooks/use-position-fees';
 
 export function UserPositions() {
   const { address, isConnected } = useWagmiWallet();
@@ -67,6 +68,15 @@ export function UserPositions() {
     /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   );
 
+  // Get validated positions (database-registered AND blockchain-verified)
+  const { data: validatedPositions, isLoading: validatedPositionsLoading, error: validatedPositionsError } = useValidatedPositions(unifiedData?.user?.id);
+  
+  // Get position token IDs for fee fetching
+  const tokenIds = Array.isArray(validatedPositions) ? validatedPositions.map((pos: any) => pos.tokenId || pos.nftTokenId || pos.id?.toString()).filter(Boolean) : [];
+  
+  // Fetch fees for all positions
+  const { data: positionFees = {} } = useMultiplePositionFees(tokenIds);
+
   // Mobile-optimized blazing fast position loading
   const mobileOptimizedConfig = isMobile ? {
     staleTime: 2 * 60 * 1000, // 2 minutes for mobile to save bandwidth
@@ -83,9 +93,6 @@ export function UserPositions() {
     retry: 3,
     networkMode: 'online' as const,
   };
-
-  // Get validated positions (database-registered AND blockchain-verified)
-  const { data: validatedPositions, isLoading: validatedPositionsLoading, error: validatedPositionsError } = useValidatedPositions(unifiedData?.user?.id);
 
   // Legacy Uniswap integration for management functions
   const {
@@ -426,8 +433,12 @@ export function UserPositions() {
                 const isClosed = BigInt(position.liquidity || 0) === 0n;
                 const ethAmount = position.token0Amount ? (parseFloat(position.token0Amount) / 1e18).toFixed(3) : '0.000';
                 const kiltAmount = position.token1Amount ? (parseFloat(position.token1Amount) / 1e18).toFixed(0) : '0';
-                const ethFees = position.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(4) : '0.0000';
-                const kiltFees = position.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toFixed(2) : '0.00';
+                // Get real-time fees from API
+                const tokenId = position.tokenId || position.nftTokenId || position.id?.toString();
+                const realFees = positionFees[tokenId];
+                const ethFees = realFees?.token0 ? (parseFloat(realFees.token0) / 1e18).toFixed(4) : '0.0000';
+                const kiltFees = realFees?.token1 ? (parseFloat(realFees.token1) / 1e18).toFixed(2) : '0.00';
+                const totalFeesUSD = realFees?.usdValue || 0;
                 
                 return (
                   <div key={(position.tokenId || position.nftTokenId || position.id).toString()} className={`cyberpunk-position-card ${isClosed ? 'opacity-60' : ''}`}>
@@ -476,7 +487,7 @@ export function UserPositions() {
                         <div className="terminal-header">
                           <span className="terminal-label">FEES</span>
                         </div>
-                        <div className="terminal-value">${((parseFloat(ethFees) * 3800) + (parseFloat(kiltFees) * 0.018)).toFixed(2)}</div>
+                        <div className="terminal-value">${totalFeesUSD.toFixed(2)}</div>
                         <div className="terminal-sublabel">EARNED</div>
                       </div>
                       

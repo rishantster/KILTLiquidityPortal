@@ -10,6 +10,7 @@ import AdminPage from "@/pages/admin";
 
 import { useEffect, useRef, useState } from "react";
 import "@/lib/error-suppression";
+import "@/lib/disable-runtime-overlay";
 
 function Router() {
   return (

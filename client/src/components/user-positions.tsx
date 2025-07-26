@@ -523,7 +523,6 @@ export function UserPositions() {
                           <span className="terminal-label">TRADING APR</span>
                         </div>
                         <div className="terminal-value">{tradingFeesData?.data?.tradingFeesAPR?.toFixed(1) || '3.3'}%</div>
-                        <div className="terminal-sublabel">dexscreener-api</div>
                       </div>
                     </div>
 

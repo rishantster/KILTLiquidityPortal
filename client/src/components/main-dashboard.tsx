@@ -576,6 +576,9 @@ export function MainDashboard() {
                   <div className="text-white text-xl mb-1 numeric-large">
                     {queries.calculations.feeAPR}%
                   </div>
+                  <div className="text-white/50 text-xs font-medium">
+                    DexScreener API
+                  </div>
                 </div>
               </div>
 

@@ -522,7 +522,7 @@ export function UserPositions() {
                         <div className="terminal-header">
                           <span className="terminal-label">TRADING APR</span>
                         </div>
-                        <div className="terminal-value">{tradingFeesData?.data?.tradingFeesAPR?.toFixed(1) || '3.3'}%</div>
+                        <div className="terminal-value">{(tradingFeesData as any)?.tradingFeesAPR?.toFixed(1) || '3.3'}%</div>
                       </div>
                     </div>
 

@@ -67,6 +67,7 @@ function CyberpunkVideoBackground() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
+  const [isLoadingStarted, setIsLoadingStarted] = useState(false);
   
   useEffect(() => {
     const video = videoRef.current;
@@ -80,16 +81,22 @@ function CyberpunkVideoBackground() {
           return;
         }
         
+        // Set preload to metadata only for faster initial load
+        video.preload = 'metadata';
+        
         // Start loading immediately but don't block
         video.load();
         
-        // Wait for enough data to start playing smoothly
+        // Wait for enough data to start playing smoothly (extended for deployment)
         await new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
             video.removeEventListener('canplay', handleCanPlay);
             video.removeEventListener('error', handleError);
-            reject(new Error('Video load timeout'));
-          }, 10000); // 10 second timeout
+            // On timeout, show gradient background immediately and continue loading
+            console.log('Video load timeout - showing gradient background');
+            setLoadingError(true);
+            resolve(true); // Don't reject, just show fallback
+          }, 30000); // Extended 30 second timeout for deployment
           
           const handleCanPlay = () => {
             clearTimeout(timeout);
@@ -130,22 +137,18 @@ function CyberpunkVideoBackground() {
       }
     };
 
-    // Use requestIdleCallback for better performance with error boundaries
-    const safePreloadVideo = () => {
+    // Delayed loading for deployment optimization - let critical app load first
+    const delayedLoad = setTimeout(() => {
+      setIsLoadingStarted(true);
+      console.log('Starting video load after app initialization...');
       preloadVideo().catch((error) => {
         console.warn('Video preload error caught:', error);
         setLoadingError(true);
       });
-    };
-
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(safePreloadVideo, { timeout: 2000 });
-    } else {
-      // Fallback with minimal delay
-      setTimeout(safePreloadVideo, 100);
-    }
+    }, 3000); // 3 second delay to prioritize app functionality
 
     return () => {
+      clearTimeout(delayedLoad);
       if (video) {
         video.pause();
         video.currentTime = 0;
@@ -155,19 +158,40 @@ function CyberpunkVideoBackground() {
 
   return (
     <>
-      {/* Loading background - solid color shown while video loads */}
-      {!isLoaded && (
+      {/* Permanent gradient background - always shown for good UX */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: -2,
+          background: 'radial-gradient(circle at center, #0a0a0a 0%, #000000 100%)',
+          opacity: !isLoaded || loadingError ? 1 : 0.3, // Dim when video loads
+          transition: 'opacity 1s ease-in-out'
+        }}
+      />
+      
+      {/* Loading indicator for deployment environments */}
+      {isLoadingStarted && !isLoaded && !loadingError && (
         <div 
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            zIndex: -2,
-            background: 'radial-gradient(circle at center, #0a0a0a 0%, #000000 100%)',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 1000,
+            background: 'rgba(0, 0, 0, 0.8)',
+            color: '#fff',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
           }}
-        />
+        >
+          Loading background video...
+        </div>
       )}
       
       {/* Video element - hidden until loaded */}
@@ -178,7 +202,7 @@ function CyberpunkVideoBackground() {
           loop
           muted
           playsInline
-          preload="metadata"
+          preload="none"
           style={{
             position: 'fixed',
             top: 0,

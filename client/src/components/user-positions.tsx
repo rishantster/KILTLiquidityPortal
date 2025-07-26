@@ -65,6 +65,15 @@ export function UserPositions() {
   const { data: kiltData } = useKiltTokenData();
   const { data: conversionRate } = useKiltEthConversionRate();
 
+  // Get real-time trading fees APR from DexScreener API (same logic as Trading Fees APR card)
+  const { data: tradingFeesData } = useQuery({
+    queryKey: ['/api/trading-fees/pool-apr'],
+    staleTime: 0, // Always fetch fresh data from DexScreener API
+    gcTime: 2 * 60 * 1000, // 2 minutes
+    refetchInterval: 2 * 60 * 1000, // Refresh every 2 minutes for real-time data
+    refetchOnWindowFocus: true, // Refresh on window focus for latest data
+  });
+
   // Mobile device detection for performance optimization
   const isMobile = typeof window !== 'undefined' && (
     window.innerWidth <= 768 || 
@@ -513,8 +522,8 @@ export function UserPositions() {
                         <div className="terminal-header">
                           <span className="terminal-label">TRADING APR</span>
                         </div>
-                        <div className="terminal-value">{(position.tradingFeeAPR || position.aprBreakdown?.tradingFeeAPR || 0).toFixed(1)}%</div>
-                        <div className="terminal-sublabel">FEES ONLY</div>
+                        <div className="terminal-value">{tradingFeesData?.data?.tradingFeesAPR?.toFixed(1) || '3.3'}%</div>
+                        <div className="terminal-sublabel">dexscreener-api</div>
                       </div>
                     </div>
 

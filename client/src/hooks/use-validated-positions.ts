@@ -71,7 +71,7 @@ export function useValidatedPositions(userId: number | undefined) {
         }).filter(Boolean); // Remove null entries
 
         console.log(`🔍 Position validation: ${registeredPositions.length} registered, ${blockchainPositions.length} on blockchain, ${validatedPositions.length} validated`);
-        console.log('📋 Validated positions:', validatedPositions.map(p => ({ tokenId: p.nftTokenId, liquidity: p.liquidity, active: p.isActive })));
+        console.log('📋 Validated positions:', validatedPositions.map((p: any) => ({ tokenId: p.nftTokenId, liquidity: p.liquidity, active: p.isActive })));
         
         return validatedPositions;
         

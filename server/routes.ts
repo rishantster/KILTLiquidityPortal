@@ -1181,10 +1181,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       const rewardCalc = await fixedRewardService.calculatePositionRewards(
-        user.id.toString(),
-        position.id,
+        user.id,
         position.nftTokenId,
-        parseFloat(position.currentValueUSD)
+        position.createdAt ? new Date(position.createdAt) : undefined
       );
       
       res.json({ 
@@ -1228,7 +1227,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           try {
             return await fixedRewardService.calculatePositionRewards(
               user.id,
-              position.nftTokenId
+              position.nftTokenId,
+              position.createdAt ? new Date(position.createdAt) : undefined
             );
           } catch (error) {
             console.error(`❌ Error calculating APR for position ${position.nftTokenId}:`, error);

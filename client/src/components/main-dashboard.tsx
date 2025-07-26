@@ -576,9 +576,6 @@ export function MainDashboard() {
                   <div className="text-white text-xl mb-1 numeric-large">
                     {queries.calculations.feeAPR}%
                   </div>
-                  <div className="text-white/50 text-xs font-medium">
-                    {queries.calculations.dataSource}
-                  </div>
                 </div>
               </div>
 

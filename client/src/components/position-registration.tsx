@@ -17,7 +17,7 @@ import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
-import { RateLimitBypassModal } from './rate-limit-bypass-modal';
+
 
 interface ExternalPosition {
   tokenId: string; // Changed from nftTokenId to tokenId for consistency
@@ -239,7 +239,7 @@ export function PositionRegistration() {
   };
 
   const handleRegisterPosition = (tokenId: string) => {
-    const position = unregisteredPositions.find(p => p.tokenId === tokenId);
+    const position = unregisteredPositions.find((p: ExternalPosition) => p.tokenId === tokenId);
     if (position) {
       registerMutation.mutate(position);
     }
@@ -311,7 +311,7 @@ export function PositionRegistration() {
                     if (selectedPositions.length === unregisteredPositions.length) {
                       setSelectedPositions([]);
                     } else {
-                      setSelectedPositions(unregisteredPositions.map(p => p.tokenId));
+                      setSelectedPositions(unregisteredPositions.map((p: ExternalPosition) => p.tokenId));
                     }
                   }}
                   variant="outline"

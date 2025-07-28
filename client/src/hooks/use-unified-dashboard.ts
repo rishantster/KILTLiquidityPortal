@@ -45,7 +45,7 @@ export function useUnifiedDashboard() {
     enabled: !!address && isConnected
   });
 
-  // Get user's reward statistics with proper error handling and real-time updates
+  // Get user's reward statistics with real-time updates for Total Earned display
   const { data: rewardStats } = useQuery({
     queryKey: ['rewardStats', user?.id],
     queryFn: async () => {
@@ -82,8 +82,8 @@ export function useUnifiedDashboard() {
       }
     },
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds 
-    staleTime: 15000 // Consider data stale after 15 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds for real-time earned updates
+    staleTime: 2000 // Consider data stale after 2 seconds for faster updates
   });
 
   // Get user's personal APR
@@ -219,8 +219,8 @@ export function useUnifiedDashboard() {
     if (!kiltBalance || !wethBalance || !kiltData?.price) return 0;
     
     try {
-      const kiltBalanceStr = typeof kiltBalance === 'string' ? kiltBalance : kiltBalance.toString();
-      const wethBalanceStr = typeof wethBalance === 'string' ? wethBalance : wethBalance.toString();
+      const kiltBalanceStr = kiltBalance?.toString() || '0';
+      const wethBalanceStr = wethBalance?.toString() || '0';
       
       const kiltValue = parseFloat(kiltBalanceStr) / (10**18) * kiltData.price;
       const ethValue = parseFloat(wethBalanceStr) / (10**18) * 2500;

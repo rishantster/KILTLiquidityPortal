@@ -15,10 +15,6 @@ import "@/lib/error-suppression";
 import "@/lib/disable-runtime-overlay";
 
 function Router() {
-  // Temporarily return SimpleTest to verify React is working
-  return <SimpleTest />;
-  
-  /* Original router - will restore after testing
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -26,7 +22,6 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
-  */
 }
 
 // Global error handler to prevent runtime error overlays

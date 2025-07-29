@@ -1069,40 +1069,35 @@ export class FixedRewardService {
     avgDailyRewards: number;
   }> {
     try {
-      // Get user's active positions
+      // Get user's positions (don't filter - let the rewards table determine what exists)
       const userPositions = await this.database
         .select()
         .from(lpPositions)
-        .where(
-          and(
-            eq(lpPositions.userId, userId),
-            eq(lpPositions.isActive, true),
-            eq(lpPositions.rewardEligible, true)
-          )
-        );
+        .where(eq(lpPositions.userId, userId));
 
-      if (userPositions.length === 0) {
-        return {
-          totalAccumulated: 0,
-          totalClaimable: 0,
-          totalClaimed: 0,
-          activePositions: 0,
-          avgDailyRewards: 0,
-        };
-      }
+      // Always calculate stats from rewards table regardless of position status
+      // The rewards table is the source of truth for what was actually earned
 
-      // Get existing reward stats from database using ACTUAL amount column (not accumulated_amount)  
-      const stats = await this.database
-        .select({
-          totalAccumulated: sql<number>`COALESCE(SUM(CAST(${rewards.amount} AS DECIMAL)), 0)`,
-          totalClaimable: sql<number>`COALESCE(SUM(CASE WHEN ${rewards.claimedAt} IS NULL THEN CAST(${rewards.amount} AS DECIMAL) ELSE 0 END), 0)`,
-          totalClaimed: sql<number>`COALESCE(SUM(CASE WHEN ${rewards.claimedAt} IS NOT NULL THEN CAST(${rewards.amount} AS DECIMAL) ELSE 0 END), 0)`,
-          activePositions: sql<number>`COUNT(*)`,
-        })
+      // Get existing reward stats from database using correct column names
+      const rewardsForUser = await this.database
+        .select()
         .from(rewards)
         .where(eq(rewards.userId, userId));
 
-      const rawStats = stats[0] || {
+      // Calculate stats from the fetched records using CORRECT amount column (not inflated accumulated_amount)
+      const totalAccumulated = rewardsForUser.reduce((sum, reward) => sum + parseFloat(reward.amount.toString()), 0);
+      const totalClaimable = rewardsForUser
+        .filter(reward => !reward.claimedAt)
+        .reduce((sum, reward) => sum + parseFloat(reward.amount.toString()), 0);
+      const totalClaimed = rewardsForUser
+        .filter(reward => reward.claimedAt)
+        .reduce((sum, reward) => sum + parseFloat(reward.amount.toString()), 0);
+
+      const rawStats = {
+        totalAccumulated,
+        totalClaimable,
+        totalClaimed,
+        activePositions: rewardsForUser.length,
         totalAccumulated: 0,
         totalClaimable: 0,
         totalClaimed: 0,

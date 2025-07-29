@@ -7,6 +7,7 @@ import { WagmiWalletProvider } from "@/contexts/wagmi-wallet-context";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
+import { SimpleTest } from "@/components/simple-test";
 
 import { useEffect, useRef, useState } from "react";
 import "@/lib/complete-overlay-suppression";
@@ -14,6 +15,10 @@ import "@/lib/error-suppression";
 import "@/lib/disable-runtime-overlay";
 
 function Router() {
+  // Temporarily return SimpleTest to verify React is working
+  return <SimpleTest />;
+  
+  /* Original router - will restore after testing
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -21,6 +26,7 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
+  */
 }
 
 // Global error handler to prevent runtime error overlays

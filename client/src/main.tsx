@@ -1,4 +1,5 @@
-// CRITICAL: Import render emergency fix FIRST to ensure React can mount
+// CRITICAL: Import emergency test FIRST
+import "@/emergency-test";
 import "@/lib/render-emergency-fix";
 import "@/lib/dom-safety-fixes";
 import "@/lib/vite-plugin-interceptor";
@@ -89,13 +90,24 @@ function initializeApp() {
   
   // Create React root and render app
   try {
+    console.log('Attempting to create React root...');
     const root = createRoot(rootElement);
+    console.log('React root created, attempting to render...');
+    
     root.render(
       <ErrorBoundary>
         <App />
       </ErrorBoundary>
     );
     console.log('✅ React app mounted successfully');
+    
+    // Add a timeout to check if content actually appears
+    setTimeout(() => {
+      if (rootElement.children.length === 0) {
+        console.warn('React mounted but no content appeared, showing fallback...');
+        throw new Error('React mounted but no content rendered');
+      }
+    }, 2000);
   } catch (error) {
     console.error('Failed to mount React app:', error);
     // Fallback: Display a basic loading message
@@ -105,24 +117,40 @@ function initializeApp() {
         align-items: center; 
         justify-content: center; 
         height: 100vh; 
-        background: black; 
+        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); 
         color: white; 
         font-family: Inter, sans-serif;
       ">
         <div style="text-align: center;">
-          <h1 style="font-size: 2rem; margin-bottom: 1rem;">KILT Liquidity Portal</h1>
-          <p style="color: #888;">Loading application...</p>
+          <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #ff0066;">KILT Liquidity Portal</h1>
+          <p style="color: #888; font-size: 1.2rem; margin-bottom: 2rem;">React mount failed - using fallback display</p>
+          <div style="
+            width: 40px;
+            height: 40px;
+            border: 4px solid #333;
+            border-top: 4px solid #ff0066;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+          "></div>
           <button onclick="window.location.reload()" style="
             margin-top: 1rem; 
-            padding: 0.5rem 1rem; 
-            background: #10b981; 
+            padding: 0.75rem 1.5rem; 
+            background: #ff0066; 
             color: white; 
             border: none; 
-            border-radius: 0.25rem; 
+            border-radius: 0.5rem; 
             cursor: pointer;
-          ">Reload</button>
+            font-size: 1rem;
+          ">Reload Application</button>
         </div>
       </div>
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
     `;
   }
 }

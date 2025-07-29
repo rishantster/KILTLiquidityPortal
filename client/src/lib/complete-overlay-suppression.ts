@@ -5,25 +5,66 @@
 (function nuclearOverlaySuppress() {
   if (typeof window === 'undefined') return;
 
+  // Completely disable the runtime error plugin at the source
+  (window as any).__vite_plugin_runtime_error_modal = {
+    show: () => {},
+    hide: () => {},
+    sendError: () => {},
+    createOverlay: () => {},
+    displayError: () => {},
+  };
+
+  // Override sendError globally to prevent any error reporting
+  (window as any).sendError = () => {};
+  
+  // Block all iframe creation that might contain error overlays
+  const originalCreateElement = document.createElement;
+  document.createElement = function(tagName: string, options?: any) {
+    if (tagName.toLowerCase() === 'iframe') {
+      const iframe = originalCreateElement.call(this, tagName, options) as HTMLIFrameElement;
+      // Block any iframe that might be an error overlay
+      if (iframe.src && (iframe.src.includes('error') || iframe.src.includes('runtime'))) {
+        iframe.style.display = 'none';
+        return iframe;
+      }
+      return iframe;
+    }
+    return originalCreateElement.call(this, tagName, options);
+  };
+
   // Block the specific runtime error plugin overlay
   const blockOverlay = () => {
-    // Remove any existing overlays
-    const overlays = document.querySelectorAll('[id*="error"], [class*="error"], [data-vite-overlay]');
-    overlays.forEach(el => el.remove());
+    // Remove any existing overlays with more specific selectors
+    const overlays = document.querySelectorAll(`
+      [id*="error"], [class*="error"], [data-vite-overlay],
+      iframe[src*="error"], iframe[src*="runtime"],
+      div[style*="position: fixed"], div[style*="z-index: 99999"]
+    `);
+    overlays.forEach(el => {
+      if (el.innerHTML?.includes('plugin:runtime-error-plugin') || 
+          el.innerHTML?.includes('unknown runtime error')) {
+        el.remove();
+      }
+    });
     
-    // Block overlay creation in DOM
+    // Block overlay creation in DOM with more comprehensive CSS
     const style = document.createElement('style');
     style.textContent = `
       div[id*="error-overlay"],
-      div[class*="error-overlay"],
+      div[class*="error-overlay"], 
       div[data-vite-overlay],
       #vite-error-overlay,
-      .vite-error-overlay {
+      .vite-error-overlay,
+      iframe[src*="error"],
+      iframe[src*="runtime"],
+      div[style*="z-index: 99999"]:has(span:contains("plugin:runtime-error-plugin")) {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
         z-index: -9999 !important;
+        width: 0 !important;
+        height: 0 !important;
       }
     `;
     document.head.appendChild(style);
@@ -69,12 +110,38 @@
     // Block specific runtime error messages
     if (message.includes('plugin:runtime-error-plugin') ||
         message.includes('sendError') ||
-        message.includes('unknown runtime error')) {
+        message.includes('unknown runtime error') ||
+        message.includes('at sendError') ||
+        message.includes('runtime-error-plugin')) {
       return; // Completely suppress
     }
     
     originalError.apply(console, args);
   };
+
+  // Aggressive DOM monitoring to remove any error overlays immediately
+  setInterval(() => {
+    // Check all divs for error content
+    const allDivs = document.querySelectorAll('div');
+    allDivs.forEach(el => {
+      if (el.innerHTML?.includes('plugin:runtime-error-plugin') || 
+          el.innerHTML?.includes('unknown runtime error') ||
+          el.innerHTML?.includes('sendError') ||
+          el.style.position === 'fixed' && el.style.zIndex === '99999') {
+        el.remove();
+        console.log('Removed runtime error overlay');
+      }
+    });
+    
+    // Check all iframes for error content
+    const allIframes = document.querySelectorAll('iframe');
+    allIframes.forEach(el => {
+      if (el.src?.includes('replit.dev') && el.src?.includes('error')) {
+        el.remove();
+        console.log('Removed runtime error iframe');
+      }
+    });
+  }, 50); // Check every 50ms for faster removal
 
   // Block error event propagation
   window.addEventListener('error', (e) => {

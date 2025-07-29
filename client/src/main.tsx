@@ -1,10 +1,14 @@
+// CRITICAL: Import plugin interceptor FIRST to catch runtime error plugin before initialization
+import "@/lib/vite-plugin-interceptor";
+import "@/lib/complete-overlay-suppression";
+import "@/lib/vite-hmr-override";
+import "@/lib/disable-runtime-overlay";
+import "@/lib/final-overlay-blocker";
+
 import { createRoot } from "react-dom/client";
 import React from "react";
 import App from "./App";
 import "./index.css";
-import "@/lib/complete-overlay-suppression";
-import "@/lib/vite-hmr-override";
-import "@/lib/disable-runtime-overlay";
 
 // Global error handler for unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {

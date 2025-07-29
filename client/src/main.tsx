@@ -1,4 +1,6 @@
-// CRITICAL: Import plugin interceptor FIRST to catch runtime error plugin before initialization
+// CRITICAL: Import render emergency fix FIRST to ensure React can mount
+import "@/lib/render-emergency-fix";
+import "@/lib/dom-safety-fixes";
 import "@/lib/vite-plugin-interceptor";
 import "@/lib/complete-overlay-suppression";
 import "@/lib/vite-hmr-override";
@@ -68,8 +70,66 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-createRoot(document.getElementById("root")!).render(
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>
-);
+// Ensure root element exists and is accessible
+function initializeApp() {
+  let rootElement = document.getElementById("root");
+  
+  if (!rootElement) {
+    console.warn('Root element not found, creating one');
+    rootElement = document.createElement('div');
+    rootElement.id = 'root';
+    rootElement.style.cssText = 'width: 100%; height: 100vh; background: black;';
+    document.body.appendChild(rootElement);
+  }
+  
+  // Ensure root element is visible
+  rootElement.style.display = 'block';
+  rootElement.style.visibility = 'visible';
+  rootElement.style.opacity = '1';
+  
+  // Create React root and render app
+  try {
+    const root = createRoot(rootElement);
+    root.render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
+    console.log('✅ React app mounted successfully');
+  } catch (error) {
+    console.error('Failed to mount React app:', error);
+    // Fallback: Display a basic loading message
+    rootElement.innerHTML = `
+      <div style="
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        height: 100vh; 
+        background: black; 
+        color: white; 
+        font-family: Inter, sans-serif;
+      ">
+        <div style="text-align: center;">
+          <h1 style="font-size: 2rem; margin-bottom: 1rem;">KILT Liquidity Portal</h1>
+          <p style="color: #888;">Loading application...</p>
+          <button onclick="window.location.reload()" style="
+            margin-top: 1rem; 
+            padding: 0.5rem 1rem; 
+            background: #10b981; 
+            color: white; 
+            border: none; 
+            border-radius: 0.25rem; 
+            cursor: pointer;
+          ">Reload</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}

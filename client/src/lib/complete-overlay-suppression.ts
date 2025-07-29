@@ -67,7 +67,14 @@
         height: 0 !important;
       }
     `;
-    document.head.appendChild(style);
+    // Safe appendChild with null check
+    if (document.head) {
+      try {
+        document.head.appendChild(style);
+      } catch (error) {
+        console.warn('Failed to append overlay suppression style:', error);
+      }
+    }
   };
 
   // Execute immediately and on DOM changes
@@ -78,7 +85,7 @@
     document.addEventListener('DOMContentLoaded', blockOverlay);
   }
   
-  // Continuously monitor and block overlays
+  // Continuously monitor and block overlays (with null safety)
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
@@ -97,10 +104,23 @@
     });
   });
   
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+  // Only observe if document.body exists
+  if (document.body) {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  } else {
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body) {
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+      }
+    });
+  }
 
   // Override console.error to prevent Vite detection
   const originalError = console.error;

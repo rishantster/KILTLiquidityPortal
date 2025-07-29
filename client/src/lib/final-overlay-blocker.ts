@@ -39,13 +39,25 @@
       }
     `;
     
+    // Wait for document.head to be available
+    if (!document.head) {
+      // Defer until document.head is available
+      setTimeout(injectBlockingCSS, 100);
+      return;
+    }
+    
     // Remove existing style if present
     const existingStyle = document.getElementById('final-overlay-blocker-css');
     if (existingStyle) {
       existingStyle.remove();
     }
     
-    document.head.appendChild(style);
+    // Safe appendChild with null check
+    try {
+      document.head.appendChild(style);
+    } catch (error) {
+      console.warn('Failed to append overlay blocking style:', error);
+    }
   };
 
   // Inject CSS immediately
@@ -54,25 +66,34 @@
   // Re-inject CSS periodically to ensure it stays active
   setInterval(injectBlockingCSS, 1000);
 
-  // Aggressive DOM removal every 100ms
+  // Aggressive DOM removal every 100ms (with null safety)
   const removeOverlays = () => {
-    // Remove any elements that contain runtime error plugin content
-    const allElements = document.querySelectorAll('*');
-    for (const element of allElements) {
-      const content = element.innerHTML || element.textContent || '';
-      if (content.includes('plugin:runtime-error-plugin') ||
-          content.includes('unknown runtime error') ||
-          content.includes('sendError')) {
-        element.remove();
-      }
-    }
+    // Only run if document and body exist
+    if (!document || !document.body) return;
     
-    // Remove iframes with error content
-    const iframes = document.querySelectorAll('iframe');
-    for (const iframe of iframes) {
-      if (iframe.src?.includes('error') || iframe.src?.includes('runtime')) {
-        iframe.remove();
+    try {
+      // Remove any elements that contain runtime error plugin content
+      const allElements = document.querySelectorAll('*');
+      for (const element of allElements) {
+        const content = element.innerHTML || element.textContent || '';
+        if (content.includes('plugin:runtime-error-plugin') ||
+            content.includes('unknown runtime error') ||
+            content.includes('sendError')) {
+          element.remove();
+        }
       }
+      
+      // Remove iframes with error content (with null safety)
+      const iframes = document.querySelectorAll('iframe');
+      if (!iframes) return;
+      for (const iframe of iframes) {
+        if (iframe.src?.includes('error') || iframe.src?.includes('runtime')) {
+          iframe.remove();
+        }
+      }
+    } catch (error) {
+      // Silently handle any DOM access errors during initialization
+      console.warn('DOM access error in overlay blocker:', error);
     }
   };
 

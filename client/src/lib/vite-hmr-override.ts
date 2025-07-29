@@ -41,19 +41,39 @@ declare global {
     return element;
   };
 
-  // Override appendChild to prevent overlay insertion
-  const originalAppendChild = document.body.appendChild;
-  document.body.appendChild = function<T extends Node>(this: HTMLElement, node: T): T {
-    // Block overlay elements from being added to DOM
-    if (node instanceof HTMLElement && 
-        (node.id === 'vite-error-overlay' || 
-         node.className?.includes('vite-error-overlay') ||
-         node.innerHTML?.includes('runtime error'))) {
-      return node; // Return the node but don't append it
-    }
-    
-    return originalAppendChild.call(this, node) as T;
-  };
+  // Override appendChild to prevent overlay insertion (with null safety)
+  if (document.body) {
+    const originalAppendChild = document.body.appendChild;
+    document.body.appendChild = function<T extends Node>(this: HTMLElement, node: T): T {
+      // Block overlay elements from being added to DOM
+      if (node instanceof HTMLElement && 
+          (node.id === 'vite-error-overlay' || 
+           node.className?.includes('vite-error-overlay') ||
+           node.innerHTML?.includes('runtime error'))) {
+        return node; // Return the node but don't append it
+      }
+      
+      return originalAppendChild.call(this, node) as T;
+    };
+  } else {
+    // If body doesn't exist yet, wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body) {
+        const originalAppendChild = document.body.appendChild;
+        document.body.appendChild = function<T extends Node>(this: HTMLElement, node: T): T {
+          // Block overlay elements from being added to DOM
+          if (node instanceof HTMLElement && 
+              (node.id === 'vite-error-overlay' || 
+               node.className?.includes('vite-error-overlay') ||
+               node.innerHTML?.includes('runtime error'))) {
+            return node; // Return the node but don't append it
+          }
+          
+          return originalAppendChild.call(this, node) as T;
+        };
+      }
+    });
+  }
 
   console.log('Vite HMR overlay disabled (client-side equivalent of server.hmr.overlay = false)');
 })();

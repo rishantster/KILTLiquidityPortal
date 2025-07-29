@@ -1084,14 +1084,14 @@ export class FixedRewardService {
         .from(rewards)
         .where(eq(rewards.userId, userId));
 
-      // Calculate stats from the fetched records using CORRECT amount column (not inflated accumulated_amount)
-      const totalAccumulated = rewardsForUser.reduce((sum, reward) => sum + parseFloat(reward.amount.toString()), 0);
+      // Calculate stats from the fetched records using CORRECT daily_reward_amount (the actual calculated reward)
+      const totalAccumulated = rewardsForUser.reduce((sum, reward) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
       const totalClaimable = rewardsForUser
         .filter(reward => !reward.claimedAt)
-        .reduce((sum, reward) => sum + parseFloat(reward.amount.toString()), 0);
+        .reduce((sum, reward) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
       const totalClaimed = rewardsForUser
         .filter(reward => reward.claimedAt)
-        .reduce((sum, reward) => sum + parseFloat(reward.amount.toString()), 0);
+        .reduce((sum, reward) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
 
       const rawStats = {
         totalAccumulated,

@@ -1098,10 +1098,6 @@ export class FixedRewardService {
         totalClaimable,
         totalClaimed,
         activePositions: rewardsForUser.length,
-        totalAccumulated: 0,
-        totalClaimable: 0,
-        totalClaimed: 0,
-        activePositions: 0,
       };
 
       // Calculate actual historical daily reward rate instead of theoretical current rate

@@ -32,6 +32,7 @@ export interface IStorage {
   getUserPositions(address: string): Promise<any[]>;
   getRegisteredPositions(address: string): Promise<any[]>;
   getAppTransactionsByUserId(userId: number): Promise<any[]>;
+  getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined>;
   
   // Reward methods
   getRewardsByUserId(userId: number): Promise<Reward[]>;
@@ -348,6 +349,12 @@ export class DatabaseStorage implements IStorage {
   async getAppTransactionsByUserId(userId: number): Promise<any[]> {
     const { appTransactions } = await import('@shared/schema');
     return await db.select().from(appTransactions).where(eq(appTransactions.userId, userId));
+  }
+
+  // CRITICAL MISSING METHOD FOR BETA RELEASE
+  async getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined> {
+    const result = await db.select().from(lpPositions).where(eq(lpPositions.nftTokenId, nftTokenId)).limit(1);
+    return result[0];
   }
 }
 

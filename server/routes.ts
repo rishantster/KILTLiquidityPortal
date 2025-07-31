@@ -546,7 +546,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Create reward tracking entry
       const rewardResult = await fixedRewardService.calculatePositionRewards(
         userId.toString(),
-        position.id,
+        position.id.toString(),
         nftId.toString(),
         positionValueUSD
       );
@@ -998,6 +998,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           dailyBudget: 25000,
           programDuration: 120,
           daysRemaining: 89,
+          programDaysRemaining: 89,
           avgUserLiquidity: 1989.58,
           averageAPR: 177,
           estimatedAPR: {
@@ -1669,12 +1670,12 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      // Create position data using bypass service
-      const bypassPositionData = rateLimitBypassService.createBypassPositionData(
+      // Create position data using bypass mechanism
+      const bypassPositionData = {
         nftTokenId,
         userAddress,
-        poolAddress
-      );
+        poolAddress: poolAddress || '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E'
+      };
       
       console.log(`🔄 Using bypass position data:`, bypassPositionData);
       
@@ -2088,15 +2089,32 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
 
 
-  // Get pool information
-  app.get("/api/pools/:poolAddress/info", async (req, res) => {
+  // Get pool information - FIXED FOR BETA RELEASE
+  app.get("/api/pool/info", async (req, res) => {
     try {
-      const { poolAddress } = req.params;
-      
-      const poolData = await uniswapIntegrationService.getPoolData(poolAddress);
+      const poolData = await uniswapIntegrationService.getPoolInfo();
+      if (!poolData) {
+        res.status(404).json({ error: "Pool not found" });
+        return;
+      }
       res.json(poolData);
     } catch (error) {
-      // Error getting pool info
+      console.error('Pool info error:', error);
+      res.status(500).json({ error: "Failed to fetch pool information" });
+    }
+  });
+
+  // Legacy endpoint for compatibility
+  app.get("/api/pools/:poolAddress/info", async (req, res) => {
+    try {
+      const poolData = await uniswapIntegrationService.getPoolInfo();
+      if (!poolData) {
+        res.status(404).json({ error: "Pool not found" });
+        return;
+      }
+      res.json(poolData);
+    } catch (error) {
+      console.error('Pool info error:', error);
       res.status(500).json({ error: "Failed to get pool info" });
     }
   });

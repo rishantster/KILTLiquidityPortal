@@ -676,8 +676,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Pool stats routes
-  app.get("/api/pool/:address", async (req, res) => {
+  // Pool stats routes - FIXED: Made more specific to avoid conflicting with /api/pool/info
+  app.get("/api/pool/:address/stats", async (req, res) => {
     try {
       const poolAddress = req.params.address;
       const stats = await storage.getPoolStats(poolAddress);
@@ -693,7 +693,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  app.put("/api/pool/:address", async (req, res) => {
+  app.put("/api/pool/:address/stats", async (req, res) => {
     try {
       const poolAddress = req.params.address;
       const statsData = insertPoolStatsSchema.parse(req.body);
@@ -2089,17 +2089,51 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
 
 
-  // Get pool information - FIXED FOR BETA RELEASE
+  // Get pool information - FIXED FOR BETA RELEASE with fallback
   app.get("/api/pool/info", async (req, res) => {
     try {
-      const poolData = await uniswapIntegrationService.getPoolInfo();
+      console.log('🔍 /api/pool/info endpoint called');
+      
+      // Try the full getPoolInfo first
+      let poolData = await uniswapIntegrationService.getPoolInfo();
+      console.log('🔍 Pool data from getPoolInfo:', poolData ? 'SUCCESS' : 'NULL');
+      
+      // If that fails due to rate limits, try getPoolData which is more resilient
       if (!poolData) {
+        console.log('🔄 Trying fallback getPoolData...');
+        const poolDataAlt = await uniswapIntegrationService.getPoolData('0x82Da478b1382B951cBaD01Beb9eD459cDB16458E');
+        if (poolDataAlt) {
+          // Convert getPoolData format to getPoolInfo format
+          poolData = {
+            address: poolDataAlt.address,
+            token0: poolDataAlt.token0,
+            token1: poolDataAlt.token1,
+            fee: poolDataAlt.feeTier,
+            liquidity: BigInt(poolDataAlt.liquidity),
+            sqrtPriceX96: BigInt(poolDataAlt.sqrtPriceX96),
+            tick: poolDataAlt.tickCurrent,
+            totalValueUSD: poolDataAlt.tvlUSD
+          };
+          console.log('✅ Fallback successful');
+        }
+      }
+      
+      if (!poolData) {
+        console.log('❌ Both methods failed - returning 404');
         res.status(404).json({ error: "Pool not found" });
         return;
       }
-      res.json(poolData);
+      
+      console.log('✅ Returning pool data successfully');
+      // Convert BigInt values to strings for JSON serialization
+      const jsonSafePoolData = {
+        ...poolData,
+        liquidity: poolData.liquidity.toString(),
+        sqrtPriceX96: poolData.sqrtPriceX96.toString()
+      };
+      res.json(jsonSafePoolData);
     } catch (error) {
-      console.error('Pool info error:', error);
+      console.error('❌ Pool info error:', error);
       res.status(500).json({ error: "Failed to fetch pool information" });
     }
   });
@@ -2854,6 +2888,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
     }
   });
+
+  // DUPLICATE POOL ENDPOINTS REMOVED - Using earlier definitions with fallback logic
 
   const httpServer = createServer(app);
   return httpServer;

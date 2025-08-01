@@ -109,7 +109,7 @@ export class UniswapIntegrationService {
 
     try {
       // PARALLEL PROCESSING with RPC manager - Execute all contract calls simultaneously
-      return await rpcManager.executeWithRetry(async (client) => {
+      const result = await rpcManager.executeWithRetry(async (client) => {
       const [slot0Data, liquidity, token0, token1, fee] = await Promise.all([
         client.readContract({
           address: poolAddress as `0x${string}`,
@@ -262,6 +262,9 @@ export class UniswapIntegrationService {
 
       return poolInfo;
       }, `getPoolInfo()`);
+
+      console.log('getPoolInfo result:', result);
+      return result;
     } catch (error) {
       console.error('getPoolInfo error:', error);
       return null;
@@ -1585,6 +1588,7 @@ export class UniswapIntegrationService {
     try {
       const poolInfo = await this.getPoolInfo();
       if (!poolInfo) {
+        console.error('getPoolPrice: poolInfo is null');
         return { error: 'Pool not found' };
       }
       
@@ -1598,6 +1602,7 @@ export class UniswapIntegrationService {
         tick: poolInfo.tick
       };
     } catch (error) {
+      console.error('getPoolPrice error:', error);
       return { error: 'Failed to get pool price' };
     }
   }

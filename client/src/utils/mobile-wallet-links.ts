@@ -13,7 +13,10 @@ export const MOBILE_WALLET_LINKS: WalletDeepLink[] = [
   {
     name: 'MetaMask',
     id: 'metaMask',
-    deepLink: (url: string) => `https://metamask.app.link/dapp/${url.replace('https://', '')}`,
+    deepLink: (url: string) => {
+      const cleanUrl = url.replace(/^https?:\/\//, '');
+      return `https://metamask.app.link/dapp/${cleanUrl}`;
+    },
     installLink: 'https://metamask.io/download/',
     icon: '🦊',
     description: 'Most popular Ethereum wallet',
@@ -38,13 +41,13 @@ export const MOBILE_WALLET_LINKS: WalletDeepLink[] = [
     isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isTrust
   },
   {
-    name: 'Binance Wallet',
-    id: 'binance',
-    deepLink: (url: string) => `bnc://app.binance.com/cedefi/eth-dapp?url=${encodeURIComponent(url)}`,
-    installLink: 'https://www.binance.com/en/web3wallet',
-    icon: '🟡',
-    description: 'Binance Web3 Wallet',
-    isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isBinance
+    name: 'Rainbow Wallet',
+    id: 'rainbow',
+    deepLink: (url: string) => `https://rnbwapp.com/deeplink?url=${encodeURIComponent(url)}`,
+    installLink: 'https://rainbow.me/',
+    icon: '🌈',
+    description: 'Beautiful Ethereum wallet',
+    isAvailable: () => typeof window !== 'undefined' && !!window.ethereum?.isRainbow
   },
   {
     name: 'WalletConnect',
@@ -58,7 +61,16 @@ export const MOBILE_WALLET_LINKS: WalletDeepLink[] = [
 ];
 
 export function isMobileDevice(): boolean {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (typeof window === 'undefined') return false;
+  
+  // Check for mobile user agent
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Check for touch capability and small screen
+  const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isSmallScreen = window.innerWidth <= 768;
+  
+  return isMobileUA || (hasTouchScreen && isSmallScreen);
 }
 
 export function openMobileWallet(walletId: string, currentUrl?: string): boolean {
@@ -71,19 +83,54 @@ export function openMobileWallet(walletId: string, currentUrl?: string): boolean
   }
 
   try {
+    console.log(`Attempting to open wallet: ${wallet.name} with URL: ${url}`);
+    
     if (isMobileDevice()) {
-      // Try deep link first
-      const deepLinkUrl = wallet.deepLink(url);
-      window.location.href = deepLinkUrl;
+      // iOS specific handling
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       
-      // Fallback to install page after a short delay if deep link fails
-      setTimeout(() => {
-        if (document.visibilityState === 'visible') {
-          window.open(wallet.installLink, '_blank');
-        }
-      }, 2000);
-      
-      return true;
+      if (isIOS) {
+        // For iOS, try the deep link and fallback to app store
+        const deepLinkUrl = wallet.deepLink(url);
+        console.log(`iOS deep link: ${deepLinkUrl}`);
+        
+        // Create invisible iframe to attempt deep link
+        const iframe = document.createElement('iframe');
+        iframe.style.visibility = 'hidden';
+        iframe.style.width = '1px';
+        iframe.style.height = '1px';
+        iframe.src = deepLinkUrl;
+        document.body.appendChild(iframe);
+        
+        // Clean up iframe after attempt
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 100);
+        
+        // Fallback after delay
+        setTimeout(() => {
+          if (document.hasFocus()) {
+            window.open(wallet.installLink, '_blank');
+          }
+        }, 1500);
+        
+        return true;
+      } else {
+        // Android: try direct navigation
+        const deepLinkUrl = wallet.deepLink(url);
+        console.log(`Android deep link: ${deepLinkUrl}`);
+        
+        window.location.href = deepLinkUrl;
+        
+        // Fallback to install page
+        setTimeout(() => {
+          if (document.visibilityState === 'visible') {
+            window.open(wallet.installLink, '_blank');
+          }
+        }, 2000);
+        
+        return true;
+      }
     } else {
       // Desktop: open install page
       window.open(wallet.installLink, '_blank');
@@ -101,17 +148,17 @@ export function getAvailableWallets(): WalletDeepLink[] {
 }
 
 export function getRecommendedWallets(): WalletDeepLink[] {
-  // Always prioritize WalletConnect first for mobile devices
-  const walletConnect = MOBILE_WALLET_LINKS.find(w => w.id === 'walletConnect');
-  const metaMask = MOBILE_WALLET_LINKS.find(w => w.id === 'metaMask');
-  const coinbase = MOBILE_WALLET_LINKS.find(w => w.id === 'coinbaseWallet');
-  const trust = MOBILE_WALLET_LINKS.find(w => w.id === 'trust');
+  // Check which wallets are actually available first
+  const available = getAvailableWallets();
   
-  const recommended = [];
-  if (walletConnect) recommended.push(walletConnect);
-  if (metaMask) recommended.push(metaMask);
-  if (coinbase) recommended.push(coinbase);
-  if (trust) recommended.push(trust);
+  if (available.length > 0) {
+    // Prioritize detected wallets but still include WalletConnect
+    const walletConnect = MOBILE_WALLET_LINKS.find(w => w.id === 'walletConnect');
+    const filtered = [walletConnect, ...available.filter(w => w.id !== 'walletConnect')];
+    return filtered.filter(Boolean) as WalletDeepLink[];
+  }
   
-  return recommended;
+  // If no wallets detected, show popular ones plus WalletConnect
+  const popular = ['walletConnect', 'metaMask', 'coinbaseWallet', 'trust', 'rainbow'];
+  return MOBILE_WALLET_LINKS.filter(w => popular.includes(w.id));
 }

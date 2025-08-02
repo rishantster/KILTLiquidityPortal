@@ -50,33 +50,35 @@ export function MobileWalletConnect() {
           });
         }
       } else if (isMobile && wallet.id !== 'walletConnect') {
-        // Mobile deep link for specific wallets, then fall back to WalletConnect
+        // Mobile deep link for specific wallets
+        console.log(`Attempting mobile wallet connection: ${wallet.name} (${wallet.id})`);
+        
         const success = openMobileWallet(wallet.id);
+        setShowModal(false);
+        
         if (success) {
-          setShowModal(false);
           toast({
-            title: "Opening Wallet",
-            description: `Opening ${wallet.name}. If it doesn't work, try WalletConnect.`,
+            title: "Opening Wallet App",
+            description: `Redirecting to ${wallet.name}. If the app doesn't open, try WalletConnect instead.`,
           });
           
-          // Fallback to WalletConnect after short delay
+          // If app doesn't open after 4 seconds, suggest WalletConnect
           setTimeout(() => {
-            const wcConnector = connectors.find(c => c.id === 'walletConnect' || c.name === 'WalletConnect');
-            if (wcConnector && !isConnected) {
-              connect({ connector: wcConnector });
+            if (!isConnected && document.visibilityState === 'visible') {
+              toast({
+                title: "App Not Opening?",
+                description: "Try the WalletConnect option instead - it works with any wallet.",
+                variant: "default",
+              });
             }
-          }, 3000);
+          }, 4000);
         } else {
-          // Direct fallback to WalletConnect if deep link fails
-          const wcConnector = connectors.find(c => c.id === 'walletConnect' || c.name === 'WalletConnect');
-          if (wcConnector) {
-            connect({ connector: wcConnector });
-            setShowModal(false);
-            toast({
-              title: "Using WalletConnect",
-              description: `${wallet.name} not available. Using WalletConnect instead.`,
-            });
-          }
+          // Immediate fallback to WalletConnect
+          toast({
+            title: "Deep Link Failed",
+            description: `Couldn't open ${wallet.name}. Please use WalletConnect or install the app.`,
+            variant: "destructive",
+          });
         }
       } else if (!isMobile && connector) {
         // Desktop: use direct connector

@@ -200,26 +200,52 @@ export class FixedRewardService {
     return userLiquidity / totalLiquidity;
   }
 
+  // Static cache for trading fee APR data shared across all instances
+  private static tradingFeeCache: { data: number; timestamp: number } | null = null;
+  private static readonly TRADING_FEE_CACHE_DURATION = 30000; // 30 seconds - shorter for real-time accuracy
+
   /**
-   * Calculate trading fee APR based on pool volume and liquidity share
+   * Get pool-wide trading fee APR with static caching to avoid redundant API calls across all instances
    */
-  private async calculateTradingFeeAPR(userLiquidity: number, totalLiquidity: number): Promise<number> {
+  private static async getPoolTradingFeeAPR(): Promise<number> {
+    // Check static cache first - shared across all service instances
+    if (this.tradingFeeCache && Date.now() - this.tradingFeeCache.timestamp < this.TRADING_FEE_CACHE_DURATION) {
+      return this.tradingFeeCache.data;
+    }
+
     try {
       // Get trading fees APR from the existing endpoint
       const response = await fetch('http://localhost:5000/api/trading-fees/pool-apr');
       if (response.ok) {
         const feeData = await response.json();
         if (feeData.tradingFeesAPR && typeof feeData.tradingFeesAPR === 'number') {
-          // User gets their proportional share of the trading fees
-          const liquidityShare = totalLiquidity > 0 ? userLiquidity / totalLiquidity : 0;
-          return feeData.tradingFeesAPR * liquidityShare;
+          // Cache the result statically - shared across instances
+          this.tradingFeeCache = { 
+            data: feeData.tradingFeesAPR, 
+            timestamp: Date.now() 
+          };
+          return feeData.tradingFeesAPR;
         }
       }
       return 0; // Fallback if API fails
     } catch (error) {
-      console.warn('Trading fee APR calculation failed, using fallback:', error);
+      console.warn('Trading fee APR fetch failed, using fallback:', error);
       return 0;
     }
+  }
+
+  /**
+   * Calculate trading fee APR based on pool volume and liquidity share
+   */
+  private async calculateTradingFeeAPR(userLiquidity: number, totalLiquidity: number): Promise<number> {
+    const poolTradingAPR = await FixedRewardService.getPoolTradingFeeAPR();
+    if (poolTradingAPR === 0 || totalLiquidity === 0) {
+      return 0;
+    }
+    
+    // User gets their proportional share of the trading fees
+    const liquidityShare = userLiquidity / totalLiquidity;
+    return poolTradingAPR * liquidityShare;
   }
 
   /**

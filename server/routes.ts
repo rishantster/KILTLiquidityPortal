@@ -1206,6 +1206,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         });
       }
 
+      // Calculate APR for all positions efficiently by pre-fetching shared data
+      // Pre-fetch trading fee APR once for all positions to avoid redundant API calls
+      let poolTradingAPR = 0;
+      try {
+        const response = await fetch('http://localhost:5000/api/trading-fees/pool-apr');
+        if (response.ok) {
+          const feeData = await response.json();
+          poolTradingAPR = feeData.tradingFeesAPR || 0;
+        }
+      } catch (error) {
+        console.warn('Pre-fetching trading APR failed, positions will calculate individually');
+      }
+
       // Calculate APR for all positions
       const aprCalculations = await Promise.all(
         positions.map(async (position) => {

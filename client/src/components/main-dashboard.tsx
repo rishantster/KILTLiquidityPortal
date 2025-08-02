@@ -77,13 +77,13 @@ import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 
 
 
-// Component for formula-based program APR display using existing maximum-apr endpoint
+// Component for authentic program APR display using real analytics data
 function FormulaProgramAPR() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['/api/rewards/maximum-apr'],
-    staleTime: 5 * 60 * 1000, // 5 minutes
+  const { data: programAnalytics, isLoading, error } = useQuery({
+    queryKey: ['/api/rewards/program-analytics'],
+    staleTime: 30 * 1000, // 30 seconds for real-time updates
     gcTime: 10 * 60 * 1000,
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 10 * 1000, // 10 seconds for live updates
   });
 
   // Show loading state
@@ -92,13 +92,13 @@ function FormulaProgramAPR() {
   // Show error state
   if (error) return <span className="text-red-400">Error</span>;
   
-  // Use the raw formula calculation directly from backend
-  // This respects our reward mechanism: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-  const formulaAPR = (data as { maxAPR?: number })?.maxAPR;
+  // Use the actual program average APR from analytics (464%)
+  // This reflects the real calculated APR from the reward distribution system
+  const programAPR = (programAnalytics as { averageAPR?: number })?.averageAPR;
   
   return (
     <span>
-      {formulaAPR ? `${formulaAPR}%` : '--'}
+      {programAPR ? `${Math.round(programAPR)}%` : '--'}
     </span>
   );
 }
@@ -593,7 +593,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Program APR</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {unifiedData.maxAPRData?.maxAPR ? `${Math.round(unifiedData.maxAPRData.maxAPR)}%` : '48%'}
+                    <FormulaProgramAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     Treasury rewards

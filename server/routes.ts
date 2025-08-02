@@ -831,8 +831,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         )
       ]);
       
-      // Cache the result
-      ultraFastCache.setCachedUserStats(userId, stats);
+      // Cache the result for future requests (removed ultraFastCache reference)
       res.json(stats);
     } catch (error) {
       console.error('Error getting user reward stats:', error);
@@ -1289,9 +1288,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Calculate rewards (includes both trading fees and incentives)
       const rewardResult = await fixedRewardService.calculatePositionRewards(
         position.userId || 0,
-        position.id,
-        position.nftTokenId,
-        parseFloat(position.currentValueUSD)
+        position.nftTokenId
       );
 
       res.json({
@@ -1610,7 +1607,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         feeTier: 3000,
         liquidity: '0',
         currentValueUSD: 100.00,
-        createdAt: new Date().toISOString()
+        createdAt: new Date()
       };
       
       console.log(`🔄 Using bypass position data:`, bypassPositionData);

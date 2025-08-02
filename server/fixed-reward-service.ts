@@ -471,9 +471,13 @@ export class FixedRewardService {
       if (error.message?.includes('timeout') || error.message?.includes('connect')) {
         console.log(`⚠️ Database timeout - returning fallback for ${nftTokenId}`);
         return {
-          tradingAPR: 8.19, // Known trading APR from DexScreener
+          tradingFeeAPR: 8.19, // Known trading APR from DexScreener  
           incentiveAPR: 0.00, // Zero during timeout
           totalAPR: 8.19,
+          baseAPR: 8.19,
+          timeMultiplier: 1.0,
+          sizeMultiplier: 1.0,
+          effectiveAPR: 8.19,
           dailyRewards: 0,
           liquidityAmount: 100,
           daysStaked: 1,
@@ -492,8 +496,7 @@ export class FixedRewardService {
             dailyFeeEarnings: 0,
             dailyIncentiveRewards: 0,
             isInRange: true,
-          },
-          error: 'Database timeout - try refreshing'
+          }
         };
       }
       
@@ -1085,13 +1088,13 @@ export class FixedRewardService {
         .where(eq(rewards.userId, userId));
 
       // Calculate stats from the fetched records using CORRECT daily_reward_amount (the actual calculated reward)
-      const totalAccumulated = rewardsForUser.reduce((sum, reward) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
+      const totalAccumulated = rewardsForUser.reduce((sum: number, reward: any) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
       const totalClaimable = rewardsForUser
-        .filter(reward => !reward.claimedAt)
-        .reduce((sum, reward) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
+        .filter((reward: any) => !reward.claimedAt)
+        .reduce((sum: number, reward: any) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
       const totalClaimed = rewardsForUser
-        .filter(reward => reward.claimedAt)
-        .reduce((sum, reward) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
+        .filter((reward: any) => reward.claimedAt)
+        .reduce((sum: number, reward: any) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
 
       const rawStats = {
         totalAccumulated,

@@ -1363,7 +1363,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
       // Calculate rewards (includes both trading fees and incentives)
       const rewardResult = await fixedRewardService.calculatePositionRewards(
-        (position.userId || 0).toString(),
+        position.userId || 0,
         position.id,
         position.nftTokenId,
         parseFloat(position.currentValueUSD)
@@ -1674,7 +1674,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const bypassPositionData = {
         nftTokenId,
         userAddress,
-        poolAddress: poolAddress || '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E'
+        poolAddress: poolAddress || '0x82Da478b1382B951cBaD01Beb9eD459cDB16458E',
+        token0Address: '0x4200000000000000000000000000000000000006', // WETH on Base
+        token1Address: '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8', // KILT on Base
+        amount0: '0',
+        amount1: '0',
+        minPrice: '0',
+        maxPrice: '0',
+        currentPrice: '0',
+        feeTier: 3000,
+        liquidity: '0',
+        currentValueUSD: 100.00,
+        createdAt: new Date().toISOString()
       };
       
       console.log(`🔄 Using bypass position data:`, bypassPositionData);
@@ -1725,8 +1736,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const result = await uniswapIntegrationService.increaseLiquidity(
         nftTokenId,
         amount0,
-        amount1,
-        userAddress
+        amount1
       );
       
       res.json(result);
@@ -1756,8 +1766,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       const result = await uniswapIntegrationService.decreaseLiquidity(
         nftTokenId,
-        liquidityAmount,
-        userAddress
+        liquidityAmount
       );
       
       res.json(result);
@@ -1786,8 +1795,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       const result = await uniswapIntegrationService.collectFees(
-        nftTokenId,
-        userAddress
+        nftTokenId
       );
       
       res.json(result);
@@ -1816,8 +1824,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       const result = await uniswapIntegrationService.burnPosition(
-        nftTokenId,
-        userAddress
+        nftTokenId
       );
       
       // Update position as inactive in database
@@ -2179,7 +2186,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       const data = await response.json();
-      const kiltWethPair = data.pairs?.find(pair => 
+      const kiltWethPair = data.pairs?.find((pair: any) => 
         pair.chainId === 'base' && 
         pair.quoteToken.symbol === 'WETH' &&
         pair.baseToken.symbol === 'KILT'
@@ -2226,9 +2233,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
       
       res.json(result);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('DexScreener API error:', error);
-      res.status(500).json({ error: 'Failed to fetch from DexScreener API', details: error.message });
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ error: 'Failed to fetch from DexScreener API', details: message });
     }
   });
 
@@ -2258,7 +2266,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/reward-demo/comparison", async (req, res) => {
     try {
       // Legacy demo functionality removed for production
-      const comparisons = [];
+      const comparisons: any[] = [];
       
       res.json({
         success: true,
@@ -2837,15 +2845,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         status: 'active',
         endpoints: status.endpoints.map(ep => ({
           url: ep.url,
-          isHealthy: ep.isHealthy,
-          consecutiveFailures: ep.consecutiveFailures,  
-          lastError: ep.lastError,
-          lastSuccess: ep.lastSuccess
+          errorCount: ep.errorCount,
+          rateLimited: ep.rateLimited,
+          rateLimitResetTime: ep.rateLimitResetTime,
+          lastError: ep.lastError
         })),
-        currentEndpointIndex: status.currentEndpointIndex,
-        totalRequests: status.totalRequests,
-        totalFailures: status.totalFailures,
-        lastReset: status.lastReset,
+        availableEndpoints: status.availableEndpoints,
+        totalEndpoints: status.totalEndpoints,
         timestamp: Date.now()
       });
     } catch (error) {

@@ -2,9 +2,9 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
-import { setupPerformanceRoutes } from "./performance-routes";
+// Removed performance-routes - cleaned up during optimization
 import { enhancedErrorHandler } from "./error-handler";
-import { DatabaseOptimizer } from "./database-optimizer";
+// Removed database-optimizer - cleaned up during optimization
 import { kiltPriceService } from "./kilt-price-service.js";
 import { blockchainConfigService } from "./blockchain-config-service";
 import { FixedRewardService } from "./fixed-reward-service";
@@ -20,10 +20,7 @@ kiltPriceService; // This will start the background price fetching
 // Initialize blockchain configuration with defaults
 blockchainConfigService.initializeDefaults();
 
-// Initialize essential database optimizations on startup
-import('./db-migration-optimizer').then(({ DbMigrationOptimizer }) => {
-  DbMigrationOptimizer.runEssentialOptimizations();
-}).catch(console.error);
+// Removed db-migration-optimizer - cleaned up during optimization
 
 // Initialize reward service for background updates
 let rewardService: FixedRewardService | null = null;
@@ -206,20 +203,7 @@ app.use((req, res, next) => {
   }, async () => {
     log(`serving on port ${port}`);
     
-    // Initialize blazing fast services after server starts
-    try {
-      const { blazingFastService } = await import('./blazing-fast-service.js');
-      const { parallelDataLoader } = await import('./parallel-data-loader.js');
-      
-      // Preload critical data
-      await blazingFastService.preloadCriticalData();
-      
-      // Start background refresh
-      await parallelDataLoader.startBackgroundRefresh();
-      
-      console.log('✓ Blazing fast services initialized - app will be lightning fast!');
-    } catch (error) {
-      console.error('Failed to initialize blazing services:', error);
-    }
+    // Server initialization complete
+    console.log('✓ Server services initialized successfully');
   });
 })();

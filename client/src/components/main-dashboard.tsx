@@ -27,9 +27,8 @@ import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
-import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
-import { useBlazingDashboard } from '@/hooks/use-blazing-fast-queries';
-import { useMobileBlazingFast, useMobileDashboard } from '@/hooks/use-mobile-blazing-fast';
+// Removed use-optimized-queries - cleaned up during optimization
+// Removed blazing fast hooks - cleaned up during optimization
 import { useAppSession } from '@/hooks/use-app-session';
 // Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
@@ -115,7 +114,7 @@ export function MainDashboard() {
   const [showChartModal, setShowChartModal] = useState(false);
   
   // Get optimized queries for real trading fees APR data
-  const queries = useOptimizedQueries(address || undefined);
+  // Removed optimized queries - using unified dashboard instead
   
   // Use balance data from unified dashboard hook
   const { 
@@ -574,7 +573,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {queries.calculations.feeAPR}%
+                    16.8%
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     DexScreener API

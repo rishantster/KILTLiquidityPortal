@@ -253,34 +253,47 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black border border-gray-800 max-w-md" aria-describedby="wallet-connect-description">
+        <DialogContent className="bg-black border border-gray-800 max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">
               <Wallet className="h-6 w-6" />
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
-          <p id="wallet-connect-description" className="sr-only">
-            Choose your preferred wallet to connect to the KILT Liquidity Portal. Supports MetaMask, Coinbase Wallet, WalletConnect, and other popular wallets.
-          </p>
+
           
           {/* Mobile Section */}
           {isMobile ? (
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-gray-400 mb-4">
                 <Smartphone className="h-4 w-4" />
-                <span className="text-sm">Available Wallets</span>
+                <span className="text-sm">Mobile Wallets</span>
               </div>
               
-              {getRecommendedWallets().map((wallet) => (
+              {/* WalletConnect First - Works with 200+ wallets */}
+              <Button
+                onClick={() => handleMobileWalletConnect({ id: 'walletConnect', name: 'WalletConnect (200+ wallets)' })}
+                disabled={isPending}
+                className="w-full bg-gradient-to-r from-[#3b9df8] to-[#2b7fd8] hover:from-[#4daef9] hover:to-[#3b9df8] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+              >
+                <div className="flex items-center gap-4 w-full">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
+                  </svg>
+                  <span className="font-medium">WalletConnect (Recommended)</span>
+                </div>
+              </Button>
+              
+              {/* Specific wallet options */}
+              {getRecommendedWallets().filter(w => w.id !== 'walletConnect').map((wallet) => (
                 <Button
                   key={wallet.id}
                   onClick={() => handleMobileWalletConnect(wallet)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-12 text-md font-medium justify-start px-6 rounded-lg transition-all duration-200"
                 >
                   <div className="flex items-center gap-4 w-full">
-                    <Wallet className="h-5 w-5" />
+                    <Wallet className="h-4 w-4" />
                     <span className="font-medium">{wallet.name}</span>
                   </div>
                 </Button>

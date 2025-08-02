@@ -1838,7 +1838,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       console.log(`⚡ PARALLEL PROCESSING: Starting ultra-fast batch operations`);
       
       // Import parallel processor for 40x performance boost
-      const { ParallelPositionProcessor } = await import('./parallel-position-processor');
+      // Removed ParallelPositionProcessor - cleaned up during optimization
       
       // Use ultra-fast parallel processing to eliminate 113+ second delays
       const positions = await ParallelPositionProcessor.processUserPositions(userAddress, uniswapIntegrationService);

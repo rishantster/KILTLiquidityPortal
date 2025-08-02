@@ -31,56 +31,62 @@ export function MobileWalletConnect() {
 
   const handleMobileWalletConnect = async (wallet: any) => {
     try {
-      // Clear any previous wallet connections first
-      if (isConnected) {
-        // Clear all wallet-related localStorage
-        localStorage.removeItem('wagmi.connected');
-        localStorage.removeItem('wagmi.store');
-        localStorage.removeItem('wagmi.cache');
-        localStorage.removeItem('wagmi.injected.shimDisconnect');
-        
-        // Clear Phantom-specific storage
-        if ((window as any).phantom?.ethereum) {
-          try {
-            (window as any).phantom.ethereum.disconnect?.();
-          } catch (error) {
-            console.log('Phantom disconnect not available');
-          }
-        }
-        
-        disconnect();
-        await new Promise(resolve => setTimeout(resolve, 100)); // Brief delay
-      }
-
       // Find the matching connector
       const connector = connectors.find(c => 
         c.id === wallet.id || 
-        c.name.toLowerCase().includes(wallet.name.toLowerCase())
+        c.name.toLowerCase().includes(wallet.name.toLowerCase()) ||
+        c.id === 'walletConnect' // Always try WalletConnect for mobile
       );
 
-      if (connector && !isMobile) {
-        // Desktop: use direct connector
-        connect({ connector });
-        setShowModal(false);
-      } else if (isMobile) {
-        // Mobile: use deep link
+      if (wallet.id === 'walletConnect') {
+        // WalletConnect: Always use WalletConnect connector
+        const wcConnector = connectors.find(c => c.id === 'walletConnect' || c.name === 'WalletConnect');
+        if (wcConnector) {
+          connect({ connector: wcConnector });
+          setShowModal(false);
+          toast({
+            title: "Connecting Wallet",
+            description: "Scan QR code or approve connection in your wallet app",
+          });
+        }
+      } else if (isMobile && wallet.id !== 'walletConnect') {
+        // Mobile deep link for specific wallets, then fall back to WalletConnect
         const success = openMobileWallet(wallet.id);
         if (success) {
           setShowModal(false);
           toast({
             title: "Opening Wallet",
-            description: `Redirecting to ${wallet.name}...`,
+            description: `Opening ${wallet.name}. If it doesn't work, try WalletConnect.`,
           });
+          
+          // Fallback to WalletConnect after short delay
+          setTimeout(() => {
+            const wcConnector = connectors.find(c => c.id === 'walletConnect' || c.name === 'WalletConnect');
+            if (wcConnector && !isConnected) {
+              connect({ connector: wcConnector });
+            }
+          }, 3000);
         } else {
-          toast({
-            title: "Install Required",
-            description: `Please install ${wallet.name} first`,
-          });
+          // Direct fallback to WalletConnect if deep link fails
+          const wcConnector = connectors.find(c => c.id === 'walletConnect' || c.name === 'WalletConnect');
+          if (wcConnector) {
+            connect({ connector: wcConnector });
+            setShowModal(false);
+            toast({
+              title: "Using WalletConnect",
+              description: `${wallet.name} not available. Using WalletConnect instead.`,
+            });
+          }
         }
+      } else if (!isMobile && connector) {
+        // Desktop: use direct connector
+        connect({ connector });
+        setShowModal(false);
       } else {
-        // Fallback: direct connection attempt
-        if (connector) {
-          connect({ connector });
+        // Fallback to WalletConnect
+        const wcConnector = connectors.find(c => c.id === 'walletConnect');
+        if (wcConnector) {
+          connect({ connector: wcConnector });
           setShowModal(false);
         }
       }
@@ -88,9 +94,16 @@ export function MobileWalletConnect() {
       console.error('Wallet connection error:', err);
       toast({
         title: "Connection Failed",
-        description: `Could not connect to ${wallet.name}`,
+        description: `Could not connect to ${wallet.name}. Try WalletConnect instead.`,
         variant: "destructive",
       });
+      
+      // Fallback to WalletConnect on error
+      const wcConnector = connectors.find(c => c.id === 'walletConnect');
+      if (wcConnector) {
+        connect({ connector: wcConnector });
+        setShowModal(false);
+      }
     }
   };
 
@@ -247,9 +260,9 @@ export function MobileWalletConnect() {
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
-          <div id="wallet-connect-description" className="sr-only">
+          <p id="wallet-connect-description" className="sr-only">
             Choose your preferred wallet to connect to the KILT Liquidity Portal. Supports MetaMask, Coinbase Wallet, WalletConnect, and other popular wallets.
-          </div>
+          </p>
           
           {/* Mobile Section */}
           {isMobile ? (

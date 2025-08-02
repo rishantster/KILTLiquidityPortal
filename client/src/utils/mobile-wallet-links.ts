@@ -101,11 +101,17 @@ export function getAvailableWallets(): WalletDeepLink[] {
 }
 
 export function getRecommendedWallets(): WalletDeepLink[] {
-  const available = getAvailableWallets();
-  if (available.length > 0) {
-    return available;
-  }
+  // Always prioritize WalletConnect first for mobile devices
+  const walletConnect = MOBILE_WALLET_LINKS.find(w => w.id === 'walletConnect');
+  const metaMask = MOBILE_WALLET_LINKS.find(w => w.id === 'metaMask');
+  const coinbase = MOBILE_WALLET_LINKS.find(w => w.id === 'coinbaseWallet');
+  const trust = MOBILE_WALLET_LINKS.find(w => w.id === 'trust');
   
-  // Return top 4 wallets including Binance if none are detected
-  return MOBILE_WALLET_LINKS.slice(0, 4);
+  const recommended = [];
+  if (walletConnect) recommended.push(walletConnect);
+  if (metaMask) recommended.push(metaMask);
+  if (coinbase) recommended.push(coinbase);
+  if (trust) recommended.push(trust);
+  
+  return recommended;
 }

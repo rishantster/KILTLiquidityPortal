@@ -3,6 +3,31 @@ import { base } from 'wagmi/chains';
 import { metaMask, walletConnect, injected, coinbaseWallet } from 'wagmi/connectors';
 import { ReactNode } from 'react';
 
+// Create WalletConnect singleton to prevent double initialization
+let walletConnectConnector: ReturnType<typeof walletConnect> | null = null;
+
+function getWalletConnectConnector() {
+  if (!walletConnectConnector) {
+    walletConnectConnector = walletConnect({
+      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
+      metadata: {
+        name: 'KILT Liquidity Portal',
+        description: 'KILT token liquidity incentive program on Base',
+        url: typeof window !== 'undefined' ? window.location.origin : 'https://kilt-portal.replit.app',
+        icons: ['https://avatars.githubusercontent.com/u/37784886']
+      },
+      showQrModal: true,
+      qrModalOptions: {
+        themeMode: 'dark',
+        themeVariables: {
+          '--wcm-z-index': '999999'
+        }
+      }
+    });
+  }
+  return walletConnectConnector;
+}
+
 // Enhanced Wagmi configuration optimized for Base chain with mobile deep linking support
 const wagmiConfig = createConfig({
   chains: [base],
@@ -11,7 +36,7 @@ const wagmiConfig = createConfig({
     metaMask({
       dappMetadata: {
         name: 'KILT Liquidity Portal',
-        url: window.location.origin
+        url: typeof window !== 'undefined' ? window.location.origin : 'https://kilt-portal.replit.app'
       }
     }),
     // Coinbase Wallet with Base-optimized mobile support
@@ -20,17 +45,8 @@ const wagmiConfig = createConfig({
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
     }),
-    // WalletConnect with Base-specific configuration (always enabled for 200+ wallets)
-    walletConnect({
-      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
-      metadata: {
-        name: 'KILT Liquidity Portal',
-        description: 'KILT token liquidity incentive program on Base',
-        url: window.location.origin,
-        icons: ['https://avatars.githubusercontent.com/u/37784886']
-      },
-      showQrModal: true
-    }),
+    // WalletConnect singleton
+    getWalletConnectConnector(),
     // Binance Wallet via injected provider (only if detected)
     injected({
       shimDisconnect: true,
@@ -38,7 +54,7 @@ const wagmiConfig = createConfig({
         return {
           id: 'binance',
           name: 'Binance Wallet',
-          provider: window.ethereum?.isBinance ? window.ethereum : undefined
+          provider: typeof window !== 'undefined' && window.ethereum?.isBinance ? window.ethereum : undefined
         };
       }
     })

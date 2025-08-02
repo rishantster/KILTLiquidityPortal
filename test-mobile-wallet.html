@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Wallet Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        button {
+            background: #f70363;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #222;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>KILT Portal Mobile Wallet Test</h1>
+    
+    <div class="test-section">
+        <h3>Device Detection</h3>
+        <div id="device-info"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Wallet Detection</h3>
+        <button onclick="checkWallets()">Check Available Wallets</button>
+        <div id="wallet-info" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Deep Link Test</h3>
+        <button onclick="testMetaMask()">Test MetaMask Deep Link</button>
+        <button onclick="testTrust()">Test Trust Wallet Deep Link</button>
+        <button onclick="testCoinbase()">Test Coinbase Wallet Deep Link</button>
+        <div id="deeplink-info" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>WalletConnect Test</h3>
+        <button onclick="testWalletConnect()">Test WalletConnect</button>
+        <div id="walletconnect-info" class="result"></div>
+    </div>
+
+    <script>
+        // Device detection
+        function detectDevice() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            document.getElementById('device-info').innerHTML = `
+                <p>Mobile: ${isMobile}</p>
+                <p>iOS: ${isIOS}</p>
+                <p>Android: ${isAndroid}</p>
+                <p>User Agent: ${navigator.userAgent}</p>
+            `;
+        }
+        
+        // Check available wallets
+        function checkWallets() {
+            let walletInfo = '<h4>Available Wallets:</h4>';
+            
+            if (window.ethereum) {
+                walletInfo += '<p>✅ window.ethereum detected</p>';
+                if (window.ethereum.isMetaMask) walletInfo += '<p>✅ MetaMask detected</p>';
+                if (window.ethereum.isCoinbaseWallet) walletInfo += '<p>✅ Coinbase Wallet detected</p>';
+                if (window.ethereum.isTrust) walletInfo += '<p>✅ Trust Wallet detected</p>';
+                if (window.ethereum.isBinance) walletInfo += '<p>✅ Binance Wallet detected</p>';
+            } else {
+                walletInfo += '<p>❌ No window.ethereum detected</p>';
+            }
+            
+            document.getElementById('wallet-info').innerHTML = walletInfo;
+        }
+        
+        // Test deep links
+        function testMetaMask() {
+            const url = window.location.href;
+            const deepLink = `https://metamask.app.link/dapp/${url.replace('https://', '')}`;
+            document.getElementById('deeplink-info').innerHTML = `<p>Attempting MetaMask deep link: ${deepLink}</p>`;
+            window.location.href = deepLink;
+        }
+        
+        function testTrust() {
+            const url = window.location.href;
+            const deepLink = `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(url)}`;
+            document.getElementById('deeplink-info').innerHTML = `<p>Attempting Trust Wallet deep link: ${deepLink}</p>`;
+            window.location.href = deepLink;
+        }
+        
+        function testCoinbase() {
+            const url = window.location.href;
+            const deepLink = `https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(url)}`;
+            document.getElementById('deeplink-info').innerHTML = `<p>Attempting Coinbase Wallet deep link: ${deepLink}</p>`;
+            window.location.href = deepLink;
+        }
+        
+        function testWalletConnect() {
+            document.getElementById('walletconnect-info').innerHTML = '<p>WalletConnect requires the main app to test properly. Please use the main portal.</p>';
+        }
+        
+        // Initialize on load
+        detectDevice();
+        checkWallets();
+    </script>
+</body>
+</html>

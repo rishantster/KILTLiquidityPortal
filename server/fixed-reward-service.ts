@@ -201,6 +201,28 @@ export class FixedRewardService {
   }
 
   /**
+   * Calculate trading fee APR based on pool volume and liquidity share
+   */
+  private async calculateTradingFeeAPR(userLiquidity: number, totalLiquidity: number): Promise<number> {
+    try {
+      // Get trading fees APR from the existing endpoint
+      const response = await fetch('http://localhost:5000/api/trading-fees/pool-apr');
+      if (response.ok) {
+        const feeData = await response.json();
+        if (feeData.tradingFeesAPR && typeof feeData.tradingFeesAPR === 'number') {
+          // User gets their proportional share of the trading fees
+          const liquidityShare = totalLiquidity > 0 ? userLiquidity / totalLiquidity : 0;
+          return feeData.tradingFeesAPR * liquidityShare;
+        }
+      }
+      return 0; // Fallback if API fails
+    } catch (error) {
+      console.warn('Trading fee APR calculation failed, using fallback:', error);
+      return 0;
+    }
+  }
+
+  /**
    * Get in-range multiplier for position using correct column names
    */
   private async getInRangeMultiplier(nftTokenId: string): Promise<number> {
@@ -441,9 +463,9 @@ export class FixedRewardService {
         timeMultiplier: Math.round(timeProgression * 10000) / 10000, // 4 decimal places
         sizeMultiplier: Math.round(liquidityWeight * 10000) / 10000, // 4 decimal places
         effectiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
-        tradingFeeAPR: 0,
+        tradingFeeAPR: await this.calculateTradingFeeAPR(currentValueUSD, totalActiveLiquidity),
         incentiveAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
-        totalAPR: Math.round(effectiveAPR * 10000) / 10000, // 4 decimal places for APR
+        totalAPR: Math.round((effectiveAPR + await this.calculateTradingFeeAPR(currentValueUSD, totalActiveLiquidity)) * 10000) / 10000, // 4 decimal places for APR
         dailyRewards: Math.round(dailyRewards * 10000) / 10000, // 4 decimal places
         liquidityAmount: Math.round(currentValueUSD * 100) / 100, // Use real-time position value in USD
         daysStaked: daysActive,

@@ -1814,10 +1814,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       console.log(`🚀 POSITION REQUEST: ${userAddress}`);
       
       // Import fast cache system
-      const { FastPositionCache } = await import('./fast-position-cache');
+      const { fastPositionCache } = await import('./fast-position-cache');
       
       // Check cache first for instant response
-      const cachedPositions = FastPositionCache.getCachedUserPositions(userAddress);
+      const cachedPositions = fastPositionCache.get(userAddress);
       if (cachedPositions) {
         const duration = Date.now() - startTime;
         console.log(`💨 INSTANT CACHE RESPONSE: ${userAddress} in ${duration}ms (${cachedPositions.length} positions)`);
@@ -1875,14 +1875,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.post("/api/positions/clear-cache/:userAddress", async (req, res) => {
     try {
       const { userAddress } = req.params;
-      const { FastPositionCache } = await import('./fast-position-cache');
+      const { fastPositionCache } = await import('./fast-position-cache');
       
-      FastPositionCache.clearUserCache(userAddress);
+      fastPositionCache.delete(userAddress);
       
       res.json({ 
         success: true, 
         message: `Cache cleared for ${userAddress}`,
-        stats: FastPositionCache.getCacheStats()
+        stats: fastPositionCache.getStats()
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to clear cache" });

@@ -198,7 +198,7 @@ export function LiquidityMint({
       ethBalance,
       kiltData?.price || 0.0160,
       percentage,
-      formatTokenAmount,
+      (amount) => formatTokenAmount(amount || '0'),
       ethPriceData?.ethPrice // Pass real-time ETH price
     );
   };

@@ -821,12 +821,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const userId = parseInt(req.params.userId);
       
-      // Check ultra-fast cache first
-      const { ultraFastCache } = await import('./ultra-fast-position-cache');
-      const cachedStats = ultraFastCache.getCachedUserStats(userId);
-      if (cachedStats) {
-        return res.json(cachedStats);
-      }
+      // Direct database query - removed cache optimization layer
       
       // Fallback to database with timeout protection
       const stats = await Promise.race([

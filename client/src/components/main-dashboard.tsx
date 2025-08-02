@@ -91,13 +91,38 @@ function FormulaProgramAPR() {
   // Show error state
   if (error) return <span className="text-red-400">Error</span>;
   
-  // Use the actual program average APR from analytics (464%)
+  // Use the actual program average APR from analytics (125%)
   // This reflects the real calculated APR from the reward distribution system
   const programAPR = (programAnalytics as { averageAPR?: number })?.averageAPR;
   
   return (
     <span>
       {programAPR ? `${Math.round(programAPR)}%` : '--'}
+    </span>
+  );
+}
+
+// Component for authentic trading fees APR display using real DexScreener data
+function RealTradingFeesAPR() {
+  const { data: tradingFeesData, isLoading, error } = useQuery({
+    queryKey: ['/api/trading-fees/pool-apr'],
+    staleTime: 30 * 1000, // 30 seconds for real-time updates
+    gcTime: 10 * 60 * 1000,
+    refetchInterval: 30 * 1000, // 30 seconds for live updates
+  });
+
+  // Show loading state
+  if (isLoading) return <span className="text-white/50">--</span>;
+  
+  // Show error state
+  if (error) return <span className="text-red-400">Error</span>;
+  
+  // Use the actual trading fees APR from DexScreener API (3.40%)
+  const tradingAPR = (tradingFeesData as { tradingFeesAPR?: number })?.tradingFeesAPR;
+  
+  return (
+    <span>
+      {tradingAPR ? `${tradingAPR.toFixed(1)}%` : '--'}
     </span>
   );
 }
@@ -562,7 +587,7 @@ export function MainDashboard() {
                 </div>
               </div>
 
-              {/* Trading Fees APR Card */}
+              {/* Trading Fees APR Card - Using Real Data */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10">
@@ -573,7 +598,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    16.8%
+                    <RealTradingFeesAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     DexScreener API

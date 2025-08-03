@@ -117,7 +117,9 @@ export function RewardsTracking() {
       return response.json();
     },
     enabled: !!address,
-    refetchInterval: 30000 // Check every 30 seconds
+    staleTime: 0, // Force fresh data to show position count fix
+    refetchInterval: 10000, // Check every 10 seconds for faster updates
+    refetchOnWindowFocus: true // Refetch when window gets focus
   });
 
   // Get claimability status (smart contract lock check)

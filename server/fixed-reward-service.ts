@@ -1195,6 +1195,8 @@ export class FixedRewardService {
       
       // Filter to only active positions for counting
       const activeUserPositions = allUserPositions.filter((pos: any) => pos.isActive === true);
+      
+      console.log(`🔍 USER STATS DEBUG: userId=${userId}, allPositions=${allUserPositions.length}, activePositions=${activeUserPositions.length}`);
 
       // Always calculate stats from rewards table regardless of position status
       // The rewards table is the source of truth for what was actually earned
@@ -1219,27 +1221,65 @@ export class FixedRewardService {
         activePositions: rewardsForUser.length,
       };
 
-      // Calculate actual historical daily reward rate instead of theoretical current rate
-      // This provides more accurate representation of actual earning rate
+      // Calculate CURRENT daily reward rate based on treasury allocation - NOT historical data
+      // This provides the current earning rate based on admin configuration
       let actualDailyRate = 0;
       
-      if (allUserPositions.length > 0) {
-        // Calculate total days since first position was created
-        const oldestPosition = allUserPositions.reduce((oldest: any, current: any) => 
-          new Date(current.createdAt) < new Date(oldest.createdAt) ? current : oldest
-        );
-        
-        const daysSinceStart = Math.max(1, Math.floor(
-          (new Date().getTime() - new Date(oldestPosition.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-        ));
-        
-        // Calculate actual daily rate using dailyRewardAmount from the most recent reward record
-        // This shows the current daily earning rate
-        if (rewardsForUser.length > 0) {
-          const latestReward = rewardsForUser[rewardsForUser.length - 1];
-          actualDailyRate = parseFloat(latestReward.dailyRewardAmount.toString());
-        } else {
-          actualDailyRate = (rawStats.totalAccumulated || 0) / daysSinceStart;
+      if (activeUserPositions.length > 0) {
+        try {
+          // Get admin config for current calculation  
+          const adminConfig = await this.getAdminConfiguration();
+          
+          // Calculate current daily rewards by summing up individual position rewards
+          let totalDailyRewards = 0;
+          
+          for (const position of activeUserPositions) {
+            try {
+              // Get current daily reward for this specific position using the existing calculation
+              const positionReward = await this.calculatePositionRewards(
+                userId, 
+                position.nftTokenId,
+                position.createdAt
+              );
+              
+              totalDailyRewards += positionReward.dailyRewards || 0;
+              console.log(`💰 USER STATS: Position ${position.nftTokenId} daily reward: ${positionReward.dailyRewards} KILT`);
+            } catch (error) {
+              console.error(`⚠️ Failed to calculate reward for position ${position.nftTokenId}:`, error);
+            }
+          }
+          
+          actualDailyRate = totalDailyRewards;
+          console.log(`💰 USER STATS: Total daily rewards: ${totalDailyRewards} KILT from ${activeUserPositions.length} positions`);
+          console.log(`💰 USER STATS: Using treasury allocation: ${adminConfig.treasuryAllocation}, daily budget: ${adminConfig.dailyBudget}`);
+          
+          if (totalDailyRewards === 0) {
+            console.log(`⚠️ USER STATS: Zero daily rewards calculated - falling back to simple calculation`);
+            // Simple fallback based on stored accumulated rewards if calculation fails
+            if (rawStats.totalAccumulated > 0 && allUserPositions.length > 0) {
+              const oldestPosition = allUserPositions.reduce((oldest: any, current: any) => 
+                new Date(current.createdAt) < new Date(oldest.createdAt) ? current : oldest
+              );
+              const daysSinceStart = Math.max(1, Math.floor(
+                (new Date().getTime() - new Date(oldestPosition.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+              ));
+              actualDailyRate = (rawStats.totalAccumulated || 0) / daysSinceStart;
+              console.log(`💰 USER STATS: Fallback calculation: ${rawStats.totalAccumulated} / ${daysSinceStart} days = ${actualDailyRate} KILT/day`);
+            }
+          }
+          
+        } catch (error) {
+          console.error('⚠️ Failed to get current daily rate, falling back to average:', error);
+          // Fallback to simple average if calculation fails
+          if (allUserPositions.length > 0) {
+            const oldestPosition = allUserPositions.reduce((oldest: any, current: any) => 
+              new Date(current.createdAt) < new Date(oldest.createdAt) ? current : oldest
+            );
+            const daysSinceStart = Math.max(1, Math.floor(
+              (new Date().getTime() - new Date(oldestPosition.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+            ));
+            actualDailyRate = (rawStats.totalAccumulated || 0) / daysSinceStart;
+          }
         }
       }
 

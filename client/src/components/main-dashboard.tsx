@@ -329,14 +329,25 @@ export function MainDashboard() {
               {/* Modern Typography - Clean & Professional */}
               <div className="mb-8">
                 {/* Main title with subtle gradient */}
-                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight tracking-tight">
-                  <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                    KILT Liquidity
-                  </span>
-                  <span className="block text-5xl sm:text-6xl lg:text-7xl mt-2 text-white/90 font-normal">
-                    Incentive Program
-                  </span>
-                </h1>
+                <div className="relative">
+                  <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight tracking-tight">
+                    <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+                      KILT Liquidity
+                    </span>
+                    <span className="block text-5xl sm:text-6xl lg:text-7xl mt-2 text-white/90 font-normal">
+                      Incentive Program
+                    </span>
+                  </h1>
+                  {/* Beta Badge */}
+                  <div className="absolute -top-2 -right-4 sm:-right-8 lg:-right-12">
+                    <Badge 
+                      variant="outline" 
+                      className="bg-pink-500/20 border-pink-400 text-pink-400 text-xs sm:text-sm font-bold px-2 py-1 sm:px-3 sm:py-1.5 uppercase tracking-wider backdrop-blur-sm animate-pulse"
+                    >
+                      BETA
+                    </Badge>
+                  </div>
+                </div>
               </div>
               
               {/* Clean Description */}

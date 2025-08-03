@@ -9,22 +9,27 @@ import {
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 
-// Removed crypto-utils - using ethers validation instead
-
-// Smart contract configuration with validation
-const KILT_REWARD_POOL_ADDRESS = process.env.KILT_REWARD_POOL_ADDRESS || '';
-const REWARD_WALLET_ADDRESS = process.env.REWARD_WALLET_ADDRESS || '';
+// Smart contract configuration from database - Single Source of Truth
 import { blockchainConfigService } from './blockchain-config-service';
+import { treasuryConfig } from '@shared/schema';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 
-// Validate contract addresses at startup using ethers
-if (KILT_REWARD_POOL_ADDRESS && !ethers.isAddress(KILT_REWARD_POOL_ADDRESS)) {
-  throw new Error('Invalid KILT_REWARD_POOL_ADDRESS format');
+// Helper function to get smart contract address from database
+async function getSmartContractAddress(): Promise<string> {
+  try {
+    const [config] = await db.select().from(treasuryConfig).limit(1);
+    if (!config?.smartContractAddress) {
+      throw new Error('Smart contract address not configured in database');
+    }
+    if (!ethers.isAddress(config.smartContractAddress)) {
+      throw new Error('Invalid smart contract address format in database');
+    }
+    return config.smartContractAddress;
+  } catch (error) {
+    console.error('Failed to get smart contract address from database:', error);
+    throw error;
+  }
 }
-if (REWARD_WALLET_ADDRESS && !ethers.isAddress(REWARD_WALLET_ADDRESS)) {
-  throw new Error('Invalid REWARD_WALLET_ADDRESS format');
-}
-// Token address validation now handled by blockchain configuration service
 
 // Updated contract ABI for rolling claims system
 const REWARD_POOL_ABI = [
@@ -98,25 +103,35 @@ export class SmartContractService {
   constructor() {
     this.provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
     
-    // Only initialize contracts if both address and private key are available
-    if (KILT_REWARD_POOL_ADDRESS && process.env.REWARD_WALLET_PRIVATE_KEY) {
-      try {
-        this.wallet = new ethers.Wallet(process.env.REWARD_WALLET_PRIVATE_KEY, this.provider);
+    // Initialize contracts dynamically using database configuration
+    this.initializeContracts().catch(error => {
+      console.error('Failed to initialize contracts:', error);
+      this.isContractDeployed = false;
+    });
+  }
+
+  /**
+   * Initialize contracts using database configuration
+   */
+  private async initializeContracts(): Promise<void> {
+    try {
+      const contractAddress = await getSmartContractAddress();
+      const privateKey = process.env.REWARD_WALLET_PRIVATE_KEY;
+      
+      if (contractAddress && privateKey) {
+        this.wallet = new ethers.Wallet(privateKey, this.provider);
         this.rewardPoolContract = new ethers.Contract(
-          KILT_REWARD_POOL_ADDRESS,
+          contractAddress,
           REWARD_POOL_ABI,
           this.wallet
         );
-        // Initialize KILT token contract lazily when needed
-        // this.kiltTokenContract will be set in initializeKiltContract method
+        await this.initializeKiltContract();
         this.isContractDeployed = true;
-        // Smart contracts initialized successfully
-      } catch (error: unknown) {
-        console.error('Failed to initialize smart contracts:', error instanceof Error ? error.message : 'Unknown error');
+      } else {
         this.isContractDeployed = false;
       }
-    } else {
-      // Smart contracts not deployed - using simulation mode
+    } catch (error) {
+      console.error('Failed to initialize contracts:', error);
       this.isContractDeployed = false;
     }
   }
@@ -510,12 +525,9 @@ export class SmartContractService {
    * Check reward wallet balance and sufficiency
    */
   async checkRewardWalletBalance(): Promise<{ balance: number; sufficient: boolean }> {
-    if (!REWARD_WALLET_ADDRESS) {
-      return { balance: 0, sufficient: false };
-    }
-
     try {
-      const balance = await this.getKiltTokenBalance(REWARD_WALLET_ADDRESS);
+      const contractAddress = await getSmartContractAddress();
+      const balance = await this.getKiltTokenBalance(contractAddress);
       const sufficient = balance >= 100000; // Consider sufficient if >= 100k KILT
       
       return { balance, sufficient };
@@ -543,13 +555,14 @@ export class SmartContractService {
   }> {
     if (!this.isContractDeployed) {
       // Return fallback data when contract not deployed
+      const contractAddress = await getSmartContractAddress().catch(() => '0x0000000000000000000000000000000000000000');
       return {
         startTime: Math.floor(Date.now() / 1000),
         endTime: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
         totalAllocated: 2905600,
         totalDistributed: 0,
         remainingBudget: 2905600,
-        currentRewardWallet: REWARD_WALLET_ADDRESS || '0x0000000000000000000000000000000000000000',
+        currentRewardWallet: contractAddress,
         rewardWalletBalance: 0,
         dailyRewardBudget: 7960,
         programDuration: 365,
@@ -575,13 +588,14 @@ export class SmartContractService {
       };
     } catch (error: unknown) {
       // Failed to get program info
+      const contractAddress = await getSmartContractAddress().catch(() => '0x0000000000000000000000000000000000000000');
       return {
         startTime: Math.floor(Date.now() / 1000),
         endTime: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
         totalAllocated: 2905600,
         totalDistributed: 0,
         remainingBudget: 2905600,
-        currentRewardWallet: REWARD_WALLET_ADDRESS || '0x0000000000000000000000000000000000000000',
+        currentRewardWallet: contractAddress,
         rewardWalletBalance: 0,
         dailyRewardBudget: 7960,
         programDuration: 365,

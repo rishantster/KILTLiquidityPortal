@@ -160,7 +160,7 @@ export const programSettings = pgTable("program_settings", {
 // Treasury configuration table - essential fields only with auto-calculated fields
 export const treasuryConfig = pgTable("treasury_config", {
   id: serial("id").primaryKey(),
-  treasuryWalletAddress: text("treasury_wallet_address").notNull(),
+  smartContractAddress: text("smart_contract_address").notNull(), // KILT Treasury Smart Contract Address - Single Source of Truth
   totalAllocation: numeric("total_allocation", { precision: 30, scale: 18 }).notNull(),
   programStartDate: date("program_start_date").notNull(),
   programDurationDays: integer("program_duration_days").notNull(),
@@ -348,7 +348,7 @@ export const insertProgramSettingsSchema = createInsertSchema(programSettings).p
 });
 
 export const insertTreasuryConfigSchema = createInsertSchema(treasuryConfig).pick({
-  treasuryWalletAddress: true,
+  smartContractAddress: true,
   totalAllocation: true,
   dailyRewardsCap: true,
   programStartDate: true,

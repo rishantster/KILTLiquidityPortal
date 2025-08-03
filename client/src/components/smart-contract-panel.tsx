@@ -25,8 +25,7 @@ import {
 } from "lucide-react";
 // Simplified implementation focused on admin interface guidance
 
-// Contract configuration
-const BASIC_TREASURY_POOL_ADDRESS = "0x3ee2361272EaDc5ADc91418530722728E7DCe526";
+// Contract configuration fetched from database
 const KILT_TOKEN_ADDRESS = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
 
 // Basic ABI for essential functions
@@ -118,6 +117,14 @@ export function SmartContractPanel() {
   const [rewardUser, setRewardUser] = useState("");
   const [rewardAmount, setRewardAmount] = useState("");
 
+  // Fetch treasury configuration from database
+  const { data: treasuryConfig } = useQuery({
+    queryKey: ['/api/treasury/config'],
+    enabled: true
+  });
+
+  const contractAddress = (treasuryConfig as any)?.smartContractAddress;
+
   // Real contract owner is the deployer address
   const contractOwner = "0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e"; // Actual contract owner (deployer)
   
@@ -130,7 +137,8 @@ export function SmartContractPanel() {
 
   // Fetch contract balances from blockchain
   const { data: contractData } = useQuery({
-    queryKey: [`/api/smart-contract/balances/${BASIC_TREASURY_POOL_ADDRESS}`],
+    queryKey: [`/api/smart-contract/balances/${contractAddress}`],
+    enabled: !!contractAddress,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
@@ -169,7 +177,7 @@ export function SmartContractPanel() {
     
     toast({
       title: "Instructions",
-      description: "Use Remix IDE with the provided guides to interact with the contract directly. Contract address: " + BASIC_TREASURY_POOL_ADDRESS,
+      description: "Use Remix IDE with the provided guides to interact with the contract directly. Contract address: " + (contractAddress || 'Loading...'),
     });
   };
 
@@ -266,14 +274,18 @@ export function SmartContractPanel() {
               <span className="text-gray-300 text-sm">Address:</span>
               <div className="flex items-center space-x-1">
                 <span className="text-white text-xs font-mono">
-                  {BASIC_TREASURY_POOL_ADDRESS.slice(0, 6)}...{BASIC_TREASURY_POOL_ADDRESS.slice(-4)}
+                  {contractAddress ? `${contractAddress.slice(0, 6)}...${contractAddress.slice(-4)}` : 'Loading...'}
                 </span>
-                <button onClick={() => copyToClipboard(BASIC_TREASURY_POOL_ADDRESS)}>
-                  <Copy className="h-3 w-3 text-gray-400 hover:text-white" />
-                </button>
-                <button onClick={() => openBaseScan(BASIC_TREASURY_POOL_ADDRESS)}>
-                  <ExternalLink className="h-3 w-3 text-gray-400 hover:text-white" />
-                </button>
+                {contractAddress && (
+                  <>
+                    <button onClick={() => copyToClipboard(contractAddress)}>
+                      <Copy className="h-3 w-3 text-gray-400 hover:text-white" />
+                    </button>
+                    <button onClick={() => openBaseScan(contractAddress)}>
+                      <ExternalLink className="h-3 w-3 text-gray-400 hover:text-white" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>

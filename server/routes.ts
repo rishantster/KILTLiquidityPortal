@@ -54,6 +54,20 @@ import rewardDistributionRoutes from "./routes/reward-distribution";
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes
 
+// Helper function to get smart contract address from database - Single Source of Truth
+async function getSmartContractAddress(): Promise<string> {
+  try {
+    const [config] = await db.select().from(treasuryConfig).limit(1);
+    if (!config?.smartContractAddress) {
+      throw new Error('Smart contract address not configured in database');
+    }
+    return config.smartContractAddress;
+  } catch (error) {
+    console.error('Failed to get smart contract address from database:', error);
+    throw error;
+  }
+}
+
 // Helper function to log admin operations
 async function logAdminOperation(
   operationType: string,
@@ -119,7 +133,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
 
       const KILT_TOKEN_ADDRESS = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
-      const BASIC_TREASURY_POOL_ADDRESS = "0x3ee2361272EaDc5ADc91418530722728E7DCe526";
+      const treasuryContractAddress = await getSmartContractAddress(); // Get from database
 
       try {
         // Get a viem client for blockchain calls
@@ -156,7 +170,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           address: KILT_TOKEN_ADDRESS as `0x${string}`,
           abi: erc20Abi,
           functionName: 'allowance',
-          args: [address as `0x${string}`, BASIC_TREASURY_POOL_ADDRESS as `0x${string}`]
+          args: [address as `0x${string}`, treasuryContractAddress as `0x${string}`]
         });
 
         // Convert BigInt to human readable numbers
@@ -198,6 +212,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       if (!contractAddress || !contractAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
         return res.status(400).json({ error: 'Invalid contract address' });
+      }
+
+      // Validate that the provided address matches our configured smart contract
+      const configuredAddress = await getSmartContractAddress();
+      if (contractAddress.toLowerCase() !== configuredAddress.toLowerCase()) {
+        return res.status(400).json({ 
+          error: 'Contract address does not match configured smart contract address',
+          expected: configuredAddress,
+          provided: contractAddress
+        });
       }
 
       const KILT_TOKEN_ADDRESS = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
@@ -275,6 +299,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       console.error('Error fetching contract balances:', error);
       res.setHeader('Content-Type', 'application/json');
       res.status(500).json({ error: 'Failed to fetch contract balances' });
+    }
+  });
+
+  // Get treasury configuration for client components
+  app.get("/api/treasury/config", async (req, res) => {
+    try {
+      const contractAddress = await getSmartContractAddress();
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        smartContractAddress: contractAddress,
+        timestamp: Date.now(),
+        source: 'database_config'
+      });
+    } catch (error) {
+      console.error('Error fetching treasury config:', error);
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: 'Failed to fetch treasury configuration' });
     }
   });
 
@@ -2788,7 +2829,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           totalAllocation: parseFloat(config.totalAllocation),
           programDurationDays: config.programDurationDays,
           programStartDate: config.programStartDate || '',
-          treasuryWalletAddress: config.treasuryWalletAddress || '',
+          treasuryWalletAddress: config.smartContractAddress || '', // Use new field name but return with old API name for backward compatibility
+          smartContractAddress: config.smartContractAddress || '', // Also provide new field name
           isActive: config.isActive,
           // Auto-calculated read-only fields
           programEndDate: config.programEndDate || '',
@@ -2806,10 +2848,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const config = req.body;
 
       
-      // Validate required fields - check for valid values
+      // Validate required fields - check for valid values (support both field names)
       const validationErrors = [];
-      if (!config.treasuryWalletAddress || config.treasuryWalletAddress.trim() === '') {
-        validationErrors.push('Treasury wallet address is required');
+      const smartContractAddr = config.smartContractAddress || config.treasuryWalletAddress;
+      if (!smartContractAddr || smartContractAddr.trim() === '') {
+        validationErrors.push('Smart contract address is required');
       }
       if (!config.totalAllocation || config.totalAllocation <= 0) {
         validationErrors.push('Total allocation must be greater than 0');
@@ -2840,7 +2883,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const dailyRewardsCap = config.totalAllocation / config.programDurationDays;
       
       const dbConfig = {
-        treasuryWalletAddress: config.treasuryWalletAddress,
+        smartContractAddress: smartContractAddr, // Support both old and new field names
         totalAllocation: config.totalAllocation.toString(),
         programStartDate: programStartDate.toISOString().split('T')[0],
         programEndDate: programEndDate.toISOString().split('T')[0],

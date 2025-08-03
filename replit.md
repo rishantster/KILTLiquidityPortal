@@ -31,7 +31,7 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 - **Performance**: Aggressive caching, parallel processing (e.g., ParallelPositionProcessor, ParallelDataLoader), request deduplication for sub-second responses.
 
 **Database Schema (Core Entities)**:
-- Users, LP Positions, Rewards, Pool Stats, Analytics Tables.
+- Users, LP Positions, Rewards, Pool Stats, Analytics Tables, Treasury Configuration (single source of truth for smart contract addresses).
 
 **Smart Contract Architecture**:
 - **Core Contract**: `MultiTokenTreasuryPool` for advanced treasury-based reward distribution.
@@ -55,6 +55,7 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 
 **System Design Choices**:
 - **Data Integrity**: 100% authentic blockchain data with zero fallbacks.
+- **Database-Driven Configuration**: Smart contract addresses stored in database as single source of truth, eliminating hardcoded values throughout the application.
 - **Performance**: Aggressive caching, parallel processing, optimized API responses.
 - **Modularity**: Clean component architecture.
 - **Security**: Input validation, rate limiting, secure smart contract design.

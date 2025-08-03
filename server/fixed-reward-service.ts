@@ -992,7 +992,7 @@ export class FixedRewardService {
         success: false,
         updatedPositions: 0,
         totalRewardsDistributed: 0,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -1200,14 +1200,14 @@ export class FixedRewardService {
         .from(rewards)
         .where(eq(rewards.userId, userId));
 
-      // Calculate stats from the fetched records using CORRECT daily_reward_amount (the actual calculated reward)
-      const totalAccumulated = rewardsForUser.reduce((sum: number, reward: any) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
+      // Calculate stats from the fetched records using CORRECT accumulated_amount (the total earned amount)
+      const totalAccumulated = rewardsForUser.reduce((sum: number, reward: any) => sum + parseFloat(reward.accumulatedAmount.toString()), 0);
       const totalClaimable = rewardsForUser
         .filter((reward: any) => !reward.claimedAt)
-        .reduce((sum: number, reward: any) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
+        .reduce((sum: number, reward: any) => sum + parseFloat(reward.accumulatedAmount.toString()), 0);
       const totalClaimed = rewardsForUser
         .filter((reward: any) => reward.claimedAt)
-        .reduce((sum: number, reward: any) => sum + parseFloat(reward.dailyRewardAmount.toString()), 0);
+        .reduce((sum: number, reward: any) => sum + parseFloat(reward.accumulatedAmount.toString()), 0);
 
       const rawStats = {
         totalAccumulated,
@@ -1230,9 +1230,14 @@ export class FixedRewardService {
           (new Date().getTime() - new Date(oldestPosition.createdAt).getTime()) / (1000 * 60 * 60 * 24)
         ));
         
-        // Calculate actual daily rate based on total accumulated divided by days active
-        // This shows real performance rather than theoretical projections
-        actualDailyRate = (rawStats.totalAccumulated || 0) / daysSinceStart;
+        // Calculate actual daily rate using dailyRewardAmount from the most recent reward record
+        // This shows the current daily earning rate
+        if (rewardsForUser.length > 0) {
+          const latestReward = rewardsForUser[rewardsForUser.length - 1];
+          actualDailyRate = parseFloat(latestReward.dailyRewardAmount.toString());
+        } else {
+          actualDailyRate = (rawStats.totalAccumulated || 0) / daysSinceStart;
+        }
       }
 
       return {

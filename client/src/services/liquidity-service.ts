@@ -182,7 +182,7 @@ export class LiquidityService {
 
   static getPercentageOptions(): Array<{value: number, label: string}> {
     return [
-      { value: 0, label: '0%' },
+      { value: 10, label: '10%' },
       { value: 25, label: '25%' },
       { value: 50, label: '50%' },
       { value: 75, label: '75%' },

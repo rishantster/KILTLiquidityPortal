@@ -161,18 +161,22 @@ export function SmartContractPanel() {
   // Real contract owner is the deployer address
   const contractOwner = "0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e"; // Actual contract owner (deployer)
   
-  // Fetch real KILT balance for connected wallet
-  const { data: walletKiltData } = useQuery({
+  // Fetch real KILT balance for connected wallet with aggressive refresh
+  const { data: walletKiltData, refetch: refetchWalletData } = useQuery({
     queryKey: [`/api/wallet/kilt-balance/${address}`],
     enabled: !!address,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds for real-time updates
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
-  // Fetch contract balances from blockchain
-  const { data: contractData } = useQuery({
+  // Fetch contract balances from blockchain with aggressive refresh
+  const { data: contractData, refetch: refetchContractData } = useQuery({
     queryKey: [`/api/smart-contract/balances/${contractAddress}`],
     enabled: !!contractAddress,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds for real-time updates
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Extract values with fallbacks
@@ -408,9 +412,11 @@ export function SmartContractPanel() {
         title: "Approval Successful!",
         description: `Successfully approved ${depositAmount} KILT for treasury deposit`,
       });
+      // Immediate data refresh for real-time updates
       queryClient.invalidateQueries({ queryKey: [`/api/wallet/kilt-balance/${address}`] });
+      refetchWalletData();
     }
-  }, [approveSuccess, depositAmount, toast, queryClient, address]);
+  }, [approveSuccess, depositAmount, toast, queryClient, address, refetchWalletData]);
 
   useEffect(() => {
     if (depositSuccess) {
@@ -419,10 +425,13 @@ export function SmartContractPanel() {
         description: `Successfully deposited ${depositAmount} KILT to treasury`,
       });
       setDepositAmount("");
+      // Immediate data refresh for real-time balance updates
       queryClient.invalidateQueries({ queryKey: [`/api/wallet/kilt-balance/${address}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/smart-contract/balances/${contractAddress}`] });
+      refetchWalletData();
+      refetchContractData();
     }
-  }, [depositSuccess, depositAmount, toast, queryClient, address, contractAddress]);
+  }, [depositSuccess, depositAmount, toast, queryClient, address, contractAddress, refetchWalletData, refetchContractData]);
 
   useEffect(() => {
     if (withdrawSuccess) {
@@ -431,10 +440,13 @@ export function SmartContractPanel() {
         description: `Successfully withdrew ${withdrawAmount} KILT from treasury`,
       });
       setWithdrawAmount("");
+      // Immediate data refresh for real-time balance updates
       queryClient.invalidateQueries({ queryKey: [`/api/wallet/kilt-balance/${address}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/smart-contract/balances/${contractAddress}`] });
+      refetchWalletData();
+      refetchContractData();
     }
-  }, [withdrawSuccess, withdrawAmount, toast, queryClient, address, contractAddress]);
+  }, [withdrawSuccess, withdrawAmount, toast, queryClient, address, contractAddress, refetchWalletData, refetchContractData]);
 
   useEffect(() => {
     if (rewardSuccess) {
@@ -444,11 +456,24 @@ export function SmartContractPanel() {
       });
       setRewardAmount("");
       setRewardUser("");
+      // Immediate data refresh for real-time balance updates
       queryClient.invalidateQueries({ queryKey: [`/api/smart-contract/balances/${contractAddress}`] });
+      refetchContractData();
     }
-  }, [rewardSuccess, rewardAmount, rewardUser, toast, queryClient, contractAddress]);
+  }, [rewardSuccess, rewardAmount, rewardUser, toast, queryClient, contractAddress, refetchContractData]);
 
-  // This useEffect is now handled by individual transaction success handlers above
+  // Auto-refresh when component becomes visible or user returns to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && contractAddress && address) {
+        refetchWalletData();
+        refetchContractData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [contractAddress, address, refetchWalletData, refetchContractData]);
 
   if (!isConnected) {
     return (

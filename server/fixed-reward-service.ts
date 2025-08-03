@@ -1202,12 +1202,10 @@ export class FixedRewardService {
 
       // Calculate stats from the fetched records using CORRECT accumulated_amount (the total earned amount)
       const totalAccumulated = rewardsForUser.reduce((sum: number, reward: any) => sum + parseFloat(reward.accumulatedAmount.toString()), 0);
-      const totalClaimable = rewardsForUser
-        .filter((reward: any) => !reward.claimedAt)
-        .reduce((sum: number, reward: any) => sum + parseFloat(reward.accumulatedAmount.toString()), 0);
-      const totalClaimed = rewardsForUser
-        .filter((reward: any) => reward.claimedAt)
-        .reduce((sum: number, reward: any) => sum + parseFloat(reward.accumulatedAmount.toString()), 0);
+      // Since smart contracts aren't implemented yet, show all accumulated as claimable
+      const totalClaimable = totalAccumulated;
+      // Keep claimed at 0 until real smart contract claiming is implemented
+      const totalClaimed = 0;
 
       const rawStats = {
         totalAccumulated,

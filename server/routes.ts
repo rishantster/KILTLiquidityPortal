@@ -14,7 +14,7 @@ declare global {
 }
 import { storage } from "./storage";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { 
   insertUserSchema, 
   insertLpPositionSchema, 
@@ -755,6 +755,83 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       // Error fetching program info
       res.status(500).json({ error: 'Failed to fetch program info' });
+    }
+  });
+
+  // Position Lifecycle Management Routes
+  
+  // Emergency fix for closed positions marked as active
+  app.post("/api/positions/fix-closed", async (req, res) => {
+    try {
+      // Update database: mark all positions with 0 liquidity as inactive
+      const result = await db.execute(sql`
+        UPDATE lp_positions 
+        SET is_active = false 
+        WHERE liquidity = '0' AND is_active = true
+        RETURNING nft_token_id, liquidity
+      `);
+      
+      res.json({
+        success: true,
+        message: "Fixed closed positions",
+        updatedPositions: result.length
+      });
+    } catch (error) {
+      console.error('Failed to fix closed positions:', error);
+      res.status(500).json({ error: "Failed to fix closed positions" });
+    }
+  });
+
+  // Sync position states with blockchain
+  app.post("/api/positions/sync", async (req, res) => {
+    try {
+      const { positionLifecycleManager } = await import('./position-lifecycle-manager');
+      const updates = await positionLifecycleManager.syncAllPositions();
+      
+      res.json({
+        success: true,
+        updatesCount: updates.length,
+        updates: updates
+      });
+    } catch (error) {
+      console.error('Position sync failed:', error);
+      res.status(500).json({ error: "Failed to sync positions" });
+    }
+  });
+
+  // Sync positions for specific user
+  app.post("/api/positions/sync/:userAddress", async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      const { positionLifecycleManager } = await import('./position-lifecycle-manager');
+      const updates = await positionLifecycleManager.syncUserPositions(userAddress);
+      
+      res.json({
+        success: true,
+        userAddress,
+        updatesCount: updates.length,
+        updates: updates
+      });
+    } catch (error) {
+      console.error(`Position sync failed for ${req.params.userAddress}:`, error);
+      res.status(500).json({ error: "Failed to sync user positions" });
+    }
+  });
+
+  // Get user active positions only
+  app.get("/api/positions/active/:userAddress", async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      const { positionLifecycleManager } = await import('./position-lifecycle-manager');
+      const activePositions = await positionLifecycleManager.getUserActivePositions(userAddress);
+      
+      res.json({
+        activePositions,
+        count: activePositions.length
+      });
+    } catch (error) {
+      console.error(`Failed to get active positions for ${req.params.userAddress}:`, error);
+      res.status(500).json({ error: "Failed to fetch active positions" });
     }
   });
 

@@ -309,14 +309,31 @@ export function MainDashboard() {
         {/* Overlay for content readability */}
         <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
         
-        {/* Beta Badge - Fixed position in top right corner */}
+        {/* Cyberpunk Beta Badge - Fixed position in top right corner */}
         <div className="fixed top-6 right-6 sm:top-8 sm:right-8 z-50">
-          <Badge 
-            variant="outline" 
-            className="bg-pink-500/90 border-pink-400 text-white text-xs sm:text-sm font-bold px-3 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wider backdrop-blur-sm shadow-lg hover:scale-105 transition-all duration-300 rounded-full"
-          >
-            BETA
-          </Badge>
+          <div className="relative group">
+            {/* Animated cyberpunk glow layers */}
+            <div className="absolute inset-0 bg-matrix-green/30 rounded-lg blur-lg animate-pulse"></div>
+            <div className="absolute inset-0 bg-cyan-400/20 rounded-lg blur-md animate-ping"></div>
+            
+            {/* Main beta badge with cyberpunk styling */}
+            <div className="relative bg-black/95 border-2 border-matrix-green/80 text-matrix-green text-xs sm:text-sm font-black px-4 py-2 uppercase tracking-widest backdrop-blur-xl shadow-2xl shadow-matrix-green/25 transform hover:scale-110 transition-all duration-300 rounded-lg overflow-hidden">
+              {/* Inner cyberpunk grid pattern */}
+              <div className="absolute inset-0 opacity-10 bg-gradient-to-r from-transparent via-matrix-green/20 to-transparent animate-pulse"></div>
+              
+              {/* Glitch effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-transparent to-matrix-green/10 animate-pulse opacity-50"></div>
+              
+              {/* Beta text with cyberpunk styling */}
+              <span className="relative z-10 font-mono text-shadow-glow drop-shadow-lg">
+                BETA
+              </span>
+              
+              {/* Scanning line effect */}
+              <div className="absolute top-0 left-0 w-full h-0.5 bg-matrix-green/60 animate-pulse"></div>
+              <div className="absolute bottom-0 right-0 w-full h-0.5 bg-cyan-400/40 animate-pulse delay-75"></div>
+            </div>
+          </div>
         </div>
 
         <div className="max-w-5xl mx-auto relative" style={{ zIndex: 10 }}>
@@ -498,11 +515,33 @@ export function MainDashboard() {
             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
               <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
             </div>
-            <div className="min-w-0 flex items-center gap-2">
+            <div className="min-w-0 flex items-center gap-3">
               <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>
-              <span className="px-2 py-1 text-xs font-semibold bg-gradient-to-r from-[#ff0066] to-[#ff4499] text-white rounded-full tracking-wider animate-pulse">
-                BETA
-              </span>
+              
+              {/* Cyberpunk Beta Badge - Dashboard Header */}
+              <div className="relative group flex-shrink-0">
+                {/* Animated cyberpunk glow layers */}
+                <div className="absolute inset-0 bg-matrix-green/30 rounded-lg blur-md animate-pulse"></div>
+                <div className="absolute inset-0 bg-cyan-400/20 rounded-lg blur-sm animate-ping"></div>
+                
+                {/* Main beta badge with cyberpunk styling */}
+                <div className="relative bg-black/95 border-2 border-matrix-green/80 text-matrix-green text-xs font-black px-3 py-1.5 uppercase tracking-widest backdrop-blur-xl shadow-xl shadow-matrix-green/25 transform hover:scale-110 transition-all duration-300 rounded-lg overflow-hidden">
+                  {/* Inner cyberpunk grid pattern */}
+                  <div className="absolute inset-0 opacity-10 bg-gradient-to-r from-transparent via-matrix-green/20 to-transparent animate-pulse"></div>
+                  
+                  {/* Glitch effect overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-transparent to-matrix-green/10 animate-pulse opacity-50"></div>
+                  
+                  {/* Beta text with cyberpunk styling */}
+                  <span className="relative z-10 font-mono text-shadow-glow drop-shadow-lg">
+                    BETA
+                  </span>
+                  
+                  {/* Scanning line effect */}
+                  <div className="absolute top-0 left-0 w-full h-0.5 bg-matrix-green/60 animate-pulse"></div>
+                  <div className="absolute bottom-0 right-0 w-full h-0.5 bg-cyan-400/40 animate-pulse delay-75"></div>
+                </div>
+              </div>
             </div>
           </div>
           

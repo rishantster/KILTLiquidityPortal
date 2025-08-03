@@ -189,6 +189,15 @@ a:hover {
     0 0 30px rgba(255, 0, 102, 0.1);
 }
 
+/* Cyberpunk Beta Badge Text Glow Effect */
+.text-shadow-glow {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor,
+    0 0 20px currentColor;
+}
+
 /* Video performance optimizations */
 .video-background {
   position: fixed;

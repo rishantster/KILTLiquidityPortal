@@ -118,10 +118,10 @@ export function SmartContractPanel() {
   const [rewardUser, setRewardUser] = useState("");
   const [rewardAmount, setRewardAmount] = useState("");
 
-  // Mock contract data for now - will implement real reads later
+  // Real contract owner is the deployer address
   const contractBalance = BigInt(0);
   const treasuryBalance = BigInt(0);
-  const contractOwner = BASIC_TREASURY_POOL_ADDRESS; // Mock for now
+  const contractOwner = "0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e"; // Actual contract owner (deployer)
   const userKiltBalance = BigInt(0);
   const kiltAllowance = BigInt(0);
   

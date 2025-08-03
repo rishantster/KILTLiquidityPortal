@@ -153,8 +153,21 @@ export class FixedRewardService {
   }
 
   /**
-   * Calculate daily rewards using the new formula:
-   * R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
+   * Get real-time treasury balance from smart contract
+   */
+  private async getActualTreasuryBalance(): Promise<number> {
+    try {
+      const { smartContractService } = await import('./smart-contract-service');
+      return await smartContractService.getTreasuryBalance();
+    } catch (error) {
+      console.error('Failed to get treasury balance:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Calculate daily rewards using the new formula with real-time treasury balance:
+   * R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (TreasuryBalance/P)
    * 
    * @param userLiquidity - L_u: User's liquidity amount in USD
    * @param totalLiquidity - L_T: Total liquidity in the system
@@ -188,18 +201,22 @@ export class FixedRewardService {
     const adjustedInRangeMultiplier = inRangeMultiplier === 0 ? 1.0 : inRangeMultiplier;
     console.log(`🔧 Adjusted inRangeMultiplier from ${inRangeMultiplier} to ${adjustedInRangeMultiplier}`);
 
-    // Get admin-configured parameters (single source of truth)
+    // Get admin-configured parameters and real treasury balance
     const config = await this.getAdminConfiguration();
+    const actualTreasuryBalance = await this.getActualTreasuryBalance();
     
-    // Formula components using admin configuration
+    // Calculate daily reward rate based on actual treasury balance
+    // Use the admin's TOTAL_ALLOCATION to determine what portion of treasury should be distributed daily
+    const dailyRewardRate = actualTreasuryBalance / config.programDurationDays;
+    
+    // Formula components using admin configuration + real treasury data
     const liquidityShare = userLiquidity / totalLiquidity; // L_u/L_T
     const timeBoost = 1 + ((daysActive / config.programDurationDays) * config.timeBoostCoefficient); // 1 + ((D_u/P)*b_time)
-    const dailyRewardRate = config.dailyBudget; // R/P (daily allocation from admin)
     
     // Full Range Bonus: only full range positions get FRB multiplier (admin-configured)
     const fullRangeBonus = isFullRange ? config.fullRangeBonus : 1.0;
     
-    // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
+    // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (TreasuryBalance/P)
     const dailyReward = liquidityShare * timeBoost * adjustedInRangeMultiplier * fullRangeBonus * dailyRewardRate;
     
     console.log(`💰 Daily reward calculation result:`, {
@@ -207,7 +224,8 @@ export class FixedRewardService {
       timeBoost: timeBoost.toFixed(4),
       adjustedInRangeMultiplier,
       fullRangeBonus,
-      dailyRewardRate,
+      actualTreasuryBalance,
+      dailyRewardRate: dailyRewardRate.toFixed(4),
       dailyReward: dailyReward.toFixed(4)
     });
     

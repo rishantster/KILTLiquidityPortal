@@ -140,14 +140,17 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application desig
 - **Contract Deployed**: BasicTreasuryPool.sol successfully deployed to Base network at `0x3ee2361272EaDc5ADc91418530722728E7DCe526`
 - **Contract Owner**: `0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e` (deployer address with full owner permissions)
 - **Admin Interface Complete**: Smart Contract management tab integrated into admin panel with funding, withdrawal, and reward distribution
+- **Automatic Balance Detection**: Real-time KILT balance fetching for connected wallet and contract treasury status
+- **Enhanced User Experience**: "Max" button automatically populates wallet balance, live balance updates every 30 seconds
+- **API Integration**: New endpoints `/api/wallet/kilt-balance/:address` and `/api/smart-contract/balances/:contractAddress`
 - **Full Integration Complete**: Web3 reward claiming hook (useRewardClaiming) fully integrated with deployed contract using wagmi/viem
 - **Production Ready**: Contract address configured in application, all API endpoints updated to use deployed smart contract
 - **User Experience**: UI shows "Claim via Smart Contract" with real blockchain transaction functionality
 - **Transaction Flow**: Users can now claim KILT token rewards directly from the smart contract with MetaMask integration
 - **Gas Optimization**: Real Base network gas costs (~$0.02) for reward claiming transactions
 - **Contract Features**: Supports KILT token rewards, owner-managed treasury deposits, user reward tracking, and secure claim functionality
-- **Owner Functions**: depositToTreasury(), emergencyWithdraw(), distributeReward() accessible via admin interface
-- **Current State**: Full end-to-end reward system operational with authentic smart contract integration and admin management on Base network
+- **Owner Functions**: depositToTreasury(), emergencyWithdraw(), distributeReward() accessible via admin interface with live balance guidance
+- **Current State**: Full end-to-end reward system operational with authentic smart contract integration, admin management, and automatic balance detection on Base network
 
 **Previous Major Codebase Cleanup (February 2025)**:
 - **Massive Redundancy Removal**: Eliminated 6+ duplicate cache files, 7+ APR services, multiple optimization layers

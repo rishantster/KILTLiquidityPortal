@@ -23,8 +23,7 @@ import {
   TrendingUp,
   Activity
 } from "lucide-react";
-import { formatEther, parseEther } from "viem";
-// Remove problematic wagmi imports for now - will implement simple web3 interactions
+// Simplified implementation focused on admin interface guidance
 
 // Contract configuration
 const BASIC_TREASURY_POOL_ADDRESS = "0x3ee2361272EaDc5ADc91418530722728E7DCe526";

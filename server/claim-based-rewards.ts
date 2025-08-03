@@ -4,6 +4,7 @@ import { rewards, users, adminOperations } from '@shared/schema';
 import { eq, and, lt, isNull } from 'drizzle-orm';
 import { smartContractService } from './smart-contract-service';
 import { blockchainConfigService } from './blockchain-config-service';
+import { fixedRewardService } from './fixed-reward-service';
 
 export interface ClaimResult {
   success: boolean;
@@ -82,6 +83,35 @@ export class ClaimBasedRewards {
         );
 
       if (userRewards.length === 0) {
+        // No database records - check if user has accumulated rewards via calculation
+        console.log(`🔍 No reward records found for user ${user.id}, checking calculated rewards`);
+        if (lockPeriodDays === 0) {
+          try {
+            console.log(`📊 Fetching reward stats for user ID: ${user.id}`);
+            const rewardStats = await fixedRewardService.getUserRewardStats(user.id);
+            console.log(`📊 Reward stats result:`, rewardStats);
+            const totalClaimable = rewardStats.totalAccumulated || 0;
+            console.log(`💰 Total claimable calculated: ${totalClaimable} KILT`);
+            
+            if (totalClaimable > 0) {
+              console.log(`✅ Rewards are claimable! Returning canClaim: true`);
+              return {
+                canClaim: true,
+                lockExpired: true,
+                daysRemaining: 0,
+                totalClaimable,
+                lockExpiryDate: new Date()
+              };
+            } else {
+              console.log(`❌ No rewards to claim (totalClaimable: ${totalClaimable})`);
+            }
+          } catch (error) {
+            console.log('❌ Error fetching calculated rewards:', error);
+          }
+        } else {
+          console.log(`🔒 Lock period is ${lockPeriodDays} days, rewards not immediately claimable`);
+        }
+        
         return {
           canClaim: false,
           lockExpired: false,
@@ -96,9 +126,25 @@ export class ClaimBasedRewards {
       
       // If lock period is 0 days, rewards are immediately claimable
       if (lockPeriodDays === 0) {
-        const totalClaimable = userRewards.reduce((sum, reward) => {
-          return sum + parseFloat(reward.dailyRewardAmount || '0');
-        }, 0);
+        // Get accumulated rewards from the same source as reward stats
+        let totalClaimable = 0;
+        if (userRewards.length > 0) {
+          totalClaimable = userRewards.reduce((sum, reward) => {
+            return sum + parseFloat(reward.dailyRewardAmount || '0');
+          }, 0);
+        } else {
+          // If no reward records, use the reward calculation service to get real-time accumulated amount
+          try {
+            console.log(`Fetching reward stats for user ID: ${user.id}`);
+            const rewardStats = await fixedRewardService.getUserRewardStats(user.id);
+            console.log(`Reward stats result:`, rewardStats);
+            totalClaimable = rewardStats.totalAccumulated || 0;
+            console.log(`Total claimable amount: ${totalClaimable}`);
+          } catch (error) {
+            console.log('Error fetching rewards for claiming:', error);
+            totalClaimable = 0;
+          }
+        }
         
         return {
           canClaim: totalClaimable > 0,

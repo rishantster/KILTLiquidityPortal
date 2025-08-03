@@ -1126,7 +1126,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/claimability/:address", async (req, res) => {
     try {
       const userAddress = req.params.address;
+      console.log(`🔧 Claimability API called for address: ${userAddress}`);
       const claimableRewards = await claimBasedRewards.checkClaimability(userAddress);
+      console.log(`✅ Claimability result:`, claimableRewards);
       res.json({
         claimable: claimableRewards.totalClaimable,
         canClaim: claimableRewards.canClaim,
@@ -1136,6 +1138,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         totalClaimable: claimableRewards.totalClaimable
       });
     } catch (error) {
+      console.log(`❌ Claimability API error for ${req.params.address}:`, error);
       // Return fallback for claimability check
       res.json({
         claimable: 0,

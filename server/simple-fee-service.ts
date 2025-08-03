@@ -42,37 +42,98 @@ export class SimpleFeeService {
         
         const client = this.getClient(rpcIndex);
         
+        // First get the position owner to use as recipient for collect simulation
+        const ownerResult = await client.readContract({
+          address: this.POSITION_MANAGER,
+          abi: [{
+            inputs: [{ name: 'tokenId', type: 'uint256' }],
+            name: 'ownerOf',
+            outputs: [{ name: '', type: 'address' }],
+            stateMutability: 'view',
+            type: 'function'
+          }],
+          functionName: 'ownerOf',
+          args: [BigInt(tokenId)]
+        });
+
+        const positionOwner = ownerResult as `0x${string}`;
+        
         // Use the same method as Uniswap interface - simulate collect with max amounts
         const collectParams: [bigint, `0x${string}`, bigint, bigint] = [
           BigInt(tokenId),                                           // tokenId
-          '0x0000000000000000000000000000000000000000',              // recipient (zero for simulation)
+          positionOwner,                                             // recipient (position owner)
           BigInt('340282366920938463463374607431768211455'),         // amount0Max (uint128 max)
           BigInt('340282366920938463463374607431768211455')          // amount1Max (uint128 max)
         ];
 
-        // Simulate the collect call to get unclaimed fees
-        const result = await client.simulateContract({
-          address: this.POSITION_MANAGER as `0x${string}`,
-          abi: [{
-            inputs: [
-              { name: 'tokenId', type: 'uint256' },
-              { name: 'recipient', type: 'address' },
-              { name: 'amount0Max', type: 'uint128' },
-              { name: 'amount1Max', type: 'uint128' }
-            ],
-            name: 'collect',
-            outputs: [
-              { name: 'amount0', type: 'uint256' },
-              { name: 'amount1', type: 'uint256' }
-            ],
-            stateMutability: 'payable',
-            type: 'function'
-          }],
-          functionName: 'collect',
-          args: collectParams
-        });
+        // Try simulation first, fallback to tokensOwed if it fails
+        let amount0: bigint;
+        let amount1: bigint;
+        
+        try {
+          // Simulate the collect call to get unclaimed fees
+          const result = await client.simulateContract({
+            address: this.POSITION_MANAGER as `0x${string}`,
+            abi: [{
+              inputs: [
+                { name: 'tokenId', type: 'uint256' },
+                { name: 'recipient', type: 'address' },
+                { name: 'amount0Max', type: 'uint128' },
+                { name: 'amount1Max', type: 'uint128' }
+              ],
+              name: 'collect',
+              outputs: [
+                { name: 'amount0', type: 'uint256' },
+                { name: 'amount1', type: 'uint256' }
+              ],
+              stateMutability: 'payable',
+              type: 'function'
+            }],
+            functionName: 'collect',
+            args: collectParams
+          });
+          
+          [amount0, amount1] = result.result as [bigint, bigint];
+          console.log(`✅ Collect simulation successful for ${tokenId}: ${amount0} / ${amount1}`);
+          
+        } catch (simulationError) {
+          console.log(`⚠️ Collect simulation failed for ${tokenId}, trying tokensOwed fallback`);
+          
+          // Fallback to tokensOwed method
+          const positionData = await client.readContract({
+            address: this.POSITION_MANAGER,
+            abi: [{
+              inputs: [{ name: 'tokenId', type: 'uint256' }],
+              name: 'positions',
+              outputs: [
+                { name: 'nonce', type: 'uint96' },
+                { name: 'operator', type: 'address' },
+                { name: 'token0', type: 'address' },
+                { name: 'token1', type: 'address' },
+                { name: 'fee', type: 'uint24' },
+                { name: 'tickLower', type: 'int24' },
+                { name: 'tickUpper', type: 'int24' },
+                { name: 'liquidity', type: 'uint128' },
+                { name: 'feeGrowthInside0LastX128', type: 'uint256' },
+                { name: 'feeGrowthInside1LastX128', type: 'uint256' },
+                { name: 'tokensOwed0', type: 'uint128' },
+                { name: 'tokensOwed1', type: 'uint128' }
+              ],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'positions',
+            args: [BigInt(tokenId)]
+          });
+          
+          const positionArray = positionData as readonly [bigint, `0x${string}`, `0x${string}`, `0x${string}`, number, number, number, bigint, bigint, bigint, bigint, bigint];
+          amount0 = positionArray[10]; // tokensOwed0
+          amount1 = positionArray[11]; // tokensOwed1
+          
+          console.log(`✅ Fallback tokensOwed for ${tokenId}: ${amount0} / ${amount1}`);
+        }
 
-        const [amount0, amount1] = result.result as [bigint, bigint];
+        // amount0 and amount1 are now defined above
 
         // Convert to USD using real-time prices
         const feeConversion = await PriceService.convertFeesToUSD(

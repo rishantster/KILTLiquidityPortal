@@ -23,7 +23,7 @@ import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useKiltEthConversionRate } from '@/hooks/use-conversion-rate';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatUnits, parseUnits } from 'viem';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
@@ -55,8 +55,9 @@ export function UniswapStyleLiquidityModal({
   const { address, isConnected } = useWagmiWallet();
   const { data: kiltData } = useKiltTokenData();
   const { data: conversionRate } = useKiltEthConversionRate();
-  const { ethBalance, wethBalance, kiltBalance, increaseLiquidity } = useUniswapV3();
+  const { ethBalance, wethBalance, kiltBalance, increaseLiquidity, decreaseLiquidity, collectFees } = useUniswapV3();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Form state
   const [ethAmount, setEthAmount] = useState('');
@@ -185,17 +186,135 @@ export function UniswapStyleLiquidityModal({
           description: `Adding ${ethAmount} ETH and ${kiltAmount} KILT to position ${positionId}`,
         });
         
+        // Invalidate and refresh position data
+        if (address) {
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/positions/wallet', address] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/positions/eligible', address] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: [`/api/positions/${positionId}/fees`] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/rewards/user', address] 
+          });
+        }
+        
         // Transaction successful - close modal
         onClose();
         
         return;
       }
       
-      // For other modes (remove, collect) - implement real transactions later
-      toast({
-        title: "Feature Coming Soon",
-        description: `${mode === 'remove' ? 'Remove' : 'Collect'} functionality will be available soon`,
-      });
+      if (mode === 'remove') {
+        // Remove liquidity functionality
+        const positionId = position?.tokenId || position?.nftTokenId || position?.id;
+        if (!positionId) {
+          toast({
+            title: "Position Not Found",
+            description: "Cannot remove liquidity without a position ID",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Calculate liquidity amount to remove based on percentage
+        const totalLiquidity = position?.liquidity || '0';
+        const liquidityToRemove = (BigInt(totalLiquidity) * BigInt(removePercentage[0]) / 100n).toString();
+        
+        console.log('Remove Liquidity Debug:', {
+          positionId: positionId.toString(),
+          totalLiquidity,
+          removePercentage: removePercentage[0],
+          liquidityToRemove,
+          position
+        });
+
+        // Calculate minimum amounts (with slippage protection)
+        const amount0Min = '0'; // For testing, use 0 - in production should calculate based on slippage
+        const amount1Min = '0'; // For testing, use 0 - in production should calculate based on slippage
+
+        const txHash = await decreaseLiquidity({
+          tokenId: positionId.toString(),
+          liquidity: liquidityToRemove,
+          amount0Min,
+          amount1Min,
+        });
+
+        toast({
+          title: "Liquidity Removal Submitted",
+          description: `Removing ${removePercentage[0]}% liquidity from position ${positionId}`,
+        });
+
+        // Invalidate and refresh position data
+        if (address) {
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/positions/wallet', address] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/positions/eligible', address] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: [`/api/positions/${positionId}/fees`] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/rewards/user', address] 
+          });
+        }
+
+        // Close modal after successful transaction
+        onClose();
+        return;
+      }
+
+      if (mode === 'collect') {
+        // Collect fees functionality
+        const positionId = position?.tokenId || position?.nftTokenId || position?.id;
+        if (!positionId) {
+          toast({
+            title: "Position Not Found", 
+            description: "Cannot collect fees without a position ID",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        console.log('Collect Fees Debug:', {
+          positionId: positionId.toString(),
+          position
+        });
+
+        const txHash = await collectFees({
+          tokenId: positionId.toString(),
+        });
+
+        toast({
+          title: "Fee Collection Submitted",
+          description: `Collecting fees from position ${positionId}`,
+        });
+
+        // Invalidate and refresh position data
+        if (address) {
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/positions/wallet', address] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/positions/eligible', address] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: [`/api/positions/${positionId}/fees`] 
+          });
+          await queryClient.invalidateQueries({ 
+            queryKey: ['/api/rewards/user', address] 
+          });
+        }
+
+        // Close modal after successful transaction
+        onClose();
+        return;
+      }
       
     } catch (error) {
       console.error('Transaction error:', error);

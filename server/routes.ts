@@ -1315,12 +1315,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return res.status(404).json({ error: 'User not found' });
       }
 
-      // Get user's active positions 
-      const positions = await storage.getLpPositionsByUserId(user.id);
-      if (!positions || positions.length === 0) {
+      // Get user's active positions (only positions that are marked as active in database)
+      const allPositions = await storage.getLpPositionsByUserId(user.id);
+      const activePositions = allPositions.filter(pos => pos.isActive === true);
+      
+      if (!activePositions || activePositions.length === 0) {
         return res.json({ 
           averageAPR: 0, 
-          totalPositions: 0, 
+          totalPositions: allPositions.length,
+          activePositions: 0,
           breakdown: { tradingAPR: 0, incentiveAPR: 0, totalLiquidity: 0 } 
         });
       }
@@ -1338,9 +1341,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         console.warn('Pre-fetching trading APR failed, positions will calculate individually');
       }
 
-      // Calculate APR for all positions
+      // Calculate APR for all active positions only
       const aprCalculations = await Promise.all(
-        positions.map(async (position) => {
+        activePositions.map(async (position) => {
           try {
             return await fixedRewardService.calculatePositionRewards(
               user.id,
@@ -1360,7 +1363,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       if (validCalculations.length === 0) {
         return res.json({ 
           averageAPR: 0, 
-          totalPositions: positions.length, 
+          totalPositions: allPositions.length,
+          activePositions: 0,
           breakdown: { tradingAPR: 0, incentiveAPR: 0, totalLiquidity: 0 } 
         });
       }
@@ -1375,8 +1379,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
       res.json({
         averageAPR: Math.round(averageAPR * 100) / 100,
-        totalPositions: positions.length,
-        activePositions: validCalculations.length,
+        totalPositions: allPositions.length,
+        activePositions: activePositions.length, // Use count of active positions from database
         breakdown: {
           tradingAPR: Math.round(weightedTradingAPR * 100) / 100,
           incentiveAPR: Math.round(weightedIncentiveAPR * 100) / 100,

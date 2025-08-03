@@ -136,6 +136,13 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application desig
 - **Slippage Protection**: Implements 10% slippage tolerance for both WETH and KILT amounts
 - **Transaction Flow**: Real blockchain transaction submission with proper toast notifications and modal closure
 
+**Critical Smart Contract Implementation Gap (February 2025)**:
+- **Rewards Display Issue**: Current UI shows "Claimed" rewards (16760.72 KILT) from database simulation, not actual blockchain transactions
+- **Missing Smart Contract**: MultiTokenTreasuryPool reward claiming functionality not yet implemented on-chain
+- **User Confusion Risk**: Rewards appear as "claimed" when they're actually just calculated/tracked in database
+- **Next Priority**: Either implement actual smart contract claiming or clearly label as "Preview/Simulated" data
+- **Current State**: All liquidity management (Add/Remove/Collect Fees) works with real Uniswap V3 contracts, but treasury rewards are simulated
+
 **Previous Major Codebase Cleanup (February 2025)**:
 - **Massive Redundancy Removal**: Eliminated 6+ duplicate cache files, 7+ APR services, multiple optimization layers
 - **Import Resolution**: Fixed 60+ broken imports and syntax errors that accumulated during rapid development

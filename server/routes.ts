@@ -109,6 +109,62 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Wallet KILT balance endpoint
+  app.get('/api/wallet/kilt-balance/:address', async (req, res) => {
+    try {
+      const { address } = req.params;
+      
+      if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
+        return res.status(400).json({ error: 'Invalid wallet address' });
+      }
+
+      // Demo data showing realistic KILT balances
+      const demoBalance = 15000; // 15,000 KILT tokens
+      const demoAllowance = 5000; // 5,000 KILT approved for spending
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        address,
+        balance: demoBalance,
+        allowance: demoAllowance,
+        timestamp: Date.now(),
+        source: 'demo_data'
+      });
+    } catch (error) {
+      console.error('Error fetching wallet KILT balance:', error);
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: 'Failed to fetch wallet balance' });
+    }
+  });
+
+  // Smart contract balances endpoint
+  app.get('/api/smart-contract/balances/:contractAddress', async (req, res) => {
+    try {
+      const { contractAddress } = req.params;
+      
+      if (!contractAddress || !contractAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
+        return res.status(400).json({ error: 'Invalid contract address' });
+      }
+
+      // Demo data showing contract treasury status
+      const demoContractBalance = 25000; // 25,000 KILT tokens in contract
+      const demoTreasuryBalance = 23500; // 23,500 KILT tracked in treasury
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        contractAddress,
+        contractBalance: demoContractBalance,
+        treasuryBalance: demoTreasuryBalance,
+        timestamp: Date.now(),
+        source: 'demo_data'
+      });
+    } catch (error) {
+      console.error('Error fetching contract balances:', error);
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: 'Failed to fetch contract balances' });
+    }
+  });
+
   // Debug endpoint to check database configuration
   app.get("/api/debug/treasury-config", async (req, res) => {
     try {

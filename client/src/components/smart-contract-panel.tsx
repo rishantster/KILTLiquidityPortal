@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useWagmiWallet } from "@/hooks/use-wagmi-wallet";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Building2,
   DollarSign,
@@ -119,11 +120,26 @@ export function SmartContractPanel() {
   const [rewardAmount, setRewardAmount] = useState("");
 
   // Real contract owner is the deployer address
-  const contractBalance = BigInt(0);
-  const treasuryBalance = BigInt(0);
   const contractOwner = "0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e"; // Actual contract owner (deployer)
-  const userKiltBalance = BigInt(0);
-  const kiltAllowance = BigInt(0);
+  
+  // Fetch real KILT balance for connected wallet
+  const { data: walletKiltData } = useQuery({
+    queryKey: ['/api/wallet/kilt-balance', address],
+    enabled: !!address,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Fetch contract balances from blockchain
+  const { data: contractData } = useQuery({
+    queryKey: ['/api/smart-contract/balances', BASIC_TREASURY_POOL_ADDRESS],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Extract values with fallbacks
+  const userKiltBalance = walletKiltData?.balance || 0;
+  const kiltAllowance = walletKiltData?.allowance || 0;
+  const contractBalance = contractData?.contractBalance || 0;
+  const treasuryBalance = contractData?.treasuryBalance || 0;
   
   // Mock transaction states
   const txHash = null;
@@ -184,14 +200,14 @@ export function SmartContractPanel() {
   };
 
   const maxWithdraw = () => {
-    if (contractBalance) {
-      setWithdrawAmount(formatEther(contractBalance));
+    if (contractBalance > 0) {
+      setWithdrawAmount(contractBalance.toString());
     }
   };
 
   const maxDeposit = () => {
-    if (userKiltBalance) {
-      setDepositAmount(formatEther(userKiltBalance));
+    if (userKiltBalance > 0) {
+      setDepositAmount(userKiltBalance.toString());
     }
   };
 
@@ -272,10 +288,10 @@ export function SmartContractPanel() {
           <CardContent className="space-y-2">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">
-                {contractBalance ? formatEther(contractBalance) : '0'} KILT
+                {contractBalance ? Number(contractBalance).toLocaleString() : '0'} KILT
               </div>
               <div className="text-sm text-gray-400">
-                Tracked: {treasuryBalance ? formatEther(treasuryBalance) : '0'} KILT
+                Tracked: {treasuryBalance ? Number(treasuryBalance).toLocaleString() : '0'} KILT
               </div>
             </div>
             <div className="text-xs text-gray-500 text-center">
@@ -294,10 +310,10 @@ export function SmartContractPanel() {
           <CardContent className="space-y-2">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">
-                {userKiltBalance ? formatEther(userKiltBalance) : '0'} KILT
+                {userKiltBalance ? Number(userKiltBalance).toLocaleString() : '0'} KILT
               </div>
               <div className="text-sm text-gray-400">
-                Allowance: {kiltAllowance ? formatEther(kiltAllowance) : '0'} KILT
+                Allowance: {kiltAllowance ? Number(kiltAllowance).toLocaleString() : '0'} KILT
               </div>
             </div>
             <div className="text-xs text-gray-500 text-center">

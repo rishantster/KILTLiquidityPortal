@@ -34,14 +34,14 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 - Users, LP Positions, Rewards, Pool Stats, Analytics Tables, Treasury Configuration (single source of truth for smart contract addresses).
 
 **Smart Contract Architecture**:
-- **Core Contract**: `MultiTokenTreasuryPool` for advanced treasury-based reward distribution.
+- **Core Contract**: `BasicTreasuryPool` deployed to Base network for treasury-based reward distribution.
+- **Contract Status**: DEPLOYED AND OPERATIONAL on Base network at `0x3ee2361272EaDc5ADc91418530722728E7DCe526`.
 - **Token**: KILT (0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8) on Base network.
-- **Multi-Token Support**: Designed for KILT, BTC, ETH, SOL, BNB, DOT, or any ERC20 token as rewards.
-- **Security**: Funds held directly by contract, includes ReentrancyGuard, Pausable, Ownable, SafeERC20.
-- **Reward Lock**: Rolling 7-day lock per individual reward.
-- **Claiming**: Batch claims, user-paid gas optimization.
-- **Admin Control**: Multi-admin wallet support.
+- **Security**: Funds held directly by contract, includes owner controls and transfer validations.
+- **Reward System**: Immediate claiming available with owner-controlled reward distribution.
+- **Admin Control**: Single owner model with emergency withdrawal capabilities.
 - **Reward Formula**: Sophisticated formula for proportional reward distribution based on liquidity share, time, in-range multiplier, and full-range bonus.
+- **Contract Verification**: Contract bytecode confirmed deployed, ABI updated to match BasicTreasuryPool functions.
 
 **Core Functionality Specifications**:
 - **Wallet Integration**: MetaMask, Coinbase Wallet, WalletConnect (with deep link support).

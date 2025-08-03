@@ -31,31 +31,20 @@ async function getSmartContractAddress(): Promise<string> {
   }
 }
 
-// Updated contract ABI for rolling claims system
+// BasicTreasuryPool contract ABI - matches deployed contract
 const REWARD_POOL_ABI = [
-  'function addLiquidityPosition(address user, uint256 nftTokenId, uint256 liquidityValue) external',
-  'function removeLiquidityPosition(address user, uint256 nftTokenId) external',
-  'function updateLiquidityValue(address user, uint256 nftTokenId, uint256 newLiquidityValue) external',
-  'function distributeDailyRewards() external',
-  'function calculateDailyRewards(address user, uint256 nftTokenId) external view returns (uint256)',
+  'function depositToTreasury(uint256 amount) external',
+  'function distributeReward(address user, uint256 amount) external',
+  'function claimRewards() external',
   'function getClaimableRewards(address user) external view returns (uint256)',
-  'function getPendingRewards(address user) external view returns (uint256)',
-  'function updateRewardWallet(address newRewardWallet) external',
-  'function updateProgramConfig(uint256 treasuryAllocation, uint256 programDuration, uint256 programStartTime) external',
-  'function getProgramInfo() external view returns (uint256, uint256, uint256, uint256, uint256, address, uint256)',
-  'function getTotalActiveLiquidity() external view returns (uint256)',
-  'function getParticipantCount() external view returns (uint256)',
-  'function rewardWallet() external view returns (address)',
-  'function claimRewards(uint256[] calldata nftTokenIds) external',
-  'function pause() external',
-  'function unpause() external',
-  'event LiquidityAdded(address indexed user, uint256 indexed nftTokenId, uint256 liquidityValue)',
-  'event LiquidityRemoved(address indexed user, uint256 indexed nftTokenId)',
-  'event RewardsClaimed(address indexed user, uint256 amount)',
-  'event RewardsEarned(address indexed user, uint256 indexed nftTokenId, uint256 amount)',
-  'event RewardWalletUpdated(address indexed oldWallet, address indexed newWallet)',
-  'event ProgramConfigUpdated(uint256 treasuryAllocation, uint256 programDuration, uint256 dailyBudget)',
-  'event ParticipantAdded(address indexed participant)'
+  'function getUserRewards(address user) external view returns (tuple(uint256 amount, uint256 lockTimestamp, bool claimed)[])',
+  'function emergencyWithdraw(uint256 amount) external',
+  'function totalTreasuryBalance() external view returns (uint256)',
+  'function owner() external view returns (address)',
+  'function kiltToken() external view returns (address)',
+  'event RewardDistributed(address indexed user, uint256 amount, uint256 lockTimestamp)',
+  'event RewardClaimed(address indexed user, uint256 amount)',
+  'event TreasuryDeposit(uint256 amount)'
 ];
 
 const KILT_TOKEN_ABI = [
@@ -303,18 +292,28 @@ export class SmartContractService {
     userAddress: string,
     nftTokenIds: string[]
   ): Promise<ClaimResult> {
-    if (!this.isContractDeployed || !this.rewardPoolContract) {
-      return {
-        success: false,
-        error: 'Smart contracts not deployed',
-        amount: 0,
-        recipient: userAddress
-      };
-    }
-
     try {
+      // Check if contract is deployed first
+      const contractAddress = await getSmartContractAddress();
+      
+      // Validate that contract is actually deployed on blockchain
+      const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
+      const code = await provider.getCode(contractAddress);
+      
+      if (code === '0x') {
+        return {
+          success: false,
+          error: 'Treasury contract not yet deployed. Smart contract deployment required to enable reward claiming.',
+          amount: 0,
+          recipient: userAddress
+        };
+      }
+
+      // Create contract instance
+      const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
+      
       // Get claimable amount before transaction
-      const claimableAmount = await this.rewardPoolContract.getClaimableRewards(userAddress);
+      const claimableAmount = await contract.getClaimableRewards(userAddress);
       
       if (claimableAmount === 0n) {
         return {
@@ -325,22 +324,18 @@ export class SmartContractService {
         };
       }
 
-      // Execute claim transaction
-      const tx = await this.rewardPoolContract.claimRewards(nftTokenIds);
-      const receipt = await tx.wait();
-      
-      return {
-        success: true,
-        transactionHash: receipt.hash,
-        amount: Number(ethers.formatEther(claimableAmount)),
-        recipient: userAddress,
-        gasUsed: receipt.gasUsed ? Number(receipt.gasUsed) : undefined
-      };
-    } catch (error: unknown) {
-      // Failed to process reward claim
+      // Note: This is read-only mode - actual claiming requires user's wallet signature
+      // The frontend should use wagmi to call claimRewards() directly
       return {
         success: false,
-        error: error instanceof Error ? error.message : String(error) || 'Claim transaction failed',
+        error: 'Please use the smart contract panel to claim rewards directly through your wallet',
+        amount: Number(ethers.formatUnits(claimableAmount, 18)),
+        recipient: userAddress
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Contract verification failed',
         amount: 0,
         recipient: userAddress
       };
@@ -351,32 +346,42 @@ export class SmartContractService {
    * Get claimable rewards for a user
    */
   async getClaimableRewards(userAddress: string): Promise<number> {
-    if (!this.isContractDeployed || !this.rewardPoolContract) {
-      return 0;
-    }
-
     try {
-      const claimableAmount = await this.rewardPoolContract.getClaimableRewards(userAddress);
-      return Number(ethers.formatEther(claimableAmount));
+      const contractAddress = await getSmartContractAddress();
+      const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
+      
+      // Check if contract is deployed
+      const code = await provider.getCode(contractAddress);
+      if (code === '0x') {
+        return 0;
+      }
+      
+      const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
+      const claimableAmount = await contract.getClaimableRewards(userAddress);
+      return Number(ethers.formatUnits(claimableAmount, 18));
     } catch (error: unknown) {
-      // Failed to get claimable rewards
       return 0;
     }
   }
 
   /**
-   * Get pending rewards for a user (still locked)
+   * Get treasury balance for display
    */
-  async getPendingRewards(userAddress: string): Promise<number> {
-    if (!this.isContractDeployed || !this.rewardPoolContract) {
-      return 0;
-    }
-
+  async getTreasuryBalance(): Promise<number> {
     try {
-      const pendingAmount = await this.rewardPoolContract.getPendingRewards(userAddress);
-      return Number(ethers.formatEther(pendingAmount));
+      const contractAddress = await getSmartContractAddress();  
+      const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
+      
+      // Check if contract is deployed
+      const code = await provider.getCode(contractAddress);
+      if (code === '0x') {
+        return 0;
+      }
+      
+      const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
+      const balance = await contract.totalTreasuryBalance();
+      return Number(ethers.formatUnits(balance, 18));
     } catch (error: unknown) {
-      // Failed to get pending rewards
       return 0;
     }
   }

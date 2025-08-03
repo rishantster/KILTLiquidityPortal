@@ -23,6 +23,7 @@ import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useRewardClaiming } from '@/hooks/use-reward-claiming';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Single Source APR Components
@@ -146,36 +147,34 @@ export function RewardsTracking() {
     refetchInterval: 30000
   });
 
-  // Claim rewards mutation (smart contract secured)
+  // Get blockchain claiming functionality
+  const { claimRewards, getUserTokenIds, isClaiming } = useRewardClaiming();
+
+  // Claim rewards mutation (real smart contract transaction)
   const claimMutation = useMutation({
     mutationFn: async () => {
       if (!address) throw new Error('Wallet not connected');
-      const response = await fetch('/api/rewards/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userAddress: address })
-      });
       
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to claim rewards');
+      // Get user's NFT token IDs for claiming
+      const tokenIds = await getUserTokenIds();
+      if (tokenIds.length === 0) {
+        throw new Error('No active positions found for claiming');
       }
       
-      return response.json();
+      // Execute real blockchain transaction
+      const result = await claimRewards({ tokenIds });
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to claim rewards');
+      }
+      
+      return result;
     },
     onSuccess: (result) => {
-      if (result.success) {
-        toast({
-          title: "Rewards Claimed!",
-          description: `Successfully claimed ${result.amount.toFixed(2)} KILT tokens`,
-        });
-      } else {
-        toast({
-          title: "Claim Failed",
-          description: result.error,
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Rewards Claimed Successfully!",
+        description: `Successfully claimed ${result.claimedAmount} KILT tokens via blockchain transaction`,
+      });
       queryClient.invalidateQueries({ queryKey: ['claimability'] });
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
       queryClient.invalidateQueries({ queryKey: ['reward-stats'] });
@@ -336,22 +335,22 @@ export function RewardsTracking() {
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || !canClaim}
+                disabled={claimMutation.isPending || isClaiming || !canClaim}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
                   canClaim 
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
               >
-                {claimMutation.isPending ? (
+                {(claimMutation.isPending || isClaiming) ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Claiming...
+                    {isClaiming ? 'Processing Blockchain Transaction...' : 'Claiming...'}
                   </>
                 ) : canClaim ? (
                   <>
                     <Award className="h-4 w-4 mr-2" />
-                    Claim Rewards
+                    Claim via Smart Contract
                   </>
                 ) : lockExpired ? (
                   <>
@@ -402,6 +401,14 @@ export function RewardsTracking() {
             {totalClaimableAmount === 0 && lockExpired && (
               <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
                 <p className="font-medium">Add liquidity to earn rewards</p>
+              </div>
+            )}
+            
+            {/* Smart Contract Status Notice */}
+            {canClaim && (rewardStats?.totalClaimable || 0) > 0 && (
+              <div className="text-blue-400 text-xs text-center mt-2 p-2 rounded bg-blue-500/10 border border-blue-500/20">
+                <p className="font-medium">Smart Contract Claiming</p>
+                <p className="text-blue-300/80">Clicking "Claim" will trigger a blockchain transaction requiring MetaMask approval and gas fees (~$0.02)</p>
               </div>
             )}
           </CardContent>

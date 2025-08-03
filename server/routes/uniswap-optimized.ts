@@ -37,6 +37,7 @@ export function registerUniswapOptimizedRoutes(app: Express) {
       // Get already registered positions
       const user = await storage.getUserByAddress(userAddress);
       let registeredIds = new Set<string>();
+      let activeRegisteredCount = 0;
       
       if (user) {
         // Get both registered positions and app-created transactions
@@ -50,6 +51,10 @@ export function registerUniswapOptimizedRoutes(app: Express) {
           ...registeredPositions.map(p => p.nftTokenId),
           ...appTransactions.filter(tx => tx.nftTokenId).map(tx => tx.nftTokenId)
         ]);
+        
+        // Count only ACTIVE registered positions for display
+        activeRegisteredCount = registeredPositions.filter(p => p.isActive === true).length;
+        console.log(`🔧 Position Count Debug: Total registered: ${registeredPositions.length}, Active: ${activeRegisteredCount}`);
       }
       
       // Filter unregistered positions
@@ -69,7 +74,7 @@ export function registerUniswapOptimizedRoutes(app: Express) {
       res.json({
         eligiblePositions,
         totalPositions: kiltPositions.length,
-        registeredCount: registeredIds.size,
+        registeredCount: activeRegisteredCount, // Only count active registered positions
         cacheStatus: 'fresh',
         timing: duration,
         message: eligiblePositions.length > 0 

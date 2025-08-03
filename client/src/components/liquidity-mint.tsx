@@ -422,9 +422,15 @@ export function LiquidityMint({
       // Save approval state to localStorage
       localStorage.setItem(`tokens_approved_${address}`, 'true');
       
+      // Force a small delay to ensure UI updates
+      setTimeout(() => {
+        // Trigger a re-render by updating a state
+        setIsManualInput(prev => !prev && prev); // This will not change the value but trigger update
+      }, 100);
+      
       toast({
-        title: "Tokens Approved",
-        description: "KILT and WETH have been approved for the Position Manager",
+        title: "✅ Tokens Approved Successfully!",
+        description: "KILT and WETH approved - You can now add liquidity",
       });
     } catch (error: unknown) {
       // Approval error
@@ -1074,19 +1080,19 @@ export function LiquidityMint({
           disabled={isApproving || tokensApproved}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 neon-button ${
             tokensApproved 
-              ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066]'
+              ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white border border-emerald-400 shadow-lg shadow-emerald-500/25' 
+              : 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white'
           }`}
         >
           {isApproving ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Approving...
+              Approving Tokens...
             </>
           ) : tokensApproved ? (
             <>
-              <CheckCircle2 className="h-4 w-4 mr-2" />
-              Tokens Approved ✓
+              <CheckCircle2 className="h-4 w-4 mr-2 text-white" />
+              <span className="font-bold">✅ Tokens Approved</span>
             </>
           ) : (
             <>
@@ -1101,7 +1107,7 @@ export function LiquidityMint({
           disabled={isMinting || !kiltAmount || !ethAmount || !tokensApproved || (validationResult && !validationResult.isValid)}
           className={`h-12 text-sm font-semibold rounded-lg transition-all duration-300 neon-button ${
             !isMinting && kiltAmount && ethAmount && tokensApproved && (!validationResult || validationResult.isValid)
-              ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white' 
+              ? 'bg-gradient-to-r from-[#ff0066] to-[#ff0066] hover:from-[#ff0066] hover:to-[#ff0066] text-white shadow-lg shadow-pink-500/25 border border-pink-400' 
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >

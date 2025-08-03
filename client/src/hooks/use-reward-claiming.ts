@@ -10,8 +10,18 @@ const BASIC_TREASURY_POOL_ADDRESS = '0x3ee2361272EaDc5ADc91418530722728E7DCe526'
 // KILT token address on Base network
 const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8' as const;
 
-// BasicTreasuryPool contract ABI - Core functions for reward claiming
+// BasicTreasuryPool contract ABI - Core functions for reward claiming and distribution
 const BASIC_TREASURY_POOL_ABI = [
+  {
+    inputs: [
+      { name: 'user', type: 'address' },
+      { name: 'amount', type: 'uint256' }
+    ],
+    name: 'distributeReward',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
   {
     inputs: [],
     name: 'claimRewards',
@@ -39,8 +49,15 @@ const BASIC_TREASURY_POOL_ABI = [
   },
   {
     inputs: [],
-    name: 'getContractBalance',
+    name: 'totalTreasuryBalance',
     outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', type: 'address' }],
     stateMutability: 'view',
     type: 'function',
   }
@@ -109,7 +126,7 @@ export function useRewardClaiming() {
     }
   };
 
-  // Execute reward claim transaction  
+  // Execute automated reward distribution and claim transaction  
   const claimRewards = async (): Promise<RewardClaimResult> => {
     setIsClaiming(true);
     
@@ -118,53 +135,69 @@ export function useRewardClaiming() {
         throw new Error('Wallet not connected');
       }
 
-      // First check if rewards are claimable
-      const claimabilityCheck = await checkClaimability(address);
+      // Step 1: Get calculated rewards from backend
+      const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
+      if (!rewardStatsResponse.ok) {
+        throw new Error('Failed to fetch reward calculation');
+      }
+      const rewardStats = await rewardStatsResponse.json();
+      const calculatedRewardAmount = rewardStats.totalClaimable || 0;
       
-      if (!claimabilityCheck.isClaimable) {
+      if (calculatedRewardAmount <= 0) {
         return {
           success: false,
-          error: 'No claimable rewards available'
+          error: 'No rewards calculated yet. Add liquidity positions to earn rewards.'
         };
       }
 
-      // Estimate gas for the claim transaction
-      const gasEstimate = await baseClient.estimateContractGas({
+      // Step 2: Convert to wei (18 decimals for KILT)
+      const rewardAmountWei = parseUnits(calculatedRewardAmount.toString(), 18);
+
+      // Step 3: Call distributeReward function to allocate rewards to user
+      console.log(`Distributing ${calculatedRewardAmount} KILT to ${address}...`);
+      const distributeHash = await walletClient.writeContract({
+        address: BASIC_TREASURY_POOL_ADDRESS,
+        abi: BASIC_TREASURY_POOL_ABI,
+        functionName: 'distributeReward',
+        args: [address as `0x${string}`, rewardAmountWei],
+      });
+
+      // Wait for distribution transaction to be mined
+      const distributeReceipt = await baseClient.waitForTransactionReceipt({ 
+        hash: distributeHash 
+      });
+      
+      if (distributeReceipt.status !== 'success') {
+        throw new Error('Reward distribution transaction failed');
+      }
+
+      console.log(`✅ Rewards distributed. Transaction: ${distributeHash}`);
+
+      // Step 4: Now claim the distributed rewards
+      console.log(`Claiming rewards for ${address}...`);
+      const claimHash = await walletClient.writeContract({
         address: BASIC_TREASURY_POOL_ADDRESS,
         abi: BASIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
         args: [],
-        account: address as `0x${string}`,
       });
 
-      // Execute the claim transaction
-      const txHash = await walletClient.writeContract({
-        address: BASIC_TREASURY_POOL_ADDRESS,
-        abi: BASIC_TREASURY_POOL_ABI,
-        functionName: 'claimRewards',
-        args: [],
-        gas: gasEstimate,
+      // Wait for claim transaction to be mined
+      const claimReceipt = await baseClient.waitForTransactionReceipt({ 
+        hash: claimHash 
       });
+      
+      if (claimReceipt.status !== 'success') {
+        throw new Error('Reward claim transaction failed');
+      }
 
-      // Wait for transaction confirmation
-      const receipt = await baseClient.waitForTransactionReceipt({ 
-        hash: txHash,
-        timeout: 60000 // 60 second timeout
-      });
+      console.log(`✅ Rewards claimed successfully. Transaction: ${claimHash}`);
 
-      // Parse transaction logs to get claimed amount
-      // In a real implementation, you'd parse the ClaimRewards event from the logs
-      const claimedAmount = claimabilityCheck.claimableAmount;
-
-      toast({
-        title: "Rewards Claimed Successfully!",
-        description: `Claimed ${(parseFloat(claimedAmount) / 1e18).toFixed(4)} KILT tokens`,
-      });
-
+      // Return success result
       return {
         success: true,
-        transactionHash: txHash,
-        claimedAmount: (parseFloat(claimedAmount) / 1e18).toFixed(4),
+        transactionHash: claimHash,
+        claimedAmount: calculatedRewardAmount.toFixed(4),
       };
 
     } catch (error) {

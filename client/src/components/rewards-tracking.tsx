@@ -150,28 +150,13 @@ export function RewardsTracking() {
   // Get blockchain claiming functionality
   const { claimRewards, getUserTokenIds, isClaiming } = useRewardClaiming();
 
-  // Claim rewards mutation (backend API call with proper error handling)
+  // Automated claim mutation - handles both reward distribution and claiming via smart contract
   const claimMutation = useMutation({
     mutationFn: async () => {
       if (!address) throw new Error('Wallet not connected');
       
-      // Get user's NFT token IDs for claiming
-      const tokenIds = await getUserTokenIds();
-      if (tokenIds.length === 0) {
-        throw new Error('No eligible positions found for claiming rewards.');
-      }
-      
-      // Call backend API for claiming (which has our improved error messages)
-      const response = await fetch('/api/rewards/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userAddress: address,
-          nftTokenIds: tokenIds
-        })
-      });
-      
-      const result = await response.json();
+      // Use the automated claiming function that handles distribution + claiming
+      const result = await claimRewards();
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to claim rewards');
@@ -182,7 +167,7 @@ export function RewardsTracking() {
     onSuccess: (result) => {
       toast({
         title: "Rewards Claimed Successfully!",
-        description: `Successfully claimed ${result.claimedAmount} KILT tokens via blockchain transaction`,
+        description: `Successfully claimed ${result.claimedAmount} KILT tokens via smart contract`,
       });
       queryClient.invalidateQueries({ queryKey: ['claimability'] });
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
@@ -349,9 +334,9 @@ export function RewardsTracking() {
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || isClaiming || !smartContractHasRewards}
+                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
-                  smartContractHasRewards 
+                  hasCalculatedRewards 
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
@@ -359,17 +344,12 @@ export function RewardsTracking() {
                 {(claimMutation.isPending || isClaiming) ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {isClaiming ? 'Processing Blockchain Transaction...' : 'Claiming...'}
-                  </>
-                ) : smartContractHasRewards ? (
-                  <>
-                    <Award className="h-4 w-4 mr-2" />
-                    Claim via Smart Contract
+                    {isClaiming ? 'Processing Smart Contract Transaction...' : 'Distributing & Claiming...'}
                   </>
                 ) : hasCalculatedRewards ? (
                   <>
-                    <Clock className="h-4 w-4 mr-2" />
-                    Awaiting Smart Contract Distribution
+                    <Award className="h-4 w-4 mr-2" />
+                    Claim {calculatedRewards.toFixed(2)} KILT
                   </>
                 ) : (
                   <>
@@ -400,10 +380,10 @@ export function RewardsTracking() {
               </div>
             </div>
             
-            {hasCalculatedRewards && !smartContractHasRewards && (
-              <div className="text-blue-400 text-xs text-center mt-2 p-2 rounded bg-blue-500/10 border border-blue-500/20">
-                <p className="font-medium">Rewards Calculated: {calculatedRewards.toFixed(2)} KILT</p>
-                <p className="text-blue-300/80">Smart contract distribution required before claiming. Contact admin for reward distribution to the treasury contract.</p>
+            {hasCalculatedRewards && (
+              <div className="text-green-400 text-xs text-center mt-2 p-2 rounded bg-green-500/10 border border-green-500/20">
+                <p className="font-medium">Ready to Claim: {calculatedRewards.toFixed(2)} KILT</p>
+                <p className="text-green-300/80">Automated smart contract claiming - you pay gas for distribution & claim transactions (~$0.04 total)</p>
               </div>
             )}
             

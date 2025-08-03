@@ -820,52 +820,72 @@ export function useUniswapV3() {
           requiredKilt: amount1Desired.toString()
         });
         
-        // Check if user has sufficient WETH or can wrap ETH
-        if (wethBalance < amount0Desired) {
-          // Check if user has enough native ETH to wrap
+        // Handle ETH vs WETH based on user preference
+        if (params.useEth) {
+          // When using ETH, check native ETH balance
           const ethBalance = await baseClient.getBalance({
             address: address as `0x${string}`,
           });
           
-          const totalWethNeeded = amount0Desired - wethBalance;
-          
-          console.log('💡 ETH Wrapping Check:', {
+          console.log('💡 Native ETH Check:', {
             ethBalance: ethBalance.toString(),
-            totalWethNeeded: totalWethNeeded.toString(),
-            hasEnoughEth: ethBalance >= totalWethNeeded
+            requiredEth: amount0Desired.toString(),
+            hasEnoughEth: ethBalance >= amount0Desired + parseUnits('0.002', 18) // Reserve 0.002 ETH for gas
           });
           
-          if (ethBalance >= totalWethNeeded + parseUnits('0.001', 18)) { // Reserve 0.001 ETH for gas
-            toast({
-              title: "Wrapping ETH to WETH",
-              description: `Converting ${formatUnits(totalWethNeeded, 18)} ETH to WETH for liquidity addition`,
+          if (ethBalance < amount0Desired + parseUnits('0.002', 18)) {
+            throw new Error(`Insufficient ETH balance for transaction. Have: ${formatUnits(ethBalance, 18)} ETH, Need: ${formatUnits(amount0Desired + parseUnits('0.002', 18), 18)} ETH (including gas)`);
+          }
+          
+          console.log('✅ Using native ETH - no wrapping needed');
+          
+        } else {
+          // When using WETH, check WETH balance and wrap if needed
+          if (wethBalance < amount0Desired) {
+            const ethBalance = await baseClient.getBalance({
+              address: address as `0x${string}`,
             });
             
-            // Wrap ETH to WETH
-            const wrapHash = await walletClient.writeContract({
-              address: WETH_TOKEN as `0x${string}`,
-              abi: [
-                {
-                  inputs: [],
-                  name: 'deposit',
-                  outputs: [],
-                  stateMutability: 'payable',
-                  type: 'function',
-                }
-              ],
-              functionName: 'deposit',
-              value: totalWethNeeded,
-              account: address as `0x${string}`,
+            const totalWethNeeded = amount0Desired - wethBalance;
+            
+            console.log('💡 ETH Wrapping Check:', {
+              ethBalance: ethBalance.toString(),
+              totalWethNeeded: totalWethNeeded.toString(),
+              hasEnoughEth: ethBalance >= totalWethNeeded
             });
             
-            await baseClient.waitForTransactionReceipt({ hash: wrapHash });
-            
-            toast({
-              title: "ETH Wrapped Successfully",
-              description: "ETH converted to WETH. Now processing liquidity addition...",
-            });
-          } else {
-            throw new Error(`Insufficient ETH/WETH balance. Have: ${formatUnits(ethBalance, 18)} ETH + ${formatUnits(wethBalance, 18)} WETH, Need: ${formatUnits(amount0Desired, 18)} WETH total`);
+            if (ethBalance >= totalWethNeeded + parseUnits('0.001', 18)) { // Reserve 0.001 ETH for gas
+              toast({
+                title: "Wrapping ETH to WETH",
+                description: `Converting ${formatUnits(totalWethNeeded, 18)} ETH to WETH for liquidity addition`,
+              });
+              
+              // Wrap ETH to WETH
+              const wrapHash = await walletClient.writeContract({
+                address: WETH_TOKEN as `0x${string}`,
+                abi: [
+                  {
+                    inputs: [],
+                    name: 'deposit',
+                    outputs: [],
+                    stateMutability: 'payable',
+                    type: 'function',
+                  }
+                ],
+                functionName: 'deposit',
+                value: totalWethNeeded,
+                account: address as `0x${string}`,
+              });
+              
+              await baseClient.waitForTransactionReceipt({ hash: wrapHash });
+              
+              toast({
+                title: "ETH Wrapped Successfully",
+                description: "ETH converted to WETH. Now processing liquidity addition...",
+              });
+            } else {
+              throw new Error(`Insufficient ETH/WETH balance. Have: ${formatUnits(ethBalance, 18)} ETH + ${formatUnits(wethBalance, 18)} WETH, Need: ${formatUnits(amount0Desired, 18)} WETH total`);
+            }
           }
         }
         
@@ -873,8 +893,8 @@ export function useUniswapV3() {
           throw new Error(`Insufficient KILT balance. Have: ${formatUnits(kiltBalance, 18)}, Need: ${formatUnits(amount1Desired, 18)}`);
         }
         
-        // Check WETH (token0) allowance
-        if (amount0Desired > 0n) {
+        // Check WETH (token0) allowance only if NOT using native ETH
+        if (amount0Desired > 0n && !params.useEth) {
           const wethAllowance = await baseClient.readContract({
             address: WETH_TOKEN as `0x${string}`,
             abi: ERC20_ABI,
@@ -905,6 +925,8 @@ export function useUniswapV3() {
               description: "Now processing liquidity addition...",
             });
           }
+        } else if (params.useEth) {
+          console.log('🔓 Skipping WETH approval - using native ETH');
         }
         
         // Check KILT (token1) allowance
@@ -943,20 +965,46 @@ export function useUniswapV3() {
 
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
         
-        const hash = await walletClient.writeContract({
-          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
-          abi: POSITION_MANAGER_ABI,
-          functionName: 'increaseLiquidity',
-          args: [{
-            tokenId: BigInt(params.tokenId),
-            amount0Desired,
-            amount1Desired,
-            amount0Min: BigInt(params.amount0Min || '0'),
-            amount1Min: BigInt(params.amount1Min || '0'),
-            deadline: BigInt(deadline)
-          }],
-          account: address as `0x${string}`,
-        });
+        // Execute the increaseLiquidity transaction with proper ETH handling
+        console.log('🚀 Executing increaseLiquidity transaction...');
+        
+        let hash;
+        if (params.useEth) {
+          // When using ETH, include the ETH value in the transaction
+          console.log('💎 Using native ETH transaction with value:', formatUnits(amount0Desired, 18), 'ETH');
+          hash = await walletClient.writeContract({
+            address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+            abi: POSITION_MANAGER_ABI,
+            functionName: 'increaseLiquidity',
+            args: [{
+              tokenId: BigInt(params.tokenId),
+              amount0Desired,
+              amount1Desired,
+              amount0Min: BigInt(params.amount0Min || '0'),
+              amount1Min: BigInt(params.amount1Min || '0'),
+              deadline: BigInt(deadline)
+            }],
+            value: amount0Desired, // Send ETH value with the transaction
+            account: address as `0x${string}`,
+          });
+        } else {
+          // Standard WETH transaction (no ETH value)
+          console.log('🔄 Using WETH transaction (no ETH value)');
+          hash = await walletClient.writeContract({
+            address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+            abi: POSITION_MANAGER_ABI,
+            functionName: 'increaseLiquidity',
+            args: [{
+              tokenId: BigInt(params.tokenId),
+              amount0Desired,
+              amount1Desired,
+              amount0Min: BigInt(params.amount0Min || '0'),
+              amount1Min: BigInt(params.amount1Min || '0'),
+              deadline: BigInt(deadline)
+            }],
+            account: address as `0x${string}`,
+          });
+        }
 
         await baseClient.waitForTransactionReceipt({ hash });
         

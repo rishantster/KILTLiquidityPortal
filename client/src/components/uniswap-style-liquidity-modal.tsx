@@ -163,6 +163,7 @@ export function UniswapStyleLiquidityModal({
           kiltAmount,
           ethAmountString,
           kiltAmountString,
+          addAsEth,
           position
         });
         
@@ -173,6 +174,7 @@ export function UniswapStyleLiquidityModal({
           amount1Desired: kiltAmountString, // KILT amount
           amount0Min: (BigInt(ethAmountString) * 85n / 100n).toString(), // 15% slippage for testing
           amount1Min: (BigInt(kiltAmountString) * 85n / 100n).toString(), // 15% slippage for testing
+          useEth: addAsEth, // Pass the toggle state to the hook
         };
 
         // Call the increaseLiquidity function from the hook

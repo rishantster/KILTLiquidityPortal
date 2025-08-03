@@ -109,12 +109,14 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application desig
 - **Total User Liquidity**: $2,889.53 across 8 active positions
 - **Live Metrics**: KILT price $0.01817, Pool TVL $96,967, all calculations verified
 
-**APR Display Fix (February 2025)**:
-- **Program APR Integration**: Fixed frontend to display authentic program treasury rewards (123.99%) instead of low market fallback values (15.50%)
-- **Trading Fees Correction**: Updated to show real DexScreener trading fees APR (7.50%) instead of hardcoded values (8.19%)
-- **Total APR Accuracy**: Expected Returns section now displays correct program APR (131.49%) instead of misleading low values (23.69%)
-- **Data Source Priority**: APR calculations now prioritize program analytics over market-based pool calculations
-- **User Experience**: Participants see realistic earning expectations based on treasury budget and actual participant TVL
+**Single Source APR Implementation (February 2025)**:
+- **Unified APR Service**: Created `SingleSourceAPR` class as the ONLY source of truth for all APR calculations throughout the application
+- **Consistent Data Flow**: All frontend components now use unified APR endpoints (`/api/apr/official`, `/api/apr/expected-returns`, `/api/apr/user/:address`)
+- **Eliminated Duplicate Calculations**: Removed multiple conflicting APR services and calculations that were causing inconsistent values
+- **Program APR Priority**: System shows authentic treasury distribution APR (123.99%) instead of diluted market calculations
+- **Trading Fees Integration**: Real DexScreener trading fees (7.50%) properly integrated with treasury rewards
+- **Total APR Accuracy**: Expected Returns displays consistent program participation APR (131.49%) across all components
+- **Developer Experience**: Single source eliminates confusion about which APR values to use and display
 
 **Previous Major Codebase Cleanup (February 2025)**:
 - **Massive Redundancy Removal**: Eliminated 6+ duplicate cache files, 7+ APR services, multiple optimization layers

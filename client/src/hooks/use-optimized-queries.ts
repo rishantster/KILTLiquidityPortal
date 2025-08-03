@@ -51,18 +51,19 @@ export function useOptimizedQueries(address?: string): OptimizedQueriesResult {
     refetchInterval: 300000, // 5 minutes
   });
 
-  // Update calculations when data changes
+  // Update calculations when data changes - SINGLE SOURCE OF TRUTH
   useEffect(() => {
     if (aprData) {
+      // Use user-specific APR data if available
       setCalculations({
         feeAPR: aprData.tradingFeeAPR?.toFixed(2) || '0.00',
         kiltRewardAPR: aprData.incentiveAPR?.toFixed(2) || '0.00',
         totalAPR: aprData.totalAPR?.toFixed(2) || '0.00'
       });
     } else if (analyticsData) {
-      // Use program analytics for authentic program APR - show actual expected returns
-      const tradingAPR = analyticsData.averageTradingAPR || 7.50; // Real trading fees from DexScreener
-      const programAPR = analyticsData.averageAPR || 123.99; // Real program APR from treasury calculation
+      // Fallback to program analytics - SINGLE SOURCE OF TRUTH VALUES
+      const tradingAPR = analyticsData.averageTradingAPR || 7.50; // From DexScreener
+      const programAPR = analyticsData.averageAPR || 123.99; // From treasury calculation
       const totalAPR = tradingAPR + programAPR;
       
       setCalculations({

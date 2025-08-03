@@ -76,53 +76,47 @@ import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 
 
 
-// Component for authentic program APR display using real analytics data
-function FormulaProgramAPR() {
-  const { data: programAnalytics, isLoading, error } = useQuery({
-    queryKey: ['/api/rewards/program-analytics'],
-    staleTime: 30 * 1000, // 30 seconds for real-time updates
-    gcTime: 10 * 60 * 1000,
-    refetchInterval: 10 * 1000, // 10 seconds for live updates
-  });
+// SINGLE SOURCE OF TRUTH APR COMPONENTS - Replaces all other APR calculations
+import { useExpectedReturns } from '@/hooks/use-single-source-apr';
 
-  // Show loading state
+function SingleSourceProgramAPR() {
+  const { data: expectedReturns, isLoading, error } = useExpectedReturns();
+
   if (isLoading) return <span className="text-white/50">--</span>;
-  
-  // Show error state
   if (error) return <span className="text-red-400">Error</span>;
   
-  // Use the actual program average APR from analytics (125%)
-  // This reflects the real calculated APR from the reward distribution system
-  const programAPR = (programAnalytics as { averageAPR?: number })?.averageAPR;
-  
+  const programAPR = expectedReturns?.incentiveAPR;
   return (
     <span>
-      {programAPR ? `${Math.round(programAPR)}%` : '--'}
+      {programAPR ? `${Math.round(parseFloat(programAPR))}%` : '--'}
     </span>
   );
 }
 
-// Component for authentic trading fees APR display using real DexScreener data
-function RealTradingFeesAPR() {
-  const { data: tradingFeesData, isLoading, error } = useQuery({
-    queryKey: ['/api/trading-fees/pool-apr'],
-    staleTime: 30 * 1000, // 30 seconds for real-time updates
-    gcTime: 10 * 60 * 1000,
-    refetchInterval: 30 * 1000, // 30 seconds for live updates
-  });
+function SingleSourceTradingAPR() {
+  const { data: expectedReturns, isLoading, error } = useExpectedReturns();
 
-  // Show loading state
   if (isLoading) return <span className="text-white/50">--</span>;
-  
-  // Show error state
   if (error) return <span className="text-red-400">Error</span>;
   
-  // Use the actual trading fees APR from DexScreener API (3.40%)
-  const tradingAPR = (tradingFeesData as { tradingFeesAPR?: number })?.tradingFeesAPR;
-  
+  const tradingAPR = expectedReturns?.tradingAPR;
   return (
     <span>
-      {tradingAPR ? `${tradingAPR.toFixed(1)}%` : '--'}
+      {tradingAPR ? `${parseFloat(tradingAPR).toFixed(1)}%` : '--'}
+    </span>
+  );
+}
+
+function SingleSourceTotalAPR() {
+  const { data: expectedReturns, isLoading, error } = useExpectedReturns();
+
+  if (isLoading) return <span className="text-white/50">--</span>;
+  if (error) return <span className="text-red-400">Error</span>;
+  
+  const totalAPR = expectedReturns?.totalAPR;
+  return (
+    <span>
+      {totalAPR ? `${parseFloat(totalAPR).toFixed(1)}%` : '--'}
     </span>
   );
 }
@@ -598,7 +592,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    <RealTradingFeesAPR />
+                    <SingleSourceTradingAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     DexScreener API
@@ -617,7 +611,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Program APR</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    <FormulaProgramAPR />
+                    <SingleSourceProgramAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     Treasury rewards

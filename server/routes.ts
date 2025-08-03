@@ -32,6 +32,7 @@ import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kil
 
 import { fixedRewardService } from "./fixed-reward-service";
 import { DirectFeeService } from "./direct-fee-service";
+import { SingleSourceAPR } from "./single-source-apr";
 // Removed realTimePriceService - using kiltPriceService instead
 import { uniswapIntegrationService } from "./uniswap-integration-service";
 import { PriceService } from "./price-service";
@@ -980,6 +981,46 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         error: "Failed to calculate maximum APR", 
         details: error instanceof Error ? error.message : 'Unknown error' 
       });
+    }
+  });
+
+  // SINGLE SOURCE OF TRUTH APR ENDPOINTS
+  const singleSourceAPR = new SingleSourceAPR(storage);
+  
+  // Official program APR (for all display purposes)
+  app.get('/api/apr/official', async (req, res) => {
+    try {
+      const aprData = await singleSourceAPR.getProgramAPR();
+      res.setHeader('X-Source', 'single-source-apr');
+      res.json(aprData);
+    } catch (error) {
+      console.error('❌ Error getting official APR:', error);
+      res.status(500).json({ error: 'Failed to get official APR' });
+    }
+  });
+
+  // Expected Returns display values (for frontend)
+  app.get('/api/apr/expected-returns', async (req, res) => {
+    try {
+      const displayData = await singleSourceAPR.getExpectedReturnsDisplay();
+      res.setHeader('X-Source', 'single-source-apr');
+      res.json(displayData);
+    } catch (error) {
+      console.error('❌ Error getting expected returns:', error);
+      res.status(500).json({ error: 'Failed to get expected returns display' });
+    }
+  });
+
+  // User-specific APR (for wallet analysis)
+  app.get('/api/apr/user/:address', async (req, res) => {
+    try {
+      const { address } = req.params;
+      const userAPR = await singleSourceAPR.getUserAPR(address);
+      res.setHeader('X-Source', 'single-source-apr');
+      res.json(userAPR);
+    } catch (error) {
+      console.error('❌ Error getting user APR:', error);
+      res.status(500).json({ error: 'Failed to get user APR' });
     }
   });
 

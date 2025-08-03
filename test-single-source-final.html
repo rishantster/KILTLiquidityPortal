@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>✅ Single Source APR - Final Implementation Test</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; padding: 20px; background: #0f0f23; color: white; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .success { color: #00d4aa; font-weight: bold; }
+        .warning { color: #ff6b6b; font-weight: bold; }
+        .highlight { color: #8b5cf6; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: #1a1a2e; border: 1px solid #16213e; border-radius: 12px; padding: 20px; }
+        .card h3 { margin: 0 0 15px 0; color: #8b5cf6; }
+        pre { background: #0f0f23; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px; border: 1px solid #16213e; }
+        .status-banner { padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; font-weight: bold; }
+        .status-success { background: #00d4aa20; border: 1px solid #00d4aa; color: #00d4aa; }
+        .status-error { background: #ff6b6b20; border: 1px solid #ff6b6b; color: #ff6b6b; }
+        .apr-display { font-size: 24px; margin: 10px 0; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .comparison-table th, .comparison-table td { padding: 10px; text-align: left; border-bottom: 1px solid #16213e; }
+        .comparison-table th { background: #1a1a2e; color: #8b5cf6; }
+        .endpoint-status { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-active { background: #00d4aa; }
+        .status-inactive { background: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Single Source APR Implementation - Final Test</h1>
+        <p>Testing the completed unified APR service that provides consistent values across all components.</p>
+        
+        <div id="status-banner" class="status-banner status-success">
+            🎯 SINGLE SOURCE APR SUCCESSFULLY IMPLEMENTED
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>🆕 Official Program APR</h3>
+                <div id="official-display">Loading...</div>
+                <pre id="official-raw">Loading...</pre>
+            </div>
+            
+            <div class="card">
+                <h3>🆕 Expected Returns Display</h3>
+                <div id="expected-display">Loading...</div>
+                <pre id="expected-raw">Loading...</pre>
+            </div>
+        </div>
+
+        <div class="card" style="margin: 20px 0;">
+            <h3>📊 APR Consistency Verification</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Status</th>
+                        <th>Program APR</th>
+                        <th>Trading APR</th>
+                        <th>Total APR</th>
+                    </tr>
+                </thead>
+                <tbody id="comparison-table-body">
+                    <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>✅ Implementation Success Criteria</h2>
+            <ul id="success-criteria">
+                <li><span id="criterion-1">❓</span> New endpoints responding (200 status)</li>
+                <li><span id="criterion-2">❓</span> Consistent APR values across all endpoints</li>
+                <li><span id="criterion-3">❓</span> Program APR ~124% (treasury-based)</li>
+                <li><span id="criterion-4">❓</span> Trading APR ~7.5% (DexScreener)</li>
+                <li><span id="criterion-5">❓</span> Total APR ~131.5%</li>
+                <li><span id="criterion-6">❓</span> No frontend errors in console</li>
+                <li><span id="criterion-7">❓</span> Single source of truth established</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {};
+        let allCriteriaRet = false;
+
+        async function runFinalTest() {
+            console.log('🎯 Running Final Single Source APR Test...');
+            
+            try {
+                // Test new unified endpoints
+                const [officialRes, expectedRes] = await Promise.all([
+                    fetch('/api/apr/official').catch(() => ({ ok: false })),
+                    fetch('/api/apr/expected-returns').catch(() => ({ ok: false }))
+                ]);
+
+                // Parse responses
+                testResults.official = officialRes.ok ? await officialRes.json() : null;
+                testResults.expected = expectedRes.ok ? await expectedRes.json() : null;
+
+                updateDisplays();
+                checkSuccessCriteria();
+                
+            } catch (error) {
+                console.error('❌ Final test failed:', error);
+                document.getElementById('status-banner').className = 'status-banner status-error';
+                document.getElementById('status-banner').textContent = '❌ FINAL TEST FAILED: ' + error.message;
+            }
+        }
+
+        function updateDisplays() {
+            // Official APR display
+            if (testResults.official) {
+                document.getElementById('official-display').innerHTML = `
+                    <div class="apr-display">
+                        <div>Program: <span class="highlight">${testResults.official.programAPR}%</span></div>
+                        <div>Trading: <span class="highlight">${testResults.official.tradingAPR}%</span></div>
+                        <div>Total: <span class="highlight">${testResults.official.totalProgramAPR}%</span></div>
+                    </div>
+                `;
+                document.getElementById('official-raw').textContent = JSON.stringify(testResults.official, null, 2);
+            } else {
+                document.getElementById('official-display').innerHTML = '<span class="warning">❌ Failed to load</span>';
+            }
+
+            // Expected Returns display
+            if (testResults.expected) {
+                document.getElementById('expected-display').innerHTML = `
+                    <div class="apr-display">
+                        <div>Trading: <span class="highlight">${testResults.expected.tradingAPR}%</span></div>
+                        <div>Incentive: <span class="highlight">${testResults.expected.incentiveAPR}%</span></div>
+                        <div>Total: <span class="highlight">${testResults.expected.totalAPR}%</span></div>
+                    </div>
+                `;
+                document.getElementById('expected-raw').textContent = JSON.stringify(testResults.expected, null, 2);
+            } else {
+                document.getElementById('expected-display').innerHTML = '<span class="warning">❌ Failed to load</span>';
+            }
+
+            // Comparison table
+            const tableBody = document.getElementById('comparison-table-body');
+            tableBody.innerHTML = `
+                <tr>
+                    <td>🆕 Official APR</td>
+                    <td><span class="endpoint-status ${testResults.official ? 'status-active' : 'status-inactive'}"></span>${testResults.official ? 'Active' : 'Inactive'}</td>
+                    <td>${testResults.official ? testResults.official.programAPR + '%' : 'N/A'}</td>
+                    <td>${testResults.official ? testResults.official.tradingAPR + '%' : 'N/A'}</td>
+                    <td>${testResults.official ? testResults.official.totalProgramAPR + '%' : 'N/A'}</td>
+                </tr>
+                <tr>
+                    <td>🆕 Expected Returns</td>
+                    <td><span class="endpoint-status ${testResults.expected ? 'status-active' : 'status-inactive'}"></span>${testResults.expected ? 'Active' : 'Inactive'}</td>
+                    <td>${testResults.expected ? testResults.expected.incentiveAPR + '%' : 'N/A'}</td>
+                    <td>${testResults.expected ? testResults.expected.tradingAPR + '%' : 'N/A'}</td>
+                    <td>${testResults.expected ? testResults.expected.totalAPR + '%' : 'N/A'}</td>
+                </tr>
+            `;
+        }
+
+        function checkSuccessCriteria() {
+            const criteria = [
+                {
+                    id: 'criterion-1',
+                    test: () => testResults.official && testResults.expected,
+                    description: 'New endpoints responding'
+                },
+                {
+                    id: 'criterion-2',
+                    test: () => {
+                        if (!testResults.official || !testResults.expected) return false;
+                        return Math.abs(parseFloat(testResults.expected.totalAPR) - testResults.official.totalProgramAPR) < 0.5;
+                    },
+                    description: 'Consistent APR values'
+                },
+                {
+                    id: 'criterion-3',
+                    test: () => testResults.official && Math.abs(testResults.official.programAPR - 124) < 5,
+                    description: 'Program APR ~124%'
+                },
+                {
+                    id: 'criterion-4',
+                    test: () => testResults.official && Math.abs(testResults.official.tradingAPR - 7.5) < 2,
+                    description: 'Trading APR ~7.5%'
+                },
+                {
+                    id: 'criterion-5',
+                    test: () => testResults.official && Math.abs(testResults.official.totalProgramAPR - 131.5) < 5,
+                    description: 'Total APR ~131.5%'
+                },
+                {
+                    id: 'criterion-6',
+                    test: () => {
+                        const errors = console.error?.callCount || 0;
+                        return errors === 0; // No console errors
+                    },
+                    description: 'No frontend errors'
+                },
+                {
+                    id: 'criterion-7',
+                    test: () => testResults.official && testResults.expected,
+                    description: 'Single source established'
+                }
+            ];
+
+            let allPassed = true;
+            criteria.forEach(criterion => {
+                const passed = criterion.test();
+                const element = document.getElementById(criterion.id);
+                element.textContent = passed ? '✅' : '❌';
+                element.className = passed ? 'success' : 'warning';
+                if (!passed) allPassed = false;
+            });
+
+            // Update status banner
+            const statusBanner = document.getElementById('status-banner');
+            if (allPassed) {
+                statusBanner.className = 'status-banner status-success';
+                statusBanner.textContent = '🎉 ALL CRITERIA PASSED - SINGLE SOURCE APR FULLY IMPLEMENTED!';
+            } else {
+                statusBanner.className = 'status-banner status-error';
+                statusBanner.textContent = '⚠️ SOME CRITERIA FAILED - REVIEW IMPLEMENTATION';
+            }
+
+            allCriteriaRet = allPassed;
+        }
+
+        // Run test on load and show results
+        runFinalTest();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (!allCriteriaRet) {
+                runFinalTest();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

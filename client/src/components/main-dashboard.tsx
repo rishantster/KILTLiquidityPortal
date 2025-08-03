@@ -309,21 +309,7 @@ export function MainDashboard() {
         {/* Overlay for content readability */}
         <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
         
-        {/* Beta Badge - Fixed position in top right, aligned with content */}
-        <div className="fixed top-8 right-8 sm:top-12 sm:right-12 lg:top-16 lg:right-20 z-50">
-          <div className="relative">
-            {/* Matrix green glow effects */}
-            <div className="absolute inset-0 bg-matrix-green/30 rounded-md blur-lg animate-ping"></div>
-            <div className="absolute inset-0 bg-matrix-green/20 rounded-md blur-md animate-pulse"></div>
-            {/* Beta badge with cyberpunk styling */}
-            <Badge 
-              variant="outline" 
-              className="relative bg-black/90 border-matrix-green/80 text-matrix-green text-xs sm:text-sm font-bold px-3 py-1 sm:px-4 sm:py-1.5 uppercase tracking-wider backdrop-blur-sm shadow-xl shadow-matrix-green/20 transform hover:scale-105 transition-all duration-300"
-            >
-              BETA
-            </Badge>
-          </div>
-        </div>
+
         
         <div className="max-w-5xl mx-auto relative" style={{ zIndex: 10 }}>
           <div className="text-center pt-16 pb-8">
@@ -344,15 +330,28 @@ export function MainDashboard() {
               
               {/* Modern Typography - Clean & Professional */}
               <div className="mb-8">
-                {/* Main title with subtle gradient */}
-                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight tracking-tight">
-                  <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                    KILT Liquidity
-                  </span>
-                  <span className="block text-5xl sm:text-6xl lg:text-7xl mt-2 text-white/90 font-normal">
-                    Incentive Program
-                  </span>
-                </h1>
+                {/* Main title with beta badge inline */}
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center gap-4 mb-6">
+                    <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white leading-tight tracking-tight">
+                      <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+                        KILT Liquidity
+                      </span>
+                      <span className="block text-5xl sm:text-6xl lg:text-7xl mt-2 text-white/90 font-normal">
+                        Incentive Program
+                      </span>
+                    </h1>
+                    {/* Beta badge positioned next to title */}
+                    <div className="relative mt-4 sm:mt-8">
+                      <Badge 
+                        variant="outline" 
+                        className="bg-pink-500/90 border-pink-400 text-white text-xs sm:text-sm font-bold px-3 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wider backdrop-blur-sm shadow-lg hover:scale-105 transition-all duration-300 rounded-full"
+                      >
+                        BETA
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               {/* Clean Description */}

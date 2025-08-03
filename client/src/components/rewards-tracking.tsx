@@ -361,7 +361,7 @@ export function RewardsTracking() {
                 ) : (rewardStats?.totalAccumulated || 0) > 0 ? (
                   <>
                     <Clock className="h-4 w-4 mr-2" />
-                    {daysRemaining} days remaining
+                    {daysRemaining === 0 ? 'Ready to claim!' : `${daysRemaining} days remaining`}
                   </>
                 ) : (
                   <>

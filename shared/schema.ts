@@ -58,6 +58,7 @@ export const rewards = pgTable("rewards", {
   userId: integer("user_id").references(() => users.id),
   positionId: integer("position_id").references(() => lpPositions.id),
   nftTokenId: text("nft_token_id").notNull(), // Uniswap V3 NFT token ID
+  amount: decimal("amount", { precision: 18, scale: 8 }).notNull(), // Total reward amount - required field
   positionValueUSD: decimal("position_value_usd", { precision: 20, scale: 8 }).notNull(),
   dailyRewardAmount: decimal("daily_reward_amount", { precision: 18, scale: 8 }).notNull(),
   accumulatedAmount: decimal("accumulated_amount", { precision: 18, scale: 8 }).notNull(),

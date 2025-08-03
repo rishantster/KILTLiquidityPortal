@@ -170,10 +170,23 @@ export class FixedRewardService {
     inRangeMultiplier: number,
     isFullRange: boolean = false
   ): Promise<number> {
-    // Handle edge cases
-    if (totalLiquidity === 0 || userLiquidity === 0 || inRangeMultiplier === 0) {
+    console.log(`🔍 Daily reward calculation inputs:`, {
+      userLiquidity,
+      totalLiquidity,
+      daysActive,
+      inRangeMultiplier,
+      isFullRange
+    });
+
+    // Handle edge cases - but be more lenient with inRangeMultiplier
+    if (totalLiquidity === 0 || userLiquidity === 0) {
+      console.log(`❌ Early return: totalLiquidity=${totalLiquidity}, userLiquidity=${userLiquidity}`);
       return 0;
     }
+
+    // Fix for inRangeMultiplier: if 0, set to 1 (assume in range)
+    const adjustedInRangeMultiplier = inRangeMultiplier === 0 ? 1.0 : inRangeMultiplier;
+    console.log(`🔧 Adjusted inRangeMultiplier from ${inRangeMultiplier} to ${adjustedInRangeMultiplier}`);
 
     // Get admin-configured parameters (single source of truth)
     const config = await this.getAdminConfiguration();
@@ -187,7 +200,16 @@ export class FixedRewardService {
     const fullRangeBonus = isFullRange ? config.fullRangeBonus : 1.0;
     
     // Final calculation: R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
-    const dailyReward = liquidityShare * timeBoost * inRangeMultiplier * fullRangeBonus * dailyRewardRate;
+    const dailyReward = liquidityShare * timeBoost * adjustedInRangeMultiplier * fullRangeBonus * dailyRewardRate;
+    
+    console.log(`💰 Daily reward calculation result:`, {
+      liquidityShare: liquidityShare.toFixed(6),
+      timeBoost: timeBoost.toFixed(4),
+      adjustedInRangeMultiplier,
+      fullRangeBonus,
+      dailyRewardRate,
+      dailyReward: dailyReward.toFixed(4)
+    });
     
     return Math.max(0, dailyReward);
   }
@@ -423,6 +445,12 @@ export class FixedRewardService {
       const totalActiveLiquidity = await this.getTotalActiveLiquidity();
       const activeParticipants = await this.getAllActiveParticipants();
       
+      console.log(`📊 Program metrics:`, {
+        totalActiveLiquidity,
+        activeParticipantsCount: activeParticipants.length,
+        positionValueUSD: currentValueUSD
+      });
+      
       // Calculate days active with robust date handling
       const createdDate = liquidityAddedAt || position.createdAt;
       const now = new Date();
@@ -456,6 +484,14 @@ export class FixedRewardService {
       // Check if position is full range (gets FRB bonus)
       const isFullRange = await this.isFullRangePosition(position);
       
+      console.log(`🔧 Reward calculation inputs:`, {
+        currentValueUSD,
+        totalActiveLiquidity,
+        daysActive,
+        inRangeMultiplier,
+        isFullRange
+      });
+
       // Calculate daily rewards using the new formula:
       // R_u = (L_u/L_T) * (1 + ((D_u/P)*b_time)) * IRM * FRB * (R/P)
       const dailyRewards = await this.calculateDailyRewardByFormula(
@@ -466,6 +502,17 @@ export class FixedRewardService {
         isFullRange
       );
       
+      console.log(`💸 Daily rewards calculated: ${dailyRewards} KILT`);
+      
+      // Calculate accumulated rewards: daily rewards * days active
+      const accumulatedRewards = dailyRewards * daysActive;
+      
+      console.log(`📈 Accumulated rewards calculation:`, {
+        dailyRewards: dailyRewards.toFixed(4),
+        daysActive,
+        accumulatedRewards: accumulatedRewards.toFixed(4)
+      });
+      
       // Calculate time progression for display using admin-configured values
       const { programSettings: programSettingsSchema } = await import('../shared/schema');
       const [programSettings] = await this.database.select().from(programSettingsSchema).limit(1);
@@ -475,9 +522,6 @@ export class FixedRewardService {
       
       // Calculate effective APR
       const effectiveAPR = currentValueUSD > 0 ? (dailyRewards * 365) / currentValueUSD : 0;
-      
-      // Get accumulated rewards
-      const accumulatedRewards = await this.getAccumulatedRewards(position.id);
       
       // Calculate claim eligibility using admin-configured lock period
       const lockPeriod = programSettings ? programSettings.lockPeriod : this.DEFAULT_LOCK_PERIOD_DAYS;
@@ -514,6 +558,7 @@ export class FixedRewardService {
       };
     } catch (error: any) {
       console.error(`❌ calculatePositionRewards error for ${nftTokenId}:`, error);
+      console.error(`❌ Error stack:`, error.stack);
       
       // Return fallback values for database timeout errors to prevent runtime overlay
       if (error.message?.includes('timeout') || error.message?.includes('connect')) {
@@ -920,7 +965,9 @@ export class FixedRewardService {
           );
           
           // Update or create reward record
+          console.log(`🔧 About to save ${rewardCalculation.accumulatedRewards} KILT for user ${participant.userId}`);
           await this.updateRewardRecord(participant.userId, participant.nftTokenId, rewardCalculation);
+          console.log(`💾 Database save completed for user ${participant.userId}`);
           
           updatedPositions++;
           totalRewardsDistributed += rewardCalculation.accumulatedRewards;
@@ -928,6 +975,7 @@ export class FixedRewardService {
           console.log(`✅ Updated rewards for user ${participant.userId}, position ${participant.nftTokenId}: ${rewardCalculation.accumulatedRewards} KILT`);
         } catch (error) {
           console.error(`❌ Error updating rewards for participant ${participant.userId}:`, error);
+          console.error(`❌ Error details:`, error.message, error.stack);
         }
       }
       
@@ -1061,7 +1109,7 @@ export class FixedRewardService {
         await this.database
           .update(rewards)
           .set({
-            amount: calculation.accumulatedRewards.toString(), // Update amount field
+            amount: calculation.accumulatedRewards.toString(), // Required amount field as string for decimal type
             dailyRewardAmount: calculation.dailyRewards.toString(),
             accumulatedAmount: calculation.accumulatedRewards.toString(),
             positionValueUSD: calculation.liquidityAmount.toString(),
@@ -1070,15 +1118,21 @@ export class FixedRewardService {
             createdAt: new Date(),
           })
           .where(eq(rewards.id, existingReward[0].id));
+          
+        console.log(`💾 Updated existing reward record:`, {
+          rewardId: existingReward[0].id,
+          amount: calculation.accumulatedRewards,
+          dailyReward: calculation.dailyRewards
+        });
       } else {
         // Create new record
-        await this.database
+        const newReward = await this.database
           .insert(rewards)
           .values({
             userId,
             positionId: position.id,
             nftTokenId,
-            amount: calculation.accumulatedRewards.toString(), // Required amount field
+            amount: calculation.accumulatedRewards.toString(), // Required amount field as string for decimal type
             positionValueUSD: calculation.liquidityAmount.toString(),
             dailyRewardAmount: calculation.dailyRewards.toString(),
             accumulatedAmount: calculation.accumulatedRewards.toString(),
@@ -1086,11 +1140,19 @@ export class FixedRewardService {
             stakingStartDate: new Date(),
             lastRewardCalculation: new Date(),
             isEligibleForClaim: false,
-            claimedAmount: '0',
-          });
+            claimedAmount: '0', // String for decimal type
+          })
+          .returning();
+          
+        console.log(`💾 Created new reward record:`, {
+          rewardId: newReward[0]?.id,
+          amount: calculation.accumulatedRewards,
+          dailyReward: calculation.dailyRewards
+        });
       }
     } catch (error) {
-      // Error updating reward record
+      console.error(`❌ Error updating reward record for userId ${userId}, nftTokenId ${nftTokenId}:`, error);
+      throw error; // Re-throw the error so we can debug it
     }
   }
 

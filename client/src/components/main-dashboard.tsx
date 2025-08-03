@@ -309,16 +309,16 @@ export function MainDashboard() {
         {/* Overlay for content readability */}
         <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
         
-        {/* Beta Badge - Fixed position in top right of screen */}
-        <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
+        {/* Beta Badge - Fixed position in top right, aligned with content */}
+        <div className="fixed top-8 right-8 sm:top-12 sm:right-12 lg:top-16 lg:right-20 z-50">
           <div className="relative">
-            {/* Animated glow effect */}
-            <div className="absolute inset-0 bg-red-500/40 rounded-lg blur-lg animate-ping"></div>
-            <div className="absolute inset-0 bg-red-500/20 rounded-lg blur-md animate-pulse"></div>
-            {/* Beta badge */}
+            {/* Matrix green glow effects */}
+            <div className="absolute inset-0 bg-matrix-green/30 rounded-md blur-lg animate-ping"></div>
+            <div className="absolute inset-0 bg-matrix-green/20 rounded-md blur-md animate-pulse"></div>
+            {/* Beta badge with cyberpunk styling */}
             <Badge 
               variant="outline" 
-              className="relative bg-red-600/95 border-red-400/80 text-white text-xs sm:text-sm font-black px-3 py-1.5 sm:px-4 sm:py-2 uppercase tracking-widest backdrop-blur-sm shadow-2xl transform rotate-12 hover:rotate-6 transition-all duration-300 hover:scale-110"
+              className="relative bg-black/90 border-matrix-green/80 text-matrix-green text-xs sm:text-sm font-bold px-3 py-1 sm:px-4 sm:py-1.5 uppercase tracking-wider backdrop-blur-sm shadow-xl shadow-matrix-green/20 transform hover:scale-105 transition-all duration-300"
             >
               BETA
             </Badge>

@@ -603,7 +603,7 @@ export function UniswapStyleLiquidityModal({
                     <span>ETH</span>
                   </div>
                   <span className="font-mono">
-                    {position?.fees?.token0 ? parseFloat(position.fees.token0).toFixed(6) : '0.000000'}
+                    {position?.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(6) : '0.000000'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -612,7 +612,7 @@ export function UniswapStyleLiquidityModal({
                     <span>KILT</span>
                   </div>
                   <span className="font-mono">
-                    {position?.fees?.token1 ? parseFloat(position.fees.token1).toLocaleString() : '0'}
+                    {position?.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toLocaleString() : '0'}
                   </span>
                 </div>
               </div>

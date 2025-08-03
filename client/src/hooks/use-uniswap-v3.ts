@@ -820,9 +820,53 @@ export function useUniswapV3() {
           requiredKilt: amount1Desired.toString()
         });
         
-        // Check if user has sufficient balances
+        // Check if user has sufficient WETH or can wrap ETH
         if (wethBalance < amount0Desired) {
-          throw new Error(`Insufficient WETH balance. Have: ${formatUnits(wethBalance, 18)}, Need: ${formatUnits(amount0Desired, 18)}`);
+          // Check if user has enough native ETH to wrap
+          const ethBalance = await baseClient.getBalance({
+            address: address as `0x${string}`,
+          });
+          
+          const totalWethNeeded = amount0Desired - wethBalance;
+          
+          console.log('💡 ETH Wrapping Check:', {
+            ethBalance: ethBalance.toString(),
+            totalWethNeeded: totalWethNeeded.toString(),
+            hasEnoughEth: ethBalance >= totalWethNeeded
+          });
+          
+          if (ethBalance >= totalWethNeeded + parseUnits('0.001', 18)) { // Reserve 0.001 ETH for gas
+            toast({
+              title: "Wrapping ETH to WETH",
+              description: `Converting ${formatUnits(totalWethNeeded, 18)} ETH to WETH for liquidity addition`,
+            });
+            
+            // Wrap ETH to WETH
+            const wrapHash = await walletClient.writeContract({
+              address: WETH_TOKEN as `0x${string}`,
+              abi: [
+                {
+                  inputs: [],
+                  name: 'deposit',
+                  outputs: [],
+                  stateMutability: 'payable',
+                  type: 'function',
+                }
+              ],
+              functionName: 'deposit',
+              value: totalWethNeeded,
+              account: address as `0x${string}`,
+            });
+            
+            await baseClient.waitForTransactionReceipt({ hash: wrapHash });
+            
+            toast({
+              title: "ETH Wrapped Successfully",
+              description: "ETH converted to WETH. Now processing liquidity addition...",
+            });
+          } else {
+            throw new Error(`Insufficient ETH/WETH balance. Have: ${formatUnits(ethBalance, 18)} ETH + ${formatUnits(wethBalance, 18)} WETH, Need: ${formatUnits(amount0Desired, 18)} WETH total`);
+          }
         }
         
         if (kiltBalance < amount1Desired) {

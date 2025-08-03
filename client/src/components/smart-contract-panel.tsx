@@ -10,6 +10,7 @@ import { useWagmiWallet } from "@/hooks/use-wagmi-wallet";
 import { apiRequest } from "@/lib/queryClient";
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits } from 'viem';
+import { Slider } from "@/components/ui/slider";
 import { 
   Building2,
   DollarSign,
@@ -149,6 +150,8 @@ export function SmartContractPanel() {
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [rewardUser, setRewardUser] = useState("");
   const [rewardAmount, setRewardAmount] = useState("");
+  const [depositPercentage, setDepositPercentage] = useState([0]);
+  const [withdrawPercentage, setWithdrawPercentage] = useState([0]);
 
   // Fetch treasury configuration from database
   const { data: treasuryConfig } = useQuery({
@@ -396,12 +399,52 @@ export function SmartContractPanel() {
   const maxWithdraw = () => {
     if (contractBalance > 0) {
       setWithdrawAmount(contractBalance.toString());
+      setWithdrawPercentage([100]);
+    }
+  };
+
+  const handleWithdrawPercentageChange = (value: number[]) => {
+    const percentage = value[0];
+    setWithdrawPercentage(value);
+    if (contractBalance > 0) {
+      const amount = (contractBalance * percentage) / 100;
+      setWithdrawAmount(amount.toString());
+    }
+  };
+
+  const handleWithdrawAmountChange = (value: string) => {
+    setWithdrawAmount(value);
+    if (contractBalance > 0 && value) {
+      const percentage = (parseFloat(value) / contractBalance) * 100;
+      setWithdrawPercentage([Math.min(100, Math.max(0, percentage))]);
+    } else {
+      setWithdrawPercentage([0]);
     }
   };
 
   const maxDeposit = () => {
     if (userKiltBalance > 0) {
       setDepositAmount(userKiltBalance.toString());
+      setDepositPercentage([100]);
+    }
+  };
+
+  const handleDepositPercentageChange = (value: number[]) => {
+    const percentage = value[0];
+    setDepositPercentage(value);
+    if (userKiltBalance > 0) {
+      const amount = (userKiltBalance * percentage) / 100;
+      setDepositAmount(amount.toString());
+    }
+  };
+
+  const handleDepositAmountChange = (value: string) => {
+    setDepositAmount(value);
+    if (userKiltBalance > 0 && value) {
+      const percentage = (parseFloat(value) / userKiltBalance) * 100;
+      setDepositPercentage([Math.min(100, Math.max(0, percentage))]);
+    } else {
+      setDepositPercentage([0]);
     }
   };
 
@@ -537,17 +580,19 @@ export function SmartContractPanel() {
               <span>Treasury Balance</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">
+              <div className="text-3xl font-bold text-blue-400">
                 {contractBalance ? Number(contractBalance).toLocaleString() : '0'} KILT
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-gray-400 mt-1">
                 Tracked: {treasuryBalance ? Number(treasuryBalance).toLocaleString() : '0'} KILT
               </div>
             </div>
-            <div className="text-xs text-gray-500 text-center">
-              Available for distribution
+            <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-2">
+              <div className="text-xs text-gray-300 text-center">
+                Available for distribution to users
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -559,17 +604,19 @@ export function SmartContractPanel() {
               <span>Your KILT Balance</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">
+              <div className="text-3xl font-bold text-purple-400">
                 {userKiltBalance ? Number(userKiltBalance).toLocaleString() : '0'} KILT
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-gray-400 mt-1">
                 Allowance: {kiltAllowance ? Number(kiltAllowance).toLocaleString() : '0'} KILT
               </div>
             </div>
-            <div className="text-xs text-gray-500 text-center">
-              Available to deposit
+            <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-2">
+              <div className="text-xs text-gray-300 text-center">
+                Available to deposit to treasury
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -587,25 +634,60 @@ export function SmartContractPanel() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="depositAmount" className="text-gray-300">Amount (KILT)</Label>
+              {/* Wallet Balance Display */}
+              <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-400">Your KILT Balance</span>
+                  <span className="text-lg font-bold text-green-400">
+                    {userKiltBalance ? Number(userKiltBalance).toLocaleString() : '0'} KILT
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  Allowance: {kiltAllowance ? Number(kiltAllowance).toLocaleString() : '0'} KILT
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="depositAmount" className="text-gray-300 text-sm font-medium">Amount (KILT)</Label>
                 <div className="flex space-x-2">
                   <Input
                     id="depositAmount"
                     type="number"
                     placeholder="1000"
                     value={depositAmount}
-                    onChange={(e) => setDepositAmount(e.target.value)}
+                    onChange={(e) => handleDepositAmountChange(e.target.value)}
                     className="bg-black border-gray-600 text-white"
                   />
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={maxDeposit}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800 min-w-[60px]"
                   >
                     Max
                   </Button>
+                </div>
+                
+                {/* Percentage Slider */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-gray-400 text-xs">Percentage of Balance</Label>
+                    <span className="text-green-400 text-sm font-medium">{depositPercentage[0]}%</span>
+                  </div>
+                  <Slider
+                    value={depositPercentage}
+                    onValueChange={handleDepositPercentageChange}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>0%</span>
+                    <span>25%</span>
+                    <span>50%</span>
+                    <span>75%</span>
+                    <span>100%</span>
+                  </div>
                 </div>
               </div>
               
@@ -664,25 +746,60 @@ export function SmartContractPanel() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="withdrawAmount" className="text-gray-300">Amount (KILT)</Label>
+              {/* Treasury Balance Display */}
+              <div className="bg-red-900/20 border border-red-700 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-400">Treasury Balance</span>
+                  <span className="text-lg font-bold text-red-400">
+                    {contractBalance ? Number(contractBalance).toLocaleString() : '0'} KILT
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  Available for withdrawal
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="withdrawAmount" className="text-gray-300 text-sm font-medium">Amount (KILT)</Label>
                 <div className="flex space-x-2">
                   <Input
                     id="withdrawAmount"
                     type="number"
                     placeholder="500"
                     value={withdrawAmount}
-                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    onChange={(e) => handleWithdrawAmountChange(e.target.value)}
                     className="bg-black border-gray-600 text-white"
                   />
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={maxWithdraw}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800 min-w-[60px]"
                   >
                     All
                   </Button>
+                </div>
+                
+                {/* Percentage Slider */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-gray-400 text-xs">Percentage of Treasury</Label>
+                    <span className="text-red-400 text-sm font-medium">{withdrawPercentage[0]}%</span>
+                  </div>
+                  <Slider
+                    value={withdrawPercentage}
+                    onValueChange={handleWithdrawPercentageChange}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>0%</span>
+                    <span>25%</span>
+                    <span>50%</span>
+                    <span>75%</span>
+                    <span>100%</span>
+                  </div>
                 </div>
               </div>
               

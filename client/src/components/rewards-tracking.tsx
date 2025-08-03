@@ -91,8 +91,8 @@ export function RewardsTracking() {
       if (!response.ok) throw new Error('Failed to fetch APR data');
       return response.json();
     },
-    refetchInterval: 3000, // Blazing fast refresh every 3 seconds for admin changes
-    staleTime: 1000, // Consider data stale after 1 second for instant updates
+    refetchInterval: 2000, // Ultra-fast refresh every 2 seconds for instant admin changes
+    staleTime: 0, // Always consider data stale for immediate updates
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnMount: true // Always refetch on component mount
   });
@@ -119,7 +119,7 @@ export function RewardsTracking() {
     },
     enabled: !!address,
     staleTime: 0, // Force fresh data to show position count fix
-    refetchInterval: 10000, // Check every 10 seconds for faster updates
+    refetchInterval: 5000, // Check every 5 seconds for immediate admin changes
     refetchOnWindowFocus: true // Refetch when window gets focus
   });
 

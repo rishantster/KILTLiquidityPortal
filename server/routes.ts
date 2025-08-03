@@ -2920,11 +2920,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         true
       );
       
+      console.log('🚀 Admin treasury config updated - triggering reward calculation refresh');
+      console.log(`💰 New daily reward rate: ${dailyRewardsCap.toFixed(4)} KILT per day`);
+      
       console.log('Admin POST /api/admin/treasury/config');
       res.json({
         success: true,
         message: 'Treasury configuration updated successfully',
-        config: dbConfig
+        config: dbConfig,
+        calculationUpdate: {
+          newDailyRate: dailyRewardsCap,
+          message: 'All reward calculations will update immediately'
+        }
       });
     } catch (error) {
       console.error('Treasury config update error:', error);

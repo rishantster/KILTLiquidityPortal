@@ -1,7 +1,7 @@
 import { createPublicClient, http, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
 import { rpcManager } from './rpc-connection-manager';
-import { DirectFeeService } from './direct-fee-service';
+import { AuthenticFeeService } from './authentic-fee-service';
 
 // Base Network Configuration
 const BASE_CHAIN_ID = 8453;
@@ -58,8 +58,8 @@ export class UniswapIntegrationService {
   private userPositionsCache = new Map<string, { data: UniswapV3Position[], timestamp: number }>();
   private tokenIdsCache = new Map<string, { data: string[], timestamp: number }>();
   private readonly CACHE_DURATION = 120000; // 2 minutes for better caching
-  private readonly AGGRESSIVE_CACHE_DURATION = 60000; // 1 minute for position data
-  private readonly FORCE_FEE_REFRESH = false; // Use cached fees for speed
+  private readonly AGGRESSIVE_CACHE_DURATION = 1000; // 1 second for fresh fee data (debugging)
+  private readonly FORCE_FEE_REFRESH = true; // Force fresh fees for authentic data
 
   // BLAZING FAST CACHE INVALIDATION - Clear all caches for a user
   clearUserCache(userAddress: string): void {
@@ -393,11 +393,11 @@ export class UniswapIntegrationService {
   }
 
   /**
-   * Get position fees using DirectFeeService for authentic data without RPC rate limiting
+   * Get position fees using AuthenticFeeService for real-time Uniswap-accurate calculation
    */
   async getPositionFees(tokenId: string): Promise<{ token0: string; token1: string; usdValue?: number }> {
     try {
-      return await DirectFeeService.getUnclaimedFees(tokenId);
+      return await AuthenticFeeService.getUnclaimedFees(tokenId);
     } catch (error) {
       console.error(`❌ Failed to get position fees for ${tokenId}:`, error);
       throw error;
@@ -514,8 +514,8 @@ export class UniswapIntegrationService {
           tickUpper,
           poolData.tickCurrent
         ),
-        // Use DirectFeeService for authentic data without RPC rate limiting
-        DirectFeeService.getUnclaimedFees(tokenId)
+        // Use AuthenticFeeService for real-time Uniswap-accurate calculation
+        AuthenticFeeService.getUnclaimedFees(tokenId)
       ]);
 
       // Calculate USD value
@@ -559,8 +559,8 @@ export class UniswapIntegrationService {
         positionStatus: hasLiquidity ? (isInRange ? 'ACTIVE_IN_RANGE' : 'ACTIVE_OUT_OF_RANGE') : 'CLOSED',
         currentValueUSD,
         fees: {
-          token0: fees.token0,
-          token1: fees.token1
+          token0: fees.token0,  // These are now from AuthenticFeeService (real-time calculation)
+          token1: fees.token1   // Not tokensOwed (stale values)
         }
       };
 

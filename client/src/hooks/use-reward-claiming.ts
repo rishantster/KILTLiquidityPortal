@@ -137,17 +137,44 @@ export function useRewardClaiming() {
 
       // Step 1: Check if user has claimable rewards in the smart contract
       console.log(`Checking claimable rewards for ${address}...`);
-      const claimableAmount = await baseClient.readContract({
-        address: BASIC_TREASURY_POOL_ADDRESS,
-        abi: BASIC_TREASURY_POOL_ABI,
-        functionName: 'getClaimableRewards',
-        args: [address as `0x${string}`],
-      });
-
-      // Convert from wei to KILT tokens (18 decimals)
-      const claimableKilt = parseFloat(formatUnits(claimableAmount as bigint, 18));
       
-      console.log(`User has ${claimableKilt} KILT claimable from smart contract`);
+      let claimableKilt = 0;
+      try {
+        const claimableAmount = await baseClient.readContract({
+          address: BASIC_TREASURY_POOL_ADDRESS,
+          abi: BASIC_TREASURY_POOL_ABI,
+          functionName: 'getClaimableRewards',
+          args: [address as `0x${string}`],
+        });
+
+        // Convert from wei to KILT tokens (18 decimals)
+        claimableKilt = parseFloat(formatUnits(claimableAmount as bigint, 18));
+        console.log(`User has ${claimableKilt} KILT claimable from smart contract`);
+      } catch (contractError) {
+        console.error('Failed to check claimable rewards from smart contract:', contractError);
+        
+        // If we can't read from contract, assume no rewards are distributed yet
+        const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
+        if (rewardStatsResponse.ok) {
+          const rewardStats = await rewardStatsResponse.json();
+          const calculatedAmount = rewardStats.totalClaimable || 0;
+          
+          return {
+            success: false,
+            error: `Reward claiming requires admin distribution first. You have earned ${calculatedAmount.toFixed(4)} KILT from your liquidity positions.
+            
+📋 MANUAL CLAIMING INSTRUCTIONS:
+1. Admin must first distribute rewards using MetaMask:
+   - Connect to contract: 0x3ee2361272EaDc5ADc91418530722728E7DCe526
+   - Call distributeReward(${address}, ${(calculatedAmount * Math.pow(10, 18)).toExponential()})
+2. Then you can claim rewards by calling claimRewards()
+
+💡 Alternative: Request admin to set up REWARD_WALLET_PRIVATE_KEY for automatic distribution.`
+          };
+        }
+        
+        throw contractError;
+      }
 
       if (claimableKilt <= 0) {
         // No rewards have been distributed to this user yet

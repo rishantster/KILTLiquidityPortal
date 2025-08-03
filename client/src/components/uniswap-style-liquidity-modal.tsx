@@ -119,6 +119,16 @@ export function UniswapStyleLiquidityModal({
       return;
     }
 
+    // Check if MetaMask is available
+    if (typeof window !== 'undefined' && !window.ethereum) {
+      toast({
+        title: "MetaMask Not Found",
+        description: "Please install MetaMask to continue",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (mode === 'add' && (!ethAmount || !kiltAmount || parseFloat(ethAmount) <= 0 || parseFloat(kiltAmount) <= 0)) {
       toast({
         title: "Invalid Amounts",
@@ -176,11 +186,28 @@ export function UniswapStyleLiquidityModal({
       
     } catch (error) {
       console.error('Transaction error:', error);
-      toast({
-        title: "Transaction Failed", 
-        description: (error as Error)?.message || "Please try again",
-        variant: "destructive"
-      });
+      const errorMessage = (error as Error)?.message || "Unknown error";
+      
+      // Handle specific MetaMask errors
+      if (errorMessage.includes('User rejected') || errorMessage.includes('user rejected')) {
+        toast({
+          title: "Transaction Cancelled",
+          description: "You cancelled the transaction in MetaMask",
+          variant: "destructive"
+        });
+      } else if (errorMessage.includes('insufficient funds')) {
+        toast({
+          title: "Insufficient Funds",
+          description: "You don't have enough tokens or ETH for gas",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Transaction Failed", 
+          description: `Error: ${errorMessage}`,
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }

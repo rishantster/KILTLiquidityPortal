@@ -1120,11 +1120,14 @@ export class FixedRewardService {
     avgDailyRewards: number;
   }> {
     try {
-      // Get user's positions (don't filter - let the rewards table determine what exists)
-      const userPositions = await this.database
+      // Get user's positions (all for calculations)
+      const allUserPositions = await this.database
         .select()
         .from(lpPositions)
         .where(eq(lpPositions.userId, userId));
+      
+      // Filter to only active positions for counting
+      const activeUserPositions = allUserPositions.filter(pos => pos.isActive === true);
 
       // Always calculate stats from rewards table regardless of position status
       // The rewards table is the source of truth for what was actually earned
@@ -1155,9 +1158,9 @@ export class FixedRewardService {
       // This provides more accurate representation of actual earning rate
       let actualDailyRate = 0;
       
-      if (userPositions.length > 0) {
+      if (allUserPositions.length > 0) {
         // Calculate total days since first position was created
-        const oldestPosition = userPositions.reduce((oldest: any, current: any) => 
+        const oldestPosition = allUserPositions.reduce((oldest: any, current: any) => 
           new Date(current.createdAt) < new Date(oldest.createdAt) ? current : oldest
         );
         
@@ -1174,7 +1177,7 @@ export class FixedRewardService {
         totalAccumulated: Math.round(rawStats.totalAccumulated * 10000) / 10000, // 4 decimal places
         totalClaimable: Math.round(rawStats.totalClaimable * 10000) / 10000, // 4 decimal places
         totalClaimed: Math.round(rawStats.totalClaimed * 10000) / 10000, // 4 decimal places
-        activePositions: userPositions.length, // Use actual active positions count
+        activePositions: activeUserPositions.length, // Use only truly active positions count
         avgDailyRewards: Math.round(actualDailyRate * 1000) / 1000, // Actual historical daily rate instead of theoretical
       };
     } catch (error) {

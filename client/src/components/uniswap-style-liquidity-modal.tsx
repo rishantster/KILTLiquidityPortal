@@ -157,13 +157,22 @@ export function UniswapStyleLiquidityModal({
         const ethAmountString = parseUnits(ethAmount, 18).toString();
         const kiltAmountString = parseUnits(kiltAmount, 18).toString();
         
+        console.log('Add Liquidity Debug:', {
+          positionId: positionId.toString(),
+          ethAmount,
+          kiltAmount,
+          ethAmountString,
+          kiltAmountString,
+          position
+        });
+        
         // Use the increaseLiquidity function for existing positions
         const increaseLiquidityParams = {
           tokenId: positionId.toString(),
           amount0Desired: ethAmountString, // ETH/WETH amount  
           amount1Desired: kiltAmountString, // KILT amount
-          amount0Min: (BigInt(ethAmountString) * 90n / 100n).toString(), // 10% slippage
-          amount1Min: (BigInt(kiltAmountString) * 90n / 100n).toString(), // 10% slippage
+          amount0Min: (BigInt(ethAmountString) * 85n / 100n).toString(), // 15% slippage for testing
+          amount1Min: (BigInt(kiltAmountString) * 85n / 100n).toString(), // 15% slippage for testing
         };
 
         // Call the increaseLiquidity function from the hook

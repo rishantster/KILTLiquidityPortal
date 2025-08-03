@@ -94,10 +94,10 @@ export function PositionRegistration() {
   // BLAZING FAST eligible positions using Uniswap-optimized endpoint
   const { data: unregisteredPositionsData, isLoading: loadingPositions } = useQuery({
     queryKey: ['eligible-positions-uniswap', address],
-    staleTime: 30 * 1000, // 30 seconds cache like Uniswap
-    gcTime: 5 * 60 * 1000, // 5 minutes retention
+    staleTime: 0, // Force fresh data to see position count fix
+    gcTime: 30 * 1000, // Shorter retention
     refetchInterval: false, // No polling needed with smart caching
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Refetch when window gets focus
     queryFn: async () => {
       if (!address) return { eligiblePositions: [], totalPositions: 0, message: '' };
       

@@ -784,6 +784,74 @@ export function useUniswapV3() {
           transport: custom(window.ethereum),
         });
 
+        // Check and handle token approvals first
+        const amount0Desired = BigInt(params.amount0Desired);
+        const amount1Desired = BigInt(params.amount1Desired);
+        
+        // Check WETH (token0) allowance
+        if (amount0Desired > 0n) {
+          const wethAllowance = await baseClient.readContract({
+            address: WETH_TOKEN as `0x${string}`,
+            abi: ERC20_ABI,
+            functionName: 'allowance',
+            args: [address as `0x${string}`, UNISWAP_V3_POSITION_MANAGER as `0x${string}`],
+          });
+          
+          if (wethAllowance < amount0Desired) {
+            toast({
+              title: "Token Approval Required",
+              description: "Please approve WETH spending in the next transaction",
+            });
+            
+            const approveHash = await walletClient.writeContract({
+              address: WETH_TOKEN as `0x${string}`,
+              abi: ERC20_ABI,
+              functionName: 'approve',
+              args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount0Desired],
+              account: address as `0x${string}`,
+            });
+            
+            await baseClient.waitForTransactionReceipt({ hash: approveHash });
+            
+            toast({
+              title: "WETH Approved",
+              description: "Now processing liquidity addition...",
+            });
+          }
+        }
+        
+        // Check KILT (token1) allowance
+        if (amount1Desired > 0n) {
+          const kiltAllowance = await baseClient.readContract({
+            address: KILT_TOKEN as `0x${string}`,
+            abi: ERC20_ABI,
+            functionName: 'allowance',
+            args: [address as `0x${string}`, UNISWAP_V3_POSITION_MANAGER as `0x${string}`],
+          });
+          
+          if (kiltAllowance < amount1Desired) {
+            toast({
+              title: "Token Approval Required",
+              description: "Please approve KILT spending in the next transaction",
+            });
+            
+            const approveHash = await walletClient.writeContract({
+              address: KILT_TOKEN as `0x${string}`,
+              abi: ERC20_ABI,
+              functionName: 'approve',
+              args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount1Desired],
+              account: address as `0x${string}`,
+            });
+            
+            await baseClient.waitForTransactionReceipt({ hash: approveHash });
+            
+            toast({
+              title: "KILT Approved",
+              description: "Now processing liquidity addition...",
+            });
+          }
+        }
+
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
         
         const hash = await walletClient.writeContract({
@@ -792,8 +860,8 @@ export function useUniswapV3() {
           functionName: 'increaseLiquidity',
           args: [{
             tokenId: BigInt(params.tokenId),
-            amount0Desired: BigInt(params.amount0Desired),
-            amount1Desired: BigInt(params.amount1Desired),
+            amount0Desired,
+            amount1Desired,
             amount0Min: BigInt(params.amount0Min || '0'),
             amount1Min: BigInt(params.amount1Min || '0'),
             deadline: BigInt(deadline)
@@ -809,10 +877,25 @@ export function useUniswapV3() {
         });
         
         return hash;
-      } catch (error) {
+      } catch (error: any) {
+        // Enhanced error handling for increaseLiquidity
+        let errorMessage = "Failed to add liquidity";
+        
+        if (error.message?.includes('STF')) {
+          errorMessage = "Slippage tolerance failed - try increasing slippage tolerance";
+        } else if (error.message?.includes('insufficient funds')) {
+          errorMessage = "Insufficient token balance for transaction";
+        } else if (error.message?.includes('user rejected')) {
+          errorMessage = "Transaction rejected by user";
+        } else if (error.message?.includes('execution reverted')) {
+          errorMessage = "Contract execution failed - check token approvals and balances";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: "Add Liquidity Failed",
-          description: (error as Error)?.message || 'Failed to add liquidity',
+          description: errorMessage,
           variant: "destructive",
         });
         throw error;

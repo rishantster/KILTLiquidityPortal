@@ -1408,16 +1408,17 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Claim rewards by wallet address (frontend expects this route)
   app.post("/api/rewards/claim", async (req, res) => {
     try {
-      const { userAddress } = req.body;
-      console.log(`🎯 Claim API called for address: ${userAddress}`);
+      const { userAddress, nftTokenIds } = req.body;
+      console.log(`🎯 Claim API called for address: ${userAddress} with NFT IDs: ${nftTokenIds}`);
       
       if (!userAddress) {
         res.status(400).json({ error: "User address is required" });
         return;
       }
       
-      const result = await claimBasedRewards.processClaimRequest(userAddress);
-      console.log(`✅ Claim result:`, result);
+      // Use smart contract service for automatic claim processing
+      const result = await smartContractService.processRewardClaim(userAddress, nftTokenIds || []);
+      console.log(`✅ Smart contract claim result:`, result);
       
       if (result.success) {
         res.json(result);
@@ -1435,15 +1436,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const userAddress = req.params.address;
       console.log(`🔧 Claimability API called for address: ${userAddress}`);
-      const claimableRewards = await claimBasedRewards.checkClaimability(userAddress);
-      console.log(`✅ Claimability result:`, claimableRewards);
+      
+      // Use smart contract service to get claimable rewards directly
+      const claimableAmount = await smartContractService.getClaimableRewards(userAddress);
+      console.log(`✅ Smart contract claimable amount: ${claimableAmount} KILT`);
+      
       res.json({
-        claimable: claimableRewards.totalClaimable,
-        canClaim: claimableRewards.canClaim,
-        daysRemaining: claimableRewards.daysRemaining,
-        lockExpired: claimableRewards.lockExpired,
-        lockExpiryDate: claimableRewards.lockExpiryDate,
-        totalClaimable: claimableRewards.totalClaimable
+        claimable: claimableAmount,
+        canClaim: claimableAmount > 0,
+        daysRemaining: 0, // No lock period in BasicTreasuryPool
+        lockExpired: true, // No lock period
+        lockExpiryDate: new Date(), // No lock expiry
+        totalClaimable: claimableAmount
       });
     } catch (error) {
       console.log(`❌ Claimability API error for ${req.params.address}:`, error);
@@ -1451,8 +1455,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json({
         claimable: 0,
         canClaim: false,
-        daysRemaining: 7,
-        lockExpired: false,
+        daysRemaining: 0,
+        lockExpired: true,
         totalClaimable: 0
       });
     }

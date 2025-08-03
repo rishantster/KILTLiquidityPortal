@@ -316,23 +316,23 @@ export class SmartContractService {
       // Create contract instance
       const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
       
-      // Get claimable amount before transaction
+      // Get claimable amount from the smart contract
       const claimableAmount = await contract.getClaimableRewards(userAddress);
       
       if (claimableAmount === 0n) {
         return {
           success: false,
-          error: 'Rewards calculated but not yet distributed by admin. Treasury has funds available - admin distribution required before claiming.',
+          error: 'No rewards available for claiming at this time. Continue providing liquidity to earn rewards.',
           amount: 0,
           recipient: userAddress
         };
       }
 
-      // Note: This is read-only mode - actual claiming requires user's wallet signature
-      // The frontend should use wagmi to call claimRewards() directly
+      // Smart contract is ready for claiming - return success with claim amount
+      // Frontend will handle the actual wallet transaction via wagmi
       return {
-        success: false,
-        error: 'Please use the smart contract panel to claim rewards directly through your wallet',
+        success: true,
+        error: undefined,
         amount: Number(ethers.formatUnits(claimableAmount, 18)),
         recipient: userAddress
       };

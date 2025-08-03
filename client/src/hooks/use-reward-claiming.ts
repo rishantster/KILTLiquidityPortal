@@ -5,6 +5,7 @@ import { useWagmiWallet } from './use-wagmi-wallet';
 import { useToast } from './use-toast';
 
 // Treasury contract address on Base network (placeholder - needs actual deployed contract)
+// This will be updated after deploying the BasicTreasuryPool contract
 const MULTI_TOKEN_TREASURY_POOL_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
 
 // KILT token address on Base network

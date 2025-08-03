@@ -93,11 +93,20 @@ contract SimpleTreasuryPool is Ownable, ReentrancyGuard {
     /**
      * @dev Claim all available rewards for the caller
      */
-    function claimAllRewards() external {
-        uint256 claimableAmount = getClaimableAmount(msg.sender);
-        require(claimableAmount > 0, "No rewards to claim");
+    function claimAllRewards() external nonReentrant {
+        address user = msg.sender;
+        uint256 claimableAmount = getClaimableAmount(user);
         
-        claimRewards(claimableAmount);
+        require(claimableAmount > 0, "No rewards to claim");
+        require(kiltToken.balanceOf(address(this)) >= claimableAmount, "Insufficient contract balance");
+        
+        // Update claimed amount
+        claimedRewards[user] += claimableAmount;
+        
+        // Transfer KILT tokens to user
+        require(kiltToken.transfer(user, claimableAmount), "Token transfer failed");
+        
+        emit RewardClaimed(user, claimableAmount);
     }
 
     /**

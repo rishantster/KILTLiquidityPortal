@@ -37,7 +37,7 @@ contract SimpleTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         kiltToken = IERC20(_kiltToken);
         _transferOwnership(_owner);
     }
-
+    
     /**
      * @dev Set claimable reward allowance for a user (owner only)
      * This is done once by the owner, then users can claim anytime
@@ -131,7 +131,7 @@ contract SimpleTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         
         _processClaim(msg.sender, claimableAmount);
     }
-
+    
     /**
      * @dev Get the amount of rewards a user can claim
      * @param user Address of the user
@@ -147,7 +147,7 @@ contract SimpleTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         
         return totalClaimable - alreadyClaimed;
     }
-
+    
     /**
      * @dev Get total rewards (claimed + claimable) for a user
      * @param user Address of the user

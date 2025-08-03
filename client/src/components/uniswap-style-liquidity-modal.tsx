@@ -142,7 +142,9 @@ export function UniswapStyleLiquidityModal({
     try {
       if (mode === 'add') {
         // This is for adding liquidity to an existing position
-        if (!position?.tokenId) {
+        const positionId = position?.tokenId || position?.nftTokenId || position?.id;
+        if (!positionId) {
+          console.error('Position data:', position);
           toast({
             title: "Position Not Found",
             description: "Cannot add liquidity without a position ID",
@@ -157,7 +159,7 @@ export function UniswapStyleLiquidityModal({
         
         // Use the increaseLiquidity function for existing positions
         const increaseLiquidityParams = {
-          tokenId: position.tokenId.toString(),
+          tokenId: positionId.toString(),
           amount0Desired: ethAmountString, // ETH/WETH amount  
           amount1Desired: kiltAmountString, // KILT amount
           amount0Min: (BigInt(ethAmountString) * 90n / 100n).toString(), // 10% slippage
@@ -169,7 +171,7 @@ export function UniswapStyleLiquidityModal({
         
         toast({
           title: "Transaction Submitted",
-          description: `Adding ${ethAmount} ETH and ${kiltAmount} KILT to position ${position.tokenId}`,
+          description: `Adding ${ethAmount} ETH and ${kiltAmount} KILT to position ${positionId}`,
         });
         
         // Transaction successful - close modal

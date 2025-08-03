@@ -255,7 +255,7 @@ export function RewardsTracking() {
               <Unlock className="h-4 w-4 text-matrix-green" />
             </div>
             <div className="text-lg font-bold tabular-nums text-matrix-bright flex items-center gap-2 mb-1">
-              {totalClaimableAmount.toFixed(2)}
+              {(rewardStats?.totalClaimable || 0).toFixed(2)}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
@@ -266,7 +266,7 @@ export function RewardsTracking() {
               Ready to claim
             </div>
             <div className="text-xs text-matrix-green font-medium">
-              ≈ ${(totalClaimableAmount * (kiltData?.price || 0)).toFixed(2)} USD
+              ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
@@ -323,7 +323,7 @@ export function RewardsTracking() {
                 {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
               </div>
               <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
-                {totalClaimableAmount.toFixed(2)} 
+                {(rewardStats?.totalClaimable || 0).toFixed(2)} 
                 <img 
                   src={kiltLogo} 
                   alt="KILT" 
@@ -331,7 +331,7 @@ export function RewardsTracking() {
                 />
               </div>
               <div className="text-white/50 text-sm mb-3">
-                ≈ ${(totalClaimableAmount * (kiltData?.price || 0)).toFixed(2)} USD
+                ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
               
               <Button 

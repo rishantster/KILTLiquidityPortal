@@ -82,8 +82,10 @@ export function useUnifiedDashboard() {
       }
     },
     enabled: !!user?.id,
-    refetchInterval: 5000, // Refresh every 5 seconds for real-time earned updates
-    staleTime: 2000 // Consider data stale after 2 seconds for faster updates
+    refetchInterval: 1000, // Refresh every 1 second for instant updates
+    staleTime: 0, // Always consider data stale to force fresh fetches
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   // Get user's personal APR

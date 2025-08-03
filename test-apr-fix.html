@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>APR Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: white; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .endpoint { margin: 20px 0; padding: 15px; background: #2a2a2a; border-radius: 8px; }
+        .endpoint h3 { margin: 0 0 10px 0; color: #7c3aed; }
+        pre { background: #111; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        .result { margin: 10px 0; }
+        .highlight { color: #10b981; font-weight: bold; }
+        .old-value { color: #ef4444; text-decoration: line-through; }
+        .new-value { color: #10b981; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 APR Fix Verification</h1>
+        <p>Testing if program APR values now show correctly instead of DexScreener market values.</p>
+        
+        <div class="endpoint">
+            <h3>📊 Program Analytics (/api/rewards/program-analytics)</h3>
+            <div class="result" id="analytics-result">Loading...</div>
+        </div>
+        
+        <div class="endpoint">
+            <h3>🚀 Maximum APR (/api/rewards/maximum-apr)</h3>
+            <div class="result" id="max-apr-result">Loading...</div>
+        </div>
+        
+        <div class="endpoint">
+            <h3>👤 User APR (/api/rewards/user-apr/0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e)</h3>
+            <div class="result" id="user-apr-result">Loading...</div>
+        </div>
+        
+        <div class="endpoint">
+            <h3>💰 Trading Fees APR (/api/trading-fees/pool-apr)</h3>
+            <div class="result" id="trading-apr-result">Loading...</div>
+        </div>
+
+        <div class="endpoint">
+            <h3>📈 Expected Changes Summary</h3>
+            <ul>
+                <li>Trading Fees APR: <span class="old-value">~8.19%</span> → <span class="new-value">~7.50%</span> (real DexScreener data)</li>
+                <li>KILT Rewards APR: <span class="old-value">~15.50%</span> → <span class="new-value">~123.99%</span> (program treasury APR)</li>
+                <li>Total APR: <span class="old-value">~23.69%</span> → <span class="new-value">~131.49%</span> (authentic program APR)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            try {
+                // Fetch program analytics
+                const analyticsResponse = await fetch('/api/rewards/program-analytics');
+                const analytics = await analyticsResponse.json();
+                document.getElementById('analytics-result').innerHTML = `
+                    <pre>${JSON.stringify(analytics, null, 2)}</pre>
+                    <p><span class="highlight">Average APR: ${analytics.averageAPR}%</span></p>
+                `;
+
+                // Fetch maximum APR
+                const maxAprResponse = await fetch('/api/rewards/maximum-apr');
+                const maxApr = await maxAprResponse.json();
+                document.getElementById('max-apr-result').innerHTML = `
+                    <pre>${JSON.stringify(maxApr, null, 2)}</pre>
+                    <p><span class="highlight">Max APR: ${maxApr.maxAPR}%</span></p>
+                `;
+
+                // Fetch user APR
+                const userAprResponse = await fetch('/api/rewards/user-apr/0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e');
+                const userApr = await userAprResponse.json();
+                document.getElementById('user-apr-result').innerHTML = `
+                    <pre>${JSON.stringify(userApr, null, 2)}</pre>
+                    <p><span class="highlight">User Total APR: ${userApr.totalAPR}%</span></p>
+                `;
+
+                // Fetch trading fees APR
+                const tradingResponse = await fetch('/api/trading-fees/pool-apr');
+                const trading = await tradingResponse.json();
+                document.getElementById('trading-apr-result').innerHTML = `
+                    <pre>${JSON.stringify(trading, null, 2)}</pre>
+                    <p><span class="highlight">Trading Fees APR: ${trading.tradingFeesAPR}%</span></p>
+                `;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Load data when page loads
+        fetchData();
+        
+        // Refresh every 10 seconds
+        setInterval(fetchData, 10000);
+    </script>
+</body>
+</html>

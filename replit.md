@@ -109,6 +109,13 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application desig
 - **Total User Liquidity**: $2,889.53 across 8 active positions
 - **Live Metrics**: KILT price $0.01817, Pool TVL $96,967, all calculations verified
 
+**APR Display Fix (February 2025)**:
+- **Program APR Integration**: Fixed frontend to display authentic program treasury rewards (123.99%) instead of low market fallback values (15.50%)
+- **Trading Fees Correction**: Updated to show real DexScreener trading fees APR (7.50%) instead of hardcoded values (8.19%)
+- **Total APR Accuracy**: Expected Returns section now displays correct program APR (131.49%) instead of misleading low values (23.69%)
+- **Data Source Priority**: APR calculations now prioritize program analytics over market-based pool calculations
+- **User Experience**: Participants see realistic earning expectations based on treasury budget and actual participant TVL
+
 **Previous Major Codebase Cleanup (February 2025)**:
 - **Massive Redundancy Removal**: Eliminated 6+ duplicate cache files, 7+ APR services, multiple optimization layers
 - **Import Resolution**: Fixed 60+ broken imports and syntax errors that accumulated during rapid development

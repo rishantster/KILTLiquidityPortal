@@ -1127,7 +1127,7 @@ export class FixedRewardService {
         .where(eq(lpPositions.userId, userId));
       
       // Filter to only active positions for counting
-      const activeUserPositions = allUserPositions.filter(pos => pos.isActive === true);
+      const activeUserPositions = allUserPositions.filter((pos: any) => pos.isActive === true);
 
       // Always calculate stats from rewards table regardless of position status
       // The rewards table is the source of truth for what was actually earned

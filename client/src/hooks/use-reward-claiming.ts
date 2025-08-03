@@ -4,52 +4,43 @@ import { base } from 'viem/chains';
 import { useWagmiWallet } from './use-wagmi-wallet';
 import { useToast } from './use-toast';
 
-// Treasury contract address on Base network (placeholder - needs actual deployed contract)
-// This will be updated after deploying the BasicTreasuryPool contract
-const MULTI_TOKEN_TREASURY_POOL_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
+// Treasury contract address on Base network - DEPLOYED!
+const BASIC_TREASURY_POOL_ADDRESS = '0x3ee2361272EaDc5ADc91418530722728E7DCe526' as const;
 
 // KILT token address on Base network
 const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8' as const;
 
-// MultiTokenTreasuryPool contract ABI - Core functions for reward claiming
-const TREASURY_POOL_ABI = [
+// BasicTreasuryPool contract ABI - Core functions for reward claiming
+const BASIC_TREASURY_POOL_ABI = [
   {
-    inputs: [
-      { name: 'tokenIds', type: 'uint256[]' },
-      { name: 'rewardToken', type: 'address' }
-    ],
+    inputs: [],
     name: 'claimRewards',
-    outputs: [{ name: 'claimedAmount', type: 'uint256' }],
+    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [
-      { name: 'user', type: 'address' },
-      { name: 'rewardToken', type: 'address' }
-    ],
+    inputs: [{ name: 'user', type: 'address' }],
     name: 'getClaimableRewards',
-    outputs: [{ name: 'amount', type: 'uint256' }],
+    outputs: [{ name: 'claimableAmount', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      { name: 'user', type: 'address' },
-      { name: 'rewardToken', type: 'address' }
-    ],
-    name: 'isClaimable',
-    outputs: [{ name: 'claimable', type: 'bool' }],
+    inputs: [{ name: 'user', type: 'address' }],
+    name: 'getUserRewards',
+    outputs: [{ name: 'rewards', type: 'tuple[]', components: [
+      { name: 'amount', type: 'uint256' },
+      { name: 'lockTimestamp', type: 'uint256' },
+      { name: 'claimed', type: 'bool' }
+    ]}],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      { name: 'user', type: 'address' },
-      { name: 'rewardToken', type: 'address' }
-    ],
-    name: 'getLockExpiryDate',
-    outputs: [{ name: 'expiryDate', type: 'uint256' }],
+    inputs: [],
+    name: 'getContractBalance',
+    outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   }
@@ -61,9 +52,9 @@ const baseClient = createPublicClient({
   transport: http('https://base-rpc.publicnode.com'),
 });
 
+// Simplified interface for BasicTreasuryPool
 export interface ClaimRewardsParams {
-  tokenIds: string[];
-  rewardToken?: string; // Defaults to KILT
+  // No parameters needed for BasicTreasuryPool.claimRewards()
 }
 
 export interface RewardClaimResult {
@@ -87,43 +78,28 @@ export function useRewardClaiming() {
   }) : null;
 
   // Check if rewards are claimable on-chain
-  const checkClaimability = async (userAddress: string, rewardToken: string = KILT_TOKEN_ADDRESS): Promise<{
+  const checkClaimability = async (userAddress: string): Promise<{
     isClaimable: boolean;
     claimableAmount: string;
     lockExpiryDate: Date | null;
   }> => {
     setIsCheckingClaimability(true);
     try {
-      // Read claimability status from smart contract
-      const [isClaimableResult, claimableAmountResult, lockExpiryResult] = await Promise.all([
-        baseClient.readContract({
-          address: MULTI_TOKEN_TREASURY_POOL_ADDRESS,
-          abi: TREASURY_POOL_ABI,
-          functionName: 'isClaimable',
-          args: [userAddress as `0x${string}`, rewardToken as `0x${string}`],
-        }),
-        baseClient.readContract({
-          address: MULTI_TOKEN_TREASURY_POOL_ADDRESS,
-          abi: TREASURY_POOL_ABI,
-          functionName: 'getClaimableRewards',
-          args: [userAddress as `0x${string}`, rewardToken as `0x${string}`],
-        }),
-        baseClient.readContract({
-          address: MULTI_TOKEN_TREASURY_POOL_ADDRESS,
-          abi: TREASURY_POOL_ABI,
-          functionName: 'getLockExpiryDate',
-          args: [userAddress as `0x${string}`, rewardToken as `0x${string}`],
-        })
-      ]);
+      // Read claimable amount from BasicTreasuryPool contract
+      const claimableAmountResult = await baseClient.readContract({
+        address: BASIC_TREASURY_POOL_ADDRESS,
+        abi: BASIC_TREASURY_POOL_ABI,
+        functionName: 'getClaimableRewards',
+        args: [userAddress as `0x${string}`],
+      });
 
       const claimableAmount = (claimableAmountResult as bigint).toString();
-      const lockExpiryTimestamp = lockExpiryResult as bigint;
-      const lockExpiryDate = lockExpiryTimestamp > 0 ? new Date(Number(lockExpiryTimestamp) * 1000) : null;
+      const isClaimable = BigInt(claimableAmount) > 0n;
 
       return {
-        isClaimable: isClaimableResult as boolean,
+        isClaimable,
         claimableAmount,
-        lockExpiryDate
+        lockExpiryDate: null // No lock period in BasicTreasuryPool
       };
     } catch (error) {
       console.error('Failed to check claimability:', error);
@@ -133,8 +109,8 @@ export function useRewardClaiming() {
     }
   };
 
-  // Execute reward claim transaction
-  const claimRewards = async (params: ClaimRewardsParams): Promise<RewardClaimResult> => {
+  // Execute reward claim transaction  
+  const claimRewards = async (): Promise<RewardClaimResult> => {
     setIsClaiming(true);
     
     try {
@@ -142,50 +118,32 @@ export function useRewardClaiming() {
         throw new Error('Wallet not connected');
       }
 
-      if (!params.tokenIds || params.tokenIds.length === 0) {
-        throw new Error('No position token IDs provided');
-      }
-
-      // Check if treasury contract is deployed
-      if (MULTI_TOKEN_TREASURY_POOL_ADDRESS === '0x0000000000000000000000000000000000000000') {
-        throw new Error('Treasury contract not yet deployed. Reward claiming will be available after smart contract deployment.');
-      }
-
-      const rewardToken = params.rewardToken || KILT_TOKEN_ADDRESS;
-      const tokenIds = params.tokenIds.map(id => BigInt(id));
-
       // First check if rewards are claimable
-      const claimabilityCheck = await checkClaimability(address, rewardToken);
+      const claimabilityCheck = await checkClaimability(address);
       
       if (!claimabilityCheck.isClaimable) {
-        const lockDate = claimabilityCheck.lockExpiryDate;
-        const errorMessage = lockDate 
-          ? `Rewards are still locked until ${lockDate.toLocaleDateString()}`
-          : 'No claimable rewards available';
-        
         return {
           success: false,
-          error: errorMessage
+          error: 'No claimable rewards available'
         };
       }
 
       // Estimate gas for the claim transaction
       const gasEstimate = await baseClient.estimateContractGas({
-        address: MULTI_TOKEN_TREASURY_POOL_ADDRESS,
-        abi: TREASURY_POOL_ABI,
+        address: BASIC_TREASURY_POOL_ADDRESS,
+        abi: BASIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [tokenIds, rewardToken as `0x${string}`],
+        args: [],
         account: address as `0x${string}`,
       });
 
       // Execute the claim transaction
       const txHash = await walletClient.writeContract({
-        address: MULTI_TOKEN_TREASURY_POOL_ADDRESS,
-        abi: TREASURY_POOL_ABI,
+        address: BASIC_TREASURY_POOL_ADDRESS,
+        abi: BASIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [tokenIds, rewardToken as `0x${string}`],
-        account: address as `0x${string}`,
-        gas: gasEstimate + BigInt(10000), // Add buffer for gas estimation
+        args: [],
+        gas: gasEstimate,
       });
 
       // Wait for transaction confirmation

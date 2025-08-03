@@ -162,7 +162,7 @@ export function RewardsTracking() {
       }
       
       // Execute real blockchain transaction
-      const result = await claimRewards({ tokenIds });
+      const result = await claimRewards();
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to claim rewards');

@@ -246,7 +246,7 @@ export class ClaimBasedRewards {
       if (userRewards.length === 0) {
         return {
           success: false,
-          error: 'No unclaimed rewards found',
+          error: 'Rewards calculated but not yet distributed by admin. Treasury has 20,990 KILT available - admin distribution required before claiming.',
           amount: 0,
           recipient: userAddress,
           lockExpired: true

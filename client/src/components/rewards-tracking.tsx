@@ -354,8 +354,8 @@ export function RewardsTracking() {
                   </>
                 ) : lockExpired ? (
                   <>
-                    <Lock className="h-4 w-4 mr-2" />
-                    No Rewards Available
+                    <Clock className="h-4 w-4 mr-2" />
+                    Awaiting Admin Distribution
                   </>
                 ) : (rewardStats?.totalAccumulated || 0) > 0 ? (
                   <>

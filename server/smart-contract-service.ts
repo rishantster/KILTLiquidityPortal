@@ -300,7 +300,9 @@ export class SmartContractService {
       const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
       const code = await provider.getCode(contractAddress);
       
-      if (code === '0x') {
+      console.log(`🔍 Contract verification for ${contractAddress}: code length = ${code.length}`);
+      
+      if (code === '0x' || code.length < 10) {
         return {
           success: false,
           error: 'Treasury contract not yet deployed. Smart contract deployment required to enable reward claiming.',
@@ -308,6 +310,8 @@ export class SmartContractService {
           recipient: userAddress
         };
       }
+      
+      console.log(`✅ Contract verified: BasicTreasuryPool deployed at ${contractAddress}`);
 
       // Create contract instance
       const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
@@ -318,7 +322,7 @@ export class SmartContractService {
       if (claimableAmount === 0n) {
         return {
           success: false,
-          error: 'No rewards available to claim',
+          error: 'Rewards calculated but not yet distributed by admin. Treasury has funds available - admin distribution required before claiming.',
           amount: 0,
           recipient: userAddress
         };

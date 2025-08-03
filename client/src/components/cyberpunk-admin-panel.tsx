@@ -248,9 +248,14 @@ export function CyberpunkAdminPanel() {
         {/* Header */}
         <div className="border-b border-green-400 bg-black/90 p-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-xl font-bold text-[#ff0066] tracking-wider">
-              ◢◤ KILT PROTOCOL ADMIN CONSOLE ◥◣
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold text-[#ff0066] tracking-wider">
+                ◢◤ KILT PROTOCOL ADMIN CONSOLE ◥◣
+              </h1>
+              <span className="px-2 py-1 text-xs font-semibold bg-gradient-to-r from-[#ff0066] to-[#ff4499] text-white rounded-full tracking-wider animate-pulse">
+                BETA
+              </span>
+            </div>
             <button
               onClick={handleLogout}
               className="px-4 py-2 bg-red-600 text-white font-mono text-sm rounded hover:bg-red-500 transition-colors"

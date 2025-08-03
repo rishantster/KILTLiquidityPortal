@@ -10,9 +10,14 @@ export function LoadingScreen() {
           alt="KILT" 
           className="w-16 h-16 mx-auto mb-4 animate-pulse"
         />
-        <h2 className="text-2xl font-bold text-white mb-2">
-          KILT Liquidity Program
-        </h2>
+        <div className="flex items-center gap-2 mb-2">
+          <h2 className="text-2xl font-bold text-white">
+            KILT Liquidity Program
+          </h2>
+          <span className="px-2 py-1 text-xs font-semibold bg-gradient-to-r from-[#ff0066] to-[#ff4499] text-white rounded-full tracking-wider animate-pulse">
+            BETA
+          </span>
+        </div>
         <div className="flex items-center justify-center space-x-2" style={{ color: '#ff0066' }}>
           <Loader2 className="h-5 w-5 animate-spin" />
           <span>Loading your dashboard...</span>

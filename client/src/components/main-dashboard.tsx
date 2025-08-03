@@ -473,8 +473,11 @@ export function MainDashboard() {
             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
               <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>
+              <span className="px-2 py-1 text-xs font-semibold bg-gradient-to-r from-[#ff0066] to-[#ff4499] text-white rounded-full tracking-wider animate-pulse">
+                BETA
+              </span>
             </div>
           </div>
           

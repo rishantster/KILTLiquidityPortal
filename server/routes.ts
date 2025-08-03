@@ -92,7 +92,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Removed cache-performance-endpoint - cleaned up during optimization
   
   // Register Uniswap-optimized routes for blazing fast performance
-  // Removed registerUniswapOptimizedRoutes - cleaned up during optimization
+  const { registerUniswapOptimizedRoutes } = await import('./routes/uniswap-optimized');
+  registerUniswapOptimizedRoutes(app);
   
   // Blockchain configuration endpoint
   app.get("/api/blockchain-config", async (req, res) => {

@@ -36,6 +36,7 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 **Smart Contract Architecture**:
 - **Core Contract**: `BasicTreasuryPool` deployed to Base network for treasury-based reward distribution.
 - **Contract Status**: DEPLOYED AND OPERATIONAL on Base network at `0x3ee2361272EaDc5ADc91418530722728E7DCe526`.
+- **Treasury Balance**: 20,990 KILT currently deposited and available for reward distribution.
 - **Token**: KILT (0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8) on Base network.
 - **Security**: Funds held directly by contract, includes owner controls and transfer validations.
 - **Reward System**: Immediate claiming available with owner-controlled reward distribution.

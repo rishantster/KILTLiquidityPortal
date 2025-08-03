@@ -426,7 +426,7 @@ export function UniswapStyleLiquidityModal({
                       value={ethAmount}
                       onChange={(e) => {
                         setEthAmount(e.target.value);
-                        if (e.target.value && !isNaN(parseFloat(e.target.value))) {
+                        if (e.target.value && !isNaN(parseFloat(e.target.value)) && kiltEthRatio) {
                           // ETH to KILT: divide ETH amount by KILT/ETH ratio
                           const kiltAmount = parseFloat(e.target.value) / kiltEthRatio;
                           setKiltAmount(kiltAmount.toFixed(0));
@@ -471,7 +471,7 @@ export function UniswapStyleLiquidityModal({
                       value={kiltAmount}
                       onChange={(e) => {
                         setKiltAmount(e.target.value);
-                        if (e.target.value && !isNaN(parseFloat(e.target.value))) {
+                        if (e.target.value && !isNaN(parseFloat(e.target.value)) && kiltEthRatio) {
                           // KILT to ETH: multiply KILT amount by KILT/ETH ratio
                           const ethAmount = parseFloat(e.target.value) * kiltEthRatio;
                           setEthAmount(ethAmount.toFixed(6));
@@ -576,7 +576,7 @@ export function UniswapStyleLiquidityModal({
                       <span>ETH</span>
                     </div>
                     <span className="font-mono">
-                      {(parseFloat(realEthBalance) * removePercentage[0] / 100).toFixed(6)}
+                      {position?.token0Balance ? (parseFloat(position.token0Balance) * removePercentage[0] / 100).toFixed(6) : '0.000000'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -585,7 +585,7 @@ export function UniswapStyleLiquidityModal({
                       <span>KILT</span>
                     </div>
                     <span className="font-mono">
-                      {(parseFloat(realKiltBalance) * removePercentage[0] / 100).toLocaleString()}
+                      {position?.token1Balance ? (parseFloat(position.token1Balance) * removePercentage[0] / 100).toLocaleString() : '0'}
                     </span>
                   </div>
                 </div>

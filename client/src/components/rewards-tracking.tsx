@@ -25,6 +25,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
+// Single Source APR Components
+import { useExpectedReturns } from '@/hooks/use-single-source-apr';
+
+function SingleSourceProgramAPR() {
+  const { data: expectedReturns, isLoading, error } = useExpectedReturns();
+
+  if (isLoading) return <span className="text-white/50">--</span>;
+  if (error) return <span className="text-red-400">Error</span>;
+  
+  const programAPR = expectedReturns?.incentiveAPR;
+  return (
+    <span>
+      {programAPR ? `${Math.round(parseFloat(programAPR))}%` : '--'}
+    </span>
+  );
+}
+
 interface UserRewardStats {
   totalAccumulated: number;
   totalClaimed: number;
@@ -411,7 +428,7 @@ export function RewardsTracking() {
               
               <div className="text-center p-2 bg-matrix-green-glow rounded border border-matrix-green">
                 <div className="text-matrix-green text-xs mb-1">Program APR</div>
-                <div className="text-sm text-matrix-green numeric-display">{maxAPRData?.maxAPR || 48}%</div>
+                <div className="text-sm text-matrix-green numeric-display"><SingleSourceProgramAPR /></div>
               </div>
               
               <div className="space-y-2">

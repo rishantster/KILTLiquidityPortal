@@ -42,6 +42,7 @@ import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
 import { blockchainConfigService } from "./blockchain-config-service";
+import { eip712Signer } from "./eip712-signer.js";
 
 
 import { claimBasedRewards } from "./claim-based-rewards";

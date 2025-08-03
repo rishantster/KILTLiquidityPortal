@@ -158,7 +158,7 @@ export function RewardsTracking() {
       // Get user's NFT token IDs for claiming
       const tokenIds = await getUserTokenIds();
       if (tokenIds.length === 0) {
-        throw new Error('No active positions found for claiming');
+        throw new Error('Treasury contract not yet deployed. Smart contract deployment required to enable reward claiming.');
       }
       
       // Execute real blockchain transaction

@@ -788,6 +788,47 @@ export function useUniswapV3() {
         const amount0Desired = BigInt(params.amount0Desired);
         const amount1Desired = BigInt(params.amount1Desired);
         
+        console.log('🔍 Transaction Parameters:', {
+          tokenId: params.tokenId,
+          amount0Desired: amount0Desired.toString(),
+          amount1Desired: amount1Desired.toString(),
+          wethToken: WETH_TOKEN,
+          kiltToken: KILT_TOKEN,
+          positionManager: UNISWAP_V3_POSITION_MANAGER
+        });
+        
+        // Check token balances first
+        const [wethBalance, kiltBalance] = await Promise.all([
+          baseClient.readContract({
+            address: WETH_TOKEN as `0x${string}`,
+            abi: ERC20_ABI,
+            functionName: 'balanceOf',
+            args: [address as `0x${string}`],
+          }),
+          baseClient.readContract({
+            address: KILT_TOKEN as `0x${string}`,
+            abi: ERC20_ABI,
+            functionName: 'balanceOf',
+            args: [address as `0x${string}`],
+          })
+        ]);
+        
+        console.log('💰 Token Balances:', {
+          wethBalance: wethBalance.toString(),
+          kiltBalance: kiltBalance.toString(),
+          requiredWeth: amount0Desired.toString(),
+          requiredKilt: amount1Desired.toString()
+        });
+        
+        // Check if user has sufficient balances
+        if (wethBalance < amount0Desired) {
+          throw new Error(`Insufficient WETH balance. Have: ${formatUnits(wethBalance, 18)}, Need: ${formatUnits(amount0Desired, 18)}`);
+        }
+        
+        if (kiltBalance < amount1Desired) {
+          throw new Error(`Insufficient KILT balance. Have: ${formatUnits(kiltBalance, 18)}, Need: ${formatUnits(amount1Desired, 18)}`);
+        }
+        
         // Check WETH (token0) allowance
         if (amount0Desired > 0n) {
           const wethAllowance = await baseClient.readContract({
@@ -796,6 +837,8 @@ export function useUniswapV3() {
             functionName: 'allowance',
             args: [address as `0x${string}`, UNISWAP_V3_POSITION_MANAGER as `0x${string}`],
           });
+          
+          console.log('🔒 WETH Allowance:', wethAllowance.toString());
           
           if (wethAllowance < amount0Desired) {
             toast({
@@ -807,7 +850,7 @@ export function useUniswapV3() {
               address: WETH_TOKEN as `0x${string}`,
               abi: ERC20_ABI,
               functionName: 'approve',
-              args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount0Desired],
+              args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount0Desired * 2n], // Approve 2x for future transactions
               account: address as `0x${string}`,
             });
             
@@ -829,6 +872,8 @@ export function useUniswapV3() {
             args: [address as `0x${string}`, UNISWAP_V3_POSITION_MANAGER as `0x${string}`],
           });
           
+          console.log('🔒 KILT Allowance:', kiltAllowance.toString());
+          
           if (kiltAllowance < amount1Desired) {
             toast({
               title: "Token Approval Required",
@@ -839,7 +884,7 @@ export function useUniswapV3() {
               address: KILT_TOKEN as `0x${string}`,
               abi: ERC20_ABI,
               functionName: 'approve',
-              args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount1Desired],
+              args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount1Desired * 2n], // Approve 2x for future transactions
               account: address as `0x${string}`,
             });
             

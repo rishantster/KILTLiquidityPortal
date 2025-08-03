@@ -201,6 +201,11 @@ export function RewardsTracking() {
   const canClaim = claimability?.canClaim || false;
   const lockExpired = claimability?.lockExpired || false;
   const daysRemaining = claimability?.daysRemaining || 0;
+  
+  // Check if rewards are calculated but not yet available in smart contract
+  const calculatedRewards = rewardStats?.totalClaimable || 0;
+  const hasCalculatedRewards = calculatedRewards > 0;
+  const smartContractHasRewards = totalClaimableAmount > 0;
 
   if (!isConnected) {
     return (
@@ -344,9 +349,9 @@ export function RewardsTracking() {
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || isClaiming || !canClaim}
+                disabled={claimMutation.isPending || isClaiming || !smartContractHasRewards}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
-                  canClaim 
+                  smartContractHasRewards 
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
@@ -356,15 +361,15 @@ export function RewardsTracking() {
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     {isClaiming ? 'Processing Blockchain Transaction...' : 'Claiming...'}
                   </>
-                ) : canClaim ? (
+                ) : smartContractHasRewards ? (
                   <>
                     <Award className="h-4 w-4 mr-2" />
                     Claim via Smart Contract
                   </>
-                ) : (rewardStats?.totalAccumulated || 0) > 0 ? (
+                ) : hasCalculatedRewards ? (
                   <>
                     <Clock className="h-4 w-4 mr-2" />
-                    {daysRemaining === 0 ? 'Ready to claim!' : `${daysRemaining} days remaining`}
+                    Awaiting Smart Contract Distribution
                   </>
                 ) : (
                   <>
@@ -395,14 +400,14 @@ export function RewardsTracking() {
               </div>
             </div>
             
-            {!canClaim && daysRemaining > 0 && (
-              <div className="text-white/60 text-xs text-center mt-2 p-2 rounded bg-[#000000]" style={{ borderColor: 'rgba(255, 0, 102, 0.2)' }}>
-                <p className="font-medium">Claim available in {daysRemaining} days</p>
-                <p className="text-white/40">You'll be able to claim all accumulated rewards at once</p>
+            {hasCalculatedRewards && !smartContractHasRewards && (
+              <div className="text-blue-400 text-xs text-center mt-2 p-2 rounded bg-blue-500/10 border border-blue-500/20">
+                <p className="font-medium">Rewards Calculated: {calculatedRewards.toFixed(2)} KILT</p>
+                <p className="text-blue-300/80">Smart contract distribution required before claiming. Contact admin for reward distribution to the treasury contract.</p>
               </div>
             )}
             
-            {totalClaimableAmount === 0 && lockExpired && (
+            {!hasCalculatedRewards && (
               <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
                 <p className="font-medium">Add liquidity to earn rewards</p>
               </div>

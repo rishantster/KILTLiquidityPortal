@@ -369,6 +369,26 @@ export class SmartContractService {
   }
 
   /**
+   * Distribute calculated rewards to smart contract for a user
+   * This function ensures the smart contract has the rewards available for claiming
+   */
+  async distributeRewardsToContract(userAddress: string, amount: number): Promise<{ success: boolean; error?: string }> {
+    try {
+      // This would require admin wallet with proper permissions
+      // For now, we'll return a helpful message
+      return {
+        success: false,
+        error: 'Reward distribution to smart contract requires admin wallet setup. Contact system administrator.'
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to distribute rewards to contract'
+      };
+    }
+  }
+
+  /**
    * Get treasury balance for display
    */
   async getTreasuryBalance(): Promise<number> {

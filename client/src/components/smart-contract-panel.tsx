@@ -760,19 +760,19 @@ export function SmartContractPanel() {
       )}
 
       {/* Transaction Status */}
-      {(isPending || isConfirming) && (
+      {(approvePending || approveConfirming || depositPending || depositConfirming || withdrawPending || withdrawConfirming || rewardPending || rewardConfirming) && (
         <Card className="bg-black/90 border border-yellow-400 rounded-lg">
           <CardContent className="p-4">
             <div className="flex items-center justify-center space-x-2">
               <RefreshCw className="h-5 w-5 text-yellow-400 animate-spin" />
               <span className="text-yellow-400">
-                {isPending ? 'Waiting for wallet confirmation...' : 'Transaction confirming on blockchain...'}
+                {(approvePending || depositPending || withdrawPending || rewardPending) ? 'Waiting for wallet confirmation...' : 'Transaction confirming on blockchain...'}
               </span>
             </div>
-            {txHash && (
+            {(approveHash || depositHash || withdrawHash || rewardHash) && (
               <div className="mt-2 text-center">
                 <button
-                  onClick={() => openBaseScan(`https://basescan.org/tx/${txHash}`)}
+                  onClick={() => openBaseScan(`https://basescan.org/tx/${approveHash || depositHash || withdrawHash || rewardHash}`)}
                   className="text-blue-400 hover:text-blue-300 text-sm flex items-center justify-center space-x-1"
                 >
                   <span>View Transaction</span>

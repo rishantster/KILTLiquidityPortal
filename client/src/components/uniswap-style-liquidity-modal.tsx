@@ -110,21 +110,61 @@ export function UniswapStyleLiquidityModal({
   };
 
   const handleSubmit = async () => {
+    if (!address || !isConnected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet to continue",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (mode === 'add' && (!ethAmount || !kiltAmount || parseFloat(ethAmount) <= 0 || parseFloat(kiltAmount) <= 0)) {
+      toast({
+        title: "Invalid Amounts",
+        description: "Please enter valid token amounts",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Simulate transaction
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (mode === 'add') {
+        // Close modal and redirect to real Add Liquidity tab
+        onClose();
+        
+        // Trigger navigation to the real Add Liquidity interface
+        // This should be handled by the parent component
+        const event = new CustomEvent('navigateToAddLiquidity', {
+          detail: { 
+            tab: 'liquidity',
+            prefilledAmounts: {
+              eth: ethAmount,
+              kilt: kiltAmount
+            }
+          }
+        });
+        window.dispatchEvent(event);
+        
+        toast({
+          title: "Opening Real Add Liquidity Interface",
+          description: "Complete your transaction in the Add Liquidity tab with MetaMask",
+        });
+        return;
+      }
       
+      // For other modes (remove, collect) - implement real transactions later
       toast({
-        title: "Transaction Successful",
-        description: `${mode === 'add' ? 'Added' : mode === 'remove' ? 'Removed' : 'Collected'} liquidity successfully`,
+        title: "Feature Coming Soon",
+        description: `${mode === 'remove' ? 'Remove' : 'Collect'} functionality will be available soon`,
       });
       
-      onClose();
     } catch (error) {
+      console.error('Transaction error:', error);
       toast({
-        title: "Transaction Failed",
-        description: "Please try again",
+        title: "Transaction Failed", 
+        description: (error as Error)?.message || "Please try again",
         variant: "destructive"
       });
     } finally {

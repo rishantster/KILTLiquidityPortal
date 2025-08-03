@@ -161,8 +161,23 @@ export function MainDashboard() {
   // Expose navigation function globally for position registration component
   useEffect(() => {
     (window as unknown as { navigateToTab?: (tab: string) => void }).navigateToTab = navigateToTab;
+    
+    // Add event listener for modal redirect to Add Liquidity
+    const handleNavigateToAddLiquidity = (event: CustomEvent) => {
+      const { tab, prefilledAmounts } = event.detail;
+      setActiveTab(tab);
+      
+      // Store prefilled amounts for the Add Liquidity interface
+      if (prefilledAmounts) {
+        sessionStorage.setItem('prefilledLiquidityAmounts', JSON.stringify(prefilledAmounts));
+      }
+    };
+    
+    window.addEventListener('navigateToAddLiquidity', handleNavigateToAddLiquidity as EventListener);
+    
     return () => {
       delete (window as unknown as { navigateToTab?: (tab: string) => void }).navigateToTab;
+      window.removeEventListener('navigateToAddLiquidity', handleNavigateToAddLiquidity as EventListener);
     };
   }, []);
 

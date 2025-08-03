@@ -361,11 +361,6 @@ export function RewardsTracking() {
                     <Award className="h-4 w-4 mr-2" />
                     Claim via Smart Contract
                   </>
-                ) : lockExpired ? (
-                  <>
-                    <Clock className="h-4 w-4 mr-2" />
-                    Awaiting Admin Distribution
-                  </>
                 ) : (rewardStats?.totalAccumulated || 0) > 0 ? (
                   <>
                     <Clock className="h-4 w-4 mr-2" />

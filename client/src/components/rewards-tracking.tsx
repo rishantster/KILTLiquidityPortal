@@ -150,7 +150,7 @@ export function RewardsTracking() {
   // Get blockchain claiming functionality
   const { claimRewards, getUserTokenIds, isClaiming } = useRewardClaiming();
 
-  // Claim rewards mutation (real smart contract transaction)
+  // Claim rewards mutation (backend API call with proper error handling)
   const claimMutation = useMutation({
     mutationFn: async () => {
       if (!address) throw new Error('Wallet not connected');
@@ -158,11 +158,20 @@ export function RewardsTracking() {
       // Get user's NFT token IDs for claiming
       const tokenIds = await getUserTokenIds();
       if (tokenIds.length === 0) {
-        throw new Error('Treasury contract not yet deployed. Smart contract deployment required to enable reward claiming.');
+        throw new Error('No eligible positions found for claiming rewards.');
       }
       
-      // Execute real blockchain transaction
-      const result = await claimRewards();
+      // Call backend API for claiming (which has our improved error messages)
+      const response = await fetch('/api/rewards/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userAddress: address,
+          nftTokenIds: tokenIds
+        })
+      });
+      
+      const result = await response.json();
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to claim rewards');

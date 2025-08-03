@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { BlockchainConfigPanel } from "./blockchain-config-panel";
+import { SmartContractPanel } from "./smart-contract-panel";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -25,7 +26,7 @@ interface ProgramSettings {
 
 export function CyberpunkAdminPanel() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'treasury' | 'settings' | 'blockchain' | 'operations'>('treasury');
+  const [activeTab, setActiveTab] = useState<'treasury' | 'settings' | 'blockchain' | 'contract' | 'operations'>('treasury');
   const [treasuryConfig, setTreasuryConfig] = useState<TreasuryConfig>({
     totalAllocation: 0,
     programDurationDays: 0,
@@ -272,6 +273,7 @@ export function CyberpunkAdminPanel() {
               { id: 'treasury', label: 'TREASURY_CONFIG' },
               { id: 'settings', label: 'PROGRAM_PARAMS' },
               { id: 'blockchain', label: 'BLOCKCHAIN_CONFIG' },
+              { id: 'contract', label: 'SMART_CONTRACT' },
               { id: 'operations', label: 'OPERATIONS_LOG' }
             ].map((tab) => (
               <button
@@ -593,6 +595,13 @@ export function CyberpunkAdminPanel() {
           {activeTab === 'blockchain' && (
             <div className="space-y-6">
               <BlockchainConfigPanel />
+            </div>
+          )}
+
+          {/* Smart Contract Management */}
+          {activeTab === 'contract' && (
+            <div className="space-y-6">
+              <SmartContractPanel />
             </div>
           )}
 

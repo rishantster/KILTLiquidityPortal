@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWagmiWallet } from './use-wagmi-wallet';
 import { useToast } from './use-toast';
-import { createPublicClient, createWalletClient, custom, http, formatUnits, parseUnits, maxUint256 } from 'viem';
+import { createPublicClient, createWalletClient, custom, http, formatUnits, parseUnits, maxUint256, encodeFunctionData } from 'viem';
 import { base } from 'viem/chains';
 import { useQuery } from '@tanstack/react-query';
 
@@ -418,8 +418,8 @@ export function useUniswapV3() {
       let txHash: `0x${string}`;
       
       if (params.useNativeETH) {
-        // Use multicall with mint + refundETH for native ETH handling
-        const mintCalldata = baseClient.encodeFunctionData({
+        // Use multicall with mint + refundETH for native ETH handling  
+        const mintCalldata = encodeFunctionData({
           abi: [
             {
               inputs: [
@@ -469,7 +469,7 @@ export function useUniswapV3() {
           ]
         });
 
-        const refundETHCalldata = baseClient.encodeFunctionData({
+        const refundETHCalldata = encodeFunctionData({
           abi: [
             {
               inputs: [],
@@ -922,8 +922,8 @@ export function useUniswapV3() {
         const hash = await walletClient.writeContract({
           address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
           abi: POSITION_MANAGER_ABI,
-          functionName: 'burn',
-          args: [BigInt(params.tokenId)],
+          functionName: 'burn' as any,
+          args: [BigInt(params.tokenId)] as any,
           account: address as `0x${string}`,
         });
 

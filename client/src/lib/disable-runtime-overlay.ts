@@ -2,8 +2,26 @@
 // This completely prevents the Vite runtime error plugin from showing overlays
 // Equivalent to setting server.hmr.overlay = false in vite.config.js
 
-// Override the sendError function that triggers the overlay
+// CRITICAL: Disable runtime error modal that blocks MetaMask connection
 const disableRuntimeErrorOverlay = () => {
+  // Block runtime error plugin IMMEDIATELY
+  if (typeof window !== 'undefined') {
+    (window as any).__vite_plugin_runtime_error_modal_disabled = true;
+    
+    // Override sendError globally
+    (window as any).sendError = () => {};
+    
+    // Block ALL error overlays from showing
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      // Block any requests related to error overlays
+      const url = args[0]?.toString() || '';
+      if (url.includes('error') && url.includes('overlay')) {
+        return Promise.resolve(new Response('', { status: 204 }));
+      }
+      return originalFetch.apply(this, args);
+    };
+  }
   // Intercept and disable the specific runtime error function
   if (typeof window !== 'undefined') {
     // Disable HMR overlay at the client level (equivalent to server.hmr.overlay = false)

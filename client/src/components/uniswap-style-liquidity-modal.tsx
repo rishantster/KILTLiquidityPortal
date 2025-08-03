@@ -55,7 +55,7 @@ export function UniswapStyleLiquidityModal({
   const { address, isConnected } = useWagmiWallet();
   const { data: kiltData } = useKiltTokenData();
   const { data: conversionRate } = useKiltEthConversionRate();
-  const { ethBalance, wethBalance, kiltBalance } = useUniswapV3();
+  const { ethBalance, wethBalance, kiltBalance, increaseLiquidity } = useUniswapV3();
   const { toast } = useToast();
 
   // Form state
@@ -131,26 +131,40 @@ export function UniswapStyleLiquidityModal({
     setIsLoading(true);
     try {
       if (mode === 'add') {
-        // Close modal and redirect to real Add Liquidity tab
-        onClose();
+        // This is for adding liquidity to an existing position
+        if (!position?.tokenId) {
+          toast({
+            title: "Position Not Found",
+            description: "Cannot add liquidity without a position ID",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Parse amounts to string format (the hook expects strings)
+        const ethAmountString = parseUnits(ethAmount, 18).toString();
+        const kiltAmountString = parseUnits(kiltAmount, 18).toString();
         
-        // Trigger navigation to the real Add Liquidity interface
-        // This should be handled by the parent component
-        const event = new CustomEvent('navigateToAddLiquidity', {
-          detail: { 
-            tab: 'liquidity',
-            prefilledAmounts: {
-              eth: ethAmount,
-              kilt: kiltAmount
-            }
-          }
-        });
-        window.dispatchEvent(event);
+        // Use the increaseLiquidity function for existing positions
+        const increaseLiquidityParams = {
+          tokenId: position.tokenId.toString(),
+          amount0Desired: ethAmountString, // ETH/WETH amount  
+          amount1Desired: kiltAmountString, // KILT amount
+          amount0Min: (BigInt(ethAmountString) * 90n / 100n).toString(), // 10% slippage
+          amount1Min: (BigInt(kiltAmountString) * 90n / 100n).toString(), // 10% slippage
+        };
+
+        // Call the increaseLiquidity function from the hook
+        const txHash = await increaseLiquidity(increaseLiquidityParams);
         
         toast({
-          title: "Opening Real Add Liquidity Interface",
-          description: "Complete your transaction in the Add Liquidity tab with MetaMask",
+          title: "Transaction Submitted",
+          description: `Adding ${ethAmount} ETH and ${kiltAmount} KILT to position ${position.tokenId}`,
         });
+        
+        // Transaction successful - close modal
+        onClose();
+        
         return;
       }
       

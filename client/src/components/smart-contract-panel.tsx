@@ -123,22 +123,24 @@ export function SmartContractPanel() {
   
   // Fetch real KILT balance for connected wallet
   const { data: walletKiltData } = useQuery({
-    queryKey: ['/api/wallet/kilt-balance', address],
+    queryKey: [`/api/wallet/kilt-balance/${address}`],
     enabled: !!address,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Fetch contract balances from blockchain
   const { data: contractData } = useQuery({
-    queryKey: ['/api/smart-contract/balances', BASIC_TREASURY_POOL_ADDRESS],
+    queryKey: [`/api/smart-contract/balances/${BASIC_TREASURY_POOL_ADDRESS}`],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Extract values with fallbacks
-  const userKiltBalance = walletKiltData?.balance || 0;
-  const kiltAllowance = walletKiltData?.allowance || 0;
-  const contractBalance = contractData?.contractBalance || 0;
-  const treasuryBalance = contractData?.treasuryBalance || 0;
+  const userKiltBalance = (walletKiltData as any)?.balance || 0;
+  const kiltAllowance = (walletKiltData as any)?.allowance || 0;
+  const contractBalance = (contractData as any)?.contractBalance || 0;
+  const treasuryBalance = (contractData as any)?.treasuryBalance || 0;
+
+
   
   // Mock transaction states
   const txHash = null;

@@ -7,6 +7,7 @@ import { WagmiWalletProvider } from "@/contexts/wagmi-wallet-context";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
+import AdminRewards from "@/pages/admin-rewards";
 import { SimpleTest } from "@/components/simple-test";
 
 import { useEffect, useRef, useState } from "react";
@@ -19,6 +20,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/admin/rewards" component={AdminRewards} />
       <Route component={NotFound} />
     </Switch>
   );

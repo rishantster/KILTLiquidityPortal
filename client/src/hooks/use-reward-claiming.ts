@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createWalletClient, custom, createPublicClient, http, parseUnits } from 'viem';
+import { createWalletClient, custom, createPublicClient, http, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
 import { useWagmiWallet } from './use-wagmi-wallet';
 import { useToast } from './use-toast';
@@ -126,7 +126,7 @@ export function useRewardClaiming() {
     }
   };
 
-  // Execute automated reward distribution and claim transaction  
+  // Execute direct reward claiming from smart contract  
   const claimRewards = async (): Promise<RewardClaimResult> => {
     setIsClaiming(true);
     
@@ -135,46 +135,42 @@ export function useRewardClaiming() {
         throw new Error('Wallet not connected');
       }
 
-      // Step 1: Get calculated rewards from backend
-      const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
-      if (!rewardStatsResponse.ok) {
-        throw new Error('Failed to fetch reward calculation');
-      }
-      const rewardStats = await rewardStatsResponse.json();
-      const calculatedRewardAmount = rewardStats.totalClaimable || 0;
+      // Step 1: Check if user has claimable rewards in the smart contract
+      console.log(`Checking claimable rewards for ${address}...`);
+      const claimableAmount = await baseClient.readContract({
+        address: BASIC_TREASURY_POOL_ADDRESS,
+        abi: BASIC_TREASURY_POOL_ABI,
+        functionName: 'getClaimableRewards',
+        args: [address as `0x${string}`],
+      });
+
+      // Convert from wei to KILT tokens (18 decimals)
+      const claimableKilt = parseFloat(formatUnits(claimableAmount as bigint, 18));
       
-      if (calculatedRewardAmount <= 0) {
+      console.log(`User has ${claimableKilt} KILT claimable from smart contract`);
+
+      if (claimableKilt <= 0) {
+        // No rewards have been distributed to this user yet
+        // Get calculated rewards to show what they should earn
+        const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
+        if (rewardStatsResponse.ok) {
+          const rewardStats = await rewardStatsResponse.json();
+          const calculatedAmount = rewardStats.totalClaimable || 0;
+          
+          return {
+            success: false,
+            error: `No rewards available for claiming yet. You have earned ${calculatedAmount.toFixed(4)} KILT but it hasn't been distributed to the smart contract. Please contact the admin to distribute your rewards.`
+          };
+        }
+        
         return {
           success: false,
-          error: 'No rewards calculated yet. Add liquidity positions to earn rewards.'
+          error: 'No rewards available for claiming from the smart contract yet.'
         };
       }
 
-      // Step 2: Convert to wei (18 decimals for KILT)
-      const rewardAmountWei = parseUnits(calculatedRewardAmount.toString(), 18);
-
-      // Step 3: Call distributeReward function to allocate rewards to user
-      console.log(`Distributing ${calculatedRewardAmount} KILT to ${address}...`);
-      const distributeHash = await walletClient.writeContract({
-        address: BASIC_TREASURY_POOL_ADDRESS,
-        abi: BASIC_TREASURY_POOL_ABI,
-        functionName: 'distributeReward',
-        args: [address as `0x${string}`, rewardAmountWei],
-      });
-
-      // Wait for distribution transaction to be mined
-      const distributeReceipt = await baseClient.waitForTransactionReceipt({ 
-        hash: distributeHash 
-      });
-      
-      if (distributeReceipt.status !== 'success') {
-        throw new Error('Reward distribution transaction failed');
-      }
-
-      console.log(`✅ Rewards distributed. Transaction: ${distributeHash}`);
-
-      // Step 4: Now claim the distributed rewards
-      console.log(`Claiming rewards for ${address}...`);
+      // Step 2: User claims the available rewards directly from smart contract
+      console.log(`Claiming ${claimableKilt} KILT for ${address}...`);
       const claimHash = await walletClient.writeContract({
         address: BASIC_TREASURY_POOL_ADDRESS,
         abi: BASIC_TREASURY_POOL_ABI,
@@ -197,7 +193,7 @@ export function useRewardClaiming() {
       return {
         success: true,
         transactionHash: claimHash,
-        claimedAmount: calculatedRewardAmount.toFixed(4),
+        claimedAmount: claimableKilt.toFixed(4),
       };
 
     } catch (error) {

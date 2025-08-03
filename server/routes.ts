@@ -1107,6 +1107,70 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Distribute rewards to smart contract (admin operation for user claiming)
+  app.post("/api/rewards/distribute", async (req, res) => {
+    try {
+      const { userAddress } = req.body;
+      
+      if (!userAddress) {
+        res.status(400).json({ error: "User address is required" });
+        return;
+      }
+      
+      // Get calculated rewards for the user
+      const response = await fetch(`http://localhost:5000/api/rewards/stats?userAddress=${userAddress}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user reward stats');
+      }
+      
+      const rewardStats = await response.json();
+      const calculatedAmount = rewardStats.totalClaimable || 0;
+      
+      if (calculatedAmount <= 0) {
+        res.status(400).json({ error: "No rewards available for distribution" });
+        return;
+      }
+      
+      // Check if smart contract service is available with admin credentials
+      if (!smartContractService.isDeployed()) {
+        res.status(503).json({ 
+          error: "Smart contract admin credentials not configured. To enable automatic reward distribution, the REWARD_WALLET_PRIVATE_KEY environment variable must be set with the contract owner's private key.",
+          calculatedAmount,
+          userAddress,
+          instructions: {
+            manualOption: "Alternative: Use MetaMask to manually call distributeReward() function on the smart contract",
+            contractAddress: "0x3ee2361272EaDc5ADc91418530722728E7DCe526",
+            functionName: "distributeReward",
+            parameters: {
+              user: userAddress,
+              amount: `${calculatedAmount * Math.pow(10, 18)}` // Convert to wei
+            }
+          }
+        });
+        return;
+      }
+      
+      // Use the smart contract service to distribute rewards (admin operation)
+      const result = await smartContractService.distributeRewardsToContract(userAddress, calculatedAmount);
+      
+      if (!result.success) {
+        res.status(500).json({ error: result.error || "Failed to distribute rewards to smart contract" });
+        return;
+      }
+      
+      res.json({
+        success: true,
+        amount: calculatedAmount,
+        userAddress,
+        message: `Successfully distributed ${calculatedAmount.toFixed(4)} KILT to smart contract for user ${userAddress}`
+      });
+      
+    } catch (error) {
+      console.error('Reward distribution failed:', error);
+      res.status(500).json({ error: "Failed to distribute rewards to smart contract" });
+    }
+  });
+
   // Get user reward statistics with ultra-fast caching
   app.get("/api/rewards/user/:userId/stats", async (req, res) => {
     const timestamp = new Date().toLocaleTimeString();

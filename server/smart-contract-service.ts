@@ -66,6 +66,14 @@ export interface ClaimResult {
   gasUsed?: number;
 }
 
+export interface RewardDistributionResult {
+  success: boolean;
+  transactionHash?: string;
+  error?: string;
+  amount: number;
+  userAddress: string;
+}
+
 export interface SmartContractProgramInfo {
   startTime: number;
   endTime: number;
@@ -686,6 +694,49 @@ export class SmartContractService {
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
+      };
+    }
+  }
+
+  /**
+   * Distribute rewards to smart contract (admin operation for user claiming)
+   */
+  async distributeRewardsToContract(userAddress: string, amount: number): Promise<RewardDistributionResult> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed',
+        amount,
+        userAddress
+      };
+    }
+
+    try {
+      // Convert amount to wei (KILT has 18 decimals)
+      const amountWei = ethers.parseUnits(amount.toString(), 18);
+      
+      console.log(`Distributing ${amount} KILT (${amountWei.toString()} wei) to ${userAddress}...`);
+      
+      // Call distributeReward function with admin privileges
+      const tx = await this.rewardPoolContract.distributeReward(userAddress, amountWei);
+      const receipt = await tx.wait();
+      
+      console.log(`✅ Reward distribution successful. Transaction: ${receipt.hash}`);
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash,
+        amount,
+        userAddress
+      };
+      
+    } catch (error: unknown) {
+      console.error('Reward distribution failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error) || 'Reward distribution failed',
+        amount,
+        userAddress
       };
     }
   }

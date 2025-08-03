@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useWagmiWallet } from "@/hooks/use-wagmi-wallet";
 import { apiRequest } from "@/lib/queryClient";
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseUnits } from 'viem';
 import { 
   Building2,
   DollarSign,
@@ -27,6 +29,37 @@ import {
 
 // Contract configuration fetched from database
 const KILT_TOKEN_ADDRESS = "0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8";
+
+// ERC20 ABI for KILT token interactions
+const ERC20_ABI = [
+  {
+    "inputs": [
+      {"internalType": "address", "name": "spender", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "approve",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "owner", "type": "address"},
+      {"internalType": "address", "name": "spender", "type": "address"}
+    ],
+    "name": "allowance",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+    "name": "balanceOf",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  }
+] as const;
 
 // Basic ABI for essential functions
 const BASIC_TREASURY_POOL_ABI = [
@@ -150,12 +183,46 @@ export function SmartContractPanel() {
 
 
   
-  // Mock transaction states
-  const txHash = null;
-  const isPending = false;
-  const isConfirming = false;
-  const isSuccess = false;
-  const error = null;
+  // Real Web3 transaction hooks
+  const { 
+    data: approveHash, 
+    isPending: approvePending, 
+    writeContract: approveKilt 
+  } = useWriteContract();
+
+  const { 
+    data: depositHash, 
+    isPending: depositPending, 
+    writeContract: depositToTreasury 
+  } = useWriteContract();
+
+  const { isLoading: approveConfirming, isSuccess: approveSuccess } = useWaitForTransactionReceipt({
+    hash: approveHash,
+  });
+
+  const { isLoading: depositConfirming, isSuccess: depositSuccess } = useWaitForTransactionReceipt({
+    hash: depositHash,
+  });
+
+  const { 
+    data: withdrawHash, 
+    isPending: withdrawPending, 
+    writeContract: emergencyWithdraw 
+  } = useWriteContract();
+
+  const { 
+    data: rewardHash, 
+    isPending: rewardPending, 
+    writeContract: distributeReward 
+  } = useWriteContract();
+
+  const { isLoading: withdrawConfirming, isSuccess: withdrawSuccess } = useWaitForTransactionReceipt({
+    hash: withdrawHash,
+  });
+
+  const { isLoading: rewardConfirming, isSuccess: rewardSuccess } = useWaitForTransactionReceipt({
+    hash: rewardHash,
+  });
 
   // Check if user is contract owner
   const isOwner = address && contractOwner && address.toLowerCase() === contractOwner.toLowerCase();
@@ -173,39 +240,153 @@ export function SmartContractPanel() {
   };
 
   const handleApproveKilt = async () => {
-    if (!depositAmount) return;
-    
-    toast({
-      title: "Instructions",
-      description: "Use Remix IDE with the provided guides to interact with the contract directly. Contract address: " + (contractAddress || 'Loading...'),
-    });
+    if (!depositAmount || !contractAddress) {
+      toast({
+        title: "Error",
+        description: "Please enter an amount and ensure contract address is loaded",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const amountInWei = parseUnits(depositAmount, 18);
+      
+      approveKilt({
+        address: KILT_TOKEN_ADDRESS as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [contractAddress as `0x${string}`, amountInWei],
+      });
+
+      toast({
+        title: "Approval Transaction Sent",
+        description: "Please confirm the transaction in your wallet",
+      });
+    } catch (error) {
+      toast({
+        title: "Approval Failed",
+        description: error instanceof Error ? error.message : "Transaction failed",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDeposit = async () => {
-    if (!depositAmount) return;
-    
-    toast({
-      title: "Instructions",
-      description: "Use Remix IDE to call depositToTreasury(" + depositAmount + " KILT). See REMIX_INTERACTION_STEPS.md for details.",
-    });
+    if (!depositAmount || !contractAddress) {
+      toast({
+        title: "Error",
+        description: "Please enter an amount and ensure contract address is loaded",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const amountInWei = parseUnits(depositAmount, 18);
+      
+      depositToTreasury({
+        address: contractAddress as `0x${string}`,
+        abi: BASIC_TREASURY_POOL_ABI,
+        functionName: 'depositToTreasury',
+        args: [amountInWei],
+      });
+
+      toast({
+        title: "Deposit Transaction Sent",
+        description: "Please confirm the transaction in your wallet",
+      });
+    } catch (error) {
+      toast({
+        title: "Deposit Failed",
+        description: error instanceof Error ? error.message : "Transaction failed",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleWithdraw = async () => {
-    if (!withdrawAmount) return;
-    
-    toast({
-      title: "Instructions",
-      description: "Use Remix IDE to call emergencyWithdraw(" + withdrawAmount + " KILT). Only the contract owner can do this.",
-    });
+    if (!withdrawAmount || !contractAddress) {
+      toast({
+        title: "Error",
+        description: "Please enter an amount and ensure contract address is loaded",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isOwner) {
+      toast({
+        title: "Access Denied",
+        description: "Only the contract owner can perform emergency withdrawals",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const amountInWei = parseUnits(withdrawAmount, 18);
+      
+      emergencyWithdraw({
+        address: contractAddress as `0x${string}`,
+        abi: BASIC_TREASURY_POOL_ABI,
+        functionName: 'emergencyWithdraw',
+        args: [amountInWei],
+      });
+
+      toast({
+        title: "Withdrawal Transaction Sent",
+        description: "Please confirm the transaction in your wallet",
+      });
+    } catch (error) {
+      toast({
+        title: "Withdrawal Failed",
+        description: error instanceof Error ? error.message : "Transaction failed",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDistributeReward = async () => {
-    if (!rewardUser || !rewardAmount) return;
-    
-    toast({
-      title: "Instructions",
-      description: "Use Remix IDE to call distributeReward(" + rewardUser + ", " + rewardAmount + " KILT). See guides for exact steps.",
-    });
+    if (!rewardUser || !rewardAmount || !contractAddress) {
+      toast({
+        title: "Error",
+        description: "Please enter user address, reward amount, and ensure contract address is loaded",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isOwner) {
+      toast({
+        title: "Access Denied",
+        description: "Only the contract owner can distribute rewards",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const amountInWei = parseUnits(rewardAmount, 18);
+      
+      distributeReward({
+        address: contractAddress as `0x${string}`,
+        abi: BASIC_TREASURY_POOL_ABI,
+        functionName: 'distributeReward',
+        args: [rewardUser as `0x${string}`, amountInWei],
+      });
+
+      toast({
+        title: "Reward Distribution Sent",
+        description: "Please confirm the transaction in your wallet",
+      });
+    } catch (error) {
+      toast({
+        title: "Distribution Failed",
+        description: error instanceof Error ? error.message : "Transaction failed",
+        variant: "destructive"
+      });
+    }
   };
 
   const maxWithdraw = () => {
@@ -220,21 +401,54 @@ export function SmartContractPanel() {
     }
   };
 
-  // Clear form inputs on successful transaction
+  // Handle successful transactions
   useEffect(() => {
-    if (isSuccess) {
+    if (approveSuccess) {
+      toast({
+        title: "Approval Successful!",
+        description: `Successfully approved ${depositAmount} KILT for treasury deposit`,
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/wallet/kilt-balance/${address}`] });
+    }
+  }, [approveSuccess, depositAmount, toast, queryClient, address]);
+
+  useEffect(() => {
+    if (depositSuccess) {
+      toast({
+        title: "Deposit Successful!",
+        description: `Successfully deposited ${depositAmount} KILT to treasury`,
+      });
       setDepositAmount("");
+      queryClient.invalidateQueries({ queryKey: [`/api/wallet/kilt-balance/${address}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/smart-contract/balances/${contractAddress}`] });
+    }
+  }, [depositSuccess, depositAmount, toast, queryClient, address, contractAddress]);
+
+  useEffect(() => {
+    if (withdrawSuccess) {
+      toast({
+        title: "Withdrawal Successful!",
+        description: `Successfully withdrew ${withdrawAmount} KILT from treasury`,
+      });
       setWithdrawAmount("");
+      queryClient.invalidateQueries({ queryKey: [`/api/wallet/kilt-balance/${address}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/smart-contract/balances/${contractAddress}`] });
+    }
+  }, [withdrawSuccess, withdrawAmount, toast, queryClient, address, contractAddress]);
+
+  useEffect(() => {
+    if (rewardSuccess) {
+      toast({
+        title: "Reward Distribution Successful!",
+        description: `Successfully distributed ${rewardAmount} KILT to ${rewardUser}`,
+      });
       setRewardAmount("");
       setRewardUser("");
-      toast({
-        title: "Transaction Successful!",
-        description: "Contract operation completed successfully",
-      });
-      // Refresh contract data
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: [`/api/smart-contract/balances/${contractAddress}`] });
     }
-  }, [isSuccess, toast, queryClient]);
+  }, [rewardSuccess, rewardAmount, rewardUser, toast, queryClient, contractAddress]);
+
+  // This useEffect is now handled by individual transaction success handlers above
 
   if (!isConnected) {
     return (
@@ -374,10 +588,10 @@ export function SmartContractPanel() {
                 {/* Step 1: Approve KILT */}
                 <Button
                   onClick={handleApproveKilt}
-                  disabled={!depositAmount || isPending || isConfirming}
+                  disabled={!depositAmount || approvePending || approveConfirming}
                   className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
                 >
-                  {isPending || isConfirming ? (
+                  {approvePending || approveConfirming ? (
                     <>
                       <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       Processing...
@@ -393,10 +607,10 @@ export function SmartContractPanel() {
                 {/* Step 2: Deposit to Treasury */}
                 <Button
                   onClick={handleDeposit}
-                  disabled={!depositAmount || isPending || isConfirming}
+                  disabled={!depositAmount || depositPending || depositConfirming}
                   className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold"
                 >
-                  {isPending || isConfirming ? (
+                  {depositPending || depositConfirming ? (
                     <>
                       <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       Processing...
@@ -449,10 +663,10 @@ export function SmartContractPanel() {
               
               <Button
                 onClick={handleWithdraw}
-                disabled={!withdrawAmount || isPending || isConfirming}
+                disabled={!withdrawAmount || withdrawPending || withdrawConfirming}
                 className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold"
               >
-                {isPending || isConfirming ? (
+                {withdrawPending || withdrawConfirming ? (
                   <>
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Processing...
@@ -507,10 +721,10 @@ export function SmartContractPanel() {
               
               <Button
                 onClick={handleDistributeReward}
-                disabled={!rewardUser || !rewardAmount || isPending || isConfirming}
+                disabled={!rewardUser || !rewardAmount || rewardPending || rewardConfirming}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold"
               >
-                {isPending || isConfirming ? (
+                {rewardPending || rewardConfirming ? (
                   <>
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Processing...

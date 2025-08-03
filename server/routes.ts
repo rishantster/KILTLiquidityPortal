@@ -1122,6 +1122,31 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Claim rewards by wallet address (frontend expects this route)
+  app.post("/api/rewards/claim", async (req, res) => {
+    try {
+      const { userAddress } = req.body;
+      console.log(`🎯 Claim API called for address: ${userAddress}`);
+      
+      if (!userAddress) {
+        res.status(400).json({ error: "User address is required" });
+        return;
+      }
+      
+      const result = await claimBasedRewards.processClaimRequest(userAddress);
+      console.log(`✅ Claim result:`, result);
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      console.log(`❌ Claim API error:`, error);
+      res.status(500).json({ error: "Failed to claim rewards" });
+    }
+  });
+
   // Get reward claimability by wallet address (frontend expects this route)
   app.get("/api/rewards/claimability/:address", async (req, res) => {
     try {

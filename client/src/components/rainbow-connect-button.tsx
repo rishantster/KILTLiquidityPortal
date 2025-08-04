@@ -104,46 +104,35 @@ export function RainbowConnectButton({ className = "" }: RainbowConnectButtonPro
                 }
 
                 return (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl border border-[#ff0066]/20">
-                      <Wallet className="h-6 w-6 text-[#ff0066]" />
-                      <div className="flex-1">
-                        <div className="text-white font-medium">
-                          {account.displayName}
+                  <div className="flex items-center gap-3">
+                    {/* Base Network Badge - Enhanced Styling */}
+                    {chain && !chain.unsupported && (
+                      <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-blue-400/5 border border-blue-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-sm shadow-blue-400/50"></div>
+                        <span className="text-blue-400 text-sm font-medium">Base</span>
+                      </div>
+                    )}
+                    
+                    {/* Wallet Address Section - Professional Look */}
+                    <div className="flex items-center gap-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-2 shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
+                          <Wallet className="h-4 w-4 text-emerald-400" />
                         </div>
-                        <div className="text-gray-400 text-sm">
-                          {account.displayBalance}
+                        <div className="flex flex-col">
+                          <span className="font-mono text-sm text-white/90">{account.displayName}</span>
+                          <span className="text-xs text-white/50">{account.displayBalance}</span>
                         </div>
                       </div>
+                      
+                      {/* Account Button - Modern Design */}
                       <button
                         onClick={openAccountModal}
-                        className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 hover:border-white/20 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200"
                       >
                         Account
                       </button>
                     </div>
-                    
-                    {chain && (
-                      <div className="flex justify-center">
-                        <button
-                          onClick={openChainModal}
-                          className="flex items-center gap-2 px-3 py-1 bg-[#ff0066]/10 hover:bg-[#ff0066]/20 text-[#ff0066] rounded-lg text-sm font-medium transition-colors"
-                        >
-                          {chain.hasIcon && (
-                            <div className="w-4 h-4 rounded-full overflow-hidden">
-                              {chain.iconUrl && (
-                                <img
-                                  alt={chain.name ?? 'Chain icon'}
-                                  src={chain.iconUrl}
-                                  className="w-4 h-4"
-                                />
-                              )}
-                            </div>
-                          )}
-                          {chain.name}
-                        </button>
-                      </div>
-                    )}
                   </div>
                 );
               })()}

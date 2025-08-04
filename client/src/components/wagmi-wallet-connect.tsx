@@ -98,24 +98,32 @@ export function WagmiWalletConnect() {
         )}
 
         {!isWrongNetwork && (
-          <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
-            <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-            Base Network
-          </Badge>
+          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-blue-400/5 border border-blue-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm">
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-sm shadow-blue-400/50"></div>
+            <span className="text-blue-400 text-sm font-medium">Base</span>
+          </div>
         )}
 
-        <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2">
-          <Wallet className="h-4 w-4 text-emerald-400" />
-          <span className="font-mono text-sm">{formatAddress(address)}</span>
+        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-2 shadow-lg">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
+              <Wallet className="h-4 w-4 text-emerald-400" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-mono text-sm text-white/90">{formatAddress(address)}</span>
+              <span className="text-xs text-white/50">0.043 ETH</span>
+            </div>
+          </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-2 h-6 px-2 text-xs hover:bg-white/10 hover:text-white"
+                className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 hover:border-white/20 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200"
               >
-                <ChevronDown className="h-3 w-3" />
+                Account
+                <ChevronDown className="h-3 w-3 ml-2" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-black/90 backdrop-blur-md border border-white/10 text-white">
@@ -300,8 +308,8 @@ export function WagmiWalletConnect() {
       </Dialog>
 
       <MobileWalletModal 
-        open={showMobileModal} 
-        onOpenChange={setShowMobileModal} 
+        isOpen={showMobileModal} 
+        onClose={() => setShowMobileModal(false)} 
       />
       
 

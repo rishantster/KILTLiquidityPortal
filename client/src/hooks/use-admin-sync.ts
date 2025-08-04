@@ -33,9 +33,30 @@ export function useAdminSync() {
               queryClient.invalidateQueries({ queryKey: ['personalAPR'] });
               queryClient.invalidateQueries({ queryKey: ['rewardStats'] });
               
+              // Add missing reward stats query keys that should update with admin changes
+              queryClient.invalidateQueries({ queryKey: ['reward-stats'] });
+              queryClient.invalidateQueries({ queryKey: ['user-average-apr'] });
+              queryClient.invalidateQueries({ queryKey: ['claimability'] });
+              queryClient.invalidateQueries({ queryKey: ['expected-returns'] });
+              queryClient.invalidateQueries({ queryKey: ['maximum-apr'] });
+              queryClient.invalidateQueries({ queryKey: ['program-analytics'] });
+              
+              // Invalidate specific user-based queries with addresses  
+              queryClient.invalidateQueries({ queryKey: ['user-average-apr'], exact: false });
+              queryClient.invalidateQueries({ queryKey: ['claimability'], exact: false });
+              queryClient.invalidateQueries({ queryKey: ['reward-history'], exact: false });
+              
+              // Invalidate unified dashboard queries - THE CRITICAL ONE!
+              queryClient.invalidateQueries({ queryKey: ['rewardStats'], exact: false });
+              queryClient.invalidateQueries({ queryKey: ['user'], exact: false });
+              queryClient.invalidateQueries({ queryKey: ['user-stats'], exact: false });
+              queryClient.invalidateQueries({ queryKey: ['user-dashboard'], exact: false });
+              
               // Force immediate refetch for blazing fast updates
               queryClient.refetchQueries({ queryKey: ['maxAPR'] });
               queryClient.refetchQueries({ queryKey: ['programAnalytics'] });
+              queryClient.refetchQueries({ queryKey: ['reward-stats'] });
+              queryClient.refetchQueries({ queryKey: ['user-average-apr'] });
               
               lastUpdateRef.current = operationTime;
             }

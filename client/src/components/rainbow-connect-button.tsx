@@ -1,6 +1,5 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Smartphone, Wallet } from 'lucide-react';
-import { useEffect } from 'react';
 
 interface RainbowConnectButtonProps {
   className?: string;
@@ -11,63 +10,6 @@ export function RainbowConnectButton({ className = "" }: RainbowConnectButtonPro
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   );
-
-  // Force KILT pink theme on RainbowKit modals
-  useEffect(() => {
-    const applyKiltTheme = () => {
-      // Target all RainbowKit modal elements
-      const rkElements = document.querySelectorAll('[data-rk]');
-      rkElements.forEach((element) => {
-        const htmlElement = element as HTMLElement;
-        
-        // Force modal background and border styling
-        if (htmlElement.getAttribute('role') === 'dialog' || 
-            htmlElement.querySelector('[role="dialog"]')) {
-          htmlElement.style.setProperty('background', 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%)', 'important');
-          htmlElement.style.setProperty('border', '2px solid rgba(255, 0, 102, 0.4)', 'important');
-          htmlElement.style.setProperty('border-radius', '20px', 'important');
-          htmlElement.style.setProperty('backdrop-filter', 'blur(24px)', 'important');
-          htmlElement.style.setProperty('box-shadow', '0 25px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 0, 102, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)', 'important');
-        }
-
-        // Force all child elements
-        const children = htmlElement.querySelectorAll('*');
-        children.forEach((child) => {
-          const childElement = child as HTMLElement;
-          const style = childElement.getAttribute('style');
-          
-          // Override any gray/default backgrounds
-          if (style && (style.includes('background') || style.includes('border'))) {
-            if (!style.includes('linear-gradient')) {
-              childElement.style.setProperty('background', 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%)', 'important');
-              childElement.style.setProperty('border-color', 'rgba(255, 0, 102, 0.4)', 'important');
-            }
-          }
-        });
-      });
-    };
-
-    // Apply theme immediately and on mutations
-    applyKiltTheme();
-    
-    // Set up mutation observer to catch dynamic changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList' || mutation.type === 'attributes') {
-          setTimeout(applyKiltTheme, 50); // Small delay to ensure elements are rendered
-        }
-      });
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['style', 'class']
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className={`${className}`}>

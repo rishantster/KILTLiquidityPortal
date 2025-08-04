@@ -147,7 +147,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
      * @param user Address to check
      * @return canClaim Always true (no restrictions)
      */
-    function canUserClaim(address user) external view returns (bool) {
+    function canUserClaim(address /* user */) external pure returns (bool) {
         return true; // No claim restrictions
     }
     

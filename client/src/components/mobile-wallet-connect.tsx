@@ -25,14 +25,29 @@ export function MobileWalletConnect() {
     
     try {
       setShowModal(true);
+      setWcUri(''); // Reset URI
       
-      // Listen for WalletConnect URI
+      // Listen for WalletConnect URI before connecting
       if (walletConnectConnector.getProvider) {
-        const provider = await walletConnectConnector.getProvider();
+        const provider = await walletConnectConnector.getProvider() as any;
         
-        provider.on('display_uri', (uri: string) => {
-          setWcUri(uri);
-        });
+        if (provider && typeof provider.on === 'function') {
+          provider.on('display_uri', (uri: string) => {
+            console.log('WalletConnect URI:', uri);
+            setWcUri(uri);
+          });
+          
+          // Also listen for connection events
+          provider.on('connect', () => {
+            console.log('WalletConnect connected');
+            setShowModal(false);
+          });
+          
+          provider.on('disconnect', () => {
+            console.log('WalletConnect disconnected');
+            setWcUri('');
+          });
+        }
       }
       
       // Connect
@@ -40,6 +55,7 @@ export function MobileWalletConnect() {
       
     } catch (error) {
       console.error('Mobile wallet connection error:', error);
+      setShowModal(false);
     }
   };
 
@@ -108,14 +124,21 @@ export function MobileWalletConnect() {
           
           <div className="space-y-6">
             {/* QR Code Section */}
-            {wcUri && (
+            {wcUri ? (
               <div className="bg-white p-4 rounded-lg flex justify-center">
                 <QRCodeSVG value={wcUri} size={200} />
+              </div>
+            ) : (
+              <div className="bg-gray-800 p-4 rounded-lg flex justify-center items-center h-[232px]">
+                <div className="text-center">
+                  <QrCode className="h-8 w-8 text-white animate-pulse mx-auto mb-2" />
+                  <div className="text-white text-sm">Generating QR Code...</div>
+                </div>
               </div>
             )}
             
             <div className="text-center text-gray-400 text-sm">
-              Scan with your mobile wallet or choose from the options below
+              {wcUri ? 'Scan with your mobile wallet or choose from the options below' : 'Setting up connection...'}
             </div>
             
             {/* Mobile Wallet Options */}

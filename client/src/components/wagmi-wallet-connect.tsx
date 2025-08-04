@@ -19,6 +19,7 @@ export function WagmiWalletConnect() {
   const [showModal, setShowModal] = useState(false);
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>('');
 
   // Detect if user is on mobile
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -29,10 +30,14 @@ export function WagmiWalletConnect() {
 
   const handleConnect = async (connector: any) => {
     try {
+      const debugMsg = `Clicked: ID="${connector.id}", Name="${connector.name}"`;
       console.log('Connector clicked:', connector.id, connector.name, connector);
+      setDebugInfo(debugMsg);
+      
       // Special handling for WalletConnect - always use custom modal
       if (connector.id === 'walletConnect' || connector.name === 'WalletConnect' || connector.name?.includes('WalletConnect')) {
         console.log('Opening mobile wallet modal for WalletConnect');
+        setDebugInfo(debugMsg + ' -> Opening Mobile Modal');
         setShowModal(false);
         setShowMobileModal(true);
         return;
@@ -287,6 +292,14 @@ export function WagmiWalletConnect() {
         open={showMobileModal} 
         onOpenChange={setShowMobileModal} 
       />
+      
+      {/* Debug info display */}
+      {debugInfo && (
+        <div className="fixed top-4 left-4 bg-red-600 text-white p-2 rounded text-xs z-50 max-w-xs">
+          <button onClick={() => setDebugInfo('')} className="float-right ml-2">×</button>
+          {debugInfo}
+        </div>
+      )}
     </>
   );
 }

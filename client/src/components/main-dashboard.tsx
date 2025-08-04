@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { MobileWalletConnect } from './mobile-wallet-connect';
+import { RainbowConnectButton } from './rainbow-connect-button';
 import { WagmiWalletConnect } from './wagmi-wallet-connect';
 
 // Removed gas estimation card - consolidated into main interface
@@ -378,8 +378,8 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4 w-full max-w-md">
-                {/* Fresh mobile wallet implementation with KILT styling */}
-                <MobileWalletConnect />
+                {/* RainbowKit mobile-optimized wallet connection */}
+                <RainbowConnectButton />
               </div>
             </div>
 

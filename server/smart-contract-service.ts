@@ -31,20 +31,28 @@ async function getSmartContractAddress(): Promise<string> {
   }
 }
 
-// BasicTreasuryPool contract ABI - matches deployed contract
+// SimpleTreasuryPool contract ABI - matches new contract
 const REWARD_POOL_ABI = [
-  'function depositToTreasury(uint256 amount) external',
-  'function distributeReward(address user, uint256 amount) external',
-  'function claimRewards() external',
-  'function getClaimableRewards(address user) external view returns (uint256)',
-  'function getUserRewards(address user) external view returns (tuple(uint256 amount, uint256 lockTimestamp, bool claimed)[])',
+  'function setRewardAllowance(address user, uint256 amount) external',
+  'function updateRewardAllowance(address user, uint256 newAmount) external',
+  'function setRewardAllowancesBatch(address[] users, uint256[] amounts) external',
+  'function claimRewards(uint256 amount) external',
+  'function claimAllRewards() external',
+  'function getClaimableAmount(address user) external view returns (uint256)',
+  'function getTotalRewards(address user) external view returns (uint256)',
+  'function getClaimedAmount(address user) external view returns (uint256)',
+  'function getUserStats(address user) external view returns (uint256 total, uint256 claimed, uint256 claimable)',
+  'function depositTreasury(uint256 amount) external',
   'function emergencyWithdraw(uint256 amount) external',
-  'function totalTreasuryBalance() external view returns (uint256)',
+  'function getContractBalance() external view returns (uint256)',
+  'function pause() external',
+  'function unpause() external',
   'function owner() external view returns (address)',
   'function kiltToken() external view returns (address)',
-  'event RewardDistributed(address indexed user, uint256 amount, uint256 lockTimestamp)',
+  'event RewardAllowanceSet(address indexed user, uint256 amount)',
   'event RewardClaimed(address indexed user, uint256 amount)',
-  'event TreasuryDeposit(uint256 amount)'
+  'event TreasuryDeposit(uint256 amount)',
+  'event TreasuryWithdraw(uint256 amount)'
 ];
 
 const KILT_TOKEN_ABI = [
@@ -369,7 +377,7 @@ export class SmartContractService {
       }
       
       const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
-      const claimableAmount = await contract.getClaimableRewards(userAddress);
+      const claimableAmount = await contract.getClaimableAmount(userAddress);
       return Number(ethers.formatUnits(claimableAmount, 18));
     } catch (error: unknown) {
       return 0;
@@ -377,21 +385,39 @@ export class SmartContractService {
   }
 
   /**
-   * Distribute calculated rewards to smart contract for a user
-   * This function ensures the smart contract has the rewards available for claiming
+   * Set reward allowance for a user (admin operation)
+   * This function sets the amount a user can claim from the contract
    */
-  async distributeRewardsToContract(userAddress: string, amount: number): Promise<{ success: boolean; error?: string }> {
-    try {
-      // This would require admin wallet with proper permissions
-      // For now, we'll return a helpful message
+  async setRewardAllowance(userAddress: string, amount: number): Promise<{ success: boolean; error?: string; transactionHash?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
       return {
         success: false,
-        error: 'Reward distribution to smart contract requires admin wallet setup. Contact system administrator.'
+        error: 'Smart contracts not deployed'
       };
+    }
+
+    try {
+      // Convert amount to wei (KILT has 18 decimals)
+      const amountWei = ethers.parseUnits(amount.toString(), 18);
+      
+      console.log(`Setting reward allowance: ${amount} KILT (${amountWei.toString()} wei) for ${userAddress}...`);
+      
+      // Call setRewardAllowance function with admin privileges
+      const tx = await this.rewardPoolContract.setRewardAllowance(userAddress, amountWei);
+      const receipt = await tx.wait();
+      
+      console.log(`✅ Reward allowance set successfully. Transaction: ${receipt.hash}`);
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+      
     } catch (error: unknown) {
+      console.error('Setting reward allowance failed:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to distribute rewards to contract'
+        error: error instanceof Error ? error.message : 'Failed to set reward allowance'
       };
     }
   }
@@ -411,7 +437,7 @@ export class SmartContractService {
       }
       
       const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
-      const balance = await contract.totalTreasuryBalance();
+      const balance = await contract.getContractBalance();
       return Number(ethers.formatUnits(balance, 18));
     } catch (error: unknown) {
       return 0;
@@ -699,44 +725,52 @@ export class SmartContractService {
   }
 
   /**
-   * Distribute rewards to smart contract (admin operation for user claiming)
+   * Batch set reward allowances for multiple users (admin operation)
    */
-  async distributeRewardsToContract(userAddress: string, amount: number): Promise<RewardDistributionResult> {
+  async setRewardAllowancesBatch(users: string[], amounts: number[]): Promise<{ success: boolean; error?: string; transactionHash?: string }> {
     if (!this.isContractDeployed || !this.rewardPoolContract) {
       return {
         success: false,
-        error: 'Smart contracts not deployed',
-        amount,
-        userAddress
+        error: 'Smart contracts not deployed'
+      };
+    }
+
+    if (users.length !== amounts.length) {
+      return {
+        success: false,
+        error: 'Users and amounts arrays must have the same length'
+      };
+    }
+
+    if (users.length > 100) {
+      return {
+        success: false,
+        error: 'Maximum 100 users per batch operation'
       };
     }
 
     try {
-      // Convert amount to wei (KILT has 18 decimals)
-      const amountWei = ethers.parseUnits(amount.toString(), 18);
+      // Convert amounts to wei (KILT has 18 decimals)
+      const amountsWei = amounts.map(amount => ethers.parseUnits(amount.toString(), 18));
       
-      console.log(`Distributing ${amount} KILT (${amountWei.toString()} wei) to ${userAddress}...`);
+      console.log(`Setting reward allowances for ${users.length} users...`);
       
-      // Call distributeReward function with admin privileges
-      const tx = await this.rewardPoolContract.distributeReward(userAddress, amountWei);
+      // Call setRewardAllowancesBatch function with admin privileges
+      const tx = await this.rewardPoolContract.setRewardAllowancesBatch(users, amountsWei);
       const receipt = await tx.wait();
       
-      console.log(`✅ Reward distribution successful. Transaction: ${receipt.hash}`);
+      console.log(`✅ Batch reward allowance set successfully. Transaction: ${receipt.hash}`);
       
       return {
         success: true,
-        transactionHash: receipt.hash,
-        amount,
-        userAddress
+        transactionHash: receipt.hash
       };
       
     } catch (error: unknown) {
-      console.error('Reward distribution failed:', error);
+      console.error('Batch reward allowance setting failed:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : String(error) || 'Reward distribution failed',
-        amount,
-        userAddress
+        error: error instanceof Error ? error.message : 'Batch operation failed'
       };
     }
   }

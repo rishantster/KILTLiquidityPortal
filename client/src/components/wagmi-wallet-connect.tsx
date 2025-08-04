@@ -37,8 +37,11 @@ export function WagmiWalletConnect() {
       // Add a delay to show the debug message before proceeding
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Special handling for WalletConnect - always use custom modal
-      if (connector.id === 'walletConnect' || connector.name === 'WalletConnect' || connector.name?.includes('WalletConnect')) {
+      // Special handling for WalletConnect - check all possible identifiers
+      if (connector.id?.includes('walletConnect') || 
+          connector.name?.includes('WalletConnect') || 
+          connector.type === 'walletConnect' ||
+          connector.uid?.includes('walletConnect')) {
         console.log('Opening mobile wallet modal for WalletConnect');
         setDebugInfo(debugMsg + ' -> Opening Mobile Modal');
         setShowModal(false);
@@ -246,6 +249,7 @@ export function WagmiWalletConnect() {
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
                 className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                data-testid={`wallet-${connector.id}`}
               >
                 {isPending ? (
                   <>
@@ -304,15 +308,17 @@ export function WagmiWalletConnect() {
         </div>
       )}
       
-      {/* Always show debug button for testing */}
-      <div className="fixed bottom-4 left-4 z-[9999]">
-        <button 
-          onClick={() => setDebugInfo('Debug: Test message - handler is working!')} 
-          className="bg-blue-600 text-white p-2 rounded text-xs"
-        >
-          Test Debug
-        </button>
-      </div>
+      {/* Always show debug button for testing - moved outside modal */}
+      {!showModal && (
+        <div className="fixed bottom-4 left-4 z-[9999]">
+          <button 
+            onClick={() => setDebugInfo('Debug: Test message - handler is working!')} 
+            className="bg-blue-600 text-white p-2 rounded text-xs"
+          >
+            Test Debug
+          </button>
+        </div>
+      )}
     </>
   );
 }

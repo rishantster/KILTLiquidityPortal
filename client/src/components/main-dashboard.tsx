@@ -23,7 +23,7 @@ import {
 import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
-import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -38,7 +38,6 @@ import { useQuery } from '@tanstack/react-query';
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
 import { RainbowConnectButton } from './rainbow-connect-button';
-import { WagmiWalletConnect } from './wagmi-wallet-connect';
 
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
@@ -125,7 +124,7 @@ function SingleSourceTotalAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected, isConnecting } = useWagmiWallet();
+  const { address, isConnected, isConnecting } = useAccount();
   const { data: kiltData, isLoading: kiltDataLoading, error: kiltDataError } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();

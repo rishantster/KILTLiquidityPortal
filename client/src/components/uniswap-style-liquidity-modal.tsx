@@ -18,7 +18,7 @@ import {
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
-import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useKiltEthConversionRate } from '@/hooks/use-conversion-rate';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
@@ -52,7 +52,7 @@ export function UniswapStyleLiquidityModal({
   mode, 
   position 
 }: UniswapStyleLiquidityModalProps) {
-  const { address, isConnected } = useWagmiWallet();
+  const { address, isConnected } = useAccount();
   const { data: kiltData } = useKiltTokenData();
   const { data: conversionRate } = useKiltEthConversionRate();
   const { ethBalance, wethBalance, kiltBalance, increaseLiquidity, decreaseLiquidity, collectFees } = useUniswapV3();

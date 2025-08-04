@@ -21,7 +21,7 @@ import {
   ArrowUpDown
 } from 'lucide-react';
 import { useSimpleUniswapV3 } from '@/hooks/use-uniswap-v3-simple';
-import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useKiltEthConversionRate } from '@/hooks/use-conversion-rate';
 import { useAppSession } from '@/hooks/use-app-session';
@@ -64,7 +64,7 @@ export function LiquidityMint({
   ethBalance,
   formatTokenAmount
 }: LiquidityMintProps) {
-  const { address, isConnected } = useWagmiWallet();
+  const { address, isConnected } = useAccount();
   const { 
     mintPosition, 
     approveToken,

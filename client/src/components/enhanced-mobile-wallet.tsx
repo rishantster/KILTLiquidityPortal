@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useConnect, useDisconnect, useAccount, useChainId } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Wallet, Smartphone, QrCode, ExternalLink, AlertTriangle, Loader2 } from 'lucide-react';
-import { MobileWalletModal } from './mobile-wallet-modal';
+// Mobile wallet modal now handled by RainbowKit
 
 export function EnhancedMobileWallet() {
   const { address, isConnected } = useAccount();
@@ -141,10 +141,7 @@ export function EnhancedMobileWallet() {
       </div>
 
       {/* Mobile Wallet Modal */}
-      <MobileWalletModal 
-        isOpen={showMobileModal} 
-        onClose={() => setShowMobileModal(false)} 
-      />
+      {/* MobileWalletModal replaced by RainbowKit modals */}
     </>
   );
 }

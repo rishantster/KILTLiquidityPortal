@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useWagmiWallet } from './use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 import { useToast } from './use-toast';
 
 interface AppSession {
@@ -23,7 +23,7 @@ interface AppTransaction {
 }
 
 export function useAppSession() {
-  const { address } = useWagmiWallet();
+  const { address } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [sessionId, setSessionId] = useState<string | null>(null);

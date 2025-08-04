@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { X, Settings, Info, ChevronDown, ArrowDown, Plus } from 'lucide-react';
-import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 import { useToast } from '@/hooks/use-toast';
 import kiltLogo from "@assets/KILT_400x400_transparent_1751723574123.png";
 
@@ -16,7 +16,7 @@ interface UniswapStyleModalProps {
 }
 
 export function UniswapStyleModal({ isOpen, onClose }: UniswapStyleModalProps) {
-  const { address, isConnected } = useWagmiWallet();
+  const { address, isConnected } = useAccount();
   const { toast } = useToast();
   
   // Form state

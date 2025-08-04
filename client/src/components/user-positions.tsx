@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 import { useUserPositions, useUserRewards } from '@/hooks/use-pool-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -40,7 +40,7 @@ import { useMultiplePositionFees } from '@/hooks/use-position-fees';
 import { UniswapStyleLiquidityModal } from '@/components/uniswap-style-liquidity-modal';
 
 export function UserPositions() {
-  const { address, isConnected } = useWagmiWallet();
+  const { address, isConnected } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const unifiedData = useUnifiedDashboard();

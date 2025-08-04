@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWagmiWallet } from './use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 
 export interface Position {
   nftTokenId: string;
@@ -20,7 +20,7 @@ export interface Position {
 }
 
 export function usePositionData() {
-  const { address, isConnected } = useWagmiWallet();
+  const { address, isConnected } = useAccount();
 
   const { data: positions = [], isLoading, error } = useQuery<Position[]>({
     queryKey: ['/api/positions/wallet', address],

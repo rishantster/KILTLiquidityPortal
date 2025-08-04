@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useWagmiWallet } from "@/hooks/use-wagmi-wallet";
+import { useAccount, useConnect } from "wagmi";
 import { CyberpunkAdminPanel } from "@/components/cyberpunk-admin-panel";
 
 export default function AdminPage() {
-  const { isConnected, address, connect, connectors } = useWagmiWallet();
+  const { isConnected, address } = useAccount();
+  const { connect, connectors } = useConnect();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

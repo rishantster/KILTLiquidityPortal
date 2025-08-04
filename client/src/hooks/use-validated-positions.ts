@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWagmiWallet } from './use-wagmi-wallet';
+import { useAccount } from 'wagmi';
 
 /**
  * Hook that validates registered database positions against live blockchain data
@@ -8,7 +8,7 @@ import { useWagmiWallet } from './use-wagmi-wallet';
  * 2. Actually active on the blockchain (not closed/burned)
  */
 export function useValidatedPositions(userId: number | undefined) {
-  const { address, isConnected } = useWagmiWallet();
+  const { address, isConnected } = useAccount();
 
   return useQuery({
     queryKey: ['validated-positions', userId, address],

@@ -3004,6 +3004,52 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Reset distributed rewards counter (admin only)
+  app.post('/api/admin/treasury/reset-distributed', async (req, res) => {
+    try {
+      console.log('🔄 Admin request to reset distributed rewards counter');
+      
+      // Clear all rewards from the database to reset the distributed counter
+      const deleteResult = await db.delete(rewards);
+      
+      // Log this admin operation
+      await logAdminOperation(
+        'TREASURY_RESET_DISTRIBUTED',
+        'Reset distributed rewards counter to zero',
+        'admin', // Replace with actual admin user if available
+        '0',
+        undefined,
+        true
+      );
+      
+      console.log(`✅ Distributed rewards counter reset successfully. Cleared ${deleteResult.rowCount || 0} reward records`);
+      
+      res.json({
+        success: true,
+        message: 'Distributed rewards counter reset to zero',
+        clearedRecords: deleteResult.rowCount || 0,
+        newDistributedAmount: 0
+      });
+    } catch (error) {
+      console.error('❌ Failed to reset distributed rewards counter:', error);
+      
+      await logAdminOperation(
+        'TREASURY_RESET_DISTRIBUTED',
+        'Failed to reset distributed rewards counter',
+        'admin',
+        '0',
+        undefined,
+        false,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+      
+      res.status(500).json({ 
+        error: 'Failed to reset distributed counter',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Treasury configuration endpoints
   app.get('/api/admin/treasury/config', async (req, res) => {
     try {

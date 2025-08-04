@@ -113,6 +113,34 @@ export function TreasuryManagement() {
     },
   });
 
+  // Reset distributed rewards counter mutation
+  const resetDistributedMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest('/api/admin/treasury/reset-distributed', {
+        method: 'POST',
+      });
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Success",
+        description: `Distributed rewards counter reset to zero. Cleared ${data.clearedRecords} records.`,
+        className: "bg-green-900/90 border-green-400 text-green-100",
+      });
+      // Invalidate all related queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['/api/treasury/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/program-analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['programAnalytics'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to reset distributed counter",
+        variant: "destructive",
+        className: "bg-red-900/90 border-red-400 text-red-100",
+      });
+    },
+  });
+
   const handleUpdateAddress = () => {
     if (!newTreasuryAddress || !ownerPrivateKey) {
       toast({
@@ -241,9 +269,19 @@ export function TreasuryManagement() {
             
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/70">Distributed:</span>
-              <span className="text-sm font-bold text-white">
-                {formatKiltAmount(treasuryStats?.totalDistributed || 0)} KILT
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-white">
+                  {formatKiltAmount(treasuryStats?.totalDistributed || 0)} KILT
+                </span>
+                <button
+                  onClick={() => resetDistributedMutation.mutate()}
+                  disabled={resetDistributedMutation.isPending}
+                  className="px-2 py-1 text-xs font-mono bg-red-600/20 border border-red-400/30 text-red-400 rounded hover:bg-red-600/30 transition-colors disabled:opacity-50"
+                  title="Reset distributed rewards counter to zero"
+                >
+                  {resetDistributedMutation.isPending ? 'Resetting...' : 'Reset'}
+                </button>
+              </div>
             </div>
             
             <div className="flex items-center justify-between">

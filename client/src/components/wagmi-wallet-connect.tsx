@@ -29,8 +29,8 @@ export function WagmiWalletConnect() {
 
   const handleConnect = async (connector: any) => {
     try {
-      // Special handling for WalletConnect on mobile
-      if (connector.id === 'walletConnect' && isMobile) {
+      // Special handling for WalletConnect - always use custom modal
+      if (connector.id === 'walletConnect') {
         setShowModal(false);
         setShowMobileModal(true);
         return;
@@ -249,7 +249,7 @@ export function WagmiWalletConnect() {
                     ) : (
                       <Wallet className="mr-4 h-5 w-5" />
                     )}
-                    {connector.name === 'WalletConnect' ? 'WalletConnect (Mobile Wallets)' : connector.name}
+{connector.name === 'WalletConnect' ? 'WalletConnect (Recommended)' : connector.name}
                   </>
                 )}
               </Button>

@@ -33,7 +33,7 @@ export function MobileWalletModal({ open, onOpenChange }: MobileWalletModalProps
       const provider = await walletConnectConnector.getProvider();
       
       // Listen for the display_uri event to get the QR code
-      provider.on('display_uri', (uri: string) => {
+      (provider as any).on('display_uri', (uri: string) => {
         console.log('WalletConnect URI:', uri);
         setConnectionUri(uri);
       });

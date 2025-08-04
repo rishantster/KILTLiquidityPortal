@@ -2225,3 +2225,88 @@ html {
   box-shadow: 0 6px 20px rgba(255, 0, 102, 0.4) !important;
   transform: scale(1.05);
 }
+
+/* ===== COMPREHENSIVE BETA/GREEN REMOVAL ===== */
+/* Hide all beta badges completely */
+[data-rk] *:contains("BETA"),
+[data-rk] span[style*="rgb(0, 255"],
+[data-rk] span[style*="#00ff"],
+[data-rk] div[style*="rgb(0, 255"],
+[data-rk] div[style*="#00ff"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Force all green colors to pink */
+[data-rk] * {
+  color: inherit !important;
+}
+
+[data-rk] *[style*="color: rgb(0, 255"] {
+  color: #ff0066 !important;
+}
+
+[data-rk] *[style*="color: #00ff"] {
+  color: #ff0066 !important;
+}
+
+/* Account button comprehensive styling */
+[data-rk] div[data-testid="rk-connect-button"] {
+  background: linear-gradient(135deg, #ff0066, #cc0052) !important;
+  border: 1px solid rgba(255, 0, 102, 0.3) !important;
+  border-radius: 12px !important;
+  color: white !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-rk] div[data-testid="rk-connect-button"]:hover {
+  background: linear-gradient(135deg, #ff3385, #ff0066) !important;
+  box-shadow: 0 4px 20px rgba(255, 0, 102, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Account display when connected */
+[data-rk] div[data-testid="rk-account-button"] * {
+  color: white !important;
+}
+
+/* Chain indicator styling */
+[data-rk] div[data-testid="rk-chain-button"] {
+  background: rgba(255, 0, 102, 0.1) !important;
+  border: 1px solid rgba(255, 0, 102, 0.3) !important;
+  color: #ff0066 !important;
+}
+
+/* Network badge */
+[data-rk] span:contains("Base") {
+  background: rgba(255, 0, 102, 0.1) !important;
+  color: #ff0066 !important;
+  border: 1px solid rgba(255, 0, 102, 0.3) !important;
+}
+
+/* Override wallet connection modal text colors */
+[data-rk] div[role="dialog"] * {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-rk] div[role="dialog"] h1,
+[data-rk] div[role="dialog"] h2,
+[data-rk] div[role="dialog"] h3 {
+  color: #ff0066 !important;
+}
+
+/* Ensure all wallet option text is white */
+[data-rk] button[role="menuitem"] * {
+  color: white !important;
+}
+
+/* Force balance text to be white */
+[data-rk] span[data-testid="rk-account-button-balance"] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Force address text to be white */
+[data-rk] span[data-testid="rk-account-button-address"] {
+  color: rgba(255, 255, 255, 0.7) !important;
+}

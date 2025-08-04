@@ -38,19 +38,19 @@ const REWARD_POOL_ABI = [
   'function activatePendingCalculator(address calculator) external',
   'function setCalculatorAuthorization(address calculator, bool authorized) external',
   
-  // Nonce-based claiming with dynamic limits
-  'function claimRewards(uint256 amount, uint256 nonce, bytes signature) external',
-  'function emergencyClaim(address user, uint256 amount) external',
+  // Simplified claiming - matches app's single-click claiming
+  'function claimRewards(uint256 totalRewardBalance, bytes calldata signature) external',
+  'function emergencyClaim(address user, uint256 totalRewardBalance) external',
   
   // Security view functions
   'function nonces(address user) external view returns (uint256)',
-  'function getMaxClaimLimit(address user) external view returns (uint256)',
-  'function pendingCalculators(address) external view returns (uint256)', // timestamp when pending
+  'function getAbsoluteMaxClaim() external view returns (uint256)',
+  'function pendingCalculatorActivation(address) external view returns (uint256)', // timestamp when pending
   
   // Enhanced user functions
-  'function getUserStats(address user) external view returns (uint256 claimed, uint256 lastClaim, uint256 canClaimAt)',
+  'function getUserStats(address user) external view returns (uint256 claimed, uint256 lastClaim, uint256 canClaimAt, uint256 currentNonce)',
   'function getClaimedAmount(address user) external view returns (uint256)',
-  'function canUserClaim(address user) external view returns (bool)',
+  'function canUserClaim(address user, uint256 rewardBalance) external view returns (bool)',
   'function getContractStats() external view returns (uint256 balance, uint256 totalClaims, uint256 totalAmount)',
   
   // Treasury management
@@ -65,12 +65,11 @@ const REWARD_POOL_ABI = [
   'function kiltToken() external view returns (address)',
   
   // Enhanced Security Functions
-  'function nonces(address) external view returns (uint256)',
   'function getUserNonce(address) external view returns (uint256)',
-  'function getMaxClaimLimit(address) external view returns (uint256)',
-  'function setPendingCalculatorAuthorization(address) external',
-  'function activatePendingCalculator(address) external',
+  'function getAbsoluteMaxClaim() external view returns (uint256)',
   'function revokeCalculatorAuthorization(address) external',
+  'function updateAbsoluteMaxClaim(uint256) external',
+  'function getPendingCalculatorInfo(address) external view returns (bool isPending, uint256 activationTime, uint256 remainingDelay)',
   
   // Public variables
   'function claimedAmount(address) external view returns (uint256)',

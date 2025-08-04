@@ -621,10 +621,10 @@ export function MainDashboard() {
                     )}
                   </div>
                   <div className={`text-xs font-medium numeric-mono ${
-                    (kiltData?.priceChange4h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+                    (kiltData?.priceChange6h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
-                    {kiltData?.priceChange4h !== null && kiltData?.priceChange4h !== undefined && kiltData?.priceChange4h !== 0 ? 
-                      `${kiltData.priceChange4h >= 0 ? '+' : ''}${kiltData.priceChange4h.toFixed(2)}% (4h)` : 
+                    {kiltData?.priceChange6h !== null && kiltData?.priceChange6h !== undefined && kiltData?.priceChange6h !== 0 ? 
+                      `${kiltData.priceChange6h >= 0 ? '+' : ''}${kiltData.priceChange6h.toFixed(2)}% (6h)` : 
                       <div className="h-4 w-16 bg-slate-700 animate-pulse rounded"></div>
                     }
                   </div>

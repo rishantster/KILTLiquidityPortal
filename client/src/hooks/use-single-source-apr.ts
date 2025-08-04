@@ -40,34 +40,7 @@ interface ExpectedReturnsDisplay {
  */
 export function useOfficialAPR() {
   return useQuery<SingleSourceAPRData>({
-    queryKey: ['official-apr'],
-    queryFn: async () => {
-      // Fetch real data from existing endpoints
-      const [tradingResponse, maxAPRResponse, analyticsResponse] = await Promise.all([
-        fetch('/api/trading-fees/pool-apr'),
-        fetch('/api/rewards/maximum-apr'),
-        fetch('/api/rewards/program-analytics')
-      ]);
-
-      if (!tradingResponse.ok || !maxAPRResponse.ok || !analyticsResponse.ok) {
-        throw new Error('Failed to fetch official APR data');
-      }
-
-      const tradingData = await tradingResponse.json();
-      const maxAPRData = await maxAPRResponse.json();
-      const analyticsData = await analyticsResponse.json();
-
-      return {
-        programAPR: maxAPRData.maxAPR || 0,
-        tradingAPR: tradingData.tradingFeesAPR || 0,
-        totalProgramAPR: (tradingData.tradingFeesAPR || 0) + (maxAPRData.maxAPR || 0),
-        maxTheoreticalAPR: maxAPRData.maxAPR || 0,
-        source: 'Real blockchain data',
-        timestamp: Date.now(),
-        totalParticipants: analyticsData.activeParticipants || 0,
-        totalProgramTVL: analyticsData.totalLiquidity || 0
-      };
-    },
+    queryKey: ['/api/apr/official'],
     staleTime: 30000, // 30 seconds
     refetchInterval: 60000, // 1 minute
   });
@@ -78,28 +51,7 @@ export function useOfficialAPR() {
  */
 export function useExpectedReturns() {
   return useQuery<ExpectedReturnsDisplay>({
-    queryKey: ['expected-returns'],
-    queryFn: async () => {
-      // Fetch real data from existing endpoints
-      const [tradingResponse, maxAPRResponse] = await Promise.all([
-        fetch('/api/trading-fees/pool-apr'),
-        fetch('/api/rewards/maximum-apr')
-      ]);
-
-      if (!tradingResponse.ok || !maxAPRResponse.ok) {
-        throw new Error('Failed to fetch APR data');
-      }
-
-      const tradingData = await tradingResponse.json();
-      const maxAPRData = await maxAPRResponse.json();
-
-      return {
-        tradingAPR: tradingData.tradingFeesAPR?.toFixed(1) || '0.0',
-        incentiveAPR: maxAPRData.maxAPR?.toString() || '0',
-        totalAPR: ((tradingData.tradingFeesAPR || 0) + (maxAPRData.maxAPR || 0)).toFixed(1),
-        source: 'Real blockchain data'
-      };
-    },
+    queryKey: ['/api/apr/expected-returns'],
     staleTime: 30000, // 30 seconds
     refetchInterval: 60000, // 1 minute
   });
@@ -110,39 +62,7 @@ export function useExpectedReturns() {
  */
 export function useUserAPR(address?: string) {
   return useQuery<SingleSourceAPRData>({
-    queryKey: ['user-apr', address],
-    queryFn: async () => {
-      if (!address) throw new Error('Address required');
-      
-      // Fetch real user data from existing endpoints
-      const [tradingResponse, maxAPRResponse, userAPRResponse] = await Promise.all([
-        fetch('/api/trading-fees/pool-apr'),
-        fetch('/api/rewards/maximum-apr'),
-        fetch(`/api/rewards/user-apr/${address}`)
-      ]);
-
-      if (!tradingResponse.ok || !maxAPRResponse.ok || !userAPRResponse.ok) {
-        throw new Error('Failed to fetch user APR data');
-      }
-
-      const tradingData = await tradingResponse.json();
-      const maxAPRData = await maxAPRResponse.json();
-      const userAPRData = await userAPRResponse.json();
-
-      return {
-        programAPR: maxAPRData.maxAPR || 0,
-        tradingAPR: tradingData.tradingFeesAPR || 0,
-        totalProgramAPR: (tradingData.tradingFeesAPR || 0) + (maxAPRData.maxAPR || 0),
-        userTradingAPR: userAPRData.tradingAPR,
-        userIncentiveAPR: userAPRData.incentiveAPR,
-        userTotalAPR: userAPRData.totalAPR,
-        maxTheoreticalAPR: maxAPRData.maxAPR || 0,
-        source: 'Real blockchain data',
-        timestamp: Date.now(),
-        totalParticipants: 0,
-        totalProgramTVL: 0
-      };
-    },
+    queryKey: ['/api/apr/user', address],
     enabled: !!address,
     staleTime: 30000, // 30 seconds
     refetchInterval: 60000, // 1 minute

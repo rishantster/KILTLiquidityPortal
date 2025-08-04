@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createWalletClient, custom, createPublicClient, http, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
-import { useAccount } from 'wagmi';
+import { useWagmiWallet } from './use-wagmi-wallet';
 import { useToast } from './use-toast';
 
 // Treasury contract address on Base network - DEPLOYED!
@@ -87,7 +87,7 @@ export interface RewardClaimResult {
 }
 
 export function useRewardClaiming() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useWagmiWallet();
   const { toast } = useToast();
   const [isClaiming, setIsClaiming] = useState(false);
   const [isCheckingClaimability, setIsCheckingClaimability] = useState(false);

@@ -6,7 +6,6 @@ export interface KiltTokenData {
   marketCap: number | null;
   volume24h: number | null;
   priceChange24h: number | null;
-  priceChange4h: number | null;
   totalSupply: number;
   treasuryAllocation: number;
   treasuryRemaining: number;
@@ -34,16 +33,8 @@ export interface NetworkStats {
 export function useKiltTokenData() {
   return useQuery<KiltTokenData>({
     queryKey: ['/api/kilt-data'],
-    queryFn: async () => {
-      const response = await fetch('/api/kilt-data');
-      if (!response.ok) {
-        throw new Error('Failed to fetch KILT token data');
-      }
-      return response.json();
-    },
     refetchInterval: 60000, // Refetch every minute
     staleTime: 30000, // Consider data stale after 30 seconds
-    retry: 3,
   });
 }
 

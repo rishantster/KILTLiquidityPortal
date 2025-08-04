@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useAccount } from "wagmi";
+import { useWagmiWallet } from "@/hooks/use-wagmi-wallet";
 import { apiRequest } from "@/lib/queryClient";
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits } from 'viem';
@@ -143,7 +143,7 @@ const KILT_TOKEN_ABI = [
 
 export function SmartContractPanel() {
   const { toast } = useToast();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useWagmiWallet();
   const queryClient = useQueryClient();
   
   const [depositAmount, setDepositAmount] = useState("");

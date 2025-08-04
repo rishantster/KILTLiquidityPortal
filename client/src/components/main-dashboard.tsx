@@ -23,7 +23,7 @@ import {
 import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
-import { useAccount } from 'wagmi';
+import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
@@ -37,7 +37,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
-import { RainbowConnectButton } from './rainbow-connect-button';
+import { MobileWalletConnect } from './mobile-wallet-connect';
 
 // Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
@@ -124,8 +124,8 @@ function SingleSourceTotalAPR() {
 
 
 export function MainDashboard() {
-  const { address, isConnected, isConnecting } = useAccount();
-  const { data: kiltData, isLoading: kiltDataLoading, error: kiltDataError } = useKiltTokenData();
+  const { address, isConnected, isConnecting } = useWagmiWallet();
+  const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
   
@@ -376,9 +376,8 @@ export function MainDashboard() {
 
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
-              <div className="mb-4 w-full max-w-md">
-                {/* RainbowKit mobile-optimized wallet connection */}
-                <RainbowConnectButton />
+              <div className="mb-4">
+                <MobileWalletConnect />
               </div>
             </div>
 
@@ -548,7 +547,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <RainbowConnectButton />
+              <MobileWalletConnect />
             </div>
           </div>
         </div>
@@ -617,21 +616,16 @@ export function MainDashboard() {
                     </button>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.price && kiltData.price > 0 ? `$${kiltData.price.toFixed(5)}` : 
-                     kiltDataLoading ? (
+                    {kiltData?.price ? `$${kiltData.price.toFixed(4)}` : (
                       <div className="h-6 w-20 bg-slate-700 animate-pulse rounded"></div>
-                     ) : kiltDataError ? (
-                      <span className="text-red-400 text-sm">Error loading</span>
-                     ) : (
-                      <span className="text-white/50 text-sm">No price data</span>
-                     )}
+                    )}
                   </div>
                   <div className={`text-xs font-medium numeric-mono ${
-                    (kiltData?.priceChange4h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+                    (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
-                    {kiltData?.priceChange4h !== undefined && kiltData?.priceChange4h !== null && kiltData.priceChange4h !== 0 ? 
-                      `${kiltData.priceChange4h >= 0 ? '+' : ''}${kiltData.priceChange4h.toFixed(2)}% (4h)` : 
-                      <span className="text-white/50">No price change data</span>
+                    {kiltData?.priceChange24h !== undefined && kiltData?.priceChange24h !== 0 ? 
+                      `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
+                      <div className="h-4 w-16 bg-slate-700 animate-pulse rounded"></div>
                     }
                   </div>
                 </div>
@@ -648,14 +642,9 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Market Cap</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.marketCap && kiltData.marketCap > 0 ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : 
-                     kiltDataLoading ? (
+                    {kiltData?.marketCap ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
                       <div className="h-6 w-16 bg-slate-700 animate-pulse rounded"></div>
-                     ) : kiltDataError ? (
-                      <span className="text-red-400 text-sm">Error loading</span>
-                     ) : (
-                      <span className="text-white/50 text-sm">No market cap</span>
-                     )}
+                    )}
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     277.0M circulating

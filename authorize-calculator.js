@@ -1,50 +1,87 @@
-// Script to check calculator authorization status for the KILT reward contract
+// Alternative authorization script for direct Web3 interaction
 import { ethers } from 'ethers';
 
-// Contract configuration
 const CONTRACT_ADDRESS = '0xe5771357399D58aC79A5b1161e8C363bB178B22b';
-const CALCULATOR_ADDRESS = '0x0d16cbcf28fdc69cc44fc7a7a6a1a3bc75a8b82c';
+const CALCULATOR_ADDRESS = '0x352c7eb64249334d8249f3486A664364013bEeA9';
 const BASE_RPC_URL = 'https://mainnet.base.org';
 
-// Contract ABI for authorization functions
+// Contract ABI (minimal for authorization functions)
 const CONTRACT_ABI = [
-  'function setCalculatorAuthorization(address calculator, bool authorized) external',
+  'function setPendingCalculatorAuthorization(address calculator) external',
+  'function activatePendingCalculator(address calculator) external',
   'function authorizedCalculators(address) external view returns (bool)',
+  'function pendingCalculatorActivation(address) external view returns (uint256)',
   'function owner() external view returns (address)'
 ];
 
-async function checkCalculatorStatus() {
+async function authorizeCalculator() {
   try {
-    console.log('🔐 Checking calculator authorization status...');
-    console.log(`Contract: ${CONTRACT_ADDRESS}`);
-    console.log(`Calculator: ${CALCULATOR_ADDRESS}`);
+    console.log('🔐 Starting calculator authorization process...');
     
-    // Connect to Base network
-    const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
-    
-    // Check if calculator is already authorized
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-    const isAuthorized = await contract.authorizedCalculators(CALCULATOR_ADDRESS);
-    const owner = await contract.owner();
-    
-    console.log(`Contract Owner: ${owner}`);
-    console.log(`Calculator Authorized: ${isAuthorized}`);
-    
-    if (isAuthorized) {
-      console.log('✅ Calculator is already authorized! Claims will work.');
+    // Check if running in browser with MetaMask
+    if (typeof window !== 'undefined' && window.ethereum) {
+      console.log('🦊 Using MetaMask provider');
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      
+      console.log('📝 Setting pending calculator authorization...');
+      const tx1 = await contract.setPendingCalculatorAuthorization(CALCULATOR_ADDRESS);
+      console.log(`Transaction 1 sent: ${tx1.hash}`);
+      await tx1.wait();
+      console.log('✅ Pending authorization set! Wait 24 hours for step 2.');
+      
     } else {
-      console.log('⚠️ Calculator needs authorization.');
-      console.log('');
-      console.log('To authorize, use your contract owner wallet to call:');
-      console.log('Function: setCalculatorAuthorization');
-      console.log(`Parameter 1 (calculator): ${CALCULATOR_ADDRESS}`);
-      console.log('Parameter 2 (authorized): true');
+      console.log('⚠️  MetaMask not found. Use Remix IDE or install MetaMask.');
+      console.log('📋 Manual steps:');
+      console.log('1. Go to https://remix.ethereum.org');
+      console.log('2. Load contract at:', CONTRACT_ADDRESS);
+      console.log('3. Call setPendingCalculatorAuthorization with:', CALCULATOR_ADDRESS);
+      console.log('4. Wait 24 hours, then call activatePendingCalculator');
     }
     
   } catch (error) {
-    console.error('Failed to check calculator authorization:', error.message);
+    console.error('❌ Authorization failed:', error.message);
+    console.log('💡 Try using Remix IDE instead: https://remix.ethereum.org');
   }
 }
 
-// Run the check
-checkCalculatorStatus();
+// Check current authorization status
+async function checkStatus() {
+  try {
+    const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+    
+    const isAuthorized = await contract.authorizedCalculators(CALCULATOR_ADDRESS);
+    const pendingTime = await contract.pendingCalculatorActivation(CALCULATOR_ADDRESS);
+    
+    console.log('📊 Authorization Status:');
+    console.log(`Calculator Authorized: ${isAuthorized}`);
+    console.log(`Pending Since: ${pendingTime > 0 ? new Date(Number(pendingTime) * 1000) : 'None'}`);
+    
+    if (pendingTime > 0 && !isAuthorized) {
+      const canActivateAt = Number(pendingTime) + 24 * 60 * 60;
+      const now = Math.floor(Date.now() / 1000);
+      
+      if (now >= canActivateAt) {
+        console.log('🎯 Ready to activate! Call activatePendingCalculator');
+      } else {
+        const hoursLeft = Math.ceil((canActivateAt - now) / 3600);
+        console.log(`⏰ ${hoursLeft} hours remaining until activation`);
+      }
+    }
+    
+  } catch (error) {
+    console.error('Failed to check status:', error.message);
+  }
+}
+
+// Export for use in browser console or Node.js
+if (typeof module !== 'undefined') {
+  module.exports = { authorizeCalculator, checkStatus };
+}
+
+// Auto-run status check
+checkStatus();

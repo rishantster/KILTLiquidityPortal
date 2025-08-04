@@ -618,16 +618,16 @@ export function MainDashboard() {
                     </button>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.price ? `$${kiltData.price.toFixed(4)}` : (
+                    {kiltData?.price ? `$${kiltData.price.toFixed(5)}` : (
                       <div className="h-6 w-20 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>
                   <div className={`text-xs font-medium numeric-mono ${
-                    (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+                    (kiltData?.priceChange4h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
-                    {kiltData?.priceChange24h !== undefined && kiltData?.priceChange24h !== null ? 
-                      `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
-                      <span className="text-white/50">No 24h data</span>
+                    {kiltData?.priceChange4h !== undefined && kiltData?.priceChange4h !== null ? 
+                      `${kiltData.priceChange4h >= 0 ? '+' : ''}${kiltData.priceChange4h.toFixed(2)}% (4h)` : 
+                      <span className="text-white/50">No 4h data</span>
                     }
                   </div>
                 </div>

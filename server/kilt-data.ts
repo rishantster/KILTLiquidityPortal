@@ -9,6 +9,7 @@ export interface KiltTokenData {
   marketCap: number | null;
   volume24h: number | null;
   priceChange24h: number | null;
+  priceChange4h: number | null;
   totalSupply: number;
   treasuryAllocation: number;
   treasuryRemaining: number;
@@ -39,6 +40,7 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     let marketCap = currentPrice * KILT_CIRCULATING_SUPPLY;
     let volume24h = 0; // Only use real data, no fallbacks
     let priceChange24h = 0; // Only use real data, no fallbacks
+    let priceChange4h = 0; // Only use real data, no fallbacks
     
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true');
@@ -49,6 +51,18 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
         marketCap = kiltData.usd_market_cap || marketCap;
         volume24h = kiltData.usd_24h_vol || 0; // Only use real data
         priceChange24h = kiltData.usd_24h_change || 0; // Only use real data
+      }
+      
+      // Try to get 4h price change from DexScreener for shorter timeframe
+      try {
+        const dexResponse = await fetch('https://api.dexscreener.com/latest/dex/tokens/0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8');
+        const dexData = await dexResponse.json();
+        const kiltPair = dexData.pairs?.find((pair: any) => pair.chainId === 'base' && pair.baseToken?.address?.toLowerCase() === '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8');
+        if (kiltPair?.priceChange?.h4) {
+          priceChange4h = parseFloat(kiltPair.priceChange.h4);
+        }
+      } catch (dexError) {
+        console.warn('DexScreener 4h data unavailable:', dexError instanceof Error ? dexError.message : 'Unknown error');
       }
     } catch (error: unknown) {
       console.warn('CoinGecko API unavailable, using calculated values:', error instanceof Error ? error.message : 'Unknown error');
@@ -71,6 +85,7 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       marketCap: marketCap ? Math.round(marketCap * 100) / 100 : null, // Only real market cap
       volume24h: volume24h > 0 ? Math.round(volume24h * 100) / 100 : null, // Only real volume
       priceChange24h: priceChange24h !== 0 ? Math.round(priceChange24h * 100) / 100 : null, // Only real change
+      priceChange4h: priceChange4h !== 0 ? Math.round(priceChange4h * 100) / 100 : null, // Only real 4h change
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
       treasuryRemaining,
@@ -88,6 +103,7 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       marketCap: null, // No fallback market cap
       volume24h: null, // No fallback volume
       priceChange24h: null, // No fallback price change
+      priceChange4h: null, // No fallback 4h price change
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
       treasuryRemaining: TREASURY_TOTAL, 

@@ -17,6 +17,11 @@ const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 // Use calculator private key instead of owner private key for signing
 const CALCULATOR_PRIVATE_KEY = process.env.CALCULATOR_PRIVATE_KEY || process.env.REWARD_WALLET_PRIVATE_KEY;
 
+console.log('🔐 Environment check:', {
+  calculatorKey: CALCULATOR_PRIVATE_KEY ? 'PROVIDED' : 'MISSING',
+  rewardKey: process.env.REWARD_WALLET_PRIVATE_KEY ? 'PROVIDED' : 'MISSING'
+});
+
 // Helper function to get smart contract address from database
 async function getSmartContractAddress(): Promise<string> {
   try {
@@ -161,6 +166,7 @@ export class SmartContractService {
       
       if (contractAddress && privateKey) {
         this.wallet = new ethers.Wallet(privateKey, this.provider);
+        console.log(`✅ Smart contract service initialized with calculator wallet: ${this.wallet.address}`);
         this.rewardPoolContract = new ethers.Contract(
           contractAddress,
           REWARD_POOL_ABI,
@@ -169,6 +175,7 @@ export class SmartContractService {
         await this.initializeKiltContract();
         this.isContractDeployed = true;
       } else {
+        console.log(`⚠️ Contract initialization failed - Address: ${contractAddress}, Private Key: ${privateKey ? 'PROVIDED' : 'MISSING'}`);
         this.isContractDeployed = false;
       }
     } catch (error) {

@@ -35,12 +35,15 @@ export function MobileWalletConnect() {
           provider.on('display_uri', (uri: string) => {
             console.log('WalletConnect URI:', uri);
             setWcUri(uri);
+            // Ensure modal is showing when URI is received
+            setShowModal(true);
           });
           
           // Also listen for connection events
           provider.on('connect', () => {
             console.log('WalletConnect connected');
             setShowModal(false);
+            setWcUri('');
           });
           
           provider.on('disconnect', () => {

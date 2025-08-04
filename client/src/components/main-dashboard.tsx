@@ -549,7 +549,7 @@ export function MainDashboard() {
           
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <MobileWalletConnect />
+              <RainbowConnectButton />
             </div>
           </div>
         </div>

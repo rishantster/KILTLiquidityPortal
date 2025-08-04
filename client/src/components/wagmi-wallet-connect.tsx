@@ -19,7 +19,7 @@ export function WagmiWalletConnect() {
   const [showModal, setShowModal] = useState(false);
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string>('');
+
 
   // Detect if user is on mobile
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -30,20 +30,13 @@ export function WagmiWalletConnect() {
 
   const handleConnect = async (connector: any) => {
     try {
-      const debugMsg = `Clicked: ID="${connector.id}", Name="${connector.name}"`;
-      console.log('Connector clicked:', connector.id, connector.name, connector);
-      setDebugInfo(debugMsg);
+      // FORCE mobile modal for WalletConnect - check display text
+      const isWalletConnect = connector.name === 'WalletConnect' || 
+                             connector.name?.includes('WalletConnect') ||
+                             connector.id?.includes('walletConnect');
       
-      // Add a delay to show the debug message before proceeding
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Special handling for WalletConnect - check all possible identifiers
-      if (connector.id?.includes('walletConnect') || 
-          connector.name?.includes('WalletConnect') || 
-          connector.type === 'walletConnect' ||
-          connector.uid?.includes('walletConnect')) {
-        console.log('Opening mobile wallet modal for WalletConnect');
-        setDebugInfo(debugMsg + ' -> Opening Mobile Modal');
+      if (isWalletConnect) {
+        console.log('WalletConnect detected - forcing mobile modal');
         setShowModal(false);
         setShowMobileModal(true);
         return;
@@ -202,23 +195,34 @@ export function WagmiWalletConnect() {
 
   return (
     <>
-      <Button
-        onClick={() => setShowModal(true)}
-        disabled={isPending}
-        className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
-      >
-        {isPending ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Connecting...
-          </>
-        ) : (
-          <>
-            <Wallet className="mr-2 h-4 w-4" />
-            Connect Wallet
-          </>
-        )}
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          onClick={() => setShowModal(true)}
+          disabled={isPending}
+          className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Connecting...
+            </>
+          ) : (
+            <>
+              <Wallet className="mr-2 h-4 w-4" />
+              Connect Wallet
+            </>
+          )}
+        </Button>
+        
+        {/* Test button for mobile modal */}
+        <Button
+          onClick={() => setShowMobileModal(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-4"
+        >
+          <Smartphone className="mr-2 h-4 w-4" />
+          Mobile Test
+        </Button>
+      </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="bg-black border border-gray-800 max-w-md">
@@ -249,7 +253,7 @@ export function WagmiWalletConnect() {
                 onClick={() => handleConnect(connector)}
                 disabled={isPending}
                 className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
-                data-testid={`wallet-${connector.id}`}
+
               >
                 {isPending ? (
                   <>
@@ -300,25 +304,7 @@ export function WagmiWalletConnect() {
         onOpenChange={setShowMobileModal} 
       />
       
-      {/* Debug info display */}
-      {debugInfo && (
-        <div className="fixed top-4 left-4 bg-red-600 text-white p-4 rounded text-sm z-[9999] max-w-sm border-2 border-white">
-          <button onClick={() => setDebugInfo('')} className="float-right ml-2 text-lg font-bold">×</button>
-          <div className="pr-8">{debugInfo}</div>
-        </div>
-      )}
-      
-      {/* Always show debug button for testing - moved outside modal */}
-      {!showModal && (
-        <div className="fixed bottom-4 left-4 z-[9999]">
-          <button 
-            onClick={() => setDebugInfo('Debug: Test message - handler is working!')} 
-            className="bg-blue-600 text-white p-2 rounded text-xs"
-          >
-            Test Debug
-          </button>
-        </div>
-      )}
+
     </>
   );
 }

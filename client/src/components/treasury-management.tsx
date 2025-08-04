@@ -22,6 +22,7 @@ interface TreasuryStats {
   totalDistributed: number;
   remainingBudget: number;
   dailyBudget: number;
+  treasuryTotal?: number;
 }
 
 interface ValidationResult {
@@ -67,7 +68,7 @@ export function TreasuryManagement() {
     mutationFn: async (data: { newTreasuryAddress: string; ownerPrivateKey: string }) => {
       return apiRequest('/api/treasury/update-address', {
         method: 'POST',
-        body: JSON.stringify(data),
+        data: data,
       });
     },
     onSuccess: (data) => {
@@ -93,7 +94,7 @@ export function TreasuryManagement() {
     mutationFn: async (data: { treasuryPrivateKey: string; allowanceAmount: number }) => {
       return apiRequest('/api/treasury/setup-allowance', {
         method: 'POST',
-        body: JSON.stringify(data),
+        data: data,
       });
     },
     onSuccess: (data) => {
@@ -120,7 +121,7 @@ export function TreasuryManagement() {
         method: 'POST',
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
         title: "Success",
         description: `Distributed rewards counter reset to zero. Cleared ${data.clearedRecords} records.`,

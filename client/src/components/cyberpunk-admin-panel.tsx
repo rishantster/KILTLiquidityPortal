@@ -177,22 +177,23 @@ export function CyberpunkAdminPanel() {
     if (existingTreasuryConfig && !treasuryLoading) {
       console.log('Loading treasury config:', existingTreasuryConfig);
       setTreasuryConfig({
+        ...treasuryConfig,
         ...existingTreasuryConfig,
         // Ensure dates are properly set
-        programStartDate: existingTreasuryConfig.programStartDate || '',
-        programEndDate: existingTreasuryConfig.programEndDate || ''
+        programStartDate: (existingTreasuryConfig as any).programStartDate || '',
+        programEndDate: (existingTreasuryConfig as any).programEndDate || ''
       });
     }
   }, [existingTreasuryConfig, treasuryLoading]);
 
   useEffect(() => {
     if (existingProgramSettings && !settingsLoading) {
-      setProgramSettings(existingProgramSettings);
+      setProgramSettings(existingProgramSettings as ProgramSettings);
     }
   }, [existingProgramSettings, settingsLoading]);
 
   // Get Operations History
-  const { data: operations = [] } = useQuery({
+  const { data: operations = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/operations'],
     refetchInterval: 5000
   });
@@ -543,7 +544,7 @@ export function CyberpunkAdminPanel() {
                     LIVE FORMULA PREVIEW:
                   </div>
                   <div className="text-white font-mono text-sm bg-black/50 p-3 rounded border border-green-400/20">
-                    R_u = (L_u/L_T) × (1 + ((D_u/{treasuryConfig.programDurationDays}) × {programSettings.timeBoostCoefficient})) × IRM × {programSettings.fullRangeBonus} × ({treasuryConfig.dailyBudget}/day)
+                    R_u = (L_u/L_T) × (1 + ((D_u/{treasuryConfig.programDurationDays}) × {programSettings.timeBoostCoefficient})) × IRM × {programSettings.fullRangeBonus} × ({derivedValues.dailyRewardsCap}/day)
                   </div>
                   <div className="text-gray-400 text-xs mt-2 font-mono">
                     This formula runs in real-time across the main application. Changes here immediately affect all reward calculations, APR displays, and user earnings.
@@ -614,12 +615,12 @@ export function CyberpunkAdminPanel() {
                 </h2>
                 
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {operations.length === 0 ? (
+                  {(operations as any[]).length === 0 ? (
                     <div className="text-green-400/50 font-mono text-sm">
                       [NO_OPERATIONS_LOGGED]
                     </div>
                   ) : (
-                    operations.map((op: any, index: number) => (
+                    (operations as any[]).map((op: any, index: number) => (
                       <div
                         key={index}
                         className="border border-green-400/30 rounded p-3 bg-gray-900/50"

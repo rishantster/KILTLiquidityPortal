@@ -126,7 +126,7 @@ function SingleSourceTotalAPR() {
 
 export function MainDashboard() {
   const { address, isConnected, isConnecting } = useWagmiWallet();
-  const { data: kiltData } = useKiltTokenData();
+  const { data: kiltData, isLoading: kiltDataLoading, error: kiltDataError } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
   
@@ -618,9 +618,14 @@ export function MainDashboard() {
                     </button>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.price && kiltData.price > 0 ? `$${kiltData.price.toFixed(5)}` : (
+                    {kiltData?.price && kiltData.price > 0 ? `$${kiltData.price.toFixed(5)}` : 
+                     kiltDataLoading ? (
                       <div className="h-6 w-20 bg-slate-700 animate-pulse rounded"></div>
-                    )}
+                     ) : kiltDataError ? (
+                      <span className="text-red-400 text-sm">Error loading</span>
+                     ) : (
+                      <span className="text-white/50 text-sm">No price data</span>
+                     )}
                   </div>
                   <div className={`text-xs font-medium numeric-mono ${
                     (kiltData?.priceChange4h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
@@ -644,9 +649,14 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Market Cap</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.marketCap && kiltData.marketCap > 0 ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
+                    {kiltData?.marketCap && kiltData.marketCap > 0 ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : 
+                     kiltDataLoading ? (
                       <div className="h-6 w-16 bg-slate-700 animate-pulse rounded"></div>
-                    )}
+                     ) : kiltDataError ? (
+                      <span className="text-red-400 text-sm">Error loading</span>
+                     ) : (
+                      <span className="text-white/50 text-sm">No market cap</span>
+                     )}
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     277.0M circulating

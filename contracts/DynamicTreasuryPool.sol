@@ -27,9 +27,6 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     // Minimum time between claims (reduced for high-throughput)
     uint256 public constant MIN_CLAIM_INTERVAL = 5 minutes;
     
-    // Maximum single claim amount (safety limit)
-    uint256 public maxSingleClaim = 10000 * 10**18; // 10,000 KILT
-    
     // Gas optimization: Track total claims for analytics
     uint256 public totalClaimsProcessed;
     uint256 public totalAmountClaimed;
@@ -39,8 +36,6 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     event CalculatorAuthorized(address indexed calculator, bool authorized);
     event TreasuryDeposit(uint256 amount);
     event TreasuryWithdraw(uint256 amount);
-    event MaxClaimUpdated(uint256 newMaxClaim);
-    event BatchClaimProcessed(uint256 claimsProcessed, uint256 totalAmount);
     
     constructor(
         address _kiltToken,
@@ -64,15 +59,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         emit CalculatorAuthorized(calculator, authorized);
     }
     
-    /**
-     * @dev Update maximum single claim amount (owner only)
-     * @param newMaxClaim New maximum claim amount in wei
-     */
-    function setMaxSingleClaim(uint256 newMaxClaim) external onlyOwner {
-        require(newMaxClaim > 0, "Max claim must be greater than 0");
-        maxSingleClaim = newMaxClaim;
-        emit MaxClaimUpdated(newMaxClaim);
-    }
+
 
     /**
      * @dev Claim dynamically calculated rewards
@@ -84,7 +71,6 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         bytes calldata signature
     ) external nonReentrant whenNotPaused {
         require(amount > 0, "Amount must be greater than 0");
-        require(amount <= maxSingleClaim, "Amount exceeds maximum single claim");
         require(
             block.timestamp >= lastClaimTime[msg.sender] + MIN_CLAIM_INTERVAL,
             "Claim too soon after last claim"
@@ -222,65 +208,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         _unpause();
     }
 
-    /**
-     * @dev Batch claim processing for high-throughput scenarios
-     * @param users Array of user addresses
-     * @param amounts Array of corresponding amounts
-     * @param signatures Array of corresponding signatures
-     */
-    function batchClaimRewards(
-        address[] calldata users,
-        uint256[] calldata amounts,
-        bytes[] calldata signatures
-    ) external onlyOwner {
-        uint256 length = users.length;
-        require(length == amounts.length && length == signatures.length, "Arrays length mismatch");
-        require(length > 0 && length <= 50, "Invalid batch size"); // Limit to prevent gas issues
-        
-        uint256 totalBatchAmount = 0;
-        uint256 contractBalance = kiltToken.balanceOf(address(this));
-        
-        // Verify total amount first
-        for (uint256 i = 0; i < length;) {
-            totalBatchAmount += amounts[i];
-            unchecked { ++i; }
-        }
-        require(contractBalance >= totalBatchAmount, "Insufficient contract balance");
-        
-        // Process all claims
-        for (uint256 i = 0; i < length;) {
-            address user = users[i];
-            uint256 amount = amounts[i];
-            
-            require(amount > 0 && amount <= maxSingleClaim, "Invalid amount");
-            require(
-                block.timestamp >= lastClaimTime[user] + MIN_CLAIM_INTERVAL,
-                "Claim too soon"
-            );
-            
-            // Verify signature
-            bytes32 messageHash = _createMessageHash(user, amount);
-            address signer = _recoverSignerOptimized(messageHash, signatures[i]);
-            require(authorizedCalculators[signer], "Invalid signature");
-            
-            // Update state
-            unchecked {
-                claimedAmount[user] += amount;
-                totalClaimsProcessed += 1;
-                totalAmountClaimed += amount;
-            }
-            lastClaimTime[user] = block.timestamp;
-            
-            // Transfer tokens
-            require(kiltToken.transfer(user, amount), "Transfer failed");
-            
-            emit RewardClaimed(user, amount, claimedAmount[user], block.timestamp);
-            
-            unchecked { ++i; }
-        }
-        
-        emit BatchClaimProcessed(length, totalBatchAmount);
-    }
+
     
     /**
      * @dev Get contract statistics for monitoring
@@ -288,14 +216,11 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     function getContractStats() external view returns (
         uint256 balance,
         uint256 totalClaims,
-        uint256 totalAmount,
-        uint256 authorizedCalculatorsCount
+        uint256 totalAmount
     ) {
         balance = kiltToken.balanceOf(address(this));
         totalClaims = totalClaimsProcessed;
         totalAmount = totalAmountClaimed;
-        // Note: authorizedCalculatorsCount would require additional tracking
-        authorizedCalculatorsCount = 0; // Placeholder
     }
     
     /**

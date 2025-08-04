@@ -24,39 +24,49 @@ export function MobileWalletConnect() {
     if (!walletConnectConnector) return;
     
     try {
+      // Always show modal first
       setShowModal(true);
       setWcUri(''); // Reset URI
       
-      // Listen for WalletConnect URI before connecting
+      // Setup provider listeners BEFORE connecting
       if (walletConnectConnector.getProvider) {
         const provider = await walletConnectConnector.getProvider() as any;
         
         if (provider && typeof provider.on === 'function') {
+          // Clear any existing listeners
+          provider.removeAllListeners?.('display_uri');
+          provider.removeAllListeners?.('connect');
+          provider.removeAllListeners?.('disconnect');
+          
           provider.on('display_uri', (uri: string) => {
-            console.log('WalletConnect URI received:', uri);
+            console.log('🚀 WalletConnect URI received:', uri);
             setWcUri(uri);
+            // Ensure modal stays open when URI is ready
+            setShowModal(true);
           });
           
-          // Also listen for connection events
           provider.on('connect', () => {
-            console.log('WalletConnect connected');
+            console.log('✅ WalletConnect connected successfully');
             setShowModal(false);
             setWcUri('');
           });
           
           provider.on('disconnect', () => {
-            console.log('WalletConnect disconnected');
+            console.log('❌ WalletConnect disconnected');
             setWcUri('');
+            setShowModal(false);
           });
         }
       }
       
-      // Connect
+      // Start connection process
+      console.log('🔄 Starting WalletConnect connection...');
       connect({ connector: walletConnectConnector });
       
     } catch (error) {
-      console.error('Mobile wallet connection error:', error);
+      console.error('❌ Mobile wallet connection error:', error);
       setShowModal(false);
+      setWcUri('');
     }
   };
 
@@ -68,13 +78,13 @@ export function MobileWalletConnect() {
     }
   }, [isConnected]);
 
-  // Force modal to show when URI is available
+  // Force modal to show when URI is available and ensure it stays visible
   useEffect(() => {
-    if (wcUri && !showModal) {
-      console.log('Forcing modal to show with URI:', wcUri);
+    if (wcUri && !showModal && !isConnected) {
+      console.log('🔧 Forcing modal to show with URI:', wcUri.substring(0, 20) + '...');
       setShowModal(true);
     }
-  }, [wcUri, showModal]);
+  }, [wcUri, showModal, isConnected]);
 
   const openWalletApp = (walletName: string, deepLink: string) => {
     const uri = wcUri;

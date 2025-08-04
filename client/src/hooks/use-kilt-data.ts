@@ -5,7 +5,7 @@ export interface KiltTokenData {
   price: number | null;
   marketCap: number | null;
   volume24h: number | null;
-  priceChange24h: number | null;
+  priceChange4h: number | null;
   totalSupply: number;
   treasuryAllocation: number;
   treasuryRemaining: number;

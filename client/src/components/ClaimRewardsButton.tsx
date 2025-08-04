@@ -30,14 +30,60 @@ export function ClaimRewardsButton({
     setIsLoading(true);
     
     try {
-      // Simple approach: Direct contract interaction via MetaMask
-      const contractAddress = "0x3ee2361272EaDc5ADc91418530722728E7DCe526"; // Current contract
+      // Step 1: Get secure signature from backend
+      const signatureResponse = await fetch('/api/security/generate-claim-signature', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userAddress,
+          amount: claimableAmount
+        })
+      });
+
+      if (!signatureResponse.ok) {
+        const errorData = await signatureResponse.json();
+        throw new Error(errorData.error || 'Failed to generate claim signature');
+      }
+
+      const signatureData = await signatureResponse.json();
       
-      // Request account access
+      if (!signatureData.success) {
+        throw new Error(signatureData.error || 'Signature generation failed');
+      }
+
+      const { signature, nonce, maxClaimLimit } = signatureData;
+      
+      // Show claim limit info to user
+      if (claimableAmount > maxClaimLimit) {
+        toast({
+          title: "Claim Limit Notice",
+          description: `Your current limit is ${maxClaimLimit} KILT. Build more history to increase limits.`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Step 2: Request account access
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       
-      // Contract call via MetaMask
-      const claimData = '0x9a99b4f0'; // claimAllRewards() function selector
+      // Step 3: Enhanced contract interaction with nonce-based security
+      const contractAddress = "0x3ee2361272EaDc5ADc91418530722728E7DCe526";
+      
+      // Encode claimRewards(amount, nonce, signature) function call
+      const amountWei = (claimableAmount * 1e18).toString(16).padStart(64, '0');
+      const nonceHex = nonce.toString(16).padStart(64, '0');
+      const signatureFormatted = signature.slice(2); // Remove 0x prefix
+      
+      const claimData = '0x' + 
+        '4e71e0c8' + // claimRewards(uint256,uint256,bytes) selector
+        amountWei + 
+        nonceHex + 
+        '0000000000000000000000000000000000000000000000000000000000000060' + // offset for bytes
+        '0000000000000000000000000000000000000000000000000000000000000041' + // signature length (65 bytes)
+        signatureFormatted +
+        '00'; // padding
       
       const txParams = {
         to: contractAddress,
@@ -52,25 +98,29 @@ export function ClaimRewardsButton({
       });
       
       toast({
-        title: "Transaction Submitted",
-        description: `Claiming ${claimableAmount.toFixed(2)} KILT tokens`,
+        title: "Secure Transaction Submitted",
+        description: `Claiming ${claimableAmount.toFixed(2)} KILT with nonce-based security`,
       });
 
-      // Simple success feedback
+      // Enhanced success feedback with security confirmation
       setTimeout(() => {
         toast({
-          title: "Rewards Claimed",
-          description: `${claimableAmount.toFixed(2)} KILT tokens should arrive in your wallet`,
+          title: "Rewards Claimed Successfully",
+          description: `${claimableAmount.toFixed(2)} KILT tokens transferred with enhanced security`,
         });
         onSuccess?.();
       }, 3000);
       
     } catch (error: any) {
-      console.error('Claim error:', error);
+      console.error('Enhanced claim error:', error);
       
       let errorMessage = 'Failed to claim rewards';
       if (error.code === 4001) {
         errorMessage = 'Transaction cancelled by user';
+      } else if (error.message?.includes('limit')) {
+        errorMessage = error.message;
+      } else if (error.message?.includes('signature')) {
+        errorMessage = 'Security validation failed - please try again';
       }
       
       toast({

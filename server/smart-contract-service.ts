@@ -31,16 +31,23 @@ async function getSmartContractAddress(): Promise<string> {
   }
 }
 
-// DynamicTreasuryPool contract ABI - simplified without batch functionality
+// Enhanced DynamicTreasuryPool contract ABI with security improvements
 const REWARD_POOL_ABI = [
-  // Authorization management
+  // Enhanced authorization management with time delays
+  'function setPendingCalculatorAuthorization(address calculator) external',
+  'function activatePendingCalculator(address calculator) external',
   'function setCalculatorAuthorization(address calculator, bool authorized) external',
   
-  // Dynamic claiming with signatures - NO AMOUNT LIMITS
-  'function claimRewards(uint256 amount, bytes signature) external',
+  // Nonce-based claiming with dynamic limits
+  'function claimRewards(uint256 amount, uint256 nonce, bytes signature) external',
   'function emergencyClaim(address user, uint256 amount) external',
   
-  // View functions - matches app terminology
+  // Security view functions
+  'function nonces(address user) external view returns (uint256)',
+  'function getMaxClaimLimit(address user) external view returns (uint256)',
+  'function pendingCalculators(address) external view returns (uint256)', // timestamp when pending
+  
+  // Enhanced user functions
   'function getUserStats(address user) external view returns (uint256 claimed, uint256 lastClaim, uint256 canClaimAt)',
   'function getClaimedAmount(address user) external view returns (uint256)',
   'function canUserClaim(address user) external view returns (bool)',
@@ -64,9 +71,10 @@ const REWARD_POOL_ABI = [
   'function totalClaimsProcessed() external view returns (uint256)',
   'function totalAmountClaimed() external view returns (uint256)',
   
-  // Events - simplified
-  'event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 timestamp)',
+  // Enhanced events
+  'event RewardClaimed(address indexed user, uint256 amount, uint256 nonce, uint256 timestamp)',
   'event CalculatorAuthorized(address indexed calculator, bool authorized)',
+  'event PendingCalculatorSet(address indexed calculator, uint256 activationTime)',
   'event TreasuryDeposit(uint256 amount)',
   'event TreasuryWithdraw(uint256 amount)'
 ];
@@ -318,7 +326,60 @@ export class SmartContractService {
   }
 
   /**
-   * Process reward claims through smart contract
+   * Generate secure signature for reward claiming with enhanced security
+   */
+  async generateClaimSignature(
+    userAddress: string,
+    amount: number
+  ): Promise<{ signature: string; nonce: number; maxClaimLimit: number } | { error: string }> {
+    try {
+      if (!this.isContractDeployed || !this.rewardPoolContract || !this.wallet) {
+        return { error: 'Smart contracts not deployed or wallet not initialized' };
+      }
+
+      // Get user's current nonce from contract
+      const userNonce = await this.rewardPoolContract.nonces(userAddress);
+      
+      // Get maximum claim limit for this user (dynamic security limit)
+      const maxClaimLimit = await this.rewardPoolContract.getMaxClaimLimit(userAddress);
+      const maxClaimLimitFormatted = Number(ethers.formatUnits(maxClaimLimit, 18));
+      
+      // Validate amount against dynamic claim limit
+      if (amount > maxClaimLimitFormatted) {
+        return { 
+          error: `Amount ${amount} KILT exceeds your current claim limit of ${maxClaimLimitFormatted} KILT. Build more claim history to increase your limit.` 
+        };
+      }
+
+      // Convert amount to wei
+      const amountWei = ethers.parseUnits(amount.toString(), 18);
+      
+      // Create nonce-based message hash (replaces time-based system)
+      const messageHash = ethers.solidityPackedKeccak256(
+        ['address', 'uint256', 'uint256'],
+        [userAddress, amountWei, userNonce]
+      );
+      
+      // Sign the message hash
+      const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));
+      
+      console.log(`🔐 Generated secure signature for ${userAddress}: amount=${amount} KILT, nonce=${userNonce.toString()}, limit=${maxClaimLimitFormatted} KILT`);
+      
+      return {
+        signature,
+        nonce: Number(userNonce),
+        maxClaimLimit: maxClaimLimitFormatted
+      };
+    } catch (error: unknown) {
+      console.error('Signature generation failed:', error);
+      return { 
+        error: error instanceof Error ? error.message : 'Failed to generate claim signature' 
+      };
+    }
+  }
+
+  /**
+   * Process reward claims through smart contract with enhanced security
    */
   async processRewardClaim(
     userAddress: string,
@@ -343,29 +404,30 @@ export class SmartContractService {
         };
       }
       
-      console.log(`✅ Contract verified: BasicTreasuryPool deployed at ${contractAddress}`);
+      console.log(`✅ Contract verified: DynamicTreasuryPool deployed at ${contractAddress}`);
 
       // Create contract instance
       const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
       
-      // Get claimable amount from the smart contract
-      const claimableAmount = await contract.getClaimableRewards(userAddress);
+      // Check user's claim limit
+      const maxClaimLimit = await contract.getMaxClaimLimit(userAddress);
+      const maxClaimLimitFormatted = Number(ethers.formatUnits(maxClaimLimit, 18));
       
-      if (claimableAmount === 0n) {
+      if (maxClaimLimitFormatted === 0) {
         return {
           success: false,
-          error: 'No rewards available for claiming at this time. Continue providing liquidity to earn rewards.',
+          error: 'No claim limit allocated. Please provide liquidity to establish your reward eligibility.',
           amount: 0,
           recipient: userAddress
         };
       }
 
-      // Smart contract is ready for claiming - return success with claim amount
+      // Smart contract is ready for claiming - return success with claim limit
       // Frontend will handle the actual wallet transaction via wagmi
       return {
         success: true,
         error: undefined,
-        amount: Number(ethers.formatUnits(claimableAmount, 18)),
+        amount: maxClaimLimitFormatted,
         recipient: userAddress
       };
     } catch (error: unknown) {
@@ -551,6 +613,91 @@ export class SmartContractService {
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error) || 'Transaction failed'
+      };
+    }
+  }
+
+  /**
+   * Set pending calculator authorization (Step 1 of 2 - Security Delay Process)
+   */
+  async setPendingCalculatorAuthorization(calculatorAddress: string): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
+    }
+
+    try {
+      console.log(`🔐 Setting pending calculator authorization for ${calculatorAddress}...`);
+      
+      const tx = await this.rewardPoolContract.setPendingCalculatorAuthorization(calculatorAddress);
+      const receipt = await tx.wait();
+      
+      console.log(`✅ Pending calculator set successfully. Activation available in 24 hours. Transaction: ${receipt.hash}`);
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: unknown) {
+      console.error('Setting pending calculator failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to set pending calculator'
+      };
+    }
+  }
+
+  /**
+   * Activate pending calculator (Step 2 of 2 - After 24-hour delay)
+   */
+  async activatePendingCalculator(calculatorAddress: string): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
+    }
+
+    try {
+      // Check if calculator is pending and delay has passed
+      const pendingTimestamp = await this.rewardPoolContract.pendingCalculators(calculatorAddress);
+      const currentTime = Math.floor(Date.now() / 1000);
+      const DELAY_24_HOURS = 24 * 60 * 60;
+      
+      if (pendingTimestamp.toString() === '0') {
+        return {
+          success: false,
+          error: 'Calculator is not pending authorization. Call setPendingCalculatorAuthorization first.'
+        };
+      }
+      
+      if (currentTime < Number(pendingTimestamp) + DELAY_24_HOURS) {
+        const remainingTime = (Number(pendingTimestamp) + DELAY_24_HOURS - currentTime);
+        const remainingHours = Math.ceil(remainingTime / 3600);
+        return {
+          success: false,
+          error: `Security delay not complete. ${remainingHours} hours remaining before activation.`
+        };
+      }
+      
+      console.log(`🔐 Activating calculator authorization for ${calculatorAddress}...`);
+      
+      const tx = await this.rewardPoolContract.activatePendingCalculator(calculatorAddress);
+      const receipt = await tx.wait();
+      
+      console.log(`✅ Calculator activated successfully. Transaction: ${receipt.hash}`);
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: unknown) {
+      console.error('Activating calculator failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to activate calculator'
       };
     }
   }

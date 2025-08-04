@@ -51,6 +51,7 @@ import { claimBasedRewards } from "./claim-based-rewards";
 
 
 import rewardDistributionRoutes from "./routes/reward-distribution";
+import enhancedSecurityRoutes from "./routes/enhanced-security";
 // Removed registerUniswapOptimizedRoutes - cleaned up during optimization
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes
@@ -3336,6 +3337,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       });
     }
   });
+
+  // Mount imported routes
+  app.use("/api/rewards", rewardDistributionRoutes);
+  app.use("/api/security", enhancedSecurityRoutes);
 
   // DUPLICATE POOL ENDPOINTS REMOVED - Using earlier definitions with fallback logic
 

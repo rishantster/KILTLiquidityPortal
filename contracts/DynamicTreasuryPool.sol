@@ -37,12 +37,11 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     constructor(
         address _kiltToken,
         address _owner
-    ) {
+    ) Ownable(_owner) {
         require(_kiltToken != address(0), "Invalid token address");
         require(_owner != address(0), "Invalid owner address");
         
         kiltToken = IERC20(_kiltToken);
-        _transferOwnership(_owner);
     }
 
     /**

@@ -3,30 +3,51 @@ import { base } from 'wagmi/chains';
 import { metaMask, walletConnect, injected, coinbaseWallet } from 'wagmi/connectors';
 import { ReactNode } from 'react';
 
-// Create WalletConnect singleton to prevent double initialization
-let walletConnectConnector: ReturnType<typeof walletConnect> | null = null;
-
-function getWalletConnectConnector() {
-  if (!walletConnectConnector) {
-    walletConnectConnector = walletConnect({
-      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
-      metadata: {
-        name: 'KILT Liquidity Portal',
-        description: 'KILT token liquidity incentive program on Base',
-        url: typeof window !== 'undefined' ? window.location.origin : 'https://kilt-portal.replit.app',
-        icons: ['https://avatars.githubusercontent.com/u/37784886']
+// Create WalletConnect connector with proper mobile configuration
+const createWalletConnectConnector = () => walletConnect({
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
+  metadata: {
+    name: 'KILT Liquidity Portal',
+    description: 'KILT token liquidity incentive program on Base',
+    url: typeof window !== 'undefined' ? window.location.origin : 'https://kilt-portal.replit.app',
+    icons: ['https://avatars.githubusercontent.com/u/37784886']
+  },
+  showQrModal: true,
+  qrModalOptions: {
+    themeMode: 'dark',
+    themeVariables: {
+      '--wcm-z-index': '999999',
+      '--wcm-background-color': '#1a1a1a',
+      '--wcm-accent-color': '#ff0066'
+    },
+    mobileWallets: [
+      {
+        id: 'metamask',
+        name: 'MetaMask',
+        links: {
+          native: 'metamask://',
+          universal: 'https://metamask.app.link'
+        }
       },
-      showQrModal: true,
-      qrModalOptions: {
-        themeMode: 'dark',
-        themeVariables: {
-          '--wcm-z-index': '999999'
+      {
+        id: 'trust',
+        name: 'Trust Wallet', 
+        links: {
+          native: 'trust://',
+          universal: 'https://link.trustwallet.com'
+        }
+      },
+      {
+        id: 'coinbase',
+        name: 'Coinbase Wallet',
+        links: {
+          native: 'cbwallet://',
+          universal: 'https://go.cb-w.com'
         }
       }
-    });
+    ]
   }
-  return walletConnectConnector;
-}
+});
 
 // Enhanced Wagmi configuration optimized for Base chain with mobile deep linking support
 const wagmiConfig = createConfig({
@@ -45,8 +66,8 @@ const wagmiConfig = createConfig({
       appLogoUrl: 'https://avatars.githubusercontent.com/u/37784886',
       enableMobileWalletLink: true
     }),
-    // WalletConnect singleton
-    getWalletConnectConnector(),
+    // WalletConnect with mobile support
+    createWalletConnectConnector(),
     // Binance Wallet via injected provider (only if detected)
     injected({
       shimDisconnect: true,

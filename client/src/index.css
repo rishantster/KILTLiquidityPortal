@@ -7,6 +7,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import custom RainbowKit styles */
+@import './styles/rainbowkit-custom.css';
+
 /* Enhanced Root Variables for Superior Visual Hierarchy */
 :root {
   /* Premium Typography System */

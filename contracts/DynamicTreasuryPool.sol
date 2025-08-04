@@ -18,10 +18,10 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     // Authorized calculators (your backend services)
     mapping(address => bool) public authorizedCalculators;
     
-    // User address => total amount already claimed (in wei)
-    mapping(address => uint256) public totalClaimed;
+    // User address => total amount already claimed (in wei) - matches app's claimedAmount
+    mapping(address => uint256) public claimedAmount;
     
-    // Track last claim timestamp to prevent spam
+    // Track last claim timestamp to prevent spam  
     mapping(address => uint256) public lastClaimTime;
     
     // Minimum time between claims (to prevent spam)
@@ -30,8 +30,8 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     // Maximum single claim amount (safety limit)
     uint256 public maxSingleClaim = 10000 * 10**18; // 10,000 KILT
     
-    // Events
-    event RewardClaimed(address indexed user, uint256 amount, uint256 totalClaimedNow);
+    // Events - matches app terminology
+    event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount);
     event CalculatorAuthorized(address indexed calculator, bool authorized);
     event TreasuryDeposit(uint256 amount);
     event TreasuryWithdraw(uint256 amount);
@@ -105,14 +105,14 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         require(contractBalance >= amount, "Insufficient contract balance");
         
         // Update state before transfer (CEI pattern)
-        totalClaimed[msg.sender] += amount;
+        claimedAmount[msg.sender] += amount;
         lastClaimTime[msg.sender] = block.timestamp;
         
         // Transfer KILT tokens to user
         bool success = kiltToken.transfer(msg.sender, amount);
         require(success, "Token transfer failed");
         
-        emit RewardClaimed(msg.sender, amount, totalClaimed[msg.sender]);
+        emit RewardClaimed(msg.sender, amount, claimedAmount[msg.sender]);
     }
     
     /**
@@ -128,30 +128,39 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         require(contractBalance >= amount, "Insufficient contract balance");
         
         // Update state before transfer
-        totalClaimed[user] += amount;
+        claimedAmount[user] += amount;
         
         // Transfer KILT tokens to user
         bool success = kiltToken.transfer(user, amount);
         require(success, "Token transfer failed");
         
-        emit RewardClaimed(user, amount, totalClaimed[user]);
+        emit RewardClaimed(user, amount, claimedAmount[user]);
     }
 
     /**
-     * @dev Get user claim statistics
+     * Get user claim statistics - matches app's getUserStats pattern
      * @param user Address of the user
      * @return claimed Total amount claimed by user
      * @return lastClaim Timestamp of last claim
      * @return canClaimAt Next timestamp when user can claim
      */
-    function getUserClaimInfo(address user) external view returns (
+    function getUserStats(address user) external view returns (
         uint256 claimed,
         uint256 lastClaim,
         uint256 canClaimAt
     ) {
-        claimed = totalClaimed[user];
+        claimed = claimedAmount[user];
         lastClaim = lastClaimTime[user];
         canClaimAt = lastClaim + MIN_CLAIM_INTERVAL;
+    }
+    
+    /**
+     * Get total claimed amount for a user - matches app's getClaimedAmount pattern
+     * @param user Address of the user
+     * @return claimed Amount already claimed by the user
+     */
+    function getClaimedAmount(address user) external view returns (uint256) {
+        return claimedAmount[user];
     }
     
     /**

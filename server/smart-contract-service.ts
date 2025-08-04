@@ -14,6 +14,9 @@ import { blockchainConfigService } from './blockchain-config-service';
 import { treasuryConfig } from '@shared/schema';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 
+// Use calculator private key instead of owner private key for signing
+const CALCULATOR_PRIVATE_KEY = process.env.CALCULATOR_PRIVATE_KEY || process.env.REWARD_WALLET_PRIVATE_KEY;
+
 // Helper function to get smart contract address from database
 async function getSmartContractAddress(): Promise<string> {
   try {
@@ -154,7 +157,7 @@ export class SmartContractService {
   private async initializeContracts(): Promise<void> {
     try {
       const contractAddress = await getSmartContractAddress();
-      const privateKey = process.env.REWARD_WALLET_PRIVATE_KEY;
+      const privateKey = CALCULATOR_PRIVATE_KEY;
       
       if (contractAddress && privateKey) {
         this.wallet = new ethers.Wallet(privateKey, this.provider);
@@ -193,6 +196,13 @@ export class SmartContractService {
    */
   public isDeployed(): boolean {
     return this.isContractDeployed;
+  }
+
+  /**
+   * Get calculator wallet address for authorization
+   */
+  public getCalculatorAddress(): string | null {
+    return this.wallet?.address || null;
   }
 
   /**

@@ -1127,20 +1127,19 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      // Check if smart contract service is available with admin credentials
+      // Check if smart contract service is available with calculator credentials
       if (!smartContractService.isDeployed()) {
+        const calculatorAddress = smartContractService.getCalculatorAddress();
         res.status(503).json({ 
-          error: "Smart contract admin credentials not configured. To enable automatic reward distribution, the REWARD_WALLET_PRIVATE_KEY environment variable must be set with the contract owner's private key.",
+          error: "Smart contract calculator credentials not configured. To enable automatic reward distribution, the CALCULATOR_PRIVATE_KEY environment variable must be set.",
           calculatedAmount,
           userAddress,
+          calculatorAddress: calculatorAddress || "Not configured",
           instructions: {
-            manualOption: "Alternative: Use MetaMask to manually call distributeReward() function on the smart contract",
-            contractAddress: "0xe5771357399D58aC79A5b1161e8C363bB178B22b",
-            functionName: "distributeReward",
-            parameters: {
-              user: userAddress,
-              amount: `${calculatedAmount * Math.pow(10, 18)}` // Convert to wei
-            }
+            step1: "Generate a calculator private key (already done if you see an address above)",
+            step2: "Add the calculator private key as CALCULATOR_PRIVATE_KEY environment variable",
+            step3: "Use your contract owner wallet to authorize the calculator address",
+            step4: "Once authorized, users can claim rewards with signatures"
           }
         });
         return;
@@ -1164,6 +1163,28 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     } catch (error) {
       console.error('Reward distribution failed:', error);
       res.status(500).json({ error: "Failed to distribute rewards to smart contract" });
+    }
+  });
+
+  // Get calculator address for authorization
+  app.get("/api/calculator/address", async (req, res) => {
+    try {
+      const calculatorAddress = smartContractService.getCalculatorAddress();
+      if (calculatorAddress) {
+        res.json({
+          calculatorAddress,
+          isConfigured: true,
+          message: "Calculator wallet is configured. This address needs to be authorized by the contract owner."
+        });
+      } else {
+        res.json({
+          calculatorAddress: null,
+          isConfigured: false,
+          message: "Calculator private key not configured. Set CALCULATOR_PRIVATE_KEY environment variable."
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get calculator address" });
     }
   });
 

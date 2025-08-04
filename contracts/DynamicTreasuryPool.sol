@@ -21,11 +21,8 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     // User address => total amount already claimed (in wei) - matches app's claimedAmount
     mapping(address => uint256) public claimedAmount;
     
-    // Track last claim timestamp to prevent spam  
+    // Track last claim timestamp for analytics
     mapping(address => uint256) public lastClaimTime;
-    
-    // Minimum time between claims (reduced for high-throughput)
-    uint256 public constant MIN_CLAIM_INTERVAL = 5 minutes;
     
     // Gas optimization: Track total claims for analytics
     uint256 public totalClaimsProcessed;
@@ -71,10 +68,6 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         bytes calldata signature
     ) external nonReentrant whenNotPaused {
         require(amount > 0, "Amount must be greater than 0");
-        require(
-            block.timestamp >= lastClaimTime[msg.sender] + MIN_CLAIM_INTERVAL,
-            "Claim too soon after last claim"
-        );
         
         // Verify signature from authorized calculator (gas optimized)
         bytes32 messageHash = _createMessageHash(msg.sender, amount);
@@ -129,7 +122,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
      * @param user Address of the user
      * @return claimed Total amount claimed by user
      * @return lastClaim Timestamp of last claim
-     * @return canClaimAt Next timestamp when user can claim
+     * @return canClaimAt Always 0 (no restrictions)
      */
     function getUserStats(address user) external view returns (
         uint256 claimed,
@@ -138,7 +131,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     ) {
         claimed = claimedAmount[user];
         lastClaim = lastClaimTime[user];
-        canClaimAt = lastClaim + MIN_CLAIM_INTERVAL;
+        canClaimAt = 0; // No claim restrictions
     }
     
     /**
@@ -153,10 +146,10 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     /**
      * @dev Check if user can claim now
      * @param user Address to check
-     * @return canClaim Whether user can claim now
+     * @return canClaim Always true (no restrictions)
      */
     function canUserClaim(address user) external view returns (bool) {
-        return block.timestamp >= lastClaimTime[user] + MIN_CLAIM_INTERVAL;
+        return true; // No claim restrictions
     }
     
     /**
@@ -232,7 +225,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
             keccak256(abi.encodePacked(
                 user,
                 amount,
-                block.timestamp / MIN_CLAIM_INTERVAL // Time window for replay protection
+                block.timestamp / 3600 // 1-hour time window for replay protection
             ))
         ));
     }

@@ -87,7 +87,7 @@ const BASIC_TREASURY_POOL_ABI = [
   },
   {
     "inputs": [{"internalType": "uint256", "name": "amount", "type": "uint256"}],
-    "name": "depositToTreasury",
+    "name": "depositTreasury",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -295,7 +295,7 @@ export function SmartContractPanel() {
       depositToTreasury({
         address: contractAddress as `0x${string}`,
         abi: BASIC_TREASURY_POOL_ABI,
-        functionName: 'depositToTreasury',
+        functionName: 'depositTreasury',
         args: [amountInWei],
       });
 

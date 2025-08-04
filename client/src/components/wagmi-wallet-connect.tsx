@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Wallet, AlertTriangle, Loader2, ChevronDown, RefreshCw, Monitor } from 'lucide-react';
+import { Wallet, AlertTriangle, Loader2, ChevronDown, RefreshCw, Monitor, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import { base } from 'wagmi/chains';
+import { MobileWalletModal } from './mobile-wallet-modal';
 
 
 
@@ -16,7 +17,11 @@ export function WagmiWalletConnect() {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
+  const [showMobileModal, setShowMobileModal] = useState(false);
   const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
+
+  // Detect if user is on mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -24,6 +29,13 @@ export function WagmiWalletConnect() {
 
   const handleConnect = async (connector: any) => {
     try {
+      // Special handling for WalletConnect on mobile
+      if (connector.id === 'walletConnect' && isMobile) {
+        setShowModal(false);
+        setShowMobileModal(true);
+        return;
+      }
+
       // Clear any previous wallet connections first
       if (isConnected) {
         disconnect();
@@ -232,8 +244,12 @@ export function WagmiWalletConnect() {
                   </>
                 ) : (
                   <>
-                    <Wallet className="mr-4 h-5 w-5" />
-                    {connector.name === 'WalletConnect' ? 'WalletConnect (200+ wallets)' : connector.name}
+                    {connector.name === 'WalletConnect' ? (
+                      <Smartphone className="mr-4 h-5 w-5" />
+                    ) : (
+                      <Wallet className="mr-4 h-5 w-5" />
+                    )}
+                    {connector.name === 'WalletConnect' ? 'WalletConnect (Mobile Wallets)' : connector.name}
                   </>
                 )}
               </Button>
@@ -264,6 +280,11 @@ export function WagmiWalletConnect() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <MobileWalletModal 
+        open={showMobileModal} 
+        onOpenChange={setShowMobileModal} 
+      />
     </>
   );
 }

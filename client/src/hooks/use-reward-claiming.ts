@@ -156,14 +156,17 @@ export function useRewardClaiming() {
         // User can claim (calculated rewards - already claimed)
         console.log(`User has claimed ${formatUnits(claimedAmount, 18)} KILT so far`);
         
-        // Get calculated rewards from backend
-        const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
-        if (rewardStatsResponse.ok) {
-          const rewardStats = await rewardStatsResponse.json();
-          const calculatedAmount = rewardStats.totalClaimable || 0;
+        // Get calculated rewards from backend stats endpoint
+        const statsResponse = await fetch(`/api/rewards/stats`);
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json();
+          const calculatedAmount = stats.totalClaimable || 0;
           const alreadyClaimed = parseFloat(formatUnits(claimedAmount, 18));
           claimableKilt = Math.max(0, calculatedAmount - alreadyClaimed);
           console.log(`Calculated: ${calculatedAmount} KILT, Claimed: ${alreadyClaimed} KILT, Claimable: ${claimableKilt} KILT`);
+        } else {
+          console.error('Failed to get reward stats');
+          claimableKilt = 0;
         }
       } catch (contractError) {
         console.error('Failed to check claimable rewards from smart contract:', contractError);

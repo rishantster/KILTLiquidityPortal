@@ -105,33 +105,70 @@ export function RainbowConnectButton({ className = "" }: RainbowConnectButtonPro
 
                 return (
                   <div className="flex items-center gap-3">
-                    {/* Base Network Badge - Enhanced Styling */}
+                    {/* Base Network Badge - Cyberpunk Glassmorphism */}
                     {chain && !chain.unsupported && (
-                      <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-blue-400/5 border border-blue-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-sm shadow-blue-400/50"></div>
-                        <span className="text-blue-400 text-sm font-medium">Base</span>
+                      <div className="relative group">
+                        {/* Cyberpunk glow layers */}
+                        <div className="absolute inset-0 bg-cyan-400/20 rounded-lg blur-md animate-pulse"></div>
+                        <div className="absolute inset-0 bg-blue-500/10 rounded-lg blur-sm"></div>
+                        
+                        <div className="relative flex items-center gap-2 bg-black/60 backdrop-blur-xl border border-cyan-400/30 rounded-lg px-3 py-1.5 shadow-lg shadow-cyan-400/10">
+                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-400/80"></div>
+                          <span className="text-cyan-400 text-sm font-medium font-mono tracking-wide">Base</span>
+                          
+                          {/* Scanning line effect */}
+                          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent animate-pulse"></div>
+                        </div>
                       </div>
                     )}
                     
-                    {/* Wallet Address Section - Professional Look */}
-                    <div className="flex items-center gap-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-2 shadow-lg">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
-                          <Wallet className="h-4 w-4 text-emerald-400" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-mono text-sm text-white/90">{account.displayName}</span>
-                          <span className="text-xs text-white/50">{account.displayBalance}</span>
-                        </div>
-                      </div>
+                    {/* Wallet Address Section - Cyberpunk Glassmorphism */}
+                    <div className="relative group">
+                      {/* Cyberpunk outer glow */}
+                      <div className="absolute inset-0 bg-matrix-green/20 rounded-xl blur-lg animate-pulse opacity-70"></div>
+                      <div className="absolute inset-0 bg-[#ff0066]/10 rounded-xl blur-md"></div>
                       
-                      {/* Account Button - Modern Design */}
-                      <button
-                        onClick={openAccountModal}
-                        className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 hover:border-white/20 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200"
-                      >
-                        Account
-                      </button>
+                      <div className="relative flex items-center gap-3 bg-black/70 backdrop-blur-xl border border-matrix-green/30 rounded-xl px-4 py-2 shadow-2xl shadow-matrix-green/20 hover:border-matrix-green/50 transition-all duration-300">
+                        <div className="flex items-center gap-2">
+                          {/* Cyberpunk wallet icon container */}
+                          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-matrix-green/30 to-matrix-green/10 border border-matrix-green/40 flex items-center justify-center overflow-hidden">
+                            {/* Inner glow effect */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-matrix-green/20 to-transparent animate-pulse"></div>
+                            <Wallet className="relative h-4 w-4 text-matrix-green drop-shadow-lg" />
+                            
+                            {/* Corner accent lines */}
+                            <div className="absolute top-0 left-0 w-2 h-0.5 bg-matrix-green/80"></div>
+                            <div className="absolute top-0 left-0 w-0.5 h-2 bg-matrix-green/80"></div>
+                            <div className="absolute bottom-0 right-0 w-2 h-0.5 bg-matrix-green/80"></div>
+                            <div className="absolute bottom-0 right-0 w-0.5 h-2 bg-matrix-green/80"></div>
+                          </div>
+                          
+                          <div className="flex flex-col">
+                            <span className="font-mono text-sm text-white/95 tracking-wide drop-shadow-sm">{account.displayName}</span>
+                            <span className="text-xs text-matrix-green/80 font-mono">{account.displayBalance}</span>
+                          </div>
+                        </div>
+                        
+                        {/* Account Button - Cyberpunk Style */}
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-[#ff0066]/20 rounded-lg blur-sm animate-pulse opacity-60"></div>
+                          <button
+                            onClick={openAccountModal}
+                            className="relative bg-black/50 hover:bg-black/70 text-white/90 hover:text-white border border-[#ff0066]/40 hover:border-[#ff0066]/60 rounded-lg px-3 py-1.5 text-sm font-medium font-mono tracking-wide transition-all duration-300 shadow-lg shadow-[#ff0066]/10 hover:shadow-[#ff0066]/20 uppercase"
+                          >
+                            Account
+                            
+                            {/* Button corner accents */}
+                            <div className="absolute top-0 left-0 w-1 h-1 bg-[#ff0066] opacity-80"></div>
+                            <div className="absolute top-0 right-0 w-1 h-1 bg-[#ff0066] opacity-80"></div>
+                            <div className="absolute bottom-0 left-0 w-1 h-1 bg-[#ff0066] opacity-80"></div>
+                            <div className="absolute bottom-0 right-0 w-1 h-1 bg-[#ff0066] opacity-80"></div>
+                          </button>
+                        </div>
+                        
+                        {/* Data flow animation line */}
+                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-matrix-green/40 to-transparent animate-pulse"></div>
+                      </div>
                     </div>
                   </div>
                 );

@@ -1173,6 +1173,48 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Generate claim signature for simplified contract claiming
+  app.post("/api/rewards/generate-claim-signature", async (req, res) => {
+    try {
+      const { userAddress, totalRewardBalance } = req.body;
+      
+      if (!userAddress || totalRewardBalance <= 0) {
+        res.status(400).json({ error: "Valid user address and reward balance required" });
+        return;
+      }
+      
+      // Check if smart contract service is available with admin credentials
+      if (!smartContractService.isDeployed()) {
+        res.status(503).json({ 
+          error: "Smart contract admin credentials not configured. The REWARD_WALLET_PRIVATE_KEY environment variable must be set.",
+          userAddress,
+          totalRewardBalance
+        });
+        return;
+      }
+      
+      // Generate signature for the claim
+      const result = await smartContractService.generateClaimSignature(userAddress, totalRewardBalance);
+      
+      if (!result.success) {
+        res.status(500).json({ error: result.error || "Failed to generate claim signature" });
+        return;
+      }
+      
+      res.json({
+        success: true,
+        signature: result.signature,
+        userAddress,
+        totalRewardBalance,
+        nonce: result.nonce
+      });
+      
+    } catch (error) {
+      console.error('Signature generation failed:', error);
+      res.status(500).json({ error: "Failed to generate claim signature" });
+    }
+  });
+
   // Get user reward statistics with ultra-fast caching
   app.get("/api/rewards/user/:userId/stats", async (req, res) => {
     const timestamp = new Date().toLocaleTimeString();

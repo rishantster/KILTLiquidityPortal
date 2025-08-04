@@ -22,29 +22,34 @@ const BASIC_TREASURY_POOL_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
+
   {
-    inputs: [],
+    inputs: [{ name: 'user', type: 'address' }],
+    name: 'getUserStats',
+    outputs: [
+      { name: 'totalClaimedAmount', type: 'uint256' },
+      { name: 'lastClaimTime', type: 'uint256' },
+      { name: 'canClaimAt', type: 'uint256' },
+      { name: 'currentNonce', type: 'uint256' }
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'user', type: 'address' }],
+    name: 'getClaimedAmount',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'totalRewardBalance', type: 'uint256' },
+      { name: 'signature', type: 'bytes' }
+    ],
     name: 'claimRewards',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [{ name: 'user', type: 'address' }],
-    name: 'getClaimableRewards',
-    outputs: [{ name: 'claimableAmount', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ name: 'user', type: 'address' }],
-    name: 'getUserRewards',
-    outputs: [{ name: 'rewards', type: 'tuple[]', components: [
-      { name: 'amount', type: 'uint256' },
-      { name: 'lockTimestamp', type: 'uint256' },
-      { name: 'claimed', type: 'bool' }
-    ]}],
-    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -140,16 +145,26 @@ export function useRewardClaiming() {
       
       let claimableKilt = 0;
       try {
-        const claimableAmount = await baseClient.readContract({
+        const claimedAmount = await baseClient.readContract({
           address: BASIC_TREASURY_POOL_ADDRESS,
           abi: BASIC_TREASURY_POOL_ABI,
-          functionName: 'getClaimableRewards',
+          functionName: 'getClaimedAmount',
           args: [address as `0x${string}`],
-        });
+        }) as bigint;
 
-        // Convert from wei to KILT tokens (18 decimals)
-        claimableKilt = parseFloat(formatUnits(claimableAmount as bigint, 18));
-        console.log(`User has ${claimableKilt} KILT claimable from smart contract`);
+        // For the new simplified contract, we check claimed amount instead
+        // User can claim (calculated rewards - already claimed)
+        console.log(`User has claimed ${formatUnits(claimedAmount, 18)} KILT so far`);
+        
+        // Get calculated rewards from backend
+        const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
+        if (rewardStatsResponse.ok) {
+          const rewardStats = await rewardStatsResponse.json();
+          const calculatedAmount = rewardStats.totalClaimable || 0;
+          const alreadyClaimed = parseFloat(formatUnits(claimedAmount, 18));
+          claimableKilt = Math.max(0, calculatedAmount - alreadyClaimed);
+          console.log(`Calculated: ${calculatedAmount} KILT, Claimed: ${alreadyClaimed} KILT, Claimable: ${claimableKilt} KILT`);
+        }
       } catch (contractError) {
         console.error('Failed to check claimable rewards from smart contract:', contractError);
         
@@ -196,13 +211,32 @@ export function useRewardClaiming() {
         };
       }
 
-      // Step 2: User claims the available rewards directly from smart contract
-      console.log(`Claiming ${claimableKilt} KILT for ${address}...`);
+      // Step 2: Get signature from backend for the total claimable amount
+      console.log(`Requesting signature for ${claimableKilt} KILT claim...`);
+      const signatureResponse = await fetch('/api/rewards/generate-claim-signature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userAddress: address,
+          totalRewardBalance: claimableKilt
+        })
+      });
+
+      if (!signatureResponse.ok) {
+        throw new Error('Failed to get claim signature from backend');
+      }
+
+      const { signature } = await signatureResponse.json();
+      
+      // Step 3: User claims the rewards with signature
+      console.log(`Claiming ${claimableKilt} KILT for ${address} with signature...`);
+      const totalRewardBalanceWei = parseUnits(claimableKilt.toString(), 18);
+      
       const claimHash = await walletClient.writeContract({
         address: BASIC_TREASURY_POOL_ADDRESS,
         abi: BASIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [],
+        args: [totalRewardBalanceWei, signature],
       });
 
       // Wait for claim transaction to be mined

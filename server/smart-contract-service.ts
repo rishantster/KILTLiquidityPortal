@@ -340,30 +340,31 @@ export class SmartContractService {
   async generateClaimSignature(
     userAddress: string,
     amount: number
-  ): Promise<{ signature: string; nonce: number; maxClaimLimit: number } | { error: string }> {
+  ): Promise<{ success: boolean; signature?: string; nonce?: number; error?: string }> {
     try {
       if (!this.isContractDeployed || !this.rewardPoolContract || !this.wallet) {
-        return { error: 'Smart contracts not deployed or wallet not initialized' };
+        return { success: false, error: 'Smart contracts not deployed or wallet not initialized' };
       }
 
-      // Get user's current nonce from contract
-      const userNonce = await this.rewardPoolContract.nonces(userAddress);
+      // Get user's current nonce from the simplified contract
+      const userNonce = await this.rewardPoolContract.getUserNonce(userAddress);
       
-      // Get maximum claim limit for this user (dynamic security limit)
-      const maxClaimLimit = await this.rewardPoolContract.getMaxClaimLimit(userAddress);
-      const maxClaimLimitFormatted = Number(ethers.formatUnits(maxClaimLimit, 18));
+      // Get absolute maximum claim limit (100,000 KILT for simplified contract)
+      const absoluteMaxClaim = await this.rewardPoolContract.getAbsoluteMaxClaim();
+      const absoluteMaxFormatted = Number(ethers.formatUnits(absoluteMaxClaim, 18));
       
-      // Validate amount against dynamic claim limit
-      if (amount > maxClaimLimitFormatted) {
+      // Validate amount against absolute claim limit
+      if (amount > absoluteMaxFormatted) {
         return { 
-          error: `Amount ${amount} KILT exceeds your current claim limit of ${maxClaimLimitFormatted} KILT. Build more claim history to increase your limit.` 
+          success: false,
+          error: `Amount ${amount} KILT exceeds absolute maximum of ${absoluteMaxFormatted} KILT per transaction.` 
         };
       }
 
       // Convert amount to wei
       const amountWei = ethers.parseUnits(amount.toString(), 18);
       
-      // Create nonce-based message hash (replaces time-based system)
+      // Create message hash matching the simplified contract's _createMessageHash function
       const messageHash = ethers.solidityPackedKeccak256(
         ['address', 'uint256', 'uint256'],
         [userAddress, amountWei, userNonce]
@@ -372,16 +373,17 @@ export class SmartContractService {
       // Sign the message hash
       const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));
       
-      console.log(`🔐 Generated secure signature for ${userAddress}: amount=${amount} KILT, nonce=${userNonce.toString()}, limit=${maxClaimLimitFormatted} KILT`);
+      console.log(`🔐 Generated signature for simplified contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
       
       return {
+        success: true,
         signature,
-        nonce: Number(userNonce),
-        maxClaimLimit: maxClaimLimitFormatted
+        nonce: Number(userNonce)
       };
     } catch (error: unknown) {
       console.error('Signature generation failed:', error);
       return { 
+        success: false,
         error: error instanceof Error ? error.message : 'Failed to generate claim signature' 
       };
     }

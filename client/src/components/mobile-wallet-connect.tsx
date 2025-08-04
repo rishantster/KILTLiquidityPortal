@@ -33,12 +33,8 @@ export function MobileWalletConnect() {
         
         if (provider && typeof provider.on === 'function') {
           provider.on('display_uri', (uri: string) => {
-            console.log('WalletConnect URI:', uri);
+            console.log('WalletConnect URI received:', uri);
             setWcUri(uri);
-            // Force modal to show when URI is ready
-            setTimeout(() => {
-              setShowModal(true);
-            }, 100);
           });
           
           // Also listen for connection events
@@ -71,6 +67,14 @@ export function MobileWalletConnect() {
       setWcUri('');
     }
   }, [isConnected]);
+
+  // Force modal to show when URI is available
+  useEffect(() => {
+    if (wcUri && !showModal) {
+      console.log('Forcing modal to show with URI:', wcUri);
+      setShowModal(true);
+    }
+  }, [wcUri, showModal]);
 
   const openWalletApp = (walletName: string, deepLink: string) => {
     const uri = wcUri;
@@ -126,7 +130,7 @@ export function MobileWalletConnect() {
         )}
       </Button>
 
-      <Dialog open={showModal || (!!wcUri && isPending)} onOpenChange={setShowModal}>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="bg-black border border-gray-800 max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">

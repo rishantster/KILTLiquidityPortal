@@ -630,9 +630,9 @@ export function MainDashboard() {
                   <div className={`text-xs font-medium numeric-mono ${
                     (kiltData?.priceChange4h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
-                    {kiltData?.priceChange4h !== undefined && kiltData?.priceChange4h !== null ? 
+                    {kiltData?.priceChange4h !== undefined && kiltData?.priceChange4h !== null && kiltData.priceChange4h !== 0 ? 
                       `${kiltData.priceChange4h >= 0 ? '+' : ''}${kiltData.priceChange4h.toFixed(2)}% (4h)` : 
-                      <span className="text-white/50">No 4h data</span>
+                      <span className="text-white/50">No price change data</span>
                     }
                   </div>
                 </div>

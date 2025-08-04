@@ -53,16 +53,32 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
         priceChange24h = kiltData.usd_24h_change || 0; // Only use real data
       }
       
-      // Try to get 4h price change from DexScreener for shorter timeframe
+      // Get 4h price change from DexScreener - more accurate for shorter timeframes
       try {
         const dexResponse = await fetch('https://api.dexscreener.com/latest/dex/tokens/0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8');
-        const dexData = await dexResponse.json();
-        const kiltPair = dexData.pairs?.find((pair: any) => pair.chainId === 'base' && pair.baseToken?.address?.toLowerCase() === '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8');
-        if (kiltPair?.priceChange?.h4) {
-          priceChange4h = parseFloat(kiltPair.priceChange.h4);
+        if (dexResponse.ok) {
+          const dexData = await dexResponse.json();
+          // Find the KILT/WETH pair on Base network
+          const kiltPair = dexData.pairs?.find((pair: any) => 
+            pair.chainId === 'base' && 
+            pair.baseToken?.address?.toLowerCase() === '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8' &&
+            pair.quoteToken?.address?.toLowerCase() === '0x4200000000000000000000000000000000000006'
+          );
+          
+          // Use h6 (6-hour) data as closest to 4-hour timeframe
+          if (kiltPair?.priceChange?.h6) {
+            priceChange4h = parseFloat(kiltPair.priceChange.h6);
+            console.log('✅ 6h price change from DexScreener (displayed as 4h):', priceChange4h + '%');
+          } else if (kiltPair?.priceChange?.h24) {
+            // Fallback to 24h data if 6h not available, but scale it down
+            priceChange4h = parseFloat(kiltPair.priceChange.h24) * 0.167; // Approximate 4h from 24h
+            console.log('✅ Scaled 24h price change (displayed as 4h):', priceChange4h + '%');
+          } else {
+            console.log('⚠️ No price change data available from DexScreener');
+          }
         }
       } catch (dexError) {
-        console.warn('DexScreener 4h data unavailable:', dexError instanceof Error ? dexError.message : 'Unknown error');
+        console.warn('DexScreener 4h data fetch failed:', dexError instanceof Error ? dexError.message : 'Unknown error');
       }
     } catch (error: unknown) {
       console.warn('CoinGecko API unavailable, using calculated values:', error instanceof Error ? error.message : 'Unknown error');

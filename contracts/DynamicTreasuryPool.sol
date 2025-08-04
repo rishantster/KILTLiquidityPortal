@@ -24,18 +24,23 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     // Track last claim timestamp to prevent spam  
     mapping(address => uint256) public lastClaimTime;
     
-    // Minimum time between claims (to prevent spam)
-    uint256 public constant MIN_CLAIM_INTERVAL = 1 hours;
+    // Minimum time between claims (reduced for high-throughput)
+    uint256 public constant MIN_CLAIM_INTERVAL = 5 minutes;
     
     // Maximum single claim amount (safety limit)
     uint256 public maxSingleClaim = 10000 * 10**18; // 10,000 KILT
     
-    // Events - matches app terminology
-    event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount);
+    // Gas optimization: Track total claims for analytics
+    uint256 public totalClaimsProcessed;
+    uint256 public totalAmountClaimed;
+    
+    // Events - matches app terminology & optimized for indexing
+    event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 timestamp);
     event CalculatorAuthorized(address indexed calculator, bool authorized);
     event TreasuryDeposit(uint256 amount);
     event TreasuryWithdraw(uint256 amount);
     event MaxClaimUpdated(uint256 newMaxClaim);
+    event BatchClaimProcessed(uint256 claimsProcessed, uint256 totalAmount);
     
     constructor(
         address _kiltToken,
@@ -85,34 +90,27 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
             "Claim too soon after last claim"
         );
         
-        // Verify signature from authorized calculator
-        bytes32 messageHash = keccak256(abi.encodePacked(
-            msg.sender,
-            amount,
-            block.timestamp / MIN_CLAIM_INTERVAL // Use time window for replay protection
-        ));
-        
-        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked(
-            "\x19Ethereum Signed Message:\n32",
-            messageHash
-        ));
-        
-        address signer = recoverSigner(ethSignedMessageHash, signature);
+        // Verify signature from authorized calculator (gas optimized)
+        bytes32 messageHash = _createMessageHash(msg.sender, amount);
+        address signer = _recoverSignerOptimized(messageHash, signature);
         require(authorizedCalculators[signer], "Invalid calculator signature");
         
         // Check contract balance
         uint256 contractBalance = kiltToken.balanceOf(address(this));
         require(contractBalance >= amount, "Insufficient contract balance");
         
-        // Update state before transfer (CEI pattern)
-        claimedAmount[msg.sender] += amount;
+        // Update state before transfer (CEI pattern) - gas optimized
+        unchecked {
+            claimedAmount[msg.sender] += amount;
+            totalClaimsProcessed += 1;
+            totalAmountClaimed += amount;
+        }
         lastClaimTime[msg.sender] = block.timestamp;
         
         // Transfer KILT tokens to user
-        bool success = kiltToken.transfer(msg.sender, amount);
-        require(success, "Token transfer failed");
+        require(kiltToken.transfer(msg.sender, amount), "Token transfer failed");
         
-        emit RewardClaimed(msg.sender, amount, claimedAmount[msg.sender]);
+        emit RewardClaimed(msg.sender, amount, claimedAmount[msg.sender], block.timestamp);
     }
     
     /**
@@ -128,13 +126,16 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         require(contractBalance >= amount, "Insufficient contract balance");
         
         // Update state before transfer
-        claimedAmount[user] += amount;
+        unchecked {
+            claimedAmount[user] += amount;
+            totalClaimsProcessed += 1;
+            totalAmountClaimed += amount;
+        }
         
         // Transfer KILT tokens to user
-        bool success = kiltToken.transfer(user, amount);
-        require(success, "Token transfer failed");
+        require(kiltToken.transfer(user, amount), "Token transfer failed");
         
-        emit RewardClaimed(user, amount, claimedAmount[user]);
+        emit RewardClaimed(user, amount, claimedAmount[user], block.timestamp);
     }
 
     /**
@@ -222,12 +223,99 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Recover signer from signature
-     * @param hash The hash that was signed
-     * @param signature The signature
-     * @return The address that signed the hash
+     * @dev Batch claim processing for high-throughput scenarios
+     * @param users Array of user addresses
+     * @param amounts Array of corresponding amounts
+     * @param signatures Array of corresponding signatures
      */
-    function recoverSigner(bytes32 hash, bytes memory signature) internal pure returns (address) {
+    function batchClaimRewards(
+        address[] calldata users,
+        uint256[] calldata amounts,
+        bytes[] calldata signatures
+    ) external onlyOwner {
+        uint256 length = users.length;
+        require(length == amounts.length && length == signatures.length, "Arrays length mismatch");
+        require(length > 0 && length <= 50, "Invalid batch size"); // Limit to prevent gas issues
+        
+        uint256 totalBatchAmount = 0;
+        uint256 contractBalance = kiltToken.balanceOf(address(this));
+        
+        // Verify total amount first
+        for (uint256 i = 0; i < length;) {
+            totalBatchAmount += amounts[i];
+            unchecked { ++i; }
+        }
+        require(contractBalance >= totalBatchAmount, "Insufficient contract balance");
+        
+        // Process all claims
+        for (uint256 i = 0; i < length;) {
+            address user = users[i];
+            uint256 amount = amounts[i];
+            
+            require(amount > 0 && amount <= maxSingleClaim, "Invalid amount");
+            require(
+                block.timestamp >= lastClaimTime[user] + MIN_CLAIM_INTERVAL,
+                "Claim too soon"
+            );
+            
+            // Verify signature
+            bytes32 messageHash = _createMessageHash(user, amount);
+            address signer = _recoverSignerOptimized(messageHash, signatures[i]);
+            require(authorizedCalculators[signer], "Invalid signature");
+            
+            // Update state
+            unchecked {
+                claimedAmount[user] += amount;
+                totalClaimsProcessed += 1;
+                totalAmountClaimed += amount;
+            }
+            lastClaimTime[user] = block.timestamp;
+            
+            // Transfer tokens
+            require(kiltToken.transfer(user, amount), "Transfer failed");
+            
+            emit RewardClaimed(user, amount, claimedAmount[user], block.timestamp);
+            
+            unchecked { ++i; }
+        }
+        
+        emit BatchClaimProcessed(length, totalBatchAmount);
+    }
+    
+    /**
+     * @dev Get contract statistics for monitoring
+     */
+    function getContractStats() external view returns (
+        uint256 balance,
+        uint256 totalClaims,
+        uint256 totalAmount,
+        uint256 authorizedCalculatorsCount
+    ) {
+        balance = kiltToken.balanceOf(address(this));
+        totalClaims = totalClaimsProcessed;
+        totalAmount = totalAmountClaimed;
+        // Note: authorizedCalculatorsCount would require additional tracking
+        authorizedCalculatorsCount = 0; // Placeholder
+    }
+    
+    /**
+     * @dev Create message hash for signature verification (gas optimized)
+     */
+    function _createMessageHash(address user, uint256 amount) internal view returns (bytes32) {
+        return keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encodePacked(
+                user,
+                amount,
+                block.timestamp / MIN_CLAIM_INTERVAL // Time window for replay protection
+            ))
+        ));
+    }
+    
+    /**
+     * @dev Optimized signature recovery
+     */
+    function _recoverSignerOptimized(bytes32 hash, bytes calldata signature) internal pure returns (address) {
         require(signature.length == 65, "Invalid signature length");
         
         bytes32 r;
@@ -235,9 +323,9 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         uint8 v;
         
         assembly {
-            r := mload(add(signature, 32))
-            s := mload(add(signature, 64))
-            v := byte(0, mload(add(signature, 96)))
+            r := calldataload(signature.offset)
+            s := calldataload(add(signature.offset, 0x20))
+            v := byte(0, calldataload(add(signature.offset, 0x40)))
         }
         
         return ecrecover(hash, v, r, s);

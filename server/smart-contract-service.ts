@@ -31,28 +31,49 @@ async function getSmartContractAddress(): Promise<string> {
   }
 }
 
-// SimpleTreasuryPool contract ABI - matches new contract
+// DynamicTreasuryPool contract ABI - matches new high-throughput contract
 const REWARD_POOL_ABI = [
-  'function setRewardAllowance(address user, uint256 amount) external',
-  'function updateRewardAllowance(address user, uint256 newAmount) external',
-  'function setRewardAllowancesBatch(address[] users, uint256[] amounts) external',
-  'function claimRewards(uint256 amount) external',
-  'function claimAllRewards() external',
-  'function getClaimableAmount(address user) external view returns (uint256)',
-  'function getTotalRewards(address user) external view returns (uint256)',
+  // Authorization management
+  'function setCalculatorAuthorization(address calculator, bool authorized) external',
+  'function setMaxSingleClaim(uint256 newMaxClaim) external',
+  
+  // Dynamic claiming with signatures
+  'function claimRewards(uint256 amount, bytes signature) external',
+  'function batchClaimRewards(address[] users, uint256[] amounts, bytes[] signatures) external',
+  'function emergencyClaim(address user, uint256 amount) external',
+  
+  // View functions - matches app terminology
+  'function getUserStats(address user) external view returns (uint256 claimed, uint256 lastClaim, uint256 canClaimAt)',
   'function getClaimedAmount(address user) external view returns (uint256)',
-  'function getUserStats(address user) external view returns (uint256 total, uint256 claimed, uint256 claimable)',
+  'function canUserClaim(address user) external view returns (bool)',
+  'function getContractStats() external view returns (uint256 balance, uint256 totalClaims, uint256 totalAmount, uint256 authorizedCalculatorsCount)',
+  
+  // Treasury management
   'function depositTreasury(uint256 amount) external',
   'function emergencyWithdraw(uint256 amount) external',
   'function getContractBalance() external view returns (uint256)',
+  
+  // Contract controls
   'function pause() external',
   'function unpause() external',
   'function owner() external view returns (address)',
   'function kiltToken() external view returns (address)',
-  'event RewardAllowanceSet(address indexed user, uint256 amount)',
-  'event RewardClaimed(address indexed user, uint256 amount)',
+  
+  // Public variables
+  'function claimedAmount(address) external view returns (uint256)',
+  'function lastClaimTime(address) external view returns (uint256)',
+  'function authorizedCalculators(address) external view returns (bool)',
+  'function maxSingleClaim() external view returns (uint256)',
+  'function totalClaimsProcessed() external view returns (uint256)',
+  'function totalAmountClaimed() external view returns (uint256)',
+  
+  // Events - matches optimized contract
+  'event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 timestamp)',
+  'event CalculatorAuthorized(address indexed calculator, bool authorized)',
+  'event BatchClaimProcessed(uint256 claimsProcessed, uint256 totalAmount)',
   'event TreasuryDeposit(uint256 amount)',
-  'event TreasuryWithdraw(uint256 amount)'
+  'event TreasuryWithdraw(uint256 amount)',
+  'event MaxClaimUpdated(uint256 newMaxClaim)'
 ];
 
 const KILT_TOKEN_ABI = [

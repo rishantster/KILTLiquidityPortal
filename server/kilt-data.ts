@@ -5,10 +5,10 @@ const KILT_CIRCULATING_SUPPLY = 276970000; // From CoinMarketCap: 276.97M KILT
 const TREASURY_TOTAL = KILT_TOTAL_SUPPLY * 0.01;
 
 export interface KiltTokenData {
-  price: number;
-  marketCap: number;
-  volume24h: number;
-  priceChange24h: number;
+  price: number | null;
+  marketCap: number | null;
+  volume24h: number | null;
+  priceChange24h: number | null;
   totalSupply: number;
   treasuryAllocation: number;
   treasuryRemaining: number;
@@ -37,8 +37,8 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     
     // Get additional market data from CoinGecko for volume and market cap
     let marketCap = currentPrice * KILT_CIRCULATING_SUPPLY;
-    let volume24h = 4515; // Fallback volume
-    let priceChange24h = 8.4; // Fallback change
+    let volume24h = 0; // Only use real data, no fallbacks
+    let priceChange24h = 0; // Only use real data, no fallbacks
     
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=kilt-protocol&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true');
@@ -47,8 +47,8 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       
       if (kiltData) {
         marketCap = kiltData.usd_market_cap || marketCap;
-        volume24h = kiltData.usd_24h_vol || volume24h;
-        priceChange24h = kiltData.usd_24h_change || priceChange24h;
+        volume24h = kiltData.usd_24h_vol || 0; // Only use real data
+        priceChange24h = kiltData.usd_24h_change || 0; // Only use real data
       }
     } catch (error: unknown) {
       console.warn('CoinGecko API unavailable, using calculated values:', error instanceof Error ? error.message : 'Unknown error');
@@ -67,10 +67,10 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     const progress = (distributed / TREASURY_TOTAL);
     
     const result = {
-      price: Math.round(currentPrice * 100000) / 100000, // 5 decimal places for price
-      marketCap: Math.round(marketCap * 100) / 100, // 2 decimal places
-      volume24h: Math.round(volume24h * 100) / 100, // 2 decimal places
-      priceChange24h: Math.round(priceChange24h * 100) / 100, // 2 decimal places
+      price: currentPrice ? Math.round(currentPrice * 100000) / 100000 : null, // Only real price data
+      marketCap: marketCap ? Math.round(marketCap * 100) / 100 : null, // Only real market cap
+      volume24h: volume24h > 0 ? Math.round(volume24h * 100) / 100 : null, // Only real volume
+      priceChange24h: priceChange24h !== 0 ? Math.round(priceChange24h * 100) / 100 : null, // Only real change
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
       treasuryRemaining,
@@ -81,13 +81,13 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     
     return result;
   } catch (error) {
-    // Error fetching KILT token data
-    // Return authentic fallback data based on latest CoinGecko values for migrated KILT token
+    // Return null values when real data isn't available - no fallbacks
+    console.error('Failed to fetch KILT token data:', error);
     return {
-      price: Math.round(0.01757 * 100000) / 100000, // Current CoinGecko price
-      marketCap: Math.round(5106403 * 100) / 100, // Current FDV from CoinGecko
-      volume24h: Math.round(4515 * 100) / 100, // Current 24h volume
-      priceChange24h: Math.round(8.4 * 100) / 100, // Current 24h change
+      price: null, // No fallback price
+      marketCap: null, // No fallback market cap
+      volume24h: null, // No fallback volume
+      priceChange24h: null, // No fallback price change
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
       treasuryRemaining: TREASURY_TOTAL, 

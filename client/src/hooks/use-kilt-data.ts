@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export interface KiltTokenData {
-  price: number;
-  marketCap: number;
-  volume24h: number;
-  priceChange24h: number;
+  price: number | null;
+  marketCap: number | null;
+  volume24h: number | null;
+  priceChange24h: number | null;
   totalSupply: number;
   treasuryAllocation: number;
   treasuryRemaining: number;

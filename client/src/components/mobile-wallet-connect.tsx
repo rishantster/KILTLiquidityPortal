@@ -274,15 +274,8 @@ export function MobileWalletConnect() {
               </div>
               
               {/* RainbowKit - Enhanced Wallet Experience */}
-              <div className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200">
-                <div className="flex items-center gap-4 w-full">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 flex items-center justify-center">
-                    🌈
-                  </div>
-                  <div className="flex-1">
-                    <RainbowConnectButton />
-                  </div>
-                </div>
+              <div className="w-full">
+                <RainbowConnectButton />
               </div>
 
               {/* WalletConnect - Traditional Option */}
@@ -325,15 +318,8 @@ export function MobileWalletConnect() {
               </div>
               
               {/* RainbowKit - Enhanced Desktop Experience */}
-              <div className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200">
-                <div className="flex items-center gap-4 w-full">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 flex items-center justify-center">
-                    🌈
-                  </div>
-                  <div className="flex-1">
-                    <RainbowConnectButton />
-                  </div>
-                </div>
+              <div className="w-full">
+                <RainbowConnectButton />
               </div>
               
               {/* Filter out unwanted wallets and remove duplicates */}

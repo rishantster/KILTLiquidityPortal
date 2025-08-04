@@ -39,10 +39,14 @@ export function RainbowConnectButton() {
                 return (
                   <Button
                     onClick={openConnectModal}
-                    className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
                   >
-                    <Wallet className="mr-2 h-4 w-4" />
-                    Connect Wallet
+                    <div className="flex items-center gap-4 w-full">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 flex items-center justify-center text-xs">
+                        🌈
+                      </div>
+                      <span className="font-medium">RainbowKit (Enhanced)</span>
+                    </div>
                   </Button>
                 );
               }
@@ -52,7 +56,7 @@ export function RainbowConnectButton() {
                   <Button
                     onClick={openChainModal}
                     variant="destructive"
-                    className="px-6"
+                    className="w-full px-6"
                   >
                     Wrong network
                   </Button>

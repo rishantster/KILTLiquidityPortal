@@ -35,8 +35,10 @@ export function MobileWalletConnect() {
           provider.on('display_uri', (uri: string) => {
             console.log('WalletConnect URI:', uri);
             setWcUri(uri);
-            // Ensure modal is showing when URI is received
-            setShowModal(true);
+            // Force modal to show when URI is ready
+            setTimeout(() => {
+              setShowModal(true);
+            }, 100);
           });
           
           // Also listen for connection events
@@ -124,7 +126,7 @@ export function MobileWalletConnect() {
         )}
       </Button>
 
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      <Dialog open={showModal || (!!wcUri && isPending)} onOpenChange={setShowModal}>
         <DialogContent className="bg-black border border-gray-800 max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3 mb-6">

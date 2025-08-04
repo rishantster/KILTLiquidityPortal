@@ -2432,3 +2432,69 @@ div[data-rk] div[data-overlay] {
   background: rgba(0, 0, 0, 0.9) !important;
   backdrop-filter: blur(20px) !important;
 }
+
+/* ===== ULTRA AGGRESSIVE MODAL OVERRIDES ===== */
+/* Target all possible modal container variations */
+[data-rk] > div,
+[data-rk] div[role="dialog"],
+[data-rk] div[data-testid*="rk"],
+[data-rk] div[style*="background"],
+div[data-rk],
+div[data-rk] > *,
+div[data-rk] div {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 0, 102, 0.4) !important;
+  border-radius: 20px !important;
+  backdrop-filter: blur(24px) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 0, 102, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Override any container backgrounds */
+[data-rk] * {
+  border-color: rgba(255, 0, 102, 0.4) !important;
+}
+
+/* Specific modal dialog targeting */
+div[role="dialog"][data-rk],
+div[role="dialog"] div[data-rk],
+[data-rk] div[role="dialog"] {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 0, 102, 0.4) !important;
+  border-radius: 20px !important;
+  backdrop-filter: blur(24px) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 0, 102, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Force override any inline styles */
+[data-rk] *[style] {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 0, 102, 0.4) !important;
+  border-radius: 20px !important;
+}
+
+/* Avatar container - remove green and add pink */
+[data-rk] div[style*="background-color"],
+[data-rk] div[style*="background"] {
+  background: linear-gradient(135deg, #ff0066, #cc0052) !important;
+  border: 2px solid rgba(255, 0, 102, 0.6) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 102, 0.4) !important;
+}
+
+/* Ensure modal container has proper styling */
+div[data-rk][role="dialog"],
+div[data-rk] > div:first-child {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 0, 102, 0.4) !important;
+  border-radius: 20px !important;
+  backdrop-filter: blur(24px) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 0, 102, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}

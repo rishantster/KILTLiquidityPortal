@@ -12,7 +12,7 @@ const createWalletConnectConnector = () => walletConnect({
     url: typeof window !== 'undefined' ? window.location.origin : 'https://kilt-portal.replit.app',
     icons: ['https://avatars.githubusercontent.com/u/37784886']
   },
-  showQrModal: false // Disable the default modal to prevent issues
+  showQrModal: true // Enable QR modal for proper mobile functionality
 });
 
 // Enhanced Wagmi configuration optimized for Base chain with mobile deep linking support

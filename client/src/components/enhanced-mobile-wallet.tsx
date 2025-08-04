@@ -27,17 +27,25 @@ export function EnhancedMobileWallet() {
     setSelectedConnector(connector.id);
     
     try {
-      // Special handling for WalletConnect on mobile
-      if ((connector.name === 'WalletConnect' || connector.id?.includes('walletConnect'))) {
+      // Special handling for WalletConnect - always show our custom modal
+      const isWalletConnect = connector.name === 'WalletConnect' || 
+                             connector.id?.includes('walletConnect') || 
+                             connector.name?.includes('WalletConnect');
+      
+      if (isWalletConnect) {
+        console.log('🚀 Opening custom WalletConnect modal');
         setShowMobileModal(true);
         return;
       }
       
+      // For other connectors, connect directly
       await connect({ connector });
     } catch (err) {
       console.error('Connection failed:', err);
     } finally {
-      setSelectedConnector(null);
+      if (!isWalletConnect) {
+        setSelectedConnector(null);
+      }
     }
   };
 
@@ -87,7 +95,7 @@ export function EnhancedMobileWallet() {
         <div className="grid gap-3">
           {connectors.map((connector) => {
             const isLoading = isPending && selectedConnector === connector.id;
-            const isWalletConnect = connector.name === 'WalletConnect' || connector.id?.includes('walletConnect');
+            const isWalletConnect = connector.name === 'WalletConnect' || connector.id?.includes('walletConnect') || connector.name?.includes('WalletConnect');
             
             return (
               <Button

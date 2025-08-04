@@ -17,7 +17,7 @@ export function MobileWalletModal({ isOpen, onClose }: MobileWalletModalProps) {
 
   // Get WalletConnect connector
   const walletConnectConnector = connectors.find(c => 
-    c.name === 'WalletConnect' || c.id?.includes('walletConnect')
+    c.name === 'WalletConnect' || c.id?.includes('walletConnect') || c.name?.includes('WalletConnect')
   );
 
   // Initialize WalletConnect connection
@@ -111,50 +111,54 @@ export function MobileWalletModal({ isOpen, onClose }: MobileWalletModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Overlay */}
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
         onClick={handleClose}
       />
       
-      {/* Modal */}
-      <div className="relative bg-gradient-to-br from-black via-gray-900 to-black border border-gray-700 max-w-md mx-4 rounded-2xl shadow-2xl">
+      {/* Modal with KILT styling */}
+      <div className="relative bg-gradient-to-br from-black via-gray-900 to-black border-2 border-[#ff0066]/30 max-w-md w-full rounded-2xl shadow-2xl shadow-[#ff0066]/10 animate-in fade-in-0 zoom-in-95 duration-300">
         <div className="relative p-6">
           <Button
             onClick={handleClose}
-            className="absolute -top-2 -right-2 h-8 w-8 p-0 bg-gray-800 hover:bg-gray-700 border-gray-600 rounded-full"
-            variant="outline"
+            className="absolute -top-3 -right-3 h-10 w-10 p-0 bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] border-0 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5 text-white" />
           </Button>
-          <div className="text-white text-2xl font-bold flex items-center gap-3 mb-6">
-            <Smartphone className="h-6 w-6 text-[#ff0066]" />
+          <div className="text-white text-2xl font-bold flex items-center gap-3 mb-6 pr-8">
+            <Smartphone className="h-7 w-7 text-[#ff0066]" />
             Connect Mobile Wallet
           </div>
         
           <div className="space-y-6">
-          {/* QR Code Section */}
+          {/* QR Code Section with KILT branding */}
           {wcUri ? (
-            <div className="bg-white p-6 rounded-xl flex justify-center shadow-2xl border-2 border-[#ff0066]/20">
+            <div className="bg-white p-6 rounded-xl flex justify-center shadow-2xl border-2 border-[#ff0066]/30 relative overflow-hidden">
+              {/* Subtle KILT glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#ff0066]/5 via-transparent to-[#ff0066]/5 animate-pulse"></div>
               <QRCodeSVG 
                 value={wcUri} 
-                size={220} 
+                size={200} 
                 bgColor="white"
                 fgColor="#000000"
                 level="M"
                 includeMargin={true}
+                className="relative z-10"
               />
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 rounded-xl flex justify-center items-center h-[268px] border border-gray-600">
-              <div className="text-center">
+            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 rounded-xl flex justify-center items-center h-[248px] border-2 border-gray-600/50 relative overflow-hidden">
+              {/* Animated KILT background pattern */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#ff0066]/10 via-transparent to-[#ff0066]/10 animate-pulse"></div>
+              <div className="text-center relative z-10">
                 <QrCode className="h-12 w-12 text-[#ff0066] animate-pulse mx-auto mb-4" />
                 <div className="text-white text-lg font-medium mb-2">
                   {isConnecting ? 'Generating QR Code...' : 'Initializing Connection...'}
                 </div>
-                <div className="text-gray-400 text-sm mb-4">Setting up secure connection</div>
-                <div className="text-xs text-gray-500 px-4 py-2 bg-black/30 rounded-lg border border-gray-700">
+                <div className="text-gray-400 text-sm mb-4">Setting up secure WalletConnect session</div>
+                <div className="text-xs text-gray-400 px-4 py-2 bg-black/30 rounded-lg border border-[#ff0066]/20">
                   Status: {wcUri ? '✅ Ready to scan' : '⏳ Connecting...'}
                 </div>
               </div>

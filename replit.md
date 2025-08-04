@@ -1,7 +1,14 @@
 # KILT Liquidity Incentive Portal
 
 ## Overview
-The KILT Liquidity Incentive Portal is a DeFi application for managing concentrated liquidity positions in the KILT/ETH Uniswap V3 pool on the Base network. It enables users to earn rewards from the KILT treasury. The project aims to provide a production-ready, full-stack TypeScript application with a React frontend and Express.js backend, focusing on real-time, authentic blockchain data, advanced analytics, and a mobile-first design for a blazing fast user experience.
+The KILT Liquidity Incentive Portal is a production-ready DeFi application for managing concentrated liquidity positions in the KILT/ETH Uniswap V3 pool on the Base network. It enables users to earn dynamic rewards from the KILT treasury through a zero-restriction claiming system. The project provides a full-stack TypeScript application with React frontend and Express.js backend, focusing on real-time blockchain data, signature-based security, and mobile-optimized user experience.
+
+## Recent Changes (January 2025)
+- **Smart Contract**: DynamicTreasuryPool deployed with zero claiming restrictions and signature-based security
+- **Architecture**: Eliminated batch processing, rate limiting, and claim caps for unlimited individual claiming
+- **Security**: Implemented cryptographic signature validation with 1-hour replay protection windows
+- **Documentation**: Organized project structure with comprehensive docs in `/docs/` folder
+- **File Structure**: Cleaned and organized development artifacts into proper folders
 
 ## User Preferences
 **Communication Style**: Simple, everyday language without technical jargon

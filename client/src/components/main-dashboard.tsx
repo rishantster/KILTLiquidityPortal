@@ -618,7 +618,7 @@ export function MainDashboard() {
                     </button>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.price ? `$${kiltData.price.toFixed(5)}` : (
+                    {kiltData?.price && kiltData.price > 0 ? `$${kiltData.price.toFixed(5)}` : (
                       <div className="h-6 w-20 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>
@@ -644,7 +644,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Market Cap</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.marketCap ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
+                    {kiltData?.marketCap && kiltData.marketCap > 0 ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
                       <div className="h-6 w-16 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>

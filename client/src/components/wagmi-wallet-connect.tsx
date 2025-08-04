@@ -34,6 +34,9 @@ export function WagmiWalletConnect() {
       console.log('Connector clicked:', connector.id, connector.name, connector);
       setDebugInfo(debugMsg);
       
+      // Add a delay to show the debug message before proceeding
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Special handling for WalletConnect - always use custom modal
       if (connector.id === 'walletConnect' || connector.name === 'WalletConnect' || connector.name?.includes('WalletConnect')) {
         console.log('Opening mobile wallet modal for WalletConnect');
@@ -295,11 +298,21 @@ export function WagmiWalletConnect() {
       
       {/* Debug info display */}
       {debugInfo && (
-        <div className="fixed top-4 left-4 bg-red-600 text-white p-2 rounded text-xs z-50 max-w-xs">
-          <button onClick={() => setDebugInfo('')} className="float-right ml-2">×</button>
-          {debugInfo}
+        <div className="fixed top-4 left-4 bg-red-600 text-white p-4 rounded text-sm z-[9999] max-w-sm border-2 border-white">
+          <button onClick={() => setDebugInfo('')} className="float-right ml-2 text-lg font-bold">×</button>
+          <div className="pr-8">{debugInfo}</div>
         </div>
       )}
+      
+      {/* Always show debug button for testing */}
+      <div className="fixed bottom-4 left-4 z-[9999]">
+        <button 
+          onClick={() => setDebugInfo('Debug: Test message - handler is working!')} 
+          className="bg-blue-600 text-white p-2 rounded text-xs"
+        >
+          Test Debug
+        </button>
+      </div>
     </>
   );
 }

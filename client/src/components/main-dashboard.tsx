@@ -616,14 +616,14 @@ export function MainDashboard() {
                     </button>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    ${kiltData?.price?.toFixed(4) || '0.0186'}
+                    ${kiltData?.price?.toFixed(4) || '0.0000'}
                   </div>
                   <div className={`text-xs font-medium numeric-mono ${
                     (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {kiltData?.priceChange24h ? 
                       `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
-                      '+8.40% (24h)'
+                      '0.00% (24h)'
                     }
                   </div>
                 </div>
@@ -640,7 +640,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-sm font-medium">Market Cap</span>
                   </div>
                   <div className="text-white text-xl mb-1 numeric-large">
-                    ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '5.1'}M
+                    ${kiltData?.marketCap ? (kiltData.marketCap / 1000000).toFixed(1) : '0.0'}M
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     277.0M circulating

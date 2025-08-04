@@ -16,6 +16,11 @@ npm run dev
 - **Network**: Base (Chain ID: 8453)
 
 ## Documentation Files
+
+### User Documentation
+- **[How It Works](./how-it-works.md)** - Complete explanation of app functionality and smart contract role
+
+### Technical Documentation
 - [Smart Contract Deployment](./smart-contract-deployment.md)
 - [Contract Funding Guide](./contract-funding.md)
 - [Admin Operations](./admin-guide.md)

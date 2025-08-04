@@ -143,8 +143,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
     
     /**
-     * @dev Check if user can claim now
-     * @param user Address to check
+     * @dev Check if user can claim now - Always returns true (no restrictions)
      * @return canClaim Always true (no restrictions)
      */
     function canUserClaim(address /* user */) external pure returns (bool) {

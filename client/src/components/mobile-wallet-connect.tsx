@@ -8,7 +8,6 @@ import { Wallet, Smartphone, Monitor, ExternalLink, Loader2, CheckCircle, Chevro
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { MOBILE_WALLET_LINKS, isMobileDevice, openMobileWallet, getRecommendedWallets } from '@/utils/mobile-wallet-links';
-import { RainbowConnectButton } from '@/components/rainbow-connect-button';
 
 
 
@@ -273,12 +272,7 @@ export function MobileWalletConnect() {
                 <span className="text-sm">Mobile Wallets</span>
               </div>
               
-              {/* RainbowKit - Enhanced Wallet Experience */}
-              <div className="w-full">
-                <RainbowConnectButton />
-              </div>
-
-              {/* WalletConnect - Traditional Option */}
+              {/* WalletConnect First - Works with 200+ wallets */}
               <Button
                 onClick={() => handleMobileWalletConnect({ id: 'walletConnect', name: 'WalletConnect (200+ wallets)' })}
                 disabled={isPending}
@@ -288,7 +282,7 @@ export function MobileWalletConnect() {
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
                   </svg>
-                  <span className="font-medium">WalletConnect (Legacy)</span>
+                  <span className="font-medium">WalletConnect (Recommended)</span>
                 </div>
               </Button>
               
@@ -315,11 +309,6 @@ export function MobileWalletConnect() {
               <div className="flex items-center gap-3 text-gray-400 mb-4">
                 <Monitor className="h-4 w-4" />
                 <span className="text-sm">Available Wallets</span>
-              </div>
-              
-              {/* RainbowKit - Enhanced Desktop Experience */}
-              <div className="w-full">
-                <RainbowConnectButton />
               </div>
               
               {/* Filter out unwanted wallets and remove duplicates */}

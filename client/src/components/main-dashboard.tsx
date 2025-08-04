@@ -623,7 +623,7 @@ export function MainDashboard() {
                   <div className={`text-xs font-medium numeric-mono ${
                     (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
-                    {kiltData?.priceChange24h !== null && kiltData?.priceChange24h !== undefined ? 
+                    {kiltData?.priceChange24h !== undefined && kiltData?.priceChange24h !== 0 ? 
                       `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
                       <div className="h-4 w-16 bg-slate-700 animate-pulse rounded"></div>
                     }

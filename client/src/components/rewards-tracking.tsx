@@ -16,7 +16,8 @@ import {
   Coins,
   BarChart3,
   Gift,
-  Plus
+  Plus,
+  RefreshCw
 } from 'lucide-react';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
@@ -204,8 +205,40 @@ export function RewardsTracking() {
     );
   }
 
+  // Refresh function to reload all data
+  const handleRefresh = () => {
+    console.log('🚀 Admin change detected - triggering blazing fast cache refresh');
+    
+    // Invalidate all relevant queries to force fresh data
+    queryClient.invalidateQueries({ queryKey: ['reward-stats'] });
+    queryClient.invalidateQueries({ queryKey: ['user-average-apr'] });
+    queryClient.invalidateQueries({ queryKey: ['program-analytics'] });
+    queryClient.invalidateQueries({ queryKey: ['claimability'] });
+    queryClient.invalidateQueries({ queryKey: ['reward-history'] });
+    queryClient.invalidateQueries({ queryKey: ['kilt-data'] });
+    queryClient.invalidateQueries({ queryKey: ['expected-returns'] });
+    queryClient.invalidateQueries({ queryKey: ['maximum-apr'] });
+    
+    // Trigger a complete page reload for the rewards tab
+    window.location.reload();
+  };
+
   return (
     <div className="space-y-4">
+      {/* Stats Header with Refresh Button */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-white text-lg font-heading">Reward Statistics</h2>
+        <Button
+          onClick={handleRefresh}
+          variant="outline"
+          size="sm"
+          className="bg-black/40 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50 text-white/80 hover:text-white transition-all duration-200"
+        >
+          <RefreshCw className="h-3 w-3 mr-1" />
+          Refresh
+        </Button>
+      </div>
+      
       {/* Detailed Reward Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {/* User Average APR Card */}

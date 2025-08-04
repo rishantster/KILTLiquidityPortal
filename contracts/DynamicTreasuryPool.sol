@@ -8,42 +8,43 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title DynamicTreasuryPool
- * @dev Smart contract for dynamic KILT reward distribution where rewards are calculated
- * in real-time based on liquidity positions and can be claimed instantly without
- * requiring backend private keys.
+ * @dev Smart contract for dynamic KILT reward distribution with enhanced security:
+ * - Nonce-based replay protection
+ * - Dynamic claim limits based on user history
+ * - Time-delayed calculator authorization
+ * Rewards are calculated in real-time based on liquidity positions and can be claimed instantly.
  */
 contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     IERC20 public immutable kiltToken;
     
-    // Enhanced Security: Nonce-based signature system
+    // Calculator authorization with time delays
+    mapping(address => bool) public authorizedCalculators;
+    mapping(address => uint256) public pendingCalculatorActivation;
+    uint256 public constant CALCULATOR_ACTIVATION_DELAY = 24 hours;
+    
+    // Nonce-based replay protection
     mapping(address => uint256) public nonces;
     
-    // Authorized calculators (your backend services)
-    mapping(address => bool) public authorizedCalculators;
-    
-    // Enhanced Security: Pending calculator authorization with 24-hour delay
-    mapping(address => uint256) public pendingCalculators;
-    uint256 public constant CALCULATOR_AUTHORIZATION_DELAY = 24 hours;
-    
-    // Dynamic claim limits that scale with user history
-    mapping(address => uint256) public userClaimHistory;
-    
-    // User address => total amount already claimed (in wei) - matches app's claimedAmount
+    // User tracking - matches app's claimedAmount
     mapping(address => uint256) public claimedAmount;
-    
-    // Track last claim timestamp for analytics
     mapping(address => uint256) public lastClaimTime;
     
-    // Gas optimization: Track total claims for analytics
+    // Dynamic claim limits
+    uint256 public baseMaxClaimLimit = 1000 * 10**18; // 1,000 KILT base limit
+    uint256 public claimLimitMultiplier = 20; // 20% of historical claims as additional limit
+    uint256 public absoluteMaxClaim = 100000 * 10**18; // 100,000 KILT absolute maximum
+    
+    // Analytics tracking
     uint256 public totalClaimsProcessed;
     uint256 public totalAmountClaimed;
     
-    // Events - matches app terminology & optimized for indexing
+    // Events
     event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 nonce, uint256 timestamp);
     event CalculatorAuthorized(address indexed calculator, bool authorized);
-    event CalculatorPendingAuthorization(address indexed calculator, uint256 activationTime);
+    event CalculatorPending(address indexed calculator, uint256 activationTime);
     event TreasuryDeposit(uint256 amount);
     event TreasuryWithdraw(uint256 amount);
+    event ClaimLimitsUpdated(uint256 baseLimit, uint256 multiplier, uint256 absoluteMax);
     
     constructor(
         address _kiltToken,
@@ -56,47 +57,67 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Set pending calculator authorization (immediate, but requires 24h delay to activate)
-     * @param calculator Address of the calculator service to authorize
+     * @dev Set pending calculator authorization with time delay
      */
     function setPendingCalculatorAuthorization(address calculator) external onlyOwner {
         require(calculator != address(0), "Invalid calculator address");
-        pendingCalculators[calculator] = block.timestamp + CALCULATOR_AUTHORIZATION_DELAY;
-        emit CalculatorPendingAuthorization(calculator, pendingCalculators[calculator]);
+        require(!authorizedCalculators[calculator], "Calculator already authorized");
+        
+        uint256 activationTime = block.timestamp + CALCULATOR_ACTIVATION_DELAY;
+        pendingCalculatorActivation[calculator] = activationTime;
+        
+        emit CalculatorPending(calculator, activationTime);
     }
     
     /**
-     * @dev Activate pending calculator authorization (after 24-hour delay)
-     * @param calculator Address of the calculator service to activate
+     * @dev Activate pending calculator after delay period
      */
     function activatePendingCalculator(address calculator) external onlyOwner {
         require(calculator != address(0), "Invalid calculator address");
-        require(pendingCalculators[calculator] != 0, "No pending authorization");
-        require(block.timestamp >= pendingCalculators[calculator], "Authorization delay not met");
+        require(pendingCalculatorActivation[calculator] != 0, "No pending authorization");
+        require(block.timestamp >= pendingCalculatorActivation[calculator], "Activation delay not met");
         
         authorizedCalculators[calculator] = true;
-        delete pendingCalculators[calculator];
+        delete pendingCalculatorActivation[calculator];
+        
         emit CalculatorAuthorized(calculator, true);
     }
     
     /**
-     * @dev Emergency revoke calculator authorization (immediate)
-     * @param calculator Address of the calculator service to revoke
+     * @dev Immediately revoke calculator authorization (security measure)
      */
     function revokeCalculatorAuthorization(address calculator) external onlyOwner {
         require(calculator != address(0), "Invalid calculator address");
+        
         authorizedCalculators[calculator] = false;
-        delete pendingCalculators[calculator]; // Also clear any pending authorization
+        delete pendingCalculatorActivation[calculator];
+        
         emit CalculatorAuthorized(calculator, false);
+    }
+
+    /**
+     * @dev Update dynamic claim limits (owner only)
+     */
+    function updateClaimLimits(
+        uint256 _baseMaxClaimLimit,
+        uint256 _claimLimitMultiplier,
+        uint256 _absoluteMaxClaim
+    ) external onlyOwner {
+        require(_baseMaxClaimLimit > 0, "Base limit must be greater than 0");
+        require(_claimLimitMultiplier <= 100, "Multiplier cannot exceed 100%");
+        require(_absoluteMaxClaim >= _baseMaxClaimLimit, "Absolute max must be >= base limit");
+        
+        baseMaxClaimLimit = _baseMaxClaimLimit;
+        claimLimitMultiplier = _claimLimitMultiplier;
+        absoluteMaxClaim = _absoluteMaxClaim;
+        
+        emit ClaimLimitsUpdated(_baseMaxClaimLimit, _claimLimitMultiplier, _absoluteMaxClaim);
     }
     
 
 
     /**
-     * @dev Enhanced claim function with nonce-based security and dynamic limits
-     * @param amount Amount to claim (calculated by authorized backend)
-     * @param nonce User's current nonce (prevents replay attacks)
-     * @param signature Nonce-based signature from authorized calculator
+     * @dev Claim dynamically calculated rewards with enhanced security
      */
     function claimRewards(
         uint256 amount,
@@ -106,12 +127,12 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         require(amount > 0, "Amount must be greater than 0");
         require(nonce == nonces[msg.sender], "Invalid nonce");
         
-        // Dynamic claim limit check (scales with user history)
+        // Check dynamic claim limit
         uint256 maxAllowed = getMaxClaimLimit(msg.sender);
-        require(amount <= maxAllowed, "Amount exceeds current claim limit");
+        require(amount <= maxAllowed, "Exceeds maximum claim limit");
         
-        // Verify nonce-based signature from authorized calculator
-        bytes32 messageHash = _createNonceMessageHash(msg.sender, amount, nonce);
+        // Verify signature with nonce-based replay protection
+        bytes32 messageHash = _createMessageHash(msg.sender, amount, nonce);
         address signer = _recoverSignerOptimized(messageHash, signature);
         require(authorizedCalculators[signer], "Invalid calculator signature");
         
@@ -119,13 +140,12 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         uint256 contractBalance = kiltToken.balanceOf(address(this));
         require(contractBalance >= amount, "Insufficient contract balance");
         
-        // Update state before transfer (CEI pattern) - gas optimized
+        // Update state before transfer (CEI pattern) - increment nonce for replay protection
         unchecked {
             claimedAmount[msg.sender] += amount;
-            userClaimHistory[msg.sender] += amount;
             totalClaimsProcessed += 1;
             totalAmountClaimed += amount;
-            nonces[msg.sender] += 1; // Increment nonce to prevent replay
+            nonces[msg.sender] += 1; // Prevent replay attacks
         }
         lastClaimTime[msg.sender] = block.timestamp;
         
@@ -136,13 +156,15 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
     
     /**
-     * @dev Emergency claim function for owner to process claims manually
-     * @param user User address
-     * @param amount Amount to claim
+     * @dev Emergency claim function for owner with same security measures
      */
     function emergencyClaim(address user, uint256 amount) external onlyOwner {
         require(user != address(0), "Invalid user address");
         require(amount > 0, "Amount must be greater than 0");
+        
+        // Apply same claim limits as regular claims
+        uint256 maxAllowed = getMaxClaimLimit(user);
+        require(amount <= maxAllowed, "Exceeds maximum claim limit");
         
         uint256 contractBalance = kiltToken.balanceOf(address(this));
         require(contractBalance >= amount, "Insufficient contract balance");
@@ -152,46 +174,44 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
             claimedAmount[user] += amount;
             totalClaimsProcessed += 1;
             totalAmountClaimed += amount;
+            nonces[user] += 1;
         }
+        lastClaimTime[user] = block.timestamp;
         
         // Transfer KILT tokens to user
         require(kiltToken.transfer(user, amount), "Token transfer failed");
         
-        emit RewardClaimed(user, amount, claimedAmount[user], block.timestamp);
+        emit RewardClaimed(user, amount, claimedAmount[user], nonces[user] - 1, block.timestamp);
     }
 
-    /**
-     * Get user claim statistics - matches app's getUserStats pattern
-     * @param user Address of the user
-     * @return claimed Total amount claimed by user
-     * @return lastClaim Timestamp of last claim
-     * @return canClaimAt Always 0 (no restrictions)
-     */
+    // View functions that match your app's API patterns
     function getUserStats(address user) external view returns (
         uint256 claimed,
         uint256 lastClaim,
-        uint256 canClaimAt
+        uint256 canClaimAt,
+        uint256 currentNonce
     ) {
         claimed = claimedAmount[user];
         lastClaim = lastClaimTime[user];
-        canClaimAt = 0; // No claim restrictions
+        canClaimAt = 0; // No time restrictions
+        currentNonce = nonces[user];
     }
     
-    /**
-     * Get total claimed amount for a user - matches app's getClaimedAmount pattern
-     * @param user Address of the user
-     * @return claimed Amount already claimed by the user
-     */
     function getClaimedAmount(address user) external view returns (uint256) {
         return claimedAmount[user];
     }
     
-    /**
-     * @dev Check if user can claim now - Always returns true (no restrictions)
-     * @return canClaim Always true (no restrictions)
-     */
-    function canUserClaim(address /* user */) external pure returns (bool) {
-        return true; // No claim restrictions
+    function getUserNonce(address user) external view returns (uint256) {
+        return nonces[user];
+    }
+    
+    function getAbsoluteMaxClaim() external view returns (uint256) {
+        return absoluteMaxClaim;
+    }
+    
+    function canUserClaim(address user, uint256 rewardBalance) external view returns (bool) {
+        // Note: user parameter included for consistency with app API, though not used in logic
+        return rewardBalance <= absoluteMaxClaim && rewardBalance > 0;
     }
     
     /**
@@ -259,32 +279,39 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
     
     /**
-     * @dev Get dynamic claim limit based on user history (scales with experience)
-     * @param user User address
-     * @return maxLimit Maximum amount user can claim in a single transaction
+     * @dev Calculate dynamic claim limit for a user
      */
     function getMaxClaimLimit(address user) public view returns (uint256) {
-        uint256 history = userClaimHistory[user];
+        // Base limit + percentage of historical claims
+        uint256 dynamicLimit = baseMaxClaimLimit + 
+            (claimedAmount[user] * claimLimitMultiplier / 100);
         
-        // Dynamic scaling: Start conservative, increase with history
-        if (history == 0) {
-            return 100 * 1e18; // 100 KILT for new users
-        } else if (history < 1000 * 1e18) {
-            return 500 * 1e18; // 500 KILT for users with < 1000 KILT history
-        } else if (history < 5000 * 1e18) {
-            return 2000 * 1e18; // 2000 KILT for users with < 5000 KILT history
-        } else {
-            return 10000 * 1e18; // 10000 KILT for experienced users
-        }
+        // Cap at absolute maximum
+        return dynamicLimit > absoluteMaxClaim ? absoluteMaxClaim : dynamicLimit;
     }
     
     /**
-     * @dev Create nonce-based message hash for enhanced security
+     * @dev Get pending calculator info
      */
-    function _createNonceMessageHash(address user, uint256 amount, uint256 nonce) internal pure returns (bytes32) {
+    function getPendingCalculatorInfo(address calculator) external view returns (
+        bool isPending,
+        uint256 activationTime,
+        uint256 remainingDelay
+    ) {
+        activationTime = pendingCalculatorActivation[calculator];
+        isPending = activationTime > 0 && block.timestamp < activationTime;
+        remainingDelay = isPending ? activationTime - block.timestamp : 0;
+    }
+    
+    // Internal signature verification functions with nonce-based protection
+    function _createMessageHash(address user, uint256 totalRewardBalance, uint256 nonce) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encodePacked(user, amount, nonce))
+            keccak256(abi.encodePacked(
+                user,
+                totalRewardBalance,
+                nonce
+            ))
         ));
     }
     

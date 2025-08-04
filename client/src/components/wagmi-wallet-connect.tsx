@@ -99,43 +99,43 @@ export function WagmiWalletConnect() {
 
         {!isWrongNetwork && (
           <div className="relative group">
-            {/* Cyberpunk glow layers */}
-            <div className="absolute inset-0 bg-cyan-400/20 rounded-lg blur-md animate-pulse"></div>
-            <div className="absolute inset-0 bg-blue-500/10 rounded-lg blur-sm"></div>
+            {/* Pink glow layers */}
+            <div className="absolute inset-0 bg-pink-500/20 rounded-lg blur-md animate-pulse"></div>
+            <div className="absolute inset-0 bg-pink-600/10 rounded-lg blur-sm"></div>
             
-            <div className="relative flex items-center gap-2 bg-black/60 backdrop-blur-xl border border-cyan-400/30 rounded-lg px-3 py-1.5 shadow-lg shadow-cyan-400/10">
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-400/80"></div>
-              <span className="text-cyan-400 text-sm font-medium font-mono tracking-wide">Base</span>
+            <div className="relative flex items-center gap-2 bg-black/60 backdrop-blur-xl border border-pink-500/30 rounded-lg px-3 py-1.5 shadow-lg shadow-pink-500/10">
+              <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse shadow-sm shadow-pink-500/80"></div>
+              <span className="text-pink-500 text-sm font-medium font-mono tracking-wide">Base</span>
               
               {/* Scanning line effect */}
-              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent animate-pulse"></div>
+              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-pink-500/60 to-transparent animate-pulse"></div>
             </div>
           </div>
         )}
 
         <div className="relative group">
-          {/* Cyberpunk outer glow */}
-          <div className="absolute inset-0 bg-matrix-green/20 rounded-xl blur-lg animate-pulse opacity-70"></div>
+          {/* Pink outer glow */}
+          <div className="absolute inset-0 bg-pink-500/20 rounded-xl blur-lg animate-pulse opacity-70"></div>
           <div className="absolute inset-0 bg-[#ff0066]/10 rounded-xl blur-md"></div>
           
-          <div className="relative flex items-center gap-3 bg-black/70 backdrop-blur-xl border border-matrix-green/30 rounded-xl px-4 py-2 shadow-2xl shadow-matrix-green/20 hover:border-matrix-green/50 transition-all duration-300">
+          <div className="relative flex items-center gap-3 bg-black/70 backdrop-blur-xl border border-pink-500/30 rounded-xl px-4 py-2 shadow-2xl shadow-pink-500/20 hover:border-pink-500/50 transition-all duration-300">
             <div className="flex items-center gap-2">
-              {/* Cyberpunk wallet icon container */}
-              <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-matrix-green/30 to-matrix-green/10 border border-matrix-green/40 flex items-center justify-center overflow-hidden">
+              {/* Pink wallet icon container */}
+              <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/30 to-pink-500/10 border border-pink-500/40 flex items-center justify-center overflow-hidden">
                 {/* Inner glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-matrix-green/20 to-transparent animate-pulse"></div>
-                <Wallet className="relative h-4 w-4 text-matrix-green drop-shadow-lg" />
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-transparent animate-pulse"></div>
+                <Wallet className="relative h-4 w-4 text-pink-500 drop-shadow-lg" />
                 
                 {/* Corner accent lines */}
-                <div className="absolute top-0 left-0 w-2 h-0.5 bg-matrix-green/80"></div>
-                <div className="absolute top-0 left-0 w-0.5 h-2 bg-matrix-green/80"></div>
-                <div className="absolute bottom-0 right-0 w-2 h-0.5 bg-matrix-green/80"></div>
-                <div className="absolute bottom-0 right-0 w-0.5 h-2 bg-matrix-green/80"></div>
+                <div className="absolute top-0 left-0 w-2 h-0.5 bg-pink-500/80"></div>
+                <div className="absolute top-0 left-0 w-0.5 h-2 bg-pink-500/80"></div>
+                <div className="absolute bottom-0 right-0 w-2 h-0.5 bg-pink-500/80"></div>
+                <div className="absolute bottom-0 right-0 w-0.5 h-2 bg-pink-500/80"></div>
               </div>
               
               <div className="flex flex-col">
                 <span className="font-mono text-sm text-white/95 tracking-wide drop-shadow-sm">{formatAddress(address)}</span>
-                <span className="text-xs text-matrix-green/80 font-mono">0.043 ETH</span>
+                <span className="text-xs text-pink-500/80 font-mono">0.043 ETH</span>
               </div>
             </div>
             
@@ -231,7 +231,7 @@ export function WagmiWalletConnect() {
             </DropdownMenu>
             
             {/* Data flow animation line */}
-            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-matrix-green/40 to-transparent animate-pulse"></div>
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-pink-500/40 to-transparent animate-pulse"></div>
           </div>
         </div>
       </div>

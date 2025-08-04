@@ -2154,184 +2154,74 @@ html {
   background: rgba(6, 182, 212, 0.05);
 }
 
-/* RainbowKit Cyberpunk Glassmorphism Theme Overrides */
+/* RainbowKit Pink Glassmorphism Theme Overrides */
 [data-rk] {
-  /* Modal Backdrop */
+  /* Modal Variables */
   --rk-overlay-background: rgba(0, 0, 0, 0.8);
-  --rk-overlay-backdrop-filter: blur(20px);
-  
-  /* Modal Container */
-  --rk-modal-background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 30, 0.95) 50%, rgba(0, 0, 0, 0.9) 100%);
-  --rk-modal-border: 1px solid rgba(0, 255, 65, 0.3);
+  --rk-modal-background: rgba(20, 20, 30, 0.95);
+  --rk-modal-border: 1px solid rgba(255, 0, 102, 0.3);
   --rk-modal-border-radius: 16px;
-  --rk-modal-box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 255, 65, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  
-  /* Typography */
   --rk-colors-modalText: rgba(255, 255, 255, 0.95);
-  --rk-colors-modalTextSecondary: rgba(0, 255, 65, 0.8);
-  --rk-colors-modalTextDim: rgba(255, 255, 255, 0.6);
-  
-  /* Buttons */
-  --rk-colors-accentColor: linear-gradient(135deg, #ff0066 0%, #cc0052 100%);
+  --rk-colors-modalTextSecondary: rgba(255, 255, 255, 0.7);
+  --rk-colors-accentColor: #ff0066;
   --rk-colors-accentColorForeground: white;
-  --rk-colors-connectButtonBackground: linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, rgba(0, 255, 65, 0.05) 100%);
-  --rk-colors-connectButtonText: rgba(255, 255, 255, 0.9);
-  
-  /* Connection State */
-  --rk-colors-connectionIndicator: #00ff41;
 }
 
-/* Enhanced RainbowKit Modal Styling */
-[data-rk] .iekbcc0 {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%) !important;
-  backdrop-filter: blur(40px) !important;
-  border: 1px solid rgba(0, 255, 65, 0.3) !important;
-  border-radius: 20px !important;
+/* Enhanced RainbowKit Modal Styling - Pink Theme */
+[data-rk] [role="dialog"] {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(30, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 0, 102, 0.3) !important;
+  border-radius: 16px !important;
   box-shadow: 
     0 25px 50px -12px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(0, 255, 65, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 40px rgba(0, 255, 65, 0.1) !important;
-  position: relative;
+    0 0 0 1px rgba(255, 0, 102, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
-/* Cyberpunk glow effect for modal */
-[data-rk] .iekbcc0::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, transparent 50%, rgba(255, 0, 102, 0.1) 100%);
-  border-radius: 20px;
-  pointer-events: none;
-  animation: cyber-pulse 3s ease-in-out infinite;
-}
-
-@keyframes cyber-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
-}
-
-/* Wallet Connection Buttons - Cyberpunk Style */
+/* Wallet Connection Buttons - Pink Theme */
 [data-rk] button[data-testid*="rk-wallet-option"] {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(20, 20, 30, 0.8) 100%) !important;
-  border: 1px solid rgba(0, 255, 65, 0.2) !important;
+  background: rgba(20, 20, 30, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 12px !important;
   color: rgba(255, 255, 255, 0.9) !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.025em !important;
-  transition: all 0.3s ease !important;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease !important;
 }
 
 [data-rk] button[data-testid*="rk-wallet-option"]:hover {
-  background: linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%) !important;
-  border-color: rgba(0, 255, 65, 0.5) !important;
-  box-shadow: 0 0 20px rgba(0, 255, 65, 0.2) !important;
-  transform: translateY(-1px);
+  background: rgba(255, 0, 102, 0.1) !important;
+  border-color: rgba(255, 0, 102, 0.3) !important;
+  box-shadow: 0 0 15px rgba(255, 0, 102, 0.1) !important;
 }
 
-/* Account Modal Styling */
-[data-rk] .iekbcc0 h1,
-[data-rk] .iekbcc0 h2,
-[data-rk] .iekbcc0 h3 {
-  color: rgba(255, 255, 255, 0.95) !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.05em !important;
-}
-
-/* Address Display */
-[data-rk] .iekbcc0 .address {
-  font-family: 'JetBrains Mono', monospace !important;
-  color: rgba(0, 255, 65, 0.9) !important;
-  background: rgba(0, 255, 65, 0.1) !important;
-  border: 1px solid rgba(0, 255, 65, 0.3) !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
-}
-
-/* Balance Display */
-[data-rk] .iekbcc0 .balance {
-  color: rgba(255, 255, 255, 0.8) !important;
-  font-family: 'JetBrains Mono', monospace !important;
-}
-
-/* Copy and Disconnect Buttons */
+/* Copy and Disconnect Buttons - Pink Theme */
 [data-rk] button[data-testid*="rk-account-button"] {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(20, 20, 30, 0.9) 100%) !important;
+  background: rgba(20, 20, 30, 0.8) !important;
   border: 1px solid rgba(255, 0, 102, 0.3) !important;
   border-radius: 10px !important;
   color: rgba(255, 255, 255, 0.9) !important;
-  font-family: 'JetBrains Mono', monospace !important;
   font-weight: 500 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.1em !important;
-  transition: all 0.3s ease !important;
+  transition: all 0.2s ease !important;
 }
 
 [data-rk] button[data-testid*="rk-account-button"]:hover {
-  background: linear-gradient(135deg, rgba(255, 0, 102, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%) !important;
+  background: rgba(255, 0, 102, 0.1) !important;
   border-color: rgba(255, 0, 102, 0.6) !important;
-  box-shadow: 0 0 15px rgba(255, 0, 102, 0.3) !important;
+  box-shadow: 0 0 10px rgba(255, 0, 102, 0.2) !important;
 }
 
-/* Close Button Styling */
+/* Close Button - Pink Theme */
 [data-rk] button[aria-label="Close"] {
-  background: linear-gradient(135deg, rgba(255, 0, 102, 0.8) 0%, rgba(204, 0, 82, 0.9) 100%) !important;
+  background: linear-gradient(135deg, #ff0066, #cc0052) !important;
   border: none !important;
   border-radius: 50% !important;
   color: white !important;
-  box-shadow: 0 4px 12px rgba(255, 0, 102, 0.4) !important;
-  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(255, 0, 102, 0.3) !important;
+  transition: all 0.2s ease !important;
 }
 
 [data-rk] button[aria-label="Close"]:hover {
-  background: linear-gradient(135deg, rgba(255, 51, 133, 0.9) 0%, rgba(255, 0, 102, 1) 100%) !important;
-  box-shadow: 0 6px 20px rgba(255, 0, 102, 0.6) !important;
-  transform: scale(1.1);
-}
-
-/* Scanning Line Animation for Modals */
-[data-rk] .iekbcc0::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.8) 50%, transparent 100%);
-  animation: scan-line 2s linear infinite;
-  border-radius: 20px 20px 0 0;
-}
-
-@keyframes scan-line {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* Better targeting for all RainbowKit modals */
-[data-rk] [role="dialog"] {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.98) 50%, rgba(0, 0, 0, 0.95) 100%) !important;
-  backdrop-filter: blur(40px) !important;
-  border: 1px solid rgba(0, 255, 65, 0.3) !important;
-  border-radius: 20px !important;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(0, 255, 65, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 40px rgba(0, 255, 65, 0.1) !important;
-}
-
-/* RainbowKit wallet icons and text styling */
-[data-rk] [role="dialog"] button {
-  color: rgba(255, 255, 255, 0.9) !important;
-  font-family: 'JetBrains Mono', monospace !important;
-}
-
-/* Account icon styling */
-[data-rk] .avatar {
-  border: 2px solid rgba(0, 255, 65, 0.4) !important;
-  box-shadow: 0 0 15px rgba(0, 255, 65, 0.2) !important;
+  background: linear-gradient(135deg, #ff3385, #ff0066) !important;
+  box-shadow: 0 6px 20px rgba(255, 0, 102, 0.4) !important;
+  transform: scale(1.05);
 }

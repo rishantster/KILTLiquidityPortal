@@ -38,7 +38,6 @@ import { useQuery } from '@tanstack/react-query';
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
 import { MobileWalletConnect } from './mobile-wallet-connect';
-import { EnhancedMobileWallet } from './enhanced-mobile-wallet';
 import { WagmiWalletConnect } from './wagmi-wallet-connect';
 
 // Removed gas estimation card - consolidated into main interface
@@ -379,12 +378,8 @@ export function MainDashboard() {
             {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4 w-full max-w-md">
-                {/* Enhanced Mobile-first wallet connection using your provided code structure */}
-                {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? (
-                  <EnhancedMobileWallet />
-                ) : (
-                  <WagmiWalletConnect />
-                )}
+                {/* Fresh mobile wallet implementation with KILT styling */}
+                <MobileWalletConnect />
               </div>
             </div>
 

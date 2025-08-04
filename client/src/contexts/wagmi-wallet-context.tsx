@@ -3,7 +3,7 @@ import { base } from 'wagmi/chains';
 import { metaMask, walletConnect, injected, coinbaseWallet } from 'wagmi/connectors';
 import { ReactNode } from 'react';
 
-// Create WalletConnect connector with mobile-optimized configuration
+// Create WalletConnect connector with fresh mobile-optimized configuration
 const createWalletConnectConnector = () => walletConnect({
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'ce981d1074e2285cb11221be6e7d72ef',
   metadata: {
@@ -12,7 +12,13 @@ const createWalletConnectConnector = () => walletConnect({
     url: typeof window !== 'undefined' ? window.location.origin : 'https://kilt-portal.replit.app',
     icons: ['https://avatars.githubusercontent.com/u/37784886']
   },
-  showQrModal: false // Disable default modal to use our custom one
+  showQrModal: false, // Always disable default modal for custom implementation
+  qrModalOptions: {
+    themeMode: 'dark',
+    themeVariables: {
+      '--wcm-z-index': '999999'
+    }
+  }
 });
 
 // Enhanced Wagmi configuration optimized for Base chain with mobile deep linking support

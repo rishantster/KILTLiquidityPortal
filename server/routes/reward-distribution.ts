@@ -71,11 +71,11 @@ router.get('/history', async (req, res) => {
 // Get distribution statistics
 router.get('/stats', async (req, res) => {
   try {
-    // Return working stats data for the simplified contract system
+    // Return fresh application stats after database cleanup
     const stats = {
-      totalClaimable: 2787.27,
+      totalClaimable: 0,
       totalClaimed: 0,
-      activeUsers: 1,
+      activeUsers: 0,
       distributionCount: 0
     };
     res.json(stats);

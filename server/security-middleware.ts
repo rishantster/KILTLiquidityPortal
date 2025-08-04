@@ -137,17 +137,22 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
     return obj;
   };
 
-  if (req.body) {
-    req.body = sanitizeObject(req.body);
-  }
-  if (req.query) {
-    req.query = sanitizeObject(req.query);
-  }
-  if (req.params) {
-    req.params = sanitizeObject(req.params);
-  }
+  try {
+    if (req.body) {
+      req.body = sanitizeObject(req.body);
+    }
+    if (req.query) {
+      req.query = sanitizeObject(req.query);
+    }
+    if (req.params) {
+      req.params = sanitizeObject(req.params);
+    }
 
-  next();
+    next();
+  } catch (error) {
+    console.error('Security middleware error:', error);
+    next(error);
+  }
 };
 
 // Security headers and CORS configuration

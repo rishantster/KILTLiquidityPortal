@@ -1,4 +1,4 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity, errorHandler, validateEnvironment } from "./security-middleware";
@@ -156,18 +156,23 @@ app.use((req, res, next) => {
   };
 
   res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
+    try {
+      const duration = Date.now() - start;
+      if (path.startsWith("/api")) {
+        let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+        if (capturedJsonResponse) {
+          const responseStr = JSON.stringify(capturedJsonResponse);
+          logLine += ` :: ${responseStr}`;
+        }
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
+        if (logLine.length > 80) {
+          logLine = logLine.slice(0, 79) + "…";
+        }
 
-      log(logLine);
+        log(logLine);
+      }
+    } catch (error) {
+      console.error('Logging middleware error:', error);
     }
   });
 
@@ -184,8 +189,21 @@ app.use((req, res, next) => {
   // Serve static files from attached_assets directory
   app.use('/attached_assets', express.static('attached_assets'));
 
-  // Global error handler (must be last)
-  app.use(errorHandler);
+  // Enhanced global error handler (must be last)
+  app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+    console.error('Global error handler:', error);
+    
+    // Prevent circular JSON serialization
+    if (error && typeof error === 'object') {
+      try {
+        JSON.stringify(error);
+      } catch (jsonError) {
+        console.error('Error object contains circular references:', jsonError);
+      }
+    }
+    
+    enhancedErrorHandler(error, req, res, next);
+  });
 
   // Setup Vite in development, serve static files in production
   if (app.get("env") === "development") {

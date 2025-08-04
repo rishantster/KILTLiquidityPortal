@@ -64,17 +64,27 @@ const REWARD_POOL_ABI = [
   'function owner() external view returns (address)',
   'function kiltToken() external view returns (address)',
   
+  // Enhanced Security Functions
+  'function nonces(address) external view returns (uint256)',
+  'function getUserNonce(address) external view returns (uint256)',
+  'function getMaxClaimLimit(address) external view returns (uint256)',
+  'function setPendingCalculatorAuthorization(address) external',
+  'function activatePendingCalculator(address) external',
+  'function revokeCalculatorAuthorization(address) external',
+  
   // Public variables
   'function claimedAmount(address) external view returns (uint256)',
   'function lastClaimTime(address) external view returns (uint256)',
   'function authorizedCalculators(address) external view returns (bool)',
+  'function pendingCalculators(address) external view returns (uint256)',
+  'function userClaimHistory(address) external view returns (uint256)',
   'function totalClaimsProcessed() external view returns (uint256)',
   'function totalAmountClaimed() external view returns (uint256)',
   
   // Enhanced events
-  'event RewardClaimed(address indexed user, uint256 amount, uint256 nonce, uint256 timestamp)',
+  'event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 nonce, uint256 timestamp)',
   'event CalculatorAuthorized(address indexed calculator, bool authorized)',
-  'event PendingCalculatorSet(address indexed calculator, uint256 activationTime)',
+  'event CalculatorPendingAuthorization(address indexed calculator, uint256 activationTime)',
   'event TreasuryDeposit(uint256 amount)',
   'event TreasuryWithdraw(uint256 amount)'
 ];
@@ -937,6 +947,8 @@ export class SmartContractService {
       };
     }
   }
+
+
 }
 
 // Export singleton instance

@@ -71,13 +71,13 @@ export function ClaimRewardsButton({
       // Step 3: Enhanced contract interaction with nonce-based security
       const contractAddress = "0x3ee2361272EaDc5ADc91418530722728E7DCe526";
       
-      // Encode claimRewards(amount, nonce, signature) function call
-      const amountWei = (claimableAmount * 1e18).toString(16).padStart(64, '0');
-      const nonceHex = nonce.toString(16).padStart(64, '0');
+      // Encode enhanced claimRewards(amount, nonce, signature) function call
+      const amountWei = BigInt(Math.floor(claimableAmount * 1e18)).toString(16).padStart(64, '0');
+      const nonceHex = BigInt(nonce).toString(16).padStart(64, '0');
       const signatureFormatted = signature.slice(2); // Remove 0x prefix
       
       const claimData = '0x' + 
-        '4e71e0c8' + // claimRewards(uint256,uint256,bytes) selector
+        'a9b7b55d' + // claimRewards(uint256,uint256,bytes) selector for enhanced version
         amountWei + 
         nonceHex + 
         '0000000000000000000000000000000000000000000000000000000000000060' + // offset for bytes

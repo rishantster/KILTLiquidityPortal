@@ -15,8 +15,18 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     IERC20 public immutable kiltToken;
     
+    // Enhanced Security: Nonce-based signature system
+    mapping(address => uint256) public nonces;
+    
     // Authorized calculators (your backend services)
     mapping(address => bool) public authorizedCalculators;
+    
+    // Enhanced Security: Pending calculator authorization with 24-hour delay
+    mapping(address => uint256) public pendingCalculators;
+    uint256 public constant CALCULATOR_AUTHORIZATION_DELAY = 24 hours;
+    
+    // Dynamic claim limits that scale with user history
+    mapping(address => uint256) public userClaimHistory;
     
     // User address => total amount already claimed (in wei) - matches app's claimedAmount
     mapping(address => uint256) public claimedAmount;
@@ -29,8 +39,9 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     uint256 public totalAmountClaimed;
     
     // Events - matches app terminology & optimized for indexing
-    event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 timestamp);
+    event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 nonce, uint256 timestamp);
     event CalculatorAuthorized(address indexed calculator, bool authorized);
+    event CalculatorPendingAuthorization(address indexed calculator, uint256 activationTime);
     event TreasuryDeposit(uint256 amount);
     event TreasuryWithdraw(uint256 amount);
     
@@ -45,31 +56,62 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Authorize/deauthorize reward calculators (owner only)
-     * @param calculator Address of the calculator service
-     * @param authorized Whether to authorize or revoke
+     * @dev Set pending calculator authorization (immediate, but requires 24h delay to activate)
+     * @param calculator Address of the calculator service to authorize
      */
-    function setCalculatorAuthorization(address calculator, bool authorized) external onlyOwner {
+    function setPendingCalculatorAuthorization(address calculator) external onlyOwner {
         require(calculator != address(0), "Invalid calculator address");
-        authorizedCalculators[calculator] = authorized;
-        emit CalculatorAuthorized(calculator, authorized);
+        pendingCalculators[calculator] = block.timestamp + CALCULATOR_AUTHORIZATION_DELAY;
+        emit CalculatorPendingAuthorization(calculator, pendingCalculators[calculator]);
+    }
+    
+    /**
+     * @dev Activate pending calculator authorization (after 24-hour delay)
+     * @param calculator Address of the calculator service to activate
+     */
+    function activatePendingCalculator(address calculator) external onlyOwner {
+        require(calculator != address(0), "Invalid calculator address");
+        require(pendingCalculators[calculator] != 0, "No pending authorization");
+        require(block.timestamp >= pendingCalculators[calculator], "Authorization delay not met");
+        
+        authorizedCalculators[calculator] = true;
+        delete pendingCalculators[calculator];
+        emit CalculatorAuthorized(calculator, true);
+    }
+    
+    /**
+     * @dev Emergency revoke calculator authorization (immediate)
+     * @param calculator Address of the calculator service to revoke
+     */
+    function revokeCalculatorAuthorization(address calculator) external onlyOwner {
+        require(calculator != address(0), "Invalid calculator address");
+        authorizedCalculators[calculator] = false;
+        delete pendingCalculators[calculator]; // Also clear any pending authorization
+        emit CalculatorAuthorized(calculator, false);
     }
     
 
 
     /**
-     * @dev Claim dynamically calculated rewards
+     * @dev Enhanced claim function with nonce-based security and dynamic limits
      * @param amount Amount to claim (calculated by authorized backend)
-     * @param signature Signature from authorized calculator validating the claim
+     * @param nonce User's current nonce (prevents replay attacks)
+     * @param signature Nonce-based signature from authorized calculator
      */
     function claimRewards(
         uint256 amount,
+        uint256 nonce,
         bytes calldata signature
     ) external nonReentrant whenNotPaused {
         require(amount > 0, "Amount must be greater than 0");
+        require(nonce == nonces[msg.sender], "Invalid nonce");
         
-        // Verify signature from authorized calculator (gas optimized)
-        bytes32 messageHash = _createMessageHash(msg.sender, amount);
+        // Dynamic claim limit check (scales with user history)
+        uint256 maxAllowed = getMaxClaimLimit(msg.sender);
+        require(amount <= maxAllowed, "Amount exceeds current claim limit");
+        
+        // Verify nonce-based signature from authorized calculator
+        bytes32 messageHash = _createNonceMessageHash(msg.sender, amount, nonce);
         address signer = _recoverSignerOptimized(messageHash, signature);
         require(authorizedCalculators[signer], "Invalid calculator signature");
         
@@ -80,15 +122,17 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         // Update state before transfer (CEI pattern) - gas optimized
         unchecked {
             claimedAmount[msg.sender] += amount;
+            userClaimHistory[msg.sender] += amount;
             totalClaimsProcessed += 1;
             totalAmountClaimed += amount;
+            nonces[msg.sender] += 1; // Increment nonce to prevent replay
         }
         lastClaimTime[msg.sender] = block.timestamp;
         
         // Transfer KILT tokens to user
         require(kiltToken.transfer(msg.sender, amount), "Token transfer failed");
         
-        emit RewardClaimed(msg.sender, amount, claimedAmount[msg.sender], block.timestamp);
+        emit RewardClaimed(msg.sender, amount, claimedAmount[msg.sender], nonce, block.timestamp);
     }
     
     /**
@@ -215,16 +259,32 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
     
     /**
-     * @dev Create message hash for signature verification (gas optimized)
+     * @dev Get dynamic claim limit based on user history (scales with experience)
+     * @param user User address
+     * @return maxLimit Maximum amount user can claim in a single transaction
      */
-    function _createMessageHash(address user, uint256 amount) internal view returns (bytes32) {
+    function getMaxClaimLimit(address user) public view returns (uint256) {
+        uint256 history = userClaimHistory[user];
+        
+        // Dynamic scaling: Start conservative, increase with history
+        if (history == 0) {
+            return 100 * 1e18; // 100 KILT for new users
+        } else if (history < 1000 * 1e18) {
+            return 500 * 1e18; // 500 KILT for users with < 1000 KILT history
+        } else if (history < 5000 * 1e18) {
+            return 2000 * 1e18; // 2000 KILT for users with < 5000 KILT history
+        } else {
+            return 10000 * 1e18; // 10000 KILT for experienced users
+        }
+    }
+    
+    /**
+     * @dev Create nonce-based message hash for enhanced security
+     */
+    function _createNonceMessageHash(address user, uint256 amount, uint256 nonce) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encodePacked(
-                user,
-                amount,
-                block.timestamp / 3600 // 1-hour time window for replay protection
-            ))
+            keccak256(abi.encodePacked(user, amount, nonce))
         ));
     }
     

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useConnect, useAccount, useDisconnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -61,6 +61,14 @@ export function MobileWalletConnect() {
       setShowModal(false);
     }
   };
+
+  // Close modal when connected and reset state
+  useEffect(() => {
+    if (isConnected) {
+      setShowModal(false);
+      setWcUri('');
+    }
+  }, [isConnected]);
 
   const openWalletApp = (walletName: string, deepLink: string) => {
     const uri = wcUri;

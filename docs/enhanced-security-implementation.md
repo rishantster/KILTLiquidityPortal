@@ -55,7 +55,7 @@ function getMaxClaimLimit(address user) public view returns (uint256)
 ## 🚀 Deployment Status
 
 ### Current Infrastructure
-- **Contract Address**: `0x3ee2361272EaDc5ADc91418530722728E7DCe526`
+- **Contract Address**: `0xe5771357399D58aC79A5b1161e8C363bB178B22b`
 - **Network**: Base Mainnet (Chain ID: 8453)
 - **Owner**: `0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e`
 - **KILT Token**: `0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8`

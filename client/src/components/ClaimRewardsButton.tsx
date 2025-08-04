@@ -59,7 +59,7 @@ export function ClaimRewardsButton({
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       
       // Step 3: Enhanced contract interaction with nonce-based security
-      const contractAddress = "0x3ee2361272EaDc5ADc91418530722728E7DCe526";
+      const contractAddress = "0xe5771357399D58aC79A5b1161e8C363bB178B22b";
       
       // Encode simplified claimRewards(totalRewardBalance, signature) function call
       const amountWei = BigInt(Math.floor(claimableAmount * 1e18)).toString(16).padStart(64, '0');

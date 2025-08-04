@@ -14,7 +14,7 @@ The KILT Liquidity Incentive Portal is a production-ready DeFi application for m
 - **✅ Documentation COMPREHENSIVE**: Enhanced security documentation in `/docs/enhanced-security-implementation.md`
 - **✅ Contract Alignment COMPLETE**: Perfect terminology and function matching between contract and app
 
-**DEPLOYMENT STATUS**: Simplified enhanced security system ready for production deployment. Contract code updated to user specifications.
+**DEPLOYMENT STATUS**: Contract deployed to `0xe5771357399D58aC79A5b1161e8C363bB178B22b`. App updated to use new address. Ready for calculator authorization and funding.
 
 ## User Preferences
 **Communication Style**: Simple, everyday language without technical jargon
@@ -47,8 +47,8 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 - Users, LP Positions, Rewards, Pool Stats, Analytics Tables, Treasury Configuration (single source of truth for smart contract addresses).
 
 **Smart Contract Architecture**:
-- **Core Contract**: `DynamicTreasuryPool` ready for deployment with enhanced security features.
-- **Contract Status**: READY FOR REDEPLOYMENT with simplified claiming and enhanced security.
+- **Core Contract**: `DynamicTreasuryPool` deployed with enhanced security features.
+- **Contract Status**: DEPLOYED at `0xe5771357399D58aC79A5b1161e8C363bB178B22b` with simplified claiming and enhanced security.
 - **Treasury Balance**: Ready for funding post-deployment.
 - **Token**: KILT (0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8) on Base network.
 - **Security**: Nonce-based replay protection, 24-hour calculator authorization delays, absolute maximum claim limits.

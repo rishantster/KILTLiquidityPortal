@@ -5,7 +5,7 @@ import { useWagmiWallet } from './use-wagmi-wallet';
 import { useToast } from './use-toast';
 
 // Treasury contract address on Base network - DEPLOYED!
-const BASIC_TREASURY_POOL_ADDRESS = '0x3ee2361272EaDc5ADc91418530722728E7DCe526' as const;
+const BASIC_TREASURY_POOL_ADDRESS = '0xe5771357399D58aC79A5b1161e8C363bB178B22b' as const;
 
 // KILT token address on Base network
 const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8' as const;
@@ -165,7 +165,7 @@ export function useRewardClaiming() {
             
 📋 MANUAL CLAIMING INSTRUCTIONS:
 1. Admin must first distribute rewards using MetaMask:
-   - Connect to contract: 0x3ee2361272EaDc5ADc91418530722728E7DCe526
+   - Connect to contract: 0xe5771357399D58aC79A5b1161e8C363bB178B22b
    - Call distributeReward(${address}, ${(calculatedAmount * Math.pow(10, 18)).toExponential()})
 2. Then you can claim rewards by calling claimRewards()
 

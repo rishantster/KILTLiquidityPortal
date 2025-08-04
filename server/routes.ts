@@ -1141,7 +1141,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           userAddress,
           instructions: {
             manualOption: "Alternative: Use MetaMask to manually call distributeReward() function on the smart contract",
-            contractAddress: "0x3ee2361272EaDc5ADc91418530722728E7DCe526",
+            contractAddress: "0xe5771357399D58aC79A5b1161e8C363bB178B22b",
             functionName: "distributeReward",
             parameters: {
               user: userAddress,

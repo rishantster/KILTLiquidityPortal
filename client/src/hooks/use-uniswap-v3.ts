@@ -1200,8 +1200,15 @@ export function useUniswapV3() {
         return hash;
       } catch (error: any) {
         let errorMessage = "Failed to remove liquidity";
+        let shouldShowRetryAdvice = false;
         
-        if (error.message?.includes('not owned by')) {
+        // Check for circuit breaker errors that indicate temporary network protection
+        if (error.message?.includes('breaker is open') || 
+            error.message?.includes('circuit breaker') ||
+            error.message?.includes('temporary restriction')) {
+          errorMessage = "Network protection is active - this usually resolves within 5-30 minutes";
+          shouldShowRetryAdvice = true;
+        } else if (error.message?.includes('not owned by')) {
           errorMessage = error.message;
         } else if (error.message?.includes('no liquidity')) {
           errorMessage = error.message;
@@ -1213,11 +1220,18 @@ export function useUniswapV3() {
           errorMessage = "Insufficient gas for transaction";
         } else if (error.message) {
           errorMessage = error.message;
+          // Also check for other network/timeout errors that might be temporary
+          shouldShowRetryAdvice = error.message.includes('network') || 
+                                 error.message.includes('timeout') ||
+                                 error.message.includes('connection') ||
+                                 error.message.includes('rpc');
         }
         
         toast({
           title: "Remove Liquidity Failed",
-          description: errorMessage,
+          description: shouldShowRetryAdvice ? 
+            `${errorMessage}. Try again in a few minutes or try smaller amounts.` : 
+            errorMessage,
           variant: "destructive",
         });
         throw error;

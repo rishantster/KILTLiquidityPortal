@@ -55,15 +55,12 @@ export function registerUniswapOptimizedRoutes(app: Express) {
         // Count only ACTIVE registered positions for display
         activeRegisteredCount = registeredPositions.filter(p => p.isActive === true).length;
         console.log(`🔧 Position Count Debug: Total registered: ${registeredPositions.length}, Active: ${activeRegisteredCount}`);
-        console.log(`🔧 Registered IDs: ${Array.from(registeredIds).join(', ')}`);
       }
       
-      // Filter unregistered positions - DEBUG logging
-      const eligiblePositions = kiltPositions.filter(pos => {
-        const isRegistered = registeredIds.has(pos.tokenId);
-        console.log(`🔧 Position ${pos.tokenId}: registered=${isRegistered}, active=${pos.isActive}`);
-        return !isRegistered && pos.isActive;
-      });
+      // Filter unregistered positions
+      const eligiblePositions = kiltPositions.filter(pos => 
+        !registeredIds.has(pos.tokenId) && pos.isActive
+      );
 
       const duration = Date.now() - start;
       

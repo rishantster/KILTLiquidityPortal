@@ -110,6 +110,20 @@ export function RewardsTracking() {
   // Use unified dashboard data
   const { user, rewardStats, programAnalytics } = unifiedData;
 
+  // Get fresh position count from eligible endpoint
+  const { data: eligibleData } = useQuery({
+    queryKey: ['eligible-positions', address],
+    queryFn: async () => {
+      if (!address) return null;
+      const response = await fetch(`/api/positions/eligible/${address}`);
+      return response.json();
+    },
+    enabled: !!address,
+    staleTime: 0,
+    refetchInterval: 3000, // Fast refresh for instant position updates
+    refetchOnWindowFocus: true
+  });
+
   // Get user average APR across all positions
   const { data: userAverageAPR } = useQuery({
     queryKey: ['user-average-apr', address],
@@ -252,7 +266,7 @@ export function RewardsTracking() {
               {userAverageAPR?.averageAPR ? `${userAverageAPR.averageAPR.toFixed(1)}%` : '0.0%'}
             </div>
             <div className="text-xs text-white/60 mb-1">
-              {userAverageAPR?.activePositions || 0} active positions
+              {eligibleData?.registeredCount || 0} active positions
             </div>
           </CardContent>
         </Card>
@@ -271,7 +285,7 @@ export function RewardsTracking() {
               />
             </div>
             <div className="text-xs text-white/60 mb-1">
-              {rewardStats?.activePositions || 0} positions
+              {eligibleData?.registeredCount || 0} positions
             </div>
             <div className="text-xs text-matrix-green font-medium">
               ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD

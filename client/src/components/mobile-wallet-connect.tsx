@@ -358,7 +358,7 @@ export function MobileWalletConnect() {
         <DialogContent className={`
           bg-black border border-gray-800
           ${isMobile 
-            ? 'fixed inset-2 top-4 bottom-4 w-[calc(100vw-16px)] h-[calc(100vh-32px)] max-h-[calc(100vh-32px)] rounded-lg m-0 p-4 max-w-none flex flex-col'
+            ? 'fixed inset-0 w-full h-full max-h-full rounded-none m-0 p-4 max-w-none flex flex-col min-h-screen'
             : 'max-w-md mx-auto my-8 max-h-[90vh] rounded-lg w-full'
           }
           overflow-hidden

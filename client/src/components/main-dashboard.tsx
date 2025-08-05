@@ -129,6 +129,16 @@ export function MainDashboard() {
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
   
+  // Uniswap V3 hooks for liquidity provision
+  const {
+    mintPosition,
+    isMinting,
+    approveTokens,
+    isApproving,
+    checkAllowances,
+    estimateGas
+  } = useUniswapV3();
+  
   // Chart modal state
   const [showChartModal, setShowChartModal] = useState(false);
   
@@ -268,13 +278,110 @@ export function MainDashboard() {
     );
   };
 
-  // Navigate to Add Liquidity tab for detailed liquidity management
-  const handleQuickAddLiquidity = () => {
-    setActiveTab('liquidity');
-    toast({
-      title: "Redirecting to Add Liquidity",
-      description: "Use the Add Liquidity tab for complete position management",
-    });
+  // Quick Add Liquidity with actual token approval and position minting
+  const handleQuickAddLiquidity = async () => {
+    if (!address || isQuickAdding) return;
+    
+    try {
+      setIsQuickAdding(true);
+      
+      const amounts = calculateOptimalAmounts();
+      
+      // Validate sufficient balance
+      if (parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0) {
+        toast({
+          title: "Insufficient Balance",
+          description: "You need both KILT and ETH tokens to add liquidity",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Preparing Quick Add Liquidity",
+        description: "Checking token allowances...",
+      });
+
+      // Check current allowances
+      const allowances = await checkAllowances(
+        amounts.kiltAmount,
+        amounts.ethAmount,
+        amounts.useNativeEth
+      );
+
+      // Approve tokens if needed
+      if (!allowances.kiltApproved || (!allowances.ethApproved && !amounts.useNativeEth)) {
+        toast({
+          title: "Token Approval Required",
+          description: "Please approve tokens for liquidity provision",
+        });
+
+        const approvalResult = await approveTokens(
+          amounts.kiltAmount,
+          amounts.ethAmount,
+          amounts.useNativeEth
+        );
+
+        if (!approvalResult.success) {
+          throw new Error(approvalResult.error || 'Token approval failed');
+        }
+
+        toast({
+          title: "Tokens Approved",
+          description: "Now minting liquidity position...",
+        });
+      }
+
+      // Estimate gas costs
+      const gasEstimate = await estimateGas(
+        amounts.kiltAmount,
+        amounts.ethAmount,
+        amounts.useNativeEth
+      );
+
+      toast({
+        title: "Minting Position",
+        description: `Gas estimate: ${gasEstimate.formatted}`,
+      });
+
+      // Mint the position with full range (for simplicity in quick add)
+      const mintResult = await mintPosition({
+        kiltAmount: amounts.kiltAmount,
+        ethAmount: amounts.ethAmount,
+        useNativeEth: amounts.useNativeEth,
+        tickLower: -887220, // Full range
+        tickUpper: 887220,  // Full range
+        slippageTolerance: 0.5 // 0.5% slippage
+      });
+
+      if (mintResult.success) {
+        toast({
+          title: "Position Created Successfully!",
+          description: `Added $${amounts.totalValue} liquidity to KILT/ETH pool`,
+        });
+
+        // Invalidate cache to refresh position data
+        queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/rewards'] });
+        
+        // Switch to positions tab to view the new position
+        setActiveTab('positions');
+      } else {
+        throw new Error(mintResult.error || 'Position minting failed');
+      }
+      
+    } catch (error: unknown) {
+      console.error('Quick Add Liquidity error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      toast({
+        title: "Quick Add Liquidity Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsQuickAdding(false);
+    }
   };
 
   // Show loading state while connecting

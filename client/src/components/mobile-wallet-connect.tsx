@@ -356,10 +356,10 @@ export function MobileWalletConnect() {
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className={`
-          bg-black border border-gray-800 w-full
+          bg-black border border-gray-800
           ${isMobile 
-            ? 'fixed inset-0 h-screen max-h-screen rounded-none m-0 p-4 max-w-none flex flex-col'
-            : 'max-w-md mx-auto my-8 max-h-[90vh] rounded-lg'
+            ? 'fixed inset-2 top-4 bottom-4 w-[calc(100vw-16px)] h-[calc(100vh-32px)] max-h-[calc(100vh-32px)] rounded-lg m-0 p-4 max-w-none flex flex-col'
+            : 'max-w-md mx-auto my-8 max-h-[90vh] rounded-lg w-full'
           }
           overflow-hidden
         `}>

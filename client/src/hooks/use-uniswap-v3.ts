@@ -1168,6 +1168,117 @@ export function useUniswapV3() {
         throw error;
       }
     },
+    collectLiquidity: async (params: {
+      tokenId: string;
+    }) => {
+      try {
+        if (!address) throw new Error('Wallet not connected');
+        
+        const walletClient = createWalletClient({
+          chain: base,
+          transport: custom(window.ethereum),
+        });
+        
+        const hash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'collect',
+          args: [{
+            tokenId: BigInt(params.tokenId),
+            recipient: address as `0x${string}`,
+            amount0Max: BigInt('340282366920938463463374607431768211455'), // type(uint128).max
+            amount1Max: BigInt('340282366920938463463374607431768211455'), // type(uint128).max
+          }],
+          account: address as `0x${string}`,
+        });
+
+        await baseClient.waitForTransactionReceipt({ hash });
+        
+        toast({
+          title: "Tokens Collected!",
+          description: `Successfully collected underlying tokens from position #${params.tokenId}`,
+        });
+        
+        return hash;
+      } catch (error) {
+        toast({
+          title: "Collect Tokens Failed",
+          description: (error as Error)?.message || 'Failed to collect underlying tokens',
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
+    removeLiquidityAndCollect: async (params: {
+      tokenId: string;
+      liquidity: string;
+      removePercentage: number;
+    }) => {
+      try {
+        if (!address) throw new Error('Wallet not connected');
+        
+        const walletClient = createWalletClient({
+          chain: base,
+          transport: custom(window.ethereum),
+        });
+
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
+        
+        // Use multicall to combine decreaseLiquidity and collect in one transaction
+        const decreaseLiquidityCall = {
+          target: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          callData: encodeFunctionData({
+            abi: POSITION_MANAGER_ABI,
+            functionName: 'decreaseLiquidity',
+            args: [{
+              tokenId: BigInt(params.tokenId),
+              liquidity: BigInt(params.liquidity),
+              amount0Min: BigInt('0'),
+              amount1Min: BigInt('0'),
+              deadline: BigInt(deadline)
+            }]
+          })
+        };
+
+        const collectCall = {
+          target: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          callData: encodeFunctionData({
+            abi: POSITION_MANAGER_ABI,
+            functionName: 'collect',
+            args: [{
+              tokenId: BigInt(params.tokenId),
+              recipient: address as `0x${string}`,
+              amount0Max: BigInt('340282366920938463463374607431768211455'),
+              amount1Max: BigInt('340282366920938463463374607431768211455'),
+            }]
+          })
+        };
+
+        const hash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'multicall',
+          args: [[decreaseLiquidityCall.callData, collectCall.callData]],
+          account: address as `0x${string}`,
+        });
+
+        await baseClient.waitForTransactionReceipt({ hash });
+        
+        toast({
+          title: "Liquidity Removed!",
+          description: `Successfully removed ${params.removePercentage}% liquidity and collected tokens from position #${params.tokenId}`,
+        });
+        
+        return hash;
+      } catch (error) {
+        toast({
+          title: "Remove Liquidity Failed",
+          description: (error as Error)?.message || 'Failed to remove liquidity and collect tokens',
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
     burnPosition: async (params: { tokenId: string }) => {
       if (!address || !params.tokenId) {
         throw new Error('Address or token ID not available');

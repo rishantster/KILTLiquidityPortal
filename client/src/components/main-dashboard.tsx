@@ -74,6 +74,13 @@ import { useEthPrice } from '@/hooks/use-eth-price';
 // Universal logo components
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 
+// Viem utilities for token amount parsing
+import { parseUnits } from 'viem';
+
+// Token contract addresses
+const WETH_TOKEN = '0x4200000000000000000000000000000000000006'; // Base WETH
+const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
+
 
 
 // SINGLE SOURCE OF TRUTH APR COMPONENTS - Replaces all other APR calculations
@@ -130,14 +137,7 @@ export function MainDashboard() {
   const appSession = useAppSession();
   
   // Uniswap V3 hooks for liquidity provision
-  const {
-    mintPosition,
-    isMinting,
-    approveTokens,
-    isApproving,
-    checkAllowances,
-    estimateGas
-  } = useUniswapV3();
+  const { mintPosition, isMinting } = useUniswapV3();
   
   // Chart modal state
   const [showChartModal, setShowChartModal] = useState(false);
@@ -280,15 +280,15 @@ export function MainDashboard() {
 
   // Quick Add Liquidity with actual token approval and position minting
   const handleQuickAddLiquidity = async () => {
-    if (!address || isQuickAdding) return;
+    if (!address || isMinting) return;
     
     try {
-      setIsQuickAdding(true);
+      console.log('🚀 Starting Quick Add Liquidity process...');
       
       const amounts = calculateOptimalAmounts();
+      const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
       
-      // Validate sufficient balance
-      if (parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0) {
+      if (hasInsufficientBalance) {
         toast({
           title: "Insufficient Balance",
           description: "You need both KILT and ETH tokens to add liquidity",
@@ -296,91 +296,71 @@ export function MainDashboard() {
         });
         return;
       }
-
-      toast({
-        title: "Preparing Quick Add Liquidity",
-        description: "Checking token allowances...",
+      
+      // Convert to BigInt values (18 decimals)
+      const amount0Desired = parseUnits(amounts.ethAmount, 18); // WETH
+      const amount1Desired = parseUnits(amounts.kiltAmount, 18); // KILT
+      
+      console.log('💰 Quick Add amounts:', {
+        eth: amounts.ethAmount,
+        kilt: amounts.kiltAmount,
+        amount0Desired: amount0Desired.toString(),
+        amount1Desired: amount1Desired.toString()
       });
-
-      // Check current allowances
-      const allowances = await checkAllowances(
-        amounts.kiltAmount,
-        amounts.ethAmount,
-        amounts.useNativeEth
-      );
-
-      // Approve tokens if needed
-      if (!allowances.kiltApproved || (!allowances.ethApproved && !amounts.useNativeEth)) {
-        toast({
-          title: "Token Approval Required",
-          description: "Please approve tokens for liquidity provision",
-        });
-
-        const approvalResult = await approveTokens(
-          amounts.kiltAmount,
-          amounts.ethAmount,
-          amounts.useNativeEth
-        );
-
-        if (!approvalResult.success) {
-          throw new Error(approvalResult.error || 'Token approval failed');
-        }
-
-        toast({
-          title: "Tokens Approved",
-          description: "Now minting liquidity position...",
-        });
-      }
-
-      // Estimate gas costs
-      const gasEstimate = await estimateGas(
-        amounts.kiltAmount,
-        amounts.ethAmount,
-        amounts.useNativeEth
-      );
-
+      
       toast({
-        title: "Minting Position",
-        description: `Gas estimate: ${gasEstimate.formatted}`,
+        title: "Creating Liquidity Position",
+        description: "Processing transaction...",
       });
-
-      // Mint the position with full range (for simplicity in quick add)
-      const mintResult = await mintPosition({
-        kiltAmount: amounts.kiltAmount,
-        ethAmount: amounts.ethAmount,
-        useNativeEth: amounts.useNativeEth,
+      
+      // Create the position using mintPosition from useUniswapV3
+      console.log('🏗️ Creating liquidity position...');
+      const txHash = await mintPosition({
+        token0: WETH_TOKEN as `0x${string}`,
+        token1: KILT_TOKEN as `0x${string}`,
+        fee: 3000, // 0.3%
         tickLower: -887220, // Full range
         tickUpper: 887220,  // Full range
-        slippageTolerance: 0.5 // 0.5% slippage
+        amount0Desired,
+        amount1Desired,
+        amount0Min: (amount0Desired * 95n) / 100n, // 5% slippage
+        amount1Min: (amount1Desired * 95n) / 100n, // 5% slippage
+        recipient: address as `0x${string}`,
+        deadline: Math.floor(Date.now() / 1000) + 1200, // 20 minutes
+        useNativeETH: true
       });
-
-      if (mintResult.success) {
-        toast({
-          title: "Position Created Successfully!",
-          description: `Added $${amounts.totalValue} liquidity to KILT/ETH pool`,
-        });
-
-        // Invalidate cache to refresh position data
-        queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/rewards'] });
-        
-        // Switch to positions tab to view the new position
-        setActiveTab('positions');
-      } else {
-        throw new Error(mintResult.error || 'Position minting failed');
-      }
       
-    } catch (error: unknown) {
-      console.error('Quick Add Liquidity error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.log('✅ Position created! Hash:', txHash);
       
       toast({
-        title: "Quick Add Liquidity Failed",
-        description: errorMessage,
-        variant: "destructive"
+        title: "Liquidity Added Successfully!",
+        description: `Added ${amounts.ethAmount} ETH + ${amounts.kiltAmount} KILT to the pool`,
       });
-    } finally {
-      setIsQuickAdding(false);
+      
+      // Invalidate cache to refresh position data
+      queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards'] });
+      
+      // Switch to positions tab to show the new position
+      setActiveTab('positions');
+      
+    } catch (error: any) {
+      console.error('Quick Add Liquidity error:', error);
+      
+      let errorMessage = "Failed to add liquidity";
+      if (error.message?.includes('insufficient funds')) {
+        errorMessage = "Insufficient token balance";
+      } else if (error.message?.includes('user rejected')) {
+        errorMessage = "Transaction rejected";
+      } else if (error.message?.includes('slippage')) {
+        errorMessage = "Price changed too much during transaction";
+      }
+      
+      toast({
+        title: "Quick Add Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -995,7 +975,7 @@ export function MainDashboard() {
                       {(() => {
                         const amounts = calculateOptimalAmounts();
                         const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
-                        const isDisabled = isQuickAdding || !address || hasInsufficientBalance;
+                        const isDisabled = isMinting || !address || hasInsufficientBalance;
                         
                         return (
                           <Button 
@@ -1007,7 +987,7 @@ export function MainDashboard() {
                                 : 'theme-button-primary'
                             }`}
                           >
-                            {isQuickAdding ? (
+                            {isMinting ? (
                               <>
                                 <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
                                 Processing...

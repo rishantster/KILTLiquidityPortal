@@ -38,6 +38,7 @@ import { UniswapModal } from '@/components/uniswap-modal';
 import { useValidatedPositions } from '@/hooks/use-validated-positions';
 import { useMultiplePositionFees } from '@/hooks/use-position-fees';
 import { UniswapStyleLiquidityModal } from '@/components/uniswap-style-liquidity-modal';
+import { CompleteRemoveLiquidityButton } from '@/components/complete-remove-liquidity-button';
 
 export function UserPositions() {
   const { address, isConnected } = useWagmiWallet();
@@ -561,6 +562,18 @@ export function UserPositions() {
                         CLAIM
                       </button>
                     </div>
+
+                    {/* Manual Step 2 Helper for positions that need token collection */}
+                    {(tokenId === '3670740' || tokenId === '3683409') && (
+                      <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                        <div className="text-xs text-orange-300 mb-2">
+                          ⚠️ Step 2 needed: Complete token withdrawal
+                        </div>
+                        <CompleteRemoveLiquidityButton 
+                          tokenId={tokenId}
+                        />
+                      </div>
+                    )}
 
 
                   </div>

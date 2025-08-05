@@ -33,6 +33,7 @@ The KILT Liquidity Incentive Portal is a production-ready DeFi application for m
 - **✅ BULK REGISTRATION ENDPOINT COMPLETE**: Created `/api/positions/register/bulk` endpoint for automated position enrollment with comprehensive error handling and success tracking
 - **✅ POSITION COUNT DISPLAY FIX**: Fixed UI display inconsistency where registered position count showed outdated data - now correctly shows all 4 active positions using fresh eligible endpoint data
 - **✅ SEAMLESS AUTO-REGISTRATION VERIFIED**: Complete end-to-end workflow tested and working - Quick Add Liquidity → Position Creation → Auto-Registration → UI Update all functioning perfectly
+- **✅ REMOVE LIQUIDITY FUNCTIONALITY FIXED**: Implemented proper two-step remove liquidity process with decreaseLiquidity + collectLiquidity functions, resolving MetaMask "No changes" display issue and ensuring tokens are properly transferred to user wallet
 
 **DEPLOYMENT STATUS**: Contract deployed to `0xe5771357399D58aC79A5b1161e8C363bB178B22b`. Calculator wallet created and ready for one-time authorization via BaseScan. Database completely reset as fresh application.
 

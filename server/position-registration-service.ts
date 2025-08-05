@@ -207,7 +207,7 @@ export class PositionRegistrationService {
         };
       }
 
-      // Create position record
+      // Create position record with proper price range handling
       const positionRecord: InsertLpPosition = {
         userId,
         nftTokenId: positionData.nftTokenId,
@@ -216,8 +216,8 @@ export class PositionRegistrationService {
         token1Address: positionData.token1Address,
         token0Amount: positionData.amount0,
         token1Amount: positionData.amount1,
-        minPrice: positionData.minPrice,
-        maxPrice: positionData.maxPrice,
+        minPrice: positionData.minPrice || '0', // Provide default value if null
+        maxPrice: positionData.maxPrice || '999999999', // Provide default value if null
         liquidity: positionData.liquidity,
         currentValueUSD: positionData.currentValueUSD.toString(),
         tickLower: 0, // Default value since not in interface

@@ -181,8 +181,10 @@ export function PositionRegistration() {
       queryClient.invalidateQueries({ queryKey: ['eligible-positions-uniswap', address] });
       queryClient.invalidateQueries({ queryKey: ['user-positions'] });
       queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
-      // Force immediate refetch
-      queryClient.refetchQueries({ queryKey: ['eligible-positions-uniswap', address] });
+      // Force immediate refetch with a small delay to ensure backend updates
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['eligible-positions-uniswap', address] });
+      }, 100);
     },
     onError: (error) => {
       toast({
@@ -255,8 +257,10 @@ export function PositionRegistration() {
       queryClient.invalidateQueries({ queryKey: ['eligible-positions-uniswap', address] });
       queryClient.invalidateQueries({ queryKey: ['user-positions'] });
       queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
-      // Force immediate refetch
-      queryClient.refetchQueries({ queryKey: ['eligible-positions-uniswap', address] });
+      // Force immediate refetch with a small delay to ensure backend updates
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['eligible-positions-uniswap', address] });
+      }, 100);
       setSelectedPositions([]);
     },
     onError: (error) => {

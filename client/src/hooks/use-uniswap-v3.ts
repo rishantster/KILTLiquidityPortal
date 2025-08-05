@@ -686,12 +686,57 @@ export function useUniswapV3() {
           throw new Error('Invalid token amounts - both amounts cannot be zero');
         }
 
+        // Check and handle KILT token approval for new users
+        // Always need to approve KILT (token1) regardless of using native ETH for WETH (token0)
+        if (amount1Desired > 0n) {
+          try {
+            // Check current KILT allowance
+            const allowance = await baseClient.readContract({
+              address: KILT_TOKEN as `0x${string}`,
+              abi: ERC20_ABI,
+              functionName: 'allowance',
+              args: [address as `0x${string}`, UNISWAP_V3_POSITION_MANAGER as `0x${string}`],
+            });
+
+            // If allowance is insufficient, request approval
+            if (allowance < amount1Desired) {
+              console.log('🔐 KILT approval needed - requesting user approval...');
+              toast({
+                title: "Token Approval Required",
+                description: "Please approve KILT spending in your wallet",
+              });
+
+              const hash = await walletClient.writeContract({
+                address: KILT_TOKEN as `0x${string}`,
+                abi: ERC20_ABI,
+                functionName: 'approve',
+                args: [UNISWAP_V3_POSITION_MANAGER as `0x${string}`, amount1Desired],
+                account: address as `0x${string}`,
+              });
+
+              // Wait for approval confirmation
+              const receipt = await baseClient.waitForTransactionReceipt({ hash });
+              if (receipt.status !== 'success') {
+                throw new Error('Token approval failed');
+              }
+
+              toast({
+                title: "Token Approved",
+                description: "KILT tokens approved for spending",
+              });
+            }
+          } catch (approvalError: any) {
+            throw new Error(`Token approval failed: ${approvalError.message}`);
+          }
+        }
+
         // More generous slippage protection (15% tolerance for initial testing)
         const amount0Min = (amount0Desired * 85n) / 100n;
         const amount1Min = (amount1Desired * 85n) / 100n;
 
         // Calculate ETH value to send (only if using native ETH)
-        const ethValue = params.useNativeETH ? amount1Desired : 0n;
+        // For KILT/ETH pool: token0 = WETH, token1 = KILT, so use amount0Desired for ETH
+        const ethValue = params.useNativeETH ? amount0Desired : 0n;
 
         // Create the mint parameters with proper structure
         const mintParams = {

@@ -42,7 +42,7 @@ export function LoadingScreen() {
         </div>
         <div className="flex items-center justify-center space-x-2" style={{ color: '#ff0066' }}>
           <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Loading dashboard...</span>
+          <span>Loading your dashboard...</span>
         </div>
       </div>
     </div>

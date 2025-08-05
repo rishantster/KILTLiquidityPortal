@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Wallet, Smartphone, ChevronRight, CheckCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
+import { WalletConnectIcon, MetaMaskIcon, CoinbaseWalletIcon, TrustWalletIcon, GenericWalletIcon } from './wallet-icons';
 
 interface MobileWalletModalProps {
   isOpen: boolean;
@@ -9,10 +10,10 @@ interface MobileWalletModalProps {
 }
 
 const MOBILE_WALLETS = [
-  { id: 'metaMaskSDK', name: 'MetaMask', deepLink: 'https://metamask.app.link/dapp/' },
-  { id: 'coinbaseWalletSDK', name: 'Coinbase Wallet', deepLink: 'https://go.cb-w.com/dapp?cb_url=' },
-  { id: 'trust', name: 'Trust Wallet', deepLink: 'https://link.trustwallet.com/open_url?coin_id=60&url=' },
-  { id: 'rainbow', name: 'Rainbow', deepLink: 'https://rnbwapp.com//' }
+  { id: 'metaMaskSDK', name: 'MetaMask', deepLink: 'https://metamask.app.link/dapp/', icon: MetaMaskIcon },
+  { id: 'coinbaseWalletSDK', name: 'Coinbase Wallet', deepLink: 'https://go.cb-w.com/dapp?cb_url=', icon: CoinbaseWalletIcon },
+  { id: 'trust', name: 'Trust Wallet', deepLink: 'https://link.trustwallet.com/open_url?coin_id=60&url=', icon: TrustWalletIcon },
+  { id: 'rainbow', name: 'Rainbow', deepLink: 'https://rnbwapp.com//', icon: GenericWalletIcon }
 ];
 
 export function MobileWalletModal({ isOpen, onClose }: MobileWalletModalProps) {
@@ -147,9 +148,7 @@ export function MobileWalletModal({ isOpen, onClose }: MobileWalletModalProps) {
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">
-                            {wallet.name.charAt(0)}
-                          </span>
+                          <wallet.icon size={28} />
                         </div>
                         <div className="text-left">
                           <div className="text-white font-medium">{wallet.name}</div>
@@ -173,9 +172,7 @@ export function MobileWalletModal({ isOpen, onClose }: MobileWalletModalProps) {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
-                    <svg className="h-6 w-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
-                    </svg>
+                    <WalletConnectIcon size={28} />
                   </div>
                   <div className="text-left">
                     <div className="text-white font-medium">WalletConnect</div>
@@ -200,9 +197,7 @@ export function MobileWalletModal({ isOpen, onClose }: MobileWalletModalProps) {
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">
-                            {wallet.name.charAt(0)}
-                          </span>
+                          <wallet.icon size={28} />
                         </div>
                         <div className="text-left">
                           <div className="text-white font-medium">{wallet.name}</div>

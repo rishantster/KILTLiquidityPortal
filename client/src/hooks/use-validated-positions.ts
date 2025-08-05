@@ -30,6 +30,9 @@ export function useValidatedPositions(userId: number | undefined) {
         }
         const blockchainPositions = await blockchainResponse.json();
 
+        // Track burned positions for database cleanup
+        const burnedPositions: string[] = [];
+        
         // Cross-validate: only include registered positions that still exist on blockchain
         const validatedPositions = registeredPositions.map((dbPosition: any) => {
           const blockchainPosition = blockchainPositions.find((bcPosition: any) => 
@@ -39,6 +42,7 @@ export function useValidatedPositions(userId: number | undefined) {
           // Position must exist on blockchain
           if (!blockchainPosition) {
             console.warn(`Registered position ${dbPosition.nftTokenId} not found on blockchain - may have been burned`);
+            burnedPositions.push(dbPosition.nftTokenId);
             return null;
           }
 
@@ -69,6 +73,38 @@ export function useValidatedPositions(userId: number | undefined) {
             verificationStatus: dbPosition.verificationStatus
           };
         }).filter(Boolean); // Remove null entries
+
+        // Automatically clean up burned positions from database
+        if (burnedPositions.length > 0) {
+          console.log(`🔥 Auto-cleaning ${burnedPositions.length} burned positions from database:`, burnedPositions);
+          
+          try {
+            const cleanupPromises = burnedPositions.map(async (tokenId) => {
+              const response = await fetch(`/api/positions/cleanup-burned/${tokenId}`, {
+                method: 'DELETE'
+              });
+              if (response.ok) {
+                console.log(`✅ Cleaned up burned position ${tokenId} from database`);
+                return tokenId;
+              } else {
+                console.warn(`⚠️ Failed to cleanup burned position ${tokenId}`);
+                return null;
+              }
+            });
+            
+            const cleanedUp = await Promise.all(cleanupPromises);
+            const successfulCleanups = cleanedUp.filter(Boolean);
+            
+            if (successfulCleanups.length > 0) {
+              console.log(`✅ Successfully marked ${successfulCleanups.length} burned positions as inactive`);
+            }
+            
+            // Invalidate related queries to refresh UI
+            // Note: This will be handled by the component using this hook
+          } catch (error) {
+            console.error('Failed to cleanup burned positions:', error);
+          }
+        }
 
         console.log(`🔍 Position validation: ${registeredPositions.length} registered, ${blockchainPositions.length} on blockchain, ${validatedPositions.length} validated`);
         console.log('📋 Validated positions:', validatedPositions.map((p: any) => ({ tokenId: p.nftTokenId, liquidity: p.liquidity, active: p.isActive })));

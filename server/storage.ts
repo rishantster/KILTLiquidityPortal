@@ -27,6 +27,7 @@ export interface IStorage {
   getAllLpPositions(): Promise<LpPosition[]>;
   createLpPosition(position: InsertLpPosition): Promise<LpPosition>;
   updateLpPosition(id: number, updates: Partial<LpPosition>): Promise<LpPosition | undefined>;
+  updateLpPositionStatus(tokenId: string, updates: { isActive?: boolean; verificationStatus?: string }): Promise<boolean>;
   
   // Position registration methods
   getUserPositions(address: string): Promise<any[]>;
@@ -355,6 +356,21 @@ export class DatabaseStorage implements IStorage {
   async getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined> {
     const result = await db.select().from(lpPositions).where(eq(lpPositions.nftTokenId, nftTokenId)).limit(1);
     return result[0];
+  }
+
+  // Update position status for burned position cleanup
+  async updateLpPositionStatus(tokenId: string, updates: { isActive?: boolean; verificationStatus?: string }): Promise<boolean> {
+    try {
+      const result = await db.update(lpPositions)
+        .set(updates)
+        .where(eq(lpPositions.nftTokenId, tokenId))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error(`Failed to update position status for token ${tokenId}:`, error);
+      return false;
+    }
   }
 }
 

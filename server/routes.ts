@@ -2579,6 +2579,41 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Mark burned position as inactive (automatic cleanup)
+  app.delete("/api/positions/cleanup-burned/:tokenId", async (req, res) => {
+    try {
+      const { tokenId } = req.params;
+      console.log(`🔥 Auto-cleanup request for burned position ${tokenId}`);
+      
+      // Mark position as inactive instead of deleting it
+      const result = await storage.updateLpPositionStatus(tokenId, { 
+        isActive: false, 
+        verificationStatus: 'burned' 
+      });
+      
+      if (result) {
+        console.log(`✅ Marked position ${tokenId} as inactive (burned)`);
+        res.json({ 
+          success: true, 
+          message: `Position ${tokenId} marked as burned`,
+          action: 'marked_inactive'
+        });
+      } else {
+        console.warn(`⚠️ Position ${tokenId} not found for cleanup`);
+        res.status(404).json({ 
+          error: `Position ${tokenId} not found`,
+          action: 'not_found' 
+        });
+      }
+    } catch (error) {
+      console.error(`❌ Failed to cleanup burned position ${req.params.tokenId}:`, error);
+      res.status(500).json({ 
+        error: "Failed to cleanup burned position",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // LEGACY - Get wallet positions for connected user with caching
   app.get("/api/positions/wallet-legacy/:userAddress", async (req, res) => {
     try {

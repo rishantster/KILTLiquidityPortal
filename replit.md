@@ -21,6 +21,7 @@ The KILT Liquidity Incentive Portal is a production-ready DeFi application for m
 - **✅ 24H PRICE CHANGE FIX**: Corrected display condition blocking negative price changes (-1.34% now shows properly)
 - **✅ PROGRAM APR VERIFICATION**: Confirmed 181.12% APR calculation is mathematically correct using treasury parameters
 - **✅ POSITION REGISTRATION FIX**: Resolved database constraint error preventing LP position registration
+- **✅ BULK REGISTRATION SUCCESS COUNTING FIX**: Fixed misleading "Successfully registered 0 positions" message - now shows accurate results like "All 2 positions were already registered" or "Successfully registered 1 new position (1 already registered)"
 
 **DEPLOYMENT STATUS**: Contract deployed to `0xe5771357399D58aC79A5b1161e8C363bB178B22b`. Calculator wallet created and ready for one-time authorization via BaseScan. Database completely reset as fresh application.
 

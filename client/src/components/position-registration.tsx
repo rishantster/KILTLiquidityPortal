@@ -220,9 +220,15 @@ export function PositionRegistration() {
       return response.json();
     },
     onSuccess: (result) => {
+      const message = result.successCount > 0 
+        ? `Successfully registered ${result.successCount} new position${result.successCount === 1 ? '' : 's'}${result.alreadyRegisteredCount > 0 ? ` (${result.alreadyRegisteredCount} already registered)` : ''}`
+        : result.alreadyRegisteredCount > 0 
+        ? `All ${result.alreadyRegisteredCount} position${result.alreadyRegisteredCount === 1 ? ' was' : 's were'} already registered`
+        : `No positions could be registered`;
+        
       toast({
         title: "Bulk Registration Complete",
-        description: `Successfully registered ${result.successCount} positions`,
+        description: message,
       });
       queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
       queryClient.invalidateQueries({ queryKey: ['user-positions'] });

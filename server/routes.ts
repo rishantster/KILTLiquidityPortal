@@ -2116,16 +2116,30 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         positions
       );
 
-      console.log(`✅ Bulk registration completed: ${result.successCount} success, ${result.failureCount} failed`);
-      console.log(`📊 Registration results:`, result.results.map(r => ({ tokenId: r.positionId, success: r.success, message: r.message })));
+      console.log(`✅ Bulk registration completed: ${result.successCount} success, ${result.failureCount} failed, ${result.alreadyRegisteredCount || 0} already registered`);
+      console.log(`📊 Registration results:`, result.results.map(r => ({ 
+        tokenId: r.positionId, 
+        success: r.success, 
+        alreadyRegistered: r.alreadyRegistered,
+        message: r.message 
+      })));
+
+      const alreadyRegisteredCount = result.results.filter(r => r.alreadyRegistered).length;
+      const actualNewRegistrations = result.successCount;
+      const totalProcessed = actualNewRegistrations + alreadyRegisteredCount;
 
       res.json({
-        success: result.successCount > 0,
-        successCount: result.successCount,
+        success: totalProcessed > 0, // Success if we processed any positions (new or already registered)
+        successCount: actualNewRegistrations,
         failureCount: result.failureCount,
+        alreadyRegisteredCount,
         totalPositions: positions.length,
         results: result.results,
-        message: `Successfully registered ${result.successCount} of ${positions.length} positions`
+        message: actualNewRegistrations > 0 
+          ? `Successfully registered ${actualNewRegistrations} new position${actualNewRegistrations === 1 ? '' : 's'}${alreadyRegisteredCount > 0 ? ` (${alreadyRegisteredCount} already registered)` : ''}`
+          : alreadyRegisteredCount > 0 
+          ? `All ${alreadyRegisteredCount} position${alreadyRegisteredCount === 1 ? ' was' : 's were'} already registered`
+          : `No positions could be registered`
       });
 
     } catch (error) {

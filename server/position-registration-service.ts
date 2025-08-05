@@ -506,21 +506,25 @@ export class PositionRegistrationService {
   ): Promise<{
     successCount: number;
     failureCount: number;
+    alreadyRegisteredCount: number;
     results: PositionRegistrationResult[];
   }> {
     const results: PositionRegistrationResult[] = [];
     let successCount = 0;
     let failureCount = 0;
+    let alreadyRegisteredCount = 0;
 
     for (const position of positions) {
       console.log(`🔄 Registering position ${position.nftTokenId}...`);
       const result = await this.registerExternalPosition(userId, userAddress, position);
       results.push(result);
       
-      console.log(`📊 Position ${position.nftTokenId} result: success=${result.success}, message="${result.message}"`);
+      console.log(`📊 Position ${position.nftTokenId} result: success=${result.success}, alreadyRegistered=${result.alreadyRegistered}, message="${result.message}"`);
       
       if (result.success) {
         successCount++;
+      } else if (result.alreadyRegistered) {
+        alreadyRegisteredCount++;
       } else {
         failureCount++;
       }
@@ -529,6 +533,7 @@ export class PositionRegistrationService {
     return {
       successCount,
       failureCount,
+      alreadyRegisteredCount,
       results
     };
   }

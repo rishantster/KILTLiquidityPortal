@@ -358,10 +358,10 @@ export function MobileWalletConnect() {
         <DialogContent className={`
           bg-black border border-gray-800 w-full
           ${isMobile 
-            ? 'fixed inset-0 h-full max-h-none rounded-none m-0 p-6 max-w-none'
+            ? 'fixed inset-0 h-screen max-h-screen rounded-none m-0 p-4 max-w-none flex flex-col'
             : 'max-w-md mx-auto my-8 max-h-[90vh] rounded-lg'
           }
-          overflow-y-auto
+          overflow-hidden
         `}>
           <DialogHeader className={isMobile ? 'mb-8' : 'mb-6'}>
             <DialogTitle className={`
@@ -388,13 +388,13 @@ export function MobileWalletConnect() {
           
           {/* Mobile Section */}
           {isMobile ? (
-            <div className="space-y-6 flex-1 flex flex-col">
-              <div className="flex items-center gap-3 text-gray-400">
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex items-center gap-3 text-gray-400 mb-6">
                 <Smartphone className="h-5 w-5" />
                 <span className="text-base">Mobile Wallets</span>
               </div>
               
-              <div className="space-y-4 flex-1">
+              <div className="space-y-4 flex-1 overflow-y-auto">
                 {/* Show installed wallets first */}
                 {(() => {
                   const installedWallets = getInstalledMobileWallets();
@@ -535,7 +535,7 @@ export function MobileWalletConnect() {
             </div>
           )}
 
-          <div className={`text-gray-500 text-center px-2 ${isMobile ? 'text-sm mt-auto pt-6' : 'text-xs sm:text-sm mt-4 sm:mt-6'}`}>
+          <div className={`text-gray-500 text-center px-2 flex-shrink-0 ${isMobile ? 'text-sm mt-6 pt-4 border-t border-gray-800' : 'text-xs sm:text-sm mt-4 sm:mt-6'}`}>
             By connecting, you agree to the Terms of Service and Privacy Policy
           </div>
         </DialogContent>

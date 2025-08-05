@@ -111,7 +111,7 @@ export function PositionManagementModal({
     try {
       const liquidityToRemove = (BigInt(position.liquidity) * BigInt(removePercentage)) / BigInt(100);
       
-      // Step 1: Remove liquidity from position
+      // Single transaction: Remove liquidity and collect tokens
       console.log('Remove Liquidity Debug:', {
         positionId: position.tokenId,
         totalLiquidity: position.liquidity,
@@ -120,14 +120,10 @@ export function PositionManagementModal({
         position
       });
 
-      await uniswapV3.decreaseLiquidity({
+      await uniswapV3.removeLiquidityAndCollect({
         tokenId: position.tokenId,
-        liquidity: liquidityToRemove.toString()
-      });
-      
-      // Step 2: Collect the underlying tokens to wallet
-      await uniswapV3.collectLiquidity({
-        tokenId: position.tokenId
+        liquidity: liquidityToRemove.toString(),
+        removePercentage
       });
       
       toast({

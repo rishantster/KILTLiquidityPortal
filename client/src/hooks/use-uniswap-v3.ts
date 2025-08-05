@@ -1224,41 +1224,36 @@ export function useUniswapV3() {
 
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
         
-        // Use multicall to combine decreaseLiquidity and collect in one transaction
-        const decreaseLiquidityCall = {
-          target: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
-          callData: encodeFunctionData({
-            abi: POSITION_MANAGER_ABI,
-            functionName: 'decreaseLiquidity',
-            args: [{
-              tokenId: BigInt(params.tokenId),
-              liquidity: BigInt(params.liquidity),
-              amount0Min: BigInt('0'),
-              amount1Min: BigInt('0'),
-              deadline: BigInt(deadline)
-            }]
-          })
-        };
+        // Encode function calls for multicall
+        const decreaseLiquidityData = encodeFunctionData({
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'decreaseLiquidity',
+          args: [{
+            tokenId: BigInt(params.tokenId),
+            liquidity: BigInt(params.liquidity),
+            amount0Min: BigInt('0'),
+            amount1Min: BigInt('0'),
+            deadline: BigInt(deadline)
+          }]
+        });
 
-        const collectCall = {
-          target: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
-          callData: encodeFunctionData({
-            abi: POSITION_MANAGER_ABI,
-            functionName: 'collect',
-            args: [{
-              tokenId: BigInt(params.tokenId),
-              recipient: address as `0x${string}`,
-              amount0Max: BigInt('340282366920938463463374607431768211455'),
-              amount1Max: BigInt('340282366920938463463374607431768211455'),
-            }]
-          })
-        };
+        const collectData = encodeFunctionData({
+          abi: POSITION_MANAGER_ABI,
+          functionName: 'collect',
+          args: [{
+            tokenId: BigInt(params.tokenId),
+            recipient: address as `0x${string}`,
+            amount0Max: BigInt('340282366920938463463374607431768211455'),
+            amount1Max: BigInt('340282366920938463463374607431768211455'),
+          }]
+        });
 
+        // Use multicall to execute both operations in one transaction
         const hash = await walletClient.writeContract({
           address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
           abi: POSITION_MANAGER_ABI,
           functionName: 'multicall',
-          args: [[decreaseLiquidityCall.callData, collectCall.callData]],
+          args: [[decreaseLiquidityData, collectData]],
           account: address as `0x${string}`,
         });
 

@@ -136,6 +136,35 @@ const POSITION_MANAGER_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
+  // Add ownerOf function for position ownership verification
+  {
+    inputs: [{ name: 'tokenId', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: 'owner', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  // Add positions function for position data retrieval
+  {
+    inputs: [{ name: 'tokenId', type: 'uint256' }],
+    name: 'positions',
+    outputs: [
+      { name: 'nonce', type: 'uint96' },
+      { name: 'operator', type: 'address' },
+      { name: 'token0', type: 'address' },
+      { name: 'token1', type: 'address' },
+      { name: 'fee', type: 'uint24' },
+      { name: 'tickLower', type: 'int24' },
+      { name: 'tickUpper', type: 'int24' },
+      { name: 'liquidity', type: 'uint128' },
+      { name: 'feeGrowthInside0LastX128', type: 'uint256' },
+      { name: 'feeGrowthInside1LastX128', type: 'uint256' },
+      { name: 'tokensOwed0', type: 'uint128' },
+      { name: 'tokensOwed1', type: 'uint128' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
 ] as const;
 
 // Create Base network client with reliable RPC endpoint
@@ -145,7 +174,7 @@ const baseClient = createPublicClient({
 });
 
 // Contract addresses on Base network - Updated from official Uniswap docs
-const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1';
+const UNISWAP_V3_POSITION_MANAGER = '0x03a520b32C04BF3bEEf7BEb72E919cf82D4C7c848';
 
 // Custom hook to fetch blockchain configuration from admin panel
 function useBlockchainConfig() {
@@ -1094,7 +1123,58 @@ export function useUniswapV3() {
           transport: custom(window.ethereum),
         });
 
+        // Verify position ownership before attempting to remove liquidity
+        try {
+          const owner = await baseClient.readContract({
+            address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+            abi: POSITION_MANAGER_ABI,
+            functionName: 'ownerOf',
+            args: [BigInt(params.tokenId)],
+          });
+          
+          if (owner.toLowerCase() !== address.toLowerCase()) {
+            throw new Error(`Position #${params.tokenId} is not owned by connected wallet`);
+          }
+          
+          console.log(`✅ Position ownership verified for token ${params.tokenId}`);
+        } catch (ownershipError) {
+          console.error('Position ownership verification failed:', ownershipError);
+          throw new Error(`Cannot verify position ownership: ${(ownershipError as Error).message}`);
+        }
+
+        // Get current position data to verify liquidity
+        try {
+          const positionData = await baseClient.readContract({
+            address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
+            abi: POSITION_MANAGER_ABI,
+            functionName: 'positions',
+            args: [BigInt(params.tokenId)],
+          });
+          
+          const currentLiquidity = positionData[7] as bigint; // liquidity is at index 7
+          console.log(`Current position liquidity: ${currentLiquidity.toString()}`);
+          console.log(`Attempting to remove: ${params.liquidity}`);
+          
+          if (currentLiquidity === 0n) {
+            throw new Error(`Position #${params.tokenId} has no liquidity to remove`);
+          }
+          
+          if (BigInt(params.liquidity) > currentLiquidity) {
+            throw new Error(`Cannot remove ${params.liquidity} liquidity - position only has ${currentLiquidity.toString()}`);
+          }
+        } catch (positionError) {
+          console.error('Position data verification failed:', positionError);
+          throw new Error(`Cannot verify position data: ${(positionError as Error).message}`);
+        }
+
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
+        
+        console.log('🔄 Starting decreaseLiquidity with verified parameters:', {
+          tokenId: params.tokenId,
+          liquidity: params.liquidity,
+          deadline,
+          contractAddress: UNISWAP_V3_POSITION_MANAGER
+        });
         
         const hash = await walletClient.writeContract({
           address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
@@ -1118,10 +1198,26 @@ export function useUniswapV3() {
         });
         
         return hash;
-      } catch (error) {
+      } catch (error: any) {
+        let errorMessage = "Failed to remove liquidity";
+        
+        if (error.message?.includes('not owned by')) {
+          errorMessage = error.message;
+        } else if (error.message?.includes('no liquidity')) {
+          errorMessage = error.message;
+        } else if (error.message?.includes('Cannot remove')) {
+          errorMessage = error.message;
+        } else if (error.message?.includes('user rejected')) {
+          errorMessage = "Transaction rejected by user";
+        } else if (error.message?.includes('insufficient funds')) {
+          errorMessage = "Insufficient gas for transaction";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: "Remove Liquidity Failed",
-          description: (error as Error)?.message || 'Failed to remove liquidity',
+          description: errorMessage,
           variant: "destructive",
         });
         throw error;

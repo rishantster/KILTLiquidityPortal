@@ -34,7 +34,7 @@ The KILT Liquidity Incentive Portal is a production-ready DeFi application for m
 - **✅ POSITION COUNT DISPLAY FIX**: Fixed UI display inconsistency where registered position count showed outdated data - now correctly shows all 4 active positions using fresh eligible endpoint data
 - **✅ SEAMLESS AUTO-REGISTRATION VERIFIED**: Complete end-to-end workflow tested and working - Quick Add Liquidity → Position Creation → Auto-Registration → UI Update all functioning perfectly
 - **✅ REMOVE LIQUIDITY FUNCTIONALITY FIXED**: Implemented properly two-step remove liquidity process with decreaseLiquidity + collectLiquidity functions, resolving MetaMask "No changes" display issue and ensuring tokens are properly transferred to user wallet
-- **✅ CRITICAL UNISWAP CONTRACT ADDRESS FIX**: Corrected UNISWAP_V3_POSITION_MANAGER from incorrect '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1' to correct '0x03a520b32C04BF3bEEf7BEb72E919cf82D4C7c848' fixing remove liquidity transaction failures
+- **✅ CRITICAL UNISWAP CONTRACT ADDRESS FIX**: Corrected UNISWAP_V3_POSITION_MANAGER to official Uniswap address '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1' from Base deployments documentation, fixing remove liquidity transaction failures
 - **✅ ENHANCED POSITION VALIDATION**: Added ownerOf and positions ABI functions with pre-transaction ownership verification and liquidity validation preventing failed transactions and providing clear error messages
 
 **DEPLOYMENT STATUS**: Contract deployed to `0xe5771357399D58aC79A5b1161e8C363bB178B22b`. Calculator wallet created and ready for one-time authorization via BaseScan. Database completely reset as fresh application.

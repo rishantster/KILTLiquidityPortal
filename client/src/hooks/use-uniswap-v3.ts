@@ -817,6 +817,7 @@ export function useUniswapV3() {
       amount1Desired: string;
       amount0Min?: string;
       amount1Min?: string;
+      useEth?: boolean;
     }) => {
       try {
         if (!address) throw new Error('Wallet not connected');
@@ -1224,8 +1225,14 @@ export function useUniswapV3() {
 
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
         
-        // Encode function calls for multicall
-        const decreaseLiquidityData = encodeFunctionData({
+        toast({
+          title: "Starting Liquidity Removal",
+          description: "Step 1: Removing liquidity from position...",
+        });
+
+        // Step 1: Decrease liquidity first
+        const decreaseLiquidityHash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
           abi: POSITION_MANAGER_ABI,
           functionName: 'decreaseLiquidity',
           args: [{
@@ -1234,10 +1241,20 @@ export function useUniswapV3() {
             amount0Min: BigInt('0'),
             amount1Min: BigInt('0'),
             deadline: BigInt(deadline)
-          }]
+          }],
+          account: address as `0x${string}`,
         });
 
-        const collectData = encodeFunctionData({
+        await baseClient.waitForTransactionReceipt({ hash: decreaseLiquidityHash });
+        
+        toast({
+          title: "Liquidity Removed",
+          description: "Step 2: Collecting underlying tokens...",
+        });
+
+        // Step 2: Collect the underlying tokens
+        const collectHash = await walletClient.writeContract({
+          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
           abi: POSITION_MANAGER_ABI,
           functionName: 'collect',
           args: [{
@@ -1245,26 +1262,18 @@ export function useUniswapV3() {
             recipient: address as `0x${string}`,
             amount0Max: BigInt('340282366920938463463374607431768211455'),
             amount1Max: BigInt('340282366920938463463374607431768211455'),
-          }]
-        });
-
-        // Use multicall to execute both operations in one transaction
-        const hash = await walletClient.writeContract({
-          address: UNISWAP_V3_POSITION_MANAGER as `0x${string}`,
-          abi: POSITION_MANAGER_ABI,
-          functionName: 'multicall',
-          args: [[decreaseLiquidityData, collectData]],
+          }],
           account: address as `0x${string}`,
         });
 
-        await baseClient.waitForTransactionReceipt({ hash });
+        await baseClient.waitForTransactionReceipt({ hash: collectHash });
         
         toast({
-          title: "Liquidity Removed!",
+          title: "Liquidity Removal Complete!",
           description: `Successfully removed ${params.removePercentage}% liquidity and collected tokens from position #${params.tokenId}`,
         });
         
-        return hash;
+        return { decreaseLiquidityHash, collectHash };
       } catch (error) {
         toast({
           title: "Remove Liquidity Failed",

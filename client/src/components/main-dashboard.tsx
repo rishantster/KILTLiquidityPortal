@@ -337,9 +337,38 @@ export function MainDashboard() {
         description: `Added ${amounts.ethAmount} ETH + ${amounts.kiltAmount} KILT to the pool`,
       });
       
-      // Invalidate cache to refresh position data
-      queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/rewards'] });
+      // Wait a moment for blockchain finalization, then auto-register the new position
+      setTimeout(async () => {
+        try {
+          console.log('🔄 Auto-registering new position in reward program...');
+          
+          // Refresh position data to get the new position
+          await queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
+          
+          // Trigger bulk registration to register all eligible positions
+          const response = await fetch('/api/positions/register/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ walletAddress: address })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Auto-registration completed:', result);
+            
+            toast({
+              title: "Position Registered!",
+              description: "Your new position is now earning KILT rewards",
+            });
+            
+            // Refresh all reward data
+            queryClient.invalidateQueries({ queryKey: ['/api/rewards'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
+          }
+        } catch (autoRegError) {
+          console.log('⚠️ Auto-registration failed, user can register manually:', autoRegError);
+        }
+      }, 3000); // Wait 3 seconds for blockchain confirmation
       
       // Switch to positions tab to show the new position
       setActiveTab('positions');

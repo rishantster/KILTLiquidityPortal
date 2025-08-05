@@ -376,12 +376,9 @@ export function useUniswapV3() {
       let ethValue = 0n;
       
       if (params.useNativeETH) {
-        // Determine which token amount corresponds to ETH/WETH
-        if (params.token0.toLowerCase() === WETH_TOKEN.toLowerCase()) {
-          ethValue = params.amount0Desired; // token0 is WETH, send ETH value
-        } else if (params.token1.toLowerCase() === WETH_TOKEN.toLowerCase()) {
-          ethValue = params.amount1Desired; // token1 is WETH, send ETH value
-        }
+        // For KILT/ETH pool on Base, WETH is always token0, KILT is token1
+        // So we need to send ETH equivalent to the WETH amount (token0)
+        ethValue = params.amount0Desired; // Always use token0 amount for ETH value
       }
       
       // Enhanced transaction validation and debugging

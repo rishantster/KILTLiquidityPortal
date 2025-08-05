@@ -177,8 +177,12 @@ export function PositionRegistration() {
         title: "Position Registered!",
         description: result.message,
       });
-      queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
+      // Invalidate the correct query keys to refresh eligible positions
+      queryClient.invalidateQueries({ queryKey: ['eligible-positions-uniswap', address] });
       queryClient.invalidateQueries({ queryKey: ['user-positions'] });
+      queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
+      // Force immediate refetch
+      queryClient.refetchQueries({ queryKey: ['eligible-positions-uniswap', address] });
     },
     onError: (error) => {
       toast({
@@ -247,8 +251,12 @@ export function PositionRegistration() {
         description: message,
         variant
       });
-      queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
+      // Invalidate the correct query keys to refresh eligible positions
+      queryClient.invalidateQueries({ queryKey: ['eligible-positions-uniswap', address] });
       queryClient.invalidateQueries({ queryKey: ['user-positions'] });
+      queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
+      // Force immediate refetch
+      queryClient.refetchQueries({ queryKey: ['eligible-positions-uniswap', address] });
       setSelectedPositions([]);
     },
     onError: (error) => {

@@ -220,19 +220,43 @@ export function PositionRegistration() {
       return response.json();
     },
     onSuccess: (result) => {
-      const message = result.successCount > 0 
-        ? `Successfully registered ${result.successCount} new position${result.successCount === 1 ? '' : 's'}${result.alreadyRegisteredCount > 0 ? ` (${result.alreadyRegisteredCount} already registered)` : ''}`
-        : result.alreadyRegisteredCount > 0 
-        ? `All ${result.alreadyRegisteredCount} position${result.alreadyRegisteredCount === 1 ? ' was' : 's were'} already registered`
-        : `No positions could be registered`;
-        
+      let message = '';
+      let variant: 'default' | 'destructive' = 'default';
+      
+      if (result.successCount > 0 && result.failureCount === 0) {
+        // All successful
+        message = `Successfully registered ${result.successCount} new position${result.successCount === 1 ? '' : 's'}${result.alreadyRegisteredCount > 0 ? ` (${result.alreadyRegisteredCount} already registered)` : ''}`;
+      } else if (result.successCount > 0 && result.failureCount > 0) {
+        // Partial success
+        message = `Registered ${result.successCount} positions successfully, ${result.failureCount} failed${result.alreadyRegisteredCount > 0 ? ` (${result.alreadyRegisteredCount} already registered)` : ''}`;
+        variant = 'default'; // Still show as success since some worked
+      } else if (result.alreadyRegisteredCount > 0 && result.failureCount === 0) {
+        // All already registered
+        message = `All ${result.alreadyRegisteredCount} position${result.alreadyRegisteredCount === 1 ? ' was' : 's were'} already registered`;
+      } else if (result.failureCount > 0 && result.successCount === 0) {
+        // All failed
+        message = `Failed to register ${result.failureCount} position${result.failureCount === 1 ? '' : 's'}. Please try again or contact support.`;
+        variant = 'destructive';
+      } else {
+        // Fallback
+        message = `Registration completed: ${result.successCount} new, ${result.alreadyRegisteredCount} already registered, ${result.failureCount} failed`;
+      }
+
       toast({
-        title: "Bulk Registration Complete",
+        title: "Bulk Registration Complete", 
         description: message,
+        variant
       });
       queryClient.invalidateQueries({ queryKey: ['unregistered-positions'] });
       queryClient.invalidateQueries({ queryKey: ['user-positions'] });
       setSelectedPositions([]);
+    },
+    onError: (error) => {
+      toast({
+        title: "Registration Failed",
+        description: `Error during bulk registration: ${error.message}`,
+        variant: "destructive"
+      });
     }
   });
 

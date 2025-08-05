@@ -295,9 +295,37 @@ export class PositionRegistrationService {
     } catch (error) {
       // Log the actual error for debugging
       console.error('Position registration error:', error);
+      
+      // Handle specific database constraint errors more gracefully
+      if (error instanceof Error) {
+        if (error.message.includes('duplicate key value violates unique constraint')) {
+          if (error.message.includes('app_transactions_transaction_hash_key')) {
+            return {
+              success: false,
+              message: `Position already registered in the reward program`,
+              eligibilityStatus: 'ineligible',
+              alreadyRegistered: true
+            };
+          } else if (error.message.includes('lp_positions_nft_token_id_unique')) {
+            return {
+              success: false,
+              message: `Position already registered in the reward program`,
+              eligibilityStatus: 'ineligible', 
+              alreadyRegistered: true
+            };
+          }
+        }
+        
+        return {
+          success: false,
+          message: `Registration failed: ${error.message}`,
+          eligibilityStatus: 'ineligible'
+        };
+      }
+      
       return {
         success: false,
-        message: `Failed to register position: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        message: 'Failed to register position: Unknown error occurred',
         eligibilityStatus: 'ineligible'
       };
     }

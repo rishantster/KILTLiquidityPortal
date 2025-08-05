@@ -2108,11 +2108,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
 
+      console.log(`🔄 Bulk registration started for ${positions.length} positions`);
+      
       const result = await positionRegistrationService.bulkRegisterPositions(
         userId,
         userAddress,
         positions
       );
+
+      console.log(`✅ Bulk registration completed: ${result.successCount} success, ${result.failureCount} failed`);
+      console.log(`📊 Registration results:`, result.results.map(r => ({ tokenId: r.positionId, success: r.success, message: r.message })));
 
       res.json({
         success: result.successCount > 0,

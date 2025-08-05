@@ -513,8 +513,11 @@ export class PositionRegistrationService {
     let failureCount = 0;
 
     for (const position of positions) {
+      console.log(`🔄 Registering position ${position.nftTokenId}...`);
       const result = await this.registerExternalPosition(userId, userAddress, position);
       results.push(result);
+      
+      console.log(`📊 Position ${position.nftTokenId} result: success=${result.success}, message="${result.message}"`);
       
       if (result.success) {
         successCount++;

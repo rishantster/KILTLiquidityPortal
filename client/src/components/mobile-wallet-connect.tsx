@@ -255,51 +255,78 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black border border-gray-800 max-w-[95vw] sm:max-w-md w-full mx-auto my-8 max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white text-xl sm:text-2xl font-bold flex items-center gap-3 mb-4 sm:mb-6">
-              <Wallet className="h-5 w-5 sm:h-6 sm:w-6" />
-              Connect Your Wallet
+        <DialogContent className={`
+          bg-black border border-gray-800 w-full
+          ${isMobile 
+            ? 'fixed inset-0 h-full max-h-none rounded-none m-0 p-6 max-w-none'
+            : 'max-w-md mx-auto my-8 max-h-[90vh] rounded-lg'
+          }
+          overflow-y-auto
+        `}>
+          <DialogHeader className={isMobile ? 'mb-8' : 'mb-6'}>
+            <DialogTitle className={`
+              text-white font-bold flex items-center justify-between
+              ${isMobile ? 'text-2xl' : 'text-xl sm:text-2xl'}
+            `}>
+              <div className="flex items-center gap-3">
+                <Wallet className={`${isMobile ? 'h-7 w-7' : 'h-5 w-5 sm:h-6 sm:w-6'}`} />
+                Connect Your Wallet
+              </div>
+              {isMobile && (
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </DialogTitle>
           </DialogHeader>
 
           
           {/* Mobile Section */}
           {isMobile ? (
-            <div className="space-y-3 px-1">
-              <div className="flex items-center gap-3 text-gray-400 mb-3">
-                <Smartphone className="h-4 w-4" />
-                <span className="text-sm">Mobile Wallets</span>
+            <div className="space-y-6 flex-1 flex flex-col">
+              <div className="flex items-center gap-3 text-gray-400">
+                <Smartphone className="h-5 w-5" />
+                <span className="text-base">Mobile Wallets</span>
               </div>
               
-              {/* WalletConnect First - Works with 200+ wallets */}
-              <Button
-                onClick={() => handleMobileWalletConnect({ id: 'walletConnect', name: 'WalletConnect (200+ wallets)' })}
-                disabled={isPending}
-                className="w-full bg-gradient-to-r from-[#3b9df8] to-[#2b7fd8] hover:from-[#4daef9] hover:to-[#3b9df8] text-white border-0 h-12 sm:h-14 text-sm sm:text-lg font-medium justify-start px-4 sm:px-6 rounded-lg transition-all duration-200"
-              >
-                <div className="flex items-center gap-3 sm:gap-4 w-full">
-                  <svg className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
-                  </svg>
-                  <span className="font-medium text-left">WalletConnect (Recommended)</span>
-                </div>
-              </Button>
-              
-              {/* Specific wallet options */}
-              {getRecommendedWallets().filter(w => w.id !== 'walletConnect').map((wallet) => (
+              <div className="space-y-4 flex-1">
+                {/* WalletConnect First - Works with 200+ wallets */}
                 <Button
-                  key={wallet.id}
-                  onClick={() => handleMobileWalletConnect(wallet)}
+                  onClick={() => handleMobileWalletConnect({ id: 'walletConnect', name: 'WalletConnect (200+ wallets)' })}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-11 sm:h-12 text-sm sm:text-md font-medium justify-start px-4 sm:px-6 rounded-lg transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-[#3b9df8] to-[#2b7fd8] hover:from-[#4daef9] hover:to-[#3b9df8] text-white border-0 h-16 text-lg font-medium justify-start px-6 rounded-xl transition-all duration-200 active:scale-[0.98]"
                 >
-                  <div className="flex items-center gap-3 sm:gap-4 w-full">
-                    <Wallet className="h-4 w-4 flex-shrink-0" />
-                    <span className="font-medium text-left">{wallet.name}</span>
+                  <div className="flex items-center gap-4 w-full">
+                    <svg className="h-6 w-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
+                    </svg>
+                    <div className="text-left">
+                      <div className="font-semibold">WalletConnect</div>
+                      <div className="text-sm opacity-80">Recommended</div>
+                    </div>
                   </div>
                 </Button>
-              ))}
+                
+                {/* Specific wallet options */}
+                {getRecommendedWallets().filter(w => w.id !== 'walletConnect').map((wallet) => (
+                  <Button
+                    key={wallet.id}
+                    onClick={() => handleMobileWalletConnect(wallet)}
+                    disabled={isPending}
+                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-xl transition-all duration-200 active:scale-[0.98]"
+                  >
+                    <div className="flex items-center gap-4 w-full">
+                      <Wallet className="h-5 w-5 flex-shrink-0" />
+                      <span className="font-medium text-left">{wallet.name}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
 
 
             </div>
@@ -367,7 +394,7 @@ export function MobileWalletConnect() {
             </div>
           )}
 
-          <div className="text-xs sm:text-sm text-gray-500 text-center mt-4 sm:mt-6 px-2">
+          <div className={`text-gray-500 text-center px-2 ${isMobile ? 'text-sm mt-auto pt-6' : 'text-xs sm:text-sm mt-4 sm:mt-6'}`}>
             By connecting, you agree to the Terms of Service and Privacy Policy
           </div>
         </DialogContent>

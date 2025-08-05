@@ -629,24 +629,27 @@ export function MainDashboard() {
       </video>
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative" style={{ zIndex: 10 }}>
-        {/* Clean Professional Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
-              <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+      <div className="mobile-container max-w-7xl mx-auto mobile-p-3 p-3 sm:p-4 lg:p-6 relative" style={{ zIndex: 10 }}>
+        {/* Clean Professional Header - Mobile Responsive */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
+          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
+              <img src={kiltLogo} alt="KILT" className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain" />
             </div>
-            <div className="min-w-0 flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>
+            <div className="min-w-0 flex items-center gap-2 sm:gap-3">
+              <h1 className="mobile-text-lg text-sm sm:text-xl lg:text-2xl font-bold text-white truncate font-mono">
+                <span className="hidden sm:inline">KILT Liquidity Portal</span>
+                <span className="sm:hidden">KILT Portal</span>
+              </h1>
               
-              {/* Cyberpunk Beta Badge - Dashboard Header */}
+              {/* Cyberpunk Beta Badge - Dashboard Header - Mobile Responsive */}
               <div className="relative group flex-shrink-0">
                 {/* Animated cyberpunk glow layers */}
                 <div className="absolute inset-0 bg-matrix-green/30 rounded-lg blur-md animate-pulse"></div>
                 <div className="absolute inset-0 bg-cyan-400/20 rounded-lg blur-sm animate-ping"></div>
                 
                 {/* Main beta badge with cyberpunk styling */}
-                <div className="relative bg-black/95 border-2 border-matrix-green/80 text-matrix-green text-xs font-black px-3 py-1.5 uppercase tracking-widest backdrop-blur-xl shadow-xl shadow-matrix-green/25 transform hover:scale-110 transition-all duration-300 rounded-lg overflow-hidden">
+                <div className="relative bg-black/95 border-2 border-matrix-green/80 text-matrix-green mobile-text-xs text-xs font-black px-2 sm:px-3 py-1 sm:py-1.5 uppercase tracking-widest backdrop-blur-xl shadow-xl shadow-matrix-green/25 transform hover:scale-110 transition-all duration-300 rounded-lg overflow-hidden">
                   {/* Inner cyberpunk grid pattern */}
                   <div className="absolute inset-0 opacity-10 bg-gradient-to-r from-transparent via-matrix-green/20 to-transparent animate-pulse"></div>
                   
@@ -666,14 +669,14 @@ export function MainDashboard() {
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
             <div className="flex-shrink-0">
               <MobileWalletConnect />
             </div>
           </div>
         </div>
 
-        {/* Enhanced Navigation Tabs */}
+        {/* Enhanced Navigation Tabs - Mobile Responsive */}
         <Tabs value={activeTab} onValueChange={(value) => {
           setActiveTab(value);
           // Invalidate positions cache when switching to positions tab
@@ -681,67 +684,68 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl">
+          <TabsList className="mobile-tabs grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-4 sm:mb-6 lg:mb-8 h-10 sm:h-12 gap-1 shadow-2xl">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger mobile-touch-target data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Overview</span>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate hidden xs:inline">Overview</span>
+              <span className="text-xs sm:text-sm font-medium truncate xs:hidden">📊</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger mobile-touch-target data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Add Liquidity</span>
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate hidden sm:inline">Add Liquidity</span>
+              <span className="text-xs sm:text-sm font-medium truncate sm:hidden">Add</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger mobile-touch-target data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Rewards</span>
+              <Award className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger mobile-touch-target data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Positions</span>
+              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate">Positions</span>
             </TabsTrigger>
-
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Sophisticated Metrics Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* KILT Price Card */}
-              <div className="group relative">
+            {/* Sophisticated Metrics Grid - Mobile Responsive */}
+            <div className="mobile-container grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* KILT Price Card - Mobile Responsive */}
+              <div className="mobile-card group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                        <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl mobile-p-3 p-3 sm:p-4 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
+                  <div className="flex items-center justify-between mb-2 sm:mb-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
+                        <img src={kiltLogo} alt="KILT" className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <span className="text-white/70 text-sm font-medium">KILT Price</span>
+                      <span className="text-white/70 mobile-text-sm text-xs sm:text-sm font-medium">KILT Price</span>
                     </div>
                     <button
                       onClick={() => setShowChartModal(true)}
-                      className="w-6 h-6 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group"
+                      className="mobile-touch-target w-6 h-6 sm:w-8 sm:h-8 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group"
                       title="View KILT/WETH Chart"
                     >
-                      <BarChart3 className="h-3 w-3 text-[#ff0066] group-hover:text-white" />
+                      <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-[#ff0066] group-hover:text-white" />
                     </button>
                   </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
+                  <div className="text-white mobile-text-lg text-lg sm:text-xl mb-1 numeric-large">
                     {kiltData?.price ? `$${kiltData.price.toFixed(4)}` : (
                       <div className="h-6 w-20 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>
-                  <div className={`text-xs font-medium numeric-mono ${
+                  <div className={`mobile-text-xs text-xs font-medium numeric-mono ${
                     (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {kiltData?.priceChange24h !== null && kiltData?.priceChange24h !== undefined ? 
@@ -812,16 +816,16 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Two Column Layout - Fixed Mobile Responsive */}
-            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-6">
+            {/* Two Column Layout - Mobile Responsive */}
+            <div className="mobile-container flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-6">
               {/* Left Column - Position Registration */}
-              <div className="w-full mb-8 lg:mb-0">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
-                  <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
+              <div className="mobile-card w-full mb-6 lg:mb-0">
+                <h2 className="mobile-text-lg text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: '#ff0066' }} />
                   <span className="hidden sm:inline">Register Existing Positions</span>
                   <span className="sm:hidden">Register Positions</span>
                 </h2>
-                <div className="h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col">
+                <div className="h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>

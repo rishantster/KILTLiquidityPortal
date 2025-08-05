@@ -29,15 +29,76 @@ export function MobileWalletConnect() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Detect installed mobile wallets
+  const getInstalledMobileWallets = () => {
+    const installed = [];
+    
+    // Debug: Log available providers
+    console.log('🔍 Checking for mobile wallet providers...');
+    console.log('window.ethereum:', (window as any).ethereum);
+    console.log('window.phantom:', (window as any).phantom);
+    console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
+    
+    // Check for MetaMask Mobile
+    if ((window as any).ethereum?.isMetaMask) {
+      console.log('✅ MetaMask detected');
+      installed.push({ id: 'metamask', name: 'MetaMask', isInstalled: true });
+    }
+    
+    // Check for Phantom Mobile
+    if ((window as any).phantom?.ethereum) {
+      console.log('✅ Phantom detected');
+      installed.push({ id: 'phantom', name: 'Phantom', isInstalled: true });
+    }
+    
+    // Check for Trust Wallet
+    if ((window as any).ethereum?.isTrust) {
+      console.log('✅ Trust Wallet detected');
+      installed.push({ id: 'trust', name: 'Trust Wallet', isInstalled: true });
+    }
+    
+    // Check for Coinbase Wallet
+    if ((window as any).ethereum?.isCoinbaseWallet || (window as any).coinbaseWalletExtension) {
+      console.log('✅ Coinbase Wallet detected');
+      installed.push({ id: 'coinbase', name: 'Coinbase Wallet', isInstalled: true });
+    }
+    
+    // Check for Rainbow
+    if ((window as any).ethereum?.isRainbow) {
+      console.log('✅ Rainbow detected');
+      installed.push({ id: 'rainbow', name: 'Rainbow', isInstalled: true });
+    }
+    
+    // Additional checks for mobile-specific providers
+    if (isMobile) {
+      // Check if we're in a mobile wallet browser
+      if ((window as any).ethereum && !Object.keys((window as any).ethereum).length) {
+        console.log('📱 Detected mobile wallet browser environment');
+      }
+      
+      // Check for specific mobile wallet user agents
+      const userAgent = navigator.userAgent.toLowerCase();
+      if (userAgent.includes('metamask')) {
+        console.log('📱 MetaMask mobile browser detected via user agent');
+        if (!installed.some(w => w.id === 'metamask')) {
+          installed.push({ id: 'metamask', name: 'MetaMask', isInstalled: true });
+        }
+      }
+      
+      if (userAgent.includes('trust')) {
+        console.log('📱 Trust Wallet mobile browser detected via user agent');
+        if (!installed.some(w => w.id === 'trust')) {
+          installed.push({ id: 'trust', name: 'Trust Wallet', isInstalled: true });
+        }
+      }
+    }
+    
+    console.log('🎯 Final installed wallets:', installed);
+    return installed;
+  };
+
   const handleMobileWalletConnect = async (wallet: any) => {
     try {
-      // Find the matching connector
-      const connector = connectors.find(c => 
-        c.id === wallet.id || 
-        c.name.toLowerCase().includes(wallet.name.toLowerCase()) ||
-        c.id === 'walletConnect' // Always try WalletConnect for mobile
-      );
-
       if (wallet.id === 'walletConnect') {
         // WalletConnect: Always use WalletConnect connector
         const wcConnector = connectors.find(c => c.id === 'walletConnect' || c.name === 'WalletConnect');
@@ -49,9 +110,41 @@ export function MobileWalletConnect() {
             description: "Scan QR code or approve connection in your wallet app",
           });
         }
-      } else if (isMobile && wallet.id !== 'walletConnect') {
-        // Mobile deep link for specific wallets
-        console.log(`Attempting mobile wallet connection: ${wallet.name} (${wallet.id})`);
+        return;
+      }
+
+      // Check if wallet is installed on mobile
+      const installedWallets = getInstalledMobileWallets();
+      const installedWallet = installedWallets.find(w => w.id === wallet.id);
+      
+      if (installedWallet) {
+        console.log(`✅ ${wallet.name} is installed on mobile, using direct connection`);
+        
+        // Find the connector for the installed wallet
+        const connector = connectors.find(c => 
+          c.id === wallet.id || 
+          c.name.toLowerCase().includes(wallet.name.toLowerCase()) ||
+          (wallet.id === 'metamask' && c.name === 'MetaMask') ||
+          (wallet.id === 'phantom' && c.name === 'Phantom') ||
+          (wallet.id === 'coinbase' && (c.name === 'Coinbase Wallet' || c.id === 'coinbaseWallet')) ||
+          (wallet.id === 'trust' && c.name === 'Trust Wallet') ||
+          (wallet.id === 'rainbow' && c.name === 'Rainbow')
+        );
+        
+        if (connector) {
+          connect({ connector });
+          setShowModal(false);
+          toast({
+            title: "Connecting to Wallet",
+            description: `Connecting to your installed ${wallet.name} app`,
+          });
+          return;
+        }
+      }
+      
+      // If not installed, try deep link (mobile only)
+      if (isMobile) {
+        console.log(`📱 ${wallet.name} not detected as installed, trying deep link`);
         
         const success = openMobileWallet(wallet.id);
         setShowModal(false);
@@ -80,16 +173,23 @@ export function MobileWalletConnect() {
             variant: "destructive",
           });
         }
-      } else if (!isMobile && connector) {
-        // Desktop: use direct connector
-        connect({ connector });
-        setShowModal(false);
       } else {
-        // Fallback to WalletConnect
-        const wcConnector = connectors.find(c => c.id === 'walletConnect');
-        if (wcConnector) {
-          connect({ connector: wcConnector });
+        // Desktop: find and use direct connector
+        const connector = connectors.find(c => 
+          c.id === wallet.id || 
+          c.name.toLowerCase().includes(wallet.name.toLowerCase())
+        );
+        
+        if (connector) {
+          connect({ connector });
           setShowModal(false);
+        } else {
+          // Fallback to WalletConnect
+          const wcConnector = connectors.find(c => c.id === 'walletConnect');
+          if (wcConnector) {
+            connect({ connector: wcConnector });
+            setShowModal(false);
+          }
         }
       }
     } catch (err) {
@@ -295,37 +395,78 @@ export function MobileWalletConnect() {
               </div>
               
               <div className="space-y-4 flex-1">
-                {/* WalletConnect First - Works with 200+ wallets */}
-                <Button
-                  onClick={() => handleMobileWalletConnect({ id: 'walletConnect', name: 'WalletConnect (200+ wallets)' })}
-                  disabled={isPending}
-                  className="w-full bg-gradient-to-r from-[#3b9df8] to-[#2b7fd8] hover:from-[#4daef9] hover:to-[#3b9df8] text-white border-0 h-16 text-lg font-medium justify-start px-6 rounded-xl transition-all duration-200 active:scale-[0.98]"
-                >
-                  <div className="flex items-center gap-4 w-full">
-                    <svg className="h-6 w-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
-                    </svg>
-                    <div className="text-left">
-                      <div className="font-semibold">WalletConnect</div>
-                      <div className="text-sm opacity-80">Recommended</div>
-                    </div>
-                  </div>
-                </Button>
-                
-                {/* Specific wallet options */}
-                {getRecommendedWallets().filter(w => w.id !== 'walletConnect').map((wallet) => (
-                  <Button
-                    key={wallet.id}
-                    onClick={() => handleMobileWalletConnect(wallet)}
-                    disabled={isPending}
-                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-xl transition-all duration-200 active:scale-[0.98]"
-                  >
-                    <div className="flex items-center gap-4 w-full">
-                      <Wallet className="h-5 w-5 flex-shrink-0" />
-                      <span className="font-medium text-left">{wallet.name}</span>
-                    </div>
-                  </Button>
-                ))}
+                {/* Show installed wallets first */}
+                {(() => {
+                  const installedWallets = getInstalledMobileWallets();
+                  const recommendedWallets = getRecommendedWallets().filter(w => w.id !== 'walletConnect');
+                  
+                  return (
+                    <>
+                      {/* Installed wallets section */}
+                      {installedWallets.length > 0 && (
+                        <>
+                          <div className="text-green-400 text-sm font-medium flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            Installed Wallets
+                          </div>
+                          {installedWallets.map((wallet) => (
+                            <Button
+                              key={wallet.id}
+                              onClick={() => handleMobileWalletConnect(wallet)}
+                              disabled={isPending}
+                              className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white border-0 h-16 text-lg font-medium justify-start px-6 rounded-xl transition-all duration-200 active:scale-[0.98]"
+                            >
+                              <div className="flex items-center gap-4 w-full">
+                                <CheckCircle className="h-6 w-6 flex-shrink-0" />
+                                <div className="text-left">
+                                  <div className="font-semibold">{wallet.name}</div>
+                                  <div className="text-sm opacity-80">Ready to connect</div>
+                                </div>
+                              </div>
+                            </Button>
+                          ))}
+                        </>
+                      )}
+                      
+                      {/* WalletConnect - Always available */}
+                      <Button
+                        onClick={() => handleMobileWalletConnect({ id: 'walletConnect', name: 'WalletConnect (200+ wallets)' })}
+                        disabled={isPending}
+                        className="w-full bg-gradient-to-r from-[#3b9df8] to-[#2b7fd8] hover:from-[#4daef9] hover:to-[#3b9df8] text-white border-0 h-16 text-lg font-medium justify-start px-6 rounded-xl transition-all duration-200 active:scale-[0.98]"
+                      >
+                        <div className="flex items-center gap-4 w-full">
+                          <svg className="h-6 w-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
+                          </svg>
+                          <div className="text-left">
+                            <div className="font-semibold">WalletConnect</div>
+                            <div className="text-sm opacity-80">Works with any wallet</div>
+                          </div>
+                        </div>
+                      </Button>
+                      
+                      {/* Other wallets - only show if not installed */}
+                      {recommendedWallets.filter(wallet => 
+                        !installedWallets.some(installed => installed.id === wallet.id)
+                      ).map((wallet) => (
+                        <Button
+                          key={wallet.id}
+                          onClick={() => handleMobileWalletConnect(wallet)}
+                          disabled={isPending}
+                          className="w-full bg-gradient-to-r from-gray-600 to-gray-500 hover:from-gray-500 hover:to-gray-400 text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-xl transition-all duration-200 active:scale-[0.98]"
+                        >
+                          <div className="flex items-center gap-4 w-full">
+                            <ExternalLink className="h-5 w-5 flex-shrink-0" />
+                            <div className="text-left">
+                              <div className="font-medium">{wallet.name}</div>
+                              <div className="text-xs opacity-70">Download & open</div>
+                            </div>
+                          </div>
+                        </Button>
+                      ))}
+                    </>
+                  );
+                })()}
               </div>
 
 

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
+import { useQueryClient } from '@tanstack/react-query';
+import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { Download } from 'lucide-react';
 
 interface CompleteRemoveLiquidityButtonProps {
@@ -13,6 +15,8 @@ export function CompleteRemoveLiquidityButton({ tokenId, disabled = false }: Com
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { collectLiquidity } = useUniswapV3();
+  const queryClient = useQueryClient();
+  const { address } = useWagmiWallet();
 
   const handleCompleteRemoval = async () => {
     setIsLoading(true);
@@ -24,6 +28,14 @@ export function CompleteRemoveLiquidityButton({ tokenId, disabled = false }: Com
       });
       
       console.log(`✅ Step 2 completed: Tokens collected successfully for position ${tokenId}`);
+      
+      // INSTANT UI UPDATE - Force cache refresh to update position display immediately
+      queryClient.invalidateQueries({ queryKey: [`/api/positions/wallet/${address}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/positions/${tokenId}/fees`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/program-analytics'] });
+      
+      // Force immediate re-fetch to update UI instantly
+      queryClient.refetchQueries({ queryKey: [`/api/positions/wallet/${address}`] });
       
       toast({
         title: "Removal Complete!",

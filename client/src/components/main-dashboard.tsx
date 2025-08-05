@@ -337,15 +337,16 @@ export function MainDashboard() {
         description: `Added ${amounts.ethAmount} ETH + ${amounts.kiltAmount} KILT to the pool`,
       });
       
-      // Wait a moment for blockchain finalization, then auto-register the new position
+      // Auto-register the new position immediately after successful creation
+      console.log('🔄 Auto-registering new position in reward program...');
+      
+      // Wait briefly for transaction finalization, then register
       setTimeout(async () => {
         try {
-          console.log('🔄 Auto-registering new position in reward program...');
-          
-          // Refresh position data to get the new position
+          // Invalidate caches to get fresh data
           await queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
           
-          // Trigger bulk registration to register all eligible positions
+          // Trigger bulk registration for all eligible positions
           const response = await fetch('/api/positions/register/bulk', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -356,19 +357,23 @@ export function MainDashboard() {
             const result = await response.json();
             console.log('✅ Auto-registration completed:', result);
             
-            toast({
-              title: "Position Registered!",
-              description: "Your new position is now earning KILT rewards",
-            });
+            if (result.registeredCount > 0) {
+              toast({
+                title: "Position Registered!",
+                description: `${result.registeredCount} position${result.registeredCount > 1 ? 's' : ''} enrolled in rewards`,
+              });
+            }
             
-            // Refresh all reward data
+            // Refresh all relevant data
             queryClient.invalidateQueries({ queryKey: ['/api/rewards'] });
             queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
+          } else {
+            console.log('⚠️ Auto-registration failed - user can register manually');
           }
         } catch (autoRegError) {
-          console.log('⚠️ Auto-registration failed, user can register manually:', autoRegError);
+          console.log('⚠️ Auto-registration error:', autoRegError);
         }
-      }, 3000); // Wait 3 seconds for blockchain confirmation
+      }, 2000); // Wait 2 seconds for blockchain confirmation
       
       // Switch to positions tab to show the new position
       setActiveTab('positions');

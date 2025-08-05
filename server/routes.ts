@@ -849,6 +849,116 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Bulk position registration endpoint
+  app.post("/api/positions/register/bulk", async (req, res) => {
+    try {
+      const { walletAddress } = req.body;
+      
+      if (!walletAddress) {
+        res.status(400).json({ error: "Missing walletAddress parameter" });
+        return;
+      }
+      
+      // Get user
+      const user = await storage.getUserByAddress(walletAddress);
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      
+      // Get eligible unregistered positions
+      const { uniswapIntegrationService } = await import('./uniswap-integration-service');
+      const { blockchainConfigService } = await import('./blockchain-config-service');
+      
+      const allPositions = await uniswapIntegrationService.getUserPositions(walletAddress);
+      const kiltTokenAddress = await blockchainConfigService.getKiltTokenAddress();
+      const kiltAddressLower = kiltTokenAddress.toLowerCase();
+      
+      // Filter for KILT positions only
+      const kiltPositions = allPositions.filter(pos => {
+        const token0Lower = pos.token0?.toLowerCase() || '';
+        const token1Lower = pos.token1?.toLowerCase() || '';
+        return (token0Lower === kiltAddressLower || token1Lower === kiltAddressLower) && pos.isActive;
+      });
+      
+      // Get already registered positions
+      const registeredPositions = await storage.getLpPositionsByUserId(user.id);
+      const registeredIds = new Set(registeredPositions.map(p => p.nftTokenId));
+      
+      // Find unregistered positions
+      const unregisteredPositions = kiltPositions.filter(pos => 
+        !registeredIds.has(pos.tokenId)
+      );
+      
+      if (unregisteredPositions.length === 0) {
+        res.json({
+          success: true,
+          message: `All ${kiltPositions.length} positions were already registered`,
+          registeredCount: 0,
+          alreadyRegistered: kiltPositions.length
+        });
+        return;
+      }
+      
+      // Register each unregistered position
+      let successCount = 0;
+      const errors = [];
+      
+      for (const position of unregisteredPositions) {
+        try {
+          // Create position data
+          const positionData = {
+            userId: user.id,
+            nftTokenId: position.tokenId,
+            poolAddress: position.poolAddress || "0x82Da478b1382B951cBaD01Beb9eD459cDB16458E",
+            token0Address: position.token0,
+            token1Address: position.token1,
+            token0Amount: (parseFloat(position.amount0 || "0") / 1e18).toString(),
+            token1Amount: (parseFloat(position.amount1 || "0") / 1e18).toString(),
+            minPrice: "0.000001",
+            maxPrice: "999999999999",
+            tickLower: position.tickLower || 0,
+            tickUpper: position.tickUpper || 0,
+            liquidity: position.liquidity?.toString() || "0",
+            feeTier: position.fee || 3000,
+            currentValueUSD: position.currentValueUSD || 0,
+            isActive: true,
+            createdViaApp: false, // External position
+            appTransactionHash: `bulk_registration_${position.tokenId}`,
+            appSessionId: `bulk_${Date.now()}_${user.id}`,
+            verificationStatus: "pending",
+            rewardEligible: true
+          };
+          
+          await storage.createLpPosition(positionData);
+          successCount++;
+          
+        } catch (error) {
+          errors.push(`Position ${position.tokenId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+      
+      const alreadyRegistered = kiltPositions.length - unregisteredPositions.length;
+      
+      res.json({
+        success: true,
+        message: successCount > 0 
+          ? `Successfully registered ${successCount} new position${successCount > 1 ? 's' : ''} ${alreadyRegistered > 0 ? `(${alreadyRegistered} already registered)` : ''}`
+          : `All ${alreadyRegistered} positions were already registered`,
+        registeredCount: successCount,
+        alreadyRegistered,
+        errors: errors.length > 0 ? errors : undefined
+      });
+      
+    } catch (error) {
+      console.error('Bulk registration error:', error);
+      res.status(500).json({ 
+        error: "Failed to register positions", 
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Reward routes
   app.post("/api/rewards", async (req, res) => {
     try {

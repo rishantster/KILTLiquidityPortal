@@ -121,15 +121,19 @@ export function PositionManagementModal({
       });
 
       // Step 1: Remove liquidity from position
+      console.log('🔄 Starting decreaseLiquidity transaction...');
       await uniswapV3.decreaseLiquidity({
         tokenId: position.tokenId,
         liquidity: liquidityToRemove.toString()
       });
+      console.log('✅ Liquidity decreased successfully');
       
       // Step 2: Collect the underlying tokens to wallet
+      console.log('🔄 Starting collectLiquidity transaction...');
       await uniswapV3.collectLiquidity({
         tokenId: position.tokenId
       });
+      console.log('✅ Tokens collected successfully');
       
       toast({
         title: "Liquidity Removed Successfully!",
@@ -137,7 +141,12 @@ export function PositionManagementModal({
       });
       onClose();
     } catch (error) {
-      console.warn('Remove liquidity failed (gracefully handled):', error);
+      console.error('Remove liquidity failed:', error);
+      toast({
+        title: "Remove Liquidity Failed",
+        description: (error as Error)?.message || 'Failed to remove liquidity from position',
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

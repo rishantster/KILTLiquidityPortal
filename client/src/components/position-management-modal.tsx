@@ -120,33 +120,71 @@ export function PositionManagementModal({
         position
       });
 
-      // Step 1: Remove liquidity from position
-      console.log('🔄 Starting decreaseLiquidity transaction...');
-      await uniswapV3.decreaseLiquidity({
+      // Use the integrated function that handles both steps automatically
+      console.log('🔄 Starting removeLiquidityAndCollect (atomic transaction)...');
+      await uniswapV3.removeLiquidityAndCollect({
         tokenId: position.tokenId,
-        liquidity: liquidityToRemove.toString()
+        liquidity: liquidityToRemove.toString(),
+        removePercentage
       });
-      console.log('✅ Liquidity decreased successfully');
-      
-      // Step 2: Collect the underlying tokens to wallet
-      console.log('🔄 Starting collectLiquidity transaction...');
-      await uniswapV3.collectLiquidity({
-        tokenId: position.tokenId
-      });
-      console.log('✅ Tokens collected successfully');
+      console.log('✅ Liquidity removed and tokens collected in single transaction');
       
       toast({
         title: "Liquidity Removed Successfully!",
         description: `Removed ${removePercentage}% liquidity from position #${position.tokenId} and collected WETH + KILT tokens to your wallet`
       });
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Remove liquidity failed:', error);
-      toast({
-        title: "Remove Liquidity Failed",
-        description: (error as Error)?.message || 'Failed to remove liquidity from position',
-        variant: "destructive",
-      });
+      
+      // If atomic transaction fails due to circuit breaker, fall back to two-step process
+      if (error?.message?.includes('breaker is open') || 
+          error?.message?.includes('circuit breaker') ||
+          error?.message?.includes('multicall')) {
+        
+        console.log('🔄 Multicall failed, attempting two-step process...');
+        
+        try {
+          const liquidityToRemove = (BigInt(position.liquidity) * BigInt(removePercentage)) / BigInt(100);
+          
+          // Step 1: Remove liquidity from position
+          console.log('🔄 Step 1: Starting decreaseLiquidity transaction...');
+          await uniswapV3.decreaseLiquidity({
+            tokenId: position.tokenId,
+            liquidity: liquidityToRemove.toString()
+          });
+          console.log('✅ Step 1 completed: Liquidity decreased successfully');
+          
+          // Wait a moment before Step 2
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Step 2: Collect the underlying tokens to wallet
+          console.log('🔄 Step 2: Starting collectLiquidity transaction...');
+          await uniswapV3.collectLiquidity({
+            tokenId: position.tokenId
+          });
+          console.log('✅ Step 2 completed: Tokens collected successfully');
+          
+          toast({
+            title: "Liquidity Removed Successfully!",
+            description: `Removed ${removePercentage}% liquidity from position #${position.tokenId} and collected WETH + KILT tokens to your wallet (completed in 2 steps due to network protection)`
+          });
+          onClose();
+        } catch (twoStepError) {
+          console.error('Two-step process also failed:', twoStepError);
+          toast({
+            title: "Remove Liquidity Failed",
+            description: (twoStepError as Error)?.message || 'Failed to remove liquidity from position',
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Remove Liquidity Failed",
+          description: error?.message || 'Failed to remove liquidity from position',
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

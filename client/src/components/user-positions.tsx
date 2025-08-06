@@ -564,10 +564,9 @@ export function UserPositions() {
                     </div>
 
                     {/* Manual Step 2 Helper for positions that need token collection */}
-                    {/* Show for position 3670740 that just completed Step 1 or positions with zero liquidity + tokens */}
-                    {((tokenId === '3670740') || 
-                      (BigInt(position.liquidity || 0) === 0n && !isClosed && realFees && 
-                       (parseFloat(realFees.token0 || '0') > 0 || parseFloat(realFees.token1 || '0') > 0))) && (
+                    {/* Show only for positions with zero liquidity + uncollected tokens (Step 1 completed, Step 2 needed) */}
+                    {(BigInt(position.liquidity || 0) === 0n && !isClosed && realFees && 
+                       (parseFloat(realFees.token0 || '0') > 0 || parseFloat(realFees.token1 || '0') > 0)) && (
                       <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
                         <div className="text-xs text-orange-300 mb-2">
                           ⚠️ Step 2 needed: Complete token withdrawal

@@ -137,10 +137,13 @@ class PositionLifecycleService {
           const dbPosition = dbPositions.find(p => p.nftTokenId === tokenId);
           const hasSignificantValue = dbPosition?.currentValueUSD && parseFloat(dbPosition.currentValueUSD.toString()) > 100;
           
-          // PRODUCTION FIX: Position should remain active if it has significant USD value, regardless of liquidity
-          if (hasSignificantValue) {
-            // Position has significant value - keep it active for rewards
-            console.log(`🔄 LIFECYCLE: Keeping position ${tokenId} active due to significant value: $${dbPosition?.currentValueUSD}`);
+          // UNIVERSAL FIX: Position should remain active if it has ANY USD value OR liquidity
+          // This ensures ALL valid positions remain active for rewards
+          const hasAnyValue = dbPosition?.currentValueUSD && parseFloat(dbPosition.currentValueUSD.toString()) > 0.01;
+          
+          if (hasLiquidity || hasAnyValue) {
+            // Position has liquidity OR any meaningful value - keep it active for rewards
+            console.log(`🔄 LIFECYCLE: Keeping position ${tokenId} active (liquidity: ${hasLiquidity}, value: $${dbPosition?.currentValueUSD})`);
             // No state change needed - keep position active
           } else if (!hasLiquidity && hasUnclaimedTokens) {
             // Position needs Step 2 completion

@@ -341,7 +341,8 @@ export class FixedRewardService {
    */
   async getAllActiveParticipants(): Promise<any[]> {
     try {
-      // Simplified query - just check for active positions with reward eligibility
+      // UNIVERSAL FIX: Count ALL positions with meaningful value regardless of database flags
+      // This ensures accurate active participant count for all valid positions
       const participants = await this.database
         .select({
           userId: lpPositions.userId,
@@ -355,8 +356,8 @@ export class FixedRewardService {
         .from(lpPositions)
         .where(
           and(
-            eq(lpPositions.isActive, true),
-            eq(lpPositions.rewardEligible, true)
+            isNotNull(lpPositions.currentValueUSD),
+            gt(lpPositions.currentValueUSD, sql`0.01`)
           )
         );
 
@@ -887,18 +888,19 @@ export class FixedRewardService {
       const programEndDate = new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000);
       const programDaysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
       
-      // Count unique users instead of individual positions
-      const uniqueUserIds = new Set(activeParticipants.map(p => p.userId));
+      // UNIVERSAL FIX: Count all active positions, not just unique users
+      // This ensures the count reflects ALL valid positions with meaningful value
+      const activePositionsCount = activeParticipants.length;
       
       // Calculate average user liquidity using GLOBAL blockchain data for authenticity
       // This provides realistic market-based averages instead of app-only user averages
       const avgUserLiquidity = globalPoolStats.totalPositions > 0 
         ? globalPoolStats.totalLiquidity / globalPoolStats.totalPositions 
-        : (uniqueUserIds.size > 0 ? totalLiquidity / uniqueUserIds.size : 0);
+        : (activePositionsCount > 0 ? totalLiquidity / activePositionsCount : 0);
       
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100,
-        activeParticipants: uniqueUserIds.size,
+        activeParticipants: activePositionsCount,
         dailyBudget: Math.round(dailyBudget * 100) / 100,
         averageAPR: Math.round(averageAPR * 10000) / 10000,
         programDaysRemaining,

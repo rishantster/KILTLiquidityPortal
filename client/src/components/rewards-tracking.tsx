@@ -271,13 +271,13 @@ export function RewardsTracking() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-super-bright font-medium text-sm">Total Earned</h3>
-              <Award className="h-4 w-4 text-matrix-green" />
+              <h3 className="text-white font-medium text-sm">Total Earned</h3>
+              <Award className="h-4 w-4 text-[#ff0066]" />
             </div>
-            <div className="text-lg text-matrix-bright flex items-center gap-2 mb-1 numeric-large">
+            <div className="text-lg text-white flex items-center gap-2 mb-1 numeric-large">
               {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
               <img 
                 src={kiltLogo} 
@@ -288,19 +288,19 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               {eligibleData?.registeredCount || 0} positions
             </div>
-            <div className="text-xs text-matrix-green font-medium">
+            <div className="text-xs text-[#ff0066] font-medium">
               ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 backdrop-blur-sm border border-matrix-green/50 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-super-bright font-medium text-sm">Claimable</h3>
-              <Unlock className="h-4 w-4 text-matrix-green" />
+              <h3 className="text-white font-medium text-sm">Claimable</h3>
+              <Unlock className="h-4 w-4 text-[#ff0066]" />
             </div>
-            <div className="text-lg font-bold tabular-nums text-matrix-bright flex items-center gap-2 mb-1">
+            <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
               {(rewardStats?.totalClaimable || 0).toFixed(2)}
               <img 
                 src={kiltLogo} 
@@ -311,17 +311,17 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               Ready to claim
             </div>
-            <div className="text-xs text-matrix-green font-medium">
+            <div className="text-xs text-[#ff0066] font-medium">
               ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Daily Rate</h3>
-              <TrendingUp className="h-4 w-4 text-indigo-400" />
+              <TrendingUp className="h-4 w-4 text-[#ff0066]" />
             </div>
             <div className="text-lg text-white mb-1 numeric-large">
               {rewardStats?.avgDailyRewards?.toFixed(3) || '0.000'}
@@ -329,17 +329,17 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               Per day avg
             </div>
-            <div className="text-xs text-indigo-400 font-medium">
+            <div className="text-xs text-[#ff0066] font-medium">
               {((rewardStats?.avgDailyRewards || 0) * 30).toFixed(1)} KILT/month
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimed</h3>
-              <CheckCircle className="h-4 w-4 text-violet-400" />
+              <CheckCircle className="h-4 w-4 text-green-400" />
             </div>
             <div className="text-lg text-white mb-1 numeric-large">
               {rewardStats?.totalClaimed?.toFixed(2) || '0.00'}
@@ -347,7 +347,7 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               Total claimed
             </div>
-            <div className="text-xs text-violet-400 font-medium">
+            <div className="text-xs text-green-400 font-medium">
               {rewardStats?.totalClaimed ? `${(((rewardStats.totalClaimed || 0) / (rewardStats.totalAccumulated || 1)) * 100).toFixed(1)}% of earned` : '0% of earned'}
             </div>
           </CardContent>
@@ -356,15 +356,15 @@ export function RewardsTracking() {
       {/* Enhanced Action Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Enhanced Claim Rewards */}
-        <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
-              <Award className="h-4 w-4 text-yellow-400" />
+              <Award className="h-4 w-4 text-[#ff0066]" />
               <span>{(rewardStats?.totalAccumulated || 0) > 0 ? 'Claim Rewards' : 'Reward Status'}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 p-3">
-            <div className="text-center py-3 from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20 bg-[#000000]">
+            <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
               <div className="text-white/60 text-xs mb-1 font-medium">
                 {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
               </div>
@@ -385,7 +385,7 @@ export function RewardsTracking() {
                 disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
                   hasCalculatedRewards 
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl' 
+                    ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
               >
@@ -472,10 +472,10 @@ export function RewardsTracking() {
                 </div>
               </div>
               
-              <div className="text-center p-2 bg-matrix-green-glow rounded border border-matrix-green">
-                <div className="text-matrix-green text-xs mb-1">Program APR</div>
-                <div className="text-sm text-matrix-green numeric-display">
-                  {programAnalytics?.programAPR ? `${Math.round(programAnalytics.programAPR * 100) / 100}%` : '--'}
+              <div className="text-center p-2 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded border border-green-500/30">
+                <div className="text-green-400 text-xs mb-1">Program APR</div>
+                <div className="text-sm text-green-400 numeric-display font-bold">
+                  <SingleSourceProgramAPR />
                 </div>
               </div>
               
@@ -494,17 +494,17 @@ export function RewardsTracking() {
         </Card>
 
         {/* Enhanced Treasury Status */}
-        <Card className="bg-black/20 backdrop-blur-xl border-white/10 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
-              <Building2 className="h-4 w-4 text-purple-400" />
+              <Building2 className="h-4 w-4 text-[#ff0066]" />
               <span>Treasury Status</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3">
             <div className="space-y-3">
-              <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
-                <div className="text-purple-400 text-xs mb-1">Program Budget</div>
+              <div className="text-center p-2 rounded border border-[#ff0066]/20 bg-black/60">
+                <div className="text-[#ff0066] text-xs mb-1">Program Budget</div>
                 <div className="text-sm text-white flex items-center justify-center gap-2 numeric-display">
                   {programAnalytics?.treasuryTotal !== undefined && programAnalytics?.treasuryTotal !== null ? (programAnalytics.treasuryTotal >= 1000000 ? ((programAnalytics.treasuryTotal / 1000000).toFixed(1) + 'M') : ((programAnalytics.treasuryTotal / 1000).toFixed(0) + 'K')) : '...'} <img src={kiltLogo} alt="KILT" className="h-4 w-4" />
                 </div>
@@ -515,7 +515,7 @@ export function RewardsTracking() {
                   <span className="text-white/60">Remaining:</span>
                   <span className="text-white">{programAnalytics?.treasuryRemaining ? programAnalytics.treasuryRemaining.toLocaleString() : '...'} KILT</span>
                 </div>
-                <Progress value={programAnalytics?.treasuryTotal ? ((programAnalytics.treasuryTotal - (programAnalytics.treasuryRemaining || 0)) / programAnalytics.treasuryTotal * 100) : 0} className="h-2 rounded-full bg-[#ffc4c4]" />
+                <Progress value={programAnalytics?.treasuryTotal ? ((programAnalytics.treasuryTotal - (programAnalytics.treasuryRemaining || 0)) / programAnalytics.treasuryTotal * 100) : 0} className="h-2 rounded-full" />
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Distributed:</span>
                   <span className="text-white">{programAnalytics?.treasuryTotal ? (programAnalytics.treasuryTotal - (programAnalytics.treasuryRemaining || 0)).toLocaleString() : '...'} KILT</span>

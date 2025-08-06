@@ -3594,6 +3594,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.use("/api/rewards", rewardDistributionRoutes);
   app.use("/api/security", enhancedSecurityRoutes);
 
+  // Position lifecycle management routes
+  const { registerPositionLifecycleRoutes } = await import("./routes/position-lifecycle");
+  registerPositionLifecycleRoutes(app);
+
   // DUPLICATE POOL ENDPOINTS REMOVED - Using earlier definitions with fallback logic
 
   const httpServer = createServer(app);

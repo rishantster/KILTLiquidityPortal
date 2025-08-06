@@ -20,6 +20,9 @@ kiltPriceService; // This will start the background price fetching
 // Initialize blockchain configuration with defaults
 blockchainConfigService.initializeDefaults();
 
+// Initialize position lifecycle service for automatic position management
+import("./position-lifecycle-service");
+
 // Removed db-migration-optimizer - cleaned up during optimization
 
 // Initialize reward service for background updates

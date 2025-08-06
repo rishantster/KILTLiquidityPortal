@@ -19,21 +19,23 @@ export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByAddress(address: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   
   // LP Position methods
   getLpPosition(id: number): Promise<LpPosition | undefined>;
   getLpPositionsByUserId(userId: number): Promise<LpPosition[]>;
   getAllLpPositions(): Promise<LpPosition[]>;
+  getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined>;
   createLpPosition(position: InsertLpPosition): Promise<LpPosition>;
   updateLpPosition(id: number, updates: Partial<LpPosition>): Promise<LpPosition | undefined>;
-  updateLpPositionStatus(tokenId: string, updates: { isActive?: boolean; verificationStatus?: string }): Promise<boolean>;
+  updateLpPositionStatus(tokenId: string, isActive: boolean): Promise<boolean>;
+  updateLpPositionRewardEligibility(tokenId: string, rewardEligible: boolean): Promise<boolean>;
   
   // Position registration methods
   getUserPositions(address: string): Promise<any[]>;
   getRegisteredPositions(address: string): Promise<any[]>;
   getAppTransactionsByUserId(userId: number): Promise<any[]>;
-  getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined>;
   
   // Reward methods
   getRewardsByUserId(userId: number): Promise<Reward[]>;
@@ -72,6 +74,10 @@ export class MemStorage implements IStorage {
 
   async getUserByAddress(address: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(user => user.address === address);
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -148,6 +154,28 @@ export class MemStorage implements IStorage {
     return Array.from(this.lpPositions.values()).filter(pos => pos.userId === user.id);
   }
 
+  async getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined> {
+    return Array.from(this.lpPositions.values()).find(pos => pos.nftTokenId === nftTokenId);
+  }
+
+  async updateLpPositionStatus(tokenId: string, isActive: boolean): Promise<boolean> {
+    const position = Array.from(this.lpPositions.values()).find(pos => pos.nftTokenId === tokenId);
+    if (!position) return false;
+    
+    position.isActive = isActive;
+    this.lpPositions.set(position.id, position);
+    return true;
+  }
+
+  async updateLpPositionRewardEligibility(tokenId: string, rewardEligible: boolean): Promise<boolean> {
+    const position = Array.from(this.lpPositions.values()).find(pos => pos.nftTokenId === tokenId);
+    if (!position) return false;
+    
+    position.rewardEligible = rewardEligible;
+    this.lpPositions.set(position.id, position);
+    return true;
+  }
+
   async getAppTransactionsByUserId(userId: number): Promise<any[]> {
     // Return empty array for in-memory storage - handled by database
     return [];
@@ -167,6 +195,7 @@ export class MemStorage implements IStorage {
       userId: insertReward.userId || null,
       nftTokenId: insertReward.nftTokenId,
       positionId: insertReward.positionId || null,
+      amount: insertReward.amount || '0',
       positionValueUSD: insertReward.positionValueUSD,
       dailyRewardAmount: insertReward.dailyRewardAmount,
       accumulatedAmount: insertReward.accumulatedAmount,
@@ -358,17 +387,37 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
+  // Get all users for lifecycle management
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
   // Update position status for burned position cleanup
-  async updateLpPositionStatus(tokenId: string, updates: { isActive?: boolean; verificationStatus?: string }): Promise<boolean> {
+  async updateLpPositionStatus(tokenId: string, isActive: boolean): Promise<boolean> {
     try {
       const result = await db.update(lpPositions)
-        .set(updates)
+        .set({ isActive })
         .where(eq(lpPositions.nftTokenId, tokenId))
         .returning();
       
       return result.length > 0;
     } catch (error) {
       console.error(`Failed to update position status for token ${tokenId}:`, error);
+      return false;
+    }
+  }
+
+  // Update position reward eligibility
+  async updateLpPositionRewardEligibility(tokenId: string, rewardEligible: boolean): Promise<boolean> {
+    try {
+      const result = await db.update(lpPositions)
+        .set({ rewardEligible })
+        .where(eq(lpPositions.nftTokenId, tokenId))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error(`Failed to update reward eligibility for token ${tokenId}:`, error);
       return false;
     }
   }

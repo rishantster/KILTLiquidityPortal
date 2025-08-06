@@ -448,10 +448,8 @@ export class UniswapIntegrationService {
     return await rpcManager.executeWithRetry(async (client) => {
       console.log(`Fetching position data for token ${tokenId}`);
       
-      // Check if this is the specific token we're debugging
-      if (tokenId === '3534947') {
-        console.log(`DEBUG: Processing position 3534947 - the one with fees`);
-      }
+      // Debug logging for position processing (no hardcoded position IDs)
+      console.log(`DEBUG: Processing position ${tokenId}`);
       
       // Get position data from Uniswap V3 position manager
       const positionData = await client.readContract({

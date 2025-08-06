@@ -25,7 +25,7 @@ export class AuthenticFeeService {
 
   /**
    * Calculate authentic unclaimed fees using the exact same method as Uniswap interface
-   * This should return $13.94 instead of $7.96 for position 3534947
+   * Calculates authentic unclaimed fees using exact Uniswap methodology
    */
   static async getUnclaimedFees(tokenId: string): Promise<{ 
     token0: string; 

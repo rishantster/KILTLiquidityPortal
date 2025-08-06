@@ -1896,11 +1896,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const aprCalculations = await Promise.all(
         activePositions.map(async (position) => {
           try {
-            return await fixedRewardService.calculatePositionRewards(
+            const createdAt = position.createdAt ? new Date(position.createdAt) : new Date();
+            console.log(`🎯 Calculating APR for position ${position.nftTokenId}, created: ${createdAt}`);
+            const result = await fixedRewardService.calculatePositionRewards(
               user.id,
               position.nftTokenId,
-              position.createdAt ? new Date(position.createdAt) : undefined
+              createdAt
             );
+            console.log(`✅ APR calculation result for ${position.nftTokenId}:`, result);
+            return result;
           } catch (error) {
             console.error(`❌ Error calculating APR for position ${position.nftTokenId}:`, error);
             return null;

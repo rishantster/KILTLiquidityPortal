@@ -51,6 +51,11 @@ export class FixedRewardService {
   async calculatePositionRewards(userId: number, nftTokenId: string, createdAt: Date): Promise<{
     dailyRewards: number;
     accumulatedRewards: number;
+    tradingFeeAPR: number;
+    incentiveAPR: number;
+    totalAPR: number;
+    liquidityAmount: number;
+    effectiveAPR: number;
   }> {
     try {
       // Get position data
@@ -63,7 +68,15 @@ export class FixedRewardService {
         .limit(1);
 
       if (!position || !position.isActive) {
-        return { dailyRewards: 0, accumulatedRewards: 0 };
+        return { 
+          dailyRewards: 0, 
+          accumulatedRewards: 0,
+          tradingFeeAPR: 0,
+          incentiveAPR: 0,
+          totalAPR: 0,
+          liquidityAmount: 0,
+          effectiveAPR: 0
+        };
       }
 
       // IMPLEMENT EXACT FORMULA: R_u = (L_u/L_T) × (1 + ((D_u/P) × b_time)) × IRM × FRB × (R/P)
@@ -74,7 +87,15 @@ export class FixedRewardService {
       const totalActiveLiquidity = await this.getTotalActiveLiquidity(); // L_T
       
       if (currentValueUSD <= 0 || totalActiveLiquidity <= 0) {
-        return { dailyRewards: 0, accumulatedRewards: 0 };
+        return { 
+          dailyRewards: 0, 
+          accumulatedRewards: 0,
+          tradingFeeAPR: 0,
+          incentiveAPR: 0,
+          totalAPR: 0,
+          liquidityAmount: 0,
+          effectiveAPR: 0
+        };
       }
       
       // Calculate days active (D_u)
@@ -100,14 +121,44 @@ export class FixedRewardService {
       const dailyRewards = liquidityRatio * timeBoost * IRM * FRB * R_P;
       const accumulatedRewards = dailyRewards * daysActive;
 
+      // Calculate APR values
+      // Get trading APR from DexScreener
+      let tradingFeeAPR = 0;
+      try {
+        const tradingResponse = await fetch('http://localhost:5000/api/trading-fees/pool-apr');
+        if (tradingResponse.ok) {
+          const tradingData = await tradingResponse.json();
+          tradingFeeAPR = tradingData.tradingFeesAPR || 0;
+        }
+      } catch (error) {
+        console.warn('Failed to get trading APR for position calculation');
+      }
+
+      // Calculate incentive APR: (daily rewards * 365) / liquidity amount * 100
+      const incentiveAPR = currentValueUSD > 0 ? (dailyRewards * 365) / currentValueUSD * 100 : 0;
+      const totalAPR = tradingFeeAPR + incentiveAPR;
+
       return {
         dailyRewards: Math.max(0, dailyRewards),
-        accumulatedRewards: Math.max(0, accumulatedRewards)
+        accumulatedRewards: Math.max(0, accumulatedRewards),
+        tradingFeeAPR: Math.max(0, tradingFeeAPR),
+        incentiveAPR: Math.max(0, incentiveAPR),
+        totalAPR: Math.max(0, totalAPR),
+        liquidityAmount: currentValueUSD,
+        effectiveAPR: Math.max(0, totalAPR)
       };
 
     } catch (error) {
       console.error(`Failed to calculate rewards for position ${nftTokenId}:`, error);
-      return { dailyRewards: 0, accumulatedRewards: 0 };
+      return { 
+        dailyRewards: 0, 
+        accumulatedRewards: 0,
+        tradingFeeAPR: 0,
+        incentiveAPR: 0,
+        totalAPR: 0,
+        liquidityAmount: 0,
+        effectiveAPR: 0
+      };
     }
   }
 

@@ -1564,18 +1564,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get maximum theoretical APR
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
-      const result = await fixedRewardService.calculateMaximumTheoreticalAPR();
-      const aprData = {
-        maxAPR: result.maxAPR,
-        minAPR: result.minAPR,
-        aprRange: result.aprRange,
-        scenario: result.scenario,
-        formula: result.formula,
-        assumptions: result.assumptions
-      };
+      const maxAPR = await fixedRewardService.calculateMaximumTheoreticalAPR();
       
       res.setHeader('X-Source', 'fixed-reward-service');
-      res.json(aprData);
+      res.json({ 
+        maxAPR,
+        theoretical: true,
+        explanation: "Maximum possible APR assuming minimum liquidity threshold"
+      });
     } catch (error) {
       console.error('Failed to calculate maximum APR:', error);
       res.status(500).json({ 

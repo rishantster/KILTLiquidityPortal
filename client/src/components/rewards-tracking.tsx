@@ -474,7 +474,9 @@ export function RewardsTracking() {
               
               <div className="text-center p-2 bg-matrix-green-glow rounded border border-matrix-green">
                 <div className="text-matrix-green text-xs mb-1">Program APR</div>
-                <div className="text-sm text-matrix-green numeric-display"><SingleSourceProgramAPR /></div>
+                <div className="text-sm text-matrix-green numeric-display">
+                  {programAnalytics?.programAPR ? `${Math.round(programAnalytics.programAPR * 100) / 100}%` : '--'}
+                </div>
               </div>
               
               <div className="space-y-2">

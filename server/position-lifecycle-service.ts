@@ -72,7 +72,7 @@ class PositionLifecycleService {
         if (positions.length > 0) {
           usersWithPositions.push({
             user,
-            positions: positions.filter(p => p.isActive === true) // Only check active positions
+            positions: positions // Check ALL positions, not just active ones
           });
         }
       }

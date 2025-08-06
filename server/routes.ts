@@ -23,7 +23,10 @@ import {
   insertAppTransactionSchema,
   insertPositionEligibilitySchema,
   treasuryConfig,
-  programSettings
+  programSettings,
+  users,
+  lpPositions,
+  rewards
 } from "@shared/schema";
 // Removed blazing-fast-optimizer - cleaned up during codebase optimization
 import { z } from "zod";
@@ -1413,19 +1416,30 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json(stats);
       
     } catch (error) {
-      console.error('💥 USER STATS ENDPOINT: Error:', error);
+      console.error('💥 USER STATS ENDPOINT: Error calculating rewards:', error);
+      console.error('💥 Error stack:', error.stack);
       
-      // After database cleanup, return zero values for fresh application
-      const freshAppStats = {
-        totalAccumulated: 0,
-        totalClaimable: 0,
-        totalClaimed: 0,
-        activePositions: 0,
-        avgDailyRewards: 0
-      };
-      
-      console.log(`💰 USER STATS ENDPOINT: Returning fresh app values after database cleanup:`, freshAppStats);
-      res.json(freshAppStats);
+      // Try to return basic stats from database rather than complete zero
+      try {
+        // Use storage interface instead of direct db access
+        const userId = parseInt(req.params.userId);
+        const allPositions = await storage.getLpPositionsByUserId(userId);
+        const activePositions = allPositions.filter(pos => pos.isActive === true);
+        
+        const basicStats = {
+          totalAccumulated: 0,
+          totalClaimable: 0,
+          totalClaimed: 0,
+          activePositions: activePositions.length,
+          avgDailyRewards: 0
+        };
+        
+        console.log(`💰 USER STATS ENDPOINT: Returning basic stats due to calculation error:`, basicStats);
+        res.json(basicStats);
+      } catch (dbError) {
+        console.error('💥 USER STATS ENDPOINT: Database error:', dbError);
+        res.status(500).json({ error: "Failed to get user stats" });
+      }
     }
   });
 

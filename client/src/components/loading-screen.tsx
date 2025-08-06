@@ -16,7 +16,7 @@ export function LoadingScreen() {
           </h2>
           
           {/* Clean Beta Badge - Loading Screen */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold text-[#ff0066] shadow-sm">
+          <div className="bg-white backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20">
             Beta
           </div>
         </div>

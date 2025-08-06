@@ -254,7 +254,7 @@ export function CyberpunkAdminPanel() {
               <h1 className="text-xl font-bold text-[#ff0066] tracking-wider">
                 ◢◤ KILT PROTOCOL ADMIN CONSOLE ◥◣
               </h1>
-              <span className="px-3 py-1 text-xs font-semibold bg-white/90 text-[#ff0066] rounded-full tracking-wider backdrop-blur-sm shadow-sm">
+              <span className="px-3 py-1 text-xs font-bold bg-white text-[#ff0066] rounded-full tracking-wider shadow-lg border border-[#ff0066]/20">
                 Beta
               </span>
             </div>

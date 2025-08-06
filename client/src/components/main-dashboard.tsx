@@ -432,7 +432,7 @@ export function MainDashboard() {
         
         {/* Clean Beta Badge - Fixed position in top right corner */}
         <div className="fixed top-6 right-6 sm:top-8 sm:right-8 z-50">
-          <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 text-xs sm:text-sm font-semibold text-[#ff0066] shadow-lg hover:scale-105 transition-all duration-200">
+          <div className="bg-white backdrop-blur-sm rounded-full px-4 py-2 text-xs sm:text-sm font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200">
             Beta
           </div>
         </div>

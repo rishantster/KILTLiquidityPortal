@@ -966,7 +966,42 @@ export class SmartContractService {
     }
   }
 
+  /**
+   * PRODUCTION METHOD: Distribute rewards to contract for user claiming
+   * This method handles direct reward distribution to the smart contract
+   */
+  async distributeRewardsToContract(userAddress: string, amount: number): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed'
+      };
+    }
 
+    try {
+      console.log(`💰 Distributing ${amount} KILT to contract for user ${userAddress}...`);
+      
+      // Convert amount to Wei (18 decimals for KILT)
+      const amountInWei = ethers.parseUnits(amount.toString(), 18);
+      
+      // Call the smart contract method to distribute rewards
+      const tx = await this.rewardPoolContract.distributeRewards(userAddress, amountInWei);
+      const receipt = await tx.wait();
+      
+      console.log(`✅ Rewards distributed successfully. Transaction: ${receipt.hash}`);
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: unknown) {
+      console.error('Reward distribution failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to distribute rewards'
+      };
+    }
+  }
 }
 
 // Export singleton instance

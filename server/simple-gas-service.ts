@@ -81,7 +81,7 @@ class SimpleGasService {
       
       if (!this.cachedGasPrice) {
         this.cachedGasPrice = fallbackGasPrice;
-        console.log(`Using Base network fallback gas price: ${fallbackGasPrice} ETH`);
+        console.warn('PRODUCTION ALERT: Using hardcoded Base gas price. RPC connection failed.');
       }
       
       return this.cachedGasPrice;

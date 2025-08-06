@@ -125,14 +125,17 @@ class KiltPriceService {
   }
 
   /**
-   * Get intelligent fallback price - always uses last successfully fetched value
+   * Get intelligent fallback price - production-safe implementation
    */
   private getIntelligentFallbackPrice(): number {
     // Always use last successful price from CoinGecko, only use initial fallback if never fetched successfully
     if (this.lastSuccessfulPrice > 0) {
+      console.warn('Using last successful KILT price:', this.lastSuccessfulPrice);
       return this.lastSuccessfulPrice;
     }
     
+    // For production: Log this critical issue since we shouldn't rely on hardcoded prices
+    console.error('PRODUCTION ALERT: Using hardcoded KILT price fallback. External APIs are failing.');
     return this.INITIAL_FALLBACK_PRICE;
   }
 

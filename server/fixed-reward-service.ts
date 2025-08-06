@@ -362,7 +362,7 @@ export class FixedRewardService {
         );
 
       console.log(`📊 Active participants query result: ${participants.length} participants found`);
-      participants.forEach(p => {
+      participants.forEach((p: any) => {
         console.log(`  - User ${p.userId}, Position ${p.nftTokenId}: $${p.currentValueUsd}, Active: ${p.isActive}, Eligible: ${p.rewardEligible}`);
       });
 
@@ -832,6 +832,8 @@ export class FixedRewardService {
   async getProgramAnalytics(): Promise<{
     totalLiquidity: number;
     activeParticipants: number;
+    totalRegisteredPositions: number;
+    activeUsers: number;
     dailyBudget: number;
     averageAPR: number;
     programDaysRemaining: number;
@@ -864,9 +866,14 @@ export class FixedRewardService {
       }
 
       // PARALLEL PROCESSING - Execute all calls simultaneously for blazing speed
-      const [totalLiquidity, activeParticipants, totalDistributedResult, globalPoolStats] = await Promise.all([
+      const [totalLiquidity, activeParticipants, totalRegisteredResult, totalDistributedResult, globalPoolStats] = await Promise.all([
         this.getTotalActiveLiquidity(),
         this.getAllActiveParticipants(),
+        this.database
+          .select({
+            totalRegistered: sql<number>`COUNT(*)`,
+          })
+          .from(lpPositions),
         this.database
           .select({
             totalDistributed: sql<number>`COALESCE(SUM(CAST(${rewards.accumulatedAmount} AS DECIMAL)), 0)`,
@@ -877,6 +884,7 @@ export class FixedRewardService {
       ]);
 
       const totalDistributed = totalDistributedResult[0]?.totalDistributed || 0;
+      const totalRegisteredPositions = totalRegisteredResult[0]?.totalRegistered || 0;
       const dailyBudget = config.dailyBudget;
       const treasuryTotal = config.treasuryTotal;
       const programDuration = config.programDurationDays;
@@ -888,19 +896,25 @@ export class FixedRewardService {
       const programEndDate = new Date(Date.now() + programDuration * 24 * 60 * 60 * 1000);
       const programDaysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
       
-      // UNIVERSAL FIX: Count all active positions, not just unique users
-      // This ensures the count reflects ALL valid positions with meaningful value
+      // PROPER METRICS SEPARATION:
+      // 1. activeParticipants = ALL positions with meaningful value (regardless of user)
+      // 2. activeUsers = UNIQUE users (1 user with 5 positions = 1 user) 
+      // 3. totalRegisteredPositions = ALL positions registered in database
       const activePositionsCount = activeParticipants.length;
+      const uniqueUserIds = new Set(activeParticipants.map(p => p.userId));
+      const activeUsersCount = uniqueUserIds.size;
       
       // Calculate average user liquidity using GLOBAL blockchain data for authenticity
       // This provides realistic market-based averages instead of app-only user averages
       const avgUserLiquidity = globalPoolStats.totalPositions > 0 
         ? globalPoolStats.totalLiquidity / globalPoolStats.totalPositions 
-        : (activePositionsCount > 0 ? totalLiquidity / activePositionsCount : 0);
+        : (activeUsersCount > 0 ? totalLiquidity / activeUsersCount : 0);
       
       return {
         totalLiquidity: Math.round(totalLiquidity * 100) / 100,
         activeParticipants: activePositionsCount,
+        totalRegisteredPositions,
+        activeUsers: activeUsersCount,
         dailyBudget: Math.round(dailyBudget * 100) / 100,
         averageAPR: Math.round(averageAPR * 10000) / 10000,
         programDaysRemaining,
@@ -988,9 +1002,9 @@ export class FixedRewardService {
           totalRewardsDistributed += rewardCalculation.accumulatedRewards;
           
           console.log(`✅ Updated rewards for user ${participant.userId}, position ${participant.nftTokenId}: ${rewardCalculation.accumulatedRewards} KILT`);
-        } catch (error) {
+        } catch (error: unknown) {
           console.error(`❌ Error updating rewards for participant ${participant.userId}:`, error);
-          console.error(`❌ Error details:`, error.message, error.stack);
+          console.error(`❌ Error details:`, error instanceof Error ? error.message : 'Unknown error', error instanceof Error ? error.stack : '');
         }
       }
       

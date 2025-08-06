@@ -110,53 +110,53 @@ export function RewardDistributionDashboard() {
   return (
     <div className="space-y-6">
       {/* Treasury Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-w-0">
+        <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30 min-w-0">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
-              <Coins className="h-4 w-4" />
-              Treasury Balance
+            <CardTitle className="text-sm font-medium text-gray-400 flex-safe">
+              <Coins className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate-safe">Treasury Balance</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">
+          <CardContent className="card-content-safe">
+            <div className="text-2xl font-bold text-white number-display-safe truncate-safe">
               {parseFloat(balance).toLocaleString()} KILT
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 mt-1 truncate-safe">
               Available for distribution
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+        <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30 min-w-0">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Eligible Users
+            <CardTitle className="text-sm font-medium text-gray-400 flex-safe">
+              <Users className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate-safe">Eligible Users</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">
+          <CardContent className="card-content-safe">
+            <div className="text-2xl font-bold text-white number-display-safe">
               {eligibleUsers.length}
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 mt-1 truncate-safe">
               Ready for rewards
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">
+        <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30 min-w-0">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Selected Amount
+            <CardTitle className="text-sm font-medium text-gray-400 flex-safe">
+              <TrendingUp className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate-safe">Selected Amount</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">
+          <CardContent className="card-content-safe">
+            <div className="text-2xl font-bold text-white number-display-safe truncate-safe">
               {totalSelectedAmount.toLocaleString()} KILT
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 mt-1 truncate-safe">
               {selectedUsers.length} users selected
             </p>
           </CardContent>

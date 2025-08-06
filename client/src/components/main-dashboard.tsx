@@ -681,7 +681,7 @@ export function MainDashboard() {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl">
+          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl container-safe">
             <TabsTrigger 
               value="overview" 
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
@@ -714,9 +714,9 @@ export function MainDashboard() {
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-6 tab-content-safe">
             {/* Sophisticated Metrics Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="dashboard-grid">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>

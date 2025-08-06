@@ -4,11 +4,12 @@
 @media (max-width: 768px) {
   /* Fix text truncation and spacing */
   .mobile-fix-text {
-    font-size: 0.75rem !important; /* 12px */
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    font-size: 0.75rem; /* 12px */
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
   
   .mobile-fix-text-wrap {
@@ -19,33 +20,46 @@
   
   /* Position card mobile fixes */
   .position-card-mobile {
-    padding: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    min-width: 0;
+    box-sizing: border-box;
   }
   
   .position-value-mobile {
-    font-size: 1rem !important; /* 16px */
-    line-height: 1.2 !important;
-    margin-bottom: 0.25rem !important;
+    font-size: 1rem; /* 16px */
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .position-label-mobile {
-    font-size: 0.625rem !important; /* 10px */
-    margin-bottom: 0.125rem !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.625rem; /* 10px */
+    margin-bottom: 0.125rem;
+    color: rgba(255, 255, 255, 0.6);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   /* Badge mobile fixes */
   .badge-mobile {
-    font-size: 0.625rem !important; /* 10px */
-    padding: 0.125rem 0.25rem !important;
-    white-space: nowrap !important;
+    font-size: 0.625rem; /* 10px */
+    padding: 0.125rem 0.25rem;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* Grid mobile fixes */
   .mobile-grid-fix {
-    grid-template-columns: 1fr !important;
-    gap: 0.5rem !important;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0; /* Prevent grid items from overflowing */
   }
   
   /* Token amount mobile fixes */
@@ -61,11 +75,13 @@
   
   /* Button mobile fixes */
   .button-mobile {
-    font-size: 0.75rem !important; /* 12px */
-    padding: 0.25rem 0.5rem !important;
-    height: auto !important;
-    min-height: 2rem !important;
-    touch-action: manipulation !important; /* Better touch response */
+    font-size: 0.75rem; /* 12px */
+    padding: 0.25rem 0.5rem;
+    height: auto;
+    min-height: 2rem;
+    touch-action: manipulation; /* Better touch response */
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   
   /* Buy KILT button mobile optimization */

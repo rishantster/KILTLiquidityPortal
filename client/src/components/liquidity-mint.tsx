@@ -32,6 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
 import { LiquidityService } from '@/services/liquidity-service';
 import { useEthPrice } from '@/hooks/use-eth-price';
+import { useQueryClient } from '@tanstack/react-query';
 import { UniswapV3SDKService, KILT_TOKEN, WETH_TOKEN } from '@/lib/uniswap-v3-sdk';
 import { transactionValidator, type LiquidityParams } from '@/services/transaction-validator';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -76,6 +77,7 @@ export function LiquidityMint({
   const { data: ethPriceData } = useEthPrice();
   const { sessionId, createAppSession, recordAppTransaction, isCreatingSession } = useAppSession();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Helper function to parse token amounts
   const parseTokenAmount = (amount: string, decimals: number = 18): bigint => {
@@ -682,7 +684,14 @@ export function LiquidityMint({
           
           // CRITICAL: Immediately invalidate position registration cache to prevent newly created positions 
           // from appearing in "Eligible Positions" section
-          // Note: Position cache invalidation handled by React Query hooks
+          queryClient.invalidateQueries({ queryKey: ['eligible-positions-uniswap', address] });
+          queryClient.invalidateQueries({ queryKey: ['user-positions'] });
+          queryClient.invalidateQueries({ queryKey: ['wallet-positions', address] });
+          
+          // Force immediate refetch to ensure UI updates
+          setTimeout(() => {
+            queryClient.refetchQueries({ queryKey: ['eligible-positions-uniswap', address] });
+          }, 100);
         } else {
           console.warn('⚠️ Could not extract NFT token ID from transaction logs');
         }

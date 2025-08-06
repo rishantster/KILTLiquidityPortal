@@ -564,7 +564,9 @@ export function UserPositions() {
                     </div>
 
                     {/* Manual Step 2 Helper for positions that need token collection */}
-                    {(tokenId === '3670740' || tokenId === '3683409') && (
+                    {/* Show only if position has zero liquidity but still shows in UI (needs manual cleanup) */}
+                    {(BigInt(position.liquidity || 0) === 0n && !isClosed && realFees && 
+                      (parseFloat(realFees.token0 || '0') > 0 || parseFloat(realFees.token1 || '0') > 0)) && (
                       <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
                         <div className="text-xs text-orange-300 mb-2">
                           ⚠️ Step 2 needed: Complete token withdrawal

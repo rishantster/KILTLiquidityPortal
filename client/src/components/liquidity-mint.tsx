@@ -754,7 +754,7 @@ export function LiquidityMint({
           Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + 0.3% trading fees
         </p>
         <div className="flex items-center justify-center gap-2 flex-wrap">
-          <div className="bg-[#ff0066]/20 text-[#ff0066] border border-[#ff0066]/50 text-xs rounded-lg px-2 py-1">
+          <div className="bg-[#ff0066]/20 border border-[#ff0066]/50 text-xs rounded-lg px-2 py-1 text-[#ffffff]">
             <Info className="h-3 w-3 inline mr-1" />
             Minimum position value: $10 (anti-spam protection)
           </div>
@@ -1138,9 +1138,7 @@ export function LiquidityMint({
           )}
         </Button>
       </div>
-      
       {/* Transaction validation alerts removed per user request */}
-
       {/* MetaMask Information */}
       <div className="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
         <div className="flex items-center gap-2">

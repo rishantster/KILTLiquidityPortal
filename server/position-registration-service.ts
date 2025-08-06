@@ -267,8 +267,7 @@ export class PositionRegistrationService {
       const rewardCalc = await fixedRewardService.calculatePositionRewards(
         userId,
         positionData.nftTokenId,
-        new Date(),  // liquidityAddedAt - Use registration date as liquidity start date
-        new Date()   // stakingStartDate - Use registration date as staking start date
+        new Date()   // Use registration date as liquidity start date
       );
 
       // Create initial reward tracking (updateRewardRecord is private, use createRewardRecord instead)

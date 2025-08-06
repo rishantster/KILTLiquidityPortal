@@ -187,11 +187,20 @@ export function PositionRegistration() {
       }, 100);
     },
     onError: (error) => {
-      toast({
-        title: "Registration Failed",
-        description: error.message,
-        variant: "destructive"
-      });
+      // Handle already registered positions differently
+      if (error.message.includes('already registered')) {
+        toast({
+          title: "Position Already Registered",
+          description: "This position is already earning rewards in the program",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
     }
   });
 
@@ -238,7 +247,7 @@ export function PositionRegistration() {
         variant = 'default';
       } else if (result.alreadyRegisteredCount > 0 && result.failureCount === 0) {
         // All already registered
-        message = `All positions already registered`;
+        message = `All positions already registered and earning rewards`;
       } else if (result.failureCount > 0 && result.successCount === 0) {
         // All failed
         message = `Registration failed. Please try again.`;

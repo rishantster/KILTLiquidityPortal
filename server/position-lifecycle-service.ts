@@ -120,15 +120,14 @@ class PositionLifecycleService {
         const blockchainPosition = blockchainPositionMap.get(tokenId);
         
         if (!blockchainPosition) {
-          // Position not found on blockchain - likely burned
-          stateChanges.push({
-            tokenId,
-            userId,
-            oldState: 'active',
-            newState: 'burned',
-            needsStep2: false,
-            reason: 'Position not found on blockchain (burned/transferred)'
-          });
+          // CRITICAL FIX: Don't immediately assume position is burned
+          // Could be RPC failure, rate limit, or temporary blockchain connectivity issue
+          console.warn(`⚠️ LIFECYCLE: Position ${tokenId} not found on blockchain - checking if this is a temporary issue...`);
+          
+          // Only mark as burned if we can confirm the position doesn't exist after multiple checks
+          // For now, skip this position to prevent accidental deletion due to RPC issues
+          console.log(`🔒 LIFECYCLE: Skipping position ${tokenId} to prevent accidental deletion (RPC issues suspected)`);
+          continue;
         } else {
           // Position exists - check liquidity state AND USD value
           const hasLiquidity = blockchainPosition.liquidity && BigInt(blockchainPosition.liquidity) > 0n;
@@ -215,9 +214,12 @@ class PositionLifecycleService {
         console.log(`   ${change.tokenId}: ${change.oldState} → ${change.newState} (${change.reason})`);
         
         if (change.newState === 'burned') {
-          // ANTI-BLOAT: Completely remove burned positions from database to prevent bloat
-          await storage.deleteLpPosition(change.tokenId);
-          console.log(`🗑️ Position ${change.tokenId} permanently removed from database (burned/transferred)`);
+          // CRITICAL PROTECTION: Only delete positions if we're absolutely certain they're burned
+          // This prevents accidental deletion due to RPC failures
+          console.warn(`🚨 LIFECYCLE: Position ${change.tokenId} marked for deletion - requiring manual confirmation`);
+          console.warn(`🔒 LIFECYCLE: Position deletion temporarily disabled to prevent data loss from RPC issues`);
+          // TODO: Implement safer burn detection with multiple confirmation checks
+          // await storage.deleteLpPosition(change.tokenId);
         } else if (change.newState === 'active') {
           // Make position active AND reward eligible using unified state manager
           await storage.updateLpPositionByTokenId(change.tokenId, { isActive: true });

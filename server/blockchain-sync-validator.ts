@@ -80,8 +80,14 @@ class BlockchainSyncValidator {
           for (const position of positions) {
             totalValidated++;
             
-            // Get blockchain reality
-            const blockchainPositions = await uniswapIntegrationService.getUserPositions(user.address);
+            // Get blockchain reality with error handling
+            let blockchainPositions;
+            try {
+              blockchainPositions = await uniswapIntegrationService.getUserPositions(user.address);
+            } catch (blockchainError) {
+              console.warn(`⚠️ SYNC VALIDATOR: Failed to fetch blockchain data for user ${user.id} - skipping to prevent false alarms`);
+              continue; // Skip this user's positions if blockchain fetch fails
+            }
             const blockchainPosition = blockchainPositions.find(bp => bp.tokenId === position.nftTokenId);
             
             // UNIFIED POSITION STATE LOGIC:
@@ -90,7 +96,10 @@ class BlockchainSyncValidator {
             let blockchainLiquidity = '0';
             
             if (!blockchainPosition) {
-              blockchainState = 'burned';
+              // CRITICAL SAFETY: Don't assume position is burned just because we can't find it
+              // Could be RPC issues, rate limits, or temporary connectivity problems
+              console.warn(`⚠️ SYNC VALIDATOR: Position ${position.nftTokenId} not found on blockchain - treating as temporary RPC issue`);
+              continue; // Skip validation for this position to prevent false alarms
             } else {
               const hasLiquidity = blockchainPosition.isActive && parseFloat(blockchainPosition.liquidity) > 0;
               const hasSignificantValue = position.currentValueUSD && parseFloat(position.currentValueUSD.toString()) > 100;

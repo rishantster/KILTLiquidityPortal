@@ -217,7 +217,7 @@ export function GasEstimationCard() {
         
         {/* Network & Speed Tags */}
         <div className="flex items-center gap-2">
-          <Badge className="bg-[#ff0066]/20 text-[#ff0066] border border-[#ff0066]/50 px-2 py-0.5 text-xs">
+          <Badge className="inline-flex items-center rounded-full font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 backdrop-blur-[12px] from-pink-500 to-pink-600 shadow-soft-modern hover:from-pink-400 hover:to-pink-500 hover:shadow-medium-modern bg-[#ff0066]/20 border border-[#ff0066]/50 px-2 py-0.5 text-xs text-[#4384f3]">
             <Clock className="h-2 w-2 mr-1" />
             Base Network
           </Badge>

@@ -747,21 +747,21 @@ export function LiquidityMint({
       {/* Sleek Header */}
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-2">
-          <Plus className="h-4 w-4 text-matrix-green" />
+          <Plus className="h-4 w-4 text-[#ff0066]" />
           <h2 className="text-white font-heading text-lg">Add Liquidity to KILT/ETH Pool</h2>
         </div>
         <p className="text-white/90 text-sm max-w-xl mx-auto">
           Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + 0.3% trading fees
         </p>
         <div className="flex items-center justify-center gap-2 flex-wrap">
-          <div className="bg-matrix-green-glow text-matrix-green border border-matrix-green text-xs rounded-lg px-2 py-1">
+          <div className="bg-[#ff0066]/20 text-[#ff0066] border border-[#ff0066]/50 text-xs rounded-lg px-2 py-1">
             <Info className="h-3 w-3 inline mr-1" />
             Minimum position value: $10 (anti-spam protection)
           </div>
-          <Badge className="bg-matrix-green-glow text-matrix-green border border-matrix-green px-2 py-0.5 text-xs">
+          <Badge className="bg-[#ff0066]/20 text-[#ff0066] border border-[#ff0066]/50 px-2 py-0.5 text-xs">
             0.3% Fee Tier
           </Badge>
-          <Badge className="bg-matrix-green-glow text-matrix-green border border-matrix-green px-2 py-0.5 text-xs">
+          <Badge className="bg-[#ff0066]/20 text-[#ff0066] border border-[#ff0066]/50 px-2 py-0.5 text-xs">
             {poolExists ? 'Pool Active' : 'Pool Not Found'}
           </Badge>
         </div>
@@ -770,7 +770,7 @@ export function LiquidityMint({
       <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg cluely-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Target className="h-3 w-3 text-matrix-green" />
+            <Target className="h-3 w-3 text-[#ff0066]" />
             Position Size
           </CardTitle>
           <p className="text-white/80 text-xs">Amount to Provide: {positionSizePercent[0]}% of {selectedEthToken} balance</p>

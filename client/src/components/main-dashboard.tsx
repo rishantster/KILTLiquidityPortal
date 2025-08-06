@@ -546,41 +546,41 @@ export function MainDashboard() {
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiX className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiX className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
               <a 
                 href="https://github.com/KILTprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiGithub className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiGithub className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
               <a 
                 href="https://discord.gg/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiDiscord className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiDiscord className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
               <a 
                 href="https://t.me/KILTProtocolChat" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiTelegram className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiTelegram className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
               <a 
                 href="https://kilt-protocol.medium.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-3 bg-black/40 hover:bg-matrix-green/10 border border-gray-800 hover:border-matrix-green/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <SiMedium className="h-5 w-5 text-white/80 hover:text-matrix-green transition-colors duration-300" />
+                <SiMedium className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
             </div>
           </div>
@@ -619,29 +619,9 @@ export function MainDashboard() {
             <div className="min-w-0 flex items-center gap-3">
               <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>
               
-              {/* Cyberpunk Beta Badge - Dashboard Header */}
-              <div className="relative group flex-shrink-0">
-                {/* Animated cyberpunk glow layers */}
-                <div className="absolute inset-0 bg-matrix-green/30 rounded-lg blur-md animate-pulse"></div>
-                <div className="absolute inset-0 bg-cyan-400/20 rounded-lg blur-sm animate-ping"></div>
-                
-                {/* Main beta badge with cyberpunk styling */}
-                <div className="relative bg-black/95 border-2 border-matrix-green/80 text-matrix-green text-xs font-black px-3 py-1.5 uppercase tracking-widest backdrop-blur-xl shadow-xl shadow-matrix-green/25 transform hover:scale-110 transition-all duration-300 rounded-lg overflow-hidden">
-                  {/* Inner cyberpunk grid pattern */}
-                  <div className="absolute inset-0 opacity-10 bg-gradient-to-r from-transparent via-matrix-green/20 to-transparent animate-pulse"></div>
-                  
-                  {/* Glitch effect overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-transparent to-matrix-green/10 animate-pulse opacity-50"></div>
-                  
-                  {/* Beta text with cyberpunk styling */}
-                  <span className="relative z-10 font-mono text-shadow-glow drop-shadow-lg">
-                    BETA
-                  </span>
-                  
-                  {/* Scanning line effect */}
-                  <div className="absolute top-0 left-0 w-full h-0.5 bg-matrix-green/60 animate-pulse"></div>
-                  <div className="absolute bottom-0 right-0 w-full h-0.5 bg-cyan-400/40 animate-pulse delay-75"></div>
-                </div>
+              {/* Clean Beta Badge - Dashboard Header */}
+              <div className="bg-white backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
+                Beta
               </div>
             </div>
           </div>
@@ -835,7 +815,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">KILT</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}>
                                   {kiltBalance ? parseFloat(kiltBalance).toLocaleString() : '0'}
                                 </div>
                               </div>
@@ -857,7 +837,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">ETH</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}>
                                   {ethBalance ? parseFloat(ethBalance).toFixed(6) : '0.000000'}
                                 </div>
                               </div>
@@ -879,7 +859,7 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">WETH</div>
-                                <div className="text-matrix-green font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.4)' }}>
+                                <div className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display truncate" style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}>
                                   {wethBalance ? parseFloat(wethBalance).toFixed(6) : '0.000000'}
                                 </div>
                               </div>
@@ -906,7 +886,7 @@ export function MainDashboard() {
                               className={`text-xs py-1 px-1 h-6 transition-all duration-200 border ${
                                 selectedPercentage === value 
                                   ? 'text-black font-bold border-2' 
-                                  : 'border text-white/80 hover:bg-matrix-green/10 hover:border-matrix-green/50 hover:text-white'
+                                  : 'border text-white/80 hover:bg-[#ff0066]/10 hover:border-[#ff0066]/50 hover:text-white'
                               }`}
                               style={selectedPercentage === value ? { 
                                 backgroundColor: '#ff0066', 
@@ -959,7 +939,7 @@ export function MainDashboard() {
                           
                           return (
                             <div>
-                              <div className="text-2xl font-bold text-matrix-green text-numbers mb-2" style={{ textShadow: '0 0 20px rgba(0, 255, 0, 0.6)' }}>
+                              <div className="text-2xl font-bold text-[#ff0066] text-numbers mb-2" style={{ textShadow: '0 0 20px rgba(255, 0, 102, 0.6)' }}>
                                 ~${amounts.totalValue}
                               </div>
                               <div className="flex items-center justify-center space-x-4 text-white text-sm text-body">
@@ -967,14 +947,14 @@ export function MainDashboard() {
                                   <div className="w-6 h-6 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                     <KiltLogo size="sm" showBackground={false} />
                                   </div>
-                                  <span className="font-medium text-matrix-green">{amounts.kiltAmount} KILT</span>
+                                  <span className="font-medium text-[#ff0066]">{amounts.kiltAmount} KILT</span>
                                 </div>
-                                <span className="text-matrix-green text-lg">+</span>
+                                <span className="text-[#ff0066] text-lg">+</span>
                                 <div className="flex items-center space-x-2">
                                   <div className="w-6 h-6 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
                                     <EthLogo size="sm" showBackground={false} />
                                   </div>
-                                  <span className="font-medium text-matrix-green">{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
+                                  <span className="font-medium text-[#ff0066]">{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
                                 </div>
                               </div>
                             </div>

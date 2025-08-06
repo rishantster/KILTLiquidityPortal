@@ -53,9 +53,10 @@ export class SingleSourceAPR {
    * This is what should be displayed in Expected Returns section
    */
   async getProgramAPR(): Promise<APRData> {
-    // Clear cache to force fresh calculation for APR fix
-    SingleSourceAPR.cache = null;
-    SingleSourceAPR.cacheExpiry = 0;
+    // Check cache first
+    if (SingleSourceAPR.cache && Date.now() < SingleSourceAPR.cacheExpiry) {
+      return SingleSourceAPR.cache;
+    }
 
     try {
       // Get program analytics (official source)

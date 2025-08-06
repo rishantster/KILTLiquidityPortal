@@ -63,6 +63,11 @@ class PositionLifecycleService {
       const usersWithPositions = [];
       
       for (const user of allUsers) {
+        // Skip users with invalid wallet addresses
+        if (!user.walletAddress || user.walletAddress === 'undefined' || !user.walletAddress.startsWith('0x')) {
+          continue;
+        }
+        
         const positions = await storage.getLpPositionsByUserId(user.id);
         if (positions.length > 0) {
           usersWithPositions.push({

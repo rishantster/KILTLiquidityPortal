@@ -277,21 +277,19 @@ export function RewardsTracking() {
               <h3 className="text-white font-medium text-sm">Total Earned</h3>
               <Award className="h-4 w-4 text-[#ff0066]" />
             </div>
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-lg text-white flex items-center gap-2 numeric-large">
-                {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
-                <img 
-                  src={kiltLogo} 
-                  alt="KILT" 
-                  className="h-4 w-4"
-                />
-              </div>
-              <div className="text-sm text-[#ff0066] font-medium">
-                ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
-              </div>
+            <div className="text-lg text-white flex items-center gap-2 mb-1 numeric-large">
+              {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
+              <img 
+                src={kiltLogo} 
+                alt="KILT" 
+                className="h-4 w-4"
+              />
             </div>
             <div className="text-xs text-white/60 mb-1">
               {eligibleData?.registeredCount || 0} positions
+            </div>
+            <div className="text-xs text-[#ff0066] font-medium">
+              ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
@@ -302,21 +300,19 @@ export function RewardsTracking() {
               <h3 className="text-white font-medium text-sm">Claimable</h3>
               <Unlock className="h-4 w-4 text-[#ff0066]" />
             </div>
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2">
-                {(rewardStats?.totalClaimable || 0).toFixed(2)}
-                <img 
-                  src={kiltLogo} 
-                  alt="KILT" 
-                  className="h-4 w-4"
-                />
-              </div>
-              <div className="text-sm text-[#ff0066] font-medium">
-                ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
-              </div>
+            <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
+              {(rewardStats?.totalClaimable || 0).toFixed(2)}
+              <img 
+                src={kiltLogo} 
+                alt="KILT" 
+                className="h-4 w-4"
+              />
             </div>
             <div className="text-xs text-white/60 mb-1">
               Ready to claim
+            </div>
+            <div className="text-xs text-[#ff0066] font-medium">
+              ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
             </div>
           </CardContent>
         </Card>
@@ -372,18 +368,16 @@ export function RewardsTracking() {
               <div className="text-white/60 text-xs mb-1 font-medium">
                 {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
               </div>
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <div className="text-white text-xl flex items-center gap-2 numeric-large">
-                  {(rewardStats?.totalClaimable || 0).toFixed(2)} 
-                  <img 
-                    src={kiltLogo} 
-                    alt="KILT" 
-                    className="h-5 w-5"
-                  />
-                </div>
-                <div className="text-white/50 text-sm">
-                  ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
-                </div>
+              <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
+                {(rewardStats?.totalClaimable || 0).toFixed(2)} 
+                <img 
+                  src={kiltLogo} 
+                  alt="KILT" 
+                  className="h-5 w-5"
+                />
+              </div>
+              <div className="text-white/50 text-sm mb-3">
+                ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
               
               <Button 

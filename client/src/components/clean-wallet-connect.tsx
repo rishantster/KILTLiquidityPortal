@@ -16,13 +16,13 @@ export function CleanWalletConnect() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-3">
-        <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
-          <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+        <Badge variant="outline" className="bg-[#ff0066]/10 text-[#ff0066] border-[#ff0066]/30">
+          <div className="w-2 h-2 bg-[#ff0066] rounded-full mr-2 animate-pulse"></div>
           Base Network
         </Badge>
-        <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2">
-          <Wallet className="h-4 w-4 text-emerald-400" />
-          <span className="font-mono text-sm">{formatAddress(address)}</span>
+        <div className="flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-[#ff0066]/20 rounded-xl px-4 py-2">
+          <Wallet className="h-4 w-4 text-[#ff0066]" />
+          <span className="font-mono text-sm text-white">{formatAddress(address)}</span>
           <Button
             variant="ghost"
             size="sm"

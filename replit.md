@@ -45,6 +45,7 @@ The KILT Liquidity Incentive Portal is a production-ready DeFi application for m
 - **✅ ACTIVE USERS DISPLAY ISSUE RESOLVED**: Fixed critical "Active Users" showing 0 instead of 1 globally - resolved database sync discrepancies, eliminated SQL import errors, and implemented proper active participant counting logic ensuring accurate display of active liquidity providers across all users
 - **✅ UNIVERSAL POSITION COUNTING FIX**: Enhanced active participant logic to count ALL valid positions with meaningful value (>$0.01) regardless of database flags or user uniqueness, ensuring accurate display for positions of any size from any number of users
 - **✅ DUAL METRICS IMPLEMENTATION**: Added separate tracking for total registered positions (all LP positions) and active users (unique users only) - ensuring clear distinction between position count vs user count in analytics
+- **✅ REWARD OVERRIDE BUG FIXED**: Resolved critical issue where position lifecycle service was marking positions with USD value as reward ineligible, causing rewards to be overridden to 0.0% after few minutes - now preserves reward eligibility for all positions with meaningful value (>$0.01)
 
 **DEPLOYMENT STATUS**: Contract deployed to `0xe5771357399D58aC79A5b1161e8C363bB178B22b`. Calculator wallet created and ready for one-time authorization via BaseScan. Database completely reset as fresh application.
 

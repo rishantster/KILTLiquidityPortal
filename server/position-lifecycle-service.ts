@@ -144,7 +144,8 @@ class PositionLifecycleService {
           if (hasLiquidity || hasAnyValue) {
             // Position has liquidity OR any meaningful value - keep it active for rewards
             console.log(`🔄 LIFECYCLE: Keeping position ${tokenId} active (liquidity: ${hasLiquidity}, value: $${dbPosition?.currentValueUSD})`);
-            // No state change needed - keep position active
+            // CRITICAL: No state change needed - keep position active and reward eligible
+            continue; // Skip to next position - don't mark as inactive
           } else if (!hasLiquidity && hasUnclaimedTokens) {
             // Position needs Step 2 completion
             stateChanges.push({
@@ -215,12 +216,26 @@ class PositionLifecycleService {
       for (const change of stateChanges) {
         console.log(`   ${change.tokenId}: ${change.oldState} → ${change.newState} (${change.reason})`);
         
-        if (change.newState === 'burned' || change.newState === 'inactive') {
-          // Mark position as inactive in database
+        if (change.newState === 'burned') {
+          // Only burned positions should be fully deactivated
+          await storage.updateLpPositionStatus(change.tokenId, false);
+          await storage.updateLpPositionRewardEligibility(change.tokenId, false);
+          console.log(`🔥 Position ${change.tokenId} marked as burned and ineligible for rewards`);
+        } else if (change.newState === 'inactive') {
+          // CRITICAL FIX: Don't mark positions with USD value as reward ineligible
+          // Only update status but preserve reward eligibility for positions with value
           await storage.updateLpPositionStatus(change.tokenId, false);
           
-          // Also mark as not reward eligible since it's inactive
-          await storage.updateLpPositionRewardEligibility(change.tokenId, false);
+          // Check if position has meaningful value before removing reward eligibility
+          const position = await storage.getLpPositionByTokenId(change.tokenId);
+          const hasValue = position?.currentValueUSD && parseFloat(position.currentValueUSD.toString()) > 0.01;
+          
+          if (!hasValue) {
+            await storage.updateLpPositionRewardEligibility(change.tokenId, false);
+            console.log(`❌ Position ${change.tokenId} marked as inactive and ineligible (no value)`);
+          } else {
+            console.log(`⚠️ Position ${change.tokenId} marked as inactive but kept reward eligible (value: $${position?.currentValueUSD})`);
+          }
         }
         
         // Log Step 2 notifications for monitoring

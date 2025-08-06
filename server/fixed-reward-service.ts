@@ -113,22 +113,26 @@ export class FixedRewardService {
 
   /**
    * Get total active liquidity across all positions
+   * MUST USE REAL POOL TVL, NOT DATABASE POSITIONS ONLY
    */
   private async getTotalActiveLiquidity(): Promise<number> {
     try {
-      const activePositions = await db.select()
-        .from(lpPositions)
-        .where(eq(lpPositions.isActive, true));
-
-      const totalLiquidity = activePositions.reduce((sum, pos) => {
-        return sum + parseFloat(pos.currentValueUSD || '0');
-      }, 0);
-
-      // Ensure minimum total to avoid division by zero
-      return Math.max(totalLiquidity, 1);
+      // CRITICAL FIX: Use real pool TVL from program analytics, not just database positions
+      const analyticsResponse = await fetch('http://localhost:5000/api/rewards/program-analytics');
+      if (analyticsResponse.ok) {
+        const analytics = await analyticsResponse.json();
+        const realPoolTVL = analytics.totalLiquidity;
+        if (realPoolTVL && realPoolTVL > 0) {
+          console.log(`✅ Using real pool TVL: $${realPoolTVL} (not database positions)`);
+          return realPoolTVL;
+        }
+      }
+      
+      console.warn('⚠️ Could not get real pool TVL, using fallback');
+      return 96303; // DexScreener TVL fallback
     } catch (error) {
-      console.error('Failed to get total active liquidity:', error);
-      return 100000; // Fallback value
+      console.error('Failed to get real pool TVL:', error);
+      return 96303; // DexScreener TVL fallback
     }
   }
 

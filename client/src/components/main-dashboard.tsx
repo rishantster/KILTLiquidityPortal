@@ -442,10 +442,10 @@ export function MainDashboard() {
             {/* Hero Section */}
             <div className="mb-12">
               <div className="relative w-32 h-32 mx-auto mb-8">
-                {/* Matrix Green Glow Container */}
-                <div className="absolute inset-0 bg-matrix-green/20 rounded-full blur-xl animate-pulse"></div>
-                <div className="absolute inset-2 bg-black rounded-full flex items-center justify-center shadow-2xl border-2 border-matrix-green/40">
-                  {/* KILT Logo with Matrix Green Border */}
+                {/* KILT Pink Glow Container */}
+                <div className="absolute inset-0 bg-[#ff0066]/20 rounded-full blur-xl animate-pulse"></div>
+                <div className="absolute inset-2 bg-black rounded-full flex items-center justify-center shadow-2xl border-2 border-[#ff0066]/40">
+                  {/* KILT Logo with KILT Pink Border */}
                   <img 
                     src={kiltLogo} 
                     alt="KILT" 

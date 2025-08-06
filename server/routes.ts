@@ -55,6 +55,7 @@ import { claimBasedRewards } from "./claim-based-rewards";
 
 import rewardDistributionRoutes from "./routes/reward-distribution";
 import enhancedSecurityRoutes from "./routes/enhanced-security";
+import { blockchainSyncValidator } from "./blockchain-sync-validator";
 // Removed registerUniswapOptimizedRoutes - cleaned up during optimization
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes

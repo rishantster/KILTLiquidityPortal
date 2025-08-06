@@ -23,6 +23,17 @@ blockchainConfigService.initializeDefaults();
 // Initialize position lifecycle service for automatic position management
 import("./position-lifecycle-service");
 
+// Initialize blockchain sync validator for data integrity at scale
+setTimeout(async () => {
+  try {
+    const { blockchainSyncValidator } = await import("./blockchain-sync-validator");
+    blockchainSyncValidator.start();
+    console.log('🛡️ Blockchain Sync Validator started for production-scale data integrity');
+  } catch (error) {
+    console.error('❌ Failed to start Blockchain Sync Validator:', error);
+  }
+}, 5000); // Start after other services
+
 // Removed db-migration-optimizer - cleaned up during optimization
 
 // Initialize reward service for background updates

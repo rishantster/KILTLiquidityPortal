@@ -29,6 +29,7 @@ export interface IStorage {
   getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined>;
   createLpPosition(position: InsertLpPosition): Promise<LpPosition>;
   updateLpPosition(id: number, updates: Partial<LpPosition>): Promise<LpPosition | undefined>;
+  updateLpPositionByTokenId(tokenId: string, updates: Partial<LpPosition>): Promise<LpPosition | undefined>;
   updateLpPositionStatus(tokenId: string, isActive: boolean): Promise<boolean>;
   updateLpPositionRewardEligibility(tokenId: string, rewardEligible: boolean): Promise<boolean>;
   
@@ -140,6 +141,15 @@ export class MemStorage implements IStorage {
     return updatedPosition;
   }
 
+  async updateLpPositionByTokenId(tokenId: string, updates: Partial<LpPosition>): Promise<LpPosition | undefined> {
+    const position = Array.from(this.lpPositions.values()).find(p => p.nftTokenId === tokenId);
+    if (!position) return undefined;
+    
+    const updatedPosition = { ...position, ...updates };
+    this.lpPositions.set(position.id, updatedPosition);
+    return updatedPosition;
+  }
+
   async getUserPositions(address: string): Promise<any[]> {
     // In real implementation, this would query Uniswap V3 contracts
     // For now, return empty array - all positions come from real blockchain data
@@ -154,9 +164,7 @@ export class MemStorage implements IStorage {
     return Array.from(this.lpPositions.values()).filter(pos => pos.userId === user.id);
   }
 
-  async getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined> {
-    return Array.from(this.lpPositions.values()).find(pos => pos.nftTokenId === nftTokenId);
-  }
+
 
   async updateLpPositionStatus(tokenId: string, isActive: boolean): Promise<boolean> {
     const position = Array.from(this.lpPositions.values()).find(pos => pos.nftTokenId === tokenId);
@@ -319,6 +327,11 @@ export class DatabaseStorage implements IStorage {
 
   async updateLpPosition(id: number, updates: Partial<LpPosition>): Promise<LpPosition | undefined> {
     const result = await db.update(lpPositions).set(updates).where(eq(lpPositions.id, id)).returning();
+    return result[0];
+  }
+
+  async updateLpPositionByTokenId(tokenId: string, updates: Partial<LpPosition>): Promise<LpPosition | undefined> {
+    const result = await db.update(lpPositions).set(updates).where(eq(lpPositions.nftTokenId, tokenId)).returning();
     return result[0];
   }
 

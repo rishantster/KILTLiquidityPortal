@@ -459,9 +459,15 @@ export class FixedRewardService {
       const totalActiveLiquidity = await this.getTotalActiveLiquidity();
       const activeParticipants = await this.getAllActiveParticipants();
       
+      // COUNT UNIQUE USERS, NOT POSITIONS
+      // Fix: User wants "Active Users" to show unique users (1), not total positions (3)
+      const uniqueUserIds = new Set(activeParticipants.map(p => p.userId));
+      const activeUsersCount = uniqueUserIds.size;
+      
       console.log(`📊 Program metrics:`, {
         totalActiveLiquidity,
-        activeParticipantsCount: activeParticipants.length,
+        activeParticipantsCount: activeUsersCount, // Now counts unique users, not positions
+        totalPositions: activeParticipants.length, // Still track total positions for reference
         positionValueUSD: currentValueUSD
       });
       

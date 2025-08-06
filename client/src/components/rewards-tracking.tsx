@@ -55,6 +55,7 @@ interface UserRewardStats {
 interface ProgramAnalytics {
   totalLiquidity: number;
   activeParticipants: number;
+  activeUsers: number;
   estimatedAPR: { low: number; average: number; high: number };
   treasuryRemaining: number;
   totalBudget: number;
@@ -467,7 +468,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
                   <div className="text-purple-400 text-xs mb-1">Active Users</div>
-                  <div className="text-sm text-white numeric-display">{programAnalytics?.activeParticipants || 0}</div>
+                  <div className="text-sm text-white numeric-display">{programAnalytics?.activeUsers || 0}</div>
                 </div>
               </div>
               

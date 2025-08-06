@@ -217,10 +217,9 @@ class PositionLifecycleService {
         console.log(`   ${change.tokenId}: ${change.oldState} → ${change.newState} (${change.reason})`);
         
         if (change.newState === 'burned') {
-          // Only burned positions should be fully deactivated
-          await storage.updateLpPositionStatus(change.tokenId, false);
-          await storage.updateLpPositionRewardEligibility(change.tokenId, false);
-          console.log(`🔥 Position ${change.tokenId} marked as burned and ineligible for rewards`);
+          // ANTI-BLOAT: Completely remove burned positions from database to prevent bloat
+          await storage.deleteLpPosition(change.tokenId);
+          console.log(`🗑️ Position ${change.tokenId} permanently removed from database (burned/transferred)`);
         } else if (change.newState === 'inactive') {
           // CRITICAL FIX: Don't mark positions with USD value as reward ineligible
           // Only update status but preserve reward eligibility for positions with value

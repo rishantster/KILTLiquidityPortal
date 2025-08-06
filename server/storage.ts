@@ -32,6 +32,7 @@ export interface IStorage {
   updateLpPositionByTokenId(tokenId: string, updates: Partial<LpPosition>): Promise<LpPosition | undefined>;
   updateLpPositionStatus(tokenId: string, isActive: boolean): Promise<boolean>;
   updateLpPositionRewardEligibility(tokenId: string, rewardEligible: boolean): Promise<boolean>;
+  deleteLpPosition(tokenId: string): Promise<boolean>;
   
   // Position registration methods
   getUserPositions(address: string): Promise<any[]>;
@@ -184,6 +185,18 @@ export class MemStorage implements IStorage {
     return true;
   }
 
+  async getLpPositionByNftTokenId(nftTokenId: string): Promise<LpPosition | undefined> {
+    return Array.from(this.lpPositions.values()).find(pos => pos.nftTokenId === nftTokenId);
+  }
+
+  async deleteLpPosition(tokenId: string): Promise<boolean> {
+    const position = Array.from(this.lpPositions.values()).find(pos => pos.nftTokenId === tokenId);
+    if (!position) return false;
+    
+    this.lpPositions.delete(position.id);
+    return true;
+  }
+
   async getAppTransactionsByUserId(userId: number): Promise<any[]> {
     // Return empty array for in-memory storage - handled by database
     return [];
@@ -203,7 +216,7 @@ export class MemStorage implements IStorage {
       userId: insertReward.userId || null,
       nftTokenId: insertReward.nftTokenId,
       positionId: insertReward.positionId || null,
-      amount: insertReward.amount || '0',
+      amount: insertReward.dailyRewardAmount,
       positionValueUSD: insertReward.positionValueUSD,
       dailyRewardAmount: insertReward.dailyRewardAmount,
       accumulatedAmount: insertReward.accumulatedAmount,
@@ -356,7 +369,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createReward(insertReward: InsertReward): Promise<Reward> {
-    const result = await db.insert(rewards).values(insertReward).returning();
+    // Ensure all required fields are present
+    const completeReward = {
+      ...insertReward,
+      amount: insertReward.amount || insertReward.dailyRewardAmount || '0',
+      lockPeriodDays: insertReward.lockPeriodDays || 7,
+      claimedAmount: insertReward.claimedAmount || '0',
+      isEligibleForClaim: insertReward.isEligibleForClaim || false,
+      lastRewardCalculation: insertReward.lastRewardCalculation || new Date(),
+    };
+    const result = await db.insert(rewards).values(completeReward).returning();
     return result[0];
   }
 
@@ -431,6 +453,20 @@ export class DatabaseStorage implements IStorage {
       return result.length > 0;
     } catch (error) {
       console.error(`Failed to update reward eligibility for token ${tokenId}:`, error);
+      return false;
+    }
+  }
+
+  // ANTI-BLOAT: Delete burned positions from database to prevent bloat
+  async deleteLpPosition(tokenId: string): Promise<boolean> {
+    try {
+      const result = await db.delete(lpPositions)
+        .where(eq(lpPositions.nftTokenId, tokenId))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error(`Failed to delete position ${tokenId}:`, error);
       return false;
     }
   }

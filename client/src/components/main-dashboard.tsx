@@ -430,30 +430,10 @@ export function MainDashboard() {
         {/* Overlay for content readability */}
         <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
         
-        {/* Cyberpunk Beta Badge - Fixed position in top right corner */}
+        {/* Clean Beta Badge - Fixed position in top right corner */}
         <div className="fixed top-6 right-6 sm:top-8 sm:right-8 z-50">
-          <div className="relative group">
-            {/* Animated cyberpunk glow layers */}
-            <div className="absolute inset-0 bg-matrix-green/30 rounded-lg blur-lg animate-pulse"></div>
-            <div className="absolute inset-0 bg-cyan-400/20 rounded-lg blur-md animate-ping"></div>
-            
-            {/* Main beta badge with cyberpunk styling */}
-            <div className="relative bg-black/95 border-2 border-matrix-green/80 text-matrix-green text-xs sm:text-sm font-black px-4 py-2 uppercase tracking-widest backdrop-blur-xl shadow-2xl shadow-matrix-green/25 transform hover:scale-110 transition-all duration-300 rounded-lg overflow-hidden">
-              {/* Inner cyberpunk grid pattern */}
-              <div className="absolute inset-0 opacity-10 bg-gradient-to-r from-transparent via-matrix-green/20 to-transparent animate-pulse"></div>
-              
-              {/* Glitch effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-transparent to-matrix-green/10 animate-pulse opacity-50"></div>
-              
-              {/* Beta text with cyberpunk styling */}
-              <span className="relative z-10 font-mono text-shadow-glow drop-shadow-lg">
-                BETA
-              </span>
-              
-              {/* Scanning line effect */}
-              <div className="absolute top-0 left-0 w-full h-0.5 bg-matrix-green/60 animate-pulse"></div>
-              <div className="absolute bottom-0 right-0 w-full h-0.5 bg-cyan-400/40 animate-pulse delay-75"></div>
-            </div>
+          <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 text-xs sm:text-sm font-semibold text-[#ff0066] shadow-lg hover:scale-105 transition-all duration-200">
+            Beta
           </div>
         </div>
 

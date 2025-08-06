@@ -254,8 +254,8 @@ export function CyberpunkAdminPanel() {
               <h1 className="text-xl font-bold text-[#ff0066] tracking-wider">
                 ◢◤ KILT PROTOCOL ADMIN CONSOLE ◥◣
               </h1>
-              <span className="px-2 py-1 text-xs font-semibold bg-gradient-to-r from-[#ff0066] to-[#ff4499] text-white rounded-full tracking-wider animate-pulse">
-                BETA
+              <span className="px-3 py-1 text-xs font-semibold bg-white/90 text-[#ff0066] rounded-full tracking-wider backdrop-blur-sm shadow-sm">
+                Beta
               </span>
             </div>
             <button

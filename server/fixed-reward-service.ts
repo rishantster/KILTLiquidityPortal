@@ -341,21 +341,33 @@ export class FixedRewardService {
    */
   async getAllActiveParticipants(): Promise<any[]> {
     try {
+      // More lenient query - count positions that are either active OR have recent value
       const participants = await this.database
         .select({
           userId: lpPositions.userId,
           nftTokenId: lpPositions.nftTokenId,
-          currentValueUsd: lpPositions.currentValueUSD, // Fixed property name to match usage
+          currentValueUsd: lpPositions.currentValueUSD,
           liquidity: lpPositions.liquidity,
           createdAt: lpPositions.createdAt,
+          isActive: lpPositions.isActive,
+          rewardEligible: lpPositions.rewardEligible,
         })
         .from(lpPositions)
         .where(
           and(
             eq(lpPositions.isActive, true),
-            eq(lpPositions.rewardEligible, true)
+            // More lenient: count as participant if active OR has significant value
+            or(
+              eq(lpPositions.rewardEligible, true),
+              sql`CAST(${lpPositions.currentValueUSD} AS DECIMAL) > 100`
+            )
           )
         );
+
+      console.log(`📊 Active participants query result: ${participants.length} participants found`);
+      participants.forEach(p => {
+        console.log(`  - User ${p.userId}, Position ${p.nftTokenId}: $${p.currentValueUsd}, Active: ${p.isActive}, Eligible: ${p.rewardEligible}`);
+      });
 
       // Always return an array, never null or undefined
       return Array.isArray(participants) ? participants : [];

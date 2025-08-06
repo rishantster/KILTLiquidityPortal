@@ -129,11 +129,20 @@ class PositionLifecycleService {
             reason: 'Position not found on blockchain (burned/transferred)'
           });
         } else {
-          // Position exists - check liquidity state
+          // Position exists - check liquidity state AND USD value
           const hasLiquidity = blockchainPosition.liquidity && BigInt(blockchainPosition.liquidity) > 0n;
           const hasUnclaimedTokens = this.hasUnclaimedTokens(blockchainPosition);
           
-          if (!hasLiquidity && hasUnclaimedTokens) {
+          // Get current position from database to check USD value
+          const dbPosition = dbPositions.find(p => p.nftTokenId === tokenId);
+          const hasSignificantValue = dbPosition?.currentValueUSD && parseFloat(dbPosition.currentValueUSD.toString()) > 100;
+          
+          // PRODUCTION FIX: Position should remain active if it has significant USD value, regardless of liquidity
+          if (hasSignificantValue) {
+            // Position has significant value - keep it active for rewards
+            console.log(`🔄 LIFECYCLE: Keeping position ${tokenId} active due to significant value: $${dbPosition?.currentValueUSD}`);
+            // No state change needed - keep position active
+          } else if (!hasLiquidity && hasUnclaimedTokens) {
             // Position needs Step 2 completion
             stateChanges.push({
               tokenId,
@@ -154,7 +163,7 @@ class PositionLifecycleService {
               reason: 'Position fully closed with no remaining tokens'
             });
           }
-          // If hasLiquidity, position remains active - no change needed
+          // If hasLiquidity OR hasSignificantValue, position remains active - no change needed
         }
       }
       

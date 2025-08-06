@@ -44,6 +44,7 @@ import { PriceService } from "./price-service";
 import { smartContractService } from "./smart-contract-service";
 import { appTransactionService } from "./app-transaction-service";
 import { positionRegistrationService } from "./position-registration-service";
+import { DataIntegrityMonitor } from "./data-integrity-monitor";
 import { blockchainConfigService } from "./blockchain-config-service";
 // import { eip712Signer } from "./eip712-signer.js"; // Commented out - not currently used
 
@@ -1582,6 +1583,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // SINGLE SOURCE OF TRUTH APR ENDPOINTS
   const singleSourceAPR = new SingleSourceAPR(storage);
+  const dataIntegrityMonitor = new DataIntegrityMonitor(db);
   
   // Official program APR (for all display purposes)
   app.get('/api/apr/official', async (req, res) => {
@@ -3654,7 +3656,56 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
 
   // DUPLICATE POOL ENDPOINTS REMOVED - Using earlier definitions with fallback logic
 
+  // Data Integrity Monitoring Endpoints
+  app.get('/api/system/data-integrity/health', async (req, res) => {
+    try {
+      const healthCheck = await dataIntegrityMonitor.performHealthCheck();
+      res.json(healthCheck);
+    } catch (error) {
+      console.error('Health check endpoint error:', error);
+      res.status(500).json({ 
+        isHealthy: false, 
+        error: 'Health check failed',
+        issues: ['Health check execution failed']
+      });
+    }
+  });
+
+  app.get('/api/system/data-integrity/orphaned-eligibility', async (req, res) => {
+    try {
+      const orphanedCheck = await dataIntegrityMonitor.checkOrphanedEligibilityRecords();
+      res.json(orphanedCheck);
+    } catch (error) {
+      console.error('Orphaned eligibility check error:', error);
+      res.status(500).json({ 
+        orphanedCount: -1,
+        orphanedRecords: [],
+        isHealthy: false,
+        error: 'Check failed'
+      });
+    }
+  });
+
+  app.get('/api/system/data-integrity/missing-eligibility', async (req, res) => {
+    try {
+      const missingEligibilityCheck = await dataIntegrityMonitor.checkPositionsWithoutEligibility();
+      res.json(missingEligibilityCheck);
+    } catch (error) {
+      console.error('Missing eligibility check error:', error);
+      res.status(500).json({ 
+        missingEligibilityCount: -1,
+        missingRecords: [],
+        isHealthy: false,
+        error: 'Check failed'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
+  
+  // Start periodic data integrity monitoring
+  dataIntegrityMonitor.startPeriodicMonitoring(30); // Check every 30 minutes
+  
   return httpServer;
 }
 

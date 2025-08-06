@@ -233,6 +233,14 @@ export class PositionRegistrationService {
         .values(positionRecord)
         .returning();
 
+      // Critical: Verify position was actually created
+      if (!createdPosition || !createdPosition.id) {
+        console.error('❌ CRITICAL: Position insertion failed silently', { positionRecord });
+        throw new Error('Failed to create position record - database insertion returned no result');
+      }
+
+      console.log(`✅ Position ${positionData.nftTokenId} created with ID ${createdPosition.id}`);
+
       // Create app transaction record for registration
       const registrationTransaction: InsertAppTransaction = {
         sessionId: `registration_${Date.now()}`,
@@ -259,9 +267,20 @@ export class PositionRegistrationService {
         // eligibilityStartDate: new Date() // Field doesn't exist in schema
       };
 
-      await this.db
+      const [eligibilityResult] = await this.db
         .insert(positionEligibility)
-        .values(eligibilityRecord);
+        .values(eligibilityRecord)
+        .returning();
+
+      // Critical: Verify eligibility record was created
+      if (!eligibilityResult || !eligibilityResult.id) {
+        console.error('❌ CRITICAL: Eligibility insertion failed', { eligibilityRecord });
+        // Rollback: Delete the position if eligibility creation failed
+        await this.db.delete(lpPositions).where(eq(lpPositions.id, createdPosition.id));
+        throw new Error('Failed to create eligibility record - rolling back position creation');
+      }
+
+      console.log(`✅ Eligibility record created for position ${createdPosition.id}`);
 
       // Calculate reward information
       const rewardCalc = await fixedRewardService.calculatePositionRewards(

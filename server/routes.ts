@@ -3701,6 +3701,21 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  app.get('/api/system/data-integrity/blockchain-validation', async (req, res) => {
+    try {
+      const blockchainValidation = await dataIntegrityMonitor.validateAgainstBlockchain();
+      res.json(blockchainValidation);
+    } catch (error) {
+      console.error('Blockchain validation error:', error);
+      res.status(500).json({ 
+        isHealthy: false,
+        issues: ['Blockchain validation failed'],
+        validatedPositions: 0,
+        blockchainMismatches: -1
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Start periodic data integrity monitoring

@@ -102,6 +102,78 @@ export class DataIntegrityMonitor {
   }
 
   /**
+   * Cross-validates database positions against real blockchain data
+   */
+  async validateAgainstBlockchain(): Promise<{
+    isHealthy: boolean;
+    issues: string[];
+    validatedPositions: number;
+    blockchainMismatches: number;
+  }> {
+    const issues: string[] = [];
+    let validatedPositions = 0;
+    let blockchainMismatches = 0;
+
+    try {
+      // Get all active positions from database
+      const positions = await this.db.select().from(lpPositions).where(eq(lpPositions.isActive, true));
+      
+      // Import uniswap service for blockchain validation
+      const { uniswapIntegrationService } = await import('./uniswap-integration-service');
+      
+      for (const position of positions) {
+        validatedPositions++;
+        
+        try {
+          // Get real blockchain data for this position
+          const blockchainData = await uniswapIntegrationService.getFullPositionData(position.nftTokenId);
+          
+          if (!blockchainData) {
+            blockchainMismatches++;
+            issues.push(`Position ${position.nftTokenId} not found on blockchain but marked active in database`);
+          } else {
+            // Check if blockchain state matches database state
+            const blockchainIsActive = blockchainData.isActive && parseFloat(blockchainData.liquidity) > 0;
+            const databaseIsActive = position.isActive;
+            
+            if (blockchainIsActive !== databaseIsActive) {
+              blockchainMismatches++;
+              issues.push(`Position ${position.nftTokenId} state mismatch: DB=${databaseIsActive}, Blockchain=${blockchainIsActive}`);
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to validate position ${position.nftTokenId} against blockchain:`, error);
+          issues.push(`Could not validate position ${position.nftTokenId} against blockchain`);
+        }
+      }
+
+      const isHealthy = blockchainMismatches === 0;
+      
+      if (isHealthy) {
+        console.log(`✅ Blockchain validation passed: ${validatedPositions} positions verified`);
+      } else {
+        console.error(`❌ Blockchain validation failed: ${blockchainMismatches} mismatches found`);
+      }
+
+      return {
+        isHealthy,
+        issues,
+        validatedPositions,
+        blockchainMismatches
+      };
+
+    } catch (error) {
+      console.error('❌ Blockchain validation check failed:', error);
+      return {
+        isHealthy: false,
+        issues: ['Blockchain validation check execution failed'],
+        validatedPositions: 0,
+        blockchainMismatches: -1
+      };
+    }
+  }
+
+  /**
    * Comprehensive health check
    */
   async performHealthCheck(): Promise<{
@@ -109,6 +181,7 @@ export class DataIntegrityMonitor {
     issues: string[];
     totalPositions: number;
     totalEligibilityRecords: number;
+    blockchainValidation: any;
   }> {
     const issues: string[] = [];
     
@@ -134,6 +207,12 @@ export class DataIntegrityMonitor {
         issues.push(`${missingEligibilityCheck.missingEligibilityCount} positions without eligibility`);
       }
 
+      // CRITICAL: Validate against real blockchain data
+      const blockchainValidation = await this.validateAgainstBlockchain();
+      if (!blockchainValidation.isHealthy) {
+        issues.push(...blockchainValidation.issues);
+      }
+
       const isHealthy = issues.length === 0;
 
       if (isHealthy) {
@@ -146,7 +225,8 @@ export class DataIntegrityMonitor {
         isHealthy,
         issues,
         totalPositions: parseInt(totalPositions.count),
-        totalEligibilityRecords: parseInt(totalEligibilityRecords.count)
+        totalEligibilityRecords: parseInt(totalEligibilityRecords.count),
+        blockchainValidation
       };
 
     } catch (error) {
@@ -155,7 +235,13 @@ export class DataIntegrityMonitor {
         isHealthy: false,
         issues: ['Health check execution failed'],
         totalPositions: 0,
-        totalEligibilityRecords: 0
+        totalEligibilityRecords: 0,
+        blockchainValidation: {
+          isHealthy: false,
+          issues: ['Health check failed'],
+          validatedPositions: 0,
+          blockchainMismatches: -1
+        }
       };
     }
   }

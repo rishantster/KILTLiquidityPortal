@@ -64,7 +64,7 @@ class PositionLifecycleService {
       
       for (const user of allUsers) {
         // Skip users with invalid wallet addresses
-        if (!user.walletAddress || user.walletAddress === 'undefined' || !user.walletAddress.startsWith('0x')) {
+        if (!user.address || user.address === 'undefined' || !user.address.startsWith('0x')) {
           continue;
         }
         
@@ -84,7 +84,7 @@ class PositionLifecycleService {
       for (let i = 0; i < usersWithPositions.length; i += batchSize) {
         const batch = usersWithPositions.slice(i, i + batchSize);
         await Promise.all(batch.map(({ user, positions }) => 
-          this.checkUserPositions(user.walletAddress, user.id, positions)
+          this.checkUserPositions(user.address, user.id, positions)
         ));
         
         // Small delay between batches

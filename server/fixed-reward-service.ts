@@ -20,7 +20,7 @@ export class FixedRewardService {
       const [config] = await db.select().from(treasuryConfig).limit(1);
       
       if (config) {
-        const allocation = config.totalAllocation || this.treasuryAllocation;
+        const allocation = config.totalAllocation ? Number(config.totalAllocation) : this.treasuryAllocation;
         return {
           treasuryAllocation: allocation,
           dailyBudget: allocation / this.programDurationDays,
@@ -174,6 +174,87 @@ export class FixedRewardService {
         activePositions: 0,
         avgDailyRewards: 0
       };
+    }
+  }
+
+  /**
+   * Get program analytics for the rewards dashboard
+   */
+  async getProgramAnalytics(): Promise<{
+    totalLiquidity: number;
+    activeUsers: number;
+    activeParticipants: number;
+    programAPR: number;
+    avgUserLiquidity: number;
+    rewardFormula: string;
+  }> {
+    try {
+      // Get all active positions
+      const activePositions = await db.select()
+        .from(lpPositions)
+        .where(eq(lpPositions.isActive, true));
+
+      // Calculate total liquidity
+      const totalLiquidity = activePositions.reduce((sum, pos) => {
+        return sum + parseFloat(pos.currentValueUSD || '0');
+      }, 0);
+
+      // Count unique users (activeUsers) vs total positions (activeParticipants)
+      const uniqueUserIds = new Set(activePositions.map(pos => pos.userId));
+      const activeUsers = uniqueUserIds.size;
+      const activeParticipants = activePositions.length;
+
+      // Calculate average user liquidity
+      const avgUserLiquidity = activeUsers > 0 ? totalLiquidity / activeUsers : 0;
+
+      // Get admin config for APR calculation
+      const adminConfig = await this.getAdminConfiguration();
+      const annualBudget = Number(adminConfig.treasuryAllocation);
+      
+      // Calculate program APR (annual rewards / total liquidity)
+      const programAPR = totalLiquidity > 0 ? (annualBudget / totalLiquidity) * 100 : 0;
+
+      return {
+        totalLiquidity: Math.round(totalLiquidity),
+        activeUsers,
+        activeParticipants,
+        programAPR: Math.round(programAPR * 100) / 100,
+        avgUserLiquidity: Math.round(avgUserLiquidity),
+        rewardFormula: 'Proportional + Time'
+      };
+
+    } catch (error) {
+      console.error('Failed to get program analytics:', error);
+      return {
+        totalLiquidity: 0,
+        activeUsers: 0,
+        activeParticipants: 0,
+        programAPR: 0,
+        avgUserLiquidity: 0,
+        rewardFormula: 'Proportional + Time'
+      };
+    }
+  }
+
+  /**
+   * Calculate maximum theoretical APR for the rewards program
+   */
+  async calculateMaximumTheoreticalAPR(): Promise<number> {
+    try {
+      const adminConfig = await this.getAdminConfiguration();
+      const annualBudget = Number(adminConfig.treasuryAllocation);
+      
+      // For maximum APR calculation, assume minimum viable liquidity
+      const minimumLiquidity = 1000; // $1000 minimum
+      
+      // Calculate theoretical maximum APR
+      const maxAPR = (annualBudget / minimumLiquidity) * 100;
+      
+      return Math.round(maxAPR * 100) / 100;
+
+    } catch (error) {
+      console.error('Failed to calculate maximum APR:', error);
+      return 0;
     }
   }
 }

@@ -10,7 +10,7 @@ import {
   type Reward,
   type DailyReward
 } from '../shared/schema';
-import { eq, and, gte, desc, sum, sql, gt, isNotNull } from 'drizzle-orm';
+import { eq, and, gte, desc, sum, sql, gt, isNotNull, or } from 'drizzle-orm';
 
 export interface RewardCalculationResult {
   baseAPR: number;
@@ -341,7 +341,7 @@ export class FixedRewardService {
    */
   async getAllActiveParticipants(): Promise<any[]> {
     try {
-      // More lenient query - count positions that are either active OR have recent value
+      // Simplified query - just check for active positions with reward eligibility
       const participants = await this.database
         .select({
           userId: lpPositions.userId,
@@ -356,11 +356,7 @@ export class FixedRewardService {
         .where(
           and(
             eq(lpPositions.isActive, true),
-            // More lenient: count as participant if active OR has significant value
-            or(
-              eq(lpPositions.rewardEligible, true),
-              sql`CAST(${lpPositions.currentValueUSD} AS DECIMAL) > 100`
-            )
+            eq(lpPositions.rewardEligible, true)
           )
         );
 

@@ -84,17 +84,24 @@ class BlockchainSyncValidator {
             const blockchainPositions = await uniswapIntegrationService.getUserPositions(user.address);
             const blockchainPosition = blockchainPositions.find(bp => bp.tokenId === position.nftTokenId);
             
-            // Determine blockchain state
+            // UNIFIED POSITION STATE LOGIC:
+            // Use the SAME logic as lifecycle service to determine position state
             let blockchainState: 'active' | 'closed' | 'burned';
             let blockchainLiquidity = '0';
             
             if (!blockchainPosition) {
               blockchainState = 'burned';
-            } else if (blockchainPosition.isActive && parseFloat(blockchainPosition.liquidity) > 0) {
-              blockchainState = 'active';
-              blockchainLiquidity = blockchainPosition.liquidity;
             } else {
-              blockchainState = 'closed';
+              const hasLiquidity = blockchainPosition.isActive && parseFloat(blockchainPosition.liquidity) > 0;
+              const hasSignificantValue = position.currentValueUSD && parseFloat(position.currentValueUSD.toString()) > 100;
+              
+              // Use SAME logic as lifecycle service: active if has liquidity OR significant value
+              if (hasLiquidity || hasSignificantValue) {
+                blockchainState = 'active';
+                blockchainLiquidity = blockchainPosition.liquidity;
+              } else {
+                blockchainState = 'closed';
+              }
             }
             
             // Check for discrepancy

@@ -7,6 +7,7 @@
  */
 
 import { storage } from "./storage";
+import { PositionStateManager, PositionStateContext } from './position-state-manager';
 
 interface PositionStateChange {
   tokenId: string;
@@ -135,39 +136,36 @@ class PositionLifecycleService {
           
           // Get current position from database to check USD value
           const dbPosition = dbPositions.find(p => p.nftTokenId === tokenId);
-          const hasSignificantValue = dbPosition?.currentValueUSD && parseFloat(dbPosition.currentValueUSD.toString()) > 100;
           
-          // UNIVERSAL FIX: Position should remain active if it has ANY USD value OR liquidity
-          // This ensures ALL valid positions remain active for rewards
-          const hasAnyValue = dbPosition?.currentValueUSD && parseFloat(dbPosition.currentValueUSD.toString()) > 0.01;
+          // USE UNIFIED STATE MANAGER - Single source of truth for ALL position state decisions
+          const stateContext: PositionStateContext = {
+            tokenId,
+            hasBlockchainLiquidity: hasLiquidity,
+            blockchainLiquidity: blockchainPosition.liquidity || '0',
+            currentValueUSD: dbPosition?.currentValueUSD || null,
+            hasUnclaimedTokens,
+            isOnBlockchain: true
+          };
           
-          if (hasLiquidity || hasAnyValue) {
-            // Position has liquidity OR any meaningful value - keep it active for rewards
-            console.log(`🔄 LIFECYCLE: Keeping position ${tokenId} active (liquidity: ${hasLiquidity}, value: $${dbPosition?.currentValueUSD})`);
-            // CRITICAL: No state change needed - keep position active and reward eligible
-            continue; // Skip to next position - don't mark as inactive
-          } else if (!hasLiquidity && hasUnclaimedTokens) {
-            // Position needs Step 2 completion
+          const expectedState = PositionStateManager.determinePositionState(stateContext);
+          const needsStep2 = PositionStateManager.needsStep2(stateContext);
+          
+          // Only create state change if database state differs from expected state
+          const currentDbState = dbPosition?.isActive ? 'active' : 'inactive';
+          
+          if (expectedState === 'active' && currentDbState === 'inactive') {
             stateChanges.push({
-              tokenId,
-              userId,
-              oldState: 'active',
-              newState: 'inactive',
-              needsStep2: true,
-              reason: 'Zero liquidity with unclaimed tokens (Step 2 needed)'
+              tokenId, userId, oldState: 'inactive', newState: 'active', needsStep2: false,
+              reason: 'Position should be active (liquidity or significant value)'
             });
-          } else if (!hasLiquidity && !hasUnclaimedTokens) {
-            // Position completely closed
+          } else if (expectedState === 'inactive' && currentDbState === 'active') {
             stateChanges.push({
-              tokenId,
-              userId,
-              oldState: 'active',
-              newState: 'inactive',
-              needsStep2: false,
-              reason: 'Position fully closed with no remaining tokens'
+              tokenId, userId, oldState: 'active', newState: 'inactive', needsStep2,
+              reason: needsStep2 ? 'Zero liquidity with unclaimed tokens (Step 2 needed)' : 'Position fully closed'
             });
+          } else {
+            console.log(`🔄 LIFECYCLE: Position ${tokenId} state correct (${expectedState})`);
           }
-          // If hasLiquidity OR hasSignificantValue, position remains active - no change needed
         }
       }
       
@@ -220,20 +218,32 @@ class PositionLifecycleService {
           // ANTI-BLOAT: Completely remove burned positions from database to prevent bloat
           await storage.deleteLpPosition(change.tokenId);
           console.log(`🗑️ Position ${change.tokenId} permanently removed from database (burned/transferred)`);
+        } else if (change.newState === 'active') {
+          // Make position active AND reward eligible using unified state manager
+          await storage.updateLpPositionByTokenId(change.tokenId, { isActive: true });
+          await storage.updateLpPositionRewardEligibility(change.tokenId, true);
+          console.log(`✅ Position ${change.tokenId} marked as active and reward eligible (${change.reason})`);
         } else if (change.newState === 'inactive') {
-          // CRITICAL FIX: Don't mark positions with USD value as reward ineligible
-          // Only update status but preserve reward eligibility for positions with value
-          await storage.updateLpPositionStatus(change.tokenId, false);
+          // Handle inactive state with unified eligibility logic
+          await storage.updateLpPositionByTokenId(change.tokenId, { isActive: false });
           
-          // Check if position has meaningful value before removing reward eligibility
           const position = await storage.getLpPositionByTokenId(change.tokenId);
-          const hasValue = position?.currentValueUSD && parseFloat(position.currentValueUSD.toString()) > 0.01;
+          const stateContext: PositionStateContext = {
+            tokenId: change.tokenId,
+            hasBlockchainLiquidity: false,
+            blockchainLiquidity: '0',
+            currentValueUSD: position?.currentValueUSD || null,
+            hasUnclaimedTokens: change.needsStep2,
+            isOnBlockchain: true
+          };
           
-          if (!hasValue) {
-            await storage.updateLpPositionRewardEligibility(change.tokenId, false);
-            console.log(`❌ Position ${change.tokenId} marked as inactive and ineligible (no value)`);
-          } else {
+          const shouldBeRewardEligible = PositionStateManager.isRewardEligible(stateContext);
+          await storage.updateLpPositionRewardEligibility(change.tokenId, shouldBeRewardEligible);
+          
+          if (shouldBeRewardEligible) {
             console.log(`⚠️ Position ${change.tokenId} marked as inactive but kept reward eligible (value: $${position?.currentValueUSD})`);
+          } else {
+            console.log(`❌ Position ${change.tokenId} marked as inactive and ineligible (no significant value)`);
           }
         }
         

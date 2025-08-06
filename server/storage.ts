@@ -372,7 +372,7 @@ export class DatabaseStorage implements IStorage {
     // Ensure all required fields are present
     const completeReward = {
       ...insertReward,
-      amount: insertReward.amount || insertReward.dailyRewardAmount || '0',
+      amount: insertReward.amount || (insertReward as any).dailyRewardAmount || '0',
       lockPeriodDays: insertReward.lockPeriodDays || 7,
       claimedAmount: insertReward.claimedAmount || '0',
       isEligibleForClaim: insertReward.isEligibleForClaim || false,

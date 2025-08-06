@@ -46,6 +46,7 @@ import { lazy } from 'react';
 
 export const lazyWithPreload = (importFunc: () => Promise<any>) => {
   const Component = lazy(importFunc);
-  Component.preload = importFunc;
+  // Add preload functionality to lazy component
+  (Component as any).preload = importFunc;
   return Component;
 };

@@ -26,9 +26,9 @@ export function setupGlobalErrorSuppression() {
 
   // Intercept React error boundaries
   const originalErrorHandler = window.addEventListener;
-  window.addEventListener = function(type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions) {
+  window.addEventListener = function(this: Window, type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions) {
     if (type === 'error' || type === 'unhandledrejection') {
-      const wrappedListener = function(event: Event | PromiseRejectionEvent | ErrorEvent) {
+      const wrappedListener = function(this: Window, event: Event | PromiseRejectionEvent | ErrorEvent) {
         const errorMsg = (event as any).error?.toString() || (event as any).reason?.toString() || '';
         
         // Suppress network and timeout errors from triggering overlays
@@ -52,7 +52,7 @@ export function setupGlobalErrorSuppression() {
       return originalErrorHandler.call(this, type, wrappedListener, options);
     }
     
-    return originalErrorHandler.call(this, type, listener, options);
+    return originalErrorHandler.call(this, type, listener!, options);
   };
 }
 

@@ -64,7 +64,7 @@ declare global {
         return newNode as T;
       }
     }
-    return originalInsertBefore.call(this, newNode, referenceNode);
+    return originalInsertBefore.call(this, newNode, referenceNode) as T;
   };
 
   // Override appendChild to prevent overlay creation
@@ -80,7 +80,7 @@ declare global {
         return newChild as T;
       }
     }
-    return originalAppendChild.call(this, newChild);
+    return originalAppendChild.call(this, newChild) as T;
   };
 
   // Block all error event listeners that the plugin might use

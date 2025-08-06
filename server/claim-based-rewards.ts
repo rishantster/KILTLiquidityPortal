@@ -157,11 +157,13 @@ export class ClaimBasedRewards {
       
       // Find the earliest reward (when lock period started)
       const earliestReward = userRewards.reduce((earliest, reward) => {
-        return reward.createdAt < earliest.createdAt ? reward : earliest;
+        const rewardDate = reward.createdAt ? new Date(reward.createdAt) : new Date();
+        const earliestDate = earliest.createdAt ? new Date(earliest.createdAt) : new Date();
+        return rewardDate < earliestDate ? reward : earliest;
       });
 
       // Calculate when the lock period expires from first reward
-      const lockExpiryDate = new Date(earliestReward.createdAt);
+      const lockExpiryDate = new Date(earliestReward.createdAt || new Date());
       lockExpiryDate.setDate(lockExpiryDate.getDate() + lockPeriodDays);
       
       // Check if initial 7-day lock period has expired
@@ -258,12 +260,14 @@ export class ClaimBasedRewards {
       
       // Find the earliest reward (when lock period started)
       const earliestReward = userRewards.reduce((earliest, reward) => {
-        return reward.createdAt < earliest.createdAt ? reward : earliest;
+        const rewardDate = reward.createdAt ? new Date(reward.createdAt) : new Date();
+        const earliestDate = earliest.createdAt ? new Date(earliest.createdAt) : new Date();
+        return rewardDate < earliestDate ? reward : earliest;
       });
 
       // Calculate when the 7-day lock period expires from first reward
-      const lockExpiryDate = new Date(earliestReward.createdAt);
-      lockExpiryDate.setDate(lockExpiryDate.getDate() + this.LOCK_PERIOD_DAYS);
+      const lockExpiryDate = new Date(earliestReward.createdAt || new Date());
+      lockExpiryDate.setDate(lockExpiryDate.getDate() + await this.getLockPeriodDays());
       
       // Check if lock period has expired
       if (now < lockExpiryDate) {
@@ -365,18 +369,14 @@ export class ClaimBasedRewards {
   private async logClaimOperation(userAddress: string, amount: number, transactionHash: string): Promise<void> {
     try {
       await db.insert(adminOperations).values({
-        operationType: 'reward_claim',
-        operationDetails: JSON.stringify({
+        action: 'REWARD_CLAIM',
+        details: JSON.stringify({
           userAddress,
           amount,
           transactionHash,
           timestamp: new Date().toISOString()
         }),
-        treasuryAddress: userAddress,
-        amount: amount.toString(),
-        reason: 'User claimed rewards after 7-day lock period',
         performedBy: userAddress,
-        transactionHash,
         success: true
       });
     } catch (error) {
@@ -397,8 +397,8 @@ export class ClaimBasedRewards {
       // Get all rewards
       const allRewards = await db.select().from(rewards);
       
-      const claimed = allRewards.filter(r => r.claimed);
-      const pending = allRewards.filter(r => !r.claimed);
+      const claimed = allRewards.filter(r => r.claimedAt);
+      const pending = allRewards.filter(r => !r.claimedAt);
       
       const totalClaimed = claimed.reduce((sum, r) => sum + parseFloat(r.dailyRewardAmount || '0'), 0);
       const lockedRewards = pending.reduce((sum, r) => sum + parseFloat(r.dailyRewardAmount || '0'), 0);

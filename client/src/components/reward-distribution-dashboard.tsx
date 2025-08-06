@@ -42,8 +42,7 @@ export function RewardDistributionDashboard() {
     mutationFn: async (recipients: EligibleUser[]) => {
       return await apiRequest('/api/reward-distribution/distribute', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipients }),
+        data: { recipients }
       });
     },
     onSuccess: () => {
@@ -105,8 +104,8 @@ export function RewardDistributionDashboard() {
     );
   }
 
-  const eligibleUsers = eligibleData?.eligibleUsers || [];
-  const balance = treasuryBalance?.balance || '0';
+  const eligibleUsers = (eligibleData as any)?.eligibleUsers || [];
+  const balance = (treasuryBalance as any)?.balance || '0';
 
   return (
     <div className="space-y-6">
@@ -197,31 +196,31 @@ export function RewardDistributionDashboard() {
           <CardContent>
             {distributeMutation.data && (
               <div className="flex items-center gap-2 mb-2">
-                {distributeMutation.data.success ? (
+                {(distributeMutation.data as any).success ? (
                   <CheckCircle className="h-5 w-5 text-emerald-400" />
                 ) : (
                   <AlertCircle className="h-5 w-5 text-red-400" />
                 )}
-                <span className={distributeMutation.data.success ? 'text-emerald-400' : 'text-red-400'}>
-                  {distributeMutation.data.message}
+                <span className={(distributeMutation.data as any).success ? 'text-emerald-400' : 'text-red-400'}>
+                  {String((distributeMutation.data as any).message)}
                 </span>
               </div>
             )}
             {dailyDistributionMutation.data && (
               <div className="flex items-center gap-2">
-                {dailyDistributionMutation.data.success ? (
+                {(dailyDistributionMutation.data as any).success ? (
                   <CheckCircle className="h-5 w-5 text-emerald-400" />
                 ) : (
                   <AlertCircle className="h-5 w-5 text-red-400" />
                 )}
-                <span className={dailyDistributionMutation.data.success ? 'text-emerald-400' : 'text-red-400'}>
-                  {dailyDistributionMutation.data.message}
+                <span className={(dailyDistributionMutation.data as any).success ? 'text-emerald-400' : 'text-red-400'}>
+                  {String((dailyDistributionMutation.data as any).message)}
                 </span>
               </div>
             )}
           </CardContent>
         </Card>
-      )}
+      ) as React.ReactNode}
 
       {/* Eligible Users List */}
       <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">

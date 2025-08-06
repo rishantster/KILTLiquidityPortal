@@ -891,8 +891,9 @@ export function useUniswapV3() {
           requiredKilt: amount1Desired.toString()
         });
         
-        // Handle ETH vs WETH based on user preference
-        if (params.useEth) {
+        // Handle ETH vs WETH based on user preference  
+        const useEth = (params as any).useEth || false;
+        if (useEth) {
           // When using ETH, check native ETH balance
           const ethBalance = await baseClient.getBalance({
             address: address as `0x${string}`,
@@ -965,7 +966,7 @@ export function useUniswapV3() {
         }
         
         // Check WETH (token0) allowance only if NOT using native ETH
-        if (amount0Desired > 0n && !params.useEth) {
+        if (amount0Desired > 0n && !useEth) {
           const wethAllowance = await baseClient.readContract({
             address: WETH_TOKEN as `0x${string}`,
             abi: ERC20_ABI,
@@ -996,7 +997,7 @@ export function useUniswapV3() {
               description: "Now processing liquidity addition...",
             });
           }
-        } else if (params.useEth) {
+        } else if (useEth) {
           console.log('🔓 Skipping WETH approval - using native ETH');
         }
         
@@ -1040,7 +1041,7 @@ export function useUniswapV3() {
         console.log('🚀 Executing increaseLiquidity transaction...');
         
         let hash;
-        if (params.useEth) {
+        if (useEth) {
           // When using ETH, include the ETH value in the transaction
           console.log('💎 Using native ETH transaction with value:', formatUnits(amount0Desired, 18), 'ETH');
           hash = await walletClient.writeContract({

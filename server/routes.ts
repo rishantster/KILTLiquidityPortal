@@ -755,10 +755,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Create reward tracking entry
       const rewardResult = await fixedRewardService.calculatePositionRewards(
-        userId.toString(),
-        position.id.toString(),
+        userId,
         nftId.toString(),
-        positionValueUSD
+        liquidityAddedAt
       );
       
       res.json({

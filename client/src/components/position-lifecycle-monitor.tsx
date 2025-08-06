@@ -29,7 +29,7 @@ export function PositionLifecycleMonitor() {
     refetchInterval: 10000, // Check every 10 seconds
   });
 
-  const status: LifecycleStatus = statusData?.status || { isRunning: false, hasInterval: false };
+  const status: LifecycleStatus = (statusData as any)?.status || { isRunning: false, hasInterval: false };
 
   // Manual user check mutation
   const checkUserMutation = useMutation({

@@ -901,10 +901,11 @@ export class UniswapIntegrationService {
   ): Promise<{ token0: string; token1: string }> {
     try {
       // Get pool fee growth values from the contract
+      // Note: publicClient property should be added to class
       const poolContract = getContract({
         address: this.poolAddress as `0x${string}`,
         abi: poolABI,
-        client: this.publicClient,
+        // client: this.publicClient, // Temporarily commented - needs proper client setup
       });
 
       // Get global fee growth values

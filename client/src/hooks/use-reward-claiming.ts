@@ -111,11 +111,11 @@ export function useRewardClaiming() {
       const claimableAmountResult = await baseClient.readContract({
         address: BASIC_TREASURY_POOL_ADDRESS,
         abi: BASIC_TREASURY_POOL_ABI,
-        functionName: 'getClaimableRewards',
+        functionName: 'getUserStats',
         args: [userAddress as `0x${string}`],
       });
 
-      const claimableAmount = (claimableAmountResult as bigint).toString();
+      const claimableAmount = (claimableAmountResult as any)?.[0]?.toString() || '0';
       const isClaimable = BigInt(claimableAmount) > 0n;
 
       return {

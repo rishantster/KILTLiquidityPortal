@@ -85,7 +85,7 @@ export class TransactionValidator {
     } catch (error) {
       return {
         isValid: false,
-        errors: [`Validation error: ${error.message}`],
+        errors: [`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`],
         warnings,
         suggestions: ['Check network connection and try again']
       };

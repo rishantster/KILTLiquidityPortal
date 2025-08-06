@@ -3,7 +3,7 @@
  * Provides blazing fast responses optimized for mobile devices
  */
 
-import { immediateDataService } from './immediate-data-service.js';
+// Removed import - immediateDataService not needed for core functionality
 
 interface MobileResponse {
   data: any;

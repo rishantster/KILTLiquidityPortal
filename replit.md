@@ -14,6 +14,10 @@ The KILT Liquidity Incentive Portal is a production-ready DeFi application for m
 ## System Architecture
 The KILT Liquidity Incentive Portal is a full-stack TypeScript application emphasizing high performance, security, and scalability.
 
+**Recent Changes (Jan 2025)**:
+- **Metrics Clarity Fix**: Separated activeUsers (unique users) from activeParticipants (total positions) to eliminate confusion in analytics display.
+- **User Experience**: "Active Users" now correctly shows 1 instead of 3 when one user has multiple positions.
+
 **Frontend Stack**:
 - **Framework**: React 18 with TypeScript, Vite.
 - **UI**: Shadcn/ui (Radix UI), Tailwind CSS with custom KILT brand colors, glassmorphism dark theme.

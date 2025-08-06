@@ -758,10 +758,10 @@ export function LiquidityMint({
             <Info className="h-3 w-3 inline mr-1" />
             Minimum position value: $10 (anti-spam protection)
           </div>
-          <Badge className="bg-[#ff0066]/20 text-[#ff0066] border border-[#ff0066]/50 px-2 py-0.5 text-xs">
+          <Badge className="inline-flex items-center rounded-full font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 backdrop-blur-[12px] from-pink-500 to-pink-600 shadow-soft-modern hover:from-pink-400 hover:to-pink-500 hover:shadow-medium-modern bg-[#ff0066]/20 border border-[#ff0066]/50 px-2 py-0.5 text-xs text-[#e6e8ec]">
             0.3% Fee Tier
           </Badge>
-          <Badge className="bg-[#ff0066]/20 text-[#ff0066] border border-[#ff0066]/50 px-2 py-0.5 text-xs">
+          <Badge className="inline-flex items-center rounded-full font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 backdrop-blur-[12px] from-pink-500 to-pink-600 shadow-soft-modern hover:from-pink-400 hover:to-pink-500 hover:shadow-medium-modern bg-[#ff0066]/20 border border-[#ff0066]/50 px-2 py-0.5 text-xs text-[#e6e8ec]">
             {poolExists ? 'Pool Active' : 'Pool Not Found'}
           </Badge>
         </div>

@@ -60,24 +60,16 @@ export function useOptimizedQueries(address?: string): OptimizedQueriesResult {
         kiltRewardAPR: aprData.incentiveAPR?.toFixed(2) || '0.00',
         totalAPR: aprData.totalAPR?.toFixed(2) || '0.00'
       });
-    } else if (analyticsData) {
-      // Fallback to program analytics - SINGLE SOURCE OF TRUTH VALUES
-      const tradingAPR = analyticsData.averageTradingAPR || 7.50; // From DexScreener
-      const programAPR = analyticsData.averageAPR || 123.99; // From treasury calculation
-      const totalAPR = tradingAPR + programAPR;
-      
-      setCalculations({
-        feeAPR: tradingAPR.toFixed(2),
-        kiltRewardAPR: programAPR.toFixed(2),
-        totalAPR: totalAPR.toFixed(2)
-      });
-    }
+    } 
+    // COMPLETELY REMOVE FALLBACK - ONLY USE REAL APR DATA FROM SINGLE SOURCE API
+    // No more hardcoded values or program analytics fallbacks
   }, [aprData, analyticsData]);
 
   return {
     calculations,
     aprData: aprData || null,
     isLoading: aprLoading || analyticsLoading,
-    error: aprError ? 'Failed to load APR data' : null
+    error: aprError ? 'Failed to load APR data' : null,
+    source: 'optimized-queries-real-data-only'
   };
 }

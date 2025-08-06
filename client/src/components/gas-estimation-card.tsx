@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
-import { useOptimizedQueries } from '@/hooks/use-optimized-queries';
+import { useExpectedReturns } from '@/hooks/use-single-source-apr';
 
 interface GasEstimate {
   approve: { gasLimit: string; gasPrice: string; cost: string };
@@ -16,20 +16,20 @@ export function GasEstimationCard() {
   const { isConnected, address } = useWagmiWallet();
   const [gasEstimate, setGasEstimate] = useState<GasEstimate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { calculations, aprData, isLoading: dataLoading } = useOptimizedQueries(address || undefined);
+  const [gasError, setGasError] = useState<string | null>(null);
+  const { data: expectedReturns, isLoading: dataLoading, error: aprError } = useExpectedReturns();
 
   // Memoize break-even calculation to prevent recalculation on each render
   const breakEvenDays = useMemo(() => {
     const transactionCostETH = parseFloat(gasEstimate?.total?.cost || '0.00025'); // Realistic Base cost
     const ethPrice = 3500;
     const transactionCostUSD = transactionCostETH * ethPrice;
-    const totalAPR = parseFloat(calculations.totalAPR);
+    const totalAPR = parseFloat(expectedReturns?.totalAPR || '0');
     const dailyReturn = totalAPR / 365 / 100;
     const positionValue = 1000;
     const dailyEarnings = positionValue * dailyReturn;
     return dailyEarnings > 0 ? transactionCostUSD / dailyEarnings : 0.3; // Much faster break-even with realistic costs
-  }, [gasEstimate?.total?.cost, calculations.totalAPR]);
+  }, [gasEstimate?.total?.cost, expectedReturns?.totalAPR]);
 
   useEffect(() => {
     if (!isConnected) {
@@ -40,13 +40,13 @@ export function GasEstimationCard() {
     const fetchGasEstimate = async () => {
       try {
         setIsLoading(true);
-        setError(null);
+        setGasError(null);
         
         // Fetch real-time Base network gas estimation
         const response = await fetch('/api/gas/estimate');
         if (!response.ok) {
           console.warn('Gas estimation failed, using fallback');
-          setError('Gas estimation unavailable');
+          setGasError('Gas estimation unavailable');
           return;
         }
         
@@ -79,7 +79,7 @@ export function GasEstimationCard() {
           source: 'Real Base RPC'
         });
       } catch (err) {
-        setError('Failed to estimate gas costs');
+        setGasError('Failed to estimate gas costs');
         console.warn('Gas estimation error (gracefully handled):', err);
       } finally {
         setIsLoading(false);
@@ -122,12 +122,12 @@ export function GasEstimationCard() {
     );
   }
 
-  if (error) {
+  if (gasError) {
     return (
       <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg">
         <CardContent className="p-4 text-center">
           <AlertCircle className="h-5 w-5 text-red-400 mx-auto mb-2" />
-          <p className="text-red-400 text-xs">{error}</p>
+          <p className="text-red-400 text-xs">{gasError}</p>
         </CardContent>
       </Card>
     );
@@ -180,16 +180,16 @@ export function GasEstimationCard() {
           <div className="space-y-1">
             <div className="flex justify-between items-center text-xs">
               <span className="text-white/70">Trading Fees APR</span>
-              <span className="text-green-400 font-mono">~{calculations.feeAPR}%</span>
+              <span className="text-green-400 font-mono">~{expectedReturns?.tradingAPR || '0.00'}%</span>
             </div>
             <div className="flex justify-between items-center text-xs">
               <span className="text-white/70">KILT Rewards APR</span>
-              <span className="text-green-400 font-mono">~{calculations.kiltRewardAPR}%</span>
+              <span className="text-green-400 font-mono">~{expectedReturns?.incentiveAPR || '0.00'}%</span>
             </div>
             <div className="border-t border-purple-300/20 pt-1">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-purple-300 font-medium">Total APR</span>
-                <span className="text-pink-400 font-mono font-bold">~{calculations.totalAPR}%</span>
+                <span className="text-pink-400 font-mono font-bold">~{expectedReturns?.totalAPR || '0.00'}%</span>
               </div>
             </div>
           </div>

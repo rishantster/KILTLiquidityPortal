@@ -239,7 +239,7 @@ export function MobileWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isPending}
-        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] shadow-medium-modern hover:shadow-strong-modern hover:-translate-y-0.5 h-11 py-2.5 from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6 bg-[#f70363]"
+        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] shadow-medium-modern hover:shadow-strong-modern hover:-translate-y-0.5 h-11 py-2.5 bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white border-0 shadow-lg hover:shadow-xl shadow-[#ff0066]/20 transition-all duration-300 px-6"
       >
         {isPending ? (
           <>

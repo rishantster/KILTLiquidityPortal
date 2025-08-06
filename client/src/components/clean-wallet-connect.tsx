@@ -41,7 +41,7 @@ export function CleanWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isConnecting}
-        className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+        className="bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white border-0 shadow-lg hover:shadow-xl shadow-[#ff0066]/20 transition-all duration-300 px-6"
       >
         {isConnecting ? (
           <>
@@ -60,13 +60,13 @@ export function CleanWalletConnect() {
         <DialogContent className="sm:max-w-md bg-black/95 backdrop-blur-xl border border-gray-800/50">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-emerald-400" />
+              <Wallet className="h-5 w-5 text-[#ff0066]" />
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-[#ff0066]/10 to-purple-500/10 border border-[#ff0066]/20 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-3 flex-shrink-0">
                   <span className="text-2xl">🦊</span>
@@ -81,7 +81,7 @@ export function CleanWalletConnect() {
                       setShowModal(false);
                       connect();
                     }}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0"
+                    className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white border-0 shadow-lg hover:shadow-xl shadow-[#ff0066]/20"
                   >
                     Connect MetaMask
                   </Button>
@@ -104,7 +104,7 @@ export function CleanWalletConnect() {
                 Don't have MetaMask?{' '}
                 <button
                   onClick={() => window.open('https://metamask.io/download/', '_blank')}
-                  className="text-emerald-400 hover:text-emerald-300 underline"
+                  className="text-[#ff0066] hover:text-[#ff1a75] underline"
                 >
                   Download here <ExternalLink className="h-3 w-3 inline ml-1" />
                 </button>

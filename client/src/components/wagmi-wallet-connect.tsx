@@ -180,7 +180,7 @@ export function WagmiWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isPending}
-        className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6"
+        className="bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white border-0 shadow-lg hover:shadow-xl shadow-[#ff0066]/20 transition-all duration-300 px-6"
       >
         {isPending ? (
           <>

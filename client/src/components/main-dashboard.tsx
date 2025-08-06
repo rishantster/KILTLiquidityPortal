@@ -716,7 +716,7 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6 tab-content-safe">
             {/* Sophisticated Metrics Grid */}
-            <div className="dashboard-grid">
+            <div className="grid grid-cols-4 gap-4">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>

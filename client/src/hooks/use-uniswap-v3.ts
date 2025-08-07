@@ -585,12 +585,77 @@ export function useUniswapV3() {
       }
 
       // Wait for transaction confirmation
-      await baseClient.waitForTransactionReceipt({ hash: txHash });
+      const receipt = await baseClient.waitForTransactionReceipt({ hash: txHash });
+      
+      // Extract NFT token ID from transaction logs for auto-registration
+      let tokenId = null;
+      if (receipt.logs) {
+        for (const log of receipt.logs) {
+          // Look for Transfer event from Uniswap V3 NFT contract
+          if (log.topics && log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
+            // Transfer(address,address,uint256) - tokenId is in data or topics[3]
+            if (log.topics[3]) {
+              tokenId = BigInt(log.topics[3]).toString();
+              break;
+            }
+          }
+        }
+      }
 
       toast({
         title: "Position Created!",
         description: `Transaction hash: ${txHash}`,
       });
+
+      // Auto-register the position if tokenId was found
+      if (tokenId && address) {
+        try {
+          console.log(`🔄 Auto-registering position ${tokenId} for user ${address}`);
+          
+          // Get user ID from storage first
+          const userResponse = await fetch(`/api/users/address/${address}`);
+          const userData = await userResponse.json();
+          
+          if (userData.success && userData.user) {
+            const registrationData = {
+              userId: userData.user.id,
+              nftTokenId: tokenId,
+              poolAddress: POOL_ADDRESS,
+              token0Address: params.token0,
+              token1Address: params.token1,
+              token0Amount: params.amount0Desired,
+              token1Amount: params.amount1Desired,
+              tickLower: params.tickLower,
+              tickUpper: params.tickUpper,
+              feeTier: params.fee,
+              liquidity: "0", // Will be updated from blockchain
+              currentValueUSD: "0", // Will be calculated
+              userAddress: address,
+              transactionHash: txHash
+            };
+
+            const registerResponse = await fetch('/api/positions/create-app-position', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(registrationData)
+            });
+
+            if (registerResponse.ok) {
+              const result = await registerResponse.json();
+              console.log(`✅ Position ${tokenId} auto-registered successfully:`, result);
+              
+              toast({
+                title: "Position Registered!",
+                description: `Position ${tokenId} is now earning KILT rewards`,
+              });
+            } else {
+              console.warn(`⚠️ Auto-registration failed for position ${tokenId}`);
+            }
+          }
+        } catch (error) {
+          console.error(`❌ Auto-registration error for position ${tokenId}:`, error);
+        }
+      }
 
       return txHash;
     } catch (error) {

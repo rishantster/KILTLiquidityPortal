@@ -642,12 +642,12 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         poolAddress,
         token0Address,
         token1Address,
-        token0Amount: (parseFloat(token0Amount || "0") / 1e18).toString(), // Convert from wei to token units
-        token1Amount: (parseFloat(token1Amount || "0") / 1e18).toString(), // Convert from wei to token units
+        token0Amount: String(token0Amount || "0"),
+        token1Amount: String(token1Amount || "0"),
         tickLower: tickLower || 0,
         tickUpper: tickUpper || 0,
         feeTier: feeTier || 3000,
-        liquidity: (BigInt(liquidity || "0") % (BigInt(10) ** BigInt(12))).toString(), // Ensure it fits in precision limits
+        liquidity: String(liquidity || "0"),
         currentValueUSD: parseFloat(currentValueUSD).toString(),
         minPrice: "0.000001", // Small price within precision limits
         maxPrice: "999999999999", // Large price within precision limits (10^12)

@@ -1,7 +1,7 @@
 // Simple script to analyze real LP positions using our existing API
 import fetch from 'node-fetch';
 
-const WALLET_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
+const WALLET_ADDRESS = '0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a';
 
 async function analyzeRealLPsFromAPI() {
   try {

@@ -9,7 +9,7 @@ async function main() {
   
   // Configuration
   const KILT_TOKEN_ADDRESS = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8'; // KILT on Base
-  const OWNER_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e'; // Contract owner
+  const OWNER_ADDRESS = '0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a'; // Contract owner
   const NETWORK_RPC = 'https://api.developer.coinbase.com/rpc/v1/base/FtQSiNzg6tfPcB1Hmirpy4T9SGDGFveA';
   
   console.log('✅ Connected to Base network');

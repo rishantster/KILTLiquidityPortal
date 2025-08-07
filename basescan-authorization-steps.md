@@ -7,7 +7,7 @@
 
 ### Step 2: Connect Your Owner Wallet
 - Click "Connect to Web3" 
-- Connect wallet address: `0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e`
+- Connect wallet address: `0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a`
 
 ### Step 3: Set Pending Calculator Authorization
 1. Find function: `setPendingCalculatorAuthorization`
@@ -32,6 +32,6 @@ The contract enforces a 24-hour delay for enhanced security.
 ## 📋 Contract Details
 - **Contract**: `0x09bcB93e7E2FF067232d83f5e7a7E8360A458175`
 - **Calculator**: `0x352c7eb64249334d8249f3486A664364013bEeA9`
-- **Your Owner Wallet**: `0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e`
+- **Your Owner Wallet**: `0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a`
 
 This one-time setup enables secure, autonomous reward distribution forever!

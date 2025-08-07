@@ -16,7 +16,7 @@ async function main() {
   
   // Deployment parameters
   const KILT_TOKEN = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8';
-  const OWNER_ADDRESS = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
+  const OWNER_ADDRESS = '0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a';
   
   // Validate parameters
   if (!ethers.isAddress(KILT_TOKEN)) {

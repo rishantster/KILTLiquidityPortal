@@ -10,9 +10,9 @@ async function restorePositions() {
   const registrationService = new PositionRegistrationService();
   
   const positionsToRestore = [
-    { tokenId: '3534947', walletAddress: '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e' },
-    { tokenId: '3689299', walletAddress: '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e' },
-    { tokenId: '3689302', walletAddress: '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e' }
+    { tokenId: '3534947', walletAddress: '0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a' },
+    { tokenId: '3689299', walletAddress: '0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a' },
+    { tokenId: '3689302', walletAddress: '0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a' }
   ];
   
   for (const position of positionsToRestore) {

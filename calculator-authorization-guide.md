@@ -34,7 +34,7 @@ User Wallets
 Visit: https://basescan.org/address/0x09bcB93e7E2FF067232d83f5e7a7E8360A458175#writeContract
 
 ### Step 2: Connect Your Owner Wallet
-Connect the wallet that deployed the contract (`0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e`)
+Connect the wallet that deployed the contract (`0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a`)
 
 ### Step 3: Set Pending Authorization
 1. Find `setPendingCalculatorAuthorization` function

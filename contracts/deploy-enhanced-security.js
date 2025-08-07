@@ -11,7 +11,7 @@ async function deployEnhancedSecurity() {
   
   // Configuration
   const KILT_TOKEN_ADDRESS = "0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8"; // Base mainnet
-  const OWNER_ADDRESS = "0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e"; // Your wallet
+  const OWNER_ADDRESS = "0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a"; // Your wallet
   
   try {
     // Connect to Base network

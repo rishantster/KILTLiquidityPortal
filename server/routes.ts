@@ -3755,6 +3755,219 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Start periodic data integrity monitoring
   dataIntegrityMonitor.startPeriodicMonitoring(30); // Check every 30 minutes
   
+  // Comprehensive claim diagnostics endpoint
+  app.get('/api/emergency/claim-diagnostics', async (req, res) => {
+    try {
+      const contractAddress = '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175';
+      const kiltTokenAddress = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
+      const testUserAddress = '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e';
+      const testClaimAmount = '709922670299727400000'; // 709.92 KILT in wei
+      
+      console.log('🔍 CLAIM DIAGNOSTICS: Starting comprehensive contract validation checks...');
+      
+      const diagnostics: {
+        timestamp: string;
+        contractAddress: string;
+        testUserAddress: string;
+        testClaimAmount: string;
+        checks: {
+          nonce?: { success: boolean; value?: string; error?: string };
+          absoluteMaxClaim?: { success: boolean; value?: string; valueInKilt?: string; testAmountExceedsLimit?: boolean; error?: string };
+          contractBalance?: { success: boolean; value?: string; valueInKilt?: string; sufficientForClaim?: boolean; error?: string };
+          calculatorAuth?: { success: boolean; calculatorAddress?: string; isAuthorized?: boolean; error?: string };
+          pausedStatus?: { success: boolean; isPaused?: boolean; error?: string };
+          signatureTest?: { success: boolean; signatureGenerated?: boolean; gasEstimationWorking?: boolean; callResult?: string; error?: string; errorCode?: string; errorData?: string };
+        };
+      } = {
+        timestamp: new Date().toISOString(),
+        contractAddress,
+        testUserAddress,
+        testClaimAmount,
+        checks: {}
+      };
+      
+      // Get provider from smart contract service
+      const provider = smartContractService.getProvider();
+      
+      // Check 1: Contract nonce
+      try {
+        const { Interface } = await import('ethers');
+        const iface = new Interface(['function nonces(address user) view returns (uint256)']);
+        const data = iface.encodeFunctionData('nonces', [testUserAddress]);
+        
+        const result = await provider.call({
+          to: contractAddress,
+          data: data
+        });
+        
+        const nonce = iface.decodeFunctionResult('nonces', result)[0].toString();
+        diagnostics.checks.nonce = { success: true, value: nonce };
+        console.log('🔍 CHECK 1: User nonce =', nonce);
+      } catch (error) {
+        diagnostics.checks.nonce = { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+      
+      // Check 2: Absolute maximum claim limit
+      try {
+        const { Interface } = await import('ethers');
+        const iface = new Interface(['function absoluteMaxClaim() view returns (uint256)']);
+        const data = iface.encodeFunctionData('absoluteMaxClaim', []);
+        
+        const result = await provider.call({
+          to: contractAddress,
+          data: data
+        });
+        
+        const absoluteMaxClaim = iface.decodeFunctionResult('absoluteMaxClaim', result)[0].toString();
+        diagnostics.checks.absoluteMaxClaim = { 
+          success: true, 
+          value: absoluteMaxClaim,
+          valueInKilt: (Number(absoluteMaxClaim) / 1e18).toString(),
+          testAmountExceedsLimit: BigInt(testClaimAmount) > BigInt(absoluteMaxClaim)
+        };
+        console.log('🔍 CHECK 2: Absolute max claim =', absoluteMaxClaim, 'wei (', (Number(absoluteMaxClaim) / 1e18), ' KILT)');
+        console.log('🔍 CHECK 2: Test amount exceeds limit:', BigInt(testClaimAmount) > BigInt(absoluteMaxClaim));
+      } catch (error) {
+        diagnostics.checks.absoluteMaxClaim = { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+      
+      // Check 3: Contract KILT balance
+      try {
+        const { Interface } = await import('ethers');
+        const iface = new Interface(['function balanceOf(address account) view returns (uint256)']);
+        const data = iface.encodeFunctionData('balanceOf', [contractAddress]);
+        
+        const result = await provider.call({
+          to: kiltTokenAddress,
+          data: data
+        });
+        
+        const contractBalance = iface.decodeFunctionResult('balanceOf', result)[0].toString();
+        diagnostics.checks.contractBalance = { 
+          success: true, 
+          value: contractBalance,
+          valueInKilt: (Number(contractBalance) / 1e18).toString(),
+          sufficientForClaim: BigInt(contractBalance) >= BigInt(testClaimAmount)
+        };
+        console.log('🔍 CHECK 3: Contract KILT balance =', contractBalance, 'wei (', (Number(contractBalance) / 1e18), ' KILT)');
+        console.log('🔍 CHECK 3: Sufficient for claim:', BigInt(contractBalance) >= BigInt(testClaimAmount));
+      } catch (error) {
+        diagnostics.checks.contractBalance = { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+      
+      // Check 4: Calculator authorization
+      try {
+        const calculatorAddress = '0x352c7eb64249334d8249f3486A664364013bEeA9';
+        const { Interface } = await import('ethers');
+        const iface = new Interface(['function authorizedCalculators(address calculator) view returns (bool)']);
+        const data = iface.encodeFunctionData('authorizedCalculators', [calculatorAddress]);
+        
+        const result = await provider.call({
+          to: contractAddress,
+          data: data
+        });
+        
+        const isAuthorized = iface.decodeFunctionResult('authorizedCalculators', result)[0];
+        diagnostics.checks.calculatorAuth = { 
+          success: true, 
+          calculatorAddress,
+          isAuthorized 
+        };
+        console.log('🔍 CHECK 4: Calculator authorization =', isAuthorized);
+      } catch (error) {
+        diagnostics.checks.calculatorAuth = { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+      
+      // Check 5: Contract paused status
+      try {
+        const { Interface } = await import('ethers');
+        const iface = new Interface(['function paused() view returns (bool)']);
+        const data = iface.encodeFunctionData('paused', []);
+        
+        const result = await provider.call({
+          to: contractAddress,
+          data: data
+        });
+        
+        const isPaused = iface.decodeFunctionResult('paused', result)[0];
+        diagnostics.checks.pausedStatus = { success: true, isPaused };
+        console.log('🔍 CHECK 5: Contract paused =', isPaused);
+      } catch (error) {
+        diagnostics.checks.pausedStatus = { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+      
+      // Check 6: Direct signature verification test
+      try {
+        console.log('🔍 CHECK 6: Testing signature verification directly...');
+        const { claimBasedRewardService } = await import('./claim-based-rewards.js');
+        
+        // Generate signature for the test claim
+        const signatureResult = await claimBasedRewardService.generateSignature(testUserAddress, parseFloat((BigInt(testClaimAmount) / BigInt(10**18)).toString()));
+        
+        if (signatureResult.success) {
+          // Test the exact parameters that would be sent to the contract
+          console.log('🔍 CHECK 6: Testing gas estimation with real parameters...');
+          
+          const { Interface } = await import('ethers');
+          const claimInterface = new Interface([
+            'function claimRewards(uint256 totalRewardBalance, bytes signature)'
+          ]);
+          
+          const calldata = claimInterface.encodeFunctionData('claimRewards', [
+            testClaimAmount,
+            signatureResult.signature
+          ]);
+          
+          try {
+            const gasResult = await provider.call({
+              to: contractAddress,
+              data: calldata,
+              from: testUserAddress
+            });
+            
+            diagnostics.checks.signatureTest = {
+              success: true,
+              signatureGenerated: true,
+              gasEstimationWorking: true,
+              callResult: gasResult
+            };
+            console.log('🔍 CHECK 6 SUCCESS: Signature verification passed gas estimation');
+          } catch (gasError: any) {
+            diagnostics.checks.signatureTest = {
+              success: false,
+              signatureGenerated: true,
+              gasEstimationWorking: false,
+              error: gasError.message,
+              errorCode: gasError.code,
+              errorData: gasError.data
+            };
+            console.log('🔍 CHECK 6 FAILED: Gas estimation failed:', gasError.message);
+          }
+        } else {
+          diagnostics.checks.signatureTest = {
+            success: false,
+            signatureGenerated: false,
+            error: 'Failed to generate signature'
+          };
+        }
+      } catch (error) {
+        diagnostics.checks.signatureTest = { 
+          success: false, 
+          error: error instanceof Error ? error.message : 'Unknown signature test error' 
+        };
+      }
+      
+      console.log('🔍 CLAIM DIAGNOSTICS COMPLETE');
+      res.json(diagnostics);
+    } catch (error) {
+      console.error('❌ CLAIM DIAGNOSTICS ERROR:', error);
+      res.status(500).json({
+        error: 'Claim diagnostics failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Emergency contract verification endpoint
   app.get('/api/emergency/verify-contract', async (req, res) => {
     const contractAddress = '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175';

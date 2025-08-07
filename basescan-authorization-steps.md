@@ -3,7 +3,7 @@
 ## Quick Reference for One-Time Setup
 
 ### Step 1: Go to BaseScan Contract Page
-**URL**: https://basescan.org/address/0xe5771357399D58aC79A5b1161e8C363bB178B22b#writeContract
+**URL**: https://basescan.org/address/0x09bcB93e7E2FF067232d83f5e7a7E8360A458175#writeContract
 
 ### Step 2: Connect Your Owner Wallet
 - Click "Connect to Web3" 
@@ -30,7 +30,7 @@ The contract enforces a 24-hour delay for enhanced security.
 - System runs autonomously at scale
 
 ## 📋 Contract Details
-- **Contract**: `0xe5771357399D58aC79A5b1161e8C363bB178B22b`
+- **Contract**: `0x09bcB93e7E2FF067232d83f5e7a7E8360A458175`
 - **Calculator**: `0x352c7eb64249334d8249f3486A664364013bEeA9`
 - **Your Owner Wallet**: `0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e`
 

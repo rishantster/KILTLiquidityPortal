@@ -1,7 +1,7 @@
 // Script to help authorize calculator through secure transaction method
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0xe5771357399D58aC79A5b1161e8C363bB178B22b';
+const CONTRACT_ADDRESS = '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175';
 const BASE_RPC_URL = 'https://mainnet.base.org';
 
 // Contract ABI for authorization functions

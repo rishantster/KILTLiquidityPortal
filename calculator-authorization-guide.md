@@ -6,7 +6,7 @@ Your enhanced security model is now ready! This guide covers the **one-time auth
 
 ## ✅ Current Status
 
-- **Contract Deployed**: `0xe5771357399D58aC79A5b1161e8C363bB178B22b`
+- **Contract Deployed**: `0x09bcB93e7E2FF067232d83f5e7a7E8360A458175`
 - **Calculator Wallet Created**: `0x352c7eb64249334d8249f3486A664364013bEeA9`
 - **Calculator Private Key**: `0x0d24569d1fcac6b371a80c6ee53b9ad021ab33742ad6465365c88508d08300df`
 - **Authorization Status**: Pending (needs your transaction)
@@ -31,7 +31,7 @@ User Wallets
 ## 📋 One-Time Authorization Steps
 
 ### Step 1: Go to BaseScan
-Visit: https://basescan.org/address/0xe5771357399D58aC79A5b1161e8C363bB178B22b#writeContract
+Visit: https://basescan.org/address/0x09bcB93e7E2FF067232d83f5e7a7E8360A458175#writeContract
 
 ### Step 2: Connect Your Owner Wallet
 Connect the wallet that deployed the contract (`0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e`)

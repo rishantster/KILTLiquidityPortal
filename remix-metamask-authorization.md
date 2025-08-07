@@ -16,7 +16,7 @@ Visit: https://remix.ethereum.org
 4. Switch MetaMask to Base network
 
 ### Step 4: Load Deployed Contract
-1. In "At Address" field, enter: `0xe5771357399D58aC79A5b1161e8C363bB178B22b`
+1. In "At Address" field, enter: `0x09bcB93e7E2FF067232d83f5e7a7E8360A458175`
 2. Click "At Address" button
 3. Contract will appear in "Deployed Contracts" section
 

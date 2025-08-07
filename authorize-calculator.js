@@ -1,7 +1,7 @@
 // Alternative authorization script for direct Web3 interaction
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0xe5771357399D58aC79A5b1161e8C363bB178B22b';
+const CONTRACT_ADDRESS = '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175';
 const CALCULATOR_ADDRESS = '0x352c7eb64249334d8249f3486A664364013bEeA9';
 const BASE_RPC_URL = 'https://mainnet.base.org';
 

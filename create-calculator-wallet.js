@@ -13,7 +13,7 @@ console.log('\n🔧 Next Steps:');
 console.log('1. Add this to your .env file:');
 console.log(`   CALCULATOR_PRIVATE_KEY=${calculatorWallet.privateKey}`);
 console.log('\n2. Use your owner wallet to authorize this calculator:');
-console.log('   - Go to BaseScan: https://basescan.org/address/0xe5771357399D58aC79A5b1161e8C363bB178B22b#writeContract');
+console.log('   - Go to BaseScan: https://basescan.org/address/0x09bcB93e7E2FF067232d83f5e7a7E8360A458175#writeContract');
 console.log('   - Connect your owner wallet');
 console.log(`   - Call setPendingCalculatorAuthorization with: ${calculatorWallet.address}`);
 console.log('   - Wait 24 hours, then call activatePendingCalculator');

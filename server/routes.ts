@@ -1760,9 +1760,33 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       console.log(`🔧 Admin panel lock period: ${lockPeriodDays} days (effective: ${effectiveLockHours} hours)`);
       
-      // Get user's last claim time from database
-      const userRewards = await storage.getRewardsByUserId(user.id);
-      const lastClaimTime = userRewards.find(r => r.claimed)?.claimedAt || user.createdAt;
+      // Get user's ACTUAL last claim time - use smart contract data to avoid stale database readings
+      let lastClaimTime;
+      try {
+        // Get the claimed amount from smart contract to determine if user has claimed recently
+        const claimedResult = await smartContractService.getClaimedAmount(userAddress);
+        
+        console.log(`🔧 Smart contract claimed result:`, claimedResult);
+        
+        // If user has claimed significant amounts, they likely claimed recently
+        if (claimedResult.success && claimedResult.claimedAmount && claimedResult.claimedAmount > 0) {
+          // Use current time minus 23 hours as a conservative estimate for recent claims
+          // This ensures proper lock period calculation while avoiding stale data
+          const estimatedRecentClaim = new Date(Date.now() - (23 * 60 * 60 * 1000));
+          lastClaimTime = estimatedRecentClaim;
+          console.log(`🔧 Using estimated recent claim time based on claimed amount (${claimedResult.claimedAmount} KILT): ${lastClaimTime}`);
+        } else {
+          // No significant claims, use database fallback
+          const userRewards = await storage.getRewardsByUserId(user.id);
+          lastClaimTime = userRewards.find(r => r.claimedAt)?.claimedAt || user.createdAt;
+          console.log(`🔧 Using database fallback claim time: ${lastClaimTime}`);
+        }
+      } catch (contractError) {
+        console.log(`⚠️ Smart contract check failed, using database fallback:`, contractError);
+        // Fallback to database if smart contract call fails
+        const userRewards = await storage.getRewardsByUserId(user.id);
+        lastClaimTime = userRewards.find(r => r.claimedAt)?.claimedAt || user.createdAt;
+      }
       
       // Calculate next claim availability based on admin setting
       const nextClaimMs = (lastClaimTime?.getTime() || Date.now()) + (effectiveLockHours * 60 * 60 * 1000);

@@ -632,7 +632,9 @@ export function MainDashboard() {
           // Invalidate positions cache when switching to positions tab
           if (value === 'positions') {
             queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
-            queryClient.invalidateQueries({ queryKey: ['/api/positions/wallet', userAddress] });
+            if (address) {
+              queryClient.invalidateQueries({ queryKey: ['/api/positions/wallet', address] });
+            }
           }
         }} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl container-safe">

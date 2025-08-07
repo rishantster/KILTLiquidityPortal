@@ -229,7 +229,7 @@ class PositionLifecycleService {
           // Handle inactive state with unified eligibility logic
           await storage.updateLpPositionByTokenId(change.tokenId, { isActive: false });
           
-          const position = await storage.getLpPositionByTokenId(change.tokenId);
+          const position = await storage.getLpPositionByNftTokenId(change.tokenId);
           const stateContext: PositionStateContext = {
             tokenId: change.tokenId,
             hasBlockchainLiquidity: false,

@@ -220,7 +220,7 @@ export function RewardDistributionDashboard() {
             )}
           </CardContent>
         </Card>
-      ) as React.ReactNode}
+      )}
 
       {/* Eligible Users List */}
       <Card className="bg-white/5 backdrop-blur-sm border-gray-800/30">

@@ -357,7 +357,7 @@ export class FixedRewardService {
         treasuryRemaining: Math.max(0, treasuryRemaining),
         totalDistributed: totalDistributed,
         programDuration: adminConfig.programDurationDays,
-        daysRemaining: Math.max(0, Math.ceil((new Date(adminConfig.programEndDate || '2025-10-03').getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+        daysRemaining: Math.max(0, Math.ceil((new Date('2025-10-03').getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
       };
 
     } catch (error) {

@@ -26,7 +26,7 @@ export function EmergencyDebugButton() {
       setResult(data);
     } catch (error) {
       console.error('🚨 EMERGENCY: Contract verification failed:', error);
-      setResult({ error: error.message || 'Emergency check failed' });
+      setResult({ error: (error as Error).message || 'Emergency check failed' });
     } finally {
       setLoading(false);
     }

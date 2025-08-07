@@ -149,15 +149,11 @@ export class RewardDistributionService {
 
           // Log operation to admin operations table
           await db.insert(adminOperations).values({
-            operationType: 'REWARD_DISTRIBUTION',
+            operation: 'REWARD_DISTRIBUTION',
             operationDetails: `Distributed ${recipient.amount} KILT to ${recipient.userAddress} for NFT ${recipient.nftTokenId}`,
-            treasuryAddress: this.config.treasuryWalletAddress,
-            amount: recipient.amount,
-            reason: recipient.reason,
             performedBy: 'automated_system',
             transactionHash: hash,
             success: true,
-            errorMessage: null,
           });
 
         } catch (error: unknown) {
@@ -169,13 +165,9 @@ export class RewardDistributionService {
 
           // Log failed operation
           await db.insert(adminOperations).values({
-            operationType: 'REWARD_DISTRIBUTION',
+            operation: 'REWARD_DISTRIBUTION',
             operationDetails: `Failed to distribute ${recipient.amount} KILT to ${recipient.userAddress}`,
-            treasuryAddress: this.config.treasuryWalletAddress,
-            amount: recipient.amount,
-            reason: recipient.reason,
             performedBy: 'automated_system',
-            transactionHash: null,
             success: false,
             errorMessage: errorMessage,
           });
@@ -215,13 +207,21 @@ export class RewardDistributionService {
   }>> {
     try {
       // Query database for users with claimable rewards
-      const eligibleRewards = await storage.getClaimableRewards();
+      // Get all claimable rewards from database directly 
+      const eligibleRewards = await db.select({
+        userAddress: users.address,
+        dailyRewardAmount: rewards.dailyRewardAmount,
+        nftTokenId: rewards.nftTokenId
+      })
+        .from(rewards)
+        .innerJoin(users, eq(rewards.userId, users.id))
+        .where(isNull(rewards.claimedAt));
       
-      return eligibleRewards.map(reward => ({
-        userAddress: reward.userAddress,
-        amount: reward.accumulatedAmount,
-        nftTokenId: reward.nftTokenId,
-        reason: `Liquidity rewards for position ${reward.nftTokenId}`
+      return eligibleRewards.map(row => ({
+        userAddress: row.userAddress || '',
+        amount: row.dailyRewardAmount || '0',
+        nftTokenId: row.nftTokenId || '',
+        reason: `Liquidity rewards for position ${row.nftTokenId}`
       }));
 
     } catch (error: unknown) {

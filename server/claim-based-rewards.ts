@@ -369,8 +369,8 @@ export class ClaimBasedRewards {
   private async logClaimOperation(userAddress: string, amount: number, transactionHash: string): Promise<void> {
     try {
       await db.insert(adminOperations).values({
-        action: 'REWARD_CLAIM',
-        details: JSON.stringify({
+        operation: 'REWARD_CLAIM',
+        operationDetails: JSON.stringify({
           userAddress,
           amount,
           transactionHash,

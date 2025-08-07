@@ -1179,9 +1179,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       const calculation = await fixedRewardService.calculatePositionRewards(
         parseInt(userId),
-        nftTokenId,
-        liquidityAddedAt ? new Date(liquidityAddedAt) : undefined,
-        stakingStartDate ? new Date(stakingStartDate) : undefined
+        nftTokenId
       );
       
       res.json(calculation);
@@ -1202,10 +1200,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       const reward = await fixedRewardService.calculatePositionRewards(
-        userId.toString(),
-        positionId.toString(),
-        nftTokenId,
-        positionValueUSD
+        userId,
+        nftTokenId
       );
       
       res.json(reward);
@@ -1218,7 +1214,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      const rewards = await fixedRewardService.getUserRewards(userId);
+      const rewards = await fixedRewardService.getUserRewardStats(userId);
       res.json(rewards);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch user rewards" });
@@ -1533,7 +1529,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const positionId = parseInt(req.params.positionId);
       const days = parseInt(req.query.days as string) || 30;
       
-      const history = await fixedRewardService.getUserRewards(userId);
+      const history = await fixedRewardService.getUserRewardStats(userId);
       res.json(history);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch reward history" });

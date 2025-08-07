@@ -27,6 +27,7 @@ interface OptimizedQueriesResult {
   aprData: APRData | null;
   isLoading: boolean;
   error: string | null;
+  source: string;
 }
 
 export function useOptimizedQueries(address?: string): OptimizedQueriesResult {

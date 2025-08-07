@@ -139,7 +139,7 @@ class PositionLifecycleService {
           // USE UNIFIED STATE MANAGER - Single source of truth for ALL position state decisions
           const stateContext: PositionStateContext = {
             tokenId,
-            hasBlockchainLiquidity: hasLiquidity,
+            hasBlockchainLiquidity: Boolean(hasLiquidity),
             blockchainLiquidity: blockchainPosition.liquidity || '0',
             currentValueUSD: dbPosition?.currentValueUSD || null,
             hasUnclaimedTokens,

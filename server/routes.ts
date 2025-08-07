@@ -4265,6 +4265,56 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // =============================================================================
+  // PRODUCTION HEALTH MONITORING ENDPOINTS
+  // =============================================================================
+  
+  // Simple health check endpoint for production load balancers
+  app.get("/health", async (req, res) => {
+    try {
+      const { productionHealthMonitor } = await import('./production-health-monitor');
+      const healthReport = await productionHealthMonitor.getHealthReport();
+      
+      const statusCode = healthReport.overallStatus === 'healthy' ? 200 : 
+                        healthReport.overallStatus === 'degraded' ? 206 : 503;
+      
+      res.status(statusCode).json({
+        status: healthReport.overallStatus,
+        timestamp: healthReport.timestamp,
+        deploymentReady: healthReport.deploymentReady,
+        metrics: healthReport.metrics
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        status: "critical", 
+        timestamp: new Date().toISOString(),
+        error: "Health check system failure" 
+      });
+    }
+  });
+
+  // Comprehensive health report endpoint for admin monitoring
+  app.get("/api/system/health", async (req, res) => {
+    try {
+      const { productionHealthMonitor } = await import('./production-health-monitor');
+      const healthReport = await productionHealthMonitor.getHealthReport();
+      res.json(healthReport);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to generate health report" });
+    }
+  });
+
+  // Deployment readiness assessment endpoint
+  app.get("/api/system/deployment-readiness", async (req, res) => {
+    try {
+      const { productionHealthMonitor } = await import('./production-health-monitor');
+      const readiness = await productionHealthMonitor.getDeploymentReadiness();
+      res.json(readiness);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to assess deployment readiness" });
+    }
+  });
+
   return httpServer;
 }
 

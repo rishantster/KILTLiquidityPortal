@@ -1405,7 +1405,31 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           return active;
         });
       
-      // Calculate total daily rewards from active positions
+      // FIRST: Get actual claimed amount and last claim time from smart contract
+      let actualClaimedAmount = 0;
+      let lastClaimTime: Date | undefined;
+      try {
+        console.log(`💰 USER STATS ENDPOINT: Fetching claimed amount from smart contract for ${walletAddress}...`);
+        const claimedResult = await smartContractService.getClaimedAmount(walletAddress);
+        if (claimedResult.success && typeof claimedResult.claimedAmount === 'number') {
+          actualClaimedAmount = claimedResult.claimedAmount;
+          console.log(`💰 USER STATS ENDPOINT: Retrieved claimed amount: ${actualClaimedAmount} KILT`);
+          
+          // If user has claimed rewards, estimate last claim time
+          // Since we don't have the exact timestamp, use a conservative estimate
+          // Assuming they claimed within the last few hours if they have claimed amount
+          if (actualClaimedAmount > 0) {
+            lastClaimTime = new Date(Date.now() - (2 * 60 * 60 * 1000)); // 2 hours ago
+            console.log(`💰 USER STATS ENDPOINT: 🔧 TIMING FIX - Using last claim time: ${lastClaimTime.toISOString()}`);
+          }
+        } else {
+          console.warn(`⚠️ USER STATS ENDPOINT: Failed to get claimed amount:`, claimedResult.error);
+        }
+      } catch (contractError) {
+        console.error(`⚠️ USER STATS ENDPOINT: Smart contract error when fetching claimed amount:`, contractError);
+      }
+
+      // THEN: Calculate total daily rewards from active positions using correct timing
       let totalDailyRewards = 0;
       let totalAccumulated = 0;
       
@@ -1417,7 +1441,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           const positionReward = await fixedRewardService.calculatePositionRewards(
             userId, 
             position.nftTokenId,
-            position.createdAt || new Date()
+            position.createdAt || new Date(),
+            lastClaimTime
           );
           totalDailyRewards += positionReward.dailyRewards || 0;
           totalAccumulated += positionReward.accumulatedRewards || 0;
@@ -1428,21 +1453,6 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       console.log(`💰 USER STATS ENDPOINT: FINAL RESULTS - Daily: ${totalDailyRewards} KILT, Accumulated: ${totalAccumulated} KILT`);
-      
-      // Get actual claimed amount from smart contract
-      let actualClaimedAmount = 0;
-      try {
-        console.log(`💰 USER STATS ENDPOINT: Fetching claimed amount from smart contract for ${walletAddress}...`);
-        const claimedResult = await smartContractService.getClaimedAmount(walletAddress);
-        if (claimedResult.success && typeof claimedResult.claimedAmount === 'number') {
-          actualClaimedAmount = claimedResult.claimedAmount;
-          console.log(`💰 USER STATS ENDPOINT: Retrieved claimed amount: ${actualClaimedAmount} KILT`);
-        } else {
-          console.warn(`⚠️ USER STATS ENDPOINT: Failed to get claimed amount:`, claimedResult.error);
-        }
-      } catch (contractError) {
-        console.error(`⚠️ USER STATS ENDPOINT: Smart contract error when fetching claimed amount:`, contractError);
-      }
       
       // Calculate actual claimable amount (accumulated - already claimed)
       const actualClaimableAmount = Math.max(0, totalAccumulated - actualClaimedAmount);

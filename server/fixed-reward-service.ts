@@ -48,7 +48,7 @@ export class FixedRewardService {
   /**
    * Calculate position rewards based on real parameters
    */
-  async calculatePositionRewards(userId: number, nftTokenId: string, createdAt: Date): Promise<{
+  async calculatePositionRewards(userId: number, nftTokenId: string, createdAt: Date, lastClaimTime?: Date): Promise<{
     dailyRewards: number;
     accumulatedRewards: number;
     tradingFeeAPR: number;
@@ -106,8 +106,11 @@ export class FixedRewardService {
       
       // Calculate time active with HOURLY GRANULARITY for smooth emission
       const now = new Date();
-      const positionCreated = createdAt;
-      const totalHoursActive = Math.max(1, Math.floor((now.getTime() - positionCreated.getTime()) / (1000 * 60 * 60)));
+      
+      // CRITICAL FIX: Use last claim time instead of position creation time
+      // Rewards should only accumulate from the last claim, not from position creation
+      const effectiveStartTime = lastClaimTime && lastClaimTime > createdAt ? lastClaimTime : createdAt;
+      const totalHoursActive = Math.max(1, Math.floor((now.getTime() - effectiveStartTime.getTime()) / (1000 * 60 * 60)));
       const daysActive = Math.max(1, totalHoursActive / 24); // Convert hours to days for formula
       
       // Formula parameters
@@ -132,7 +135,8 @@ export class FixedRewardService {
       const accumulatedRewards = hourlyRewards * totalHoursActive;
       
       // Log hourly emission for transparency
-      console.log(`⏰ HOURLY EMISSION: Position ${nftTokenId} - ${totalHoursActive}h active, ${hourlyRewards.toFixed(4)} KILT/hour, ${accumulatedRewards.toFixed(2)} KILT total`);
+      const startTimeDescription = lastClaimTime && lastClaimTime > createdAt ? 'since last claim' : 'since creation';
+      console.log(`⏰ HOURLY EMISSION: Position ${nftTokenId} - ${totalHoursActive}h active ${startTimeDescription}, ${hourlyRewards.toFixed(4)} KILT/hour, ${accumulatedRewards.toFixed(2)} KILT total`);
 
       // Calculate APR values
       // Get trading APR from DexScreener

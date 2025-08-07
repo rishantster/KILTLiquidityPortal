@@ -4,25 +4,41 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { WagmiWalletProvider } from "@/contexts/wagmi-wallet-context";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
-import AdminPage from "@/pages/admin";
-import AdminRewards from "@/pages/admin-rewards";
-import { SimpleTest } from "@/components/simple-test";
+import { Suspense, lazy } from "react";
+
+// Lazy load heavy components to reduce initial bundle size and prevent Internal Server Error
+const Home = lazy(() => import("@/pages/home"));
+const AdminPage = lazy(() => import("@/pages/admin"));
+const AdminRewards = lazy(() => import("@/pages/admin-rewards"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 import { useEffect, useRef, useState } from "react";
 import "@/lib/complete-overlay-suppression";
 import "@/lib/error-suppression";
 import "@/lib/disable-runtime-overlay";
 
+// Loading fallback component to prevent white screens during chunk loading
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-black">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff0066] mx-auto mb-4"></div>
+        <p className="text-white/60 text-sm">Loading KILT Portal...</p>
+      </div>
+    </div>
+  );
+}
+
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/admin" component={AdminPage} />
-      <Route path="/admin/rewards" component={AdminRewards} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<LoadingFallback />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/admin" component={AdminPage} />
+        <Route path="/admin/rewards" component={AdminRewards} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

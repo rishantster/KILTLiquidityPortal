@@ -290,68 +290,90 @@ export function RewardsTracking() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Beautiful Large Stats Header */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Earned - Large Beautiful Card */}
-        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-xl p-6 group relative hover:border-[#ff0066]/50 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-          <CardContent className="relative p-0">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                  <Award className="h-5 w-5 text-[#ff0066]" />
-                </div>
-                <h3 className="text-white/80 text-lg font-medium">Total Earned</h3>
+    <div className="space-y-4">
+      {/* Stats Header with Refresh Button */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-white text-lg font-heading">Reward Statistics</h2>
+        <Button
+          onClick={handleRefresh}
+          variant="outline"
+          size="sm"
+          className="bg-black/40 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50 text-white/80 hover:text-white transition-all duration-200"
+        >
+          <RefreshCw className="h-3 w-3 mr-1" />
+          Refresh
+        </Button>
+      </div>
+      
+      {/* Detailed Reward Overview */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        {/* User Average APR Card */}
+        <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/50 rounded-lg cluely-card">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-super-bright font-medium text-sm">Avg Position APR</h3>
+              <BarChart3 className="h-4 w-4 text-purple-400" />
+            </div>
+            <div className="text-lg text-purple-400 font-bold tabular-nums mb-1">
+              {userAverageAPR?.averageAPR ? `${userAverageAPR.averageAPR.toFixed(1)}%` : '0.0%'}
+            </div>
+            <div className="text-xs text-white/60 mb-1">
+              {eligibleData?.registeredCount || 0} active positions
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-lg cluely-card">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Total Earned</h3>
+              <Award className="h-4 w-4 text-[#ff0066]" />
+            </div>
+            <div className="text-lg text-white flex items-center gap-2 mb-1 numeric-large">
+              {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
+              <img 
+                src={kiltLogo} 
+                alt="KILT" 
+                className="h-4 w-4"
+              />
+            </div>
+            <div className="text-xs text-white/60 mb-1">
+              {eligibleData?.registeredCount || 0} positions
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-[#ff0066] font-medium">
+                ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
               <div className={`text-xs flex items-center gap-1 ${isNearNextReward ? 'text-yellow-400' : 'text-green-400'}`}>
                 <Timer className="h-3 w-3" />
                 {timeUntilNextReward}
               </div>
             </div>
-            <div className="text-white text-3xl font-bold flex items-center gap-3 mb-2 numeric-large">
-              {rewardStats?.totalAccumulated?.toFixed(2) || '0.00'}
-              <img src={kiltLogo} alt="KILT" className="h-6 w-6" />
-            </div>
-            <div className="text-[#ff0066] text-sm font-medium mb-2">
-              ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
-            </div>
-            <div className="text-white/60 text-sm">
-              From {eligibleData?.registeredCount || 0} active positions
-            </div>
-            <div className="text-green-400/80 text-xs mt-2">
+            <div className="text-xs text-green-400/80 mt-1">
               Rewards accumulate hourly
             </div>
           </CardContent>
         </Card>
 
-        {/* Claimable Rewards - Large Beautiful Card */}
-        <Card className="bg-black/40 backdrop-blur-xl border border-emerald-400/30 rounded-xl p-6 group relative hover:border-emerald-400/50 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
-          <CardContent className="relative p-0">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
-                  <Unlock className="h-5 w-5 text-emerald-400" />
-                </div>
-                <h3 className="text-white/80 text-lg font-medium">Claimable Now</h3>
-              </div>
-            </div>
-            <div className="text-white text-3xl font-bold flex items-center gap-3 mb-2 numeric-large">
-              {claimability?.canClaim 
-                ? (rewardStats?.totalAccumulated || 0).toFixed(2)
-                : '0.00'}
-              <img src={kiltLogo} alt="KILT" className="h-6 w-6" />
-            </div>
-            <div className="text-emerald-400 text-sm font-medium mb-2">
-              {claimability?.canClaim 
-                ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
-                : (rewardStats?.totalAccumulated || 0) > 0
-                  ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD locked`
-                  : 'Connect positions to earn'
+        <Card className={`bg-black/40 backdrop-blur-xl ${(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) ? 'border border-[#ff0066]/30' : 'border border-gray-600/50'} rounded-lg cluely-card`}>
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Claimable</h3>
+              {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) ? 
+                <Unlock className="h-4 w-4 text-[#ff0066]" /> : 
+                <Lock className="h-4 w-4 text-gray-400" />
               }
             </div>
-            <div className="text-white/60 text-sm">
+            <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
+              {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) 
+                ? (rewardStats?.totalAccumulated || 0).toFixed(2)
+                : '0.00'}
+              <img 
+                src={kiltLogo} 
+                alt="KILT" 
+                className="h-4 w-4"
+              />
+            </div>
+            <div className="text-xs text-white/60 mb-1">
               {(rewardStats?.totalAccumulated || 0) > 0
                 ? claimability?.canClaim 
                   ? 'Available now'
@@ -361,183 +383,160 @@ export function RewardsTracking() {
                 : 'Start earning rewards'
               }
             </div>
-            {(rewardStats?.totalAccumulated || 0) > 0 && claimability && (
-              <div className="text-xs flex items-center gap-1 text-blue-400 mt-2">
-                <Clock className="h-3 w-3" />
-                <span className="font-mono">
-                  {claimability.canClaim 
-                    ? 'Ready now' 
-                    : claimability.daysRemaining 
-                      ? `${claimability.daysRemaining}d left`
-                      : getTimeUntilClaimable() || 'Loading...'
-                  }
-                </span>
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-[#ff0066] font-medium">
+                {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0)
+                  ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                  : (rewardStats?.totalAccumulated || 0) > 0
+                    ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                    : 'Connect positions to earn'
+                }
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Daily Rewards - Large Beautiful Card */}
-        <Card className="bg-black/40 backdrop-blur-xl border border-purple-400/30 rounded-xl p-6 group relative hover:border-purple-400/50 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-purple-400/30"></div>
-          <CardContent className="relative p-0">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-400/10 border border-purple-400/30 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-purple-400" />
+              {(rewardStats?.totalAccumulated || 0) > 0 && (rewardStats?.totalClaimable || 0) === 0 && claimability && (
+                <div className="text-xs flex items-center gap-1 text-blue-400">
+                  <Clock className="h-3 w-3" />
+                  <span className="font-mono">
+                    {claimability.canClaim 
+                      ? 'Ready now' 
+                      : claimability.daysRemaining 
+                        ? `${claimability.daysRemaining}d left`
+                        : getTimeUntilClaimable() || 'Loading...'
+                    }
+                  </span>
                 </div>
-                <h3 className="text-white/80 text-lg font-medium">Daily Rate</h3>
-              </div>
-            </div>
-            <div className="text-white text-3xl font-bold mb-2 numeric-large">
-              {rewardStats?.avgDailyRewards?.toFixed(1) || '0.0'}
-            </div>
-            <div className="text-purple-400 text-sm font-medium mb-2">
-              KILT per day average
-            </div>
-            <div className="text-white/60 text-sm">
-              ~{((rewardStats?.avgDailyRewards || 0) * 30).toFixed(0)} KILT/month
-            </div>
-            <div className="text-purple-400/80 text-xs mt-2">
-              Based on active positions
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Total Claimed - Large Beautiful Card */}
-        <Card className="bg-black/40 backdrop-blur-xl border border-green-400/30 rounded-xl p-6 group relative hover:border-green-400/50 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
-          <CardContent className="relative p-0">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-green-400" />
-                </div>
-                <h3 className="text-white/80 text-lg font-medium">Total Claimed</h3>
-              </div>
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Daily Rate</h3>
+              <TrendingUp className="h-4 w-4 text-[#ff0066]" />
             </div>
-            <div className="text-white text-3xl font-bold mb-2 numeric-large">
-              {rewardStats?.totalClaimed?.toFixed(1) || '0.0'}
+            <div className="text-lg text-white mb-1 numeric-large">
+              {rewardStats?.avgDailyRewards?.toFixed(3) || '0.000'}
             </div>
-            <div className="text-green-400 text-sm font-medium mb-2">
-              KILT successfully claimed
+            <div className="text-xs text-white/60 mb-1">
+              Per day avg
             </div>
-            <div className="text-white/60 text-sm">
-              {rewardStats?.totalClaimed ? `${(((rewardStats.totalClaimed || 0) / ((rewardStats.totalClaimed || 0) + (rewardStats.totalAccumulated || 0))) * 100).toFixed(1)}% of total earned` : '0% of total earned'}
+            <div className="text-xs text-[#ff0066] font-medium">
+              {((rewardStats?.avgDailyRewards || 0) * 30).toFixed(1)} KILT/month
             </div>
-            <div className="text-green-400/80 text-xs mt-2">
-              Smart contract verified
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white font-medium text-sm">Claimed</h3>
+              <CheckCircle className="h-4 w-4 text-green-400" />
+            </div>
+            <div className="text-lg text-white mb-1 numeric-large">
+              {rewardStats?.totalClaimed?.toFixed(2) || '0.00'}
+            </div>
+            <div className="text-xs text-white/60 mb-1">
+              Total claimed
+            </div>
+            <div className="text-xs text-green-400 font-medium">
+              {rewardStats?.totalClaimed ? `${(((rewardStats.totalClaimed || 0) / ((rewardStats.totalClaimed || 0) + (rewardStats.totalAccumulated || 0))) * 100).toFixed(1)}% of earned` : '0% of earned'}
             </div>
           </CardContent>
         </Card>
       </div>
-      {/* Beautiful Claim Action Section */}
-      <div className="mt-8">
-        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-2xl p-8 group relative hover:border-[#ff0066]/50 transition-all duration-300 max-w-2xl mx-auto">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-2xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-          <CardContent className="relative p-0">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                  <Award className="h-6 w-6 text-[#ff0066]" />
-                </div>
-                <h3 className="text-white text-2xl font-bold">
-                  {(rewardStats?.totalAccumulated || 0) > 0 ? 'Claim Your Rewards' : 'Reward Center'}
-                </h3>
+      {/* Enhanced Action Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Enhanced Claim Rewards */}
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
+              <Award className="h-4 w-4 text-[#ff0066]" />
+              <span>{(rewardStats?.totalAccumulated || 0) > 0 ? 'Claim Rewards' : 'Reward Status'}</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 p-3">
+            <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
+              <div className="text-white/60 text-xs mb-1 font-medium">
+                {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
               </div>
-
-              <div className="mb-8">
-                <div className="text-white/60 text-sm mb-2">
-                  {claimability?.canClaim ? 'Available to Claim Now' : 'Current Status'}
-                </div>
-                <div className="text-white text-4xl font-bold flex items-center justify-center gap-4 mb-4 numeric-large">
-                  {claimability?.canClaim 
-                    ? (rewardStats?.totalAccumulated || 0).toFixed(2)
-                    : (rewardStats?.totalAccumulated || 0).toFixed(2)}
-                  <img src={kiltLogo} alt="KILT" className="h-8 w-8" />
-                </div>
-                <div className="text-[#ff0066] text-lg font-medium mb-4">
-                  ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
-                </div>
+              <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
+                {(rewardStats?.totalClaimable || 0).toFixed(2)} 
+                <img 
+                  src={kiltLogo} 
+                  alt="KILT" 
+                  className="h-5 w-5"
+                />
+              </div>
+              <div className="text-white/50 text-sm mb-3">
+                ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || isClaiming || !claimability?.canClaim || (rewardStats?.totalAccumulated || 0) <= 0}
-                className={`w-full max-w-md mx-auto font-semibold py-6 px-8 rounded-xl text-lg transition-all duration-300 ${
-                  claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0
-                    ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20 hover:scale-105' 
+                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards}
+                className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
+                  hasCalculatedRewards 
+                    ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
               >
                 {(claimMutation.isPending || isClaiming) ? (
                   <>
-                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                    {isClaiming ? 'Processing Transaction...' : 'Claiming Rewards...'}
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {isClaiming ? 'Processing Smart Contract Transaction...' : 'Distributing & Claiming...'}
                   </>
-                ) : claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 ? (
+                ) : hasCalculatedRewards ? (
                   <>
-                    <Award className="h-5 w-5 mr-3" />
-                    Claim {(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT
+                    <Award className="h-4 w-4 mr-2" />
+                    Claim {calculatedRewards.toFixed(2)} KILT
                   </>
                 ) : (
                   <>
-                    <Clock className="h-5 w-5 mr-3" />
-                    {(rewardStats?.totalAccumulated || 0) > 0 
-                      ? claimability?.daysRemaining 
-                        ? `Available in ${claimability.daysRemaining} days`
-                        : 'Checking availability...'
-                      : 'Add liquidity to start earning'
-                    }
+                    <Clock className="h-4 w-4 mr-2" />
+                    No rewards accumulated yet
                   </>
                 )}
               </Button>
 
-              {/* Status Messages */}
-              <div className="mt-6">
-                {claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 && (
-                  <div className="text-green-400 text-sm text-center p-4 rounded-xl bg-green-500/10 border border-green-500/20">
-                    <p className="font-semibold mb-1">🎉 Ready to Claim!</p>
-                    <p className="text-green-300/80 text-xs">
-                      Smart contract will distribute {(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT to your wallet
-                    </p>
-                  </div>
-                )}
-                
-                {!claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 && (
-                  <div className="text-yellow-400 text-sm text-center p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                    <p className="font-semibold mb-1">⏳ Rewards Accumulating</p>
-                    <p className="text-yellow-300/80 text-xs">
-                      24-hour security lock - rewards will be available for claiming soon
-                    </p>
-                  </div>
-                )}
-                
-                {(rewardStats?.totalAccumulated || 0) === 0 && (
-                  <div className="text-blue-400 text-sm text-center p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                    <p className="font-semibold mb-1">🚀 Start Earning</p>
-                    <p className="text-blue-300/80 text-xs">
-                      Add liquidity to KILT/ETH pool to begin earning treasury rewards
-                    </p>
-                  </div>
-                )}
+            </div>
+            
+            {/* Reward Details */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Lock Period:</span>
+                <span className="text-white">Smart contract secured</span>
               </div>
-
-              {/* Network Info */}
-              <div className="grid grid-cols-2 gap-4 mt-6 text-xs text-white/60">
-                <div className="text-center">
-                  <div className="font-medium">Network</div>
-                  <div className="text-white">Base</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-medium">Gas Fee</div>
-                  <div className="text-white">~$0.04</div>
-                </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Claim Type:</span>
+                <span className="text-white">Rolling unlocks</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Network:</span>
+                <span className="text-white">Base</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Gas Fee:</span>
+                <span className="text-white">~$0.02</span>
               </div>
             </div>
+            
+            {hasCalculatedRewards && (
+              <div className="text-green-400 text-xs text-center mt-2 p-2 rounded bg-green-500/10 border border-green-500/20">
+                <p className="font-medium">Ready to Claim: {calculatedRewards.toFixed(2)} KILT</p>
+                <p className="text-green-300/80">Automated smart contract claiming - you pay gas for distribution & claim transactions (~$0.04 total)</p>
+              </div>
+            )}
+            
+            {!hasCalculatedRewards && (
+              <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
+                <p className="font-medium">Add liquidity to earn rewards</p>
+              </div>
+            )}
+            
+            
           </CardContent>
         </Card>
-      </div>
 
         {/* Enhanced Program Analytics */}
         <Card className="bg-black/20 backdrop-blur-xl border-white/10 rounded-lg cluely-card">

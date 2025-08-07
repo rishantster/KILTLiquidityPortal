@@ -1426,11 +1426,26 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       console.log(`💰 USER STATS ENDPOINT: FINAL RESULTS - Daily: ${totalDailyRewards} KILT, Accumulated: ${totalAccumulated} KILT`);
       
+      // Get actual claimed amount from smart contract
+      let actualClaimedAmount = 0;
+      try {
+        console.log(`💰 USER STATS ENDPOINT: Fetching claimed amount from smart contract for ${walletAddress}...`);
+        const claimedResult = await smartContractService.getClaimedAmount(walletAddress);
+        if (claimedResult.success && typeof claimedResult.claimedAmount === 'number') {
+          actualClaimedAmount = claimedResult.claimedAmount;
+          console.log(`💰 USER STATS ENDPOINT: Retrieved claimed amount: ${actualClaimedAmount} KILT`);
+        } else {
+          console.warn(`⚠️ USER STATS ENDPOINT: Failed to get claimed amount:`, claimedResult.error);
+        }
+      } catch (contractError) {
+        console.error(`⚠️ USER STATS ENDPOINT: Smart contract error when fetching claimed amount:`, contractError);
+      }
+      
       // Return the properly calculated stats using treasury allocation
       const stats = {
         totalAccumulated: totalAccumulated,
         totalClaimable: totalAccumulated, // All accumulated is claimable until smart contract implementation
-        totalClaimed: 0, // Always 0 until smart contract claiming
+        totalClaimed: actualClaimedAmount, // Real claimed amount from blockchain
         activePositions: activePositions.length,
         avgDailyRewards: totalDailyRewards
       };
@@ -1451,10 +1466,25 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         const allPositions = await storage.getLpPositionsByUserId(userId);
         const activePositions = allPositions.filter(pos => pos.isActive === true);
         
+        // Try to get claimed amount even in error case
+        let actualClaimedAmount = 0;
+        try {
+          const userResult = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+          if (userResult.length > 0) {
+            const walletAddress = userResult[0].address;
+            const claimedResult = await smartContractService.getClaimedAmount(walletAddress);
+            if (claimedResult.success && typeof claimedResult.claimedAmount === 'number') {
+              actualClaimedAmount = claimedResult.claimedAmount;
+            }
+          }
+        } catch (error) {
+          console.error('⚠️ USER STATS ENDPOINT: Failed to get claimed amount in error handler:', error);
+        }
+
         const basicStats = {
           totalAccumulated: 0,
           totalClaimable: 0,
-          totalClaimed: 0,
+          totalClaimed: actualClaimedAmount,
           activePositions: activePositions.length,
           avgDailyRewards: 0
         };

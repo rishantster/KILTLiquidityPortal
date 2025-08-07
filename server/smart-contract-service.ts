@@ -592,6 +592,42 @@ export class SmartContractService {
   }
 
   /**
+   * Get claimed rewards for a user (total amount already claimed)
+   */
+  async getClaimedAmount(userAddress: string): Promise<{ success: boolean; claimedAmount?: number; error?: string }> {
+    try {
+      const contractAddress = await getSmartContractAddress();
+      const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
+      
+      console.log(`🔍 Getting claimed amount for user ${userAddress} from contract ${contractAddress}...`);
+      
+      // Check if contract is deployed
+      const code = await provider.getCode(contractAddress);
+      if (code === '0x') {
+        console.log('⚠️ Contract not deployed, returning 0 claimed amount');
+        return { success: true, claimedAmount: 0 };
+      }
+      
+      const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
+      const claimedAmountWei = await contract.claimedAmounts(userAddress);
+      const claimedAmount = Number(ethers.formatUnits(claimedAmountWei, 18));
+      
+      console.log(`✅ Retrieved claimed amount: ${claimedAmount} KILT for user ${userAddress}`);
+      
+      return { 
+        success: true, 
+        claimedAmount: claimedAmount 
+      };
+    } catch (error: unknown) {
+      console.error('❌ Failed to get claimed amount:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to get claimed amount' 
+      };
+    }
+  }
+
+  /**
    * Set reward allowance for a user (admin operation)
    * This function sets the amount a user can claim from the contract
    */

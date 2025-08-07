@@ -638,34 +638,34 @@ export function MainDashboard() {
             }
           }
         }} className="w-full">
-          <TabsList className="mobile-tabs-fix grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-6 sm:mb-8 h-10 sm:h-12 gap-1 shadow-2xl container-safe">
+          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-6 sm:mb-8 h-12 gap-1 shadow-2xl container-safe">
             <TabsTrigger 
               value="overview" 
-              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium">Overview</span>
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-sm font-medium">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium">Add Liquidity</span>
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-sm font-medium">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Award className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium">Rewards</span>
+              <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-sm font-medium">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium">Positions</span>
+              <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-sm font-medium">Positions</span>
             </TabsTrigger>
 
           </TabsList>

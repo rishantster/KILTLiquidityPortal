@@ -194,22 +194,6 @@ app.use((req, res, next) => {
   // Serve static files from attached_assets directory
   app.use('/attached_assets', express.static('attached_assets'));
 
-  // Enhanced global error handler (must be last)
-  app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-    console.error('Global error handler:', error);
-    
-    // Prevent circular JSON serialization
-    if (error && typeof error === 'object') {
-      try {
-        JSON.stringify(error);
-      } catch (jsonError) {
-        console.error('Error object contains circular references:', jsonError);
-      }
-    }
-    
-    enhancedErrorHandler(error, req, res, next);
-  });
-
   // Setup Vite in development, serve static files in production
   if (app.get("env") === "development") {
     await setupVite(app, server);
@@ -248,6 +232,22 @@ app.use((req, res, next) => {
       serveStatic(app);
     }
   }
+
+  // Enhanced global error handler (must be last)
+  app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+    console.error('Global error handler:', error);
+    
+    // Prevent circular JSON serialization
+    if (error && typeof error === 'object') {
+      try {
+        JSON.stringify(error);
+      } catch (jsonError) {
+        console.error('Error object contains circular references:', jsonError);
+      }
+    }
+    
+    enhancedErrorHandler(error, req, res, next);
+  });
 
   // Start server on port 5000
   const port = 5000;

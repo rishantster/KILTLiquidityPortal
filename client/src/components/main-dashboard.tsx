@@ -815,7 +815,7 @@ export function MainDashboard() {
                                 <div 
                                   className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
                                   style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={kiltBalance ? `${parseFloat(kiltBalance).toLocaleString()} KILT` : '0 KILT'}
+                                  title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
                                 >
                                   {kiltBalance && parseFloat(kiltBalance) >= 1000 
                                     ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
@@ -845,7 +845,7 @@ export function MainDashboard() {
                                 <div 
                                   className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
                                   style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={ethBalance ? `${parseFloat(ethBalance).toFixed(8)} ETH` : '0 ETH'}
+                                  title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
                                 >
                                   {ethBalance ? (
                                     parseFloat(ethBalance) >= 1 
@@ -872,25 +872,17 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">WETH</div>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <div 
-                                        className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display cursor-help" 
-                                        style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                      >
-                                        {wethBalance ? (
-                                          parseFloat(wethBalance) >= 1 
-                                            ? parseFloat(wethBalance).toFixed(2)
-                                            : parseFloat(wethBalance).toFixed(6)
-                                        ) : '0.000000'}
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>{wethBalance ? `${parseFloat(wethBalance).toFixed(8)} WETH` : '0 WETH'}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
+                                <div 
+                                  className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                                  style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                                  title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
+                                >
+                                  {wethBalance ? (
+                                    parseFloat(wethBalance) >= 1 
+                                      ? parseFloat(wethBalance).toFixed(2)
+                                      : parseFloat(wethBalance).toFixed(6)
+                                  ) : '0.000000'}
+                                </div>
                               </div>
                             </div>
                           </div>

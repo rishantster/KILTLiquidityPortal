@@ -162,7 +162,7 @@ export function SmartContractPanel() {
   const contractAddress = (treasuryConfig as any)?.smartContractAddress;
 
   // Real contract owner is the deployer address
-  const contractOwner = "0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e"; // Actual contract owner (deployer)
+  const contractOwner = "0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a"; // Actual contract owner (deployer)
   
   // Fetch real KILT balance for connected wallet with aggressive refresh
   const { data: walletKiltData, refetch: refetchWalletData } = useQuery({

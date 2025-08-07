@@ -25,7 +25,7 @@ import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { useRewardClaiming } from '@/hooks/use-reward-claiming';
-import { ClaimTestButton } from '@/components/claim-test-button';
+
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Single Source APR Components
@@ -407,17 +407,7 @@ export function RewardsTracking() {
                   </>
                 )}
               </Button>
-              
-              {/* Test Button for Debugging */}
-              <div className="mt-2">
-                <ClaimTestButton 
-                  calculatedRewards={calculatedRewards} 
-                  onClaimStart={() => {}}
-                  onClaimComplete={(success) => {
-                    console.log('Claim test completed with success:', success);
-                  }}
-                />
-              </div>
+
             </div>
             
             {/* Reward Details */}

@@ -382,28 +382,22 @@ export class SmartContractService {
       // Convert amount to wei
       const amountWei = ethers.parseUnits(amount.toString(), 18);
       
-      // Create message hash using EIP-191 standard for contract verification
-      console.log(`🔐 Using EIP-191 message signing for contract compatibility...`);
+      // Create message hash for standard Ethereum signature verification
+      console.log(`🔐 Using standard Ethereum message signing with proper prefix...`);
       
-      // Create the message that will be signed (without "\x19Ethereum Signed Message:\n" prefix)
-      const messageBytes = ethers.solidityPacked(
+      // Create the message hash that the contract expects (matching standard patterns)
+      const messageHash = ethers.solidityPackedKeccak256(
         ['address', 'uint256', 'uint256'],
         [userAddress, amountWei, userNonce]
       );
       
       console.log(`🔐 Message components: user=${userAddress}, amount=${amountWei}, nonce=${userNonce}`);
-      console.log(`🔐 Message bytes: ${messageBytes}`);
+      console.log(`🔐 Raw message hash: ${messageHash}`);
       
-      // Hash the message for signing
-      const messageHash = ethers.keccak256(messageBytes);
-      console.log(`🔐 Message hash: ${messageHash}`);
+      // Sign the message hash using standard Ethereum signing (adds "\x19Ethereum Signed Message:\n" prefix)
+      const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));
       
-      // Sign the raw hash (EIP-191 style - no Ethereum message prefix)
-      const messageHashBytes = ethers.getBytes(messageHash);
-      const signature = await this.wallet.signingKey.sign(messageHashBytes);
-      const serializedSignature = ethers.Signature.from(signature).serialized;
-      
-      console.log(`🔐 Raw signature (EIP-191): ${serializedSignature}`);
+      console.log(`🔐 Standard Ethereum signature: ${signature}`);
       
       // Check if calculator is authorized before signing
       const calculatorAddress = this.wallet.address;
@@ -420,22 +414,15 @@ export class SmartContractService {
         console.log(`💰 Contract balance check failed: ${error}`);
       }
       
-      console.log(`🔐 Generated EIP-191 signature for contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
+      console.log(`🔐 Generated standard signature for contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
       console.log(`🔐 Message hash components: address=${userAddress}, amount=${amountWei.toString()}, nonce=${userNonce.toString()}`);
       console.log(`🔐 Message hash: ${messageHash}`);
-      console.log(`🔐 Signature: ${serializedSignature}`);
+      console.log(`🔐 Signature: ${signature}`);
       
       return {
         success: true,
-        signature: serializedSignature,
-        nonce: Number(userNonce),
-        debug: {
-          calculatorAuthorized: isAuthorized,
-          contractBalance: contractBalanceFormatted,
-          messageHash,
-          amountWei: amountWei.toString(),
-          messageBytes: messageBytes
-        }
+        signature,
+        nonce: Number(userNonce)
       };
     } catch (error: unknown) {
       console.error('Signature generation failed:', error);

@@ -186,10 +186,36 @@ app.use((req, res, next) => {
     });
   });
 
-  // Let frontend routing handle root path in all environments
+  // Simple test endpoint to diagnose routing issues
+  app.get('/test', (req: Request, res: Response) => {
+    res.status(200).send(`
+      <html>
+        <body>
+          <h1>Server Test</h1>
+          <p>Environment: ${app.get("env")}</p>
+          <p>Timestamp: ${new Date().toISOString()}</p>
+          <p>Path: ${req.path}</p>
+          <p>URL: ${req.url}</p>
+        </body>
+      </html>
+    `);
+  });
 
   // Register API routes FIRST (before Vite middleware)
   const server = await registerRoutes(app, securityMiddleware);
+
+  // Explicit root path handler for deployment compatibility (after API routes)
+  app.get('/', async (req: Request, res: Response) => {
+    try {
+      // Force serve frontend for root path
+      const path = await import('path');
+      const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
+      res.sendFile(path.resolve(distPath, "index.html"));
+    } catch (error) {
+      console.error('Error serving root path:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
   // Serve static files from attached_assets directory
   app.use('/attached_assets', express.static('attached_assets'));
@@ -202,7 +228,7 @@ app.use((req, res, next) => {
     const path = await import('path');
     const fs = await import('fs');
     
-    const distPath = path.resolve(import.meta.dirname, "public");
+    const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
     
     // Ensure dist directory exists
     if (fs.existsSync(distPath)) {
@@ -235,7 +261,7 @@ app.use((req, res, next) => {
 
   // Enhanced global error handler (must be last)
   app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-    console.error('Global error handler:', error);
+    console.error(`❌ Global error handler - ${req.method} ${req.path}:`, error);
     
     // Prevent circular JSON serialization
     if (error && typeof error === 'object') {

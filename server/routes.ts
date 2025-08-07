@@ -1784,11 +1784,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           lastClaimTime = estimatedRecentClaim;
           console.log(`🔧 Using estimated recent claim time based on claimed amount (${claimedResult.claimedAmount} KILT): ${lastClaimTime}`);
         } else {
-          // Users with no claim history must wait 24 hours from registration per admin panel settings
-          // Use current time minus 23 hours as conservative estimate to enforce proper waiting period
-          const estimatedRegistrationTime = new Date(Date.now() - (23 * 60 * 60 * 1000));
-          lastClaimTime = estimatedRegistrationTime;
-          console.log(`🔧 Using registration-based wait period for new user (claimedAmount: 0): ${lastClaimTime}`);
+          // Users with no claim history must wait 24 hours from their actual registration time
+          // This ensures proper 24-hour waiting period from the moment they registered
+          lastClaimTime = user.createdAt;
+          console.log(`🔧 Using actual user registration time for 24-hour wait period: ${lastClaimTime}`);
         }
       } catch (contractError) {
         console.log(`⚠️ Smart contract check failed, using database fallback:`, contractError);

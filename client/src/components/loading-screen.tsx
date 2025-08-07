@@ -1,15 +1,14 @@
 import { Loader2 } from 'lucide-react';
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
+import { CyberpunkKiltLogo } from './cyberpunk-kilt-logo';
 
 export function LoadingScreen() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-center">
-        <img 
-          src={kiltLogo} 
-          alt="KILT" 
-          className="w-16 h-16 mx-auto mb-4 animate-pulse"
-        />
+        <div className="mx-auto mb-4">
+          <CyberpunkKiltLogo size="md" />
+        </div>
         <div className="flex items-center gap-3 mb-2">
           <h2 className="text-2xl font-bold text-white">
             KILT Liquidity Program

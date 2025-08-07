@@ -73,6 +73,7 @@ import { useEthPrice } from '@/hooks/use-eth-price';
 
 // Universal logo components
 import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
+import { CyberpunkKiltLogo } from './cyberpunk-kilt-logo';
 
 // Viem utilities for token amount parsing
 import { parseUnits } from 'viem';
@@ -442,16 +443,8 @@ export function MainDashboard() {
             {/* Hero Section */}
             <div className="mb-12">
               <div className="relative w-32 h-32 mx-auto mb-8">
-                {/* KILT Pink Glow Container */}
-                <div className="absolute inset-0 bg-[#ff0066]/20 rounded-full blur-xl animate-pulse"></div>
-                <div className="absolute inset-2 bg-black rounded-full flex items-center justify-center shadow-2xl border-2 border-[#ff0066]/40">
-                  {/* KILT Logo with KILT Pink Border */}
-                  <img 
-                    src={kiltLogo} 
-                    alt="KILT" 
-                    className="w-20 h-20 object-contain drop-shadow-lg" 
-                  />
-                </div>
+                {/* Cyberpunk KILT Logo */}
+                <CyberpunkKiltLogo size="xl" className="w-full h-full" />
               </div>
               
               {/* Modern Typography - Clean & Professional */}
@@ -613,8 +606,8 @@ export function MainDashboard() {
         {/* Clean Professional Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
-              <img src={kiltLogo} alt="KILT" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0">
+              <CyberpunkKiltLogo size="sm" />
             </div>
             <div className="min-w-0 flex items-center gap-3">
               <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>

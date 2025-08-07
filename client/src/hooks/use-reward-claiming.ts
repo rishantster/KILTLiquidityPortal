@@ -24,9 +24,7 @@ const DYNAMIC_TREASURY_POOL_ABI = [
   },
   {
     inputs: [
-      { name: 'user', type: 'address' },
-      { name: 'amount', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
+      { name: 'totalRewardBalance', type: 'uint256' },
       { name: 'signature', type: 'bytes' }
     ],
     name: 'claimRewards',
@@ -227,10 +225,10 @@ export function useRewardClaiming() {
       console.log('📋 CLAIM LOG 22: Amount in wei:', totalRewardBalanceWei.toString());
       console.log('📋 CLAIM LOG 23: Contract ABI function:', 'claimRewards');
       console.log('📋 CLAIM LOG 24: Contract arguments:');
-      console.log('  - user:', address);
-      console.log('  - amount:', totalRewardBalanceWei.toString());
-      console.log('  - nonce:', BigInt(nonce));
+      console.log('  - totalRewardBalance:', totalRewardBalanceWei.toString());
       console.log('  - signature:', signature);
+      console.log('  - user (from msg.sender):', address);
+      console.log('  - nonce (contract internal):', nonce, 'type:', typeof nonce);
       
       console.log('🔗 CLAIM LOG 25: Calling smart contract claimRewards function...');
       // Note: The nonce in args is the contract's internal nonce for signature verification,
@@ -243,7 +241,7 @@ export function useRewardClaiming() {
           address: DYNAMIC_TREASURY_POOL_ADDRESS,
           abi: DYNAMIC_TREASURY_POOL_ABI,
           functionName: 'claimRewards',
-          args: [address as `0x${string}`, totalRewardBalanceWei, BigInt(nonce), signature as `0x${string}`],
+          args: [totalRewardBalanceWei, signature as `0x${string}`],
           account: address as `0x${string}`,
         });
         console.log('🔗 CLAIM LOG 25.2: Gas estimation successful:', gasEstimate.toString());
@@ -256,7 +254,7 @@ export function useRewardClaiming() {
         address: DYNAMIC_TREASURY_POOL_ADDRESS,
         abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [address as `0x${string}`, totalRewardBalanceWei, BigInt(nonce), signature as `0x${string}`],
+        args: [totalRewardBalanceWei, signature as `0x${string}`],
         // Let MetaMask handle the wallet transaction nonce automatically
       });
       

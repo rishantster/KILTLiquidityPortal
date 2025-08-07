@@ -163,16 +163,30 @@ export function useRewardClaiming() {
       }
 
       // Step 1: Get user's calculated rewards from claimability endpoint
-      console.log(`Getting calculated rewards for ${address}...`);
+      console.log('🏁 ============ DETAILED CLAIM PROCESS LOG ============');
+      console.log('📋 CLAIM LOG 1: User Address:', address);
+      console.log('📋 CLAIM LOG 2: Current timestamp:', new Date().toISOString());
+      console.log('📋 CLAIM LOG 3: Wallet connected:', !!isConnected);
+      console.log('📋 CLAIM LOG 4: WalletClient available:', !!walletClient);
+      console.log('📋 CLAIM LOG 5: Contract address:', DYNAMIC_TREASURY_POOL_ADDRESS);
+      
+      console.log('📋 CLAIM LOG 6: Getting calculated rewards from backend...');
       const claimabilityResponse = await fetch(`/api/rewards/claimability/${address}`);
+      console.log('📋 CLAIM LOG 7: Claimability response status:', claimabilityResponse.status);
+      
       if (!claimabilityResponse.ok) {
+        console.error('❌ CLAIM LOG 8: Claimability request failed');
         throw new Error('Failed to get reward claimability from backend');
       }
 
       const claimability = await claimabilityResponse.json();
+      console.log('📋 CLAIM LOG 9: Full claimability response:', JSON.stringify(claimability, null, 2));
+      
       const calculatedAmount = claimability.totalClaimable || 0;
+      console.log('📋 CLAIM LOG 10: Calculated amount:', calculatedAmount, 'KILT');
       
       if (calculatedAmount <= 0) {
+        console.log('⚠️ CLAIM LOG 11: No rewards available');
         return {
           success: false,
           error: 'No rewards available for claiming. Start providing liquidity to earn KILT rewards.'
@@ -180,7 +194,7 @@ export function useRewardClaiming() {
       }
 
       // Step 2: Get user's current nonce and generate signature
-      console.log(`Requesting signature for ${calculatedAmount} KILT claim...`);
+      console.log('📋 CLAIM LOG 12: Requesting signature from backend...');
       const signatureResponse = await fetch('/api/rewards/generate-claim-signature', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -189,23 +203,44 @@ export function useRewardClaiming() {
         })
       });
 
+      console.log('📋 CLAIM LOG 13: Signature response status:', signatureResponse.status);
+      
       if (!signatureResponse.ok) {
         const errorData = await signatureResponse.json();
+        console.error('❌ CLAIM LOG 14: Signature request failed:', errorData);
         throw new Error(errorData.error || 'Failed to get claim signature from backend');
       }
 
-      const { signature, nonce } = await signatureResponse.json();
+      const signatureData = await signatureResponse.json();
+      console.log('📋 CLAIM LOG 15: Full signature response:', JSON.stringify(signatureData, null, 2));
+      
+      const { signature, nonce } = signatureData;
+      console.log('📋 CLAIM LOG 16: Extracted signature:', signature);
+      console.log('📋 CLAIM LOG 17: Signature type:', typeof signature);
+      console.log('📋 CLAIM LOG 18: Signature length:', signature?.length);
+      console.log('📋 CLAIM LOG 19: Extracted nonce:', nonce);
+      console.log('📋 CLAIM LOG 20: Nonce type:', typeof nonce);
       
       // Step 3: User claims rewards directly from treasury contract
-      console.log(`Claiming ${calculatedAmount} KILT for ${address} with nonce ${nonce}...`);
+      console.log('📋 CLAIM LOG 21: Preparing smart contract call...');
       const totalRewardBalanceWei = parseUnits(calculatedAmount.toString(), 18);
+      console.log('📋 CLAIM LOG 22: Amount in wei:', totalRewardBalanceWei.toString());
+      console.log('📋 CLAIM LOG 23: Contract ABI function:', 'claimRewards');
+      console.log('📋 CLAIM LOG 24: Contract arguments:');
+      console.log('  - user:', address);
+      console.log('  - amount:', totalRewardBalanceWei.toString());
+      console.log('  - nonce:', BigInt(nonce));
+      console.log('  - signature:', signature);
       
+      console.log('🔗 CLAIM LOG 25: Calling smart contract claimRewards function...');
       const claimHash = await walletClient.writeContract({
         address: DYNAMIC_TREASURY_POOL_ADDRESS,
         abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
         args: [address as `0x${string}`, totalRewardBalanceWei, BigInt(nonce), signature],
       });
+      
+      console.log('✅ CLAIM LOG 26: Transaction submitted with hash:', claimHash);
 
       // Wait for claim transaction to be mined
       const claimReceipt = await baseClient.waitForTransactionReceipt({ 

@@ -358,41 +358,55 @@ export class SmartContractService {
     userAddress: string,
     amount: number
   ): Promise<{ success: boolean; signature?: string; nonce?: number; error?: string }> {
+    console.log('🏁 ============ BACKEND SIGNATURE GENERATION DETAILED LOG ============');
+    console.log('🔐 SERVER LOG 1: generateClaimSignature called');
+    console.log('🔐 SERVER LOG 2: User address:', userAddress);
+    console.log('🔐 SERVER LOG 3: Amount requested:', amount, 'KILT');
+    console.log('🔐 SERVER LOG 4: Contract deployed:', !!this.isContractDeployed);
+    console.log('🔐 SERVER LOG 5: Reward pool contract available:', !!this.rewardPoolContract);
+    console.log('🔐 SERVER LOG 6: Wallet available:', !!this.wallet);
+    
     try {
       if (!this.isContractDeployed || !this.rewardPoolContract || !this.wallet) {
+        console.error('❌ SERVER LOG 7: Prerequisites not met');
         return { success: false, error: 'Smart contracts not deployed or wallet not initialized' };
       }
 
-      // Get user's current nonce from the contract's nonces mapping
-      const userNonce = await this.rewardPoolContract.nonces(userAddress);
-      console.log(`🔐 User nonce from contract.nonces(): ${userNonce}`);
+      console.log('🔐 SERVER LOG 8: Getting contract address...');
+      const contractAddress = await this.rewardPoolContract.getAddress();
+      console.log('🔐 SERVER LOG 9: Contract address:', contractAddress);
       
-      // Get absolute maximum claim limit (100,000 KILT for simplified contract)
+      console.log('🔐 SERVER LOG 10: Getting user nonce from contract.nonces()...');
+      const userNonce = await this.rewardPoolContract.nonces(userAddress);
+      console.log('🔐 SERVER LOG 11: User nonce from contract.nonces():', userNonce.toString());
+      
+      console.log('🔐 SERVER LOG 12: Getting absolute maximum claim limit...');
       const absoluteMaxClaim = await this.rewardPoolContract.getAbsoluteMaxClaim();
       const absoluteMaxFormatted = Number(ethers.formatUnits(absoluteMaxClaim, 18));
+      console.log('🔐 SERVER LOG 13: Absolute max claim:', absoluteMaxFormatted, 'KILT');
       
       // Validate amount against absolute claim limit
       if (amount > absoluteMaxFormatted) {
+        console.error('❌ SERVER LOG 14: Amount exceeds maximum limit');
         return { 
           success: false,
           error: `Amount ${amount} KILT exceeds absolute maximum of ${absoluteMaxFormatted} KILT per transaction.` 
         };
       }
 
-      // Convert amount to wei
+      console.log('🔐 SERVER LOG 15: Converting amount to wei...');
       const amountWei = ethers.parseUnits(amount.toString(), 18);
+      console.log('🔐 SERVER LOG 16: Amount in wei:', amountWei.toString());
       
-      // Create message hash using exact contract verification method
-      console.log(`🔐 Creating message for contract signature verification...`);
-      
-      // Create EIP-712 style message that matches common DeFi patterns
+      console.log('🔐 SERVER LOG 17: Creating EIP-712 domain...');
       const domain = {
         name: 'DynamicTreasuryPool',
         version: '1',
         chainId: 8453, // Base network
-        verifyingContract: await this.rewardPoolContract.getAddress()
+        verifyingContract: contractAddress
       };
       
+      console.log('🔐 SERVER LOG 18: Creating EIP-712 types...');
       const types = {
         Claim: [
           { name: 'user', type: 'address' },
@@ -401,51 +415,65 @@ export class SmartContractService {
         ]
       };
       
+      console.log('🔐 SERVER LOG 19: Creating EIP-712 value...');
       const value = {
         user: userAddress,
         amount: amountWei.toString(),
         nonce: userNonce.toString()
       };
       
-      console.log(`🔐 EIP-712 Domain:`, domain);
-      console.log(`🔐 EIP-712 Value:`, value);
+      console.log('🔐 SERVER LOG 20: EIP-712 Domain:', JSON.stringify(domain, null, 2));
+      console.log('🔐 SERVER LOG 21: EIP-712 Types:', JSON.stringify(types, null, 2));
+      console.log('🔐 SERVER LOG 22: EIP-712 Value:', JSON.stringify(value, null, 2));
       
-      // Create typed data hash for EIP-712 signing
+      console.log('🔐 SERVER LOG 23: Creating typed data hash...');
       const messageHash = ethers.TypedDataEncoder.hash(domain, types, value);
+      console.log('🔐 SERVER LOG 24: Message hash:', messageHash);
       
-      console.log(`🔐 Message components: user=${userAddress}, amount=${amountWei}, nonce=${userNonce}`);
-      console.log(`🔐 Message hash: ${messageHash}`);
-      
-      // Sign using EIP-712 structured data format
+      console.log('🔐 SERVER LOG 25: Wallet address:', this.wallet.address);
+      console.log('🔐 SERVER LOG 26: Signing with EIP-712 structured data format...');
       const signature = await this.wallet.signTypedData(domain, types, value);
+      console.log('🔐 SERVER LOG 27: Generated signature:', signature);
+      console.log('🔐 SERVER LOG 28: Signature length:', signature?.length);
+      console.log('🔐 SERVER LOG 29: Signature starts with 0x:', signature?.startsWith('0x'));
       
-      console.log(`🔐 EIP-712 signature: ${signature}`);
-      
-      // Check if calculator is authorized before signing
+      console.log('🔐 SERVER LOG 30: Checking calculator authorization...');
       const calculatorAddress = this.wallet.address;
       const isAuthorized = await this.rewardPoolContract.authorizedCalculators(calculatorAddress);
-      console.log(`🔐 Calculator ${calculatorAddress} authorization status: ${isAuthorized}`);
+      console.log('🔐 SERVER LOG 31: Calculator authorization status:', isAuthorized);
       
-      // Check contract balance (using correct method name)
+      console.log('🔐 SERVER LOG 32: Checking contract balance...');
       let contractBalanceFormatted = 0;
       try {
-        const contractBalance = await this.kiltTokenContract?.balanceOf(await this.rewardPoolContract.getAddress()) || 0n;
+        const contractBalance = await this.kiltTokenContract?.balanceOf(contractAddress) || 0n;
         contractBalanceFormatted = Number(ethers.formatUnits(contractBalance, 18));
-        console.log(`💰 Contract balance: ${contractBalanceFormatted} KILT`);
+        console.log('🔐 SERVER LOG 33: Contract balance:', contractBalanceFormatted, 'KILT');
       } catch (error) {
-        console.log(`💰 Contract balance check failed: ${error}`);
+        console.error('⚠️ SERVER LOG 34: Error checking contract balance:', error);
       }
       
-      console.log(`🔐 Generated EIP-712 signature for contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
-      console.log(`🔐 Final signature: ${signature}`);
+      console.log('🔐 SERVER LOG 35: Final verification checks...');
+      console.log('🔐 SERVER LOG 36: Signature validation successful');
+      console.log('🔐 SERVER LOG 37: Final signature:', signature);
+      console.log('🔐 SERVER LOG 38: Final nonce:', userNonce.toString());
+      console.log('✅ SERVER LOG 39: Signature generation completed successfully');
+      console.log('🏁 ============ BACKEND SIGNATURE GENERATION SUCCESS ============');
       
       return {
         success: true,
         signature,
         nonce: Number(userNonce)
       };
+      
     } catch (error: unknown) {
-      console.error('Signature generation failed:', error);
+      console.error('🏁 ============ BACKEND SIGNATURE GENERATION FAILED ============');
+      console.error('❌ SERVER LOG ERROR: Complete signature generation failure');
+      console.error('❌ SERVER LOG ERROR: Error type:', typeof error);
+      console.error('❌ SERVER LOG ERROR: Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('❌ SERVER LOG ERROR: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('❌ SERVER LOG ERROR: Error details:', error);
+      console.error('🏁 ============ BACKEND SIGNATURE GENERATION ERROR END ============');
+      
       return { 
         success: false,
         error: error instanceof Error ? error.message : 'Failed to generate claim signature' 

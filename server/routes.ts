@@ -3779,6 +3779,97 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Comprehensive smart contract debugging endpoint
+  app.get('/api/debug/smart-contract-status/:userAddress', async (req, res) => {
+    try {
+      const { userAddress } = req.params;
+      
+      console.log('🏁 ============ SMART CONTRACT DEBUG STATUS ============');
+      console.log('🔍 DEBUG LOG 1: Smart contract status check for:', userAddress);
+      
+      // Get contract deployment status
+      const isDeployed = smartContractService.isDeployed();
+      console.log('🔍 DEBUG LOG 2: Contract deployed:', isDeployed);
+      
+      if (!isDeployed) {
+        return res.json({
+          contractDeployed: false,
+          error: 'Smart contracts not deployed'
+        });
+      }
+      
+      // Get contract addresses
+      const calculatorAddress = smartContractService.getCalculatorAddress();
+      console.log('🔍 DEBUG LOG 3: Calculator address:', calculatorAddress);
+      
+      // Get contract configuration
+      const contractInfo = await smartContractService.getProgramInfo();
+      console.log('🔍 DEBUG LOG 4: Contract info:', JSON.stringify(contractInfo, null, 2));
+      
+      // Get balance information
+      const balanceInfo = await smartContractService.checkRewardWalletBalance();
+      console.log('🔍 DEBUG LOG 5: Balance info:', JSON.stringify(balanceInfo, null, 2));
+      
+      // Get user's claimable rewards from backend
+      const user = await storage.getUserByAddress(userAddress);
+      let rewardStats = null;
+      if (user) {
+        const userRewards = await fixedRewardService.getUserRewardStats(user.id);
+        rewardStats = {
+          totalClaimable: userRewards.totalClaimable,
+          totalAccumulated: userRewards.totalAccumulated,
+          totalClaimed: userRewards.totalClaimed,
+          activePositions: userRewards.activePositions
+        };
+        console.log('🔍 DEBUG LOG 6: User reward stats:', JSON.stringify(rewardStats, null, 2));
+      }
+      
+      // Test signature generation
+      let signatureTest = null;
+      if (user && rewardStats?.totalClaimable > 0) {
+        console.log('🔍 DEBUG LOG 7: Testing signature generation...');
+        signatureTest = await smartContractService.generateClaimSignature(userAddress, rewardStats.totalClaimable);
+        console.log('🔍 DEBUG LOG 8: Signature test result:', JSON.stringify(signatureTest, null, 2));
+      }
+      
+      const debugReport = {
+        timestamp: new Date().toISOString(),
+        userAddress,
+        contractDeployed: true,
+        calculatorAddress,
+        contractInfo,
+        balanceInfo,
+        userFound: !!user,
+        userId: user?.id || null,
+        rewardStats,
+        signatureTest: signatureTest ? {
+          success: signatureTest.success,
+          error: signatureTest.error,
+          hasSignature: !!signatureTest.signature,
+          signatureLength: signatureTest.signature?.length,
+          nonce: signatureTest.nonce
+        } : null,
+        abiStructure: {
+          contractAddress: '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175',
+          claimFunction: 'claimRewards(address user, uint256 amount, uint256 nonce, bytes signature)',
+          distributeFunction: 'distributeReward(address user, uint256 amount)',
+          nonceFunction: 'nonces(address user) returns (uint256)',
+          getUserStatsFunction: 'getUserStats(address user) returns (uint256, uint256, uint256, uint256)'
+        }
+      };
+      
+      console.log('🏁 ============ SMART CONTRACT DEBUG COMPLETE ============');
+      res.json(debugReport);
+      
+    } catch (error) {
+      console.error('Smart contract debug failed:', error);
+      res.status(500).json({ 
+        error: 'Debug failed',
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   return httpServer;
 }
 

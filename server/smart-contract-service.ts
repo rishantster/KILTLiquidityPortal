@@ -390,12 +390,31 @@ export class SmartContractService {
       // Sign the message hash
       const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));
       
+      // Check if calculator is authorized before signing
+      const calculatorAddress = this.wallet.address;
+      const isAuthorized = await this.rewardPoolContract.authorizedCalculators(calculatorAddress);
+      console.log(`🔐 Calculator ${calculatorAddress} authorization status: ${isAuthorized}`);
+      
+      // Check contract balance
+      const contractBalance = await this.rewardPoolContract.totalTreasuryBalance();
+      const contractBalanceFormatted = Number(ethers.formatUnits(contractBalance, 18));
+      console.log(`💰 Contract balance: ${contractBalanceFormatted} KILT`);
+      
       console.log(`🔐 Generated signature for simplified contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
+      console.log(`🔐 Message hash components: address=${userAddress}, amount=${amountWei.toString()}, nonce=${userNonce.toString()}`);
+      console.log(`🔐 Message hash: ${messageHash}`);
+      console.log(`🔐 Signature: ${signature}`);
       
       return {
         success: true,
         signature,
-        nonce: Number(userNonce)
+        nonce: Number(userNonce),
+        debug: {
+          calculatorAuthorized: isAuthorized,
+          contractBalance: contractBalanceFormatted,
+          messageHash,
+          amountWei: amountWei.toString()
+        }
       };
     } catch (error: unknown) {
       console.error('Signature generation failed:', error);

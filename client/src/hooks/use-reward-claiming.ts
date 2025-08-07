@@ -162,106 +162,49 @@ export function useRewardClaiming() {
         throw new Error('Wallet not connected');
       }
 
-      // Step 1: Check if user has claimable rewards in the smart contract
-      console.log(`Checking claimable rewards for ${address}...`);
-      
-      let claimableKilt = 0;
-      try {
-        const claimedAmount = await baseClient.readContract({
-          address: DYNAMIC_TREASURY_POOL_ADDRESS,
-          abi: DYNAMIC_TREASURY_POOL_ABI,
-          functionName: 'getClaimedAmount',
-          args: [address as `0x${string}`],
-        }) as bigint;
-
-        // For the new simplified contract, we check claimed amount instead
-        // User can claim (calculated rewards - already claimed)
-        console.log(`User has claimed ${formatUnits(claimedAmount, 18)} KILT so far`);
-        
-        // Get calculated rewards from backend stats endpoint
-        const statsResponse = await fetch(`/api/rewards/stats`);
-        if (statsResponse.ok) {
-          const stats = await statsResponse.json();
-          const calculatedAmount = stats.totalClaimable || 0;
-          const alreadyClaimed = parseFloat(formatUnits(claimedAmount, 18));
-          claimableKilt = Math.max(0, calculatedAmount - alreadyClaimed);
-          console.log(`Calculated: ${calculatedAmount} KILT, Claimed: ${alreadyClaimed} KILT, Claimable: ${claimableKilt} KILT`);
-        } else {
-          console.error('Failed to get reward stats');
-          claimableKilt = 0;
-        }
-      } catch (contractError) {
-        console.error('Failed to check claimable rewards from smart contract:', contractError);
-        
-        // If we can't read from contract, assume no rewards are distributed yet
-        const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
-        if (rewardStatsResponse.ok) {
-          const rewardStats = await rewardStatsResponse.json();
-          const calculatedAmount = rewardStats.totalClaimable || 0;
-          
-          return {
-            success: false,
-            error: `Reward claiming requires admin distribution first. You have earned ${calculatedAmount.toFixed(4)} KILT from your liquidity positions.
-            
-📋 MANUAL CLAIMING INSTRUCTIONS:
-1. Admin must first distribute rewards using MetaMask:
-   - Connect to contract: 0xe5771357399D58aC79A5b1161e8C363bB178B22b
-   - Call distributeReward(${address}, ${(calculatedAmount * Math.pow(10, 18)).toExponential()})
-2. Then you can claim rewards by calling claimRewards()
-
-💡 Alternative: Request admin to set up REWARD_WALLET_PRIVATE_KEY for automatic distribution.`
-          };
-        }
-        
-        throw contractError;
+      // Step 1: Get user's calculated rewards from backend
+      console.log(`Getting calculated rewards for ${address}...`);
+      const statsResponse = await fetch(`/api/rewards/stats`);
+      if (!statsResponse.ok) {
+        throw new Error('Failed to get reward stats from backend');
       }
 
-      if (claimableKilt <= 0) {
-        // No rewards have been distributed to this user yet
-        // Get calculated rewards to show what they should earn
-        const rewardStatsResponse = await fetch(`/api/rewards/stats?userAddress=${address}`);
-        if (rewardStatsResponse.ok) {
-          const rewardStats = await rewardStatsResponse.json();
-          const calculatedAmount = rewardStats.totalClaimable || 0;
-          
-          return {
-            success: false,
-            error: `No rewards available for claiming yet. You have earned ${calculatedAmount.toFixed(4)} KILT but it hasn't been distributed to the smart contract. Please contact the admin to distribute your rewards.`
-          };
-        }
-        
+      const stats = await statsResponse.json();
+      const calculatedAmount = stats.totalClaimable || 0;
+      
+      if (calculatedAmount <= 0) {
         return {
           success: false,
-          error: 'No rewards available for claiming from the smart contract yet.'
+          error: 'No rewards available for claiming. Start providing liquidity to earn KILT rewards.'
         };
       }
 
-      // Step 2: Get signature from backend for the total claimable amount
-      console.log(`Requesting signature for ${claimableKilt} KILT claim...`);
+      // Step 2: Get user's current nonce and generate signature
+      console.log(`Requesting signature for ${calculatedAmount} KILT claim...`);
       const signatureResponse = await fetch('/api/rewards/generate-claim-signature', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userAddress: address,
-          totalRewardBalance: claimableKilt
+          userAddress: address
         })
       });
 
       if (!signatureResponse.ok) {
-        throw new Error('Failed to get claim signature from backend');
+        const errorData = await signatureResponse.json();
+        throw new Error(errorData.error || 'Failed to get claim signature from backend');
       }
 
-      const { signature } = await signatureResponse.json();
+      const { signature, nonce } = await signatureResponse.json();
       
-      // Step 3: User claims the rewards with signature
-      console.log(`Claiming ${claimableKilt} KILT for ${address} with signature...`);
-      const totalRewardBalanceWei = parseUnits(claimableKilt.toString(), 18);
+      // Step 3: User claims rewards directly from treasury contract
+      console.log(`Claiming ${calculatedAmount} KILT for ${address} with nonce ${nonce}...`);
+      const totalRewardBalanceWei = parseUnits(calculatedAmount.toString(), 18);
       
       const claimHash = await walletClient.writeContract({
         address: DYNAMIC_TREASURY_POOL_ADDRESS,
         abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [address as `0x${string}`, totalRewardBalanceWei, 0n, signature],
+        args: [address as `0x${string}`, totalRewardBalanceWei, BigInt(nonce), signature],
       });
 
       // Wait for claim transaction to be mined
@@ -279,7 +222,7 @@ export function useRewardClaiming() {
       return {
         success: true,
         transactionHash: claimHash,
-        claimedAmount: claimableKilt.toFixed(4),
+        claimedAmount: calculatedAmount.toFixed(4),
       };
 
     } catch (error) {

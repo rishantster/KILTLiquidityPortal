@@ -12,20 +12,46 @@ const generateSignatureSchema = z.object({
 });
 
 router.post('/generate-claim-signature', async (req, res) => {
-  // Validate request body
-  const validation = generateSignatureSchema.safeParse(req.body);
-  if (!validation.success) {
-    return res.status(400).json({
-      success: false,
-      error: 'Invalid request parameters'
-    });
-  }
   try {
-    const { userAddress, amount } = validation.data;
+    const { userAddress } = req.body;
     
-    console.log(`🔐 Generating secure signature for ${userAddress}: ${amount} KILT`);
+    if (!userAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'User address is required'
+      });
+    }
     
-    const result = await contractService.generateClaimSignature(userAddress, amount);
+    // Get user's calculated rewards from the reward service
+    const { db } = await import('../db');
+    const { users } = await import('../../shared/schema');
+    const user = await db.select().from(users).where(users.address.eq(userAddress)).limit(1);
+    
+    if (user.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found or no liquidity positions'
+      });
+    }
+    
+    const userId = user[0].id;
+    
+    // Import reward service and get user's calculated rewards
+    const { fixedRewardService } = await import('../fixed-reward-service');
+    const userRewards = await fixedRewardService.getUserRewardStats(userId);
+    
+    const claimableAmount = userRewards.totalClaimable || 0;
+    
+    if (claimableAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No rewards available for claiming. Start providing liquidity to earn KILT rewards.'
+      });
+    }
+    
+    console.log(`🔐 Generating secure signature for ${userAddress}: ${claimableAmount} KILT (from calculated rewards)`);
+    
+    const result = await contractService.generateClaimSignature(userAddress, claimableAmount);
     
     if ('error' in result) {
       return res.status(400).json({
@@ -38,8 +64,7 @@ router.post('/generate-claim-signature', async (req, res) => {
       success: true,
       signature: result.signature,
       nonce: result.nonce,
-      maxClaimLimit: result.maxClaimLimit,
-      amount,
+      amount: claimableAmount,
       userAddress
     });
   } catch (error: unknown) {

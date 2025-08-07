@@ -233,11 +233,31 @@ export function useRewardClaiming() {
       console.log('  - signature:', signature);
       
       console.log('🔗 CLAIM LOG 25: Calling smart contract claimRewards function...');
+      // Note: The nonce in args is the contract's internal nonce for signature verification,
+      // not the wallet transaction nonce which MetaMask handles automatically
+      
+      // Try to estimate gas first to catch any revert issues early
+      console.log('🔗 CLAIM LOG 25.1: Estimating gas for transaction...');
+      try {
+        const gasEstimate = await baseClient.estimateContractGas({
+          address: DYNAMIC_TREASURY_POOL_ADDRESS,
+          abi: DYNAMIC_TREASURY_POOL_ABI,
+          functionName: 'claimRewards',
+          args: [address as `0x${string}`, totalRewardBalanceWei, BigInt(nonce), signature as `0x${string}`],
+          account: address as `0x${string}`,
+        });
+        console.log('🔗 CLAIM LOG 25.2: Gas estimation successful:', gasEstimate.toString());
+      } catch (gasError) {
+        console.error('🔗 CLAIM LOG 25.3: Gas estimation failed:', gasError);
+        throw new Error(`Transaction would fail: ${gasError instanceof Error ? gasError.message : 'Unknown gas estimation error'}`);
+      }
+      
       const claimHash = await walletClient.writeContract({
         address: DYNAMIC_TREASURY_POOL_ADDRESS,
         abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [address as `0x${string}`, totalRewardBalanceWei, BigInt(nonce), signature],
+        args: [address as `0x${string}`, totalRewardBalanceWei, BigInt(nonce), signature as `0x${string}`],
+        // Let MetaMask handle the wallet transaction nonce automatically
       });
       
       console.log('✅ CLAIM LOG 26: Transaction submitted with hash:', claimHash);

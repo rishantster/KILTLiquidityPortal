@@ -161,8 +161,15 @@ export function SmartContractPanel() {
 
   const contractAddress = (treasuryConfig as any)?.smartContractAddress;
 
-  // Real contract owner is the deployer address
-  const contractOwner = "0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a"; // Actual contract owner (deployer)
+  // Authorized admin addresses for smart contract operations
+  const authorizedAdmins = [
+    "0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a", // Contract owner (deployer)
+    "0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e"  // Additional admin wallet
+  ];
+  
+  // Check if current wallet is authorized for admin operations
+  const isAuthorizedAdmin = address && authorizedAdmins.includes(address.toLowerCase()) || 
+                           authorizedAdmins.some(admin => admin.toLowerCase() === address?.toLowerCase());
   
   // Fetch real KILT balance for connected wallet with aggressive refresh
   const { data: walletKiltData, refetch: refetchWalletData } = useQuery({
@@ -231,8 +238,8 @@ export function SmartContractPanel() {
     hash: rewardHash,
   });
 
-  // Check if user is contract owner
-  const isOwner = address && contractOwner && address.toLowerCase() === contractOwner.toLowerCase();
+  // Check if user is authorized admin (either contract owner or additional admin)
+  const isOwner = isAuthorizedAdmin;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -894,8 +901,11 @@ export function SmartContractPanel() {
               Only the contract owner can manage treasury operations.
             </p>
             <div className="mt-4 text-sm text-gray-400">
-              <p>Contract Owner: {contractOwner}</p>
-              <p>Your Address: {address}</p>
+              <p>Authorized Admins:</p>
+              {authorizedAdmins.map((admin, index) => (
+                <p key={index} className="font-mono text-xs">• {admin}</p>
+              ))}
+              <p className="mt-2">Your Address: {address}</p>
             </div>
           </CardContent>
         </Card>

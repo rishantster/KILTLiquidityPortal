@@ -76,12 +76,31 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           inset: 0;
           border-radius: 50%;
           background-image: 
-            radial-gradient(ellipse at center, transparent 20%, rgba(255, 0, 102, 0.1) 21%, rgba(255, 0, 102, 0.1) 22%, transparent 23%),
-            radial-gradient(ellipse at center, transparent 35%, rgba(255, 0, 102, 0.08) 36%, rgba(255, 0, 102, 0.08) 37%, transparent 38%),
-            radial-gradient(ellipse at center, transparent 50%, rgba(255, 0, 102, 0.06) 51%, rgba(255, 0, 102, 0.06) 52%, transparent 53%),
-            radial-gradient(ellipse at center, transparent 65%, rgba(255, 0, 102, 0.04) 66%, rgba(255, 0, 102, 0.04) 67%, transparent 68%);
+            /* Outer whorl */
+            conic-gradient(from 0deg at 50% 50%, 
+              transparent 0deg, rgba(255, 0, 102, 0.1) 10deg, transparent 20deg,
+              transparent 30deg, rgba(255, 0, 102, 0.08) 40deg, transparent 50deg,
+              transparent 60deg, rgba(255, 0, 102, 0.1) 70deg, transparent 80deg,
+              transparent 90deg, rgba(255, 0, 102, 0.06) 100deg, transparent 110deg,
+              transparent 120deg, rgba(255, 0, 102, 0.08) 130deg, transparent 140deg,
+              transparent 150deg, rgba(255, 0, 102, 0.1) 160deg, transparent 170deg,
+              transparent 180deg, rgba(255, 0, 102, 0.07) 190deg, transparent 200deg,
+              transparent 210deg, rgba(255, 0, 102, 0.09) 220deg, transparent 230deg,
+              transparent 240deg, rgba(255, 0, 102, 0.06) 250deg, transparent 260deg,
+              transparent 270deg, rgba(255, 0, 102, 0.08) 280deg, transparent 290deg,
+              transparent 300deg, rgba(255, 0, 102, 0.1) 310deg, transparent 320deg,
+              transparent 330deg, rgba(255, 0, 102, 0.05) 340deg, transparent 350deg
+            ),
+            /* Inner ridge pattern */
+            radial-gradient(ellipse 80% 60% at 45% 55%, 
+              transparent 25%, rgba(255, 0, 102, 0.06) 26%, transparent 28%,
+              transparent 35%, rgba(255, 0, 102, 0.04) 36%, transparent 38%,
+              transparent 45%, rgba(255, 0, 102, 0.05) 46%, transparent 48%,
+              transparent 55%, rgba(255, 0, 102, 0.03) 56%, transparent 58%
+            );
           animation: fingerprint-scan-1 6s ease-in-out infinite;
           opacity: 0.8;
+          mask: radial-gradient(circle at center, black 0%, black 85%, transparent 100%);
         }
 
         .energy-ring-2 {
@@ -100,11 +119,30 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           inset: 0;
           border-radius: 50%;
           background-image: 
-            repeating-conic-gradient(from 0deg, transparent 0deg, rgba(255, 0, 102, 0.03) 2deg, transparent 4deg),
-            radial-gradient(ellipse at 30% 30%, transparent 25%, rgba(255, 0, 102, 0.05) 26%, rgba(255, 0, 102, 0.05) 28%, transparent 29%),
-            radial-gradient(ellipse at 70% 70%, transparent 40%, rgba(255, 0, 102, 0.04) 41%, rgba(255, 0, 102, 0.04) 43%, transparent 44%);
+            /* Spiral fingerprint ridges */
+            conic-gradient(from 45deg at 60% 40%, 
+              transparent 0deg, rgba(255, 0, 102, 0.05) 15deg, transparent 30deg,
+              transparent 45deg, rgba(255, 0, 102, 0.04) 60deg, transparent 75deg,
+              transparent 90deg, rgba(255, 0, 102, 0.06) 105deg, transparent 120deg,
+              transparent 135deg, rgba(255, 0, 102, 0.03) 150deg, transparent 165deg,
+              transparent 180deg, rgba(255, 0, 102, 0.05) 195deg, transparent 210deg,
+              transparent 225deg, rgba(255, 0, 102, 0.04) 240deg, transparent 255deg,
+              transparent 270deg, rgba(255, 0, 102, 0.06) 285deg, transparent 300deg,
+              transparent 315deg, rgba(255, 0, 102, 0.03) 330deg, transparent 345deg
+            ),
+            /* Arc patterns like real fingerprints */
+            radial-gradient(ellipse 70% 40% at 30% 70%, 
+              transparent 20%, rgba(255, 0, 102, 0.04) 21%, transparent 23%,
+              transparent 30%, rgba(255, 0, 102, 0.03) 31%, transparent 33%,
+              transparent 40%, rgba(255, 0, 102, 0.05) 41%, transparent 43%
+            ),
+            radial-gradient(ellipse 60% 50% at 70% 30%, 
+              transparent 25%, rgba(255, 0, 102, 0.03) 26%, transparent 28%,
+              transparent 35%, rgba(255, 0, 102, 0.04) 36%, transparent 38%
+            );
           animation: fingerprint-scan-2 8s ease-in-out infinite reverse;
           opacity: 0.6;
+          mask: radial-gradient(circle at center, black 0%, black 90%, transparent 100%);
         }
 
         .pulse-effect {
@@ -143,43 +181,43 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
 
         @keyframes fingerprint-scan-1 {
           0% { 
-            transform: scale(0.8) rotate(0deg);
-            opacity: 0.3;
+            transform: scale(0.95) rotate(0deg);
+            opacity: 0.4;
           }
           25% { 
-            transform: scale(1) rotate(90deg);
+            transform: scale(1.05) rotate(90deg);
             opacity: 0.8;
           }
           50% { 
-            transform: scale(1.1) rotate(180deg);
+            transform: scale(0.98) rotate(180deg);
             opacity: 0.6;
           }
           75% { 
-            transform: scale(0.9) rotate(270deg);
-            opacity: 0.8;
+            transform: scale(1.02) rotate(270deg);
+            opacity: 0.7;
           }
           100% { 
-            transform: scale(0.8) rotate(360deg);
-            opacity: 0.3;
+            transform: scale(0.95) rotate(360deg);
+            opacity: 0.4;
           }
         }
 
         @keyframes fingerprint-scan-2 {
           0% { 
-            transform: scale(1.2) rotate(0deg);
-            opacity: 0.2;
+            transform: scale(1.08) rotate(0deg);
+            opacity: 0.3;
           }
           30% { 
-            transform: scale(0.9) rotate(-120deg);
+            transform: scale(0.92) rotate(-108deg);
             opacity: 0.6;
           }
           60% { 
-            transform: scale(1.1) rotate(-240deg);
-            opacity: 0.4;
+            transform: scale(1.05) rotate(-216deg);
+            opacity: 0.5;
           }
           100% { 
-            transform: scale(1.2) rotate(-360deg);
-            opacity: 0.2;
+            transform: scale(1.08) rotate(-360deg);
+            opacity: 0.3;
           }
         }
 

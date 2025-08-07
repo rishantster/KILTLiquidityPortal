@@ -186,21 +186,7 @@ app.use((req, res, next) => {
     });
   });
 
-  // Root health check for deployment services (only in production)
-  app.get('/', (req: Request, res: Response, next: NextFunction) => {
-    // In production, provide health check response
-    if (app.get("env") === "production") {
-      res.status(200).json({ 
-        status: 'ok', 
-        message: 'KILT Liquidity Portal is running',
-        timestamp: new Date().toISOString(),
-        version: '1.0.0'
-      });
-    } else {
-      // In development, let Vite middleware handle this
-      next();
-    }
-  });
+  // Let frontend routing handle root path in all environments
 
   // Register API routes FIRST (before Vite middleware)
   const server = await registerRoutes(app, securityMiddleware);

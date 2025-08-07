@@ -382,22 +382,44 @@ export class SmartContractService {
       // Convert amount to wei
       const amountWei = ethers.parseUnits(amount.toString(), 18);
       
-      // Create message hash for standard Ethereum signature verification
-      console.log(`🔐 Using standard Ethereum message signing with proper prefix...`);
+      // Create message hash using exact contract verification method
+      console.log(`🔐 Creating message for contract signature verification...`);
       
-      // Create the message hash that the contract expects (matching standard patterns)
-      const messageHash = ethers.solidityPackedKeccak256(
-        ['address', 'uint256', 'uint256'],
-        [userAddress, amountWei, userNonce]
-      );
+      // Create EIP-712 style message that matches common DeFi patterns
+      const domain = {
+        name: 'DynamicTreasuryPool',
+        version: '1',
+        chainId: 8453, // Base network
+        verifyingContract: await this.rewardPoolContract.getAddress()
+      };
+      
+      const types = {
+        Claim: [
+          { name: 'user', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' }
+        ]
+      };
+      
+      const value = {
+        user: userAddress,
+        amount: amountWei.toString(),
+        nonce: userNonce.toString()
+      };
+      
+      console.log(`🔐 EIP-712 Domain:`, domain);
+      console.log(`🔐 EIP-712 Value:`, value);
+      
+      // Create typed data hash for EIP-712 signing
+      const messageHash = ethers.TypedDataEncoder.hash(domain, types, value);
       
       console.log(`🔐 Message components: user=${userAddress}, amount=${amountWei}, nonce=${userNonce}`);
-      console.log(`🔐 Raw message hash: ${messageHash}`);
+      console.log(`🔐 Message hash: ${messageHash}`);
       
-      // Sign the message hash using standard Ethereum signing (adds "\x19Ethereum Signed Message:\n" prefix)
-      const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));
+      // Sign using EIP-712 structured data format
+      const signature = await this.wallet.signTypedData(domain, types, value);
       
-      console.log(`🔐 Standard Ethereum signature: ${signature}`);
+      console.log(`🔐 EIP-712 signature: ${signature}`);
       
       // Check if calculator is authorized before signing
       const calculatorAddress = this.wallet.address;
@@ -414,10 +436,8 @@ export class SmartContractService {
         console.log(`💰 Contract balance check failed: ${error}`);
       }
       
-      console.log(`🔐 Generated standard signature for contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
-      console.log(`🔐 Message hash components: address=${userAddress}, amount=${amountWei.toString()}, nonce=${userNonce.toString()}`);
-      console.log(`🔐 Message hash: ${messageHash}`);
-      console.log(`🔐 Signature: ${signature}`);
+      console.log(`🔐 Generated EIP-712 signature for contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
+      console.log(`🔐 Final signature: ${signature}`);
       
       return {
         success: true,

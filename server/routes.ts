@@ -3755,6 +3755,147 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Start periodic data integrity monitoring
   dataIntegrityMonitor.startPeriodicMonitoring(30); // Check every 30 minutes
   
+  // Emergency contract verification endpoint
+  app.get('/api/emergency/verify-contract', async (req, res) => {
+    const contractAddress = '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175';
+    const results: {
+      contractAddress: string;
+      timestamp: string;
+      checks: {
+        hasCode?: boolean;
+        codeLength?: number;
+        chainId?: number;
+        isBaseMainnet?: boolean;
+        rpcWorking?: boolean;
+        currentBlock?: number;
+        nonceCallSuccess?: boolean;
+        nonceValue?: string;
+        nonceCallError?: string;
+        nonceCallDetails?: {
+          code?: string;
+          reason?: string;
+          data?: string;
+        };
+        alternativeRpcResults?: Record<string, {
+          hasCode?: boolean;
+          codeLength?: number;
+          chainId?: number;
+          working: boolean;
+          error?: string;
+        }>;
+        criticalError?: string;
+      };
+    } = {
+      contractAddress,
+      timestamp: new Date().toISOString(),
+      checks: {}
+    };
+    
+    console.log('🚨 EMERGENCY CONTRACT VERIFICATION STARTING...');
+    
+    try {
+      // Get provider from smart contract service
+      const provider = smartContractService.getProvider();
+      
+      // Check 1: Contract exists
+      console.log('🔍 EMERGENCY CHECK 1: Checking contract bytecode...');
+      const code = await provider.getCode(contractAddress);
+      results.checks.hasCode = code !== '0x' && code.length > 2;
+      results.checks.codeLength = code.length;
+      console.log('🔍 EMERGENCY CHECK 1 RESULT: Has code:', results.checks.hasCode, 'Length:', code.length);
+      
+      // Check 2: Network confirmation  
+      console.log('🔍 EMERGENCY CHECK 2: Verifying network...');
+      const network = await provider.getNetwork();
+      results.checks.chainId = Number(network.chainId);
+      results.checks.isBaseMainnet = Number(network.chainId) === 8453;
+      console.log('🔍 EMERGENCY CHECK 2 RESULT: Chain ID:', results.checks.chainId, 'Is Base:', results.checks.isBaseMainnet);
+      
+      // Check 3: RPC endpoint test
+      console.log('🔍 EMERGENCY CHECK 3: Testing RPC endpoints...');
+      const blockNumber = await provider.getBlockNumber();
+      results.checks.rpcWorking = blockNumber > 0;
+      results.checks.currentBlock = blockNumber;
+      console.log('🔍 EMERGENCY CHECK 3 RESULT: RPC working:', results.checks.rpcWorking, 'Block:', blockNumber);
+      
+      // Check 4: Try basic nonce function call if contract exists
+      if (results.checks.hasCode) {
+        console.log('🔍 EMERGENCY CHECK 4: Testing nonces function directly...');
+        try {
+          const { Interface } = await import('ethers');
+          const iface = new Interface(['function nonces(address) view returns (uint256)']);
+          const data = iface.encodeFunctionData('nonces', ['0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e']);
+          
+          const result = await provider.call({
+            to: contractAddress,
+            data: data
+          });
+          
+          results.checks.nonceCallSuccess = true;
+          results.checks.nonceValue = iface.decodeFunctionResult('nonces', result)[0].toString();
+          console.log('✅ EMERGENCY CHECK 4 SUCCESS: Nonce value:', results.checks.nonceValue);
+        } catch (callError: unknown) {
+          results.checks.nonceCallSuccess = false;
+          results.checks.nonceCallError = callError instanceof Error ? callError.message : 'Unknown error';
+          if (callError instanceof Error && 'code' in callError) {
+            results.checks.nonceCallDetails = {
+              code: String((callError as any).code),
+              reason: String((callError as any).reason),
+              data: String((callError as any).data)
+            };
+          }
+          console.error('❌ EMERGENCY CHECK 4 FAILED:', callError instanceof Error ? callError.message : 'Unknown error');
+        }
+      } else {
+        results.checks.nonceCallSuccess = false;
+        results.checks.nonceCallError = 'Contract has no bytecode';
+        console.error('❌ EMERGENCY CHECK 4 SKIPPED: No contract bytecode found');
+      }
+      
+      // Check 5: Test with alternative RPC endpoints
+      console.log('🔍 EMERGENCY CHECK 5: Testing alternative RPC endpoints...');
+      const alternativeEndpoints = [
+        'https://mainnet.base.org',
+        'https://base.llamarpc.com',
+        'https://base.drpc.org'
+      ];
+      
+      results.checks.alternativeRpcResults = {};
+      
+      for (const endpoint of alternativeEndpoints) {
+        try {
+          const { JsonRpcProvider } = await import('ethers');
+          const altProvider = new JsonRpcProvider(endpoint);
+          const altCode = await altProvider.getCode(contractAddress);
+          const altNetwork = await altProvider.getNetwork();
+          
+          results.checks.alternativeRpcResults[endpoint] = {
+            hasCode: altCode !== '0x' && altCode.length > 2,
+            codeLength: altCode.length,
+            chainId: Number(altNetwork.chainId),
+            working: true
+          };
+          
+          console.log(`✅ EMERGENCY CHECK 5: ${endpoint} - Has code:`, altCode !== '0x');
+        } catch (error: unknown) {
+          results.checks.alternativeRpcResults[endpoint] = {
+            working: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          };
+          console.error(`❌ EMERGENCY CHECK 5: ${endpoint} failed:`, error instanceof Error ? error.message : 'Unknown error');
+        }
+      }
+      
+      console.log('🚨 EMERGENCY CONTRACT VERIFICATION COMPLETE');
+      res.json(results);
+      
+    } catch (error: unknown) {
+      console.error('🚨 EMERGENCY VERIFICATION CRITICAL ERROR:', error);
+      results.checks.criticalError = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json(results);
+    }
+  });
+
   // Test direct distribution endpoint
   app.post('/api/test/direct-distribution', async (req, res) => {
     try {

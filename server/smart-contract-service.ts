@@ -1170,6 +1170,13 @@ export class SmartContractService {
       };
     }
   }
+
+  /**
+   * Get the current provider instance for debugging purposes
+   */
+  getProvider() {
+    return this.provider;
+  }
 }
 
 // Export singleton instance

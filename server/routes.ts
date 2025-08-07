@@ -3896,13 +3896,26 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         diagnostics.checks.pausedStatus = { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
       }
       
-      // Check 6: Direct signature verification test
+      // Check 6: Wallet address verification  
       try {
-        console.log('🔍 CHECK 6: Testing signature verification directly...');
-        const { claimBasedRewardService } = await import('./claim-based-rewards.js');
+        console.log('🔍 CHECK 6: Verifying calculator wallet address...');
+        const walletAddress = smartContractService.getWalletAddress();
+        const expectedCalculatorAddress = '0x352c7eb64249334d8249f3486A664364013bEeA9';
+        console.log('🔍 CHECK 6.1: Actual wallet address:', walletAddress);
+        console.log('🔍 CHECK 6.2: Expected calculator address:', expectedCalculatorAddress);
+        const walletMatch = walletAddress?.toLowerCase() === expectedCalculatorAddress.toLowerCase();
+        console.log('🔍 CHECK 6.3: Wallet address matches expected:', walletMatch);
         
-        // Generate signature for the test claim
-        const signatureResult = await claimBasedRewardService.generateSignature(testUserAddress, parseFloat((BigInt(testClaimAmount) / BigInt(10**18)).toString()));
+        diagnostics.checks.walletVerification = {
+          success: walletMatch,
+          actualAddress: walletAddress,
+          expectedAddress: expectedCalculatorAddress,
+          matches: walletMatch
+        };
+        
+        // Check 6.5: Direct signature generation test
+        console.log('🔍 CHECK 6.5: Testing signature generation...');
+        const signatureResult = await smartContractService.generateClaimSignature(testUserAddress, parseFloat((BigInt(testClaimAmount) / BigInt(10**18)).toString()));
         
         if (signatureResult.success) {
           // Test the exact parameters that would be sent to the contract

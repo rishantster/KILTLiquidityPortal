@@ -352,6 +352,13 @@ export class SmartContractService {
   }
 
   /**
+   * Get the wallet address for verification
+   */
+  getWalletAddress(): string | null {
+    return this.wallet?.address || null;
+  }
+
+  /**
    * Generate secure signature for reward claiming with enhanced security
    */
   async generateClaimSignature(

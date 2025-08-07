@@ -45,6 +45,16 @@ const ERC20_ABI = [
   },
   {
     "inputs": [
+      {"internalType": "address", "name": "to", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "transfer",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {"internalType": "address", "name": "owner", "type": "address"},
       {"internalType": "address", "name": "spender", "type": "address"}
     ],
@@ -210,12 +220,22 @@ export function SmartContractPanel() {
     writeContract: depositToTreasury 
   } = useWriteContract();
 
+  const { 
+    data: transferHash, 
+    isPending: transferPending, 
+    writeContract: transferKilt 
+  } = useWriteContract();
+
   const { isLoading: approveConfirming, isSuccess: approveSuccess } = useWaitForTransactionReceipt({
     hash: approveHash,
   });
 
   const { isLoading: depositConfirming, isSuccess: depositSuccess } = useWaitForTransactionReceipt({
     hash: depositHash,
+  });
+
+  const { isLoading: transferConfirming, isSuccess: transferSuccess } = useWaitForTransactionReceipt({
+    hash: transferHash,
   });
 
   const { 
@@ -313,6 +333,39 @@ export function SmartContractPanel() {
     } catch (error) {
       toast({
         title: "Deposit Failed",
+        description: error instanceof Error ? error.message : "Transaction failed",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDirectTransfer = async () => {
+    if (!depositAmount || !contractAddress) {
+      toast({
+        title: "Error",
+        description: "Please enter an amount and ensure contract address is loaded",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const amountInWei = parseUnits(depositAmount, 18);
+      
+      transferKilt({
+        address: KILT_TOKEN_ADDRESS as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'transfer',
+        args: [contractAddress as `0x${string}`, amountInWei],
+      });
+
+      toast({
+        title: "Direct Transfer Sent",
+        description: "Please confirm the KILT transfer in your wallet",
+      });
+    } catch (error) {
+      toast({
+        title: "Transfer Failed",
         description: error instanceof Error ? error.message : "Transaction failed",
         variant: "destructive"
       });
@@ -467,6 +520,21 @@ export function SmartContractPanel() {
       refetchWalletData();
     }
   }, [approveSuccess, depositAmount, toast, queryClient, address, refetchWalletData]);
+
+  useEffect(() => {
+    if (transferSuccess) {
+      toast({
+        title: "Direct Transfer Successful!",
+        description: `Successfully transferred ${depositAmount} KILT to contract`,
+      });
+      setDepositAmount("");
+      // Immediate data refresh for real-time balance updates
+      queryClient.invalidateQueries({ queryKey: [`/api/wallet/kilt-balance/${address}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/smart-contract/balances/${contractAddress}`] });
+      refetchWalletData();
+      refetchContractData();
+    }
+  }, [transferSuccess, depositAmount, toast, queryClient, address, contractAddress, refetchWalletData, refetchContractData]);
 
   useEffect(() => {
     if (depositSuccess) {
@@ -698,48 +766,82 @@ export function SmartContractPanel() {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                {/* Step 1: Approve KILT */}
-                <Button
-                  onClick={handleApproveKilt}
-                  disabled={!depositAmount || approvePending || approveConfirming}
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
-                >
-                  {approvePending || approveConfirming ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="h-4 w-4 mr-2" />
-                      1. Approve KILT Tokens
-                    </>
+              <div className="space-y-3">
+                {/* Option 1: Contract Deposit (Owner Only) */}
+                <div className="border border-yellow-400/30 rounded-lg p-3 bg-yellow-400/5">
+                  <div className="text-sm font-semibold text-yellow-400 mb-2">Option 1: Smart Contract Deposit (Owner Only)</div>
+                  <div className="space-y-2">
+                    <Button
+                      onClick={handleApproveKilt}
+                      disabled={!depositAmount || approvePending || approveConfirming}
+                      className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+                    >
+                      {approvePending || approveConfirming ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="h-4 w-4 mr-2" />
+                          1. Approve KILT Tokens
+                        </>
+                      )}
+                    </Button>
+                    
+                    <Button
+                      onClick={handleDeposit}
+                      disabled={!depositAmount || depositPending || depositConfirming || !isOwner}
+                      className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold disabled:opacity-50"
+                    >
+                      {depositPending || depositConfirming ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          2a. Deposit via Contract
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  {!isOwner && (
+                    <div className="text-xs text-red-400 mt-2">
+                      Requires contract owner wallet (0xAFf...71a)
+                    </div>
                   )}
-                </Button>
-                
-                {/* Step 2: Deposit to Treasury */}
-                <Button
-                  onClick={handleDeposit}
-                  disabled={!depositAmount || depositPending || depositConfirming}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold"
-                >
-                  {depositPending || depositConfirming ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      2. Deposit to Treasury
-                    </>
-                  )}
-                </Button>
+                </div>
+
+                {/* Option 2: Direct Transfer (Any Wallet) */}
+                <div className="border border-blue-400/30 rounded-lg p-3 bg-blue-400/5">
+                  <div className="text-sm font-semibold text-blue-400 mb-2">Option 2: Direct Transfer (Any Wallet)</div>
+                  <Button
+                    onClick={handleDirectTransfer}
+                    disabled={!depositAmount || transferPending || transferConfirming}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  >
+                    {transferPending || transferConfirming ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Direct Transfer KILT
+                      </>
+                    )}
+                  </Button>
+                  <div className="text-xs text-green-400 mt-2">
+                    Works with any wallet - Simple KILT token transfer
+                  </div>
+                </div>
               </div>
               
               <div className="text-xs text-gray-400 bg-gray-900 p-2 rounded">
-                <strong>Instructions:</strong> First approve KILT tokens, then deposit to treasury. Gas cost: ~$0.02 per transaction.
+                <strong>Choose your method:</strong> Option 1 requires contract owner, Option 2 works with any wallet. Both fund the treasury. Gas cost: ~$0.02 per transaction.
               </div>
             </CardContent>
           </Card>
@@ -922,19 +1024,19 @@ export function SmartContractPanel() {
       )}
 
       {/* Transaction Status */}
-      {(approvePending || approveConfirming || depositPending || depositConfirming || withdrawPending || withdrawConfirming || rewardPending || rewardConfirming) && (
+      {(approvePending || approveConfirming || depositPending || depositConfirming || transferPending || transferConfirming || withdrawPending || withdrawConfirming || rewardPending || rewardConfirming) && (
         <Card className="bg-black/90 border border-yellow-400 rounded-lg">
           <CardContent className="p-4">
             <div className="flex items-center justify-center space-x-2">
               <RefreshCw className="h-5 w-5 text-yellow-400 animate-spin" />
               <span className="text-yellow-400">
-                {(approvePending || depositPending || withdrawPending || rewardPending) ? 'Waiting for wallet confirmation...' : 'Transaction confirming on blockchain...'}
+                {(approvePending || depositPending || transferPending || withdrawPending || rewardPending) ? 'Waiting for wallet confirmation...' : 'Transaction confirming on blockchain...'}
               </span>
             </div>
-            {(approveHash || depositHash || withdrawHash || rewardHash) && (
+            {(approveHash || depositHash || transferHash || withdrawHash || rewardHash) && (
               <div className="mt-2 text-center">
                 <button
-                  onClick={() => openBaseScan(`https://basescan.org/tx/${approveHash || depositHash || withdrawHash || rewardHash}`)}
+                  onClick={() => openBaseScan(`https://basescan.org/tx/${approveHash || depositHash || transferHash || withdrawHash || rewardHash}`)}
                   className="text-blue-400 hover:text-blue-300 text-sm flex items-center justify-center space-x-1"
                 >
                   <span>View Transaction</span>

@@ -469,6 +469,47 @@ export class SmartContractService {
   }
 
   /**
+   * Distribute specific rewards to a user's contract balance for claiming
+   */
+  async distributeRewardsToUser(
+    userAddress: string,
+    amount: number
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    try {
+      if (!this.isContractDeployed || !this.rewardPoolContract || !this.wallet) {
+        return {
+          success: false,
+          error: 'Smart contracts not deployed or wallet not initialized'
+        };
+      }
+
+      console.log(`💰 Distributing ${amount} KILT to user ${userAddress} for claiming...`);
+
+      // Convert amount to wei
+      const amountWei = ethers.parseUnits(amount.toString(), 18);
+
+      // Call distributeReward function on the DynamicTreasuryPool contract
+      const tx = await this.rewardPoolContract.distributeReward(userAddress, amountWei);
+      
+      // Wait for transaction confirmation
+      const receipt = await tx.wait();
+      
+      console.log(`✅ Distributed ${amount} KILT to ${userAddress}. Transaction: ${receipt.hash}`);
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: unknown) {
+      console.error('Failed to distribute rewards to user:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to distribute rewards'
+      };
+    }
+  }
+
+  /**
    * Get claimable rewards for a user
    */
   async getClaimableRewards(userAddress: string): Promise<number> {

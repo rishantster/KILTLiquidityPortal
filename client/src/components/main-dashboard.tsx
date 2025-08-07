@@ -894,14 +894,14 @@ export function MainDashboard() {
                           <span className="text-white text-sm font-medium">Balance Usage</span>
                           <span className="text-sm text-white/80 numeric-mono">{selectedPercentage}% of wallet</span>
                         </div>
-                        <div className="grid grid-cols-5 gap-2 mb-3">
+                        <div className="grid grid-cols-5 gap-1 sm:gap-2 mb-3">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
                               variant="outline"
                               size="sm"
                               onClick={() => setSelectedPercentage(value)}
-                              className={`text-xs py-1 px-1 h-6 transition-all duration-200 border ${
+                              className={`mobile-button-small text-xs py-1 px-1 h-6 sm:h-7 transition-all duration-200 border ${
                                 selectedPercentage === value 
                                   ? 'text-black font-bold border-2' 
                                   : 'border text-white/80 hover:bg-[#ff0066]/10 hover:border-[#ff0066]/50 hover:text-white'
@@ -931,7 +931,7 @@ export function MainDashboard() {
                             max={100}
                             min={0}
                             step={1}
-                            className="w-full"
+                            className="mobile-slider-fix w-full"
                           />
                         </div>
                       </div>
@@ -993,7 +993,7 @@ export function MainDashboard() {
                           <Button 
                             onClick={handleQuickAddLiquidity}
                             disabled={isDisabled}
-                            className={`w-full font-semibold py-1.5 h-8 rounded-lg transition-all duration-300 text-sm ${
+                            className={`mobile-button-fix w-full font-semibold py-1.5 h-8 sm:h-9 rounded-lg transition-all duration-300 text-sm ${
                               hasInsufficientBalance 
                                 ? 'theme-badge-danger cursor-not-allowed' 
                                 : 'theme-button-primary'

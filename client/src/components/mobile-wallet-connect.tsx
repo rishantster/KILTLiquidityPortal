@@ -145,16 +145,17 @@ export function MobileWalletConnect() {
             Connected • Base
           </Badge>
         )}
-        <div className="flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-[#ff0066]/20 rounded-xl px-4 py-2">
-          <Wallet className="h-4 w-4 text-[#ff0066]" />
-          <span className="font-mono text-sm text-white">{address.slice(0, 6)}...{address.slice(-4)}</span>
+        <div className="mobile-wallet-display flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-xl border border-[#ff0066]/20 rounded-xl px-2 sm:px-4 py-2">
+          <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-[#ff0066]" />
+          <span className="mobile-responsive-text font-mono text-xs sm:text-sm text-white">{address.slice(0, 4)}...{address.slice(-3)}</span>
+          <span className="hidden sm:inline font-mono text-sm text-white">{address.slice(0, 6)}...{address.slice(-4)}</span>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-2 h-6 px-2 text-xs hover:bg-white/10 hover:text-white"
+                className="mobile-button-small ml-1 sm:ml-2 h-5 sm:h-6 px-1 sm:px-2 text-xs hover:bg-white/10 hover:text-white"
               >
                 <ChevronDown className="h-3 w-3" />
               </Button>
@@ -239,7 +240,7 @@ export function MobileWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isPending}
-        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] shadow-medium-modern hover:shadow-strong-modern hover:-translate-y-0.5 h-11 py-2.5 bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white border-0 shadow-lg hover:shadow-xl shadow-[#ff0066]/20 transition-all duration-300 px-6"
+        className="mobile-button-fix inline-flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] shadow-medium-modern hover:shadow-strong-modern hover:-translate-y-0.5 h-10 sm:h-11 py-2 sm:py-2.5 bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white border-0 shadow-lg hover:shadow-xl shadow-[#ff0066]/20 transition-all duration-300 px-4 sm:px-6"
       >
         {isPending ? (
           <>
@@ -255,7 +256,7 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black border border-gray-800 max-w-[95vw] sm:max-w-md w-full mx-auto my-8 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="mobile-dialog-fix bg-black border border-gray-800 max-w-[95vw] sm:max-w-md w-full mx-auto my-4 sm:my-8 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white text-xl sm:text-2xl font-bold flex items-center gap-3 mb-4 sm:mb-6">
               <Wallet className="h-5 w-5 sm:h-6 sm:w-6" />

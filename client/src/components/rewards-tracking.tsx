@@ -155,6 +155,29 @@ export function RewardsTracking() {
     refetchInterval: 60000 // Check every minute
   });
 
+  // Calculate time until rewards become claimable
+  const getTimeUntilClaimable = () => {
+    if (!claimability?.nextClaimDate) return null;
+    
+    const nextClaimTime = new Date(claimability.nextClaimDate);
+    const now = new Date();
+    const timeDiff = nextClaimTime.getTime() - now.getTime();
+    
+    if (timeDiff <= 0) return 'Available now';
+    
+    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 24) {
+      const days = Math.floor(hours / 24);
+      return `${days}d ${hours % 24}h`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m`;
+    }
+  };
+
   // Get reward history
   const { data: rewardHistory } = useQuery({
     queryKey: ['reward-history', address],
@@ -319,10 +342,20 @@ export function RewardsTracking() {
               />
             </div>
             <div className="text-xs text-white/60 mb-1">
-              Ready to claim
+              {(rewardStats?.totalClaimable || 0) > 0 
+                ? 'Ready to claim'
+                : (rewardStats?.totalAccumulated || 0) > 0
+                  ? getTimeUntilClaimable() ? `Available in ${getTimeUntilClaimable()}` : 'Processing availability...'
+                  : 'No rewards yet'
+              }
             </div>
             <div className="text-xs text-[#ff0066] font-medium">
-              ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
+              {(rewardStats?.totalClaimable || 0) > 0 
+                ? `≈ $${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                : (rewardStats?.totalAccumulated || 0) > 0
+                  ? `${(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT awaiting release`
+                  : 'Start earning rewards'
+              }
             </div>
           </CardContent>
         </Card>

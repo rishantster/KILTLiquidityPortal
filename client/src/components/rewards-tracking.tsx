@@ -354,19 +354,14 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className={`bg-black/40 backdrop-blur-xl ${(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) ? 'border border-[#ff0066]/30' : 'border border-gray-600/50'} rounded-lg cluely-card`}>
+        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimable</h3>
-              {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) ? 
-                <Unlock className="h-4 w-4 text-[#ff0066]" /> : 
-                <Lock className="h-4 w-4 text-gray-400" />
-              }
+              <Lock className="h-4 w-4 text-gray-400" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
-              {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) 
-                ? (rewardStats?.totalAccumulated || 0).toFixed(2)
-                : '0.00'}
+              0.00
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
@@ -385,14 +380,12 @@ export function RewardsTracking() {
             </div>
             <div className="flex items-center justify-between">
               <div className="text-xs text-[#ff0066] font-medium">
-                {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0)
+                {(rewardStats?.totalAccumulated || 0) > 0
                   ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
-                  : (rewardStats?.totalAccumulated || 0) > 0
-                    ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
-                    : 'Connect positions to earn'
+                  : 'Connect positions to earn'
                 }
               </div>
-              {(rewardStats?.totalAccumulated || 0) > 0 && (rewardStats?.totalClaimable || 0) === 0 && claimability && (
+              {(rewardStats?.totalAccumulated || 0) > 0 && claimability && (
                 <div className="text-xs flex items-center gap-1 text-blue-400">
                   <Clock className="h-3 w-3" />
                   <span className="font-mono">
@@ -452,16 +445,16 @@ export function RewardsTracking() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
               <Award className="h-4 w-4 text-[#ff0066]" />
-              <span>{(rewardStats?.totalAccumulated || 0) > 0 ? 'Claim Rewards' : 'Reward Status'}</span>
+              <span>Reward Status</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 p-3">
-            <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
+            <div className="text-center py-3 rounded-lg border border-gray-600/20 bg-black/60">
               <div className="text-white/60 text-xs mb-1 font-medium">
-                {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
+                Status
               </div>
               <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
-                {(rewardStats?.totalClaimable || 0).toFixed(2)} 
+                0.00
                 <img 
                   src={kiltLogo} 
                   alt="KILT" 
@@ -469,34 +462,22 @@ export function RewardsTracking() {
                 />
               </div>
               <div className="text-white/50 text-sm mb-3">
-                ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
+                ≈ $0.00 USD
               </div>
               
               <Button 
-                onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards}
-                className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
-                  hasCalculatedRewards 
-                    ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20' 
-                    : 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                }`}
+                disabled={true}
+                className="w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 bg-gray-600 text-gray-300 cursor-not-allowed"
               >
-                {(claimMutation.isPending || isClaiming) ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {isClaiming ? 'Processing Smart Contract Transaction...' : 'Distributing & Claiming...'}
-                  </>
-                ) : hasCalculatedRewards ? (
-                  <>
-                    <Award className="h-4 w-4 mr-2" />
-                    Claim {calculatedRewards.toFixed(2)} KILT
-                  </>
-                ) : (
-                  <>
-                    <Clock className="h-4 w-4 mr-2" />
-                    No rewards accumulated yet
-                  </>
-                )}
+                <Clock className="h-4 w-4 mr-2" />
+                {(rewardStats?.totalAccumulated || 0) > 0 
+                  ? claimability?.canClaim 
+                    ? 'Ready to claim'
+                    : claimability?.daysRemaining 
+                      ? `Available in ${claimability.daysRemaining} days`
+                      : 'Checking availability...'
+                  : 'Add liquidity to earn rewards'
+                }
               </Button>
 
             </div>
@@ -521,18 +502,16 @@ export function RewardsTracking() {
               </div>
             </div>
             
-            {hasCalculatedRewards && (
-              <div className="text-green-400 text-xs text-center mt-2 p-2 rounded bg-green-500/10 border border-green-500/20">
-                <p className="font-medium">Ready to Claim: {calculatedRewards.toFixed(2)} KILT</p>
-                <p className="text-green-300/80">Automated smart contract claiming - you pay gas for distribution & claim transactions (~$0.04 total)</p>
-              </div>
-            )}
-            
-            {!hasCalculatedRewards && (
-              <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
-                <p className="font-medium">Add liquidity to earn rewards</p>
-              </div>
-            )}
+            <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
+              <p className="font-medium">
+                {(rewardStats?.totalAccumulated || 0) > 0 
+                  ? claimability?.canClaim 
+                    ? 'Ready to claim rewards'
+                    : 'Rewards locked by 24-hour waiting period'
+                  : 'Add liquidity to earn rewards'
+                }
+              </p>
+            </div>
             
             
           </CardContent>

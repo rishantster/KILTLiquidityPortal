@@ -27,9 +27,13 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           className="w-full h-full object-contain modern-logo-main relative z-10"
         />
         
-        {/* Dynamic energy rings */}
-        <div className="absolute -inset-2 energy-ring-1"></div>
-        <div className="absolute -inset-3 energy-ring-2"></div>
+        {/* Dynamic energy rings with fingerprint patterns */}
+        <div className="absolute -inset-2 energy-ring-1">
+          <div className="fingerprint-pattern-1"></div>
+        </div>
+        <div className="absolute -inset-3 energy-ring-2">
+          <div className="fingerprint-pattern-2"></div>
+        </div>
         
         {/* Pulse effect */}
         <div className="absolute inset-0 pulse-effect"></div>
@@ -64,6 +68,20 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           mask-composite: exclude;
           animation: modern-spin 4s linear infinite;
           opacity: 0.7;
+          position: relative;
+        }
+
+        .fingerprint-pattern-1 {
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background-image: 
+            radial-gradient(ellipse at center, transparent 20%, rgba(255, 0, 102, 0.1) 21%, rgba(255, 0, 102, 0.1) 22%, transparent 23%),
+            radial-gradient(ellipse at center, transparent 35%, rgba(255, 0, 102, 0.08) 36%, rgba(255, 0, 102, 0.08) 37%, transparent 38%),
+            radial-gradient(ellipse at center, transparent 50%, rgba(255, 0, 102, 0.06) 51%, rgba(255, 0, 102, 0.06) 52%, transparent 53%),
+            radial-gradient(ellipse at center, transparent 65%, rgba(255, 0, 102, 0.04) 66%, rgba(255, 0, 102, 0.04) 67%, transparent 68%);
+          animation: fingerprint-scan-1 6s ease-in-out infinite;
+          opacity: 0.8;
         }
 
         .energy-ring-2 {
@@ -74,6 +92,19 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           mask-composite: exclude;
           animation: modern-spin-reverse 6s linear infinite;
           opacity: 0.5;
+          position: relative;
+        }
+
+        .fingerprint-pattern-2 {
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background-image: 
+            repeating-conic-gradient(from 0deg, transparent 0deg, rgba(255, 0, 102, 0.03) 2deg, transparent 4deg),
+            radial-gradient(ellipse at 30% 30%, transparent 25%, rgba(255, 0, 102, 0.05) 26%, rgba(255, 0, 102, 0.05) 28%, transparent 29%),
+            radial-gradient(ellipse at 70% 70%, transparent 40%, rgba(255, 0, 102, 0.04) 41%, rgba(255, 0, 102, 0.04) 43%, transparent 44%);
+          animation: fingerprint-scan-2 8s ease-in-out infinite reverse;
+          opacity: 0.6;
         }
 
         .pulse-effect {
@@ -110,6 +141,48 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           50% { transform: scale(1.2); opacity: 0.8; }
         }
 
+        @keyframes fingerprint-scan-1 {
+          0% { 
+            transform: scale(0.8) rotate(0deg);
+            opacity: 0.3;
+          }
+          25% { 
+            transform: scale(1) rotate(90deg);
+            opacity: 0.8;
+          }
+          50% { 
+            transform: scale(1.1) rotate(180deg);
+            opacity: 0.6;
+          }
+          75% { 
+            transform: scale(0.9) rotate(270deg);
+            opacity: 0.8;
+          }
+          100% { 
+            transform: scale(0.8) rotate(360deg);
+            opacity: 0.3;
+          }
+        }
+
+        @keyframes fingerprint-scan-2 {
+          0% { 
+            transform: scale(1.2) rotate(0deg);
+            opacity: 0.2;
+          }
+          30% { 
+            transform: scale(0.9) rotate(-120deg);
+            opacity: 0.6;
+          }
+          60% { 
+            transform: scale(1.1) rotate(-240deg);
+            opacity: 0.4;
+          }
+          100% { 
+            transform: scale(1.2) rotate(-360deg);
+            opacity: 0.2;
+          }
+        }
+
         /* Enhanced hover effects */
         .modern-logo-container:hover .modern-logo-main {
           transform: scale(1.1) rotate(5deg);
@@ -124,6 +197,14 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
         .modern-logo-container:hover .energy-ring-2 {
           animation: modern-spin-reverse 1.5s linear infinite;
           opacity: 0.8;
+        }
+
+        .modern-logo-container:hover .fingerprint-pattern-1 {
+          animation: fingerprint-scan-1 2s ease-in-out infinite;
+        }
+
+        .modern-logo-container:hover .fingerprint-pattern-2 {
+          animation: fingerprint-scan-2 3s ease-in-out infinite reverse;
         }
 
         .modern-logo-container:hover .particles-bg {

@@ -603,24 +603,24 @@ export function MainDashboard() {
       </video>
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative" style={{ zIndex: 10 }}>
+      <div className="max-w-7xl mx-auto mobile-container-fix relative" style={{ zIndex: 10 }}>
         {/* Clean Professional Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="mobile-header-fix mb-6 sm:mb-8">
+          <div className="mobile-header-left">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl flex items-center justify-center flex-shrink-0">
               <CyberpunkKiltLogo size="sm" />
             </div>
-            <div className="min-w-0 flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-white truncate font-mono">KILT Liquidity Portal</h1>
+            <div className="min-w-0 flex items-center gap-2 sm:gap-3">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white truncate font-mono mobile-responsive-title">KILT Liquidity Portal</h1>
               
               {/* Clean Beta Badge - Dashboard Header */}
-              <div className="bg-white backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
+              <div className="bg-white backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
                 Beta
               </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="mobile-header-right">
             <div className="flex-shrink-0">
               <MobileWalletConnect />
             </div>
@@ -638,34 +638,37 @@ export function MainDashboard() {
             }
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-8 h-12 gap-1 shadow-2xl container-safe">
+          <TabsList className="mobile-tabs-fix grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-6 sm:mb-8 h-10 sm:h-12 gap-1 shadow-2xl container-safe">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Overview</span>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Over...</span>
+              <span className="hidden sm:inline text-sm font-medium truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Add Liquidity</span>
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Add...</span>
+              <span className="hidden sm:inline text-sm font-medium truncate">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Rewards</span>
+              <Award className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
-              <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium truncate">Positions</span>
+              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Pos...</span>
+              <span className="hidden sm:inline text-sm font-medium truncate">Positions</span>
             </TabsTrigger>
 
           </TabsList>
@@ -673,7 +676,7 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6 tab-content-safe">
             {/* Sophisticated Metrics Grid */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="mobile-stats-grid sm:grid-cols-4 gap-3 sm:gap-4">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
@@ -770,119 +773,113 @@ export function MainDashboard() {
             </div>
 
             {/* Two Column Layout - Fixed Mobile Responsive */}
-            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-6">
+            <div className="mobile-two-column-fix lg:grid lg:grid-cols-2 lg:gap-6">
               {/* Left Column - Position Registration */}
-              <div className="w-full mb-8 lg:mb-0">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
+              <div className="mobile-column mb-6 lg:mb-0">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
                   <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span className="hidden sm:inline">Register Existing Positions</span>
-                  <span className="sm:hidden">Register Positions</span>
+                  <span className="sm:hidden mobile-responsive-text">Register Positions</span>
                 </h2>
-                <div className="h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col">
+                <div className="h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="w-full">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3">
+              <div className="mobile-column">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
                   <Zap className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span className="hidden sm:inline">Quick Add Liquidity</span>
-                  <span className="sm:hidden">Add Liquidity</span>
+                  <span className="sm:hidden mobile-responsive-text">Add Liquidity</span>
                 </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[400px] sm:h-[450px] lg:h-[520px] flex flex-col overflow-hidden cluely-card mobile-stack-fix">
-                  <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
+                <Card className="mobile-card-fix bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
+                  <CardContent className="mobile-card-content p-3 sm:p-4 flex-1 flex flex-col overflow-hidden">
                     <div className="space-y-4 flex-1">
                       {/* Balance Display */}
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 sm:p-3 cluely-card">
                         <h4 className="text-white font-bold text-sm sm:text-base mb-2 sm:mb-3">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                        <div className="mobile-balance-grid gap-2 sm:gap-3">
                           {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                                <img 
-                                  src={kiltLogo} 
-                                  alt="KILT" 
-                                  className="w-3 h-3 sm:w-5 sm:h-5"
-                                  style={{ 
-                                    filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
-                                  }}
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white text-xs font-medium">KILT</div>
-                                <div 
-                                  className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
-                                  style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
-                                >
-                                  {kiltBalance && parseFloat(kiltBalance) >= 1000 
-                                    ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
-                                    : kiltBalance 
-                                      ? parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
-                                      : '0'}
-                                </div>
+                          <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
+                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                              <img 
+                                src={kiltLogo} 
+                                alt="KILT" 
+                                className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5"
+                                style={{ 
+                                  filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
+                                }}
+                              />
+                            </div>
+                            <div className="mobile-balance-content flex-1 min-w-0">
+                              <div className="mobile-balance-label text-white text-xs font-medium">KILT</div>
+                              <div 
+                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                                title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
+                              >
+                                {kiltBalance && parseFloat(kiltBalance) >= 1000 
+                                  ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
+                                  : kiltBalance 
+                                    ? parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
+                                    : '0'}
                               </div>
                             </div>
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                                <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
-                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                                </svg>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white text-xs font-medium">ETH</div>
-                                <div 
-                                  className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
-                                  style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
-                                >
-                                  {ethBalance ? (
-                                    parseFloat(ethBalance) >= 1 
-                                      ? parseFloat(ethBalance).toFixed(2)
-                                      : parseFloat(ethBalance).toFixed(6)
-                                  ) : '0.000000'}
-                                </div>
+                          <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
+                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                              </svg>
+                            </div>
+                            <div className="mobile-balance-content flex-1 min-w-0">
+                              <div className="mobile-balance-label text-white text-xs font-medium">ETH</div>
+                              <div 
+                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                                title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
+                              >
+                                {ethBalance ? (
+                                  parseFloat(ethBalance) >= 1 
+                                    ? parseFloat(ethBalance).toFixed(2)
+                                    : parseFloat(ethBalance).toFixed(6)
+                                ) : '0.000000'}
                               </div>
                             </div>
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                                <svg className="w-3 h-3 sm:w-5 sm:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
-                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                                </svg>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white text-xs font-medium">WETH</div>
-                                <div 
-                                  className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
-                                  style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
-                                >
-                                  {wethBalance ? (
-                                    parseFloat(wethBalance) >= 1 
-                                      ? parseFloat(wethBalance).toFixed(2)
-                                      : parseFloat(wethBalance).toFixed(6)
-                                  ) : '0.000000'}
-                                </div>
+                          <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
+                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                              </svg>
+                            </div>
+                            <div className="mobile-balance-content flex-1 min-w-0">
+                              <div className="mobile-balance-label text-white text-xs font-medium">WETH</div>
+                              <div 
+                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                                title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
+                              >
+                                {wethBalance ? (
+                                  parseFloat(wethBalance) >= 1 
+                                    ? parseFloat(wethBalance).toFixed(2)
+                                    : parseFloat(wethBalance).toFixed(6)
+                                ) : '0.000000'}
                               </div>
                             </div>
                           </div>

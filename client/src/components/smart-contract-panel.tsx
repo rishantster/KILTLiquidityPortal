@@ -72,8 +72,8 @@ const ERC20_ABI = [
   }
 ] as const;
 
-// Basic ABI for essential functions
-const BASIC_TREASURY_POOL_ABI = [
+// Complete DynamicTreasuryPool ABI with enhanced security features
+const DYNAMIC_TREASURY_POOL_ABI = [
   {
     "inputs": [],
     "name": "getContractBalance",
@@ -117,6 +117,67 @@ const BASIC_TREASURY_POOL_ABI = [
     "name": "distributeReward",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "user", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"},
+      {"internalType": "uint256", "name": "nonce", "type": "uint256"},
+      {"internalType": "bytes", "name": "signature", "type": "bytes"}
+    ],
+    "name": "claimRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+    "name": "getClaimableAmount",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+    "name": "nonces",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "calculatorAddress", "type": "address"}],
+    "name": "setPendingCalculatorAuthorization",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "calculatorAddress", "type": "address"}],
+    "name": "activatePendingCalculator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "calculatorAddress", "type": "address"}],
+    "name": "revokeCalculatorAuthorization",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "name": "authorizedCalculators",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "name": "pendingCalculators",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
     "type": "function"
   }
 ];
@@ -321,7 +382,7 @@ export function SmartContractPanel() {
       
       depositToTreasury({
         address: contractAddress as `0x${string}`,
-        abi: BASIC_TREASURY_POOL_ABI,
+        abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'depositTreasury',
         args: [amountInWei],
       });
@@ -396,7 +457,7 @@ export function SmartContractPanel() {
       
       emergencyWithdraw({
         address: contractAddress as `0x${string}`,
-        abi: BASIC_TREASURY_POOL_ABI,
+        abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'emergencyWithdraw',
         args: [amountInWei],
       });
@@ -438,7 +499,7 @@ export function SmartContractPanel() {
       
       distributeReward({
         address: contractAddress as `0x${string}`,
-        abi: BASIC_TREASURY_POOL_ABI,
+        abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'distributeReward',
         args: [rewardUser as `0x${string}`, amountInWei],
       });

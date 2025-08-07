@@ -4,14 +4,14 @@ import { base } from 'viem/chains';
 import { useWagmiWallet } from './use-wagmi-wallet';
 import { useToast } from './use-toast';
 
-// Treasury contract address on Base network - DEPLOYED!
-const BASIC_TREASURY_POOL_ADDRESS = '0xe5771357399D58aC79A5b1161e8C363bB178B22b' as const;
+// Enhanced DynamicTreasuryPool contract address on Base network - DEPLOYED!
+const DYNAMIC_TREASURY_POOL_ADDRESS = '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175' as const;
 
 // KILT token address on Base network
 const KILT_TOKEN_ADDRESS = '0x5d0dd05bb095fdd6af4865a1adf97c39c85ad2d8' as const;
 
-// BasicTreasuryPool contract ABI - Core functions for reward claiming and distribution
-const BASIC_TREASURY_POOL_ABI = [
+// Enhanced DynamicTreasuryPool contract ABI with security features for reward claiming
+const DYNAMIC_TREASURY_POOL_ABI = [
   {
     inputs: [
       { name: 'user', type: 'address' },
@@ -22,7 +22,18 @@ const BASIC_TREASURY_POOL_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-
+  {
+    inputs: [
+      { name: 'user', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'signature', type: 'bytes' }
+    ],
+    name: 'claimRewards',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
   {
     inputs: [{ name: 'user', type: 'address' }],
     name: 'getUserStats',
@@ -43,18 +54,29 @@ const BASIC_TREASURY_POOL_ABI = [
     type: 'function',
   },
   {
-    inputs: [
-      { name: 'totalRewardBalance', type: 'uint256' },
-      { name: 'signature', type: 'bytes' }
-    ],
-    name: 'claimRewards',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    inputs: [{ name: 'user', type: 'address' }],
+    name: 'getClaimableAmount',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'user', type: 'address' }],
+    name: 'nonces',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'totalTreasuryBalance',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getContractBalance',
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
@@ -109,8 +131,8 @@ export function useRewardClaiming() {
     try {
       // Read claimable amount from BasicTreasuryPool contract
       const claimableAmountResult = await baseClient.readContract({
-        address: BASIC_TREASURY_POOL_ADDRESS,
-        abi: BASIC_TREASURY_POOL_ABI,
+        address: DYNAMIC_TREASURY_POOL_ADDRESS,
+        abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'getUserStats',
         args: [userAddress as `0x${string}`],
       });
@@ -146,8 +168,8 @@ export function useRewardClaiming() {
       let claimableKilt = 0;
       try {
         const claimedAmount = await baseClient.readContract({
-          address: BASIC_TREASURY_POOL_ADDRESS,
-          abi: BASIC_TREASURY_POOL_ABI,
+          address: DYNAMIC_TREASURY_POOL_ADDRESS,
+          abi: DYNAMIC_TREASURY_POOL_ABI,
           functionName: 'getClaimedAmount',
           args: [address as `0x${string}`],
         }) as bigint;
@@ -236,10 +258,10 @@ export function useRewardClaiming() {
       const totalRewardBalanceWei = parseUnits(claimableKilt.toString(), 18);
       
       const claimHash = await walletClient.writeContract({
-        address: BASIC_TREASURY_POOL_ADDRESS,
-        abi: BASIC_TREASURY_POOL_ABI,
+        address: DYNAMIC_TREASURY_POOL_ADDRESS,
+        abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [totalRewardBalanceWei, signature],
+        args: [address as `0x${string}`, totalRewardBalanceWei, 0n, signature],
       });
 
       // Wait for claim transaction to be mined

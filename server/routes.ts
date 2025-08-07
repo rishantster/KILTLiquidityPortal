@@ -1441,10 +1441,13 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         console.error(`⚠️ USER STATS ENDPOINT: Smart contract error when fetching claimed amount:`, contractError);
       }
       
+      // Calculate actual claimable amount (accumulated - already claimed)
+      const actualClaimableAmount = Math.max(0, totalAccumulated - actualClaimedAmount);
+      
       // Return the properly calculated stats using treasury allocation
       const stats = {
         totalAccumulated: totalAccumulated,
-        totalClaimable: totalAccumulated, // All accumulated is claimable until smart contract implementation
+        totalClaimable: actualClaimableAmount, // Subtract already claimed to prevent double spending
         totalClaimed: actualClaimedAmount, // Real claimed amount from blockchain
         activePositions: activePositions.length,
         avgDailyRewards: totalDailyRewards

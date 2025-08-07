@@ -234,10 +234,30 @@ export class FixedRewardService {
         totalAccumulated += positionReward.accumulatedRewards;
       }
 
+      // Get actual claimed amount from smart contract to prevent double spending
+      let actualClaimedAmount = 0;
+      try {
+        const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        if (user.length > 0) {
+          const userAddress = user[0].address;
+          // Import SmartContractService directly to avoid circular dependency
+          const { smartContractService } = await import('./smart-contract-service');
+          const claimedResult = await smartContractService.getClaimedAmount(userAddress);
+          if (claimedResult.success && typeof claimedResult.claimedAmount === 'number') {
+            actualClaimedAmount = claimedResult.claimedAmount;
+          }
+        }
+      } catch (contractError) {
+        console.error(`⚠️ Failed to get claimed amount in getUserRewardStats:`, contractError);
+      }
+
+      // Calculate actual claimable amount (accumulated - already claimed)
+      const actualClaimableAmount = Math.max(0, totalAccumulated - actualClaimedAmount);
+
       return {
         totalAccumulated: Math.max(0, totalAccumulated),
-        totalClaimable: Math.max(0, totalAccumulated),
-        totalClaimed: 0, // Not implemented yet
+        totalClaimable: actualClaimableAmount, // Subtract already claimed to prevent double spending
+        totalClaimed: actualClaimedAmount, // Real claimed amount from blockchain
         activePositions: activePositions.length,
         avgDailyRewards: Math.max(0, totalDailyRewards)
       };

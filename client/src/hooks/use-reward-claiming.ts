@@ -62,7 +62,7 @@ const DYNAMIC_TREASURY_POOL_ABI = [
   },
   {
     inputs: [{ name: 'user', type: 'address' }],
-    name: 'nonces',
+    name: 'getUserNonce',
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
@@ -76,7 +76,7 @@ const DYNAMIC_TREASURY_POOL_ABI = [
   },
   {
     inputs: [],
-    name: 'getContractBalance',
+    name: 'getAbsoluteMaxClaim',
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',

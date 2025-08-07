@@ -1341,13 +1341,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       // Generate signature for the claim
+      console.log(`🔐 About to generate signature for ${userAddress}, amount=${totalRewardBalance} KILT`);
       const result = await smartContractService.generateClaimSignature(userAddress, Number(totalRewardBalance));
       
       if (!result.success) {
+        console.error(`❌ Signature generation failed: ${result.error}`);
         res.status(500).json({ error: result.error || "Failed to generate claim signature" });
         return;
       }
       
+      console.log(`✅ Signature generated successfully for ${userAddress}: nonce=${result.nonce}`);
       res.json({
         success: true,
         signature: result.signature,

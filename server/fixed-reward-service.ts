@@ -224,6 +224,47 @@ export class FixedRewardService {
   }
 
   /**
+   * Get lightweight user rewards for claimability checks (fast operation)
+   */
+  async getLightUserRewards(userId: number): Promise<{
+    totalAccumulated: number;
+    activePositions: number;
+  }> {
+    try {
+      // Get user's active positions
+      const activePositions = await db.select()
+        .from(lpPositions)
+        .where(and(
+          eq(lpPositions.userId, userId),
+          eq(lpPositions.isActive, true)
+        ));
+
+      // Quick calculation of total accumulated - sum current accumulated values from database
+      const totalAccumulated = activePositions.reduce((sum, position) => {
+        // Use stored currentValueUSD as a quick approximation for liquidity
+        const liquidityAmount = parseFloat(position.currentValueUSD || '0');
+        // Simple daily rate calculation: 25,000 KILT / $96,125 pool = 0.26% daily
+        const dailyRate = 0.26 / 100; // 0.26% daily
+        const timeActive = Math.max(1, Math.floor((Date.now() - (position.createdAt?.getTime() || Date.now())) / (1000 * 60 * 60))); // hours
+        const accumulated = liquidityAmount * dailyRate * (timeActive / 24); // Convert hours to days
+        return sum + accumulated;
+      }, 0);
+
+      return {
+        totalAccumulated: Math.max(0, totalAccumulated),
+        activePositions: activePositions.length
+      };
+
+    } catch (error) {
+      console.error(`Failed to get light user rewards for user ${userId}:`, error);
+      return {
+        totalAccumulated: 0,
+        activePositions: 0
+      };
+    }
+  }
+
+  /**
    * Get user reward statistics
    */
   async getUserRewardStats(userId: number): Promise<{

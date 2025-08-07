@@ -628,6 +628,57 @@ export class SmartContractService {
   }
 
   /**
+   * Get user stats including 24-hour claimability from smart contract
+   */
+  async getUserStats(userAddress: string): Promise<{ 
+    success: boolean; 
+    claimed?: number; 
+    lastClaim?: number; 
+    canClaimAt?: number; 
+    currentNonce?: number; 
+    error?: string 
+  }> {
+    try {
+      const contractAddress = await getSmartContractAddress();
+      const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
+      
+      console.log(`📊 Getting user stats for ${userAddress} from contract ${contractAddress}...`);
+      
+      // Check if contract is deployed
+      const code = await provider.getCode(contractAddress);
+      if (code === '0x') {
+        console.log('⚠️ Contract not deployed, returning default user stats');
+        return { success: true, claimed: 0, lastClaim: 0, canClaimAt: 0, currentNonce: 0 };
+      }
+      
+      const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
+      const userStats = await contract.getUserStats(userAddress);
+      
+      // Parse returned values: (uint256 claimed, uint256 lastClaim, uint256 canClaimAt, uint256 currentNonce)
+      const claimed = Number(ethers.formatUnits(userStats[0], 18));
+      const lastClaim = Number(userStats[1]);
+      const canClaimAt = Number(userStats[2]);
+      const currentNonce = Number(userStats[3]);
+      
+      console.log(`✅ User stats retrieved: claimed=${claimed} KILT, lastClaim=${lastClaim}, canClaimAt=${canClaimAt}, nonce=${currentNonce}`);
+      
+      return { 
+        success: true, 
+        claimed,
+        lastClaim,
+        canClaimAt,
+        currentNonce
+      };
+    } catch (error: unknown) {
+      console.error('❌ Failed to get user stats:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to get user stats' 
+      };
+    }
+  }
+
+  /**
    * Set reward allowance for a user (admin operation)
    * This function sets the amount a user can claim from the contract
    */

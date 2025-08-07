@@ -1745,23 +1745,54 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           daysRemaining: 0,
           lockExpired: true,
           totalClaimable: 0,
+          nextClaimDate: null,
           error: 'User not found'
         });
         return;
       }
       
-      // Get calculated rewards from reward service instead of smart contract
-      const userRewards = await fixedRewardService.getUserRewardStats(user.id);
-      const claimableAmount = userRewards.totalClaimable;
-      console.log(`✅ Calculated claimable amount: ${claimableAmount} KILT`);
+      // Get 24-hour claimability from smart contract
+      console.log(`🔧 Fetching user stats from smart contract for ${userAddress}...`);
+      const userStats = await smartContractService.getUserStats(userAddress);
+      console.log(`📊 Smart contract user stats result:`, userStats);
+      
+      // Get light-weight accumulated rewards calculation (skip heavy reward calculation)
+      console.log(`💰 Getting basic accumulated rewards for user ${user.id}...`);
+      const lightRewards = await fixedRewardService.getLightUserRewards(user.id);
+      console.log(`💰 Light user rewards result:`, lightRewards);
+      
+      let canClaim = false;
+      let nextClaimDate = null;
+      let timeUntilClaimable = 0;
+      
+      if (userStats.success && userStats.canClaimAt !== undefined) {
+        const canClaimAtMs = userStats.canClaimAt * 1000; // Convert to milliseconds
+        const now = Date.now();
+        canClaim = now >= canClaimAtMs;
+        nextClaimDate = new Date(canClaimAtMs);
+        timeUntilClaimable = Math.max(0, canClaimAtMs - now);
+        console.log(`⏰ Smart contract timing: canClaimAt=${userStats.canClaimAt}, now=${Math.floor(now/1000)}, canClaim=${canClaim}`);
+      } else {
+        console.log(`❌ Smart contract getUserStats failed or missing canClaimAt:`, userStats);
+      }
+      
+      // Only allow claiming if both conditions are met:
+      // 1. Smart contract allows it (24-hour cooldown passed)
+      // 2. There are accumulated rewards to claim
+      const totalAccumulated = lightRewards?.totalAccumulated || 0;
+      const totalClaimable = canClaim && totalAccumulated > 0 ? totalAccumulated : 0;
+      
+      console.log(`✅ 24h Claimability check: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, totalClaimable=${totalClaimable}, nextClaimDate=${nextClaimDate}`);
       
       res.json({
-        claimable: claimableAmount,
-        canClaim: claimableAmount > 0,
-        daysRemaining: 0, // No lock period in BasicTreasuryPool
-        lockExpired: true, // No lock period
-        lockExpiryDate: new Date(), // No lock expiry
-        totalClaimable: claimableAmount
+        claimable: totalClaimable,
+        canClaim: totalClaimable > 0,
+        daysRemaining: Math.ceil(timeUntilClaimable / (1000 * 60 * 60 * 24)),
+        lockExpired: canClaim,
+        lockExpiryDate: nextClaimDate,
+        nextClaimDate: nextClaimDate,
+        totalClaimable: totalClaimable,
+        timeUntilClaimable: timeUntilClaimable
       });
     } catch (error) {
       console.log(`❌ Claimability API error for ${req.params.address}:`, error);
@@ -1771,7 +1802,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         canClaim: false,
         daysRemaining: 0,
         lockExpired: true,
-        totalClaimable: 0
+        totalClaimable: 0,
+        nextClaimDate: null
       });
     }
   });

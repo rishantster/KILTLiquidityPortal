@@ -395,10 +395,15 @@ export class SmartContractService {
       const isAuthorized = await this.rewardPoolContract.authorizedCalculators(calculatorAddress);
       console.log(`🔐 Calculator ${calculatorAddress} authorization status: ${isAuthorized}`);
       
-      // Check contract balance
-      const contractBalance = await this.rewardPoolContract.totalTreasuryBalance();
-      const contractBalanceFormatted = Number(ethers.formatUnits(contractBalance, 18));
-      console.log(`💰 Contract balance: ${contractBalanceFormatted} KILT`);
+      // Check contract balance (using correct method name)
+      let contractBalanceFormatted = 0;
+      try {
+        const contractBalance = await this.kiltTokenContract?.balanceOf(await this.rewardPoolContract.getAddress()) || 0n;
+        contractBalanceFormatted = Number(ethers.formatUnits(contractBalance, 18));
+        console.log(`💰 Contract balance: ${contractBalanceFormatted} KILT`);
+      } catch (error) {
+        console.log(`💰 Contract balance check failed: ${error}`);
+      }
       
       console.log(`🔐 Generated signature for simplified contract: ${userAddress}, amount=${amount} KILT, nonce=${userNonce.toString()}`);
       console.log(`🔐 Message hash components: address=${userAddress}, amount=${amountWei.toString()}, nonce=${userNonce.toString()}`);

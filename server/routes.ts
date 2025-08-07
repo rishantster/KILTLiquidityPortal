@@ -255,7 +255,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           {
             constant: true,
             inputs: [],
-            name: 'totalTreasuryBalance',
+            name: 'getContractBalance',
             outputs: [{ name: '', type: 'uint256' }],
             type: 'function'
           },

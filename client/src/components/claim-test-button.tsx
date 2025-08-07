@@ -82,6 +82,19 @@ export function ClaimTestButton({ calculatedRewards, onClaimStart, onClaimComple
       if (debugResponse.ok) {
         const debugData = await debugResponse.json();
         console.log('🧪 TEST LOG 14: Debug data:', JSON.stringify(debugData, null, 2));
+        
+        // Additional detailed analysis of contract status
+        console.log('🧪 TEST LOG 14A: Contract deployed:', debugData.contractDeployed);
+        console.log('🧪 TEST LOG 14B: Calculator address:', debugData.calculatorAddress);
+        console.log('🧪 TEST LOG 14C: User found in database:', debugData.userFound);
+        console.log('🧪 TEST LOG 14D: Reward stats:', JSON.stringify(debugData.rewardStats, null, 2));
+        console.log('🧪 TEST LOG 14E: Signature test result:', JSON.stringify(debugData.signatureTest, null, 2));
+        console.log('🧪 TEST LOG 14F: Contract balance sufficient:', debugData.balanceInfo?.sufficient);
+        console.log('🧪 TEST LOG 14G: Contract balance amount:', debugData.balanceInfo?.balance);
+      } else {
+        console.error('🧪 TEST LOG 13A: Debug endpoint failed with status:', debugResponse.status);
+        const errorText = await debugResponse.text();
+        console.error('🧪 TEST LOG 13B: Debug endpoint error:', errorText);
       }
 
       console.log('✅ TEST LOG 15: All backend tests completed successfully');

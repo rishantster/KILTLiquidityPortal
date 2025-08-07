@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   TrendingUp, 
   Zap, 
@@ -811,17 +812,25 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">KILT</div>
-                                <div 
-                                  className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display cursor-pointer" 
-                                  style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={kiltBalance ? `${parseFloat(kiltBalance).toLocaleString()} KILT` : '0 KILT'}
-                                >
-                                  {kiltBalance ? (
-                                    parseFloat(kiltBalance) >= 1000 
-                                      ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
-                                      : parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
-                                  ) : '0'}
-                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div 
+                                        className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display cursor-help" 
+                                        style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                                      >
+                                        {kiltBalance ? (
+                                          parseFloat(kiltBalance) >= 1000 
+                                            ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
+                                            : parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
+                                        ) : '0'}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{kiltBalance ? `${parseFloat(kiltBalance).toLocaleString()} KILT` : '0 KILT'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                             </div>
                           </div>
@@ -841,17 +850,25 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">ETH</div>
-                                <div 
-                                  className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display cursor-pointer" 
-                                  style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={ethBalance ? `${parseFloat(ethBalance).toFixed(8)} ETH` : '0 ETH'}
-                                >
-                                  {ethBalance ? (
-                                    parseFloat(ethBalance) >= 1 
-                                      ? parseFloat(ethBalance).toFixed(2)
-                                      : parseFloat(ethBalance).toFixed(6)
-                                  ) : '0.000000'}
-                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div 
+                                        className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display cursor-help" 
+                                        style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                                      >
+                                        {ethBalance ? (
+                                          parseFloat(ethBalance) >= 1 
+                                            ? parseFloat(ethBalance).toFixed(2)
+                                            : parseFloat(ethBalance).toFixed(6)
+                                        ) : '0.000000'}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{ethBalance ? `${parseFloat(ethBalance).toFixed(8)} ETH` : '0 ETH'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                             </div>
                           </div>
@@ -871,17 +888,25 @@ export function MainDashboard() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-white text-xs font-medium">WETH</div>
-                                <div 
-                                  className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display cursor-pointer" 
-                                  style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                  title={wethBalance ? `${parseFloat(wethBalance).toFixed(8)} WETH` : '0 WETH'}
-                                >
-                                  {wethBalance ? (
-                                    parseFloat(wethBalance) >= 1 
-                                      ? parseFloat(wethBalance).toFixed(2)
-                                      : parseFloat(wethBalance).toFixed(6)
-                                  ) : '0.000000'}
-                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div 
+                                        className="text-[#ff0066] font-bold text-xs sm:text-sm numeric-display cursor-help" 
+                                        style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                                      >
+                                        {wethBalance ? (
+                                          parseFloat(wethBalance) >= 1 
+                                            ? parseFloat(wethBalance).toFixed(2)
+                                            : parseFloat(wethBalance).toFixed(6)
+                                        ) : '0.000000'}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{wethBalance ? `${parseFloat(wethBalance).toFixed(8)} WETH` : '0 WETH'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                             </div>
                           </div>

@@ -1090,6 +1090,58 @@ export class SmartContractService {
       };
     }
   }
+
+  /**
+   * Distribute rewards directly using owner function (bypasses signature verification)
+   */
+  async distributeRewardDirectly(userAddress: string, amount: number): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    try {
+      if (!this.rewardPoolContract || !this.wallet) {
+        return { success: false, error: 'Smart contracts not deployed or wallet not initialized' };
+      }
+
+      // Convert amount to wei
+      const amountWei = ethers.parseUnits(amount.toString(), 18);
+      
+      console.log(`💰 Direct distribution: ${amount} KILT to ${userAddress}`);
+      console.log(`💰 Amount in wei: ${amountWei.toString()}`);
+
+      // Check contract balance first
+      const contractBalance = await this.kiltTokenContract?.balanceOf(await this.rewardPoolContract.getAddress()) || 0n;
+      const contractBalanceFormatted = Number(ethers.formatUnits(contractBalance, 18));
+      
+      if (contractBalanceFormatted < amount) {
+        return { 
+          success: false,
+          error: `Insufficient contract balance. Available: ${contractBalanceFormatted} KILT, Requested: ${amount} KILT` 
+        };
+      }
+
+      // Call distributeReward function directly as owner
+      const tx = await this.rewardPoolContract.distributeReward(userAddress, amountWei);
+      console.log(`💰 Distribution transaction sent: ${tx.hash}`);
+      
+      // Wait for transaction confirmation
+      const receipt = await tx.wait();
+      
+      if (receipt?.status !== 1) {
+        return { success: false, error: 'Distribution transaction failed' };
+      }
+
+      console.log(`✅ Rewards distributed successfully: ${tx.hash}`);
+      return {
+        success: true,
+        transactionHash: tx.hash
+      };
+
+    } catch (error: unknown) {
+      console.error('Direct reward distribution failed:', error);
+      return { 
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to distribute rewards directly' 
+      };
+    }
+  }
 }
 
 // Export singleton instance

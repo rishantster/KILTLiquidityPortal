@@ -441,13 +441,7 @@ export function RewardsTracking() {
               </div>
             )}
             
-            {/* Smart Contract Status Notice */}
-            {canClaim && (rewardStats?.totalClaimable || 0) > 0 && (
-              <div className="text-blue-400 text-xs text-center mt-2 p-2 rounded bg-blue-500/10 border border-blue-500/20">
-                <p className="font-medium">Smart Contract Claiming</p>
-                <p className="text-blue-300/80">Clicking "Claim" will trigger a blockchain transaction requiring MetaMask approval and gas fees (~$0.02)</p>
-              </div>
-            )}
+            
           </CardContent>
         </Card>
 

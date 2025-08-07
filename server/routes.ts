@@ -3755,6 +3755,30 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Start periodic data integrity monitoring
   dataIntegrityMonitor.startPeriodicMonitoring(30); // Check every 30 minutes
   
+  // Test direct distribution endpoint
+  app.post('/api/test/direct-distribution', async (req, res) => {
+    try {
+      const { userAddress, amount } = req.body;
+      
+      if (!userAddress || !amount) {
+        return res.status(400).json({ success: false, error: 'userAddress and amount required' });
+      }
+
+      console.log(`🧪 Testing direct distribution: ${amount} KILT to ${userAddress}`);
+      
+      const result = await smartContractService.distributeRewardDirectly(userAddress, amount);
+      
+      res.json(result);
+
+    } catch (error) {
+      console.error('Test direct distribution error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Test failed' 
+      });
+    }
+  });
+
   return httpServer;
 }
 

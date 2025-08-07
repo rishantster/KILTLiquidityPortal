@@ -1672,9 +1672,24 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const userAddress = req.params.address;
       console.log(`🔧 Claimability API called for address: ${userAddress}`);
       
-      // Use smart contract service to get claimable rewards directly
-      const claimableAmount = await smartContractService.getClaimableRewards(userAddress);
-      console.log(`✅ Smart contract claimable amount: ${claimableAmount} KILT`);
+      // Get user from database
+      const user = await storage.getUserByAddress(userAddress);
+      if (!user) {
+        res.json({
+          claimable: 0,
+          canClaim: false,
+          daysRemaining: 0,
+          lockExpired: true,
+          totalClaimable: 0,
+          error: 'User not found'
+        });
+        return;
+      }
+      
+      // Get calculated rewards from reward service instead of smart contract
+      const userRewards = await fixedRewardService.getUserRewardStats(user.id);
+      const claimableAmount = userRewards.totalClaimable;
+      console.log(`✅ Calculated claimable amount: ${claimableAmount} KILT`);
       
       res.json({
         claimable: claimableAmount,

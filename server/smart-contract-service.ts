@@ -609,7 +609,7 @@ export class SmartContractService {
       }
       
       const contract = new ethers.Contract(contractAddress, REWARD_POOL_ABI, provider);
-      const claimedAmountWei = await contract.claimedAmounts(userAddress);
+      const claimedAmountWei = await contract.claimedAmount(userAddress);
       const claimedAmount = Number(ethers.formatUnits(claimedAmountWei, 18));
       
       console.log(`✅ Retrieved claimed amount: ${claimedAmount} KILT for user ${userAddress}`);

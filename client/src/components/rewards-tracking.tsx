@@ -336,8 +336,13 @@ export function RewardsTracking() {
               </div>
               <div className={`text-xs flex items-center gap-1 ${isNearNextReward ? 'text-yellow-400' : 'text-green-400'}`}>
                 <Timer className="h-3 w-3" />
-                {timeUntilNextReward}
+                <span title="Time until next hourly reward accumulation">
+                  {timeUntilNextReward}
+                </span>
               </div>
+            </div>
+            <div className="text-xs text-green-400/80 mt-1">
+              Rewards update every hour • Next: {timeUntilNextReward}
             </div>
           </CardContent>
         </Card>

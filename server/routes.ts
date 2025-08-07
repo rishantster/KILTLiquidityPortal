@@ -3124,7 +3124,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       } else {
         res.status(500).json({
           success: false,
-          error: result.error,
+          error: 'Reward update failed',
           message: 'Reward update failed'
         });
       }
@@ -3877,6 +3877,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           contractBalance?: { success: boolean; value?: string; valueInKilt?: string; sufficientForClaim?: boolean; error?: string };
           calculatorAuth?: { success: boolean; calculatorAddress?: string; isAuthorized?: boolean; error?: string };
           pausedStatus?: { success: boolean; isPaused?: boolean; error?: string };
+          walletVerification?: { success: boolean; actualAddress?: string; expectedAddress?: string; matches?: boolean; error?: string };
           signatureTest?: { success: boolean; signatureGenerated?: boolean; gasEstimationWorking?: boolean; callResult?: string; error?: string; errorCode?: string; errorData?: string };
         };
       } = {
@@ -4294,7 +4295,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // Test signature generation
       let signatureTest = null;
-      if (user && rewardStats?.totalClaimable > 0) {
+      if (user && rewardStats && rewardStats.totalClaimable > 0) {
         console.log('🔍 DEBUG LOG 7: Testing signature generation...');
         signatureTest = await smartContractService.generateClaimSignature(userAddress, rewardStats.totalClaimable);
         console.log('🔍 DEBUG LOG 8: Signature test result:', JSON.stringify(signatureTest, null, 2));

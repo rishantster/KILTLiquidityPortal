@@ -220,43 +220,42 @@ app.use((req, res, next) => {
   // Serve static files from attached_assets directory
   app.use('/attached_assets', express.static('attached_assets'));
 
-  // Setup Vite in development, serve static files in production
-  if (app.get("env") === "development") {
+  // Deployment-ready static file serving: prioritize production build if available
+  const path = await import('path');
+  const fs = await import('fs');
+  
+  const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
+  
+  // Check if production build exists and prioritize it (for deployment readiness)
+  if (fs.existsSync(distPath)) {
+    console.log('🚀 Serving production build from:', distPath);
+    // Serve static assets with proper caching
+    app.use(express.static(distPath, {
+      maxAge: '1y',
+      etag: true,
+      lastModified: true,
+      setHeaders: (res, filePath) => {
+        if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+        }
+      }
+    }));
+
+    // SPA fallback for all non-API routes
+    app.use("*", (req, res) => {
+      if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/health')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+      }
+      res.sendFile(path.resolve(distPath, "index.html"));
+    });
+  } else if (app.get("env") === "development") {
+    console.log('🔧 No production build found, using Vite dev server');
     await setupVite(app, server);
   } else {
-    // Production mode: serve built static files
-    const path = await import('path');
-    const fs = await import('fs');
-    
-    const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
-    
-    // Ensure dist directory exists
-    if (fs.existsSync(distPath)) {
-      // Serve static assets with proper caching
-      app.use(express.static(distPath, {
-        maxAge: '1y',
-        etag: true,
-        lastModified: true,
-        setHeaders: (res, filePath) => {
-          if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {
-            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-          } else if (filePath.endsWith('.html')) {
-            res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
-          }
-        }
-      }));
-
-      // SPA fallback for all non-API routes
-      app.use("*", (req, res) => {
-        if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/health')) {
-          return res.status(404).json({ error: 'API endpoint not found' });
-        }
-        res.sendFile(path.resolve(distPath, "index.html"));
-      });
-    } else {
-      console.warn('⚠️ Production build directory not found, falling back to serveStatic');
-      serveStatic(app);
-    }
+    console.warn('⚠️ Production mode but no build directory found, falling back to serveStatic');
+    serveStatic(app);
   }
 
   // Enhanced global error handler (must be last)

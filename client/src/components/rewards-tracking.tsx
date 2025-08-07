@@ -112,16 +112,25 @@ export function RewardsTracking() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Use unified dashboard data
+  // Use unified dashboard data with error boundary
   const { user, rewardStats, programAnalytics } = unifiedData;
 
-  // Get fresh position count from eligible endpoint
+  // Get fresh position count from eligible endpoint with error handling
   const { data: eligibleData } = useQuery({
     queryKey: ['eligible-positions', address],
     queryFn: async () => {
       if (!address) return null;
-      const response = await fetch(`/api/positions/eligible/${address}`);
-      return response.json();
+      try {
+        const response = await fetch(`/api/positions/eligible/${address}`);
+        if (!response.ok) {
+          console.error('Eligible positions fetch failed:', response.status);
+          return null;
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Eligible positions error:', error);
+        return null;
+      }
     },
     enabled: !!address,
     staleTime: 0,

@@ -230,13 +230,13 @@ class ProductionHealthMonitor {
     const startTime = Date.now();
     
     try {
-      const { storage } = await import('./storage');
-      // Use existing storage methods - test user rewards instead
-      const allUsers = await storage.getAllUsers();
-      const userCount = allUsers.length;
+      // Use direct database queries to avoid storage interface issues
+      const { db } = await import('./db');
+      const [userCountResult] = await db.select({ count: sql`COUNT(*)` }).from(users);
+      const [rewardCountResult] = await db.select({ count: sql`COUNT(*)` }).from(rewards);
       
-      // Test if we can access reward-related functionality
-      const rewardService = await import('./smart-contract-service');
+      const userCount = Number(userCountResult.count);
+      const rewardCount = Number(rewardCountResult.count);
       
       const responseTime = Date.now() - startTime;
       
@@ -244,10 +244,10 @@ class ProductionHealthMonitor {
         status: 'healthy',
         responseTime,
         lastCheck: new Date().toISOString(),
-        details: `Reward system operational with ${userCount} users`,
+        details: `Reward system operational with ${userCount} users and ${rewardCount} rewards`,
         metrics: {
           userCount,
-          smartContractReady: true,
+          rewardCount,
           claimingSystem: 'operational'
         }
       };
@@ -269,24 +269,49 @@ class ProductionHealthMonitor {
     const startTime = Date.now();
     
     try {
-      const { storage } = await import('./storage');
-      // Use existing storage methods - check if database is working for treasury-related operations
-      const allUsers = await storage.getAllUsers(); 
-      const userCount = allUsers.length;
+      // Use direct database queries to avoid storage interface issues
+      const { db } = await import('./db');
+      const [userCountResult] = await db.select({ count: sql`COUNT(*)` }).from(users);
+      const [activePositionResult] = await db.select({ count: sql`COUNT(*)` }).from(lpPositions).where(eq(lpPositions.isActive, true));
       
-      // Test treasury-related services without non-existent methods
-      const treasuryService = await import('./treasury-service');
+      // Check treasury configuration exists
+      const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
+      const [programConf] = await db.select().from(programSettings).limit(1);
+      
+      const userCount = Number(userCountResult.count);
+      const activePositions = Number(activePositionResult.count);
+      
+      const hasTreasuryConfig = treasuryConf && 
+        treasuryConf.totalAllocation != null && 
+        treasuryConf.dailyRewardsCap != null;
+        
+      const hasProgramSettings = programConf && 
+        programConf.timeBoostCoefficient != null && 
+        programConf.fullRangeBonus != null;
       
       const responseTime = Date.now() - startTime;
       
+      let status: 'healthy' | 'degraded' | 'critical' = 'healthy';
+      let details = `Treasury operational with ${userCount} users and ${activePositions} active positions`;
+      
+      if (!hasTreasuryConfig && !hasProgramSettings) {
+        status = 'critical';
+        details = 'Treasury configuration missing';
+      } else if (!hasTreasuryConfig || !hasProgramSettings) {
+        status = 'degraded';
+        details = 'Treasury configuration incomplete';
+      }
+      
       return {
-        status: 'healthy',
+        status,
         responseTime,
         lastCheck: new Date().toISOString(),
-        details: `Treasury configuration operational with ${userCount} users registered`,
+        details,
         metrics: {
           userCount,
-          treasuryServiceReady: true,
+          activePositions,
+          hasTreasuryConfig: !!hasTreasuryConfig,
+          hasProgramSettings: !!hasProgramSettings,
           configuration: 'operational'
         }
       };

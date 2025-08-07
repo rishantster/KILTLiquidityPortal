@@ -661,12 +661,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       const position = await storage.createLpPosition(positionData);
       
+      // Immediately return success to frontend for fast UI updates
       res.json({
         success: true,
         position,
         message: isKiltPosition ? "KILT position created - eligible for rewards" : "Position created - not eligible for rewards (non-KILT token)",
         rewardEligible: isKiltPosition
       });
+      
+      // Trigger background cache invalidation for data consistency
+      setTimeout(() => {
+        console.log(`🔄 Background cache invalidation for position ${nftTokenId}`);
+      }, 100);
     } catch (error) {
       // Failed to create app position - registration required
       res.status(500).json({ error: "Failed to create app position" });

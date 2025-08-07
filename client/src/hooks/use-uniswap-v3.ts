@@ -612,6 +612,13 @@ export function useUniswapV3() {
         try {
           console.log(`🔄 Auto-registering position ${tokenId} for user ${address}`);
           
+          // Optimistic UI update: immediately invalidate eligible positions cache
+          // to prevent position from showing in eligible list
+          const { queryClient } = await import('@/lib/queryClient');
+          queryClient.setQueryData(['/api/positions/eligible', address], (oldData: any) => {
+            return oldData ? { ...oldData, eligiblePositions: [] } : oldData;
+          });
+          
           // Get user ID from storage first
           const userResponse = await fetch(`/api/users/address/${address}`);
           const userData = await userResponse.json();
@@ -643,6 +650,16 @@ export function useUniswapV3() {
             if (registerResponse.ok) {
               const result = await registerResponse.json();
               console.log(`✅ Position ${tokenId} auto-registered successfully:`, result);
+              
+              // Invalidate all relevant caches immediately to update UI
+              const { queryClient } = await import('@/lib/queryClient');
+              await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['/api/positions/wallet', address] }),
+                queryClient.invalidateQueries({ queryKey: ['/api/positions/eligible', address] }),
+                queryClient.invalidateQueries({ queryKey: [`/api/rewards/user`, userData.user.id, 'stats'] }),
+                queryClient.invalidateQueries({ queryKey: ['/api/analytics/user', userData.user.id, 'dashboard'] }),
+                queryClient.refetchQueries({ queryKey: ['/api/rewards/program-analytics'] })
+              ]);
               
               toast({
                 title: "Position Registered!",

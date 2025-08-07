@@ -162,15 +162,15 @@ export function useRewardClaiming() {
         throw new Error('Wallet not connected');
       }
 
-      // Step 1: Get user's calculated rewards from backend
+      // Step 1: Get user's calculated rewards from claimability endpoint
       console.log(`Getting calculated rewards for ${address}...`);
-      const statsResponse = await fetch(`/api/rewards/stats`);
-      if (!statsResponse.ok) {
-        throw new Error('Failed to get reward stats from backend');
+      const claimabilityResponse = await fetch(`/api/rewards/claimability/${address}`);
+      if (!claimabilityResponse.ok) {
+        throw new Error('Failed to get reward claimability from backend');
       }
 
-      const stats = await statsResponse.json();
-      const calculatedAmount = stats.totalClaimable || 0;
+      const claimability = await claimabilityResponse.json();
+      const calculatedAmount = claimability.totalClaimable || 0;
       
       if (calculatedAmount <= 0) {
         return {

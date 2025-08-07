@@ -354,14 +354,16 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimable</h3>
-              <Lock className="h-4 w-4 text-gray-400" />
+              <Unlock className="h-4 w-4 text-[#ff0066]" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
-              0.00
+              {claimability?.canClaim 
+                ? (rewardStats?.totalAccumulated || 0).toFixed(2)
+                : '0.00'}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
@@ -380,9 +382,11 @@ export function RewardsTracking() {
             </div>
             <div className="flex items-center justify-between">
               <div className="text-xs text-[#ff0066] font-medium">
-                {(rewardStats?.totalAccumulated || 0) > 0
+                {claimability?.canClaim 
                   ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
-                  : 'Connect positions to earn'
+                  : (rewardStats?.totalAccumulated || 0) > 0
+                    ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                    : 'Connect positions to earn'
                 }
               </div>
               {(rewardStats?.totalAccumulated || 0) > 0 && claimability && (

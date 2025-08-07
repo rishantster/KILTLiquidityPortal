@@ -603,27 +603,25 @@ export function MainDashboard() {
       </video>
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
-      <div className="max-w-7xl mx-auto mobile-container-fix relative" style={{ zIndex: 10 }}>
+      <div className="max-w-7xl mx-auto px-6 py-8 relative" style={{ zIndex: 10 }}>
         {/* Clean Professional Header */}
-        <div className="mobile-header-fix mb-6 sm:mb-8">
-          <div className="mobile-header-left">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0">
               <CyberpunkKiltLogo size="sm" />
             </div>
-            <div className="min-w-0 flex items-center gap-2 sm:gap-3">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white truncate font-mono mobile-responsive-title">KILT Liquidity Portal</h1>
+            <div className="flex items-center gap-4">
+              <h1 className="text-3xl font-bold text-white font-mono">KILT Liquidity Portal</h1>
               
               {/* Clean Beta Badge - Dashboard Header */}
-              <div className="bg-white backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
+              <div className="bg-white backdrop-blur-sm rounded-full px-4 py-2 text-sm font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
                 Beta
               </div>
             </div>
           </div>
           
-          <div className="mobile-header-right">
-            <div className="flex-shrink-0">
-              <MobileWalletConnect />
-            </div>
+          <div className="flex-shrink-0">
+            <MobileWalletConnect />
           </div>
         </div>
 
@@ -638,42 +636,42 @@ export function MainDashboard() {
             }
           }
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-2xl mb-6 sm:mb-8 h-12 gap-1 shadow-2xl container-safe">
+          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl mb-8 h-14 gap-2 shadow-2xl">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
             >
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium">Overview</span>
+              <TrendingUp className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="font-medium">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
             >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium">Add Liquidity</span>
+              <Plus className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="font-medium">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
             >
-              <Award className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium">Rewards</span>
+              <Award className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="font-medium">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-sm font-medium transition-all duration-300 px-3 py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
             >
-              <Wallet className="h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-sm font-medium">Positions</span>
+              <Wallet className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="font-medium">Positions</span>
             </TabsTrigger>
 
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6 tab-content-safe">
+          <TabsContent value="overview" className="space-y-8">
             {/* Sophisticated Metrics Grid */}
-            <div className="mobile-stats-grid sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-4 gap-6">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>

@@ -56,6 +56,8 @@ export class FixedRewardService {
     totalAPR: number;
     liquidityAmount: number;
     effectiveAPR: number;
+    totalHours?: number;
+    hourlyRewards?: number;
   }> {
     try {
       // Get position data
@@ -75,7 +77,9 @@ export class FixedRewardService {
           incentiveAPR: 0,
           totalAPR: 0,
           liquidityAmount: 0,
-          effectiveAPR: 0
+          effectiveAPR: 0,
+          totalHours: 0,
+          hourlyRewards: 0
         };
       }
 
@@ -94,19 +98,22 @@ export class FixedRewardService {
           incentiveAPR: 0,
           totalAPR: 0,
           liquidityAmount: 0,
-          effectiveAPR: 0
+          effectiveAPR: 0,
+          totalHours: 0,
+          hourlyRewards: 0
         };
       }
       
-      // Calculate days active (D_u)
+      // Calculate time active with HOURLY GRANULARITY for smooth emission
       const now = new Date();
       const positionCreated = createdAt;
-      const daysActive = Math.max(1, Math.floor((now.getTime() - positionCreated.getTime()) / (1000 * 60 * 60 * 24)));
+      const totalHoursActive = Math.max(1, Math.floor((now.getTime() - positionCreated.getTime()) / (1000 * 60 * 60)));
+      const daysActive = Math.max(1, totalHoursActive / 24); // Convert hours to days for formula
       
       // Formula parameters
       const L_u = currentValueUSD; // User liquidity amount (USD)
       const L_T = totalActiveLiquidity; // Total pool liquidity (USD)
-      const D_u = daysActive; // Days actively providing liquidity
+      const D_u = daysActive; // Days actively providing liquidity (fractional)
       const P = adminConfig.programDurationDays; // Program duration (days)
       const R_P = adminConfig.dailyBudget; // Daily reward budget allocation
       
@@ -119,7 +126,13 @@ export class FixedRewardService {
       const liquidityRatio = L_u / L_T;
       const timeBoost = 1 + ((D_u / P) * b_time);
       const dailyRewards = liquidityRatio * timeBoost * IRM * FRB * R_P;
-      const accumulatedRewards = dailyRewards * daysActive;
+      
+      // HOURLY EMISSION: Calculate rewards per hour and accumulate based on actual hours
+      const hourlyRewards = dailyRewards / 24; // Convert daily rate to hourly
+      const accumulatedRewards = hourlyRewards * totalHoursActive;
+      
+      // Log hourly emission for transparency
+      console.log(`⏰ HOURLY EMISSION: Position ${nftTokenId} - ${totalHoursActive}h active, ${hourlyRewards.toFixed(4)} KILT/hour, ${accumulatedRewards.toFixed(2)} KILT total`);
 
       // Calculate APR values
       // Get trading APR from DexScreener
@@ -159,7 +172,10 @@ export class FixedRewardService {
         incentiveAPR: Math.max(0, programIncentiveAPR),
         totalAPR: Math.max(0, totalAPR),
         liquidityAmount: currentValueUSD,
-        effectiveAPR: Math.max(0, totalAPR)
+        effectiveAPR: Math.max(0, totalAPR),
+        // Debug info for hourly emission
+        totalHours: totalHoursActive,
+        hourlyRewards: hourlyRewards
       };
 
     } catch (error) {
@@ -171,7 +187,9 @@ export class FixedRewardService {
         incentiveAPR: 0,
         totalAPR: 0,
         liquidityAmount: 0,
-        effectiveAPR: 0
+        effectiveAPR: 0,
+        totalHours: 0,
+        hourlyRewards: 0
       };
     }
   }

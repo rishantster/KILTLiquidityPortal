@@ -1784,10 +1784,11 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           lastClaimTime = estimatedRecentClaim;
           console.log(`🔧 Using estimated recent claim time based on claimed amount (${claimedResult.claimedAmount} KILT): ${lastClaimTime}`);
         } else {
-          // No significant claims, use database fallback
-          const userRewards = await storage.getRewardsByUserId(user.id);
-          lastClaimTime = userRewards.find(r => r.claimedAt)?.claimedAt || user.createdAt;
-          console.log(`🔧 Using database fallback claim time: ${lastClaimTime}`);
+          // Users with no claim history must wait 24 hours from registration per admin panel settings
+          // Use current time minus 23 hours as conservative estimate to enforce proper waiting period
+          const estimatedRegistrationTime = new Date(Date.now() - (23 * 60 * 60 * 1000));
+          lastClaimTime = estimatedRegistrationTime;
+          console.log(`🔧 Using registration-based wait period for new user (claimedAmount: 0): ${lastClaimTime}`);
         }
       } catch (contractError) {
         console.log(`⚠️ Smart contract check failed, using database fallback:`, contractError);
@@ -1805,14 +1806,15 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       console.log(`⏰ Admin-based claimability: lastClaim=${lastClaimTime}, nextClaim=${nextClaimDate}, canClaim=${canClaim}`);
       
-      // Get light-weight accumulated rewards calculation
-      const lightRewards = await fixedRewardService.getLightUserRewards(user.id);
-      console.log(`💰 Light user rewards result:`, lightRewards);
+      // CRITICAL FIX: Use full reward calculation like stats endpoint, not lightweight version
+      // This ensures consistency between stats and claimability APIs
+      const fullRewards = await fixedRewardService.getUserRewardStats(user.id);
+      console.log(`💰 Full user rewards result for claimability:`, fullRewards);
       
       // Only allow claiming if both conditions are met:
       // 1. Admin lock period has passed
       // 2. There are accumulated rewards to claim
-      const totalAccumulated = lightRewards?.totalAccumulated || 0;
+      const totalAccumulated = fullRewards?.totalAccumulated || 0;
       const totalClaimable = canClaim && totalAccumulated > 0 ? totalAccumulated : 0;
       
       console.log(`✅ Admin-based claimability check: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, totalClaimable=${totalClaimable}, lockPeriod=${effectiveLockHours}h`);

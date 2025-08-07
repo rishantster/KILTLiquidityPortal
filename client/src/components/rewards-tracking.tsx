@@ -358,14 +358,14 @@ export function RewardsTracking() {
             </div>
             <div className="text-xs text-white/60 mb-1">
               {(rewardStats?.totalClaimable || 0) > 0 
-                ? 'Ready to claim'
+                ? 'Available now'
                 : (rewardStats?.totalAccumulated || 0) > 0
                   ? claimability?.canClaim 
-                    ? 'Ready to claim'
+                    ? 'Available now'
                     : claimability?.daysRemaining 
-                      ? `Locked for ${claimability.daysRemaining} more days`
-                      : 'Processing availability...'
-                  : 'No rewards yet'
+                      ? `Available in ${claimability.daysRemaining} days`
+                      : 'Checking availability...'
+                  : 'Start earning rewards'
               }
             </div>
             <div className="flex items-center justify-between">
@@ -373,8 +373,8 @@ export function RewardsTracking() {
                 {(rewardStats?.totalClaimable || 0) > 0 
                   ? `≈ $${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
                   : (rewardStats?.totalAccumulated || 0) > 0
-                    ? `${(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT awaiting release`
-                    : 'Start earning rewards'
+                    ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                    : 'Connect positions to earn'
                 }
               </div>
               {(rewardStats?.totalAccumulated || 0) > 0 && (rewardStats?.totalClaimable || 0) === 0 && claimability && (
@@ -382,10 +382,10 @@ export function RewardsTracking() {
                   <Clock className="h-3 w-3" />
                   <span className="font-mono">
                     {claimability.canClaim 
-                      ? 'Available now' 
+                      ? 'Ready now' 
                       : claimability.daysRemaining 
-                        ? `${claimability.daysRemaining}d remaining`
-                        : getTimeUntilClaimable() || 'Processing...'
+                        ? `${claimability.daysRemaining}d left`
+                        : getTimeUntilClaimable() || 'Loading...'
                     }
                   </span>
                 </div>

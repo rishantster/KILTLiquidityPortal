@@ -363,8 +363,9 @@ export class SmartContractService {
         return { success: false, error: 'Smart contracts not deployed or wallet not initialized' };
       }
 
-      // Get user's current nonce from the simplified contract
-      const userNonce = await this.rewardPoolContract.getUserNonce(userAddress);
+      // Get user's current nonce from the contract's nonces mapping
+      const userNonce = await this.rewardPoolContract.nonces(userAddress);
+      console.log(`🔐 User nonce from contract.nonces(): ${userNonce}`);
       
       // Get absolute maximum claim limit (100,000 KILT for simplified contract)
       const absoluteMaxClaim = await this.rewardPoolContract.getAbsoluteMaxClaim();
@@ -381,45 +382,21 @@ export class SmartContractService {
       // Convert amount to wei
       const amountWei = ethers.parseUnits(amount.toString(), 18);
       
-      // Create message hash - testing multiple formats to match contract expectations
-      console.log(`🔐 Testing message hash formats for contract compatibility...`);
+      // Create the exact message hash that the contract expects
+      // Based on the contract's verification logic
+      console.log(`🔐 Creating message hash for contract verification...`);
       
-      // Format 1: Standard solidityPackedKeccak256 [address, uint256, uint256]
-      const messageHash1 = ethers.solidityPackedKeccak256(
+      const messageHash = ethers.solidityPackedKeccak256(
         ['address', 'uint256', 'uint256'],
         [userAddress, amountWei, userNonce]
       );
       
-      // Format 2: Ethereum signed message format (what MetaMask typically expects)
-      const messageText = `${userAddress}${amountWei.toString()}${userNonce}`;
-      const messageHash2 = ethers.hashMessage(messageText);
+      console.log(`🔐 Message components: user=${userAddress}, amount=${amountWei}, nonce=${userNonce}`);
+      console.log(`🔐 Packed message hash: ${messageHash}`);
       
-      // Format 3: Raw keccak256 without packing
-      const messageHash3 = ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(
-          ['address', 'uint256', 'uint256'],
-          [userAddress, amountWei, userNonce]
-        )
-      );
-      
-      // Format 4: Different parameter order
-      const messageHash4 = ethers.solidityPackedKeccak256(
-        ['uint256', 'address', 'uint256'],
-        [amountWei, userAddress, userNonce]
-      );
-      
-      console.log(`🔐 Hash Format 1 (packed): ${messageHash1}`);
-      console.log(`🔐 Hash Format 2 (signed message): ${messageHash2}`);
-      console.log(`🔐 Hash Format 3 (abi encoded): ${messageHash3}`);
-      console.log(`🔐 Hash Format 4 (reordered): ${messageHash4}`);
-      
-      // Try format 1 first (direct keccak256 of packed data - most common for contracts)
-      const messageHash = messageHash1;
-      
-      // Sign the message hash directly (not as an Ethereum signed message)
-      // This creates a raw signature that contracts typically expect
+      // Sign the hash directly (this creates a recoverable signature)
       const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));
-      console.log(`🔐 Signed hash directly: ${messageHash}`);
+      console.log(`🔐 Generated signature: ${signature}`);
       
       // Check if calculator is authorized before signing
       const calculatorAddress = this.wallet.address;

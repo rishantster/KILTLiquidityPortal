@@ -514,18 +514,18 @@ export function RewardsTracking() {
                 <Progress value={programAnalytics?.treasuryTotal ? ((programAnalytics.treasuryTotal - (programAnalytics.treasuryRemaining || 0)) / programAnalytics.treasuryTotal * 100) : 0} className="h-2 rounded-full" />
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Distributed:</span>
-                  <span className="text-white">{programAnalytics?.treasuryTotal ? (programAnalytics.treasuryTotal - (programAnalytics.treasuryRemaining || 0)).toLocaleString() : '...'} KILT</span>
+                  <span className="text-white">{programAnalytics?.treasuryTotal && programAnalytics?.treasuryRemaining !== undefined ? (programAnalytics.treasuryTotal - programAnalytics.treasuryRemaining).toLocaleString() : '0'} KILT</span>
                 </div>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Program Duration:</span>
-                  <span className="text-white">{programAnalytics?.programDuration || 365} days</span>
+                  <span className="text-white">{programAnalytics?.programDuration || 60} days</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Days Remaining:</span>
-                  <span className="text-white">{programAnalytics?.programDaysRemaining || 365} days</span>
+                  <span className="text-white">{programAnalytics?.daysRemaining || 57} days</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Treasury Value:</span>

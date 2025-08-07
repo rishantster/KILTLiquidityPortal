@@ -1593,13 +1593,12 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       const analyticsData = {
         ...analytics,
-        treasuryTotal: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : analytics.treasuryTotal,
-        dailyBudget: treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : analytics.dailyBudget,
-        programDuration: treasuryConf?.programDurationDays || analytics.programDuration,
-        daysRemaining: daysRemaining,
-        treasuryRemaining: treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analytics.totalDistributed || 0) : analytics.treasuryRemaining,
-        averageAPR: analytics.averageAPR,
-        estimatedAPR: analytics.estimatedAPR
+        dailyBudget: treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : 25000,
+        // Use analytics data that now includes smart contract distributed information
+        treasuryTotal: analytics.treasuryTotal || (treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : 1500000),
+        treasuryRemaining: analytics.treasuryRemaining || (treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analytics.totalDistributed || 0) : 1499290),
+        programDuration: analytics.programDuration || (treasuryConf?.programDurationDays || 60),
+        daysRemaining: analytics.daysRemaining !== undefined ? analytics.daysRemaining : daysRemaining
       };
       
       res.setHeader('X-Source', 'fixed-reward-service');

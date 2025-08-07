@@ -29,10 +29,30 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
         
         {/* Dynamic energy rings with fingerprint patterns */}
         <div className="absolute -inset-2 energy-ring-1">
-          <div className="fingerprint-pattern-1"></div>
+          <svg className="fingerprint-svg-1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20,50 Q30,30 50,35 Q70,40 80,50 Q70,60 50,65 Q30,70 20,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.3)" strokeWidth="0.5"/>
+            <path d="M25,50 Q32,35 50,38 Q68,42 75,50 Q68,58 50,62 Q32,65 25,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.25)" strokeWidth="0.4"/>
+            <path d="M30,50 Q35,40 50,42 Q65,45 70,50 Q65,55 50,58 Q35,60 30,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.2)" strokeWidth="0.3"/>
+            <path d="M35,50 Q40,45 50,46 Q60,48 65,50 Q60,52 50,54 Q40,55 35,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.15)" strokeWidth="0.2"/>
+          </svg>
         </div>
         <div className="absolute -inset-3 energy-ring-2">
-          <div className="fingerprint-pattern-2"></div>
+          <svg className="fingerprint-svg-2" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15,50 Q25,25 50,30 Q75,35 85,50 Q75,65 50,70 Q25,75 15,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.2)" strokeWidth="0.4"/>
+            <path d="M20,50 Q28,32 50,35 Q72,38 80,50 Q72,62 50,65 Q28,68 20,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.18)" strokeWidth="0.3"/>
+            <path d="M25,50 Q32,38 50,40 Q68,42 75,50 Q68,58 50,60 Q32,62 25,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.15)" strokeWidth="0.25"/>
+            <path d="M30,50 Q36,42 50,44 Q64,46 70,50 Q64,54 50,56 Q36,58 30,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.12)" strokeWidth="0.2"/>
+            <path d="M40,50 Q44,46 50,47 Q56,48 60,50 Q56,52 50,53 Q44,54 40,50" 
+                  fill="none" stroke="rgba(255, 0, 102, 0.1)" strokeWidth="0.15"/>
+          </svg>
         </div>
         
         {/* Pulse effect */}
@@ -71,36 +91,15 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           position: relative;
         }
 
-        .fingerprint-pattern-1 {
+        .fingerprint-svg-1 {
           position: absolute;
           inset: 0;
+          width: 100%;
+          height: 100%;
           border-radius: 50%;
-          background-image: 
-            /* Outer whorl */
-            conic-gradient(from 0deg at 50% 50%, 
-              transparent 0deg, rgba(255, 0, 102, 0.1) 10deg, transparent 20deg,
-              transparent 30deg, rgba(255, 0, 102, 0.08) 40deg, transparent 50deg,
-              transparent 60deg, rgba(255, 0, 102, 0.1) 70deg, transparent 80deg,
-              transparent 90deg, rgba(255, 0, 102, 0.06) 100deg, transparent 110deg,
-              transparent 120deg, rgba(255, 0, 102, 0.08) 130deg, transparent 140deg,
-              transparent 150deg, rgba(255, 0, 102, 0.1) 160deg, transparent 170deg,
-              transparent 180deg, rgba(255, 0, 102, 0.07) 190deg, transparent 200deg,
-              transparent 210deg, rgba(255, 0, 102, 0.09) 220deg, transparent 230deg,
-              transparent 240deg, rgba(255, 0, 102, 0.06) 250deg, transparent 260deg,
-              transparent 270deg, rgba(255, 0, 102, 0.08) 280deg, transparent 290deg,
-              transparent 300deg, rgba(255, 0, 102, 0.1) 310deg, transparent 320deg,
-              transparent 330deg, rgba(255, 0, 102, 0.05) 340deg, transparent 350deg
-            ),
-            /* Inner ridge pattern */
-            radial-gradient(ellipse 80% 60% at 45% 55%, 
-              transparent 25%, rgba(255, 0, 102, 0.06) 26%, transparent 28%,
-              transparent 35%, rgba(255, 0, 102, 0.04) 36%, transparent 38%,
-              transparent 45%, rgba(255, 0, 102, 0.05) 46%, transparent 48%,
-              transparent 55%, rgba(255, 0, 102, 0.03) 56%, transparent 58%
-            );
           animation: fingerprint-scan-1 6s ease-in-out infinite;
           opacity: 0.8;
-          mask: radial-gradient(circle at center, black 0%, black 85%, transparent 100%);
+          overflow: hidden;
         }
 
         .energy-ring-2 {
@@ -114,35 +113,15 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           position: relative;
         }
 
-        .fingerprint-pattern-2 {
+        .fingerprint-svg-2 {
           position: absolute;
           inset: 0;
+          width: 100%;
+          height: 100%;
           border-radius: 50%;
-          background-image: 
-            /* Spiral fingerprint ridges */
-            conic-gradient(from 45deg at 60% 40%, 
-              transparent 0deg, rgba(255, 0, 102, 0.05) 15deg, transparent 30deg,
-              transparent 45deg, rgba(255, 0, 102, 0.04) 60deg, transparent 75deg,
-              transparent 90deg, rgba(255, 0, 102, 0.06) 105deg, transparent 120deg,
-              transparent 135deg, rgba(255, 0, 102, 0.03) 150deg, transparent 165deg,
-              transparent 180deg, rgba(255, 0, 102, 0.05) 195deg, transparent 210deg,
-              transparent 225deg, rgba(255, 0, 102, 0.04) 240deg, transparent 255deg,
-              transparent 270deg, rgba(255, 0, 102, 0.06) 285deg, transparent 300deg,
-              transparent 315deg, rgba(255, 0, 102, 0.03) 330deg, transparent 345deg
-            ),
-            /* Arc patterns like real fingerprints */
-            radial-gradient(ellipse 70% 40% at 30% 70%, 
-              transparent 20%, rgba(255, 0, 102, 0.04) 21%, transparent 23%,
-              transparent 30%, rgba(255, 0, 102, 0.03) 31%, transparent 33%,
-              transparent 40%, rgba(255, 0, 102, 0.05) 41%, transparent 43%
-            ),
-            radial-gradient(ellipse 60% 50% at 70% 30%, 
-              transparent 25%, rgba(255, 0, 102, 0.03) 26%, transparent 28%,
-              transparent 35%, rgba(255, 0, 102, 0.04) 36%, transparent 38%
-            );
           animation: fingerprint-scan-2 8s ease-in-out infinite reverse;
           opacity: 0.6;
-          mask: radial-gradient(circle at center, black 0%, black 90%, transparent 100%);
+          overflow: hidden;
         }
 
         .pulse-effect {
@@ -237,11 +216,11 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           opacity: 0.8;
         }
 
-        .modern-logo-container:hover .fingerprint-pattern-1 {
+        .modern-logo-container:hover .fingerprint-svg-1 {
           animation: fingerprint-scan-1 2s ease-in-out infinite;
         }
 
-        .modern-logo-container:hover .fingerprint-pattern-2 {
+        .modern-logo-container:hover .fingerprint-svg-2 {
           animation: fingerprint-scan-2 3s ease-in-out infinite reverse;
         }
 

@@ -46,8 +46,8 @@ const REWARD_POOL_ABI = [
   'function activatePendingCalculator(address calculator) external',
   'function setCalculatorAuthorization(address calculator, bool authorized) external',
   
-  // Simplified claiming - matches app's single-click claiming
-  'function claimRewards(uint256 totalRewardBalance, bytes calldata signature) external',
+  // User claiming with signature verification
+  'function claimRewards(address user, uint256 amount, uint256 nonce, bytes calldata signature) external',
   'function emergencyClaim(address user, uint256 totalRewardBalance) external',
   
   // Security view functions

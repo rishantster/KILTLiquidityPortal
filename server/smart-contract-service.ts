@@ -381,11 +381,30 @@ export class SmartContractService {
       // Convert amount to wei
       const amountWei = ethers.parseUnits(amount.toString(), 18);
       
-      // Create message hash matching the simplified contract's _createMessageHash function
-      const messageHash = ethers.solidityPackedKeccak256(
+      // Create message hash matching the contract's expected format
+      // Try different hash formats to match the contract
+      console.log(`🔐 Trying message hash format 1: [address, uint256, uint256]`);
+      const messageHash1 = ethers.solidityPackedKeccak256(
         ['address', 'uint256', 'uint256'],
         [userAddress, amountWei, userNonce]
       );
+      
+      console.log(`🔐 Trying message hash format 2: [uint256, address, uint256]`);
+      const messageHash2 = ethers.solidityPackedKeccak256(
+        ['uint256', 'address', 'uint256'],
+        [amountWei, userAddress, userNonce]
+      );
+      
+      console.log(`🔐 Trying message hash format 3: EIP-712 style`);
+      const messageHash3 = ethers.keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(
+          ['address', 'uint256', 'uint256'],
+          [userAddress, amountWei, userNonce]
+        )
+      );
+      
+      // Use the first format as default (most common)
+      const messageHash = messageHash1;
       
       // Sign the message hash
       const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));

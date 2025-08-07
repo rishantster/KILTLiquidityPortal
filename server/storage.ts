@@ -48,6 +48,11 @@ export interface IStorage {
   // Pool Stats methods
   getPoolStats(poolAddress: string): Promise<PoolStats | undefined>;
   updatePoolStats(poolAddress: string, stats: InsertPoolStats): Promise<PoolStats>;
+  
+  // Missing methods for deployment health checks
+  getAllRewards(): Promise<Reward[]>;
+  getTreasuryConfig(): Promise<any>;
+  getProgramSettings(): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -301,6 +306,26 @@ export class MemStorage implements IStorage {
     this.poolStats.set(poolAddress, poolStat);
     return poolStat;
   }
+
+  async getAllRewards(): Promise<Reward[]> {
+    return Array.from(this.rewards.values());
+  }
+
+  async getTreasuryConfig(): Promise<any> {
+    return {
+      totalAllocation: 1500000,
+      dailyBudget: 25000,
+      smartContractAddress: '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175'
+    };
+  }
+
+  async getProgramSettings(): Promise<any> {
+    return {
+      timeBoostCoefficient: 1.5,
+      inRangeMultiplier: 2.0,
+      fullRangeBonus: 1.25
+    };
+  }
 }
 
 // Database storage implementation using Drizzle ORM
@@ -369,14 +394,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createReward(insertReward: InsertReward): Promise<Reward> {
-    // Ensure all required fields are present
+    // Ensure all required fields are present - cast to any to handle missing optional fields
+    const anyReward = insertReward as any;
     const completeReward = {
       ...insertReward,
-      amount: insertReward.amount || (insertReward as any).dailyRewardAmount || '0',
-      lockPeriodDays: insertReward.lockPeriodDays || 7,
-      claimedAmount: insertReward.claimedAmount || '0',
-      isEligibleForClaim: insertReward.isEligibleForClaim || false,
-      lastRewardCalculation: insertReward.lastRewardCalculation || new Date(),
+      amount: anyReward.amount || anyReward.dailyRewardAmount || '0',
+      lockPeriodDays: anyReward.lockPeriodDays || 7,
+      claimedAmount: anyReward.claimedAmount || '0',
+      isEligibleForClaim: anyReward.isEligibleForClaim || false,
+      lastRewardCalculation: anyReward.lastRewardCalculation || new Date(),
     };
     const result = await db.insert(rewards).values(completeReward).returning();
     return result[0];
@@ -469,6 +495,30 @@ export class DatabaseStorage implements IStorage {
       console.error(`Failed to delete position ${tokenId}:`, error);
       return false;
     }
+  }
+
+  async getAllRewards(): Promise<Reward[]> {
+    return await db.select().from(rewards);
+  }
+
+  async getTreasuryConfig(): Promise<any> {
+    const { treasuryConfig } = await import('@shared/schema');
+    const result = await db.select().from(treasuryConfig).limit(1);
+    return result[0] || {
+      totalAllocation: 1500000,
+      dailyBudget: 25000,
+      smartContractAddress: '0x09bcB93e7E2FF067232d83f5e7a7E8360A458175'
+    };
+  }
+
+  async getProgramSettings(): Promise<any> {
+    const { programSettings } = await import('@shared/schema');
+    const result = await db.select().from(programSettings).limit(1);
+    return result[0] || {
+      timeBoostCoefficient: 1.5,
+      inRangeMultiplier: 2.0,
+      fullRangeBonus: 1.25
+    };
   }
 }
 

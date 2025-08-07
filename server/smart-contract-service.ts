@@ -381,21 +381,20 @@ export class SmartContractService {
       // Convert amount to wei
       const amountWei = ethers.parseUnits(amount.toString(), 18);
       
-      // Create message hash matching the contract's expected format
-      // Try different hash formats to match the contract
-      console.log(`🔐 Trying message hash format 1: [address, uint256, uint256]`);
+      // Create message hash - testing multiple formats to match contract expectations
+      console.log(`🔐 Testing message hash formats for contract compatibility...`);
+      
+      // Format 1: Standard solidityPackedKeccak256 [address, uint256, uint256]
       const messageHash1 = ethers.solidityPackedKeccak256(
         ['address', 'uint256', 'uint256'],
         [userAddress, amountWei, userNonce]
       );
       
-      console.log(`🔐 Trying message hash format 2: [uint256, address, uint256]`);
-      const messageHash2 = ethers.solidityPackedKeccak256(
-        ['uint256', 'address', 'uint256'],
-        [amountWei, userAddress, userNonce]
-      );
+      // Format 2: Ethereum signed message format (what MetaMask typically expects)
+      const messageText = `${userAddress}${amountWei.toString()}${userNonce}`;
+      const messageHash2 = ethers.hashMessage(messageText);
       
-      console.log(`🔐 Trying message hash format 3: EIP-712 style`);
+      // Format 3: Raw keccak256 without packing
       const messageHash3 = ethers.keccak256(
         ethers.AbiCoder.defaultAbiCoder().encode(
           ['address', 'uint256', 'uint256'],
@@ -403,11 +402,24 @@ export class SmartContractService {
         )
       );
       
-      // Use the first format as default (most common)
+      // Format 4: Different parameter order
+      const messageHash4 = ethers.solidityPackedKeccak256(
+        ['uint256', 'address', 'uint256'],
+        [amountWei, userAddress, userNonce]
+      );
+      
+      console.log(`🔐 Hash Format 1 (packed): ${messageHash1}`);
+      console.log(`🔐 Hash Format 2 (signed message): ${messageHash2}`);
+      console.log(`🔐 Hash Format 3 (abi encoded): ${messageHash3}`);
+      console.log(`🔐 Hash Format 4 (reordered): ${messageHash4}`);
+      
+      // Try format 1 first (direct keccak256 of packed data - most common for contracts)
       const messageHash = messageHash1;
       
-      // Sign the message hash
+      // Sign the message hash directly (not as an Ethereum signed message)
+      // This creates a raw signature that contracts typically expect
       const signature = await this.wallet.signMessage(ethers.getBytes(messageHash));
+      console.log(`🔐 Signed hash directly: ${messageHash}`);
       
       // Check if calculator is authorized before signing
       const calculatorAddress = this.wallet.address;

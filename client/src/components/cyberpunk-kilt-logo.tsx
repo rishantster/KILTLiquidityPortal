@@ -37,7 +37,7 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
 
       <style>{`
         .modern-logo-container {
-          filter: drop-shadow(0 0 15px rgba(219, 70, 139, 0.4));
+          filter: drop-shadow(0 0 15px rgba(255, 0, 102, 0.4));
           overflow: hidden;
         }
 
@@ -47,10 +47,10 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
         }
 
         .particles-bg {
-          background-image: radial-gradient(2px 2px at 20px 30px, rgba(219, 70, 139, 0.4), transparent),
-                            radial-gradient(2px 2px at 40px 70px, rgba(219, 70, 139, 0.3), transparent),
-                            radial-gradient(1px 1px at 90px 40px, rgba(219, 70, 139, 0.5), transparent),
-                            radial-gradient(1px 1px at 130px 80px, rgba(219, 70, 139, 0.3), transparent);
+          background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 0, 102, 0.4), transparent),
+                            radial-gradient(2px 2px at 40px 70px, rgba(255, 0, 102, 0.3), transparent),
+                            radial-gradient(1px 1px at 90px 40px, rgba(255, 0, 102, 0.5), transparent),
+                            radial-gradient(1px 1px at 130px 80px, rgba(255, 0, 102, 0.3), transparent);
           background-size: 200px 200px;
           animation: modern-particles 15s linear infinite;
           opacity: 0.6;
@@ -59,7 +59,7 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
         .energy-ring-1 {
           border: 2px solid transparent;
           border-radius: 50%;
-          background: conic-gradient(from 0deg, transparent, #db468b, transparent, #db468b, transparent) border-box;
+          background: conic-gradient(from 0deg, transparent, #ff0066, transparent, #ff0066, transparent) border-box;
           mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
           mask-composite: exclude;
           animation: modern-spin 4s linear infinite;
@@ -69,7 +69,7 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
         .energy-ring-2 {
           border: 1px solid transparent;
           border-radius: 50%;
-          background: conic-gradient(from 180deg, transparent, #db468b, transparent) border-box;
+          background: conic-gradient(from 180deg, transparent, #ff0066, transparent) border-box;
           mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
           mask-composite: exclude;
           animation: modern-spin-reverse 6s linear infinite;
@@ -77,7 +77,7 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
         }
 
         .pulse-effect {
-          background: radial-gradient(circle, rgba(219, 70, 139, 0.1) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(255, 0, 102, 0.1) 0%, transparent 70%);
           animation: modern-pulse 2s ease-in-out infinite;
           border-radius: 50%;
         }
@@ -138,7 +138,7 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
         /* Mobile optimization */
         @media (max-width: 768px) {
           .modern-logo-container {
-            filter: drop-shadow(0 0 8px rgba(219, 70, 139, 0.3));
+            filter: drop-shadow(0 0 8px rgba(255, 0, 102, 0.3));
           }
           
           .energy-ring-1, .energy-ring-2 {

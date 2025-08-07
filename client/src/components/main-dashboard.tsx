@@ -767,50 +767,48 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Two Column Layout - Fixed Mobile Responsive */}
-            <div className="mobile-two-column-fix lg:grid lg:grid-cols-2 lg:gap-6">
+            {/* Two Column Layout - Desktop Optimized */}
+            <div className="grid lg:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
-              <div className="mobile-column mb-6 lg:mb-0">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
-                  <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
-                  <span className="hidden sm:inline">Register Existing Positions</span>
-                  <span className="sm:hidden mobile-responsive-text">Register Positions</span>
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
+                  <Plus className="h-5 w-5" style={{ color: '#ff0066' }} />
+                  Register Existing Positions
                 </h2>
-                <div className="h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col">
+                <div className="h-[520px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="mobile-column">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
-                  <Zap className="h-4 w-4" style={{ color: '#ff0066' }} />
-                  <span className="hidden sm:inline">Quick Add Liquidity</span>
-                  <span className="sm:hidden mobile-responsive-text">Add Liquidity</span>
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
+                  <Zap className="h-5 w-5" style={{ color: '#ff0066' }} />
+                  Quick Add Liquidity
                 </h2>
-                <Card className="mobile-card-fix bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
-                  <CardContent className="mobile-card-content p-3 sm:p-4 flex-1 flex flex-col overflow-hidden">
+                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[520px] flex flex-col overflow-hidden cluely-card">
+                  <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
                     <div className="space-y-4 flex-1">
                       {/* Balance Display */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 sm:p-3 cluely-card">
-                        <h4 className="text-white font-bold text-sm sm:text-base mb-2 sm:mb-3">Wallet Balance</h4>
-                        <div className="mobile-balance-grid gap-2 sm:gap-3">
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
+                        <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
+                        <div className="grid grid-cols-1 gap-3">
                           {/* KILT Balance Card */}
-                          <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex items-center gap-3">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                               <img 
                                 src={kiltLogo} 
                                 alt="KILT" 
-                                className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5"
+                                className="w-5 h-5"
                                 style={{ 
                                   filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
                                 }}
                               />
                             </div>
-                            <div className="mobile-balance-content flex-1 min-w-0">
-                              <div className="mobile-balance-label text-white text-xs font-medium">KILT</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-white text-sm font-medium">KILT</div>
                               <div 
-                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                                className="text-[#ff0066] font-bold text-sm numeric-display" 
                                 style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
                                 title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
                               >
@@ -824,9 +822,9 @@ export function MainDashboard() {
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex items-center gap-3">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                 <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                 <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
                                 <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
@@ -835,10 +833,10 @@ export function MainDashboard() {
                                 <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
                               </svg>
                             </div>
-                            <div className="mobile-balance-content flex-1 min-w-0">
-                              <div className="mobile-balance-label text-white text-xs font-medium">ETH</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-white text-sm font-medium">ETH</div>
                               <div 
-                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                                className="text-[#ff0066] font-bold text-sm numeric-display" 
                                 style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
                                 title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
                               >

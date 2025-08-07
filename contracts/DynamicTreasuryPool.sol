@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
@@ -12,15 +13,18 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * - Nonce-based replay protection
  * - Absolute maximum claim limits to prevent treasury drainage
  * - Time-delayed calculator authorization
+ * - Signature malleability protection
+ * - Overflow protection
  * Rewards are calculated in real-time based on liquidity positions and can be claimed instantly.
  */
 contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
+    using SafeERC20 for IERC20;
     IERC20 public immutable kiltToken;
     
     // Calculator authorization with time delays
     mapping(address => bool) public authorizedCalculators;
     mapping(address => uint256) public pendingCalculatorActivation;
-    uint256 public constant CALCULATOR_ACTIVATION_DELAY = 24 hours;
+    uint256 public constant CALCULATOR_ACTIVATION_DELAY = 1 hours; // Configurable delay for calculator authorization
     
     // Nonce-based replay protection
     mapping(address => uint256) public nonces;
@@ -36,6 +40,9 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     uint256 public totalClaimsProcessed;
     uint256 public totalAmountClaimed;
     
+    // Constants for signature validation
+    uint256 private constant SIGNATURE_MALLEABILITY_THRESHOLD = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0;
+    
     // Events
     event RewardClaimed(address indexed user, uint256 amount, uint256 claimedAmount, uint256 nonce, uint256 timestamp);
     event CalculatorAuthorized(address indexed calculator, bool authorized);
@@ -43,6 +50,14 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     event TreasuryDeposit(uint256 amount);
     event TreasuryWithdraw(uint256 amount);
     event ClaimLimitsUpdated(uint256 absoluteMax);
+    event ContractPaused();
+    event ContractUnpaused();
+    
+    // Modifiers
+    modifier validAddress(address addr) {
+        require(addr != address(0), "Invalid address");
+        _;
+    }
     
     constructor(
         address _kiltToken,
@@ -57,8 +72,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     /**
      * @dev Set pending calculator authorization with 24-hour time delay (security measure)
      */
-    function setPendingCalculatorAuthorization(address calculator) external onlyOwner {
-        require(calculator != address(0), "Invalid calculator address");
+    function setPendingCalculatorAuthorization(address calculator) external onlyOwner validAddress(calculator) {
         require(!authorizedCalculators[calculator], "Calculator already authorized");
         
         uint256 activationTime = block.timestamp + CALCULATOR_ACTIVATION_DELAY;
@@ -70,8 +84,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     /**
      * @dev Activate pending calculator after delay period
      */
-    function activatePendingCalculator(address calculator) external onlyOwner {
-        require(calculator != address(0), "Invalid calculator address");
+    function activatePendingCalculator(address calculator) external onlyOwner validAddress(calculator) {
         require(pendingCalculatorActivation[calculator] != 0, "No pending authorization");
         require(block.timestamp >= pendingCalculatorActivation[calculator], "Activation delay not met");
         
@@ -84,9 +97,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     /**
      * @dev Immediately revoke calculator authorization (security measure)
      */
-    function revokeCalculatorAuthorization(address calculator) external onlyOwner {
-        require(calculator != address(0), "Invalid calculator address");
-        
+    function revokeCalculatorAuthorization(address calculator) external onlyOwner validAddress(calculator) {
         authorizedCalculators[calculator] = false;
         delete pendingCalculatorActivation[calculator];
         
@@ -129,26 +140,30 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         uint256 contractBalance = kiltToken.balanceOf(address(this));
         require(contractBalance >= totalRewardBalance, "Insufficient contract balance");
         
-        // Update state before transfer (CEI pattern) - increment nonce for replay protection
-        unchecked {
-            claimedAmount[msg.sender] += totalRewardBalance;
-            totalClaimsProcessed += 1;
-            totalAmountClaimed += totalRewardBalance;
-            nonces[msg.sender] += 1; // Prevent replay attacks
-        }
+        // Check for overflow before updating state
+        require(claimedAmount[msg.sender] <= type(uint256).max - totalRewardBalance, "Claimed amount overflow");
+        require(totalAmountClaimed <= type(uint256).max - totalRewardBalance, "Total amount overflow");
+        require(nonces[msg.sender] < type(uint256).max, "Nonce overflow");
+        require(totalClaimsProcessed < type(uint256).max, "Claims processed overflow");
+        
+        // Update state before transfer (CEI pattern)
+        claimedAmount[msg.sender] += totalRewardBalance;
+        totalClaimsProcessed += 1;
+        totalAmountClaimed += totalRewardBalance;
+        uint256 currentNonce = nonces[msg.sender];
+        nonces[msg.sender] += 1; // Prevent replay attacks
         lastClaimTime[msg.sender] = block.timestamp;
         
-        // Transfer KILT tokens to user
-        require(kiltToken.transfer(msg.sender, totalRewardBalance), "Token transfer failed");
+        // Transfer KILT tokens to user using SafeERC20
+        kiltToken.safeTransfer(msg.sender, totalRewardBalance);
         
-        emit RewardClaimed(msg.sender, totalRewardBalance, claimedAmount[msg.sender], nonces[msg.sender] - 1, block.timestamp);
+        emit RewardClaimed(msg.sender, totalRewardBalance, claimedAmount[msg.sender], currentNonce, block.timestamp);
     }
     
     /**
      * @dev Emergency claim function for owner - claims user's full reward balance
      */
-    function emergencyClaim(address user, uint256 totalRewardBalance) external onlyOwner {
-        require(user != address(0), "Invalid user address");
+    function emergencyClaim(address user, uint256 totalRewardBalance) external onlyOwner validAddress(user) {
         require(totalRewardBalance > 0, "No rewards to claim");
         
         // Apply same absolute limit as regular claims
@@ -157,23 +172,28 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         uint256 contractBalance = kiltToken.balanceOf(address(this));
         require(contractBalance >= totalRewardBalance, "Insufficient contract balance");
         
-        // Update state before transfer - increment nonce for consistency
-        unchecked {
-            claimedAmount[user] += totalRewardBalance;
-            totalClaimsProcessed += 1;
-            totalAmountClaimed += totalRewardBalance;
-            nonces[user] += 1;
-        }
+        // Check for overflow before updating state
+        require(claimedAmount[user] <= type(uint256).max - totalRewardBalance, "Claimed amount overflow");
+        require(totalAmountClaimed <= type(uint256).max - totalRewardBalance, "Total amount overflow");
+        require(nonces[user] < type(uint256).max, "Nonce overflow");
+        require(totalClaimsProcessed < type(uint256).max, "Claims processed overflow");
+        
+        // Update state before transfer
+        claimedAmount[user] += totalRewardBalance;
+        totalClaimsProcessed += 1;
+        totalAmountClaimed += totalRewardBalance;
+        uint256 currentNonce = nonces[user];
+        nonces[user] += 1;
         lastClaimTime[user] = block.timestamp;
         
-        // Transfer KILT tokens to user
-        require(kiltToken.transfer(user, totalRewardBalance), "Token transfer failed");
+        // Transfer KILT tokens to user using SafeERC20
+        kiltToken.safeTransfer(user, totalRewardBalance);
         
-        emit RewardClaimed(user, totalRewardBalance, claimedAmount[user], nonces[user] - 1, block.timestamp);
+        emit RewardClaimed(user, totalRewardBalance, claimedAmount[user], currentNonce, block.timestamp);
     }
 
     // View functions that match your app's API patterns
-    function getUserStats(address user) external view returns (
+    function getUserStats(address user) external view validAddress(user) returns (
         uint256 claimed,
         uint256 lastClaim,
         uint256 canClaimAt,
@@ -185,11 +205,11 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         currentNonce = nonces[user];
     }
     
-    function getClaimedAmount(address user) external view returns (uint256) {
+    function getClaimedAmount(address user) external view validAddress(user) returns (uint256) {
         return claimedAmount[user];
     }
     
-    function getUserNonce(address user) external view returns (uint256) {
+    function getUserNonce(address user) external view validAddress(user) returns (uint256) {
         return nonces[user];
     }
     
@@ -197,8 +217,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         return absoluteMaxClaim;
     }
     
-    function canUserClaim(address user, uint256 rewardBalance) external view returns (bool) {
-        // Note: user parameter included for consistency with app API
+    function canUserClaim(address user, uint256 rewardBalance) external view validAddress(user) returns (bool) {
         return rewardBalance <= absoluteMaxClaim && rewardBalance > 0;
     }
     
@@ -209,8 +228,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     function depositTreasury(uint256 amount) external onlyOwner {
         require(amount > 0, "Amount must be greater than 0");
         
-        bool success = kiltToken.transferFrom(msg.sender, address(this), amount);
-        require(success, "Transfer failed");
+        kiltToken.safeTransferFrom(msg.sender, address(this), amount);
         
         emit TreasuryDeposit(amount);
     }
@@ -226,8 +244,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         uint256 withdrawAmount = amount == 0 ? balance : amount;
         require(withdrawAmount <= balance, "Insufficient balance");
         
-        bool success = kiltToken.transfer(owner(), withdrawAmount);
-        require(success, "Transfer failed");
+        kiltToken.safeTransfer(owner(), withdrawAmount);
         
         emit TreasuryWithdraw(withdrawAmount);
     }
@@ -245,13 +262,13 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
      */
     function pause() external onlyOwner {
         _pause();
+        emit ContractPaused();
     }
     
     function unpause() external onlyOwner {
         _unpause();
+        emit ContractUnpaused();
     }
-
-
     
     /**
      * @dev Get contract statistics for monitoring
@@ -266,12 +283,10 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
         totalAmount = totalAmountClaimed;
     }
     
-
-    
     /**
      * @dev Get pending calculator info
      */
-    function getPendingCalculatorInfo(address calculator) external view returns (
+    function getPendingCalculatorInfo(address calculator) external view validAddress(calculator) returns (
         bool isPending,
         uint256 activationTime,
         uint256 remainingDelay
@@ -294,7 +309,7 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
     }
     
     /**
-     * @dev Optimized signature recovery
+     * @dev Optimized signature recovery with malleability protection
      */
     function _recoverSignerOptimized(bytes32 hash, bytes calldata signature) internal pure returns (address) {
         require(signature.length == 65, "Invalid signature length");
@@ -309,6 +324,15 @@ contract DynamicTreasuryPool is Ownable, ReentrancyGuard, Pausable {
             v := byte(0, calldataload(add(signature.offset, 0x40)))
         }
         
-        return ecrecover(hash, v, r, s);
+        // Protect against signature malleability
+        require(uint256(s) <= SIGNATURE_MALLEABILITY_THRESHOLD, "Invalid signature 's' value");
+        
+        // Ensure v is valid
+        require(v == 27 || v == 28, "Invalid signature 'v' value");
+        
+        address signer = ecrecover(hash, v, r, s);
+        require(signer != address(0), "Invalid signature");
+        
+        return signer;
     }
 }

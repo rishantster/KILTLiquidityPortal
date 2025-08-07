@@ -516,11 +516,7 @@
     padding: 0.25rem 0.375rem ;
   }
 
-  /* Responsive text sizing for ultra-small screens */
-  .mobile-responsive-text {
-    font-size: 0.625rem !important;
-    line-height: 1.1 !important;
-  }
+  /* Responsive text sizing for ultra-small screens - Removed mobile-responsive-text to fix navigation tabs */
 
   .mobile-responsive-title {
     font-size: 0.875rem !important;

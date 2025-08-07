@@ -644,31 +644,28 @@ export function MainDashboard() {
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Over...</span>
-              <span className="hidden sm:inline text-sm font-medium truncate">Overview</span>
+              <span className="text-xs sm:text-sm font-medium">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Add...</span>
-              <span className="hidden sm:inline text-sm font-medium truncate">Add Liquidity</span>
+              <span className="text-xs sm:text-sm font-medium">Add Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Award className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Rewards</span>
+              <span className="text-xs sm:text-sm font-medium">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Wallet className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Pos...</span>
-              <span className="hidden sm:inline text-sm font-medium truncate">Positions</span>
+              <span className="text-xs sm:text-sm font-medium">Positions</span>
             </TabsTrigger>
 
           </TabsList>

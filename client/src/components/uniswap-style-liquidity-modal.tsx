@@ -22,6 +22,7 @@ import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useKiltEthConversionRate } from '@/hooks/use-conversion-rate';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
+import { usePositionFees } from '@/hooks/use-position-fees';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatUnits, parseUnits } from 'viem';
@@ -58,6 +59,10 @@ export function UniswapStyleLiquidityModal({
   const { ethBalance, wethBalance, kiltBalance, increaseLiquidity, decreaseLiquidity, collectFees } = useUniswapV3();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Get real-time fees for the position when in collect mode
+  const positionId = position?.tokenId || position?.nftTokenId || position?.id;
+  const { data: positionFees } = usePositionFees(mode === 'collect' ? positionId?.toString() : null);
 
   // Form state
   const [ethAmount, setEthAmount] = useState('');
@@ -603,7 +608,8 @@ export function UniswapStyleLiquidityModal({
                     <span>ETH</span>
                   </div>
                   <span className="font-mono">
-                    {position?.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(6) : '0.000000'}
+                    {positionFees?.token0 ? (parseFloat(positionFees.token0) / 1e18).toFixed(6) : 
+                     position?.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(6) : '0.000000'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -612,12 +618,14 @@ export function UniswapStyleLiquidityModal({
                     <span>KILT</span>
                   </div>
                   <span className="font-mono">
-                    {position?.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toLocaleString() : '0'}
+                    {positionFees?.token1 ? (parseFloat(positionFees.token1) / 1e18).toLocaleString() : 
+                     position?.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toLocaleString() : '0'}
                   </span>
                 </div>
               </div>
               <div className="text-xs text-gray-400">
-                Total value: ~${position?.fees?.usdValue ? position.fees.usdValue.toFixed(2) : '0.00'}
+                Total value: ~${positionFees?.usdValue ? positionFees.usdValue.toFixed(2) : 
+                              position?.fees?.usdValue ? position.fees.usdValue.toFixed(2) : '0.00'}
               </div>
             </div>
           )}

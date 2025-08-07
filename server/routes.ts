@@ -912,22 +912,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       for (const position of unregisteredPositions) {
         try {
-          // Create position data
+          // Create position data with proper string formatting
           const positionData = {
             userId: user.id,
             nftTokenId: position.tokenId,
             poolAddress: position.poolAddress || "0x82Da478b1382B951cBaD01Beb9eD459cDB16458E",
             token0Address: position.token0,
             token1Address: position.token1,
-            token0Amount: "0", // UniswapV3Position doesn't have amount0/amount1 properties
-            token1Amount: "0", // These need to be calculated from position data separately
+            token0Amount: typeof position.token0Amount === 'object' ? "0" : (position.token0Amount?.toString() || "0"),
+            token1Amount: typeof position.token1Amount === 'object' ? "0" : (position.token1Amount?.toString() || "0"),
             minPrice: "0.000001",
             maxPrice: "999999999999",
-            tickLower: position.tickLower || 0,
-            tickUpper: position.tickUpper || 0,
+            tickLower: Number(position.tickLower) || 0,
+            tickUpper: Number(position.tickUpper) || 0,
             liquidity: position.liquidity?.toString() || "0",
-            feeTier: position.fees || 3000, // Correct property name is 'fees'
-            currentValueUSD: (position.currentValueUSD || 0).toString(), // Convert to string as expected by schema
+            feeTier: Number(position.fees || position.feeTier) || 3000,
+            currentValueUSD: typeof position.currentValueUSD === 'number' ? position.currentValueUSD.toString() : 
+                           typeof position.currentValueUSD === 'string' ? position.currentValueUSD : "0",
             isActive: true,
             createdViaApp: false, // External position
             appTransactionHash: `bulk_registration_${position.tokenId}`,

@@ -896,16 +896,26 @@ export function SmartContractPanel() {
         <Card className="bg-black/90 border border-yellow-400 rounded-lg">
           <CardContent className="p-6 text-center">
             <Lock className="h-12 w-12 text-yellow-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-yellow-400 mb-2">Owner Access Required</h3>
-            <p className="text-gray-300">
-              Only the contract owner can manage treasury operations.
+            <h3 className="text-xl font-bold text-yellow-400 mb-2">Smart Contract Owner Access Required</h3>
+            <p className="text-gray-300 mb-4">
+              Treasury operations require the actual smart contract owner wallet, not just admin panel access.
             </p>
-            <div className="mt-4 text-sm text-gray-400">
-              <p>Authorized Admins:</p>
-              {authorizedAdmins.map((admin, index) => (
-                <p key={index} className="font-mono text-xs">• {admin}</p>
-              ))}
-              <p className="mt-2">Your Address: {address}</p>
+            <div className="mt-4 text-sm text-gray-400 space-y-2">
+              <div className="bg-gray-900/50 p-3 rounded border border-red-400/30">
+                <p className="text-red-400 font-semibold">Smart Contract Owner Only:</p>
+                <p className="font-mono text-xs">• 0xAFff1831e663B6F29fb90871Ea8518e8f8B3b71a</p>
+              </div>
+              <div className="bg-gray-900/50 p-3 rounded border border-blue-400/30">
+                <p className="text-blue-400 font-semibold">Admin Panel Access (Non-Owner):</p>
+                <p className="font-mono text-xs">• 0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e</p>
+              </div>
+              <div className="bg-gray-900/50 p-3 rounded border border-green-400/30">
+                <p className="text-green-400 font-semibold">Your Connected Wallet:</p>
+                <p className="font-mono text-xs">• {address}</p>
+              </div>
+              <div className="text-xs text-yellow-400 mt-3 bg-yellow-400/10 p-2 rounded">
+                <strong>Note:</strong> To fund the contract, connect with wallet 0xAFf...71a
+              </div>
             </div>
           </CardContent>
         </Card>

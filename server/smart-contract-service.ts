@@ -405,51 +405,29 @@ export class SmartContractService {
       const amountWei = ethers.parseUnits(amount.toString(), 18);
       console.log('🔐 SERVER LOG 16: Amount in wei:', amountWei.toString());
       
-      console.log('🔐 SERVER LOG 17: Creating EIP-712 domain...');
-      const domain = {
-        name: 'DynamicTreasuryPool',
-        version: '1',
-        chainId: 8453, // Base network
-        verifyingContract: contractAddress
-      };
+      console.log('🔐 SERVER LOG 17: Creating message hash to match contract implementation...');
+      // Match the contract's _createMessageHash function exactly:
+      // keccak256(abi.encodePacked(user, totalRewardBalance, nonce))
+      const innerHash = ethers.solidityPackedKeccak256(
+        ['address', 'uint256', 'uint256'],
+        [userAddress, amountWei, userNonce]
+      );
+      console.log('🔐 SERVER LOG 18: Inner hash (contract format):', innerHash);
       
-      console.log('🔐 SERVER LOG 18: Creating EIP-712 types...');
-      const types = {
-        Claim: [
-          { name: 'user', type: 'address' },
-          { name: 'amount', type: 'uint256' },
-          { name: 'nonce', type: 'uint256' }
-        ]
-      };
+      console.log('🔐 SERVER LOG 19: Wallet address:', this.wallet.address);
+      console.log('🔐 SERVER LOG 20: Signing with Ethereum signed message format (matching contract)...');
+      // The contract applies the Ethereum signed message prefix automatically in _createMessageHash
+      const signature = await this.wallet.signMessage(ethers.getBytes(innerHash));
+      console.log('🔐 SERVER LOG 21: Generated signature:', signature);
+      console.log('🔐 SERVER LOG 22: Signature length:', signature?.length);
+      console.log('🔐 SERVER LOG 23: Signature starts with 0x:', signature?.startsWith('0x'));
       
-      console.log('🔐 SERVER LOG 19: Creating EIP-712 value...');
-      const value = {
-        user: userAddress,
-        amount: amountWei.toString(),
-        nonce: userNonce.toString()
-      };
-      
-      console.log('🔐 SERVER LOG 20: EIP-712 Domain:', JSON.stringify(domain, null, 2));
-      console.log('🔐 SERVER LOG 21: EIP-712 Types:', JSON.stringify(types, null, 2));
-      console.log('🔐 SERVER LOG 22: EIP-712 Value:', JSON.stringify(value, null, 2));
-      
-      console.log('🔐 SERVER LOG 23: Creating typed data hash...');
-      const messageHash = ethers.TypedDataEncoder.hash(domain, types, value);
-      console.log('🔐 SERVER LOG 24: Message hash:', messageHash);
-      
-      console.log('🔐 SERVER LOG 25: Wallet address:', this.wallet.address);
-      console.log('🔐 SERVER LOG 26: Signing with EIP-712 structured data format...');
-      const signature = await this.wallet.signTypedData(domain, types, value);
-      console.log('🔐 SERVER LOG 27: Generated signature:', signature);
-      console.log('🔐 SERVER LOG 28: Signature length:', signature?.length);
-      console.log('🔐 SERVER LOG 29: Signature starts with 0x:', signature?.startsWith('0x'));
-      
-      console.log('🔐 SERVER LOG 30: Checking calculator authorization...');
+      console.log('🔐 SERVER LOG 24: Checking calculator authorization...');
       const calculatorAddress = this.wallet.address;
       const isAuthorized = await this.rewardPoolContract.authorizedCalculators(calculatorAddress);
-      console.log('🔐 SERVER LOG 31: Calculator authorization status:', isAuthorized);
+      console.log('🔐 SERVER LOG 25: Calculator authorization status:', isAuthorized);
       
-      console.log('🔐 SERVER LOG 32: Checking contract balance...');
+      console.log('🔐 SERVER LOG 26: Checking contract balance...');
       let contractBalanceFormatted = 0;
       try {
         const contractBalance = await this.kiltTokenContract?.balanceOf(contractAddress) || 0n;

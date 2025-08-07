@@ -155,7 +155,7 @@ export function RewardsTracking() {
     refetchInterval: 60000 // Check every minute
   });
 
-  // Calculate time until rewards become claimable
+  // Calculate time until rewards become claimable with real-time updates
   const getTimeUntilClaimable = () => {
     if (!claimability?.nextClaimDate) return null;
     
@@ -167,16 +167,31 @@ export function RewardsTracking() {
     
     const hours = Math.floor(timeDiff / (1000 * 60 * 60));
     const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
     
     if (hours > 24) {
       const days = Math.floor(hours / 24);
       return `${days}d ${hours % 24}h`;
     } else if (hours > 0) {
       return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
     } else {
-      return `${minutes}m`;
+      return `${seconds}s`;
     }
   };
+
+  // Update claimability timer more frequently when close
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Force re-render to update timer display
+      if (claimability?.nextClaimDate) {
+        queryClient.invalidateQueries({ queryKey: ['claimability', address] });
+      }
+    }, 30000); // Update every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [claimability?.nextClaimDate, queryClient, address]);
 
   // Get reward history
   const { data: rewardHistory } = useQuery({
@@ -345,17 +360,36 @@ export function RewardsTracking() {
               {(rewardStats?.totalClaimable || 0) > 0 
                 ? 'Ready to claim'
                 : (rewardStats?.totalAccumulated || 0) > 0
-                  ? getTimeUntilClaimable() ? `Available in ${getTimeUntilClaimable()}` : 'Processing availability...'
+                  ? claimability?.canClaim 
+                    ? 'Ready to claim'
+                    : claimability?.daysRemaining 
+                      ? `Locked for ${claimability.daysRemaining} more days`
+                      : 'Processing availability...'
                   : 'No rewards yet'
               }
             </div>
-            <div className="text-xs text-[#ff0066] font-medium">
-              {(rewardStats?.totalClaimable || 0) > 0 
-                ? `≈ $${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
-                : (rewardStats?.totalAccumulated || 0) > 0
-                  ? `${(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT awaiting release`
-                  : 'Start earning rewards'
-              }
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-[#ff0066] font-medium">
+                {(rewardStats?.totalClaimable || 0) > 0 
+                  ? `≈ $${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                  : (rewardStats?.totalAccumulated || 0) > 0
+                    ? `${(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT awaiting release`
+                    : 'Start earning rewards'
+                }
+              </div>
+              {(rewardStats?.totalAccumulated || 0) > 0 && (rewardStats?.totalClaimable || 0) === 0 && claimability && (
+                <div className="text-xs flex items-center gap-1 text-blue-400">
+                  <Clock className="h-3 w-3" />
+                  <span className="font-mono">
+                    {claimability.canClaim 
+                      ? 'Available now' 
+                      : claimability.daysRemaining 
+                        ? `${claimability.daysRemaining}d remaining`
+                        : getTimeUntilClaimable() || 'Processing...'
+                    }
+                  </span>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

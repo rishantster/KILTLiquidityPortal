@@ -1734,7 +1734,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/claimability/:address", async (req, res) => {
     try {
       const userAddress = req.params.address;
-      console.log(`🔧 Claimability API called for address: ${userAddress}`);
+      console.log(`🔧 ADMIN-BASED Claimability API called for address: ${userAddress}`);
       
       // Get user from database
       const user = await storage.getUserByAddress(userAddress);
@@ -1751,38 +1751,39 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      // Get 24-hour claimability from smart contract
-      console.log(`🔧 Fetching user stats from smart contract for ${userAddress}...`);
-      const userStats = await smartContractService.getUserStats(userAddress);
-      console.log(`📊 Smart contract user stats result:`, userStats);
+      // Get admin panel lock period configuration from database
+      const { programSettings } = await import('../shared/schema');
+      const [settings] = await db.select().from(programSettings).limit(1);
+      const lockPeriodDays = settings?.lockPeriod || 0;
+      // If lock period is 0, default to 24 hours (1 day)
+      const effectiveLockHours = lockPeriodDays === 0 ? 24 : lockPeriodDays * 24;
       
-      // Get light-weight accumulated rewards calculation (skip heavy reward calculation)
-      console.log(`💰 Getting basic accumulated rewards for user ${user.id}...`);
+      console.log(`🔧 Admin panel lock period: ${lockPeriodDays} days (effective: ${effectiveLockHours} hours)`);
+      
+      // Get user's last claim time from database
+      const userRewards = await storage.getRewardsByUserId(user.id);
+      const lastClaimTime = userRewards.find(r => r.claimed)?.claimedAt || user.createdAt;
+      
+      // Calculate next claim availability based on admin setting
+      const nextClaimMs = (lastClaimTime?.getTime() || Date.now()) + (effectiveLockHours * 60 * 60 * 1000);
+      const now = Date.now();
+      const canClaim = now >= nextClaimMs;
+      const nextClaimDate = new Date(nextClaimMs);
+      const timeUntilClaimable = Math.max(0, nextClaimMs - now);
+      
+      console.log(`⏰ Admin-based claimability: lastClaim=${lastClaimTime}, nextClaim=${nextClaimDate}, canClaim=${canClaim}`);
+      
+      // Get light-weight accumulated rewards calculation
       const lightRewards = await fixedRewardService.getLightUserRewards(user.id);
       console.log(`💰 Light user rewards result:`, lightRewards);
       
-      let canClaim = false;
-      let nextClaimDate = null;
-      let timeUntilClaimable = 0;
-      
-      if (userStats.success && userStats.canClaimAt !== undefined) {
-        const canClaimAtMs = userStats.canClaimAt * 1000; // Convert to milliseconds
-        const now = Date.now();
-        canClaim = now >= canClaimAtMs;
-        nextClaimDate = new Date(canClaimAtMs);
-        timeUntilClaimable = Math.max(0, canClaimAtMs - now);
-        console.log(`⏰ Smart contract timing: canClaimAt=${userStats.canClaimAt}, now=${Math.floor(now/1000)}, canClaim=${canClaim}`);
-      } else {
-        console.log(`❌ Smart contract getUserStats failed or missing canClaimAt:`, userStats);
-      }
-      
       // Only allow claiming if both conditions are met:
-      // 1. Smart contract allows it (24-hour cooldown passed)
+      // 1. Admin lock period has passed
       // 2. There are accumulated rewards to claim
       const totalAccumulated = lightRewards?.totalAccumulated || 0;
       const totalClaimable = canClaim && totalAccumulated > 0 ? totalAccumulated : 0;
       
-      console.log(`✅ 24h Claimability check: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, totalClaimable=${totalClaimable}, nextClaimDate=${nextClaimDate}`);
+      console.log(`✅ Admin-based claimability check: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, totalClaimable=${totalClaimable}, lockPeriod=${effectiveLockHours}h`);
       
       res.json({
         claimable: totalClaimable,

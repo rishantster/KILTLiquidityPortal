@@ -445,20 +445,22 @@ export function RewardsTracking() {
       {/* Enhanced Action Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Enhanced Claim Rewards */}
-        <Card className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg cluely-card">
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-lg cluely-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-white font-heading text-sm">
               <Award className="h-4 w-4 text-[#ff0066]" />
-              <span>Reward Status</span>
+              <span>{(rewardStats?.totalAccumulated || 0) > 0 ? 'Claim Rewards' : 'Reward Status'}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 p-3">
-            <div className="text-center py-3 rounded-lg border border-gray-600/20 bg-black/60">
+            <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
               <div className="text-white/60 text-xs mb-1 font-medium">
-                Status
+                {claimability?.canClaim ? 'Available Now' : 'Status'}
               </div>
               <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
-                0.00
+                {claimability?.canClaim 
+                  ? (rewardStats?.totalAccumulated || 0).toFixed(2)
+                  : (rewardStats?.totalAccumulated || 0).toFixed(2)}
                 <img 
                   src={kiltLogo} 
                   alt="KILT" 
@@ -466,22 +468,39 @@ export function RewardsTracking() {
                 />
               </div>
               <div className="text-white/50 text-sm mb-3">
-                ≈ $0.00 USD
+                ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
               
               <Button 
-                disabled={true}
-                className="w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 bg-gray-600 text-gray-300 cursor-not-allowed"
+                onClick={() => claimMutation.mutate()}
+                disabled={claimMutation.isPending || isClaiming || !claimability?.canClaim || (rewardStats?.totalAccumulated || 0) <= 0}
+                className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
+                  claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0
+                    ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20' 
+                    : 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                }`}
               >
-                <Clock className="h-4 w-4 mr-2" />
-                {(rewardStats?.totalAccumulated || 0) > 0 
-                  ? claimability?.canClaim 
-                    ? 'Ready to claim'
-                    : claimability?.daysRemaining 
-                      ? `Available in ${claimability.daysRemaining} days`
-                      : 'Checking availability...'
-                  : 'Add liquidity to earn rewards'
-                }
+                {(claimMutation.isPending || isClaiming) ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {isClaiming ? 'Processing Smart Contract Transaction...' : 'Distributing & Claiming...'}
+                  </>
+                ) : claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 ? (
+                  <>
+                    <Award className="h-4 w-4 mr-2" />
+                    Claim {(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT
+                  </>
+                ) : (
+                  <>
+                    <Clock className="h-4 w-4 mr-2" />
+                    {(rewardStats?.totalAccumulated || 0) > 0 
+                      ? claimability?.daysRemaining 
+                        ? `Available in ${claimability.daysRemaining} days`
+                        : 'Checking availability...'
+                      : 'Add liquidity to earn rewards'
+                    }
+                  </>
+                )}
               </Button>
 
             </div>
@@ -506,16 +525,26 @@ export function RewardsTracking() {
               </div>
             </div>
             
-            <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
-              <p className="font-medium">
-                {(rewardStats?.totalAccumulated || 0) > 0 
-                  ? claimability?.canClaim 
-                    ? 'Ready to claim rewards'
-                    : 'Rewards locked by 24-hour waiting period'
-                  : 'Add liquidity to earn rewards'
-                }
-              </p>
-            </div>
+            {claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 && (
+              <div className="text-green-400 text-xs text-center mt-2 p-2 rounded bg-green-500/10 border border-green-500/20">
+                <p className="font-medium">Ready to Claim: {(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT</p>
+                <p className="text-green-300/80">Automated smart contract claiming - you pay gas for distribution & claim transactions (~$0.04 total)</p>
+              </div>
+            )}
+            
+            {!claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 && (
+              <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
+                <p className="font-medium">
+                  Rewards locked by 24-hour waiting period
+                </p>
+              </div>
+            )}
+            
+            {(rewardStats?.totalAccumulated || 0) === 0 && (
+              <div className="text-white/60 text-xs text-center mt-2 p-2 bg-white/5 rounded">
+                <p className="font-medium">Add liquidity to earn rewards</p>
+              </div>
+            )}
             
             
           </CardContent>

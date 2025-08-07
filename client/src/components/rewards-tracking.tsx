@@ -17,7 +17,8 @@ import {
   BarChart3,
   Gift,
   Plus,
-  RefreshCw
+  RefreshCw,
+  Timer
 } from 'lucide-react';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
@@ -30,6 +31,7 @@ import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
 
 // Single Source APR Components
 import { useExpectedReturns } from '@/hooks/use-single-source-apr';
+import { useRewardTimer } from '@/hooks/use-reward-timer';
 
 function SingleSourceProgramAPR() {
   const { data: expectedReturns, isLoading, error } = useExpectedReturns();
@@ -85,6 +87,7 @@ export function RewardsTracking() {
   const unifiedData = useUnifiedDashboard();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { timeUntilNextReward, isNearNextReward } = useRewardTimer();
 
   // Get maximum APR data for accurate display (same source as main dashboard)
   const { data: maxAPRData } = useQuery({
@@ -289,8 +292,14 @@ export function RewardsTracking() {
             <div className="text-xs text-white/60 mb-1">
               {eligibleData?.registeredCount || 0} positions
             </div>
-            <div className="text-xs text-[#ff0066] font-medium">
-              ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-[#ff0066] font-medium">
+                ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
+              </div>
+              <div className={`text-xs flex items-center gap-1 ${isNearNextReward ? 'text-yellow-400' : 'text-green-400'}`}>
+                <Timer className="h-3 w-3" />
+                {timeUntilNextReward}
+              </div>
             </div>
           </CardContent>
         </Card>

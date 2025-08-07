@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
 import AdminRewards from "@/pages/admin-rewards";
+import { SimpleTest } from "@/components/simple-test";
 
 import { useEffect, useRef, useState } from "react";
 import "@/lib/complete-overlay-suppression";

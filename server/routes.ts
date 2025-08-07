@@ -1307,10 +1307,26 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Generate claim signature for simplified contract claiming
   app.post("/api/rewards/generate-claim-signature", async (req, res) => {
     try {
-      const { userAddress, totalRewardBalance } = req.body;
+      const { userAddress } = req.body;
       
-      if (!userAddress || totalRewardBalance <= 0) {
-        res.status(400).json({ error: "Valid user address and reward balance required" });
+      if (!userAddress) {
+        res.status(400).json({ error: "User address required" });
+        return;
+      }
+      
+      // Get user from database
+      const user = await storage.getUserByAddress(userAddress);
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      
+      // Get calculated rewards from reward service
+      const userRewards = await fixedRewardService.getUserRewardStats(user.id);
+      const totalRewardBalance = userRewards.totalClaimable;
+      
+      if (totalRewardBalance <= 0) {
+        res.status(400).json({ error: "No rewards available for claiming" });
         return;
       }
       
@@ -1325,7 +1341,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       // Generate signature for the claim
-      const result = await smartContractService.generateClaimSignature(userAddress, totalRewardBalance);
+      const result = await smartContractService.generateClaimSignature(userAddress, Number(totalRewardBalance));
       
       if (!result.success) {
         res.status(500).json({ error: result.error || "Failed to generate claim signature" });

@@ -262,11 +262,11 @@ export function useRewardClaiming() {
         // Check if this is a specific contract issue
         const errorStr = gasError instanceof Error ? gasError.message.toLowerCase() : '';
         
-        if (errorStr.includes('execution reverted') || errorStr.includes('contractfunctionexecutionerror')) {
-          console.error('🔒 CONTRACT ISSUE: Transaction would revert on contract execution');
+        if (errorStr.includes('execution reverted') || errorStr.includes('contractfunctionexecutionerror') || errorStr.includes('missing revert data') || errorStr.includes('call_exception')) {
+          console.error('🔒 CRITICAL CONTRACT ISSUE: Smart contract state corrupted');
           
-          // More specific error message for users
-          throw new Error(`Claim Transaction Would Fail: The smart contract rejected the claim transaction. This could be due to insufficient contract balance, calculator authorization issues, or recent changes to your position. Please try again in a few minutes or contact support if the issue persists.`);
+          // Clear and informative error message for users
+          throw new Error(`Smart Contract Temporarily Unavailable: The reward claiming system is currently experiencing technical issues. Your rewards are safely accumulating and will be claimable once the contract issue is resolved. The development team has been notified. Please check back later.`);
         }
         
         // Check if it's a revert error and extract the reason

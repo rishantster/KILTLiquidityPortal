@@ -158,11 +158,13 @@ Smart contract at `0x09bcB93e7E2FF067232d83f5e7a7E8360A458175` has internal stat
 ✅ Contract deployed: YES (29,706 bytes)
 ```
 
-**Current Status**:
-- 🔄 **Investigation**: Contract owner needs to debug state issues
-- 📱 **UI**: Updated with user-friendly error messages
-- 🛡️ **Security**: User funds safe, rewards continue accumulating
-- ⏳ **Timeline**: Awaiting contract fix or redeployment
+**Current Status** (Updated August 8, 2025):
+- ❌ **Contract Confirmed Broken**: `getUserClaimedAmount()` and `claimRewards()` functions fail with "missing revert data"
+- ✅ **Contract Verification**: Deployed, authorized, nonce reading works, but state functions corrupted
+- 📱 **UI Enhanced**: Clear error messages explaining contract issues to users
+- 🛡️ **Security**: User funds safe, rewards continue accumulating in backend calculations
+- 📊 **Analytics Working**: Enhanced Program Analytics showing comprehensive metrics
+- ⏳ **Timeline**: Requires immediate contract owner intervention for fix/redeployment
 
 **Files Involved**:
 - `client/src/hooks/use-reward-claiming.ts` - Enhanced error handling

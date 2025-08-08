@@ -891,42 +891,45 @@ export function MainDashboard() {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-black/20 backdrop-blur-sm border border-white/10 h-14">
+          <TabsList className="flex w-full overflow-x-auto bg-black/20 backdrop-blur-sm border border-white/10 h-14 scrollbar-hide">
             <TabsTrigger 
               value="overview" 
-              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
               Overview
             </TabsTrigger>
             <TabsTrigger 
               value="add-liquidity" 
-              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
-              Add Liquidity
+              <span className="hidden sm:inline">Add Liquidity</span>
+              <span className="sm:hidden">+ Liquidity</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
               Positions
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
               Rewards
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
-              Analytics
+              <span className="hidden sm:inline">Analytics</span>
+              <span className="sm:hidden">Stats</span>
             </TabsTrigger>
             <TabsTrigger 
               value="integration" 
-              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
-              Integration
+              <span className="hidden sm:inline">Integration</span>
+              <span className="sm:hidden">API</span>
             </TabsTrigger>
           </TabsList>
 

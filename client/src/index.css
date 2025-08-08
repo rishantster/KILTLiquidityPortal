@@ -8,6 +8,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbars for navigation tabs */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, and Opera */
+}
+
 /* Enhanced Root Variables for Superior Visual Hierarchy */
 :root {
   /* Premium Typography System */

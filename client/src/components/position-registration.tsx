@@ -353,7 +353,7 @@ export function PositionRegistration() {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-white font-heading text-sm">
-              Register Positions
+              Eligible Positions
             </CardTitle>
             <div className="flex items-center gap-2">
               {unregisteredPositions.length > 1 && (

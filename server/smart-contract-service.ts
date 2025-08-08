@@ -47,7 +47,7 @@ const REWARD_POOL_ABI = [
   'function setCalculatorAuthorization(address calculator, bool authorized) external',
   
   // User claiming with signature verification
-  'function claimRewards(address user, uint256 amount, uint256 nonce, bytes calldata signature) external',
+  'function claimRewards(uint256 totalRewardBalance, bytes calldata signature) external',
   'function emergencyClaim(address user, uint256 totalRewardBalance) external',
   
   // Security view functions

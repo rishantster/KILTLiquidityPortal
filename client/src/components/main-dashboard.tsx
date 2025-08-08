@@ -644,31 +644,34 @@ export function MainDashboard() {
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Over...</span>
-              <span className="hidden sm:inline text-sm font-medium truncate">Overview</span>
+              <span className="text-xs sm:text-sm font-medium">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="liquidity" 
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Add...</span>
-              <span className="hidden sm:inline text-sm font-medium truncate">Add Liquidity</span>
+              <span className="text-xs sm:text-sm font-medium">
+                <span className="sm:hidden">Add</span>
+                <span className="hidden sm:inline">Add Liquidity</span>
+              </span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Award className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Rewards</span>
+              <span className="text-xs sm:text-sm font-medium">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
               className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
             >
               <Wallet className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium truncate mobile-responsive-text">Pos...</span>
-              <span className="hidden sm:inline text-sm font-medium truncate">Positions</span>
+              <span className="text-xs sm:text-sm font-medium">
+                <span className="sm:hidden">Positions</span>
+                <span className="hidden sm:inline">Positions</span>
+              </span>
             </TabsTrigger>
 
           </TabsList>
@@ -676,11 +679,11 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6 tab-content-safe">
             {/* Metrics Cards - Single Row */}
-            <div className="grid grid-cols-4 gap-2 mb-6">
+            <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-6">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-20 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1">
                       <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
@@ -696,7 +699,7 @@ export function MainDashboard() {
                       <BarChart3 className="h-3 w-3 text-[#ff0066] group-hover:text-white" />
                     </button>
                   </div>
-                  <div className="text-white text-base mb-1 numeric-large">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     {kiltData?.price ? `$${kiltData.price.toFixed(4)}` : (
                       <div className="h-5 w-16 bg-slate-700 animate-pulse rounded"></div>
                     )}
@@ -722,7 +725,7 @@ export function MainDashboard() {
                     </div>
                     <span className="text-white/70 text-xs font-medium">Market Cap</span>
                   </div>
-                  <div className="text-white text-base mb-1 numeric-large">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     {kiltData?.marketCap ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
                       <div className="h-5 w-12 bg-slate-700 animate-pulse rounded"></div>
                     )}
@@ -743,7 +746,7 @@ export function MainDashboard() {
                     </div>
                     <span className="text-white/70 text-xs font-medium">Trading Fees APR</span>
                   </div>
-                  <div className="text-white text-base mb-1 numeric-large">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     <SingleSourceTradingAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
@@ -762,7 +765,7 @@ export function MainDashboard() {
                     </div>
                     <span className="text-white/70 text-xs font-medium">Program APR</span>
                   </div>
-                  <div className="text-white text-base mb-1 numeric-large">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     <SingleSourceProgramAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">

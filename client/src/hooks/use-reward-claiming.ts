@@ -24,7 +24,9 @@ const DYNAMIC_TREASURY_POOL_ABI = [
   },
   {
     inputs: [
-      { name: 'totalRewardBalance', type: 'uint256' },
+      { name: 'user', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
       { name: 'signature', type: 'bytes' }
     ],
     name: 'claimRewards',
@@ -225,14 +227,13 @@ export function useRewardClaiming() {
       console.log('📋 CLAIM LOG 22: Amount in wei:', totalRewardBalanceWei.toString());
       console.log('📋 CLAIM LOG 23: Contract ABI function:', 'claimRewards');
       console.log('📋 CLAIM LOG 24: Contract arguments:');
-      console.log('  - totalRewardBalance:', totalRewardBalanceWei.toString());
+      console.log('  - user:', address);
+      console.log('  - amount:', totalRewardBalanceWei.toString());
+      console.log('  - nonce:', nonce, 'type:', typeof nonce);
       console.log('  - signature:', signature);
-      console.log('  - user (from msg.sender):', address);
-      console.log('  - nonce (contract internal):', nonce, 'type:', typeof nonce);
       
       console.log('🔗 CLAIM LOG 25: Calling smart contract claimRewards function...');
-      // Note: The nonce in args is the contract's internal nonce for signature verification,
-      // not the wallet transaction nonce which MetaMask handles automatically
+      // Contract function: claimRewards(address user, uint256 amount, uint256 nonce, bytes signature)
       
       // Try to estimate gas first to catch any revert issues early
       console.log('🔗 CLAIM LOG 25.1: Estimating gas for transaction...');
@@ -241,7 +242,7 @@ export function useRewardClaiming() {
           address: DYNAMIC_TREASURY_POOL_ADDRESS,
           abi: DYNAMIC_TREASURY_POOL_ABI,
           functionName: 'claimRewards',
-          args: [totalRewardBalanceWei, signature as `0x${string}`],
+          args: [address, totalRewardBalanceWei, BigInt(nonce), signature],
           account: address as `0x${string}`,
         });
         console.log('🔗 CLAIM LOG 25.2: Gas estimation successful:', gasEstimate.toString());
@@ -254,7 +255,7 @@ export function useRewardClaiming() {
         address: DYNAMIC_TREASURY_POOL_ADDRESS,
         abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [totalRewardBalanceWei, signature as `0x${string}`],
+        args: [address, totalRewardBalanceWei, BigInt(nonce), signature],
         // Let MetaMask handle the wallet transaction nonce automatically
       });
       

@@ -588,7 +588,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
                   <div className="text-purple-400 text-xs mb-1">Active Users</div>
-                  <div className="text-sm text-white numeric-display">{programAnalytics?.activeUsers || 0}</div>
+                  <div className="text-sm text-white numeric-display">{programAnalytics?.activeLiquidityProviders || 0}</div>
                 </div>
               </div>
               
@@ -602,7 +602,7 @@ export function RewardsTracking() {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Avg User Liquidity:</span>
-                  <span className="text-white">${programAnalytics?.avgUserLiquidity?.toLocaleString() || '0'}</span>
+                  <span className="text-white">${programAnalytics?.totalLiquidity && programAnalytics?.activeLiquidityProviders ? Math.round(programAnalytics.totalLiquidity / programAnalytics.activeLiquidityProviders).toLocaleString() : '0'}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Reward Formula:</span>

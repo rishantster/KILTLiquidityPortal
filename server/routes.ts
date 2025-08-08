@@ -1421,12 +1421,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           actualClaimedAmount = claimedResult.claimedAmount;
           console.log(`💰 USER STATS ENDPOINT: Retrieved claimed amount: ${actualClaimedAmount} KILT`);
           
-          // If user has claimed rewards, estimate last claim time
-          // Since we don't have the exact timestamp, use a conservative estimate
-          // Assuming they claimed within the last few hours if they have claimed amount
+          // If user has claimed rewards, get ACTUAL last claim time from smart contract
           if (actualClaimedAmount > 0) {
-            lastClaimTime = new Date(Date.now() - (2 * 60 * 60 * 1000)); // 2 hours ago
-            console.log(`💰 USER STATS ENDPOINT: 🔧 TIMING FIX - Using last claim time: ${lastClaimTime.toISOString()}`);
+            try {
+              const userStats = await smartContractService.getUserStats(userAddress);
+              if (userStats.success && userStats.lastClaim && userStats.lastClaim > 0) {
+                lastClaimTime = new Date(userStats.lastClaim * 1000); // Convert Unix timestamp to Date
+                console.log(`💰 USER STATS ENDPOINT: ✅ Using REAL last claim time from contract: ${lastClaimTime.toISOString()}`);
+              } else {
+                // Fallback: assume 24 hours ago if contract call fails
+                lastClaimTime = new Date(Date.now() - (24 * 60 * 60 * 1000)); // 24 hours ago
+                console.log(`💰 USER STATS ENDPOINT: ⚠️ Contract call failed, using 24h fallback: ${lastClaimTime.toISOString()}`);
+              }
+            } catch (error) {
+              // Fallback: assume 24 hours ago if there's an error
+              lastClaimTime = new Date(Date.now() - (24 * 60 * 60 * 1000)); // 24 hours ago
+              console.log(`💰 USER STATS ENDPOINT: ⚠️ Error getting last claim time, using 24h fallback: ${lastClaimTime.toISOString()}`);
+            }
           }
         } else {
           console.warn(`⚠️ USER STATS ENDPOINT: Failed to get claimed amount:`, claimedResult.error);

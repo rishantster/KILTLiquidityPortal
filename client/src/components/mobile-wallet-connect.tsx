@@ -152,8 +152,10 @@ export function MobileWalletConnect() {
         )}
         <div className="mobile-wallet-display flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-xl border border-[#ff0066]/20 rounded-xl px-2 sm:px-4 py-2">
           <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-[#ff0066]" />
-          <span className="mobile-responsive-text font-mono text-xs sm:text-sm text-white">{address.slice(0, 4)}...{address.slice(-3)}</span>
-          <span className="hidden sm:inline font-mono text-sm text-white">{address.slice(0, 6)}...{address.slice(-4)}</span>
+          <span className="font-mono text-xs sm:text-sm text-white">
+            <span className="sm:hidden">{address.slice(0, 4)}...{address.slice(-3)}</span>
+            <span className="hidden sm:inline">{address.slice(0, 6)}...{address.slice(-4)}</span>
+          </span>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

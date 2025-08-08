@@ -172,13 +172,14 @@ export function MainDashboard() {
 
   // Calculate optimal amounts
   const calculateOptimalAmounts = useCallback((percentage = selectedPercentage) => {
+    const safeFormatTokenAmount = (balance: string | bigint | undefined) => formatTokenAmount(balance || '0');
     return LiquidityService.calculateOptimalAmounts(
       kiltBalance,
       wethBalance,
       ethBalance,
       kiltData?.price || 0.0160,
       percentage,
-      formatTokenAmount,
+      safeFormatTokenAmount,
       ethPriceData?.ethPrice
     );
   }, [kiltBalance, wethBalance, ethBalance, kiltData?.price, selectedPercentage, formatTokenAmount, ethPriceData?.ethPrice]);
@@ -551,7 +552,7 @@ export function MainDashboard() {
               <img src={kiltLogo} alt="KILT" className="w-9 h-9" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">KILT Liquidity Portal</h1>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">KILT Liquidity Portal</h1>
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span>Live on Base Network</span>
@@ -891,48 +892,54 @@ export function MainDashboard() {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 bg-black/20 backdrop-blur-sm border border-white/10 h-14">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 bg-black/20 backdrop-blur-sm border border-white/10 h-12 md:h-14">
             <TabsTrigger 
               value="overview" 
-              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
             >
-              <span className="hidden lg:inline">Overview</span>
-              <span className="lg:hidden">Overview</span>
+              <span className="truncate">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="add-liquidity" 
-              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
             >
-              <span className="hidden lg:inline">Add Liquidity</span>
-              <span className="lg:hidden">+ Liq</span>
+              <span className="truncate">
+                <span className="hidden md:inline">Add Liquidity</span>
+                <span className="md:hidden">+ Liq</span>
+              </span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
             >
-              <span className="hidden lg:inline">Positions</span>
-              <span className="lg:hidden">Pos</span>
+              <span className="truncate">
+                <span className="hidden md:inline">Positions</span>
+                <span className="md:hidden">Pos</span>
+              </span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
             >
-              <span className="hidden lg:inline">Rewards</span>
-              <span className="lg:hidden">Rewards</span>
+              <span className="truncate">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap hidden md:flex"
+              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 hidden md:flex items-center justify-center"
             >
-              <span className="hidden lg:inline">Analytics</span>
-              <span className="lg:hidden">Stats</span>
+              <span className="truncate">
+                <span className="hidden lg:inline">Analytics</span>
+                <span className="lg:hidden">Stats</span>
+              </span>
             </TabsTrigger>
             <TabsTrigger 
               value="integration" 
-              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap hidden lg:flex"
+              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 hidden lg:flex items-center justify-center"
             >
-              <span className="hidden lg:inline">Integration</span>
-              <span className="lg:hidden">API</span>
+              <span className="truncate">
+                <span className="hidden xl:inline">Integration</span>
+                <span className="xl:hidden">API</span>
+              </span>
             </TabsTrigger>
           </TabsList>
 

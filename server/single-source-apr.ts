@@ -48,7 +48,7 @@ export class SingleSourceAPR {
 
   constructor(database: IStorage) {
     this.database = database;
-    this.fixedRewardService = new FixedRewardService(database);
+    this.fixedRewardService = new FixedRewardService();
   }
 
   /**

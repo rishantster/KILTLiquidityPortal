@@ -1569,6 +1569,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   const singleSourceAPR = new SingleSourceAPR(storage);
   const dataIntegrityMonitor = new DataIntegrityMonitor(db);
   
+  // Program APR endpoint (what frontend is calling)
+  app.get('/api/apr/program', async (req, res) => {
+    try {
+      const aprData = await singleSourceAPR.getProgramAPR();
+      console.log('🎯 SINGLE SOURCE APR:', { 
+        programAPR: aprData.programAPR, 
+        tradingAPR: aprData.tradingAPR, 
+        totalAPR: aprData.totalProgramAPR 
+      });
+      res.setHeader('X-Source', 'single-source-apr');
+      res.json(aprData);
+    } catch (error) {
+      console.error('❌ Error getting program APR:', error);
+      res.status(500).json({ error: 'Failed to get program APR' });
+    }
+  });
+  
   // Official program APR (for all display purposes)
   app.get('/api/apr/official', async (req, res) => {
     try {

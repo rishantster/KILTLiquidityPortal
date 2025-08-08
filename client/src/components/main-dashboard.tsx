@@ -684,33 +684,33 @@ export function MainDashboard() {
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-2.5 h-20 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10 flex flex-col justify-between">
-                  <div className="flex items-center justify-between mb-1">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10 flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1 min-w-0 flex-1">
-                      <div className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center flex-shrink-0">
-                        <img src={kiltLogo} alt="KILT" className="w-2.5 h-2.5" />
+                      <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center flex-shrink-0">
+                        <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
                       </div>
-                      <span className="text-white/70 text-[10px] sm:text-xs font-medium truncate">KILT Price</span>
+                      <span className="text-white/70 text-xs font-medium">KILT Price</span>
                     </div>
                     <button
                       onClick={() => setShowChartModal(true)}
-                      className="w-4 h-4 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group flex-shrink-0"
+                      className="w-5 h-5 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group flex-shrink-0"
                       title="View KILT/WETH Chart"
                     >
-                      <BarChart3 className="h-2.5 w-2.5 text-[#ff0066] group-hover:text-white" />
+                      <BarChart3 className="h-3 w-3 text-[#ff0066] group-hover:text-white" />
                     </button>
                   </div>
-                  <div className="text-white text-sm sm:text-base font-bold mb-1 numeric-large leading-none">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     {kiltData?.price ? `$${kiltData.price.toFixed(4)}` : (
-                      <div className="h-4 w-12 bg-slate-700 animate-pulse rounded"></div>
+                      <div className="h-5 w-16 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>
-                  <div className={`text-[9px] sm:text-xs font-medium numeric-mono leading-none truncate ${
+                  <div className={`text-xs font-medium numeric-mono ${
                     (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {kiltData?.priceChange24h !== null && kiltData?.priceChange24h !== undefined ? 
                       `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
-                      <div className="h-3 w-10 bg-slate-700 animate-pulse rounded"></div>
+                      <div className="h-3 w-12 bg-slate-700 animate-pulse rounded"></div>
                     }
                   </div>
                 </div>
@@ -719,19 +719,19 @@ export function MainDashboard() {
               {/* Market Cap Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-2.5 h-20 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10 flex flex-col justify-between">
-                  <div className="flex items-center gap-1 mb-1">
-                    <div className="w-4 h-4 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center flex-shrink-0">
-                      <Coins className="h-2.5 w-2.5 text-green-400" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10 flex flex-col justify-between">
+                  <div className="flex items-center gap-1 mb-2">
+                    <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center flex-shrink-0">
+                      <Coins className="h-3 w-3 text-green-400" />
                     </div>
-                    <span className="text-white/70 text-[10px] sm:text-xs font-medium truncate">Market Cap</span>
+                    <span className="text-white/70 text-xs font-medium">Market Cap</span>
                   </div>
-                  <div className="text-white text-sm sm:text-base font-bold mb-1 numeric-large leading-none">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     {kiltData?.marketCap ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
-                      <div className="h-4 w-10 bg-slate-700 animate-pulse rounded"></div>
+                      <div className="h-5 w-12 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>
-                  <div className="text-white/50 text-[9px] sm:text-xs font-medium leading-none truncate">
+                  <div className="text-white/50 text-xs font-medium">
                     277.0M circulating
                   </div>
                 </div>
@@ -740,17 +740,17 @@ export function MainDashboard() {
               {/* Trading Fees APR Card - Using Real Data */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-2.5 h-20 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10 flex flex-col justify-between">
-                  <div className="flex items-center gap-1 mb-1">
-                    <div className="w-4 h-4 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="h-2.5 w-2.5 text-emerald-400" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10 flex flex-col justify-between">
+                  <div className="flex items-center gap-1 mb-2">
+                    <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="h-3 w-3 text-emerald-400" />
                     </div>
-                    <span className="text-white/70 text-[10px] sm:text-xs font-medium truncate">Trading Fees APR</span>
+                    <span className="text-white/70 text-xs font-medium">Trading Fees APR</span>
                   </div>
-                  <div className="text-white text-sm sm:text-base font-bold mb-1 numeric-large leading-none">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     <SingleSourceTradingAPR />
                   </div>
-                  <div className="text-white/50 text-[9px] sm:text-xs font-medium leading-none truncate">
+                  <div className="text-white/50 text-xs font-medium">
                     DexScreener API
                   </div>
                 </div>
@@ -759,17 +759,17 @@ export function MainDashboard() {
               {/* Program APR Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-500/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-2.5 h-20 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10 flex flex-col justify-between">
-                  <div className="flex items-center gap-1 mb-1">
-                    <div className="w-4 h-4 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center flex-shrink-0">
-                      <Award className="h-2.5 w-2.5 text-green-500" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10 flex flex-col justify-between">
+                  <div className="flex items-center gap-1 mb-2">
+                    <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center flex-shrink-0">
+                      <Award className="h-3 w-3 text-green-500" />
                     </div>
-                    <span className="text-white/70 text-[10px] sm:text-xs font-medium truncate">Program APR</span>
+                    <span className="text-white/70 text-xs font-medium">Program APR</span>
                   </div>
-                  <div className="text-white text-sm sm:text-base font-bold mb-1 numeric-large leading-none">
+                  <div className="text-white text-base font-bold mb-1 numeric-large">
                     <SingleSourceProgramAPR />
                   </div>
-                  <div className="text-white/50 text-[9px] sm:text-xs font-medium leading-none truncate">
+                  <div className="text-white/50 text-xs font-medium">
                     Treasury rewards
                   </div>
                 </div>

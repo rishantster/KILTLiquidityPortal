@@ -162,6 +162,22 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
+  const [screenWidth, setScreenWidth] = useState(0);
+
+  // Client-side screen width detection to avoid SSR issues
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+    
+    // Set initial width
+    handleResize();
+    
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { toast } = useToast();
 
@@ -611,8 +627,8 @@ export function MainDashboard() {
             backdropFilter: 'blur(12px)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.75rem',
-            padding: window.innerWidth <= 768 ? '0.75rem' : '1.5rem',
-            marginBottom: window.innerWidth <= 768 ? '1rem' : '2rem',
+            padding: screenWidth <= 768 ? '0.75rem' : '1.5rem',
+            marginBottom: screenWidth <= 768 ? '1rem' : '2rem',
             width: '100%'
           }}
         >
@@ -622,7 +638,7 @@ export function MainDashboard() {
               alignItems: 'center',
               justifyContent: 'space-between',
               width: '100%',
-              gap: window.innerWidth <= 768 ? '0.5rem' : '2rem',
+              gap: screenWidth <= 768 ? '0.5rem' : '2rem',
               flexWrap: 'nowrap'
             }}
           >
@@ -631,31 +647,31 @@ export function MainDashboard() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: window.innerWidth <= 768 ? '0.5rem' : '1.5rem',
+                gap: screenWidth <= 768 ? '0.5rem' : '1.5rem',
                 flex: 1,
                 minWidth: 0
               }}
             >
               <div style={{ 
-                width: window.innerWidth <= 768 ? '2rem' : '3rem', 
-                height: window.innerWidth <= 768 ? '2rem' : '3rem', 
+                width: screenWidth <= 768 ? '2rem' : '3rem', 
+                height: screenWidth <= 768 ? '2rem' : '3rem', 
                 flexShrink: 0 
               }}>
                 <CyberpunkKiltLogo size="sm" />
               </div>
               <h1 
                 style={{
-                  fontSize: window.innerWidth <= 375 ? '0.75rem' : (window.innerWidth <= 768 ? '0.875rem' : '1.5rem'),
-                  lineHeight: window.innerWidth <= 375 ? '1rem' : (window.innerWidth <= 768 ? '1.25rem' : '2rem'),
+                  fontSize: screenWidth <= 375 ? '0.75rem' : (screenWidth <= 768 ? '0.875rem' : '1.5rem'),
+                  lineHeight: screenWidth <= 375 ? '1rem' : (screenWidth <= 768 ? '1.25rem' : '2rem'),
                   fontWeight: '700',
                   color: 'white',
                   fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace',
                   whiteSpace: 'nowrap',
                   margin: 0,
                   padding: 0,
-                  overflow: window.innerWidth <= 768 ? 'hidden' : 'visible',
-                  textOverflow: window.innerWidth <= 768 ? 'ellipsis' : 'clip',
-                  maxWidth: window.innerWidth <= 375 ? '80px' : (window.innerWidth <= 768 ? '120px' : 'none')
+                  overflow: screenWidth <= 768 ? 'hidden' : 'visible',
+                  textOverflow: screenWidth <= 768 ? 'ellipsis' : 'clip',
+                  maxWidth: screenWidth <= 375 ? '80px' : (screenWidth <= 768 ? '120px' : 'none')
                 }}
               >
                 KILT Liquidity Portal
@@ -664,9 +680,9 @@ export function MainDashboard() {
                 style={{
                   background: 'white',
                   color: '#ff0066',
-                  padding: window.innerWidth <= 375 ? '0.125rem 0.375rem' : (window.innerWidth <= 768 ? '0.25rem 0.5rem' : '0.5rem 1rem'),
+                  padding: screenWidth <= 375 ? '0.125rem 0.375rem' : (screenWidth <= 768 ? '0.25rem 0.5rem' : '0.5rem 1rem'),
                   borderRadius: '9999px',
-                  fontSize: window.innerWidth <= 375 ? '0.625rem' : (window.innerWidth <= 768 ? '0.75rem' : '0.875rem'),
+                  fontSize: screenWidth <= 375 ? '0.625rem' : (screenWidth <= 768 ? '0.75rem' : '0.875rem'),
                   fontWeight: '700',
                   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                   whiteSpace: 'nowrap',

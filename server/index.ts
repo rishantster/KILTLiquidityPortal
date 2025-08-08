@@ -204,6 +204,19 @@ app.use((req, res, next) => {
   // Register API routes FIRST (before Vite middleware)
   const server = await registerRoutes(app, securityMiddleware);
 
+  // Explicit root path handler for deployment compatibility (after API routes)
+  app.get('/', async (req: Request, res: Response) => {
+    try {
+      // Force serve frontend for root path
+      const path = await import('path');
+      const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
+      res.sendFile(path.resolve(distPath, "index.html"));
+    } catch (error) {
+      console.error('Error serving root path:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
   // Serve static files from attached_assets directory
   app.use('/attached_assets', express.static('attached_assets'));
 

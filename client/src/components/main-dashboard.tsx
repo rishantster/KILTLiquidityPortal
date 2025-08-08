@@ -583,14 +583,13 @@ export function MainDashboard() {
 
       <div className="relative z-10 max-w-7xl mx-auto p-4">
         {/* Header */}
-        {/* Clean Header Layout */}
         <div className="flex items-center justify-between mb-6 pt-2">
           <div className="flex items-center gap-4">
             <div className="relative w-12 h-12">
               <CyberpunkKiltLogo size="md" className="w-full h-full" />
             </div>
             <div>
-              <h1 className="header-title">
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
                 KILT Liquidity Portal
               </h1>
               <p className="text-white/60 text-sm">
@@ -599,21 +598,21 @@ export function MainDashboard() {
             </div>
           </div>
 
-          {/* Single Wallet Info Section */}
-          <div className="flex items-center gap-3">
+          {/* Wallet Info */}
+          <div className="flex items-center gap-4">
             {/* Network Status */}
-            <div className="flex items-center gap-2 bg-glass-light border border-white/10 rounded-lg px-3 py-2">
-              <div className={`w-2 h-2 rounded-full ${isBaseNetworkConnected ? 'bg-success' : 'bg-error'}`}></div>
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2">
+              <div className={`w-2 h-2 rounded-full ${isBaseNetworkConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
               <span className="text-white/80 text-sm">
-                {isBaseNetworkConnected ? 'Base' : 'Wrong Network'}
+                {isBaseNetworkConnected ? 'Base Network' : 'Wrong Network'}
               </span>
             </div>
 
-            {/* Single Wallet Address Display */}
-            <div className="bg-glass-light border border-white/10 rounded-lg px-4 py-2">
+            {/* Wallet Address */}
+            <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2">
               <div className="flex items-center gap-2">
                 <Wallet className="h-4 w-4 text-white/60" />
-                <span className="wallet-address">
+                <span className="text-white text-sm font-mono">
                   {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ''}
                 </span>
               </div>
@@ -621,46 +620,52 @@ export function MainDashboard() {
           </div>
         </div>
 
-        {/* Balance Cards - Professional Grid Layout */}
-        <div className="balance-grid mb-6">
-          <div className="balance-card">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <KiltLogo size="sm" />
-              <span className="balance-label">KILT</span>
-            </div>
-            <div className="balance-value">
-              {formatTokenAmount(kiltBalance)}
-            </div>
-            <div className="text-xs text-white/60">
-              ${kiltData?.price ? (parseFloat(formatTokenAmount(kiltBalance)) * kiltData.price).toFixed(2) : '0.00'}
-            </div>
-          </div>
+        {/* Balance Cards - Clean Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <KiltLogo size="sm" />
+                <span className="font-semibold text-white">KILT</span>
+              </div>
+              <div className="text-lg font-bold text-white">
+                {formatTokenAmount(kiltBalance)}
+              </div>
+              <div className="text-xs text-white/60">
+                ${kiltData?.price ? (parseFloat(formatTokenAmount(kiltBalance)) * kiltData.price).toFixed(2) : '0.00'}
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="balance-card">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <EthLogo size="sm" />
-              <span className="balance-label">ETH</span>
-            </div>
-            <div className="balance-value">
-              {formatTokenAmount(ethBalance)}
-            </div>
-            <div className="text-xs text-white/60">
-              ${ethPriceData?.ethPrice ? (parseFloat(formatTokenAmount(ethBalance)) * ethPriceData.ethPrice).toFixed(2) : '0.00'}
-            </div>
-          </div>
+          <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <EthLogo size="sm" />
+                <span className="font-semibold text-white">ETH</span>
+              </div>
+              <div className="text-lg font-bold text-white">
+                {formatTokenAmount(ethBalance)}
+              </div>
+              <div className="text-xs text-white/60">
+                ${ethPriceData?.ethPrice ? (parseFloat(formatTokenAmount(ethBalance)) * ethPriceData.ethPrice).toFixed(2) : '0.00'}
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="balance-card">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <WethLogo size="sm" />
-              <span className="balance-label">WETH</span>
-            </div>
-            <div className="balance-value">
-              {formatTokenAmount(wethBalance)}
-            </div>
-            <div className="text-xs text-white/60">
-              ${ethPriceData?.ethPrice ? (parseFloat(formatTokenAmount(wethBalance)) * ethPriceData.ethPrice).toFixed(2) : '0.00'}
-            </div>
-          </div>
+          <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <WethLogo size="sm" />
+                <span className="font-semibold text-white">WETH</span>
+              </div>
+              <div className="text-lg font-bold text-white">
+                {formatTokenAmount(wethBalance)}
+              </div>
+              <div className="text-xs text-white/60">
+                ${ethPriceData?.ethPrice ? (parseFloat(formatTokenAmount(wethBalance)) * ethPriceData.ethPrice).toFixed(2) : '0.00'}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* APR Stats */}

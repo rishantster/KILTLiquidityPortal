@@ -164,6 +164,57 @@ export function RewardsTracking() {
     refetchInterval: 60000 // Check every minute
   });
 
+  // Real-time countdown timer with live updates
+  const [countdownText, setCountdownText] = useState('');
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  
+  useEffect(() => {
+    if (!claimability?.nextClaimDate) {
+      setCountdownText('');
+      setTimeRemaining(null);
+      return;
+    }
+    
+    const updateCountdown = () => {
+      const nextClaimTime = new Date(claimability.nextClaimDate);
+      const now = new Date();
+      const timeDiff = nextClaimTime.getTime() - now.getTime();
+      
+      if (timeDiff <= 0) {
+        setCountdownText('Available now');
+        setTimeRemaining('0s');
+        return;
+      }
+      
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+      
+      if (days > 0) {
+        setCountdownText(`Available in ${days} day${days > 1 ? 's' : ''}`);
+        setTimeRemaining(`${days}d left`);
+      } else if (hours > 0) {
+        setCountdownText(`Available in ${hours}h ${minutes}m`);
+        setTimeRemaining(`${hours}h ${minutes}m left`);
+      } else if (minutes > 0) {
+        setCountdownText(`Available in ${minutes}m ${seconds}s`);
+        setTimeRemaining(`${minutes}m ${seconds}s left`);
+      } else {
+        setCountdownText(`Available in ${seconds} seconds`);
+        setTimeRemaining(`${seconds}s left`);
+      }
+    };
+    
+    // Update immediately
+    updateCountdown();
+    
+    // Update every second for real-time countdown
+    const interval = setInterval(updateCountdown, 1000);
+    
+    return () => clearInterval(interval);
+  }, [claimability?.nextClaimDate]);
+  
   // Calculate time until rewards become claimable with real-time updates
   const getTimeUntilClaimable = () => {
     if (!claimability?.nextClaimDate) return null;
@@ -374,9 +425,7 @@ export function RewardsTracking() {
                 : (rewardStats?.totalAccumulated || 0) > 0
                   ? claimability?.canClaim 
                     ? 'Available now'
-                    : claimability?.daysRemaining 
-                      ? `Available in ${claimability.daysRemaining} days`
-                      : 'Checking availability...'
+                    : countdownText || 'Checking availability...'
                   : 'Start earning rewards'
               }
             </div>
@@ -389,17 +438,11 @@ export function RewardsTracking() {
                     : 'Connect positions to earn'
                 }
               </div>
-              {(rewardStats?.totalAccumulated || 0) > 0 && (rewardStats?.totalClaimable || 0) === 0 && claimability && (
-                <div className="text-xs flex items-center gap-1 text-blue-400">
+              {/* Real-time countdown timer display */}
+              {timeRemaining && (rewardStats?.totalAccumulated || 0) > 0 && (rewardStats?.totalClaimable || 0) === 0 && (
+                <div className="flex items-center gap-1 text-xs text-[#ff0066]">
                   <Clock className="h-3 w-3" />
-                  <span className="font-mono">
-                    {claimability.canClaim 
-                      ? 'Ready now' 
-                      : claimability.daysRemaining 
-                        ? `${claimability.daysRemaining}d left`
-                        : getTimeUntilClaimable() || 'Loading...'
-                    }
-                  </span>
+                  <span className="font-mono">{timeRemaining}</span>
                 </div>
               )}
             </div>

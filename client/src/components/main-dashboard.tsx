@@ -608,17 +608,14 @@ export function MainDashboard() {
         {/* Clean Professional Header */}
         <div className="w-full mb-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Logo and Title Section */}
-          <div className="flex items-center gap-4">
-            <div className="relative w-12 h-12">
-              <CyberpunkKiltLogo size="md" className="w-full h-full" />
+          <div className="flex items-center gap-6">
+            <div className="relative w-8 h-8">
+              <CyberpunkKiltLogo size="sm" className="w-full h-full" />
             </div>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
                 KILT Liquidity Portal
               </h1>
-              <p className="text-white/60 text-sm font-medium">
-                Base Network • Uniswap V3
-              </p>
             </div>
           </div>
           

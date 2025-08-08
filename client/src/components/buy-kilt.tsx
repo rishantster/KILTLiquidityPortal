@@ -66,19 +66,38 @@ export function BuyKilt({
     fee: string;
   }
 
-  // Get swap quote when ETH amount changes
+  // Get swap quote when ETH amount changes (triggered by slider or manual input)
   const { data: quote, isLoading: isLoadingQuote, refetch: refetchQuote } = useQuery<SwapQuote>({
     queryKey: ['/api/swap/quote', ethAmount],
-    enabled: !!ethAmount && parseFloat(ethAmount) > 0,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    queryFn: async () => {
+      const response = await fetch(`/api/swap/quote?ethAmount=${ethAmount}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch swap quote');
+      }
+      return response.json();
+    },
+    enabled: !!ethAmount && parseFloat(ethAmount) > 0 && parseFloat(ethAmount) >= 0.001,
+    refetchInterval: 15000, // Refresh every 15 seconds for more responsive updates
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
+    staleTime: 5000, // Consider data fresh for 5 seconds for more responsive updates
   });
 
-  // Update KILT amount when quote changes
+  // Update KILT amount when quote changes or when slider moves
   useEffect(() => {
     if (quote?.kiltAmount) {
       setKiltAmount(quote.kiltAmount);
+    } else if (!isLoadingQuote && parseFloat(ethAmount) > 0) {
+      // Clear KILT amount if no quote available
+      setKiltAmount('');
     }
-  }, [quote]);
+  }, [quote, isLoadingQuote, ethAmount]);
+
+  // Trigger quote fetch when ethAmount changes from slider
+  useEffect(() => {
+    if (parseFloat(ethAmount) >= 0.001) {
+      refetchQuote();
+    }
+  }, [ethAmount, refetchQuote]);
 
   // Handle slider change
   const handleSliderChange = useCallback((values: number[]) => {
@@ -252,25 +271,56 @@ export function BuyKilt({
 
           {/* Swap Input */}
           <div className="space-y-6">
-            {/* ETH Amount Slider */}
+            {/* ETH Amount Input & Slider */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-white">You Pay (ETH)</label>
-                <div className="text-right">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-white/60">Manual:</span>
                   <Input
                     type="number"
                     value={ethAmount}
                     onChange={(e) => handleEthInput(e.target.value)}
-                    className="w-24 h-8 text-right bg-white/5 border-white/10 text-white text-sm"
+                    className="w-28 h-8 text-right bg-white/5 border-white/10 text-white text-sm"
                     step="0.001"
                     min="0.001"
                     max={maxEthAmount}
+                    placeholder="0.000"
                   />
+                </div>
+              </div>
+              
+              {/* Manual ETH Input (Full Width) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-white/60">Or enter exact amount:</span>
+                  <span className="text-xs text-white/40">Max: {maxEthAmount.toFixed(4)} ETH</span>
+                </div>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    placeholder="Enter ETH amount (e.g., 0.1)"
+                    value={ethAmount}
+                    onChange={(e) => handleEthInput(e.target.value)}
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pr-16 h-12"
+                    step="0.0001"
+                    min="0.001"
+                    max={maxEthAmount}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <span className="text-sm font-medium text-white/80">ETH</span>
+                  </div>
                 </div>
               </div>
               
               {/* Interactive Slider */}
               <div className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-white/60">Use slider for quick selection:</span>
+                  <span className="text-xs text-pink-400 font-medium">
+                    {maxEthAmount > 0 ? `${Math.round((parseFloat(ethAmount) / maxEthAmount) * 100)}%` : '0%'} of balance
+                  </span>
+                </div>
                 <Slider
                   value={sliderValue}
                   onValueChange={handleSliderChange}
@@ -283,11 +333,8 @@ export function BuyKilt({
                   <span>0.001 ETH</span>
                   <div className="text-center">
                     <div className="text-pink-400 font-medium">{ethAmount} ETH</div>
-                    <div className="text-white/40">
-                      {maxEthAmount > 0 ? `${Math.round((parseFloat(ethAmount) / maxEthAmount) * 100)}%` : '0%'}
-                    </div>
                   </div>
-                  <span>{maxEthAmount.toFixed(3)} ETH (100%)</span>
+                  <span>{maxEthAmount.toFixed(3)} ETH</span>
                 </div>
               </div>
               

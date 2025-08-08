@@ -261,37 +261,39 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="mobile-dialog-fix bg-black border border-gray-800 max-w-[95vw] sm:max-w-md w-full mx-auto my-4 sm:my-8 max-h-[90vh] overflow-y-auto" aria-describedby="wallet-connect-description">
+        <DialogContent className="mobile-dialog-fix bg-black/95 backdrop-blur-xl border border-gray-800 max-w-[100vw] sm:max-w-[600px] lg:max-w-[700px] w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto p-6 sm:p-8 m-0 sm:mx-auto sm:my-4 rounded-none sm:rounded-xl" aria-describedby="wallet-connect-description">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl sm:text-2xl font-bold flex items-center gap-3 mb-4 sm:mb-6">
-              <Wallet className="h-5 w-5 sm:h-6 sm:w-6" />
+            <DialogTitle className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold flex items-center justify-center gap-4 mb-6 sm:mb-8 text-center">
+              <div className="p-3 bg-gradient-to-r from-[#ff0066] to-[#cc0052] rounded-full">
+                <Wallet className="h-6 w-6 sm:h-8 sm:w-8" />
+              </div>
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
           
-          <div id="wallet-connect-description" className="text-gray-400 text-sm mb-4">
+          <div id="wallet-connect-description" className="text-gray-400 text-base sm:text-lg text-center mb-6 sm:mb-8">
             Choose your preferred wallet to connect to the KILT Liquidity Portal on Base network.
           </div>
           
           {/* Mobile Section */}
           {isMobile ? (
-            <div className="space-y-3 px-1">
-              <div className="flex items-center gap-3 text-gray-400 mb-3">
-                <Smartphone className="h-4 w-4" />
-                <span className="text-sm">Mobile Wallets</span>
+            <div className="space-y-4 px-2">
+              <div className="flex items-center justify-center gap-3 text-gray-300 mb-6">
+                <Smartphone className="h-5 w-5" />
+                <span className="text-lg font-semibold">Mobile Wallets</span>
               </div>
               
               {/* WalletConnect First - Works with 200+ wallets */}
               <Button
                 onClick={() => handleMobileWalletConnect({ id: 'walletConnect', name: 'WalletConnect (200+ wallets)' })}
                 disabled={isPending}
-                className="w-full bg-gradient-to-r from-[#3b9df8] to-[#2b7fd8] hover:from-[#4daef9] hover:to-[#3b9df8] text-white border-0 h-12 sm:h-14 text-sm sm:text-lg font-medium justify-start px-4 sm:px-6 rounded-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-[#3b9df8] to-[#2b7fd8] hover:from-[#4daef9] hover:to-[#3b9df8] text-white border-0 h-16 sm:h-18 text-lg sm:text-xl font-semibold justify-center px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
-                <div className="flex items-center gap-3 sm:gap-4 w-full">
-                  <svg className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <div className="flex items-center gap-4 w-full justify-center">
+                  <svg className="h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7.65 7.65c4.7-4.7 12.3-4.7 17 0L22.5 9.8c.4.4.4 1 0 1.4l-1.9 1.9c-.2.2-.5.2-.7 0l-2.2-2.2c-3.3-3.3-8.6-3.3-11.9 0l-2.4 2.4c-.2.2-.5.2-.7 0L1.5 11.2c-.4-.4-.4-1 0-1.4L7.65 7.65zM12 15c1.5 0 2.8 1.3 2.8 2.8s-1.3 2.8-2.8 2.8-2.8-1.3-2.8-2.8S10.5 15 12 15z"/>
                   </svg>
-                  <span className="font-medium text-left">WalletConnect (Recommended)</span>
+                  <span className="font-semibold text-center">WalletConnect (Recommended)</span>
                 </div>
               </Button>
               
@@ -301,11 +303,11 @@ export function MobileWalletConnect() {
                   key={wallet.id}
                   onClick={() => handleMobileWalletConnect(wallet)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-11 sm:h-12 text-sm sm:text-md font-medium justify-start px-4 sm:px-6 rounded-lg transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 sm:h-16 text-lg sm:text-xl font-semibold justify-center px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
-                  <div className="flex items-center gap-3 sm:gap-4 w-full">
-                    <Wallet className="h-4 w-4 flex-shrink-0" />
-                    <span className="font-medium text-left">{wallet.name}</span>
+                  <div className="flex items-center gap-4 w-full justify-center">
+                    <Wallet className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                    <span className="font-semibold text-center">{wallet.name}</span>
                   </div>
                 </Button>
               ))}
@@ -314,10 +316,10 @@ export function MobileWalletConnect() {
             </div>
           ) : (
             // Desktop Section
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 text-gray-400 mb-4">
-                <Monitor className="h-4 w-4" />
-                <span className="text-sm">Available Wallets</span>
+            <div className="space-y-6">
+              <div className="flex items-center justify-center gap-4 text-gray-300 mb-8">
+                <Monitor className="h-6 w-6" />
+                <span className="text-xl font-semibold">Available Wallets</span>
               </div>
               
               {/* Filter out unwanted wallets and remove duplicates */}
@@ -333,19 +335,23 @@ export function MobileWalletConnect() {
                   key={connector.id}
                   onClick={() => handleDesktopConnect(connector)}
                   disabled={isPending}
-                  className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-16 sm:h-18 text-xl font-semibold justify-center px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
-                  {isPending ? (
-                    <>
-                      <Loader2 className="mr-4 h-5 w-5 animate-spin" />
-                      Connecting...
-                    </>
-                  ) : (
-                    <>
-                      <Wallet className="mr-4 h-5 w-5" />
-                      {connector.name === 'WalletConnect' ? 'WalletConnect (200+ wallets)' : connector.name}
-                    </>
-                  )}
+                  <div className="flex items-center gap-4 w-full justify-center">
+                    {isPending ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <span className="font-semibold">Connecting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Wallet className="h-6 w-6 flex-shrink-0" />
+                        <span className="font-semibold text-center">
+                          {connector.name === 'WalletConnect' ? 'WalletConnect (200+ wallets)' : connector.name}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </Button>
               ))}
               
@@ -362,10 +368,12 @@ export function MobileWalletConnect() {
                   }
                 }}
                 disabled={isPending}
-                className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-14 text-lg font-medium justify-start px-6 rounded-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff3385] hover:to-[#ff0066] text-white border-0 h-16 sm:h-18 text-xl font-semibold justify-center px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
-                <Wallet className="mr-4 h-5 w-5" />
-                Binance Wallet
+                <div className="flex items-center gap-4 w-full justify-center">
+                  <Wallet className="h-6 w-6 flex-shrink-0" />
+                  <span className="font-semibold text-center">Binance Wallet</span>
+                </div>
               </Button>
             </div>
           )}
@@ -376,7 +384,7 @@ export function MobileWalletConnect() {
             </div>
           )}
 
-          <div className="text-xs sm:text-sm text-gray-500 text-center mt-4 sm:mt-6 px-2">
+          <div className="text-sm sm:text-base text-gray-500 text-center mt-8 sm:mt-10 px-4">
             By connecting, you agree to the Terms of Service and Privacy Policy
           </div>
         </DialogContent>

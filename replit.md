@@ -115,18 +115,21 @@ const { data: programAnalytics } = useQuery({
 
 **Current Status**:
 - ✅ **React Query Fixed**: Forced fresh data retrieval with `staleTime: 0` and `cacheTime: 0`
-- ✅ **Data Flow Confirmed**: API returns correct `activeLiquidityProviders: 2`
-- ✅ **Component Mapping**: Component correctly expects `programAnalytics?.activeLiquidityProviders`
+- ✅ **Analytics Logic Fixed**: Active Users now shows registered app users (2), Pool TVL shows real blockchain data ($99,171)
+- ✅ **Backend Integration**: Modified unified-reward-service.ts to fetch registered user count from database and use market data TVL
+- ✅ **Frontend Updated**: Replaced confusing "Pool Average Liquidity" with clear "Pool TVL" display
 - ✅ **Debug Code Removed**: All temporary workarounds and debug logs cleaned up
 
 **Files Involved**:
 - `client/src/hooks/use-unified-dashboard.ts` - Fixed React Query caching configuration
-- `client/src/components/rewards-tracking.tsx` - Cleaned up debug code and workarounds
+- `client/src/components/rewards-tracking.tsx` - Updated UI to show Pool TVL instead of average calculation
+- `server/unified-reward-service.ts` - Fixed analytics to use registered users count + real pool TVL
 
 **Verification**:
-- Frontend now displays correct Active Users count (2)
-- Average User Liquidity shows real calculated values instead of $0
-- Program analytics refreshes with authentic data every 10 seconds
+- Backend logs confirm: "Pool TVL: 99171 Registered Users: 2"
+- Active Users correctly displays registered app users (2)
+- Pool TVL shows authentic blockchain liquidity data ($99,171)
+- Program analytics refreshes with real data every 10 seconds
 
 ### Issue: Smart Contract State Reading Failures (CURRENT)
 **Date Identified**: August 8, 2025  

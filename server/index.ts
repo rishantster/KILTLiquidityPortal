@@ -226,9 +226,12 @@ app.use((req, res, next) => {
   
   const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
   
-  // Check if production build exists and prioritize it (for deployment readiness)
-  if (fs.existsSync(distPath)) {
-    console.log('🚀 Serving production build from:', distPath);
+  // Development mode: prioritize Vite dev server for hot reloading
+  if (app.get("env") === "development") {
+    console.log('🔧 Development mode: using Vite dev server with hot reloading');
+    await setupVite(app, server);
+  } else if (fs.existsSync(distPath)) {
+    console.log('🚀 Production mode: serving from build directory:', distPath);
     // Serve static assets with minimal caching for development-friendly workflow
     app.use(express.static(distPath, {
       maxAge: '5m', // 5 minutes instead of 1 year
@@ -250,9 +253,6 @@ app.use((req, res, next) => {
       }
       res.sendFile(path.resolve(distPath, "index.html"));
     });
-  } else if (app.get("env") === "development") {
-    console.log('🔧 No production build found, using Vite dev server');
-    await setupVite(app, server);
   } else {
     console.warn('⚠️ Production mode but no build directory found, falling back to serveStatic');
     serveStatic(app);

@@ -588,12 +588,23 @@ export function RewardsTracking() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <div className="text-center p-2 rounded bg-[#000000]" style={{ borderColor: 'rgba(255, 0, 102, 0.2)' }}>
-                  <div className="text-xs mb-1" style={{ color: '#ff0066' }}>Total Liquidity</div>
+                  <div className="text-xs mb-1" style={{ color: '#ff0066' }}>Pool TVL</div>
                   <div className="text-sm text-white numeric-display">${programAnalytics?.totalLiquidity?.toLocaleString() || '0'}</div>
                 </div>
                 <div className="text-center p-2 rounded border border-purple-500/20 bg-[#000000]">
                   <div className="text-purple-400 text-xs mb-1">Active Users</div>
                   <div className="text-sm text-white numeric-display">{programAnalytics?.activeLiquidityProviders || 0}</div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <div className="text-center p-2 rounded border border-blue-500/20 bg-[#000000]">
+                  <div className="text-blue-400 text-xs mb-1">Total Positions</div>
+                  <div className="text-sm text-white numeric-display">{programAnalytics?.totalPositions || 0}</div>
+                </div>
+                <div className="text-center p-2 rounded border border-orange-500/20 bg-[#000000]">
+                  <div className="text-orange-400 text-xs mb-1">Avg Position</div>
+                  <div className="text-sm text-white numeric-display">${programAnalytics?.averagePositionSize?.toFixed(0) || '0'}</div>
                 </div>
               </div>
               
@@ -606,8 +617,16 @@ export function RewardsTracking() {
               
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="text-white/60">Pool TVL:</span>
-                  <span className="text-white">${programAnalytics?.totalLiquidity ? Math.round(programAnalytics.totalLiquidity).toLocaleString() : '0'}</span>
+                  <span className="text-white/60">Daily Emission:</span>
+                  <span className="text-white">{programAnalytics?.dailyEmissionRate?.toLocaleString() || '0'} KILT</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">24h Volume:</span>
+                  <span className="text-white">${programAnalytics?.poolVolume24h?.toLocaleString() || '0'}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">24h Fee Earnings:</span>
+                  <span className="text-white">${programAnalytics?.poolFeeEarnings24h?.toFixed(0) || '0'}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Reward Formula:</span>

@@ -81,3 +81,42 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 **APIs**:
 - **CoinGecko API**: Real-time KILT token data.
 - **DexScreener API**: Real-time KILT/ETH pool conversion rates.
+
+## Critical Issues & Troubleshooting
+
+### Issue: Code Changes Not Reflected in Browser (Server Routing Configuration)
+**Date Resolved**: August 8, 2025  
+**Severity**: Critical - Development workflow completely broken  
+
+**Problem**:
+- Code changes (CSS, components, styling) were not being reflected in the browser
+- Multiple styling approaches failed (Tailwind classes, inline styles, JavaScript-based responsive design)
+- User frustration after multiple failed attempts to fix header styling
+
+**Root Cause**:
+Server routing configuration in `server/index.ts` was prioritizing production builds from `dist/public` directory, but the production build was missing or outdated. This created a conflict where:
+1. Server tried to serve static files from non-existent/stale `dist/public`
+2. Vite development server hot-reloading wasn't working properly
+3. Browser received cached/old content instead of new changes
+
+**Solution**:
+```bash
+npm run build  # Create production assets in dist/public
+# Restart the application workflow
+```
+
+**Prevention/Detection**:
+- If code changes aren't reflecting, check if `dist/public` directory exists and is recent
+- Verify server console for routing errors or file-not-found messages
+- Run production build when development server seems "stuck"
+- Monitor for symptoms: styling changes ignored, component updates not visible, hot reload not working
+
+**Files Involved**:
+- `server/index.ts` - Server routing logic
+- `vite.config.ts` - Build configuration
+- `dist/public/` - Production build output directory
+
+**Technical Details**:
+The Express server routes static content by checking for production builds first (lines 223-259 in `server/index.ts`). When these files don't exist or are stale, the fallback to development server can malfunction, breaking the entire development workflow.
+
+**Impact**: Complete development workflow disruption - no code changes visible until resolved.

@@ -144,6 +144,19 @@ export function MainDashboard() {
   // Chart modal state
   const [showChartModal, setShowChartModal] = useState(false);
   
+  // Responsive state for header - this was the bug!
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  
+  // Listen for window resize to update header responsiveness
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   // Get optimized queries for real trading fees APR data
   // Removed optimized queries - using unified dashboard instead
   
@@ -604,25 +617,84 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* Header */}
-        <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl p-3 sm:p-6 mb-4 sm:mb-8 w-full">
-          <div className="flex items-center justify-between w-full gap-2 sm:gap-8">
+        {/* Header - Bulletproof inline styles with !important */}
+        <div 
+          style={{
+            background: 'rgba(0, 0, 0, 0.2) !important',
+            backdropFilter: 'blur(16px) !important',
+            border: '1px solid rgba(255, 255, 255, 0.1) !important',
+            borderRadius: '12px !important',
+            padding: windowWidth <= 640 ? '12px !important' : '24px !important',
+            marginBottom: windowWidth <= 640 ? '16px !important' : '32px !important',
+            width: '100% !important',
+            display: 'block !important'
+          }}
+        >
+          <div 
+            style={{
+              display: 'flex !important',
+              alignItems: 'center !important',
+              justifyContent: 'space-between !important',
+              width: '100% !important',
+              gap: windowWidth <= 640 ? '8px !important' : '32px !important',
+              flexWrap: 'nowrap !important'
+            }}
+          >
             {/* Left Section */}
-            <div className="flex items-center gap-2 sm:gap-6 flex-1 min-w-0">
-              <div className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0">
+            <div 
+              style={{
+                display: 'flex !important',
+                alignItems: 'center !important',
+                gap: windowWidth <= 640 ? '8px !important' : '24px !important',
+                flex: '1 !important',
+                minWidth: '0 !important'
+              }}
+            >
+              <div 
+                style={{
+                  width: windowWidth <= 640 ? '32px !important' : '48px !important',
+                  height: windowWidth <= 640 ? '32px !important' : '48px !important',
+                  flexShrink: '0 !important'
+                }}
+              >
                 <CyberpunkKiltLogo size="sm" />
               </div>
-              <h1 className="text-xs sm:text-sm lg:text-2xl font-bold text-white font-mono truncate">
-                <span className="hidden sm:inline">KILT Liquidity Portal</span>
-                <span className="sm:hidden">KILT Portal</span>
+              <h1 
+                style={{
+                  fontSize: windowWidth <= 640 ? '14px !important' : (windowWidth <= 1024 ? '16px !important' : '24px !important'),
+                  lineHeight: windowWidth <= 640 ? '20px !important' : (windowWidth <= 1024 ? '24px !important' : '32px !important'),
+                  fontWeight: '700 !important',
+                  color: 'white !important',
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace !important',
+                  whiteSpace: 'nowrap !important',
+                  margin: '0 !important',
+                  padding: '0 !important',
+                  overflow: windowWidth <= 640 ? 'hidden !important' : 'visible !important',
+                  textOverflow: windowWidth <= 640 ? 'ellipsis !important' : 'clip !important',
+                  maxWidth: windowWidth <= 640 ? '120px !important' : 'none !important'
+                }}
+              >
+                {windowWidth <= 640 ? 'KILT Portal' : 'KILT Liquidity Portal'}
               </h1>
-              <div className="bg-white text-[#ff0066] px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg whitespace-nowrap flex-shrink-0">
+              <div 
+                style={{
+                  background: 'white !important',
+                  color: '#ff0066 !important',
+                  padding: windowWidth <= 640 ? '4px 8px !important' : '8px 16px !important',
+                  borderRadius: '9999px !important',
+                  fontSize: windowWidth <= 640 ? '12px !important' : '14px !important',
+                  fontWeight: '700 !important',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1) !important',
+                  whiteSpace: 'nowrap !important',
+                  flexShrink: '0 !important'
+                }}
+              >
                 Beta
               </div>
             </div>
             
             {/* Right Section - Wallet Connect */}
-            <div className="flex-shrink-0">
+            <div style={{ flexShrink: '0 !important' }}>
               <MobileWalletConnect />
             </div>
           </div>

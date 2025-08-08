@@ -213,6 +213,7 @@ a:hover {
 .hidden { display: none !important; }
 .block { display: block !important; }
 .inline-flex { display: inline-flex !important; }
+.container { max-width: 1200px !important; margin: 0 auto !important; padding: 0 1rem !important; }
 
 .items-center { align-items: center !important; }
 .justify-center { justify-content: center !important; }
@@ -699,14 +700,21 @@ a:hover {
 
 /* Balance Cards */
 .balance-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-2);
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: var(--space-2) !important;
 }
 
 @media (min-width: 768px) {
   .balance-grid {
-    gap: var(--space-4);
+    gap: var(--space-4) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .balance-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-3) !important;
   }
 }
 

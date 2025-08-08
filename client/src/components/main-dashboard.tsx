@@ -546,6 +546,7 @@ export function MainDashboard() {
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       
       <div className="relative z-10 min-h-screen">
+        <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -564,13 +565,6 @@ export function MainDashboard() {
           </div>
           
           <div className="flex items-center gap-4 flex-shrink-0">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-2 text-sm">
-              <div className="text-white/60">KILT Price</div>
-              <div className="font-bold text-emerald-400">
-                ${kiltData?.price ? kiltData.price.toFixed(4) : '0.0160'}
-              </div>
-            </div>
-            
             <button
               onClick={() => setShowChartModal(true)}
               className="flex items-center gap-2 bg-[#ff0066]/10 hover:bg-[#ff0066]/20 border border-[#ff0066]/20 hover:border-[#ff0066]/40 text-[#ff0066] px-4 py-2 rounded-xl transition-all duration-200"
@@ -729,7 +723,7 @@ export function MainDashboard() {
                 {/* Wallet Balance */}
                 <div>
                   <h3 className="text-white font-medium mb-3">Wallet Balance</h3>
-                  <div className="space-y-3">
+                  <div className="balance-grid">
                     <div className="bg-pink-500/10 border border-pink-500/20 rounded-xl p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -1054,6 +1048,7 @@ export function MainDashboard() {
             </div>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
 
       {/* Price Chart Modal */}

@@ -106,17 +106,17 @@ export class FixedRewardService {
       
       const now = new Date();
       
-      // SEPARATE CONCEPTS: Daily rate vs accumulated rewards
+      // FIXED LOGIC: Completely separate daily rate from claimable accumulation
       // 1. Daily rate = current earning potential (independent of claim history)
-      // 2. Accumulated = daily rate × time since last claim/creation
+      // 2. Claimable accumulation = hourly rate × hours since position creation (NOT since last claim)
       
-      // Calculate position age for time multiplier (from creation, not claim)
+      // Calculate position age for time multiplier (from creation, always)
       const positionAgeHours = Math.max(1, Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60)));
       const positionAgeDays = positionAgeHours / 24;
       
-      // Calculate accumulation period (from last claim or creation)
-      const accumulationStartTime = lastClaimTime && lastClaimTime > createdAt ? lastClaimTime : createdAt;
-      const accumulationHours = Math.max(1, Math.floor((now.getTime() - accumulationStartTime.getTime()) / (1000 * 60 * 60)));
+      // CRITICAL FIX: Always calculate accumulation from position creation, ignore claim history
+      // This makes claimable amount truly incremental with every hour
+      const accumulationHours = positionAgeHours; // Always from creation, not last claim
       
       // Formula parameters for DAILY RATE calculation
       const L_u = currentValueUSD; // User liquidity amount (USD)
@@ -136,14 +136,13 @@ export class FixedRewardService {
       const timeBoost = 1 + ((D_u / P) * b_time);
       const dailyRewards = liquidityRatio * timeBoost * IRM * FRB * R_P;
       
-      // ACCUMULATED REWARDS: Daily rate × accumulation time
+      // CLAIMABLE ACCUMULATION: Always from position creation (hourly incremental)
       const hourlyRewards = dailyRewards / 24; // Convert daily rate to hourly
-      const accumulatedRewards = hourlyRewards * accumulationHours;
+      const totalAccumulatedSinceCreation = hourlyRewards * accumulationHours;
       
       // Log emission details for transparency
-      const accumulationDescription = lastClaimTime && lastClaimTime > createdAt ? 'since last claim' : 'since creation';
       console.log(`⏰ DAILY RATE: Position ${nftTokenId} - ${dailyRewards.toFixed(2)} KILT/day (age: ${positionAgeDays.toFixed(1)} days, time boost: ${timeBoost.toFixed(2)}x)`);
-      console.log(`⏰ ACCUMULATED: Position ${nftTokenId} - ${accumulationHours}h ${accumulationDescription}, ${hourlyRewards.toFixed(4)} KILT/hour, ${accumulatedRewards.toFixed(2)} KILT total`);
+      console.log(`⏰ CLAIMABLE ACCUMULATION: Position ${nftTokenId} - ${accumulationHours}h since creation, ${hourlyRewards.toFixed(4)} KILT/hour, ${totalAccumulatedSinceCreation.toFixed(2)} KILT total`);
 
       // Calculate APR values
       // Get trading APR from DexScreener
@@ -178,7 +177,7 @@ export class FixedRewardService {
 
       return {
         dailyRewards: Math.max(0, dailyRewards),
-        accumulatedRewards: Math.max(0, accumulatedRewards),
+        accumulatedRewards: Math.max(0, totalAccumulatedSinceCreation),
         tradingFeeAPR: Math.max(0, tradingFeeAPR),
         incentiveAPR: Math.max(0, programIncentiveAPR),
         totalAPR: Math.max(0, totalAPR),
@@ -293,15 +292,17 @@ export class FixedRewardService {
       let totalDailyRewards = 0;
       let totalAccumulated = 0;
 
-      // Calculate rewards for each active position
+      // Calculate rewards for each active position (using creation time for all accumulation)
       for (const position of activePositions) {
         const positionReward = await this.calculatePositionRewards(
           userId, 
           position.nftTokenId,
-          position.createdAt || new Date()
+          position.createdAt || new Date(),
+          undefined // Ignore lastClaimTime - calculate from creation only
         );
         totalDailyRewards += positionReward.dailyRewards;
         totalAccumulated += positionReward.accumulatedRewards;
+        console.log(`💰 USER STATS ENDPOINT: Position ${position.nftTokenId} - daily: ${positionReward.dailyRewards}, accumulated: ${positionReward.accumulatedRewards}`);
       }
 
       // Get actual claimed amount from smart contract to prevent double spending
@@ -321,8 +322,11 @@ export class FixedRewardService {
         console.error(`⚠️ Failed to get claimed amount in getUserRewardStats:`, contractError);
       }
 
-      // Calculate actual claimable amount (accumulated - already claimed)
+      // Calculate actual claimable amount (total accumulated since creation - already claimed)
       const actualClaimableAmount = Math.max(0, totalAccumulated - actualClaimedAmount);
+      
+      console.log(`💰 USER STATS ENDPOINT: FINAL RESULTS - Daily: ${totalDailyRewards} KILT, Accumulated: ${totalAccumulated} KILT`);
+      console.log(`💰 USER STATS ENDPOINT: Returning stats: {totalAccumulated: ${totalAccumulated}, totalClaimable: ${actualClaimableAmount}, totalClaimed: ${actualClaimedAmount}, activePositions: ${activePositions.length}, avgDailyRewards: ${totalDailyRewards}}`);
 
       return {
         totalAccumulated: Math.max(0, totalAccumulated),

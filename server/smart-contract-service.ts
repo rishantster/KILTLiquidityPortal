@@ -363,12 +363,26 @@ export class SmartContractService {
    */
   async generateClaimSignature(
     userAddress: string,
-    amount: number
-  ): Promise<{ success: boolean; signature?: string; nonce?: number; error?: string }> {
+    amount?: number
+  ): Promise<{ success: boolean; signature?: string; nonce?: number; totalRewardBalance?: number; error?: string }> {
     console.log('🏁 ============ BACKEND SIGNATURE GENERATION DETAILED LOG ============');
     console.log('🔐 SERVER LOG 1: generateClaimSignature called');
     console.log('🔐 SERVER LOG 2: User address:', userAddress);
-    console.log('🔐 SERVER LOG 3: Amount requested:', amount, 'KILT');
+    console.log('🔐 SERVER LOG 3: Amount requested:', amount || 'Auto-calculated', 'KILT');
+    
+    // If amount not provided, calculate user's full claimable amount
+    if (!amount) {
+      console.log('🔐 SERVER LOG 3.1: Getting user claimable amount from API...');
+      try {
+        const response = await fetch(`http://localhost:5000/api/rewards/claimability/${userAddress}`);
+        const claimability = await response.json();
+        amount = claimability.totalClaimable || 0;
+        console.log('🔐 SERVER LOG 3.2: Auto-calculated amount:', amount, 'KILT');
+      } catch (error) {
+        console.error('❌ SERVER LOG 3.3: Failed to get claimable amount:', error);
+        return { success: false, error: 'Failed to calculate claimable amount' };
+      }
+    }
     console.log('🔐 SERVER LOG 4: Contract deployed:', !!this.isContractDeployed);
     console.log('🔐 SERVER LOG 5: Reward pool contract available:', !!this.rewardPoolContract);
     console.log('🔐 SERVER LOG 6: Wallet available:', !!this.wallet);
@@ -447,7 +461,8 @@ export class SmartContractService {
       return {
         success: true,
         signature,
-        nonce: Number(userNonce)
+        nonce: Number(userNonce),
+        totalRewardBalance: amount
       };
       
     } catch (error: unknown) {

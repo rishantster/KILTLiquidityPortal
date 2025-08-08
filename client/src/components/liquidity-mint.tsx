@@ -750,9 +750,7 @@ export function LiquidityMint({
           <Plus className="h-4 w-4 text-[#ff0066]" />
           <h2 className="text-white font-heading text-lg">Add Liquidity to KILT/ETH Pool</h2>
         </div>
-        <p className="text-white/90 text-sm max-w-xl mx-auto">
-          Add liquidity to the existing official KILT/ETH pool and earn KILT rewards + 0.3% trading fees
-        </p>
+        
         <div className="flex items-center justify-center gap-2 flex-wrap">
           <div className="bg-[#ff0066]/20 border border-[#ff0066]/50 text-xs rounded-lg px-2 py-1 text-[#ffffff]">
             <Info className="h-3 w-3 inline mr-1" />

@@ -675,30 +675,30 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6 tab-content-safe">
-            {/* Sophisticated Metrics Grid */}
-            <div className="mobile-stats-grid sm:grid-cols-4 gap-3 sm:gap-4">
+            {/* Metrics Cards - Horizontal Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                        <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
+                        <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
                       </div>
-                      <span className="text-white/70 text-sm font-medium">KILT Price</span>
+                      <span className="text-white/70 text-xs font-medium">KILT Price</span>
                     </div>
                     <button
                       onClick={() => setShowChartModal(true)}
-                      className="w-6 h-6 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group"
+                      className="w-5 h-5 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group"
                       title="View KILT/WETH Chart"
                     >
                       <BarChart3 className="h-3 w-3 text-[#ff0066] group-hover:text-white" />
                     </button>
                   </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
+                  <div className="text-white text-base mb-1 numeric-large">
                     {kiltData?.price ? `$${kiltData.price.toFixed(4)}` : (
-                      <div className="h-6 w-20 bg-slate-700 animate-pulse rounded"></div>
+                      <div className="h-5 w-16 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>
                   <div className={`text-xs font-medium numeric-mono ${
@@ -706,7 +706,7 @@ export function MainDashboard() {
                   }`}>
                     {kiltData?.priceChange24h !== null && kiltData?.priceChange24h !== undefined ? 
                       `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
-                      <div className="h-4 w-16 bg-slate-700 animate-pulse rounded"></div>
+                      <div className="h-3 w-12 bg-slate-700 animate-pulse rounded"></div>
                     }
                   </div>
                 </div>
@@ -715,16 +715,16 @@ export function MainDashboard() {
               {/* Market Cap Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
-                      <Coins className="h-4 w-4 text-green-400" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
+                      <Coins className="h-3 w-3 text-green-400" />
                     </div>
-                    <span className="text-white/70 text-sm font-medium">Market Cap</span>
+                    <span className="text-white/70 text-xs font-medium">Market Cap</span>
                   </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
+                  <div className="text-white text-base mb-1 numeric-large">
                     {kiltData?.marketCap ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
-                      <div className="h-6 w-16 bg-slate-700 animate-pulse rounded"></div>
+                      <div className="h-5 w-12 bg-slate-700 animate-pulse rounded"></div>
                     )}
                   </div>
                   <div className="text-white/50 text-xs font-medium">
@@ -736,14 +736,14 @@ export function MainDashboard() {
               {/* Trading Fees APR Card - Using Real Data */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
-                      <TrendingUp className="h-4 w-4 text-emerald-400" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
+                      <TrendingUp className="h-3 w-3 text-emerald-400" />
                     </div>
-                    <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
+                    <span className="text-white/70 text-xs font-medium">Trading Fees APR</span>
                   </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
+                  <div className="text-white text-base mb-1 numeric-large">
                     <SingleSourceTradingAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
@@ -755,14 +755,14 @@ export function MainDashboard() {
               {/* Program APR Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-500/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center">
-                      <Award className="h-4 w-4 text-green-500" />
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center">
+                      <Award className="h-3 w-3 text-green-500" />
                     </div>
-                    <span className="text-white/70 text-sm font-medium">Program APR</span>
+                    <span className="text-white/70 text-xs font-medium">Program APR</span>
                   </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
+                  <div className="text-white text-base mb-1 numeric-large">
                     <SingleSourceProgramAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
@@ -776,10 +776,9 @@ export function MainDashboard() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
               <div className="space-y-4">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-3">
                   <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
-                  <span className="hidden sm:inline">Register Existing Positions</span>
-                  <span className="sm:hidden mobile-responsive-text">Register Positions</span>
+                  <span>Eligible Positions</span>
                 </h2>
                 <div className="h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col">
                   <PositionRegistration />
@@ -788,10 +787,9 @@ export function MainDashboard() {
 
               {/* Right Column - Quick Add Liquidity */}
               <div className="space-y-4">
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-3">
                   <Zap className="h-4 w-4" style={{ color: '#ff0066' }} />
-                  <span className="hidden sm:inline">Quick Add Liquidity</span>
-                  <span className="sm:hidden mobile-responsive-text">Add Liquidity</span>
+                  <span>Quick Add Liquidity</span>
                 </h2>
                 <Card className="mobile-card-fix bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
                   <CardContent className="mobile-card-content p-3 sm:p-4 flex-1 flex flex-col overflow-hidden">
@@ -799,7 +797,7 @@ export function MainDashboard() {
                       {/* Balance Display */}
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 sm:p-3 cluely-card">
                         <h4 className="text-white font-bold text-sm sm:text-base mb-2 sm:mb-3">Wallet Balance</h4>
-                        <div className="mobile-balance-grid gap-2 sm:gap-3">
+                        <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
                           <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
                             <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>

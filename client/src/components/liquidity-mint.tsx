@@ -232,7 +232,7 @@ export function LiquidityMint({
         }
       } catch (error) {
         // Error calculating amounts
-        // Error calculating amounts
+        console.warn('Error calculating optimal amounts:', error);
       }
     }
   }, [positionSizePercent, ethBalance, wethBalance, kiltBalance, kiltData?.price, ethPriceData?.ethPrice, isManualInput]);
@@ -388,7 +388,7 @@ export function LiquidityMint({
       setValidationResult(result);
       return result;
     } catch (error) {
-      // Validation failed
+      console.error('Validation failed:', error);
       return null;
     } finally {
       setIsValidating(false);
@@ -473,7 +473,15 @@ export function LiquidityMint({
         throw new Error('Token amounts must be greater than zero');
       }
       
-      // Parsed amounts validated
+      // Debug: Log the parsed amounts
+      console.log('Liquidity amounts:', {
+        kiltAmount,
+        ethAmount,
+        kiltAmountParsed: kiltAmountParsed.toString(),
+        ethAmountParsed: ethAmountParsed.toString(),
+        kiltAmountFloat,
+        ethAmountFloat
+      });
       
       const deadlineTime = Math.floor(Date.now() / 1000) + 1200; // 20 minutes from now for better execution
 
@@ -496,7 +504,13 @@ export function LiquidityMint({
       const amount0Desired = ethAmountParsed;  // WETH amount
       const amount1Desired = kiltAmountParsed; // KILT amount
       
-      // Token order configured
+      console.log('Token order and amounts:', {
+        token0, token1,
+        amount0Desired: amount0Desired.toString(),
+        amount1Desired: amount1Desired.toString(),
+        ethAmountParsed: ethAmountParsed.toString(),
+        kiltAmountParsed: kiltAmountParsed.toString()
+      });
 
       // Use proper tick values based on pool info and selected strategy
       let tickLower, tickUpper;
@@ -510,7 +524,12 @@ export function LiquidityMint({
         // The pool price is token1/token0 ratio
         const currentPoolPrice = poolInfo?.currentPrice || poolInfo?.price || 0.00005; // WETH/KILT price
         
-        // Pool price calculated
+        // Debug: Log the current pool price
+        console.log('Pool price calculation:', {
+          poolInfo,
+          currentPoolPrice,
+          selectedStrategy
+        });
         
         const strategy = getSelectedStrategy();
         
@@ -531,7 +550,17 @@ export function LiquidityMint({
           tickLower = Math.floor(tickLowerRaw / 60) * 60;
           tickUpper = Math.ceil(tickUpperRaw / 60) * 60;
           
-          // Tick calculation completed
+          // Debug: Log the tick calculation
+          console.log('Tick calculation:', {
+            currentPoolPrice,
+            lowerPrice,
+            upperPrice,
+            tickLowerRaw,
+            tickUpperRaw,
+            tickLower,
+            tickUpper,
+            strategy: strategy.label
+          });
         }
       }
 
@@ -569,7 +598,8 @@ export function LiquidityMint({
         useNativeETH: selectedEthToken === 'ETH' // Send ETH for WETH conversion
       });
 
-      // Wait for transaction confirmation and record position in database
+      // Critical: Wait for transaction confirmation and record position in database
+      console.log('⏳ Waiting for transaction confirmation to extract NFT token ID...');
       
       try {
         // Import viem for transaction receipt parsing
@@ -588,7 +618,7 @@ export function LiquidityMint({
           timeout: 30000 // 30 second timeout
         });
         
-        // Transaction confirmed, parsing logs
+        console.log('📄 Transaction confirmed, parsing logs...');
         
         // Parse the Mint event to extract NFT token ID
         const mintEventAbi = [{
@@ -625,7 +655,7 @@ export function LiquidityMint({
         }
         
         if (nftTokenId) {
-          // Successfully extracted NFT token ID
+          console.log('🎯 Successfully extracted NFT token ID:', nftTokenId);
           
           // Record position in database as app-created
           const user = await fetch(`/api/users/${address}`).then(r => r.json());
@@ -650,7 +680,7 @@ export function LiquidityMint({
             })
           });
           
-          // Position recorded in database as app-created
+          console.log('✅ Position recorded in database as app-created:', nftTokenId);
           
           // CRITICAL: Immediately invalidate position registration cache to prevent newly created positions 
           // from appearing in "Eligible Positions" section

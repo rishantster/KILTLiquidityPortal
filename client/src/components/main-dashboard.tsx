@@ -786,8 +786,8 @@ export function MainDashboard() {
                   <Zap className="h-5 w-5" style={{ color: '#ff0066' }} />
                   Quick Add Liquidity
                 </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[520px] flex flex-col overflow-hidden cluely-card">
-                  <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
+                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg flex flex-col cluely-card">
+                  <CardContent className="p-4 flex-1 flex flex-col">
                     <div className="space-y-4 flex-1">
                       {/* Balance Display */}
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">

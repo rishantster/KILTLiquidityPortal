@@ -606,9 +606,9 @@ export function MainDashboard() {
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
         {/* Clean Professional Header */}
-        <div className="w-full mb-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Logo and Title Section */}
-          <div className="flex items-center gap-6">
+        <div className="w-full mb-8 py-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          {/* Logo and Title Section - aligned with tabs/cards */}
+          <div className="flex items-center gap-6 flex-1">
             <div className="relative w-8 h-8 flex items-center justify-center">
               <CyberpunkKiltLogo size="sm" className="w-full h-full" />
             </div>
@@ -620,7 +620,7 @@ export function MainDashboard() {
           </div>
           
           {/* Wallet Connection Section */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 self-start sm:self-center">
             <MobileWalletConnect />
           </div>
         </div>

@@ -143,7 +143,8 @@ export function useUnifiedDashboard() {
     },
     enabled: true, // Always fetch independently - no dependencies
     refetchInterval: 10000, // Fast refresh - 10 seconds
-    staleTime: 5000, // Consider data stale after 5 seconds
+    staleTime: 0, // CRITICAL FIX: Never use stale data - always fetch fresh
+    cacheTime: 0, // CRITICAL FIX: Don't cache data - always get fresh results
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnMount: true, // Always refetch on component mount
     retry: 3, // Retry failed requests

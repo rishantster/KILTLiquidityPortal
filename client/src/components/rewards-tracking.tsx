@@ -114,6 +114,8 @@ export function RewardsTracking() {
 
   // Use unified dashboard data with error boundary
   const { user, rewardStats, programAnalytics } = unifiedData;
+  
+
 
   // Get fresh position count from eligible endpoint with error handling
   const { data: eligibleData } = useQuery({
@@ -326,12 +328,15 @@ export function RewardsTracking() {
   const handleRefresh = () => {
     console.log('🚀 Admin change detected - triggering blazing fast cache refresh');
     
+    // CRITICAL: Clear the programAnalytics cache completely
+    queryClient.removeQueries({ queryKey: ['programAnalytics'] });
+    queryClient.invalidateQueries({ queryKey: ['programAnalytics'] });
+    
     // FIXED: Invalidate correct query keys to force fresh data
     queryClient.invalidateQueries({ queryKey: ['/api/rewards/user'], exact: false }); // Match actual API calls
     queryClient.invalidateQueries({ queryKey: ['reward-stats'] }); // Legacy compatibility
     queryClient.invalidateQueries({ queryKey: ['user-stats'], exact: false }); // Alternative pattern
     queryClient.invalidateQueries({ queryKey: ['user-average-apr'] });
-    queryClient.invalidateQueries({ queryKey: ['program-analytics'] });
     queryClient.invalidateQueries({ queryKey: ['claimability'] });
     queryClient.invalidateQueries({ queryKey: ['reward-history'] });
     queryClient.invalidateQueries({ queryKey: ['kilt-data'] });

@@ -605,33 +605,12 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* BRAND NEW CLEAN HEADER */}
-        <header className="w-full mb-8">
-          <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6">
-            <div className="flex items-center justify-between gap-4">
-              {/* Logo and Title */}
-              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                <div className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0">
-                  <CyberpunkKiltLogo size="sm" />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 min-w-0">
-                  <h1 className="text-lg sm:text-2xl font-bold text-white font-mono truncate">
-                    <span className="hidden sm:inline">KILT Liquidity Portal</span>
-                    <span className="sm:hidden">KILT Portal</span>
-                  </h1>
-                  <div className="bg-white text-[#ff0066] px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold w-fit">
-                    Beta
-                  </div>
-                </div>
-              </div>
-              
-              {/* Wallet Connect */}
-              <div className="flex-shrink-0">
-                <MobileWalletConnect />
-              </div>
-            </div>
-          </div>
-        </header>
+        {/* TEST HEADER TO SEE IF CHANGES WORK */}
+        <div className="w-full mb-8 bg-red-500 p-8 text-center">
+          <h1 className="text-4xl font-bold text-white">TEST HEADER - NEW</h1>
+          <p className="text-white text-xl">If you see this, the changes are working!</p>
+          <MobileWalletConnect />
+        </div>
 
         {/* Enhanced Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => {

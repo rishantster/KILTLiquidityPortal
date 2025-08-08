@@ -622,7 +622,7 @@ export function MainDashboard() {
 
         {/* Balance Cards */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card className="glass-card">
+          <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <KiltLogo size="sm" />
@@ -637,7 +637,7 @@ export function MainDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="glass-card">
+          <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <EthLogo size="sm" />
@@ -652,7 +652,7 @@ export function MainDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="glass-card">
+          <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <WethLogo size="sm" />
@@ -709,23 +709,23 @@ export function MainDashboard() {
               }
             }
           }}>
-            <TabsList className="grid grid-cols-6 w-full glass-card">
-              <TabsTrigger value="overview" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsList className="grid grid-cols-6 w-full h-14 bg-white/5 backdrop-blur-sm border border-white/10">
+              <TabsTrigger value="overview" className="text-base px-4 py-3 data-[state=active]:bg-white/10">
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="add-liquidity" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="add-liquidity" className="text-base px-4 py-3 data-[state=active]:bg-white/10">
                 Add Liquidity
               </TabsTrigger>
-              <TabsTrigger value="positions" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="positions" className="text-base px-4 py-3 data-[state=active]:bg-white/10">
                 Positions
               </TabsTrigger>
-              <TabsTrigger value="rewards" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="rewards" className="text-base px-4 py-3 data-[state=active]:bg-white/10">
                 Rewards
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="analytics" className="text-base px-4 py-3 data-[state=active]:bg-white/10">
                 Analytics
               </TabsTrigger>
-              <TabsTrigger value="integration" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="integration" className="text-base px-4 py-3 data-[state=active]:bg-white/10">
                 Integration
               </TabsTrigger>
             </TabsList>

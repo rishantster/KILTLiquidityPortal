@@ -589,7 +589,7 @@ export function MainDashboard() {
               <CyberpunkKiltLogo size="md" className="w-full h-full" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-white">
                 KILT Liquidity Portal
               </h1>
               <p className="text-white/60 text-sm">
@@ -710,22 +710,22 @@ export function MainDashboard() {
             }
           }}>
             <TabsList className="grid grid-cols-2 lg:grid-cols-6 w-full bg-black/40 backdrop-blur-sm border border-white/10">
-              <TabsTrigger value="overview" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="overview" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="add-liquidity" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="add-liquidity" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Add Liquidity
               </TabsTrigger>
-              <TabsTrigger value="positions" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="positions" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Positions
               </TabsTrigger>
-              <TabsTrigger value="rewards" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="rewards" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Rewards
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="analytics" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Analytics
               </TabsTrigger>
-              <TabsTrigger value="integration" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="integration" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Integration
               </TabsTrigger>
             </TabsList>

@@ -104,19 +104,24 @@ export class FixedRewardService {
         };
       }
       
-      // Calculate time active with HOURLY GRANULARITY for smooth emission
       const now = new Date();
       
-      // CRITICAL FIX: Use last claim time instead of position creation time
-      // Rewards should only accumulate from the last claim, not from position creation
-      const effectiveStartTime = lastClaimTime && lastClaimTime > createdAt ? lastClaimTime : createdAt;
-      const totalHoursActive = Math.max(1, Math.floor((now.getTime() - effectiveStartTime.getTime()) / (1000 * 60 * 60)));
-      const daysActive = Math.max(1, totalHoursActive / 24); // Convert hours to days for formula
+      // SEPARATE CONCEPTS: Daily rate vs accumulated rewards
+      // 1. Daily rate = current earning potential (independent of claim history)
+      // 2. Accumulated = daily rate × time since last claim/creation
       
-      // Formula parameters
+      // Calculate position age for time multiplier (from creation, not claim)
+      const positionAgeHours = Math.max(1, Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60)));
+      const positionAgeDays = positionAgeHours / 24;
+      
+      // Calculate accumulation period (from last claim or creation)
+      const accumulationStartTime = lastClaimTime && lastClaimTime > createdAt ? lastClaimTime : createdAt;
+      const accumulationHours = Math.max(1, Math.floor((now.getTime() - accumulationStartTime.getTime()) / (1000 * 60 * 60)));
+      
+      // Formula parameters for DAILY RATE calculation
       const L_u = currentValueUSD; // User liquidity amount (USD)
       const L_T = totalActiveLiquidity; // Total pool liquidity (USD)
-      const D_u = daysActive; // Days actively providing liquidity (fractional)
+      const D_u = positionAgeDays; // Position age for time multiplier (not claim history)
       const P = adminConfig.programDurationDays; // Program duration (days)
       const R_P = adminConfig.dailyBudget; // Daily reward budget allocation
       
@@ -125,18 +130,20 @@ export class FixedRewardService {
       const IRM = 1.0; // In-range multiplier (1.0 = fully in range, 0.7-1.0 range)
       const FRB = 1.0; // Full range bonus multiplier (1.0 = no bonus)
       
-      // APPLY EXACT FORMULA: R_u = (L_u/L_T) × (1 + ((D_u/P) × b_time)) × IRM × FRB × (R/P)
+      // DAILY RATE: R_u = (L_u/L_T) × (1 + ((D_u/P) × b_time)) × IRM × FRB × (R/P)
+      // This represents current earning potential per day
       const liquidityRatio = L_u / L_T;
       const timeBoost = 1 + ((D_u / P) * b_time);
       const dailyRewards = liquidityRatio * timeBoost * IRM * FRB * R_P;
       
-      // HOURLY EMISSION: Calculate rewards per hour and accumulate based on actual hours
+      // ACCUMULATED REWARDS: Daily rate × accumulation time
       const hourlyRewards = dailyRewards / 24; // Convert daily rate to hourly
-      const accumulatedRewards = hourlyRewards * totalHoursActive;
+      const accumulatedRewards = hourlyRewards * accumulationHours;
       
-      // Log hourly emission for transparency
-      const startTimeDescription = lastClaimTime && lastClaimTime > createdAt ? 'since last claim' : 'since creation';
-      console.log(`⏰ HOURLY EMISSION: Position ${nftTokenId} - ${totalHoursActive}h active ${startTimeDescription}, ${hourlyRewards.toFixed(4)} KILT/hour, ${accumulatedRewards.toFixed(2)} KILT total`);
+      // Log emission details for transparency
+      const accumulationDescription = lastClaimTime && lastClaimTime > createdAt ? 'since last claim' : 'since creation';
+      console.log(`⏰ DAILY RATE: Position ${nftTokenId} - ${dailyRewards.toFixed(2)} KILT/day (age: ${positionAgeDays.toFixed(1)} days, time boost: ${timeBoost.toFixed(2)}x)`);
+      console.log(`⏰ ACCUMULATED: Position ${nftTokenId} - ${accumulationHours}h ${accumulationDescription}, ${hourlyRewards.toFixed(4)} KILT/hour, ${accumulatedRewards.toFixed(2)} KILT total`);
 
       // Calculate APR values
       // Get trading APR from DexScreener
@@ -177,8 +184,8 @@ export class FixedRewardService {
         totalAPR: Math.max(0, totalAPR),
         liquidityAmount: currentValueUSD,
         effectiveAPR: Math.max(0, totalAPR),
-        // Debug info for hourly emission
-        totalHours: totalHoursActive,
+        // Debug info for emission calculation
+        totalHours: accumulationHours,
         hourlyRewards: hourlyRewards
       };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -16,22 +16,15 @@ import {
   CheckCircle2,
   ArrowRight,
   ExternalLink,
-  BarChart3,
-  TrendingUp as ChartIcon
+  BarChart3
 } from 'lucide-react';
-
-// Lazy-loaded components for faster initial load
-import { lazy, Suspense, useMemo } from 'react';
 
 // Hooks and contexts
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
-// Removed use-optimized-queries - cleaned up during optimization
-// Removed blazing fast hooks - cleaned up during optimization
 import { useAppSession } from '@/hooks/use-app-session';
-// Removed deprecated hooks - consolidated into unified dashboard
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
 import { useQuery } from '@tanstack/react-query';
@@ -39,29 +32,13 @@ import { useQuery } from '@tanstack/react-query';
 // Lightweight components
 import { UserPersonalAPR } from './user-personal-apr';
 import { MobileWalletConnect } from './mobile-wallet-connect';
-
-// Removed gas estimation card - consolidated into main interface
 import { PositionRegistration } from './position-registration';
 import { LoadingScreen } from './loading-screen';
-
-
 
 // Lazy load heavy components
 const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
 const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ default: m.RewardsTracking })));
 const UserPositions = lazy(() => import('./user-positions').then(m => ({ default: m.UserPositions })));
-
-// Removed tab loading spinner - using built-in loading states
-
-// Optimized loading component for heavy tabs
-const OptimizedLoadingFallback = ({ height = "400px" }) => (
-  <div className="w-full flex items-center justify-center animate-pulse" style={{ height }}>
-    <div className="text-center">
-      <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <div className="text-white/60 text-sm">Loading...</div>
-    </div>
-  </div>
-);
 
 // Assets and icons
 import kiltLogo from '@assets/KILT_400x400_transparent_1751723574123.png';
@@ -79,15 +56,59 @@ import { CyberpunkKiltLogo } from './cyberpunk-kilt-logo';
 // Viem utilities for token amount parsing
 import { parseUnits } from 'viem';
 
-// Token contract addresses
-const WETH_TOKEN = '0x4200000000000000000000000000000000000006'; // Base WETH
-const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
-
-
-
-// SINGLE SOURCE OF TRUTH APR COMPONENTS - Replaces all other APR calculations
+// SINGLE SOURCE OF TRUTH APR COMPONENTS
 import { useExpectedReturns } from '@/hooks/use-single-source-apr';
 
+// Constants
+const WETH_TOKEN = '0x4200000000000000000000000000000000000006' as const;
+const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8' as const;
+const POOL_FEE = 3000;
+const TICK_LOWER = -887220;
+const TICK_UPPER = 887220;
+const SLIPPAGE_TOLERANCE = 95n;
+const DEADLINE_BUFFER = 1200;
+const BASE_CHAIN_ID = '0x2105';
+const REGISTRATION_DELAY = 2000;
+const LOGO_ANIMATION_DELAY = 800;
+const DEFAULT_PERCENTAGE = 80;
+const MIN_LIQUIDITY_VALUE = 10;
+
+// Type definitions
+interface EthereumProvider {
+  request: (params: { method: string }) => Promise<string>;
+  on: (event: string, handler: () => void) => void;
+  removeListener: (event: string, handler: () => void) => void;
+}
+
+interface NavigateToAddLiquidityEvent extends CustomEvent {
+  detail: {
+    tab: string;
+    prefilledAmounts?: Record<string, unknown>;
+  };
+}
+
+declare global {
+  interface Window {
+    ethereum?: any;
+    navigateToTab?: (tab: string) => void;
+  }
+  
+  interface WindowEventMap {
+    'navigateToAddLiquidity': NavigateToAddLiquidityEvent;
+  }
+}
+
+// Optimized loading component
+const OptimizedLoadingFallback = ({ height = "400px" }) => (
+  <div className="w-full flex items-center justify-center animate-pulse" style={{ height }}>
+    <div className="text-center">
+      <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <div className="text-white/60 text-sm">Loading...</div>
+    </div>
+  </div>
+);
+
+// APR Display Components
 function SingleSourceProgramAPR() {
   const { data: expectedReturns, isLoading, error } = useExpectedReturns();
 
@@ -130,23 +151,22 @@ function SingleSourceTotalAPR() {
   );
 }
 
-
-
 export function MainDashboard() {
   const { address, isConnected, isConnecting } = useWagmiWallet();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
   const appSession = useAppSession();
-  
-  // Uniswap V3 hooks for liquidity provision
   const { mintPosition, isMinting } = useUniswapV3();
-  
-  // Chart modal state
+  const { toast } = useToast();
+  const { data: ethPriceData } = useEthPrice();
+
+  // State
   const [showChartModal, setShowChartModal] = useState(false);
-  
-  // Get optimized queries for real trading fees APR data
-  // Removed optimized queries - using unified dashboard instead
-  
+  const [activeTab, setActiveTab] = useState('overview');
+  const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
+  const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
+  const [selectedPercentage, setSelectedPercentage] = useState(DEFAULT_PERCENTAGE);
+
   // Use balance data from unified dashboard hook
   const { 
     kiltBalance, 
@@ -154,90 +174,16 @@ export function MainDashboard() {
     ethBalance,
     formatTokenAmount
   } = unifiedData;
-  
 
-  // Removed deprecated hooks - using unified dashboard data instead
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isQuickAdding, setIsQuickAdding] = useState(false);
-  const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
-  const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
-  const [selectedPercentage, setSelectedPercentage] = useState(80);
-
-  const { toast } = useToast();
-
-  // Navigation function for components to use
-  const navigateToTab = (tab: string) => {
+  // Navigation function
+  const navigateToTab = useCallback((tab: string) => {
     setActiveTab(tab);
-  };
-
-  // Expose navigation function globally for position registration component
-  useEffect(() => {
-    (window as unknown as { navigateToTab?: (tab: string) => void }).navigateToTab = navigateToTab;
-    
-    // Add event listener for modal redirect to Add Liquidity
-    const handleNavigateToAddLiquidity = (event: CustomEvent) => {
-      const { tab, prefilledAmounts } = event.detail;
-      setActiveTab(tab);
-      
-      // Store prefilled amounts for the Add Liquidity interface
-      if (prefilledAmounts) {
-        sessionStorage.setItem('prefilledLiquidityAmounts', JSON.stringify(prefilledAmounts));
-      }
-    };
-    
-    window.addEventListener('navigateToAddLiquidity', handleNavigateToAddLiquidity as EventListener);
-    
-    return () => {
-      delete (window as unknown as { navigateToTab?: (tab: string) => void }).navigateToTab;
-      window.removeEventListener('navigateToAddLiquidity', handleNavigateToAddLiquidity as EventListener);
-    };
   }, []);
 
-  // Optimize effects - combine network check and animation
-  useEffect(() => {
-    // Logo animation timing
-    const logoTimer = setTimeout(() => {
-      setLogoAnimationComplete(true);
-    }, 800);
-
-    // Check Base network connection
-    const checkBaseNetwork = async () => {
-      const ethereum = (window as unknown as { ethereum?: { request: (params: { method: string }) => Promise<string> } }).ethereum;
-      if (ethereum && isConnected) {
-        try {
-          const chainId = await ethereum.request({ method: 'eth_chainId' });
-          const isBase = chainId === '0x2105';
-          setIsBaseNetworkConnected(isBase);
-        } catch (error: unknown) {
-          setIsBaseNetworkConnected(false);
-        }
-      } else {
-        setIsBaseNetworkConnected(false);
-      }
-    };
-
-    checkBaseNetwork();
-    
-    // Listen for network changes
-    const ethereum = (window as unknown as { ethereum?: { on: (event: string, handler: () => void) => void; removeListener: (event: string, handler: () => void) => void } }).ethereum;
-    if (ethereum) {
-      const handleChainChanged = () => checkBaseNetwork();
-      ethereum.on('chainChanged', handleChainChanged);
-      
-      return () => {
-        clearTimeout(logoTimer);
-        ethereum.removeListener('chainChanged', handleChainChanged);
-      };
-    }
-    
-    return () => clearTimeout(logoTimer);
-  }, [isConnected]);
-
-  // Helper function to convert wei to human-readable amounts
-  const formatTokenBalance = (balance: string | bigint | undefined): string => {
+  // Format token balance helper
+  const formatTokenBalance = useCallback((balance: string | bigint | undefined): string => {
     if (!balance) return '0';
     try {
-      // Convert to string if it's a bigint or number
       let balanceStr: string;
       if (typeof balance === 'bigint') {
         balanceStr = balance.toString();
@@ -247,14 +193,11 @@ export function MainDashboard() {
         balanceStr = balance;
       }
       
-      // Convert wei to ether (both KILT and WETH use 18 decimals)
-      // Use BigInt division to avoid precision issues
       const balanceBigInt = BigInt(balanceStr);
       const divisor = BigInt(1e18);
       const wholePart = balanceBigInt / divisor;
       const fractionalPart = balanceBigInt % divisor;
       
-      // Convert fractional part to decimal
       const fractionalStr = fractionalPart.toString().padStart(18, '0');
       const trimmedFractional = fractionalStr.slice(0, 4);
       
@@ -262,13 +205,10 @@ export function MainDashboard() {
     } catch {
       return '0.0000';
     }
-  };
+  }, []);
 
-  // Get real-time ETH price
-  const { data: ethPriceData } = useEthPrice();
-
-  // Calculate optimal amounts using universal LiquidityService
-  const calculateOptimalAmounts = (percentage = selectedPercentage) => {
+  // Calculate optimal amounts
+  const calculateOptimalAmounts = useCallback((percentage = selectedPercentage) => {
     return LiquidityService.calculateOptimalAmounts(
       kiltBalance,
       wethBalance,
@@ -276,19 +216,23 @@ export function MainDashboard() {
       kiltData?.price || 0.0160,
       percentage,
       formatTokenBalance,
-      ethPriceData?.ethPrice // Pass real-time ETH price
+      ethPriceData?.ethPrice
     );
-  };
+  }, [kiltBalance, wethBalance, ethBalance, kiltData?.price, selectedPercentage, formatTokenBalance, ethPriceData?.ethPrice]);
 
-  // Quick Add Liquidity with actual token approval and position minting
-  const handleQuickAddLiquidity = async () => {
+  // Memoize calculated amounts
+  const optimizedAmounts = useMemo(() => calculateOptimalAmounts(), [calculateOptimalAmounts]);
+
+  // Quick Add Liquidity handler
+  const handleQuickAddLiquidity = useCallback(async () => {
     if (!address || isMinting) return;
     
     try {
-      console.log('🚀 Starting Quick Add Liquidity process...');
-      
-      const amounts = calculateOptimalAmounts();
-      const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
+      const amounts = optimizedAmounts;
+      const hasInsufficientBalance = 
+        parseFloat(amounts.kiltAmount) <= 0 || 
+        parseFloat(amounts.ethAmount) <= 0 || 
+        parseFloat(amounts.totalValue) < MIN_LIQUIDITY_VALUE;
       
       if (hasInsufficientBalance) {
         toast({
@@ -299,56 +243,39 @@ export function MainDashboard() {
         return;
       }
       
-      // Convert to BigInt values (18 decimals)
-      const amount0Desired = parseUnits(amounts.ethAmount, 18); // WETH
-      const amount1Desired = parseUnits(amounts.kiltAmount, 18); // KILT
-      
-      console.log('💰 Quick Add amounts:', {
-        eth: amounts.ethAmount,
-        kilt: amounts.kiltAmount,
-        amount0Desired: amount0Desired.toString(),
-        amount1Desired: amount1Desired.toString()
-      });
+      const amount0Desired = parseUnits(amounts.ethAmount, 18);
+      const amount1Desired = parseUnits(amounts.kiltAmount, 18);
       
       toast({
         title: "Creating Liquidity Position",
         description: "Processing transaction...",
       });
       
-      // Create the position using mintPosition from useUniswapV3
-      console.log('🏗️ Creating liquidity position...');
       const txHash = await mintPosition({
-        token0: WETH_TOKEN as `0x${string}`,
-        token1: KILT_TOKEN as `0x${string}`,
-        fee: 3000, // 0.3%
-        tickLower: -887220, // Full range
-        tickUpper: 887220,  // Full range
+        token0: WETH_TOKEN,
+        token1: KILT_TOKEN,
+        fee: POOL_FEE,
+        tickLower: TICK_LOWER,
+        tickUpper: TICK_UPPER,
         amount0Desired,
         amount1Desired,
-        amount0Min: (amount0Desired * 95n) / 100n, // 5% slippage
-        amount1Min: (amount1Desired * 95n) / 100n, // 5% slippage
+        amount0Min: (amount0Desired * SLIPPAGE_TOLERANCE) / 100n,
+        amount1Min: (amount1Desired * SLIPPAGE_TOLERANCE) / 100n,
         recipient: address as `0x${string}`,
-        deadline: Math.floor(Date.now() / 1000) + 1200, // 20 minutes
+        deadline: Math.floor(Date.now() / 1000) + DEADLINE_BUFFER,
         useNativeETH: true
       });
-      
-      console.log('✅ Position created! Hash:', txHash);
       
       toast({
         title: "Liquidity Added Successfully!",
         description: `Added ${amounts.ethAmount} ETH + ${amounts.kiltAmount} KILT to the pool`,
       });
       
-      // Auto-register the new position immediately after successful creation
-      console.log('🔄 Auto-registering new position in reward program...');
-      
-      // Wait briefly for transaction finalization, then register
+      // Auto-register position
       setTimeout(async () => {
         try {
-          // Invalidate caches to get fresh data
           await queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
           
-          // Trigger bulk registration for all eligible positions
           const response = await fetch('/api/positions/register/bulk', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -357,7 +284,6 @@ export function MainDashboard() {
           
           if (response.ok) {
             const result = await response.json();
-            console.log('✅ Auto-registration completed:', result);
             
             if (result.registeredCount > 0) {
               toast({
@@ -366,30 +292,30 @@ export function MainDashboard() {
               });
             }
             
-            // Refresh all relevant data
-            queryClient.invalidateQueries({ queryKey: ['/api/rewards'] });
-            queryClient.invalidateQueries({ queryKey: ['/api/positions'] });
-          } else {
-            console.log('⚠️ Auto-registration failed - user can register manually');
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: ['/api/rewards'] }),
+              queryClient.invalidateQueries({ queryKey: ['/api/positions'] })
+            ]);
           }
-        } catch (autoRegError) {
-          console.log('⚠️ Auto-registration error:', autoRegError);
+        } catch (error) {
+          console.error('Auto-registration error:', error);
         }
-      }, 2000); // Wait 2 seconds for blockchain confirmation
+      }, REGISTRATION_DELAY);
       
-      // Switch to positions tab to show the new position
       setActiveTab('positions');
       
-    } catch (error: any) {
+    } catch (error) {
       console.error('Quick Add Liquidity error:', error);
       
       let errorMessage = "Failed to add liquidity";
-      if (error.message?.includes('insufficient funds')) {
-        errorMessage = "Insufficient token balance";
-      } else if (error.message?.includes('user rejected')) {
-        errorMessage = "Transaction rejected";
-      } else if (error.message?.includes('slippage')) {
-        errorMessage = "Price changed too much during transaction";
+      if (error instanceof Error) {
+        if (error.message?.includes('insufficient funds')) {
+          errorMessage = "Insufficient token balance";
+        } else if (error.message?.includes('user rejected')) {
+          errorMessage = "Transaction rejected";
+        } else if (error.message?.includes('slippage')) {
+          errorMessage = "Price changed too much during transaction";
+        }
       }
       
       toast({
@@ -398,7 +324,72 @@ export function MainDashboard() {
         variant: "destructive",
       });
     }
-  };
+  }, [address, isMinting, optimizedAmounts, toast, mintPosition]);
+
+  // Setup navigation event listener
+  useEffect(() => {
+    window.navigateToTab = navigateToTab;
+    
+    const handleNavigateToAddLiquidity = (event: NavigateToAddLiquidityEvent) => {
+      const { tab, prefilledAmounts } = event.detail;
+      setActiveTab(tab);
+      
+      if (prefilledAmounts) {
+        try {
+          sessionStorage.setItem('prefilledLiquidityAmounts', JSON.stringify(prefilledAmounts));
+        } catch (error) {
+          console.error('Failed to store prefilled amounts:', error);
+        }
+      }
+    };
+    
+    window.addEventListener('navigateToAddLiquidity', handleNavigateToAddLiquidity);
+    
+    return () => {
+      delete window.navigateToTab;
+      window.removeEventListener('navigateToAddLiquidity', handleNavigateToAddLiquidity);
+    };
+  }, [navigateToTab]);
+
+  // Network check and logo animation
+  useEffect(() => {
+    const logoTimer = setTimeout(() => {
+      setLogoAnimationComplete(true);
+    }, LOGO_ANIMATION_DELAY);
+
+    const checkBaseNetwork = async () => {
+      const ethereum = window.ethereum;
+      if (ethereum && isConnected) {
+        try {
+          const chainId = await ethereum.request({ method: 'eth_chainId' });
+          const isBase = chainId === BASE_CHAIN_ID;
+          setIsBaseNetworkConnected(isBase);
+        } catch (error) {
+          console.error('Failed to check network:', error);
+          setIsBaseNetworkConnected(false);
+        }
+      } else {
+        setIsBaseNetworkConnected(false);
+      }
+    };
+
+    checkBaseNetwork();
+    
+    const ethereum = window.ethereum;
+    let handleChainChanged: (() => void) | undefined;
+    
+    if (ethereum) {
+      handleChainChanged = () => checkBaseNetwork();
+      ethereum.on('chainChanged', handleChainChanged);
+    }
+    
+    return () => {
+      clearTimeout(logoTimer);
+      if (ethereum && handleChainChanged) {
+        ethereum.removeListener('chainChanged', handleChainChanged);
+      }
+    };
+  }, [isConnected]);
 
   // Show loading state while connecting
   if (isConnecting) {
@@ -409,10 +400,10 @@ export function MainDashboard() {
     );
   }
 
+  // Landing page for unconnected users
   if (!isConnected) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden">
-        {/* Background Video */}
         <div className="absolute inset-0" style={{ zIndex: 1 }}>
           <video 
             autoPlay 
@@ -421,18 +412,14 @@ export function MainDashboard() {
             playsInline 
             className="absolute inset-0 w-full h-full object-cover"
             style={{ opacity: 1 }}
-            onLoadStart={() => console.log('Landing page video loading started')}
-            onCanPlay={() => console.log('Landing page video can play')}
-            onError={(e) => console.error('Landing page video error:', e)}
+            aria-hidden="true"
           >
             <source src={backgroundVideo} type="video/mp4" />
           </video>
         </div>
         
-        {/* Overlay for content readability */}
         <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
         
-        {/* Clean Beta Badge - Fixed position in top right corner */}
         <div className="fixed top-6 right-6 sm:top-8 sm:right-8 z-50">
           <div className="bg-white backdrop-blur-sm rounded-full px-4 py-2 text-xs sm:text-sm font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200">
             Beta
@@ -441,16 +428,12 @@ export function MainDashboard() {
 
         <div className="max-w-5xl mx-auto relative" style={{ zIndex: 10 }}>
           <div className="text-center pt-16 pb-8">
-            {/* Hero Section */}
             <div className="mb-12">
               <div className="relative w-32 h-32 mx-auto mb-8">
-                {/* Cyberpunk KILT Logo */}
                 <CyberpunkKiltLogo size="xl" className="w-full h-full" />
               </div>
               
-              {/* Modern Typography - Clean & Professional */}
               <div className="mb-8">
-                {/* Main title with subtle gradient */}
                 <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight tracking-tight">
                   <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
                     KILT Liquidity
@@ -461,7 +444,6 @@ export function MainDashboard() {
                 </h1>
               </div>
               
-              {/* Clean Description */}
               <div className="relative max-w-4xl mx-auto mb-8">
                 <p className="text-xl sm:text-2xl text-white/90 font-medium leading-relaxed text-center">
                   Earn <span className="text-emerald-400 font-bold bg-emerald-400/10 px-2 py-1 rounded">{unifiedData.programAnalytics?.programAPR ? `${Math.round(unifiedData.programAnalytics.programAPR)}%` : '163%'} APR</span> from the <span className="text-pink-400 font-bold bg-pink-400/10 px-2 py-1 rounded">{unifiedData.programAnalytics?.treasuryTotal ? (unifiedData.programAnalytics.treasuryTotal >= 1000000 ? `${(unifiedData.programAnalytics.treasuryTotal / 1000000).toFixed(1)}M` : `${(unifiedData.programAnalytics.treasuryTotal / 1000).toFixed(0)}K`) : '1.5M'} KILT treasury</span> by providing liquidity to Uniswap V3 pools on Base network.
@@ -469,16 +451,13 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Connection Section */}
             <div className="mb-16 flex flex-col items-center">
               <div className="mb-4">
                 <MobileWalletConnect />
               </div>
             </div>
 
-            {/* Clean Feature Grid */}
             <div className="grid md:grid-cols-3 gap-8 mb-16">
-              {/* KILT/ETH Pool */}
               <div className="group relative animate-fade-in animate-delay-100">
                 <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:border-emerald-500/30 hover:bg-black/60 h-[180px] flex flex-col">
                   <div className="flex items-center mb-4">
@@ -493,7 +472,6 @@ export function MainDashboard() {
                 </div>
               </div>
 
-              {/* Treasury Rewards */}
               <div className="group relative animate-fade-in animate-delay-200">
                 <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:border-pink-500/30 hover:bg-black/60 h-[180px] flex flex-col">
                   <div className="flex items-center mb-4">
@@ -508,7 +486,6 @@ export function MainDashboard() {
                 </div>
               </div>
 
-              {/* Program Analytics */}
               <div className="group relative animate-fade-in animate-delay-300">
                 <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-black/60 h-[180px] flex flex-col">
                   <div className="flex items-center mb-4">
@@ -524,7 +501,6 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Bottom CTA */}
             <div className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                 Join the KILT Ecosystem
@@ -534,13 +510,13 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Clean Social Media Links */}
             <div className="flex justify-center items-center gap-3">
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                aria-label="Follow KILT on X (Twitter)"
               >
                 <SiX className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
@@ -549,6 +525,7 @@ export function MainDashboard() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                aria-label="View KILT on GitHub"
               >
                 <SiGithub className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
@@ -557,6 +534,7 @@ export function MainDashboard() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                aria-label="Join KILT Discord"
               >
                 <SiDiscord className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
@@ -565,6 +543,7 @@ export function MainDashboard() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                aria-label="Join KILT Telegram"
               >
                 <SiTelegram className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
@@ -573,6 +552,7 @@ export function MainDashboard() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/30 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                aria-label="Read KILT on Medium"
               >
                 <SiMedium className="h-5 w-5 text-white/80 hover:text-[#ff0066] transition-colors duration-300" />
               </a>
@@ -583,9 +563,9 @@ export function MainDashboard() {
     );
   }
 
+  // Main dashboard for connected users
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative">
-      {/* Background Video - Testing higher z-index */}
       <video 
         autoPlay 
         muted 
@@ -594,457 +574,422 @@ export function MainDashboard() {
         preload="auto"
         className="fixed top-0 left-0 w-full h-full object-cover"
         style={{ zIndex: 1 }}
-        onLoadStart={() => console.log('Video loading started')}
-        onCanPlay={() => console.log('Video can play')}
-        onError={(e) => console.error('Video error:', e)}
+        aria-hidden="true"
       >
         <source src={backgroundVideo} type="video/mp4" />
-        Your browser does not support the video tag.
       </video>
-      {/* Transparent overlay for content readability */}
+      
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
-      <div className="max-w-7xl mx-auto px-6 py-8 relative" style={{ zIndex: 10 }}>
-        {/* Clean Professional Header */}
+      
+      <div className="relative z-10 min-h-screen">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-              <CyberpunkKiltLogo size="sm" />
+              <img src={kiltLogo} alt="KILT" className="w-9 h-9" />
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <h1 className="text-2xl sm:text-3xl font-bold text-white font-mono">KILT Liquidity Portal</h1>
-              
-              {/* Clean Beta Badge - Dashboard Header */}
-              <div className="bg-white backdrop-blur-sm rounded-full px-3 py-1 text-xs sm:text-sm font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0 w-fit">
-                Beta
+            <div>
+              <h1 className="text-3xl font-bold">KILT Liquidity Portal</h1>
+              <div className="flex items-center gap-2 text-white/60 text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Live on Base Network</span>
+                {unifiedData?.isLoading && (
+                  <div className="ml-2 text-xs text-white/40">Loading data...</div>
+                )}
               </div>
             </div>
           </div>
           
-          <div className="flex-shrink-0">
+          <div className="flex items-center gap-4 flex-shrink-0">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-2 text-sm">
+              <div className="text-white/60">KILT Price</div>
+              <div className="font-bold text-emerald-400">
+                ${kiltData?.price ? kiltData.price.toFixed(4) : '0.0160'}
+              </div>
+            </div>
+            
+            <button
+              onClick={() => setShowChartModal(true)}
+              className="flex items-center gap-2 bg-[#ff0066]/10 hover:bg-[#ff0066]/20 border border-[#ff0066]/20 hover:border-[#ff0066]/40 text-[#ff0066] px-4 py-2 rounded-xl transition-all duration-200"
+            >
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Price Chart</span>
+            </button>
+            
             <MobileWalletConnect />
           </div>
         </div>
 
-        {/* Enhanced Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => {
-          setActiveTab(value);
-          // Invalidate positions cache when switching to positions tab
-          if (value === 'positions') {
-            queryClient.invalidateQueries({ queryKey: ['wallet-positions'] });
-            if (address) {
-              queryClient.invalidateQueries({ queryKey: ['/api/positions/wallet', address] });
-            }
-          }
-        }} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl mb-8 h-14 gap-2 shadow-2xl">
-            <TabsTrigger 
-              value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
-            >
-              <TrendingUp className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="font-medium">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="liquidity" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
-            >
-              <Plus className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="font-medium">Add Liquidity</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="rewards" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
-            >
-              <Award className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="font-medium">Rewards</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="positions" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-base font-medium transition-all duration-300 px-4 py-3 flex items-center justify-center hover:bg-white/5 group"
-            >
-              <Wallet className="h-5 w-5 mr-3 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="font-medium">Positions</span>
-            </TabsTrigger>
-
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-8">
-            {/* Sophisticated Metrics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {/* KILT Price Card */}
-              <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                        <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-                      </div>
-                      <span className="text-white/70 text-sm font-medium">KILT Price</span>
-                    </div>
-                    <button
-                      onClick={() => setShowChartModal(true)}
-                      className="w-6 h-6 rounded-md bg-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center hover:bg-[#ff0066]/20 transition-all duration-200 group"
-                      title="View KILT/WETH Chart"
-                    >
-                      <BarChart3 className="h-3 w-3 text-[#ff0066] group-hover:text-white" />
-                    </button>
+        {/* Action Buttons Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <Card className="bg-black/20 backdrop-blur-sm border-white/10">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center border border-emerald-500/20">
+                  <TrendingUp className="h-6 w-6 text-emerald-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">Current APR</h3>
+                  <div className="text-2xl font-bold text-emerald-400">
+                    <SingleSourceTotalAPR />
                   </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.price ? `$${kiltData.price.toFixed(4)}` : (
-                      <div className="h-6 w-20 bg-slate-700 animate-pulse rounded"></div>
-                    )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-black/20 backdrop-blur-sm border-white/10">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-600/20 flex items-center justify-center border border-pink-500/20">
+                  <Award className="h-6 w-6 text-pink-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">Treasury</h3>
+                  <div className="text-2xl font-bold text-pink-400">
+                    {unifiedData.programAnalytics?.treasuryTotal 
+                      ? `${(unifiedData.programAnalytics.treasuryTotal / 1000).toFixed(0)}K`
+                      : '1,500K'
+                    } KILT
                   </div>
-                  <div className={`text-xs font-medium numeric-mono ${
-                    (kiltData?.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'
-                  }`}>
-                    {kiltData?.priceChange24h !== null && kiltData?.priceChange24h !== undefined ? 
-                      `${kiltData.priceChange24h >= 0 ? '+' : ''}${kiltData.priceChange24h.toFixed(2)}% (24h)` : 
-                      <div className="h-4 w-16 bg-slate-700 animate-pulse rounded"></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-black/20 backdrop-blur-sm border-white/10">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center border border-blue-500/20">
+                  <Coins className="h-6 w-6 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">Pool TVL</h3>
+                  <div className="text-2xl font-bold text-blue-400">
+                    ${unifiedData.programAnalytics?.totalLiquidity 
+                      ? (unifiedData.programAnalytics.totalLiquidity / 1000).toFixed(0) + 'K'
+                      : '97K'
                     }
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </div>
 
-              {/* Market Cap Card */}
-              <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
-                      <Coins className="h-4 w-4 text-green-400" />
+        {/* Wallet Balance Section */}
+        <Card className="mb-8 bg-black/20 backdrop-blur-sm border-white/10">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-pink-400" />
+              <span>Wallet Balance</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* KILT Balance Row */}
+              <div className="bg-gradient-to-r from-pink-500/10 to-pink-600/5 border border-pink-500/20 rounded-xl p-4">
+                <div className="flex items-center gap-3">
+                  <img src={kiltLogo} alt="KILT" className="w-8 h-8" />
+                  <div className="flex-1">
+                    <div className="text-sm text-white/60 mb-1">KILT Balance</div>
+                    <div className="text-xl font-bold text-white">
+                      {formatTokenBalance(kiltBalance)}
                     </div>
-                    <span className="text-white/70 text-sm font-medium">Market Cap</span>
-                  </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
-                    {kiltData?.marketCap ? `$${(kiltData.marketCap / 1000000).toFixed(1)}M` : (
-                      <div className="h-6 w-16 bg-slate-700 animate-pulse rounded"></div>
-                    )}
-                  </div>
-                  <div className="text-white/50 text-xs font-medium">
-                    277.0M circulating
+                    <div className="text-xs text-pink-400">
+                      ${((parseFloat(formatTokenBalance(kiltBalance)) * (kiltData?.price || 0.0160))).toFixed(2)}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Trading Fees APR Card - Using Real Data */}
-              <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
-                      <TrendingUp className="h-4 w-4 text-emerald-400" />
+              {/* ETH Balance Row */}
+              <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                    ETH
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm text-white/60 mb-1">ETH Balance</div>
+                    <div className="text-xl font-bold text-white">
+                      {formatTokenBalance(ethBalance)}
                     </div>
-                    <span className="text-white/70 text-sm font-medium">Trading Fees APR</span>
-                  </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
-                    <SingleSourceTradingAPR />
-                  </div>
-                  <div className="text-white/50 text-xs font-medium">
-                    DexScreener API
+                    <div className="text-xs text-blue-400">
+                      ${((parseFloat(formatTokenBalance(ethBalance)) * (ethPriceData?.ethPrice || 3900))).toFixed(2)}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Program APR Card */}
-              <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-500/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center">
-                      <Award className="h-4 w-4 text-green-500" />
+              {/* WETH Balance Row */}
+              <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
+                    WETH
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm text-white/60 mb-1">WETH Balance</div>
+                    <div className="text-xl font-bold text-white">
+                      {formatTokenBalance(wethBalance)}
                     </div>
-                    <span className="text-white/70 text-sm font-medium">Program APR</span>
-                  </div>
-                  <div className="text-white text-xl mb-1 numeric-large">
-                    <SingleSourceProgramAPR />
-                  </div>
-                  <div className="text-white/50 text-xs font-medium">
-                    Treasury rewards
+                    <div className="text-xs text-purple-400">
+                      ${((parseFloat(formatTokenBalance(wethBalance)) * (ethPriceData?.ethPrice || 3900))).toFixed(2)}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Two Column Layout - Desktop Optimized */}
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Left Column - Position Registration */}
-              <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                  <Plus className="h-5 w-5" style={{ color: '#ff0066' }} />
-                  Register Existing Positions
-                </h2>
-                <div className="h-[520px] flex flex-col">
-                  <PositionRegistration />
-                </div>
-              </div>
-
-              {/* Right Column - Quick Add Liquidity - COMPLETELY REBUILT */}
-              <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                  <Zap className="h-5 w-5" style={{ color: '#ff0066' }} />
+            {/* Quick Add Liquidity Section */}
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-yellow-400" />
                   Quick Add Liquidity
-                </h2>
-                <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg flex flex-col cluely-card">
-                  <CardContent className="p-4 flex-1 flex flex-col">
-                    <div className="space-y-6 flex-1">
-                      {/* COMPLETELY REDESIGNED BALANCE DISPLAY - HORIZONTAL LAYOUT */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-4 cluely-card">
-                        <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                          <Wallet className="h-5 w-5 text-[#ff0066]" />
-                          Wallet Balances
-                        </h4>
-                        
-                        {/* HORIZONTAL BALANCE CARDS - GUARANTEED TO WORK */}
-                        <div className="space-y-3">
-                          {/* KILT Balance Row */}
-                          <div className="flex items-center justify-between bg-gradient-to-r from-[#ff0066]/10 to-transparent p-4 rounded-xl border border-[#ff0066]/20 hover:border-[#ff0066]/40 transition-all duration-300">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#ff0066]/20 border-2 border-[#ff0066]/40">
-                                <img src={kiltLogo} alt="KILT" className="w-7 h-7" />
-                              </div>
-                              <div>
-                                <div className="text-white font-semibold text-base">KILT</div>
-                                <div className="text-[#ff0066] text-sm font-medium">KILT Protocol</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-white font-bold text-xl numeric-mono">
-                                {kiltBalance && parseFloat(kiltBalance) >= 1000 
-                                  ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
-                                  : kiltBalance 
-                                    ? parseFloat(kiltBalance).toFixed(2)
-                                    : '0.00'}
-                              </div>
-                              <div className="text-white/60 text-sm">
-                                ${kiltData?.price && kiltBalance 
-                                  ? (parseFloat(kiltBalance) * kiltData.price).toFixed(2)
-                                  : '0.00'
-                                }
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* ETH Balance Row */}
-                          <div className="flex items-center justify-between bg-gradient-to-r from-blue-500/10 to-transparent p-4 rounded-xl border border-blue-400/20 hover:border-blue-400/40 transition-all duration-300">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500/20 border-2 border-blue-400/40">
-                                <svg className="w-7 h-7" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#627EEA"/>
-                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
-                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
-                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
-                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141414"/>
-                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
-                                </svg>
-                              </div>
-                              <div>
-                                <div className="text-white font-semibold text-base">ETH</div>
-                                <div className="text-blue-400 text-sm font-medium">Ethereum</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-white font-bold text-xl numeric-mono">
-                                {ethBalance ? (
-                                  parseFloat(ethBalance) >= 1 
-                                    ? parseFloat(ethBalance).toFixed(3)
-                                    : parseFloat(ethBalance).toFixed(6)
-                                ) : '0.000000'}
-                              </div>
-                              <div className="text-white/60 text-sm">
-                                ${ethPriceData?.ethPrice && ethBalance 
-                                  ? (parseFloat(ethBalance) * ethPriceData.ethPrice).toFixed(2)
-                                  : '0.00'
-                                }
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* WETH Balance Row */}
-                          <div className="flex items-center justify-between bg-gradient-to-r from-purple-500/10 to-transparent p-4 rounded-xl border border-purple-400/20 hover:border-purple-400/40 transition-all duration-300">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-purple-500/20 border-2 border-purple-400/40">
-                                <svg className="w-7 h-7" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#A855F7"/>
-                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
-                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
-                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
-                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141414"/>
-                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
-                                </svg>
-                              </div>
-                              <div>
-                                <div className="text-white font-semibold text-base">WETH</div>
-                                <div className="text-purple-400 text-sm font-medium">Wrapped ETH</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-white font-bold text-xl numeric-mono">
-                                {wethBalance ? (
-                                  parseFloat(wethBalance) >= 1 
-                                    ? parseFloat(wethBalance).toFixed(3)
-                                    : parseFloat(wethBalance).toFixed(6)
-                                ) : '0.000000'}
-                              </div>
-                              <div className="text-white/60 text-sm">
-                                ${ethPriceData?.ethPrice && wethBalance 
-                                  ? (parseFloat(wethBalance) * ethPriceData.ethPrice).toFixed(2)
-                                  : '0.00'
-                                }
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Percentage Selector */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-white text-sm font-medium">Balance Usage</span>
-                          <span className="text-sm text-white/80 numeric-mono">{selectedPercentage}% of wallet</span>
-                        </div>
-                        <div className="grid grid-cols-5 gap-2 mb-3">
-                          {LiquidityService.getPercentageOptions().map(({ value, label }) => (
-                            <Button
-                              key={value}
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedPercentage(value)}
-                              className={`text-xs py-1 px-1 h-7 transition-all duration-200 border ${
-                                selectedPercentage === value 
-                                  ? 'text-black font-bold border-2' 
-                                  : 'border text-white/80 hover:bg-[#ff0066]/10 hover:border-[#ff0066]/50 hover:text-white'
-                              }`}
-                              style={selectedPercentage === value ? { 
-                                backgroundColor: '#ff0066', 
-                                borderColor: '#ff0066',
-                                color: 'white'
-                              } : { 
-                                borderColor: 'rgba(255, 255, 255, 0.2)' 
-                              }}
-                            >
-                              {label}
-                            </Button>
-                          ))}
-                        </div>
-                        
-                        {/* Seek Bar Slider */}
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-white text-xs">Precise Control</span>
-                            <span className="text-white/80 text-xs">{selectedPercentage}%</span>
-                          </div>
-                          <Slider
-                            value={[selectedPercentage]}
-                            onValueChange={(value) => setSelectedPercentage(value[0])}
-                            max={100}
-                            min={0}
-                            step={1}
-                            className="w-full"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Optimal Amount */}
-                      <div className="theme-card p-3 cluely-card">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-white text-sm font-medium text-label">Liquidity Amount</span>
-                          <span className="text-sm text-white/80 text-body">Balanced strategy</span>
-                        </div>
-                        {(() => {
-                          const amounts = calculateOptimalAmounts();
-                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
-                          
-                          if (hasInsufficientBalance) {
-                            return (
-                              <div className="text-center py-2">
-                                <div className="text-sm font-medium text-red-400 mb-1 text-label">Insufficient Balance</div>
-                                <p className="text-white/60 text-xs text-body">Fund wallet to continue</p>
-                              </div>
-                            );
-                          }
-                          
-                          return (
-                            <div>
-                              <div className="text-2xl font-bold text-[#ff0066] text-numbers mb-2" style={{ textShadow: '0 0 20px rgba(255, 0, 102, 0.6)' }}>
-                                ~${amounts.totalValue}
-                              </div>
-                              <div className="flex items-center justify-center space-x-4 text-white text-sm text-body">
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                    <KiltLogo size="sm" showBackground={false} />
-                                  </div>
-                                  <span className="font-medium text-[#ff0066]">{amounts.kiltAmount} KILT</span>
-                                </div>
-                                <span className="text-[#ff0066] text-lg">+</span>
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-[#ff0066]/30 to-[#ff0066]/30 rounded-full flex items-center justify-center border border-[#ff0066]/50">
-                                    <EthLogo size="sm" showBackground={false} />
-                                  </div>
-                                  <span className="font-medium text-[#ff0066]">{amounts.ethAmount} {amounts.useNativeEth ? 'ETH' : 'WETH'}</span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                    
-                    {/* Action Button and Help Text - Bottom of Card */}
-                    <div className="space-y-2 mt-3 px-1">
-                      {/* Action Button */}
-                      {(() => {
-                        const amounts = calculateOptimalAmounts();
-                        const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
-                        const isDisabled = isMinting || !address || hasInsufficientBalance;
-                        
-                        return (
-                          <Button 
-                            onClick={handleQuickAddLiquidity}
-                            disabled={isDisabled}
-                            className={`w-full font-semibold py-2 h-10 rounded-lg transition-all duration-300 text-sm ${
-                              hasInsufficientBalance 
-                                ? 'theme-badge-danger cursor-not-allowed' 
-                                : 'theme-button-primary'
-                            }`}
-                          >
-                            {isMinting ? (
-                              <>
-                                <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-                                Processing...
-                              </>
-                            ) : hasInsufficientBalance ? (
-                              <>
-                                <Wallet className="h-3 w-3 mr-1.5" />
-                                Fund Wallet
-                              </>
-                            ) : (
-                              <>
-                                <Zap className="h-3 w-3 mr-1.5" />
-                                Quick Add Liquidity
-                                <ArrowRight className="h-3 w-3 ml-1.5" />
-                              </>
-                            )}
-                          </Button>
-                        );
-                      })()}
-
-                      
-                      
-                    </div>
-                  </CardContent>
-                </Card>
+                </h3>
+                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+                  <SingleSourceTotalAPR /> Total APR
+                </Badge>
               </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Position Size Selection */}
+                <div className="space-y-4">
+                  <label className="text-sm font-medium text-white/80">Position Size</label>
+                  
+                  {/* Quick percentage buttons */}
+                  <div className="flex gap-2 mb-3">
+                    {[25, 50, 75, 100].map((percentage) => (
+                      <button
+                        key={percentage}
+                        onClick={() => setSelectedPercentage(percentage)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                          selectedPercentage === percentage
+                            ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
+                            : 'bg-white/10 text-white/60 border border-white/10 hover:bg-white/15'
+                        }`}
+                      >
+                        {percentage}%
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Percentage slider */}
+                  <div className="space-y-2">
+                    <Slider
+                      value={[selectedPercentage]}
+                      onValueChange={(value) => setSelectedPercentage(value[0])}
+                      max={100}
+                      min={0}
+                      step={5}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-white/50">
+                      <span>0%</span>
+                      <span className="text-pink-400">{selectedPercentage}%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Liquidity Preview */}
+                <div className="space-y-4">
+                  <label className="text-sm font-medium text-white/80">Liquidity Preview</label>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <div className="flex items-center gap-3">
+                        <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
+                        <span className="text-white font-medium">KILT</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-white font-semibold">{optimizedAmounts.kiltAmount}</div>
+                        <div className="text-white/50 text-xs">
+                          ${(parseFloat(optimizedAmounts.kiltAmount) * (kiltData?.price || 0.0160)).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                          ETH
+                        </div>
+                        <span className="text-white font-medium">ETH</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-white font-semibold">{optimizedAmounts.ethAmount}</div>
+                        <div className="text-white/50 text-xs">
+                          ${(parseFloat(optimizedAmounts.ethAmount) * (ethPriceData?.ethPrice || 3900)).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-white/10">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-white/60">Total Value:</span>
+                        <span className="text-white font-semibold">${optimizedAmounts.totalValue}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add Liquidity Button */}
+              <div className="mt-6 flex justify-center">
+                <Button
+                  onClick={handleQuickAddLiquidity}
+                  disabled={isMinting || parseFloat(optimizedAmounts.totalValue) < MIN_LIQUIDITY_VALUE}
+                  className="px-8 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isMinting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                  {isMinting ? 'Creating Position...' : 'Add Liquidity'}
+                </Button>
+              </div>
+
+              {parseFloat(optimizedAmounts.totalValue) < MIN_LIQUIDITY_VALUE && (
+                <div className="mt-3 text-center text-sm text-yellow-400">
+                  Minimum $10 liquidity required
+                </div>
+              )}
             </div>
+          </CardContent>
+        </Card>
 
+        {/* Tabs Section */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-6 bg-black/20 backdrop-blur-sm border border-white/10 h-14">
+            <TabsTrigger 
+              value="overview" 
+              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+            >
+              Overview
+            </TabsTrigger>
+            <TabsTrigger 
+              value="add-liquidity" 
+              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+            >
+              Add Liquidity
+            </TabsTrigger>
+            <TabsTrigger 
+              value="positions" 
+              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+            >
+              Positions
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rewards" 
+              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+            >
+              Rewards
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analytics" 
+              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+            >
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger 
+              value="integration" 
+              className="text-base px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60"
+            >
+              Integration
+            </TabsTrigger>
+          </TabsList>
 
+          <TabsContent value="overview" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="bg-black/20 backdrop-blur-sm border-white/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-emerald-400" />
+                    <span>Expected Returns</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/60">Trading Fees APR:</span>
+                      <span className="text-blue-400 font-semibold">
+                        <SingleSourceTradingAPR />
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/60">KILT Incentive APR:</span>
+                      <span className="text-emerald-400 font-semibold">
+                        <SingleSourceProgramAPR />
+                      </span>
+                    </div>
+                    <div className="border-t border-white/10 pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white font-medium">Total APR:</span>
+                        <span className="text-pink-400 font-bold text-lg">
+                          <SingleSourceTotalAPR />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6">
+                    <UserPersonalAPR address={address || ''} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/20 backdrop-blur-sm border-white/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5 text-pink-400" />
+                    <span>Program Status</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/60">Treasury Balance:</span>
+                      <span className="text-pink-400 font-semibold">
+                        {unifiedData.programAnalytics?.treasuryTotal 
+                          ? `${(unifiedData.programAnalytics.treasuryTotal / 1000).toFixed(0)}K KILT`
+                          : '1,500K KILT'
+                        }
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/60">Active Positions:</span>
+                      <span className="text-blue-400 font-semibold">
+                        {unifiedData.programAnalytics?.activePositions || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/60">Pool TVL:</span>
+                      <span className="text-emerald-400 font-semibold">
+                        ${unifiedData.programAnalytics?.totalLiquidity 
+                          ? `${(unifiedData.programAnalytics.totalLiquidity / 1000).toFixed(0)}K`
+                          : '97K'
+                        }
+                      </span>
+                    </div>
+                    <div className="border-t border-white/10 pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white font-medium">Program Status:</span>
+                        <Badge variant="outline" className="border-green-500/30 text-green-400 bg-green-500/10">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Active
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
-          {/* Add Liquidity Tab */}
-          <TabsContent value="liquidity">
+          <TabsContent value="add-liquidity" className="mt-6">
             <Suspense fallback={<OptimizedLoadingFallback height="600px" />}>
-              <LiquidityMint 
+              <LiquidityMint
                 kiltBalance={kiltBalance}
                 wethBalance={wethBalance}
                 ethBalance={ethBalance}
@@ -1053,37 +998,47 @@ export function MainDashboard() {
             </Suspense>
           </TabsContent>
 
-          {/* Rewards Tab */}
-          <TabsContent value="rewards">
+          <TabsContent value="positions" className="mt-6">
+            <div className="space-y-6">
+              <PositionRegistration />
+              <Suspense fallback={<OptimizedLoadingFallback height="400px" />}>
+                <UserPositions />
+              </Suspense>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="rewards" className="mt-6">
             <Suspense fallback={<OptimizedLoadingFallback height="500px" />}>
               <RewardsTracking />
             </Suspense>
           </TabsContent>
 
-          {/* Positions Tab */}
-          <TabsContent value="positions">
-            <Suspense fallback={<OptimizedLoadingFallback height="400px" />}>
-              <UserPositions />
-            </Suspense>
+          <TabsContent value="analytics" className="mt-6">
+            <div className="text-center py-12">
+              <BarChart3 className="h-16 w-16 text-white/30 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">Analytics Dashboard</h3>
+              <p className="text-white/60">Advanced portfolio analytics coming soon</p>
+            </div>
           </TabsContent>
 
-
-
+          <TabsContent value="integration" className="mt-6">
+            <div className="text-center py-12">
+              <ExternalLink className="h-16 w-16 text-white/30 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">API Integration</h3>
+              <p className="text-white/60">Developer tools and APIs coming soon</p>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
-      {/* KILT/WETH Chart Modal */}
+      {/* Price Chart Modal */}
       {showChartModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-black/90 backdrop-blur-xl border border-[#ff0066]/30 rounded-2xl w-full max-w-6xl h-[80vh] flex flex-col overflow-hidden">
-            {/* Modal Header */}
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-black/90 border border-white/20 rounded-2xl max-w-6xl w-full h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                  <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-                </div>
-                <h2 className="text-white text-lg font-bold">KILT/WETH Price Chart</h2>
-                <Badge className="bg-[#ff0066]/10 text-[#ff0066] border-[#ff0066]/30">
+                <h2 className="text-xl font-bold text-white">KILT/WETH Price Chart</h2>
+                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
                   Live Data
                 </Badge>
               </div>
@@ -1097,7 +1052,6 @@ export function MainDashboard() {
               </button>
             </div>
             
-            {/* Chart Content */}
             <div className="flex-1 p-4">
               <div className="w-full h-full rounded-xl overflow-hidden bg-white/5 border border-white/10">
                 <iframe
@@ -1109,7 +1063,6 @@ export function MainDashboard() {
               </div>
             </div>
             
-            {/* Modal Footer */}
             <div className="p-4 border-t border-white/10">
               <div className="flex items-center justify-between">
                 <div className="text-white/50 text-sm">
@@ -1127,7 +1080,6 @@ export function MainDashboard() {
           </div>
         </div>
       )}
-      
     </div>
   );
 }

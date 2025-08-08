@@ -604,24 +604,81 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* Desktop Header - Fixed with direct CSS classes */}
-        <div className="header-container">
-          <div className="header-flex">
+        {/* Header - Force with inline styles that cannot be overridden */}
+        <div 
+          style={{
+            background: 'rgba(0, 0, 0, 0.2)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '0.75rem',
+            padding: window.innerWidth <= 768 ? '0.75rem' : '1.5rem',
+            marginBottom: window.innerWidth <= 768 ? '1rem' : '2rem',
+            width: '100%'
+          }}
+        >
+          <div 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+              gap: window.innerWidth <= 768 ? '0.5rem' : '2rem',
+              flexWrap: 'nowrap'
+            }}
+          >
             {/* Left Section */}
-            <div className="header-left">
-              <div className="header-logo w-12 h-12 flex-shrink-0">
+            <div 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: window.innerWidth <= 768 ? '0.5rem' : '1.5rem',
+                flex: 1,
+                minWidth: 0
+              }}
+            >
+              <div style={{ 
+                width: window.innerWidth <= 768 ? '2rem' : '3rem', 
+                height: window.innerWidth <= 768 ? '2rem' : '3rem', 
+                flexShrink: 0 
+              }}>
                 <CyberpunkKiltLogo size="sm" />
               </div>
-              <h1 className="header-title">
+              <h1 
+                style={{
+                  fontSize: window.innerWidth <= 375 ? '0.75rem' : (window.innerWidth <= 768 ? '0.875rem' : '1.5rem'),
+                  lineHeight: window.innerWidth <= 375 ? '1rem' : (window.innerWidth <= 768 ? '1.25rem' : '2rem'),
+                  fontWeight: '700',
+                  color: 'white',
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace',
+                  whiteSpace: 'nowrap',
+                  margin: 0,
+                  padding: 0,
+                  overflow: window.innerWidth <= 768 ? 'hidden' : 'visible',
+                  textOverflow: window.innerWidth <= 768 ? 'ellipsis' : 'clip',
+                  maxWidth: window.innerWidth <= 375 ? '80px' : (window.innerWidth <= 768 ? '120px' : 'none')
+                }}
+              >
                 KILT Liquidity Portal
               </h1>
-              <div className="header-beta">
+              <div 
+                style={{
+                  background: 'white',
+                  color: '#ff0066',
+                  padding: window.innerWidth <= 375 ? '0.125rem 0.375rem' : (window.innerWidth <= 768 ? '0.25rem 0.5rem' : '0.5rem 1rem'),
+                  borderRadius: '9999px',
+                  fontSize: window.innerWidth <= 375 ? '0.625rem' : (window.innerWidth <= 768 ? '0.75rem' : '0.875rem'),
+                  fontWeight: '700',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+              >
                 Beta
               </div>
             </div>
             
             {/* Right Section */}
-            <div className="header-right">
+            <div style={{ flexShrink: 0 }}>
               <MobileWalletConnect />
             </div>
           </div>

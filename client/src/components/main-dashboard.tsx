@@ -605,8 +605,8 @@ export function MainDashboard() {
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
         {/* Desktop Header - Use CSS classes to allow mobile fixes */}
-        <div className="w-full mb-8 p-6">
-          <div className="flex items-center justify-between">
+        <div className="header-container w-full mb-8 p-6">
+          <div className="header-flex flex items-center justify-between">
             {/* Left Section */}
             <div className="flex items-center space-x-6">
               <div className="w-12 h-12 flex-shrink-0">

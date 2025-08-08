@@ -1,8 +1,56 @@
-/* Clean CSS - Desktop First, No Mobile Interference */
+/* Force Desktop Header Layout - Override All Mobile CSS */
 
-/* Desktop Header - Clean and Spaced */
-.desktop-header-container {
-  /* Remove all mobile CSS conflicts */
+/* Desktop header fixes with high specificity */
+.max-w-7xl .w-full.mb-8.p-6 {
+  background: rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.75rem !important;
+  padding: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  width: 100% !important;
+}
+
+.max-w-7xl .flex.items-center.justify-between {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 2rem !important;
+  flex-wrap: nowrap !important;
+}
+
+.max-w-7xl .flex.items-center.space-x-6 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+  flex: 1 !important;
+}
+
+.max-w-7xl h1.text-2xl {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+  font-weight: 700 !important;
+  color: white !important;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', monospace !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.max-w-7xl .bg-white.rounded-full {
+  background: white !important;
+  color: #ff0066 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  white-space: nowrap !important;
+}
+
+.max-w-7xl .flex-shrink-0:last-child {
+  flex-shrink: 0 !important;
 }
 
 /* Only apply mobile fixes on actual mobile devices */

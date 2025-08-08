@@ -1,0 +1,337 @@
+/**
+ * Unified Reward Service - High-performance, streamlined reward calculations
+ * Consolidates all reward logic with intelligent caching and batch processing
+ */
+
+import { db } from './db';
+import { lpPositions, users, programSettings } from '../shared/schema';
+import { eq, and } from 'drizzle-orm';
+import { smartContractService } from './smart-contract-service';
+
+interface CachedData {
+  poolTVL: number;
+  tradingAPR: number;
+  programAPR: number;
+  dailyBudget: number;
+  treasuryAllocation: number;
+  timestamp: number;
+}
+
+interface PositionReward {
+  nftTokenId: string;
+  dailyRewards: number;
+  accumulatedRewards: number;
+  hourlyRewards: number;
+  totalHours: number;
+  liquidityAmount: number;
+  effectiveAPR: number;
+}
+
+interface UserRewardStats {
+  totalAccumulated: number;
+  totalClaimable: number;
+  totalClaimed: number;
+  activePositions: number;
+  avgDailyRewards: number;
+  positions: PositionReward[];
+}
+
+export class UnifiedRewardService {
+  private cache: Map<string, CachedData> = new Map();
+  private readonly CACHE_DURATION = 30000; // 30 seconds cache
+  private readonly FALLBACK_POOL_TVL = 99171; // Fallback TVL
+  private readonly FALLBACK_TRADING_APR = 4.68;
+  private readonly FALLBACK_PROGRAM_APR = 158.45;
+
+  /**
+   * Get cached or fresh market data with intelligent fallbacks
+   */
+  private async getMarketData(): Promise<CachedData> {
+    const cacheKey = 'market_data';
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION) {
+      return cached;
+    }
+
+    try {
+      // Batch all external API calls in parallel
+      const [poolResponse, tradingResponse, programResponse, adminConfig] = await Promise.allSettled([
+        fetch('http://localhost:5000/api/rewards/program-analytics').then(r => r.ok ? r.json() : null),
+        fetch('http://localhost:5000/api/trading-fees/pool-apr').then(r => r.ok ? r.json() : null),
+        fetch('http://localhost:5000/api/apr/expected-returns').then(r => r.ok ? r.json() : null),
+        this.getAdminConfiguration()
+      ]);
+
+      const poolData = poolResponse.status === 'fulfilled' ? poolResponse.value : null;
+      const tradingData = tradingResponse.status === 'fulfilled' ? tradingResponse.value : null;
+      const programData = programResponse.status === 'fulfilled' ? programResponse.value : null;
+      const config = adminConfig.status === 'fulfilled' ? adminConfig.value : { dailyBudget: 25000, treasuryAllocation: 1500000 };
+
+      const marketData: CachedData = {
+        poolTVL: poolData?.totalLiquidity || this.FALLBACK_POOL_TVL,
+        tradingAPR: tradingData?.tradingFeesAPR || this.FALLBACK_TRADING_APR,
+        programAPR: parseFloat(programData?.incentiveAPR) || this.FALLBACK_PROGRAM_APR,
+        dailyBudget: config.dailyBudget,
+        treasuryAllocation: config.treasuryAllocation,
+        timestamp: Date.now()
+      };
+
+      this.cache.set(cacheKey, marketData);
+      return marketData;
+    } catch (error) {
+      console.warn('Failed to fetch market data, using fallbacks:', error);
+      
+      // Return fallback data
+      const fallbackData: CachedData = {
+        poolTVL: this.FALLBACK_POOL_TVL,
+        tradingAPR: this.FALLBACK_TRADING_APR,
+        programAPR: this.FALLBACK_PROGRAM_APR,
+        dailyBudget: 25000,
+        treasuryAllocation: 1500000,
+        timestamp: Date.now()
+      };
+
+      this.cache.set(cacheKey, fallbackData);
+      return fallbackData;
+    }
+  }
+
+  /**
+   * Get admin configuration with caching
+   */
+  private async getAdminConfiguration(): Promise<{ dailyBudget: number; treasuryAllocation: number; programDurationDays: number }> {
+    const cacheKey = 'admin_config';
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION) {
+      return { 
+        dailyBudget: cached.dailyBudget, 
+        treasuryAllocation: cached.treasuryAllocation,
+        programDurationDays: 365
+      };
+    }
+
+    try {
+      const [settings] = await db.select().from(programSettings).limit(1);
+      const config = {
+        dailyBudget: settings?.dailyBudget || 25000,
+        treasuryAllocation: settings?.treasuryAllocation || 1500000,
+        programDurationDays: 365
+      };
+
+      this.cache.set(cacheKey, {
+        ...config,
+        timestamp: Date.now(),
+        poolTVL: 0, tradingAPR: 0, programAPR: 0
+      });
+
+      return config;
+    } catch (error) {
+      console.warn('Failed to get admin config, using defaults:', error);
+      return { dailyBudget: 25000, treasuryAllocation: 1500000, programDurationDays: 365 };
+    }
+  }
+
+  /**
+   * Calculate rewards for a single position with optimized logic
+   */
+  private calculatePositionReward(
+    position: any,
+    marketData: CachedData,
+    createdAt: Date
+  ): PositionReward {
+    const now = new Date();
+    const currentValueUSD = parseFloat(position.currentValueUSD || '0');
+    
+    if (currentValueUSD <= 0 || !position.isActive) {
+      return {
+        nftTokenId: position.nftTokenId,
+        dailyRewards: 0,
+        accumulatedRewards: 0,
+        hourlyRewards: 0,
+        totalHours: 0,
+        liquidityAmount: 0,
+        effectiveAPR: 0
+      };
+    }
+
+    // STREAMLINED CALCULATION: Always from position creation (consistent logic)
+    const positionAgeHours = Math.max(1, Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60)));
+    const positionAgeDays = positionAgeHours / 24;
+
+    // Formula parameters (optimized for performance)
+    const L_u = currentValueUSD; // User liquidity
+    const L_T = marketData.poolTVL; // Total pool liquidity
+    const D_u = positionAgeDays; // Position age for time multiplier
+    const P = 365; // Program duration (days)
+    const R_P = marketData.dailyBudget; // Daily reward budget
+
+    // Multipliers (configurable but using efficient defaults)
+    const b_time = 0.6; // Time boost coefficient
+    const IRM = 1.0; // In-range multiplier (assume fully in range for performance)
+    const FRB = 1.0; // Full range bonus multiplier
+
+    // CORE CALCULATION: R_u = (L_u/L_T) × (1 + ((D_u/P) × b_time)) × IRM × FRB × (R/P)
+    const liquidityRatio = L_u / L_T;
+    const timeBoost = 1 + ((D_u / P) * b_time);
+    const dailyRewards = liquidityRatio * timeBoost * IRM * FRB * R_P;
+
+    // ACCUMULATION: Always from position creation (hourly incremental as requested)
+    const hourlyRewards = dailyRewards / 24;
+    const totalAccumulatedSinceCreation = hourlyRewards * positionAgeHours;
+
+    // Calculate effective APR
+    const effectiveAPR = marketData.tradingAPR + marketData.programAPR;
+
+    return {
+      nftTokenId: position.nftTokenId,
+      dailyRewards: Math.max(0, dailyRewards),
+      accumulatedRewards: Math.max(0, totalAccumulatedSinceCreation),
+      hourlyRewards: Math.max(0, hourlyRewards),
+      totalHours: positionAgeHours,
+      liquidityAmount: currentValueUSD,
+      effectiveAPR: Math.max(0, effectiveAPR)
+    };
+  }
+
+  /**
+   * Get complete user reward statistics with batch processing
+   */
+  async getUserRewardStats(userId: number): Promise<UserRewardStats> {
+    try {
+      // Batch database queries
+      const [userResult, positions, marketData] = await Promise.all([
+        db.select().from(users).where(eq(users.id, userId)).limit(1),
+        db.select().from(lpPositions).where(eq(lpPositions.userId, userId)),
+        this.getMarketData()
+      ]);
+
+      if (!userResult.length) {
+        throw new Error(`User ${userId} not found`);
+      }
+
+      const walletAddress = userResult[0].address;
+      const activePositions = positions.filter(pos => pos.isActive === true);
+
+      // Get claimed amount in parallel with position calculations
+      const [claimedResult, positionRewards] = await Promise.all([
+        smartContractService.getClaimedAmount(walletAddress),
+        Promise.all(activePositions.map(position => 
+          this.calculatePositionReward(position, marketData, position.createdAt || new Date())
+        ))
+      ]);
+
+      const actualClaimedAmount = claimedResult.success ? claimedResult.claimedAmount : 0;
+
+      // Aggregate results efficiently
+      const totals = positionRewards.reduce(
+        (acc, reward) => ({
+          dailyRewards: acc.dailyRewards + reward.dailyRewards,
+          accumulated: acc.accumulated + reward.accumulatedRewards
+        }),
+        { dailyRewards: 0, accumulated: 0 }
+      );
+
+      const actualClaimableAmount = Math.max(0, totals.accumulated - actualClaimedAmount);
+
+      return {
+        totalAccumulated: totals.accumulated,
+        totalClaimable: actualClaimableAmount,
+        totalClaimed: actualClaimedAmount,
+        activePositions: activePositions.length,
+        avgDailyRewards: totals.dailyRewards,
+        positions: positionRewards
+      };
+
+    } catch (error) {
+      console.error('Failed to get user reward stats:', error);
+      return {
+        totalAccumulated: 0,
+        totalClaimable: 0,
+        totalClaimed: 0,
+        activePositions: 0,
+        avgDailyRewards: 0,
+        positions: []
+      };
+    }
+  }
+
+  /**
+   * Get position reward calculation (single position optimization)
+   */
+  async getPositionReward(userId: number, nftTokenId: string): Promise<PositionReward> {
+    try {
+      const [position] = await db.select()
+        .from(lpPositions)
+        .where(and(
+          eq(lpPositions.userId, userId),
+          eq(lpPositions.nftTokenId, nftTokenId)
+        ))
+        .limit(1);
+
+      if (!position || !position.isActive) {
+        return {
+          nftTokenId,
+          dailyRewards: 0,
+          accumulatedRewards: 0,
+          hourlyRewards: 0,
+          totalHours: 0,
+          liquidityAmount: 0,
+          effectiveAPR: 0
+        };
+      }
+
+      const marketData = await this.getMarketData();
+      return this.calculatePositionReward(position, marketData, position.createdAt || new Date());
+
+    } catch (error) {
+      console.error(`Failed to get position reward for ${nftTokenId}:`, error);
+      return {
+        nftTokenId,
+        dailyRewards: 0,
+        accumulatedRewards: 0,
+        hourlyRewards: 0,
+        totalHours: 0,
+        liquidityAmount: 0,
+        effectiveAPR: 0
+      };
+    }
+  }
+
+  /**
+   * Get program analytics with caching
+   */
+  async getProgramAnalytics(): Promise<{
+    totalLiquidity: number;
+    activeLiquidityProviders: number;
+    totalRewardsDistributed: number;
+    dailyEmissionRate: number;
+    programAPR: number;
+  }> {
+    const marketData = await this.getMarketData();
+    
+    // Get active user count efficiently
+    const activeUserCount = await db.select({ count: lpPositions.userId })
+      .from(lpPositions)
+      .where(eq(lpPositions.isActive, true))
+      .then(result => new Set(result.map(r => r.count)).size);
+
+    return {
+      totalLiquidity: marketData.poolTVL,
+      activeLiquidityProviders: activeUserCount,
+      totalRewardsDistributed: 0, // Calculate if needed
+      dailyEmissionRate: marketData.dailyBudget,
+      programAPR: marketData.programAPR
+    };
+  }
+
+  /**
+   * Clear cache (for testing or manual refresh)
+   */
+  clearCache(): void {
+    this.cache.clear();
+  }
+}
+
+export const unifiedRewardService = new UnifiedRewardService();

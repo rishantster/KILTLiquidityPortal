@@ -34,6 +34,7 @@ import { rpcManager } from './rpc-connection-manager';
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 
 import { fixedRewardService } from "./fixed-reward-service";
+import { unifiedRewardService } from "./unified-reward-service";
 import { DirectFeeService } from "./direct-fee-service";
 import { SimpleFeeService } from "./simple-fee-service";
 import { AuthenticFeeService } from "./authentic-fee-service";
@@ -1374,116 +1375,16 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get user reward statistics with ultra-fast caching
+  // Get user reward statistics with streamlined high-performance service
   app.get("/api/rewards/user/:userId/stats", async (req, res) => {
-    const timestamp = new Date().toLocaleTimeString();
-    console.log(`🚀🚀🚀 USER STATS ENDPOINT [${timestamp}]: Request received for userId=${req.params.userId}`);
-    
-    // After database cleanup, all users should have zero rewards
-    // Only calculate rewards if user actually exists with active positions
-    
     try {
       const userId = parseInt(req.params.userId);
-      console.log(`🚀🚀🚀 USER STATS ENDPOINT [${timestamp}]: Processing userId=${userId}`);
+      console.log(`⚡ STREAMLINED USER STATS: Processing userId=${userId}`);
       
-      // Get user wallet address from database
-      const userResult = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-      if (!userResult.length) {
-        console.log(`⚠️ USER STATS ENDPOINT: User ${userId} not found in database`);
-        throw new Error(`User ${userId} not found`);
-      }
+      // Use unified service for optimized calculation
+      const stats = await unifiedRewardService.getUserRewardStats(userId);
       
-      const walletAddress = userResult[0].address;
-      console.log(`💰 USER STATS ENDPOINT: Found wallet ${walletAddress} for user ${userId}`);
-      
-      // Get real-time reward calculation using treasury allocation (500,000 KILT)
-      // Get admin configuration through public method
-      const adminConfig = await fixedRewardService.getAdminConfiguration();
-      
-      console.log(`💰 USER STATS ENDPOINT: Admin config - treasury: ${adminConfig.treasuryAllocation}, daily: ${adminConfig.dailyBudget}`);
-      
-      // Get user's active positions from database
-      const activePositions = await db.select().from(lpPositions)
-        .where(eq(lpPositions.userId, userId))
-        .then(positions => {
-          const active = positions.filter(pos => pos.isActive === true);
-          console.log(`💰 USER STATS ENDPOINT: Found ${active.length} active positions out of ${positions.length} total`);
-          return active;
-        });
-      
-      // FIRST: Get actual claimed amount and last claim time from smart contract
-      let actualClaimedAmount = 0;
-      let lastClaimTime: Date | undefined;
-      try {
-        console.log(`💰 USER STATS ENDPOINT: Fetching claimed amount from smart contract for ${walletAddress}...`);
-        const claimedResult = await smartContractService.getClaimedAmount(walletAddress);
-        if (claimedResult.success && typeof claimedResult.claimedAmount === 'number') {
-          actualClaimedAmount = claimedResult.claimedAmount;
-          console.log(`💰 USER STATS ENDPOINT: Retrieved claimed amount: ${actualClaimedAmount} KILT`);
-          
-          // If user has claimed rewards, get ACTUAL last claim time from smart contract
-          if (actualClaimedAmount > 0) {
-            try {
-              const userStats = await smartContractService.getUserStats(walletAddress);
-              if (userStats.success && userStats.lastClaim && userStats.lastClaim > 0) {
-                lastClaimTime = new Date(userStats.lastClaim * 1000); // Convert Unix timestamp to Date
-                console.log(`💰 USER STATS ENDPOINT: ✅ Using REAL last claim time from contract: ${lastClaimTime.toISOString()}`);
-              } else {
-                // Fallback: assume 24 hours ago if contract call fails
-                lastClaimTime = new Date(Date.now() - (24 * 60 * 60 * 1000)); // 24 hours ago
-                console.log(`💰 USER STATS ENDPOINT: ⚠️ Contract call failed, using 24h fallback: ${lastClaimTime.toISOString()}`);
-              }
-            } catch (error) {
-              // Fallback: assume 24 hours ago if there's an error
-              lastClaimTime = new Date(Date.now() - (24 * 60 * 60 * 1000)); // 24 hours ago
-              console.log(`💰 USER STATS ENDPOINT: ⚠️ Error getting last claim time, using 24h fallback: ${lastClaimTime.toISOString()}`);
-            }
-          }
-        } else {
-          console.warn(`⚠️ USER STATS ENDPOINT: Failed to get claimed amount:`, claimedResult.error);
-        }
-      } catch (contractError) {
-        console.error(`⚠️ USER STATS ENDPOINT: Smart contract error when fetching claimed amount:`, contractError);
-      }
-
-      // THEN: Calculate total daily rewards from active positions using correct timing
-      let totalDailyRewards = 0;
-      let totalAccumulated = 0;
-      
-      console.log(`💰 USER STATS ENDPOINT: Calculating rewards for ${activePositions.length} positions`);
-      
-      for (const position of activePositions) {
-        try {
-          console.log(`💰 USER STATS ENDPOINT: Calculating reward for position ${position.nftTokenId}`);
-          const positionReward = await fixedRewardService.calculatePositionRewards(
-            userId, 
-            position.nftTokenId,
-            position.createdAt || new Date(),
-            lastClaimTime
-          );
-          totalDailyRewards += positionReward.dailyRewards || 0;
-          totalAccumulated += positionReward.accumulatedRewards || 0;
-          console.log(`💰 USER STATS ENDPOINT: Position ${position.nftTokenId} - daily: ${positionReward.dailyRewards}, accumulated: ${positionReward.accumulatedRewards}`);
-        } catch (error) {
-          console.error(`⚠️ USER STATS ENDPOINT: Failed to calculate reward for position ${position.nftTokenId}:`, error);
-        }
-      }
-      
-      console.log(`💰 USER STATS ENDPOINT: FINAL RESULTS - Daily: ${totalDailyRewards} KILT, Accumulated: ${totalAccumulated} KILT`);
-      
-      // Calculate actual claimable amount (accumulated - already claimed)
-      const actualClaimableAmount = Math.max(0, totalAccumulated - actualClaimedAmount);
-      
-      // Return the properly calculated stats using treasury allocation
-      const stats = {
-        totalAccumulated: totalAccumulated,
-        totalClaimable: actualClaimableAmount, // Subtract already claimed to prevent double spending
-        totalClaimed: actualClaimedAmount, // Real claimed amount from blockchain
-        activePositions: activePositions.length,
-        avgDailyRewards: totalDailyRewards
-      };
-      
-      console.log(`💰 USER STATS ENDPOINT: Returning stats:`, stats);
+      console.log(`⚡ STREAMLINED RESULT: Daily: ${stats.avgDailyRewards.toFixed(2)} KILT, Accumulated: ${stats.totalAccumulated.toFixed(2)} KILT, Claimable: ${stats.totalClaimable.toFixed(2)} KILT`);
       res.json(stats);
       
     } catch (error) {
@@ -1614,7 +1515,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
       // Get program analytics data
-      const analytics = await fixedRewardService.getProgramAnalytics();
+      const analytics = await unifiedRewardService.getProgramAnalytics();
       
       // Get treasury configuration
       const [treasuryConf] = await db.select().from(treasuryConfig).limit(1);
@@ -1811,7 +1712,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       // CRITICAL FIX: Use full reward calculation like stats endpoint, not lightweight version
       // This ensures consistency between stats and claimability APIs
-      const fullRewards = await fixedRewardService.getUserRewardStats(user.id);
+      const fullRewards = await unifiedRewardService.getUserRewardStats(user.id);
       console.log(`💰 Full user rewards result for claimability:`, fullRewards);
       
       // Only allow claiming if both conditions are met:
@@ -4289,7 +4190,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const user = await storage.getUserByAddress(userAddress);
       let rewardStats = null;
       if (user) {
-        const userRewards = await fixedRewardService.getUserRewardStats(user.id);
+        const userRewards = await unifiedRewardService.getUserRewardStats(user.id);
         rewardStats = {
           totalClaimable: userRewards.totalClaimable,
           totalAccumulated: userRewards.totalAccumulated,

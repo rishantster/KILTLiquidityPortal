@@ -438,13 +438,6 @@ export function RewardsTracking() {
                     : 'Connect positions to earn'
                 }
               </div>
-              {/* Real-time countdown timer display */}
-              {timeRemaining && (rewardStats?.totalAccumulated || 0) > 0 && (rewardStats?.totalClaimable || 0) === 0 && (
-                <div className="flex items-center gap-1 text-xs text-[#ff0066]">
-                  <Clock className="h-3 w-3" />
-                  <span className="font-mono">{timeRemaining}</span>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>

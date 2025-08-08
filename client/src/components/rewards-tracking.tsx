@@ -399,9 +399,6 @@ export function RewardsTracking() {
                 ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
             </div>
-            <div className="text-xs text-green-400/80 mt-1">
-              Rewards accumulate hourly
-            </div>
           </CardContent>
         </Card>
 
@@ -438,6 +435,9 @@ export function RewardsTracking() {
                     : 'Connect positions to earn'
                 }
               </div>
+            </div>
+            <div className="text-xs text-green-400/80 mt-1">
+              Rewards accumulate hourly
             </div>
           </CardContent>
         </Card>

@@ -776,28 +776,28 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Two Column Layout - Desktop First Approach */}
-            <div className="grid md:grid-cols-2 gap-6">
+            {/* Two Column Layout - Mobile Stack, Desktop Side-by-Side */}
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
-              <div className="space-y-4">
+              <div className="space-y-4 order-2 lg:order-1">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-3">
                   <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span>Register Positions</span>
                 </h2>
-                <div className="h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col">
+                <div className="min-h-[300px] sm:min-h-[350px] lg:h-[520px] flex flex-col">
                   <PositionRegistration />
                 </div>
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="space-y-4">
+              <div className="space-y-4 order-1 lg:order-2">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-3">
                   <Zap className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span>Quick Add Liquidity</span>
                 </h2>
-                <Card className="mobile-card-fix bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col overflow-hidden cluely-card">
-                  <CardContent className="mobile-card-content p-3 sm:p-4 flex-1 flex flex-col overflow-hidden">
-                    <div className="space-y-4 flex-1">
+                <Card className="mobile-card-fix bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg flex flex-col cluely-card">
+                  <CardContent className="mobile-card-content p-3 sm:p-4 flex flex-col gap-4">
+                    <div className="space-y-3">
                       {/* Balance Display */}
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-2 sm:p-3 cluely-card">
                         <h4 className="text-white font-bold text-sm sm:text-base mb-2 sm:mb-3">Wallet Balance</h4>
@@ -1007,8 +1007,8 @@ export function MainDashboard() {
                       </div>
                     </div>
                     
-                    {/* Action Button and Help Text - Bottom of Card */}
-                    <div className="space-y-2 mt-3 px-1">
+                    {/* Action Button - Always at bottom */}
+                    <div className="mt-auto pt-2">
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();

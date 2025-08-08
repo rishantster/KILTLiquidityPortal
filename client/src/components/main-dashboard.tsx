@@ -801,85 +801,91 @@ export function MainDashboard() {
                         <div className="grid grid-cols-3 gap-2">
                           {/* KILT Balance Card */}
                           <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <img 
-                                src={kiltLogo} 
-                                alt="KILT" 
-                                className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5"
-                                style={{ 
-                                  filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
-                                }}
-                              />
-                            </div>
-                            <div className="mobile-balance-content flex-1 min-w-0">
-                              <div className="mobile-balance-label text-white text-xs font-medium">KILT</div>
-                              <div 
-                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
-                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
-                              >
-                                {kiltBalance && parseFloat(kiltBalance) >= 1000 
-                                  ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
-                                  : kiltBalance 
-                                    ? parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
-                                    : '0'}
+                            {/* Logo and Token Name - Horizontal */}
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                                <img 
+                                  src={kiltLogo} 
+                                  alt="KILT" 
+                                  className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-4 lg:h-4"
+                                  style={{ 
+                                    filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
+                                  }}
+                                />
                               </div>
+                              <div className="mobile-balance-label text-white text-xs font-medium">KILT</div>
+                            </div>
+                            {/* Balance Value */}
+                            <div 
+                              className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                              style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                              title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
+                            >
+                              {kiltBalance && parseFloat(kiltBalance) >= 1000 
+                                ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
+                                : kiltBalance 
+                                  ? parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
+                                  : '0'}
                             </div>
                           </div>
                           
                           {/* ETH Balance Card */}
                           <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
-                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                              </svg>
-                            </div>
-                            <div className="mobile-balance-content flex-1 min-w-0">
-                              <div className="mobile-balance-label text-white text-xs font-medium">ETH</div>
-                              <div 
-                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
-                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
-                              >
-                                {ethBalance ? (
-                                  parseFloat(ethBalance) >= 1 
-                                    ? parseFloat(ethBalance).toFixed(2)
-                                    : parseFloat(ethBalance).toFixed(6)
-                                ) : '0.000000'}
+                            {/* Logo and Token Name - Horizontal */}
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                                <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-4 lg:h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                                </svg>
                               </div>
+                              <div className="mobile-balance-label text-white text-xs font-medium">ETH</div>
+                            </div>
+                            {/* Balance Value */}
+                            <div 
+                              className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                              style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                              title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
+                            >
+                              {ethBalance ? (
+                                parseFloat(ethBalance) >= 1 
+                                  ? parseFloat(ethBalance).toFixed(2)
+                                  : parseFloat(ethBalance).toFixed(6)
+                              ) : '0.000000'}
                             </div>
                           </div>
                           
                           {/* WETH Balance Card */}
                           <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
-                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                              </svg>
-                            </div>
-                            <div className="mobile-balance-content flex-1 min-w-0">
-                              <div className="mobile-balance-label text-white text-xs font-medium">WETH</div>
-                              <div 
-                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
-                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
-                              >
-                                {wethBalance ? (
-                                  parseFloat(wethBalance) >= 1 
-                                    ? parseFloat(wethBalance).toFixed(2)
-                                    : parseFloat(wethBalance).toFixed(6)
-                                ) : '0.000000'}
+                            {/* Logo and Token Name - Horizontal */}
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                                <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-4 lg:h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
+                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
+                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
+                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
+                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
+                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                                </svg>
                               </div>
+                              <div className="mobile-balance-label text-white text-xs font-medium">WETH</div>
+                            </div>
+                            {/* Balance Value */}
+                            <div 
+                              className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                              style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
+                              title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
+                            >
+                              {wethBalance ? (
+                                parseFloat(wethBalance) >= 1 
+                                  ? parseFloat(wethBalance).toFixed(2)
+                                  : parseFloat(wethBalance).toFixed(6)
+                              ) : '0.000000'}
                             </div>
                           </div>
                         </div>

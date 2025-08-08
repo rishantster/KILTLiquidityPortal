@@ -316,11 +316,12 @@ export class UnifiedRewardService {
   }> {
     const marketData = await this.getMarketData();
     
-    // Get active user count efficiently
-    const activeUserCount = await db.select({ count: lpPositions.userId })
+    // Get active user count efficiently - fixed schema mapping
+    const activePositionsResult = await db.select({ userId: lpPositions.userId })
       .from(lpPositions)
-      .where(eq(lpPositions.isActive, true))
-      .then(result => new Set(result.map(r => r.count)).size);
+      .where(eq(lpPositions.isActive, true));
+    
+    const activeUserCount = new Set(activePositionsResult.map(r => r.userId)).size;
 
     return {
       totalLiquidity: marketData.poolTVL,

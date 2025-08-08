@@ -1,6 +1,6 @@
 import { db } from './db';
 import { lpPositions, users, treasuryConfig } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 
 /**
  * PRODUCTION-GRADE Fixed Reward Service
@@ -364,11 +364,24 @@ export class FixedRewardService {
     programDuration?: number;
     daysRemaining?: number;
   }> {
+    console.log(`🔥🔥🔥 PROGRAM ANALYTICS FUNCTION CALLED - STARTING DEBUG ${new Date().toISOString()} 🔥🔥🔥`);
     try {
-      // Get all active positions
+      // Get all active positions - FORCE NO CACHE
+      console.log(`🔍 EXECUTING DATABASE QUERY: SELECT * FROM lp_positions WHERE is_active = true`);
       const activePositions = await db.select()
         .from(lpPositions)
         .where(eq(lpPositions.isActive, true));
+      console.log(`🔍 DATABASE QUERY COMPLETED, RAW RESULT COUNT: ${activePositions?.length || 0}`);
+      
+      console.log(`📊 PROGRAM ANALYTICS DEBUG: Found ${activePositions.length} active positions in database`);
+      console.log(`📊 PROGRAM ANALYTICS DEBUG: Active positions sample:`, activePositions.slice(0, 3).map(p => ({
+        id: p.id,
+        userId: p.userId,
+        nftTokenId: p.nftTokenId,
+        currentValueUSD: p.currentValueUSD,
+        isActive: p.isActive
+      })));
+      console.log(`📊 PROGRAM ANALYTICS DEBUG: Raw first position object:`, activePositions[0]);
 
       // Get REAL POOL TVL from DexScreener (not just user positions)
       let totalLiquidity = 96303.27; // Real pool TVL from DexScreener API
@@ -390,12 +403,33 @@ export class FixedRewardService {
       const uniqueUserIds = new Set(activePositions.map(pos => pos.userId));
       const activeUsers = uniqueUserIds.size;
       const activeParticipants = activePositions.length;
+      
+      console.log(`📊 PROGRAM ANALYTICS DEBUG: Unique user IDs:`, Array.from(uniqueUserIds));
+      console.log(`📊 PROGRAM ANALYTICS DEBUG: Active users count: ${activeUsers}, Active participants: ${activeParticipants}`);
+      
+      // EMERGENCY DIAGNOSTIC: Check if we have data mismatch
+      if (activeUsers === 0 && activeParticipants === 0) {
+        console.error(`💥 CRITICAL ERROR: No positions found by Drizzle query but database has 8 positions!`);
+        console.error(`💥 SCHEMA MISMATCH: Check if userId property is mapped correctly to user_id column`);
+        
+        // Try a raw SQL query to bypass Drizzle mapping issues
+        try {
+          const rawResult = await db.execute(sql`SELECT COUNT(*) as count, COUNT(DISTINCT user_id) as users FROM lp_positions WHERE is_active = true`);
+          console.error(`💥 RAW SQL RESULT:`, rawResult);
+        } catch (sqlError) {
+          console.error(`💥 RAW SQL FAILED:`, sqlError);
+        }
+      }
 
       // Calculate average user liquidity (user positions only for this metric)
       const userLiquidity = activePositions.reduce((sum, pos) => {
-        return sum + parseFloat(pos.currentValueUSD || '0');
+        const posValue = parseFloat(pos.currentValueUSD || '0');
+        console.log(`📊 Position ${pos.nftTokenId} value: $${posValue}`);
+        return sum + posValue;
       }, 0);
       const avgUserLiquidity = activeUsers > 0 ? userLiquidity / activeUsers : 0;
+      
+      console.log(`📊 PROGRAM ANALYTICS DEBUG: Total user liquidity: $${userLiquidity}, Avg per user: $${avgUserLiquidity}`);
 
       // Get admin config for APR calculation
       const adminConfig = await this.getAdminConfiguration();

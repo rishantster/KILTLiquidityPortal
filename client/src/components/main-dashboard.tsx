@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   TrendingUp, 
   Zap, 
@@ -24,12 +23,10 @@ import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
 import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useUniswapV3 } from '@/hooks/use-uniswap-v3';
 import { useUnifiedDashboard } from '@/hooks/use-unified-dashboard';
-import { useAppSession } from '@/hooks/use-app-session';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
-import { useQuery } from '@tanstack/react-query';
 
-// Lightweight components
+// Components
 import { UserPersonalAPR } from './user-personal-apr';
 import { MobileWalletConnect } from './mobile-wallet-connect';
 import { PositionRegistration } from './position-registration';
@@ -48,15 +45,8 @@ import { SiX, SiGithub, SiDiscord, SiTelegram, SiMedium } from 'react-icons/si';
 // Services
 import { LiquidityService } from '@/services/liquidity-service';
 import { useEthPrice } from '@/hooks/use-eth-price';
-
-// Universal logo components
-import { TokenLogo, KiltLogo, EthLogo } from '@/components/ui/token-logo';
 import { CyberpunkKiltLogo } from './cyberpunk-kilt-logo';
-
-// Viem utilities for token amount parsing
 import { parseUnits } from 'viem';
-
-// SINGLE SOURCE OF TRUTH APR COMPONENTS
 import { useExpectedReturns } from '@/hooks/use-single-source-apr';
 
 // Constants
@@ -155,7 +145,6 @@ export function MainDashboard() {
   const { address, isConnected, isConnecting } = useWagmiWallet();
   const { data: kiltData } = useKiltTokenData();
   const unifiedData = useUnifiedDashboard();
-  const appSession = useAppSession();
   const { mintPosition, isMinting } = useUniswapV3();
   const { toast } = useToast();
   const { data: ethPriceData } = useEthPrice();
@@ -180,32 +169,6 @@ export function MainDashboard() {
     setActiveTab(tab);
   }, []);
 
-  // Format token balance helper
-  const formatTokenBalance = useCallback((balance: string | bigint | undefined): string => {
-    if (!balance) return '0';
-    try {
-      let balanceStr: string;
-      if (typeof balance === 'bigint') {
-        balanceStr = balance.toString();
-      } else if (typeof balance === 'number') {
-        balanceStr = String(balance);
-      } else {
-        balanceStr = balance;
-      }
-      
-      const balanceBigInt = BigInt(balanceStr);
-      const divisor = BigInt(1e18);
-      const wholePart = balanceBigInt / divisor;
-      const fractionalPart = balanceBigInt % divisor;
-      
-      const fractionalStr = fractionalPart.toString().padStart(18, '0');
-      const trimmedFractional = fractionalStr.slice(0, 4);
-      
-      return `${wholePart.toString()}.${trimmedFractional}`;
-    } catch {
-      return '0.0000';
-    }
-  }, []);
 
   // Calculate optimal amounts
   const calculateOptimalAmounts = useCallback((percentage = selectedPercentage) => {
@@ -215,10 +178,10 @@ export function MainDashboard() {
       ethBalance,
       kiltData?.price || 0.0160,
       percentage,
-      formatTokenBalance,
+      formatTokenAmount,
       ethPriceData?.ethPrice
     );
-  }, [kiltBalance, wethBalance, ethBalance, kiltData?.price, selectedPercentage, formatTokenBalance, ethPriceData?.ethPrice]);
+  }, [kiltBalance, wethBalance, ethBalance, kiltData?.price, selectedPercentage, formatTokenAmount, ethPriceData?.ethPrice]);
 
   // Memoize calculated amounts
   const optimizedAmounts = useMemo(() => calculateOptimalAmounts(), [calculateOptimalAmounts]);
@@ -298,14 +261,14 @@ export function MainDashboard() {
             ]);
           }
         } catch (error) {
-          console.error('Auto-registration error:', error);
+          // Auto-registration failed silently
         }
       }, REGISTRATION_DELAY);
       
       setActiveTab('positions');
       
     } catch (error) {
-      console.error('Quick Add Liquidity error:', error);
+      // Quick Add Liquidity error handled
       
       let errorMessage = "Failed to add liquidity";
       if (error instanceof Error) {
@@ -773,13 +736,13 @@ export function MainDashboard() {
                           <div>
                             <div className="text-white font-medium">KILT</div>
                             <div className="text-xs text-pink-400">
-                              ${((parseFloat(formatTokenBalance(kiltBalance)) * (kiltData?.price || 0.0160))).toFixed(2)}
+                              ${((parseFloat(formatTokenAmount(kiltBalance)) * (kiltData?.price || 0.0160))).toFixed(2)}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-white font-bold text-lg">
-                            {(parseFloat(formatTokenBalance(kiltBalance)) / 1000).toFixed(1)}K
+                            {(parseFloat(formatTokenAmount(kiltBalance)) / 1000).toFixed(1)}K
                           </div>
                         </div>
                       </div>
@@ -794,13 +757,13 @@ export function MainDashboard() {
                           <div>
                             <div className="text-white font-medium">ETH</div>
                             <div className="text-xs text-blue-400">
-                              ${((parseFloat(formatTokenBalance(ethBalance)) * (ethPriceData?.ethPrice || 3900))).toFixed(2)}
+                              ${((parseFloat(formatTokenAmount(ethBalance)) * (ethPriceData?.ethPrice || 3900))).toFixed(2)}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-white font-bold text-lg">
-                            {parseFloat(formatTokenBalance(ethBalance)).toFixed(6)}
+                            {parseFloat(formatTokenAmount(ethBalance)).toFixed(6)}
                           </div>
                         </div>
                       </div>
@@ -815,13 +778,13 @@ export function MainDashboard() {
                           <div>
                             <div className="text-white font-medium">WETH</div>
                             <div className="text-xs text-purple-400">
-                              ${((parseFloat(formatTokenBalance(wethBalance)) * (ethPriceData?.ethPrice || 3900))).toFixed(2)}
+                              ${((parseFloat(formatTokenAmount(wethBalance)) * (ethPriceData?.ethPrice || 3900))).toFixed(2)}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-white font-bold text-lg">
-                            {parseFloat(formatTokenBalance(wethBalance)).toFixed(6)}
+                            {parseFloat(formatTokenAmount(wethBalance)).toFixed(6)}
                           </div>
                         </div>
                       </div>

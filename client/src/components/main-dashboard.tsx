@@ -780,7 +780,7 @@ export function MainDashboard() {
                 </div>
               </div>
 
-              {/* Right Column - Quick Add Liquidity */}
+              {/* Right Column - Quick Add Liquidity - COMPLETELY REBUILT */}
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
                   <Zap className="h-5 w-5" style={{ color: '#ff0066' }} />
@@ -788,82 +788,114 @@ export function MainDashboard() {
                 </h2>
                 <Card className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg flex flex-col cluely-card">
                   <CardContent className="p-4 flex-1 flex flex-col">
-                    <div className="space-y-4 flex-1">
-                      {/* Balance Display */}
-                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
-                        <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
-                        <div className="grid grid-cols-3 gap-3">
-                          {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex flex-col items-center gap-2">
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#ff0066]/20 border border-[#ff0066]/40">
-                              <img 
-                                src={kiltLogo} 
-                                alt="KILT" 
-                                className="w-5 h-5"
-                              />
+                    <div className="space-y-6 flex-1">
+                      {/* COMPLETELY REDESIGNED BALANCE DISPLAY - HORIZONTAL LAYOUT */}
+                      <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-4 cluely-card">
+                        <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                          <Wallet className="h-5 w-5 text-[#ff0066]" />
+                          Wallet Balances
+                        </h4>
+                        
+                        {/* HORIZONTAL BALANCE CARDS - GUARANTEED TO WORK */}
+                        <div className="space-y-3">
+                          {/* KILT Balance Row */}
+                          <div className="flex items-center justify-between bg-gradient-to-r from-[#ff0066]/10 to-transparent p-4 rounded-xl border border-[#ff0066]/20 hover:border-[#ff0066]/40 transition-all duration-300">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#ff0066]/20 border-2 border-[#ff0066]/40">
+                                <img src={kiltLogo} alt="KILT" className="w-7 h-7" />
+                              </div>
+                              <div>
+                                <div className="text-white font-semibold text-base">KILT</div>
+                                <div className="text-[#ff0066] text-sm font-medium">KILT Protocol</div>
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-white text-sm font-medium">KILT</div>
-                              <div className="text-pink-400 font-bold text-sm numeric-mono">
+                            <div className="text-right">
+                              <div className="text-white font-bold text-xl numeric-mono">
                                 {kiltBalance && parseFloat(kiltBalance) >= 1000 
                                   ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
                                   : kiltBalance 
                                     ? parseFloat(kiltBalance).toFixed(2)
                                     : '0.00'}
                               </div>
+                              <div className="text-white/60 text-sm">
+                                ${kiltData?.price && kiltBalance 
+                                  ? (parseFloat(kiltBalance) * kiltData.price).toFixed(2)
+                                  : '0.00'
+                                }
+                              </div>
                             </div>
                           </div>
                           
-                          {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex flex-col items-center gap-2">
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500/20 border border-blue-500/40">
-                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
-                              </svg>
+                          {/* ETH Balance Row */}
+                          <div className="flex items-center justify-between bg-gradient-to-r from-blue-500/10 to-transparent p-4 rounded-xl border border-blue-400/20 hover:border-blue-400/40 transition-all duration-300">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500/20 border-2 border-blue-400/40">
+                                <svg className="w-7 h-7" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#627EEA"/>
+                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
+                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
+                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
+                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141414"/>
+                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
+                                </svg>
+                              </div>
+                              <div>
+                                <div className="text-white font-semibold text-base">ETH</div>
+                                <div className="text-blue-400 text-sm font-medium">Ethereum</div>
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-white text-sm font-medium">ETH</div>
-                              <div className="text-pink-400 font-bold text-sm numeric-mono">
+                            <div className="text-right">
+                              <div className="text-white font-bold text-xl numeric-mono">
                                 {ethBalance ? (
                                   parseFloat(ethBalance) >= 1 
                                     ? parseFloat(ethBalance).toFixed(3)
                                     : parseFloat(ethBalance).toFixed(6)
                                 ) : '0.000000'}
                               </div>
+                              <div className="text-white/60 text-sm">
+                                ${ethPriceData?.ethPrice && ethBalance 
+                                  ? (parseFloat(ethBalance) * ethPriceData.ethPrice).toFixed(2)
+                                  : '0.00'
+                                }
+                              </div>
                             </div>
                           </div>
                           
-                          {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex flex-col items-center gap-2">
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-orange-500/20 border border-orange-500/40">
-                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#D97706"/>
-                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#B45309"/>
-                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#D97706"/>
-                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#B45309"/>
-                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#92400E"/>
-                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#D97706"/>
-                              </svg>
+                          {/* WETH Balance Row */}
+                          <div className="flex items-center justify-between bg-gradient-to-r from-purple-500/10 to-transparent p-4 rounded-xl border border-purple-400/20 hover:border-purple-400/40 transition-all duration-300">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-purple-500/20 border-2 border-purple-400/40">
+                                <svg className="w-7 h-7" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#A855F7"/>
+                                  <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#8C8C8C"/>
+                                  <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#3C3C3B"/>
+                                  <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#8C8C8C"/>
+                                  <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#141414"/>
+                                  <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#393939"/>
+                                </svg>
+                              </div>
+                              <div>
+                                <div className="text-white font-semibold text-base">WETH</div>
+                                <div className="text-purple-400 text-sm font-medium">Wrapped ETH</div>
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-white text-sm font-medium">WETH</div>
-                              <div className="text-pink-400 font-bold text-sm numeric-mono">
+                            <div className="text-right">
+                              <div className="text-white font-bold text-xl numeric-mono">
                                 {wethBalance ? (
                                   parseFloat(wethBalance) >= 1 
                                     ? parseFloat(wethBalance).toFixed(3)
                                     : parseFloat(wethBalance).toFixed(6)
                                 ) : '0.000000'}
                               </div>
+                              <div className="text-white/60 text-sm">
+                                ${ethPriceData?.ethPrice && wethBalance 
+                                  ? (parseFloat(wethBalance) * ethPriceData.ethPrice).toFixed(2)
+                                  : '0.00'
+                                }
+                              </div>
                             </div>
                           </div>
                         </div>
-                        
-                        
                       </div>
 
                       {/* Percentage Selector */}

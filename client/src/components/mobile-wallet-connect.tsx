@@ -31,12 +31,17 @@ export function MobileWalletConnect() {
 
   const handleMobileWalletConnect = async (wallet: any) => {
     try {
+      console.log('🔗 Attempting wallet connection:', { walletId: wallet.id, walletName: wallet.name, isMobile });
+      console.log('🔗 Available connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
+      
       // Find the matching connector
       const connector = connectors.find(c => 
         c.id === wallet.id || 
         c.name.toLowerCase().includes(wallet.name.toLowerCase()) ||
         c.id === 'walletConnect' // Always try WalletConnect for mobile
       );
+
+      console.log('🔗 Selected connector:', connector ? { id: connector.id, name: connector.name } : 'none');
 
       if (wallet.id === 'walletConnect') {
         // WalletConnect: Always use WalletConnect connector
@@ -256,14 +261,17 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="mobile-dialog-fix bg-black border border-gray-800 max-w-[95vw] sm:max-w-md w-full mx-auto my-4 sm:my-8 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="mobile-dialog-fix bg-black border border-gray-800 max-w-[95vw] sm:max-w-md w-full mx-auto my-4 sm:my-8 max-h-[90vh] overflow-y-auto" aria-describedby="wallet-connect-description">
           <DialogHeader>
             <DialogTitle className="text-white text-xl sm:text-2xl font-bold flex items-center gap-3 mb-4 sm:mb-6">
               <Wallet className="h-5 w-5 sm:h-6 sm:w-6" />
               Connect Your Wallet
             </DialogTitle>
           </DialogHeader>
-
+          
+          <div id="wallet-connect-description" className="text-gray-400 text-sm mb-4">
+            Choose your preferred wallet to connect to the KILT Liquidity Portal on Base network.
+          </div>
           
           {/* Mobile Section */}
           {isMobile ? (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -375,6 +375,11 @@ export function UniswapStyleLiquidityModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md bg-black/90 backdrop-blur-sm border border-gray-700/60 text-white p-0 gap-0 [&>button]:!top-4 [&>button]:!right-4 [&>button]:!absolute [&>button]:!flex [&>button]:!items-center [&>button]:!justify-center [&>button]:!h-8 [&>button]:!w-8">
         <DialogTitle className="sr-only">{getTitle()}</DialogTitle>
+        <DialogDescription className="sr-only">
+          {mode === 'add' && 'Add liquidity to the KILT/ETH pool by providing both tokens'}
+          {mode === 'remove' && 'Remove liquidity from your KILT/ETH position'}
+          {mode === 'collect' && 'Collect accumulated trading fees from your position'}
+        </DialogDescription>
         {/* Header */}
         <div className="flex items-center justify-between p-4 pr-16 border-b border-gray-700/60">
           <h2 className="text-lg font-semibold">{getTitle()}</h2>

@@ -614,7 +614,7 @@ export function UniswapStyleLiquidityModal({
                   </div>
                   <span className="font-mono">
                     {positionFees?.token0 ? (parseFloat(positionFees.token0) / 1e18).toFixed(6) : 
-                     position?.fees?.token0 ? (parseFloat(position.fees.token0) / 1e18).toFixed(6) : '0.000000'}
+                     (position?.fees as any)?.token0 ? (parseFloat((position.fees as any).token0) / 1e18).toFixed(6) : '0.000000'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -624,13 +624,13 @@ export function UniswapStyleLiquidityModal({
                   </div>
                   <span className="font-mono">
                     {positionFees?.token1 ? (parseFloat(positionFees.token1) / 1e18).toLocaleString() : 
-                     position?.fees?.token1 ? (parseFloat(position.fees.token1) / 1e18).toLocaleString() : '0'}
+                     (position?.fees as any)?.token1 ? (parseFloat((position.fees as any).token1) / 1e18).toLocaleString() : '0'}
                   </span>
                 </div>
               </div>
               <div className="text-xs text-gray-400">
                 Total value: ~${positionFees?.usdValue ? positionFees.usdValue.toFixed(2) : 
-                              position?.fees?.usdValue ? position.fees.usdValue.toFixed(2) : '0.00'}
+                              (position?.fees as any)?.usdValue ? (position.fees as any).usdValue.toFixed(2) : '0.00'}
               </div>
             </div>
           )}

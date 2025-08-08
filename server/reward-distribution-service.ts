@@ -206,6 +206,11 @@ export class RewardDistributionService {
     reason: string;
   }>> {
     try {
+      // Import required database components
+      const { db } = await import('../db');
+      const { users, rewards } = await import('../../shared/schema');
+      const { eq, isNull } = await import('drizzle-orm');
+      
       // Query database for users with claimable rewards
       // Get all claimable rewards from database directly 
       const eligibleRewards = await db.select({
@@ -217,7 +222,7 @@ export class RewardDistributionService {
         .innerJoin(users, eq(rewards.userId, users.id))
         .where(isNull(rewards.claimedAt));
       
-      return eligibleRewards.map(row => ({
+      return eligibleRewards.map((row: any) => ({
         userAddress: row.userAddress || '',
         amount: row.dailyRewardAmount || '0',
         nftTokenId: row.nftTokenId || '',

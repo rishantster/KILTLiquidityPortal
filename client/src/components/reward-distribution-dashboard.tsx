@@ -202,7 +202,7 @@ export function RewardDistributionDashboard() {
                   <AlertCircle className="h-5 w-5 text-red-400" />
                 )}
                 <span className={(distributeMutation.data as any).success ? 'text-emerald-400' : 'text-red-400'}>
-                  {String((distributeMutation.data as any).message) as React.ReactNode}
+                  {String((distributeMutation.data as any).message)}
                 </span>
               </div>
             )}
@@ -214,7 +214,7 @@ export function RewardDistributionDashboard() {
                   <AlertCircle className="h-5 w-5 text-red-400" />
                 )}
                 <span className={(dailyDistributionMutation.data as any).success ? 'text-emerald-400' : 'text-red-400'}>
-                  {String((dailyDistributionMutation.data as any).message) as React.ReactNode}
+                  {String((dailyDistributionMutation.data as any).message)}
                 </span>
               </div>
             )}

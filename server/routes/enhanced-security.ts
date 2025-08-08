@@ -25,7 +25,8 @@ router.post('/generate-claim-signature', async (req, res) => {
     // Get user's calculated rewards from the reward service
     const { db } = await import('../db');
     const { users } = await import('../../shared/schema');
-    const user = await db.select().from(users).where(users.address.eq(userAddress)).limit(1);
+    const { eq } = await import('drizzle-orm');
+    const user = await db.select().from(users).where(eq(users.address, userAddress)).limit(1);
     
     if (user.length === 0) {
       return res.status(404).json({

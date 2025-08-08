@@ -1779,26 +1779,18 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       console.log(`🔧 Admin panel lock period: ${lockPeriodDays} days (effective: ${effectiveLockHours} hours) ${lockPeriodDays === 0 ? '- IMMEDIATE AVAILABILITY' : ''}`);
       
-      // Get user's ACTUAL last claim time - use smart contract data to avoid stale database readings
+      // Get user's ACTUAL last claim time from smart contract
       let lastClaimTime;
       try {
-        // Get the claimed amount from smart contract to determine if user has claimed recently
-        const claimedResult = await smartContractService.getClaimedAmount(userAddress);
-        
-        console.log(`🔧 Smart contract claimed result:`, claimedResult);
-        
-        // If user has claimed significant amounts, they likely claimed recently
-        if (claimedResult.success && claimedResult.claimedAmount && claimedResult.claimedAmount > 0) {
-          // Use current time minus 23 hours as a conservative estimate for recent claims
-          // This ensures proper lock period calculation while avoiding stale data
-          const estimatedRecentClaim = new Date(Date.now() - (23 * 60 * 60 * 1000));
-          lastClaimTime = estimatedRecentClaim;
-          console.log(`🔧 Using estimated recent claim time based on claimed amount (${claimedResult.claimedAmount} KILT): ${lastClaimTime}`);
+        // First try to get actual last claim time from smart contract user stats
+        const userStats = await smartContractService.getUserStats(userAddress);
+        if (userStats.success && userStats.lastClaim && userStats.lastClaim > 0) {
+          lastClaimTime = new Date(userStats.lastClaim * 1000); // Convert Unix timestamp to Date
+          console.log(`🔧 Using REAL last claim time from smart contract: ${lastClaimTime.toISOString()}`);
         } else {
-          // Users with no claim history must wait 24 hours from their actual registration time
-          // This ensures proper 24-hour waiting period from the moment they registered
+          // Fallback: Users with no claim history wait from registration time
           lastClaimTime = user.createdAt;
-          console.log(`🔧 Using actual user registration time for 24-hour wait period: ${lastClaimTime}`);
+          console.log(`🔧 User has never claimed, using registration time: ${lastClaimTime}`);
         }
       } catch (contractError) {
         console.log(`⚠️ Smart contract check failed, using database fallback:`, contractError);
@@ -1826,13 +1818,14 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // 1. Admin lock period has passed
       // 2. There are accumulated rewards to claim
       const totalAccumulated = fullRewards?.totalAccumulated || 0;
-      const totalClaimable = canClaim && totalAccumulated > 0 ? totalAccumulated : 0;
+      const actualClaimable = fullRewards?.totalClaimable || 0;
+      const totalClaimable = canClaim && actualClaimable > 0 ? actualClaimable : 0;
       
-      console.log(`✅ Admin-based claimability check: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, totalClaimable=${totalClaimable}, lockPeriod=${effectiveLockHours}h`);
+      console.log(`✅ Admin-based claimability check: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, actualClaimable=${actualClaimable}, totalClaimable=${totalClaimable}, lockPeriod=${effectiveLockHours}h`);
       
       res.json({
-        claimable: totalClaimable,
-        canClaim: totalClaimable > 0,
+        claimable: actualClaimable,
+        canClaim: canClaim && actualClaimable > 0,
         daysRemaining: Math.ceil(timeUntilClaimable / (1000 * 60 * 60 * 24)),
         lockExpired: canClaim,
         lockExpiryDate: nextClaimDate,

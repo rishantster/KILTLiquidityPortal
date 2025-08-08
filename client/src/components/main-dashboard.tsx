@@ -609,7 +609,7 @@ export function MainDashboard() {
         <div className="w-full mb-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Logo and Title Section */}
           <div className="flex items-center gap-6">
-            <div className="relative w-8 h-8">
+            <div className="relative w-8 h-8 flex items-center justify-center">
               <CyberpunkKiltLogo size="sm" className="w-full h-full" />
             </div>
             <div className="text-center sm:text-left">

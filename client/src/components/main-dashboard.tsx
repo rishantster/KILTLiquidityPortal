@@ -552,7 +552,7 @@ export function MainDashboard() {
               <img src={kiltLogo} alt="KILT" className="w-9 h-9" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">KILT Liquidity Portal</h1>
+              <h1 className="header-title-fix">KILT Liquidity Portal</h1>
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span>Live on Base Network</span>
@@ -892,50 +892,32 @@ export function MainDashboard() {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 bg-black/20 backdrop-blur-sm border border-white/10 h-12 md:h-14">
-            <TabsTrigger 
-              value="overview" 
-              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
-            >
+          <TabsList className="tabs-list-fix">
+            <TabsTrigger value="overview" className="tab-trigger-fix">
               <span className="truncate">Overview</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="add-liquidity" 
-              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
-            >
+            <TabsTrigger value="add-liquidity" className="tab-trigger-fix">
               <span className="truncate">
                 <span className="hidden md:inline">Add Liquidity</span>
                 <span className="md:hidden">+ Liq</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="positions" 
-              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
-            >
+            <TabsTrigger value="positions" className="tab-trigger-fix">
               <span className="truncate">
                 <span className="hidden md:inline">Positions</span>
                 <span className="md:hidden">Pos</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="rewards" 
-              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 flex items-center justify-center"
-            >
+            <TabsTrigger value="rewards" className="tab-trigger-fix">
               <span className="truncate">Rewards</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="analytics" 
-              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 hidden md:flex items-center justify-center"
-            >
+            <TabsTrigger value="analytics" className="tab-trigger-fix hidden md:flex">
               <span className="truncate">
                 <span className="hidden lg:inline">Analytics</span>
                 <span className="lg:hidden">Stats</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="integration" 
-              className="text-xs md:text-sm px-1 md:px-2 lg:px-4 py-2 md:py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/70 transition-all duration-200 hidden lg:flex items-center justify-center"
-            >
+            <TabsTrigger value="integration" className="tab-trigger-fix hidden lg:flex">
               <span className="truncate">
                 <span className="hidden xl:inline">Integration</span>
                 <span className="xl:hidden">API</span>

@@ -18,6 +18,86 @@
   display: none;  /* Chrome, Safari, and Opera */
 }
 
+/* Force UI fixes to override mobile conflicts */
+.wallet-address-fix {
+  font-family: monospace !important;
+  font-size: 0.75rem !important;
+  color: white !important;
+}
+
+@media (min-width: 640px) {
+  .wallet-address-fix {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Force tab layout fixes */
+.tabs-list-fix {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  width: 100% !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: blur(4px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  height: 3rem !important;
+  padding: 0.25rem !important;
+}
+
+@media (min-width: 768px) {
+  .tabs-list-fix {
+    grid-template-columns: repeat(4, 1fr) !important;
+    height: 3.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tabs-list-fix {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+}
+
+.tab-trigger-fix {
+  font-size: 0.75rem !important;
+  padding: 0.5rem 0.25rem !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 0.375rem !important;
+}
+
+@media (min-width: 768px) {
+  .tab-trigger-fix {
+    font-size: 0.875rem !important;
+    padding: 0.75rem 0.5rem !important;
+  }
+}
+
+.tab-trigger-fix[data-state="active"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Force header title fix */
+.header-title-fix {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: white !important;
+}
+
+@media (min-width: 640px) {
+  .header-title-fix {
+    font-size: 1.875rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-title-fix {
+    font-size: 2.25rem !important;
+  }
+}
+
 /* Enhanced Root Variables for Superior Visual Hierarchy */
 :root {
   /* Premium Typography System */

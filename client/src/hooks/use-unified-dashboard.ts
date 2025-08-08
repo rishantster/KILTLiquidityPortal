@@ -82,8 +82,8 @@ export function useUnifiedDashboard() {
       }
     },
     enabled: !!user?.id,
-    refetchInterval: 1000, // Refresh every 1 second for instant updates
-    staleTime: 0, // Always consider data stale to force fresh fetches
+    refetchInterval: 30000, // Refresh every 30 seconds - much less aggressive
+    staleTime: 15000, // Consider data fresh for 15 seconds
     refetchOnWindowFocus: true,
     refetchOnMount: true
   });
@@ -142,9 +142,9 @@ export function useUnifiedDashboard() {
       }
     },
     enabled: true, // Always fetch independently - no dependencies
-    refetchInterval: 10000, // Fast refresh - 10 seconds
-    staleTime: 0, // CRITICAL FIX: Never use stale data - always fetch fresh
-    cacheTime: 0, // CRITICAL FIX: Don't cache data - always get fresh results
+    refetchInterval: 60000, // Refresh every 60 seconds - much less aggressive
+    staleTime: 30000, // Consider data fresh for 30 seconds to reduce requests
+    gcTime: 300000, // Keep in cache for 5 minutes (React Query v5 syntax)
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnMount: true, // Always refetch on component mount
     retry: 3, // Retry failed requests

@@ -850,9 +850,9 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="mobile-balance-card bg-black/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10">
-                            <div className="mobile-balance-icon flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-5 lg:h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex items-center gap-3">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                 <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                 <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
                                 <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
@@ -861,10 +861,10 @@ export function MainDashboard() {
                                 <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
                               </svg>
                             </div>
-                            <div className="mobile-balance-content flex-1 min-w-0">
-                              <div className="mobile-balance-label text-white text-xs font-medium">WETH</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-white text-sm font-medium">WETH</div>
                               <div 
-                                className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
+                                className="text-[#ff0066] font-bold text-sm numeric-display" 
                                 style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
                                 title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
                               >
@@ -887,14 +887,14 @@ export function MainDashboard() {
                           <span className="text-white text-sm font-medium">Balance Usage</span>
                           <span className="text-sm text-white/80 numeric-mono">{selectedPercentage}% of wallet</span>
                         </div>
-                        <div className="grid grid-cols-5 gap-1 sm:gap-2 mb-3">
+                        <div className="grid grid-cols-5 gap-2 mb-3">
                           {LiquidityService.getPercentageOptions().map(({ value, label }) => (
                             <Button
                               key={value}
                               variant="outline"
                               size="sm"
                               onClick={() => setSelectedPercentage(value)}
-                              className={`mobile-button-small text-xs py-1 px-1 h-6 sm:h-7 transition-all duration-200 border ${
+                              className={`text-xs py-1 px-1 h-7 transition-all duration-200 border ${
                                 selectedPercentage === value 
                                   ? 'text-black font-bold border-2' 
                                   : 'border text-white/80 hover:bg-[#ff0066]/10 hover:border-[#ff0066]/50 hover:text-white'
@@ -924,7 +924,7 @@ export function MainDashboard() {
                             max={100}
                             min={0}
                             step={1}
-                            className="mobile-slider-fix w-full"
+                            className="w-full"
                           />
                         </div>
                       </div>
@@ -986,7 +986,7 @@ export function MainDashboard() {
                           <Button 
                             onClick={handleQuickAddLiquidity}
                             disabled={isDisabled}
-                            className={`mobile-button-fix w-full font-semibold py-1.5 h-8 sm:h-9 rounded-lg transition-all duration-300 text-sm ${
+                            className={`w-full font-semibold py-2 h-10 rounded-lg transition-all duration-300 text-sm ${
                               hasInsufficientBalance 
                                 ? 'theme-badge-danger cursor-not-allowed' 
                                 : 'theme-button-primary'

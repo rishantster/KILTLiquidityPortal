@@ -162,22 +162,6 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
-  const [screenWidth, setScreenWidth] = useState(0);
-
-  // Client-side screen width detection to avoid SSR issues
-  useEffect(() => {
-    const handleResize = () => {
-      setScreenWidth(window.innerWidth);
-    };
-    
-    // Set initial width
-    handleResize();
-    
-    // Listen for resize events
-    window.addEventListener('resize', handleResize);
-    
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const { toast } = useToast();
 
@@ -620,81 +604,25 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* Header - Force with inline styles that cannot be overridden */}
-        <div 
-          style={{
-            background: 'rgba(0, 0, 0, 0.2)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '0.75rem',
-            padding: screenWidth <= 768 ? '0.75rem' : '1.5rem',
-            marginBottom: screenWidth <= 768 ? '1rem' : '2rem',
-            width: '100%'
-          }}
-        >
-          <div 
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-              gap: screenWidth <= 768 ? '0.5rem' : '2rem',
-              flexWrap: 'nowrap'
-            }}
-          >
+        {/* Header */}
+        <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl p-3 sm:p-6 mb-4 sm:mb-8 w-full">
+          <div className="flex items-center justify-between w-full gap-2 sm:gap-8">
             {/* Left Section */}
-            <div 
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: screenWidth <= 768 ? '0.5rem' : '1.5rem',
-                flex: 1,
-                minWidth: 0
-              }}
-            >
-              <div style={{ 
-                width: screenWidth <= 768 ? '2rem' : '3rem', 
-                height: screenWidth <= 768 ? '2rem' : '3rem', 
-                flexShrink: 0 
-              }}>
+            <div className="flex items-center gap-2 sm:gap-6 flex-1 min-w-0">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0">
                 <CyberpunkKiltLogo size="sm" />
               </div>
-              <h1 
-                style={{
-                  fontSize: screenWidth <= 375 ? '0.75rem' : (screenWidth <= 768 ? '0.875rem' : '1.5rem'),
-                  lineHeight: screenWidth <= 375 ? '1rem' : (screenWidth <= 768 ? '1.25rem' : '2rem'),
-                  fontWeight: '700',
-                  color: 'white',
-                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace',
-                  whiteSpace: 'nowrap',
-                  margin: 0,
-                  padding: 0,
-                  overflow: screenWidth <= 768 ? 'hidden' : 'visible',
-                  textOverflow: screenWidth <= 768 ? 'ellipsis' : 'clip',
-                  maxWidth: screenWidth <= 375 ? '80px' : (screenWidth <= 768 ? '120px' : 'none')
-                }}
-              >
-                KILT Liquidity Portal
+              <h1 className="text-xs sm:text-sm lg:text-2xl font-bold text-white font-mono truncate">
+                <span className="hidden sm:inline">KILT Liquidity Portal</span>
+                <span className="sm:hidden">KILT Portal</span>
               </h1>
-              <div 
-                style={{
-                  background: 'white',
-                  color: '#ff0066',
-                  padding: screenWidth <= 375 ? '0.125rem 0.375rem' : (screenWidth <= 768 ? '0.25rem 0.5rem' : '0.5rem 1rem'),
-                  borderRadius: '9999px',
-                  fontSize: screenWidth <= 375 ? '0.625rem' : (screenWidth <= 768 ? '0.75rem' : '0.875rem'),
-                  fontWeight: '700',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}
-              >
+              <div className="bg-white text-[#ff0066] px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg whitespace-nowrap flex-shrink-0">
                 Beta
               </div>
             </div>
             
-            {/* Right Section */}
-            <div style={{ flexShrink: 0 }}>
+            {/* Right Section - Wallet Connect */}
+            <div className="flex-shrink-0">
               <MobileWalletConnect />
             </div>
           </div>

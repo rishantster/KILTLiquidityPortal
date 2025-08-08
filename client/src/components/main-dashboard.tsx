@@ -794,21 +794,21 @@ export function MainDashboard() {
                         <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
                         <div className="grid grid-cols-3 gap-3">
                           {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex items-center gap-3">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10 flex flex-col items-center gap-2">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                               <img 
                                 src={kiltLogo} 
                                 alt="KILT" 
-                                className="w-5 h-5"
+                                className="w-4 h-4"
                                 style={{ 
                                   filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
                                 }}
                               />
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white text-sm font-medium">KILT</div>
+                            <div className="text-center">
+                              <div className="text-white text-xs font-medium">KILT</div>
                               <div 
-                                className="text-[#ff0066] font-bold text-sm numeric-display" 
+                                className="text-[#ff0066] font-bold text-xs numeric-display" 
                                 style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
                                 title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
                               >
@@ -822,9 +822,9 @@ export function MainDashboard() {
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex items-center gap-3">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10 flex flex-col items-center gap-2">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                              <svg className="w-4 h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                 <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                 <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
                                 <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
@@ -833,10 +833,10 @@ export function MainDashboard() {
                                 <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
                               </svg>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white text-sm font-medium">ETH</div>
+                            <div className="text-center">
+                              <div className="text-white text-xs font-medium">ETH</div>
                               <div 
-                                className="text-[#ff0066] font-bold text-sm numeric-display" 
+                                className="text-[#ff0066] font-bold text-xs numeric-display" 
                                 style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
                                 title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
                               >
@@ -850,9 +850,9 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex items-center gap-3">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10 flex flex-col items-center gap-2">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                              <svg className="w-4 h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                 <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                 <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
                                 <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
@@ -861,10 +861,10 @@ export function MainDashboard() {
                                 <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
                               </svg>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white text-sm font-medium">WETH</div>
+                            <div className="text-center">
+                              <div className="text-white text-xs font-medium">WETH</div>
                               <div 
-                                className="text-[#ff0066] font-bold text-sm numeric-display" 
+                                className="text-[#ff0066] font-bold text-xs numeric-display" 
                                 style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
                                 title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
                               >

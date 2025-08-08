@@ -792,7 +792,7 @@ export function MainDashboard() {
                       {/* Balance Display */}
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
                         <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                           {/* KILT Balance Card */}
                           <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex items-center gap-3">
                             <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>

@@ -8,6 +8,114 @@
 @tailwind components;
 @tailwind utilities;
 
+/* EMERGENCY HEADER FIX - DIRECT IN MAIN CSS */
+.kilt-portal-header {
+  background: rgba(255, 0, 0, 0.8) !important;
+  border: 5px solid yellow !important;
+  padding: 24px !important;
+  margin-bottom: 32px !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+.kilt-header-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 32px !important;
+  flex-wrap: nowrap !important;
+}
+
+.kilt-header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.kilt-logo-container {
+  width: 48px !important;
+  height: 48px !important;
+  flex-shrink: 0 !important;
+}
+
+.kilt-header-title {
+  font-size: 24px !important;
+  line-height: 32px !important;
+  font-weight: 700 !important;
+  color: white !important;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", monospace !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.kilt-title-mobile {
+  display: none !important;
+}
+
+.kilt-title-desktop {
+  display: inline !important;
+}
+
+.kilt-beta-badge {
+  background: white !important;
+  color: #ff0066 !important;
+  padding: 8px 16px !important;
+  border-radius: 9999px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.kilt-header-right {
+  flex-shrink: 0 !important;
+}
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 640px) {
+  .kilt-portal-header {
+    padding: 12px !important;
+    margin-bottom: 16px !important;
+    background: rgba(0, 255, 0, 0.8) !important;
+    border: 5px solid purple !important;
+  }
+  
+  .kilt-header-content {
+    gap: 8px !important;
+  }
+  
+  .kilt-header-left {
+    gap: 8px !important;
+  }
+  
+  .kilt-logo-container {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  
+  .kilt-header-title {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+  
+  .kilt-title-mobile {
+    display: inline !important;
+  }
+  
+  .kilt-title-desktop {
+    display: none !important;
+  }
+  
+  .kilt-beta-badge {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+}
+
 /* Enhanced Root Variables for Superior Visual Hierarchy */
 :root {
   /* Premium Typography System */

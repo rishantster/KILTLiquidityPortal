@@ -314,23 +314,14 @@ export class UnifiedRewardService {
     programDuration?: number;
     daysRemaining?: number;
   }> {
-    // Clear cache to force fresh execution during debugging
-    this.cache.clear();
-    console.log(`🚀 UNIFIED ANALYTICS: Starting fresh execution (cache cleared)`);
-    
     const marketData = await this.getMarketData();
     
     // Get active user count efficiently - fixed schema mapping
-    console.log(`🔍 UNIFIED ANALYTICS: Querying active positions...`);
     const activePositionsResult = await db.select({ userId: lpPositions.userId })
       .from(lpPositions)
       .where(eq(lpPositions.isActive, true));
     
-    console.log(`🔍 UNIFIED ANALYTICS: Found ${activePositionsResult.length} active positions`);
-    console.log(`🔍 UNIFIED ANALYTICS: Sample result:`, activePositionsResult.slice(0, 3));
-    
     const activeUserCount = new Set(activePositionsResult.map(r => r.userId)).size;
-    console.log(`🔍 UNIFIED ANALYTICS: Active user count: ${activeUserCount}`);
 
     return {
       totalLiquidity: marketData.poolTVL,

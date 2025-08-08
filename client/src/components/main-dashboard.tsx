@@ -792,9 +792,9 @@ export function MainDashboard() {
                       {/* Balance Display */}
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
                         <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
-                        <div className="flex flex-row gap-2 sm:gap-3 w-full justify-between">
+                        <div className="flex flex-row !flex-row gap-2 sm:gap-3 w-full justify-between" style={{ display: 'flex !important', flexDirection: 'row !important', width: '100%', backgroundColor: 'rgba(255, 0, 102, 0.1)', border: '1px solid rgba(255, 0, 102, 0.3)' }}>
                           {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0" style={{ flex: '1', minWidth: '0', maxWidth: '33.333%', width: 'calc(33.333% - 8px)' }}>
                             <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                               <img 
                                 src={kiltLogo} 
@@ -822,7 +822,7 @@ export function MainDashboard() {
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0" style={{ flex: '1', minWidth: '0', maxWidth: '33.333%', width: 'calc(33.333% - 8px)' }}>
                             <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                               <svg className="w-4 h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                 <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
@@ -850,7 +850,7 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0">
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0" style={{ flex: '1', minWidth: '0', maxWidth: '33.333%', width: 'calc(33.333% - 8px)' }}>
                             <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
                               <svg className="w-4 h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
                                 <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>

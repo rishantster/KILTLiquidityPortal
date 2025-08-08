@@ -1424,7 +1424,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           // If user has claimed rewards, get ACTUAL last claim time from smart contract
           if (actualClaimedAmount > 0) {
             try {
-              const userStats = await smartContractService.getUserStats(userAddress);
+              const userStats = await smartContractService.getUserStats(walletAddress);
               if (userStats.success && userStats.lastClaim && userStats.lastClaim > 0) {
                 lastClaimTime = new Date(userStats.lastClaim * 1000); // Convert Unix timestamp to Date
                 console.log(`💰 USER STATS ENDPOINT: ✅ Using REAL last claim time from contract: ${lastClaimTime.toISOString()}`);
@@ -1774,10 +1774,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const { programSettings } = await import('../shared/schema');
       const [settings] = await db.select().from(programSettings).limit(1);
       const lockPeriodDays = settings?.lockPeriod || 0;
-      // If lock period is 0, default to 24 hours (1 day)
-      const effectiveLockHours = lockPeriodDays === 0 ? 24 : lockPeriodDays * 24;
+      // ADMIN-CONFIGURABLE: If lock period is 0, rewards are immediately available
+      const effectiveLockHours = lockPeriodDays * 24;
       
-      console.log(`🔧 Admin panel lock period: ${lockPeriodDays} days (effective: ${effectiveLockHours} hours)`);
+      console.log(`🔧 Admin panel lock period: ${lockPeriodDays} days (effective: ${effectiveLockHours} hours) ${lockPeriodDays === 0 ? '- IMMEDIATE AVAILABILITY' : ''}`);
       
       // Get user's ACTUAL last claim time - use smart contract data to avoid stale database readings
       let lastClaimTime;
@@ -1808,7 +1808,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       // Calculate next claim availability based on admin setting
-      const nextClaimMs = (lastClaimTime?.getTime() || Date.now()) + (effectiveLockHours * 60 * 60 * 1000);
+      // If lock period is 0, rewards are immediately available
+      const nextClaimMs = lockPeriodDays === 0 ? Date.now() : (lastClaimTime?.getTime() || Date.now()) + (effectiveLockHours * 60 * 60 * 1000);
       const now = Date.now();
       const canClaim = now >= nextClaimMs;
       const nextClaimDate = new Date(nextClaimMs);
@@ -4022,7 +4023,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         
         diagnostics.checks.walletVerification = {
           success: walletMatch,
-          actualAddress: walletAddress,
+          actualAddress: walletAddress || undefined,
           expectedAddress: expectedCalculatorAddress,
           matches: walletMatch
         };

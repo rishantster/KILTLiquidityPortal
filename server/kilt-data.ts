@@ -1,12 +1,13 @@
 // Constants for KILT token
 import { blockchainConfigService } from './blockchain-config-service';
 const KILT_TOTAL_SUPPLY = 290560000;
-const KILT_CIRCULATING_SUPPLY = 276970000; // From CoinMarketCap: 276.97M KILT
+const KILT_CIRCULATING_SUPPLY = 276970000; // From CoinMarketCap: 276.97M KILT (display as 277.0M for UI)
 const TREASURY_TOTAL = KILT_TOTAL_SUPPLY * 0.01;
 
 export interface KiltTokenData {
   price: number | null;
   marketCap: number | null;
+  circulatingSupply: number;
   volume24h: number | null;
   priceChange24h: number | null;
   totalSupply: number;
@@ -35,8 +36,9 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     const priceInfo = kiltPriceService.getPriceInfo();
     const currentPrice = priceInfo.price;
     
-    // Get additional market data from CoinGecko for volume and market cap
+    // Calculate market cap consistently using our real-time price
     let marketCap = currentPrice * KILT_CIRCULATING_SUPPLY;
+    let coinGeckoMarketCap = null; // Track CoinGecko market cap separately
     let volume24h = 0; // Only use real data, no fallbacks
     let priceChange24h = 0; // Only use real data, no fallbacks
     
@@ -75,7 +77,8 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
         }
         
         if (kiltData) {
-          marketCap = kiltData.usd_market_cap || marketCap;
+          coinGeckoMarketCap = kiltData.usd_market_cap; // Store CoinGecko market cap for reference
+          // Always use calculated market cap for consistency: marketCap = currentPrice * circulating
           if (!volume24h && kiltData.usd_24h_vol) {
             volume24h = kiltData.usd_24h_vol;
           }
@@ -100,8 +103,9 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     const progress = (distributed / TREASURY_TOTAL);
     
     const result = {
-      price: currentPrice ? Math.round(currentPrice * 100000) / 100000 : null, // Only real price data
-      marketCap: marketCap ? Math.round(marketCap * 100) / 100 : null, // Only real market cap
+      price: currentPrice ? Math.round(currentPrice * 1000000) / 1000000 : null, // Increased precision for small prices
+      marketCap: marketCap ? Math.round(marketCap * 100) / 100 : null, // Calculated consistently from our price
+      circulatingSupply: KILT_CIRCULATING_SUPPLY, // Add explicit circulating supply
       volume24h: volume24h > 0 ? Math.round(volume24h * 100) / 100 : null, // Only real volume
       priceChange24h: priceChange24h !== 0 ? Math.round(priceChange24h * 100) / 100 : null, // Only real 24h change
       totalSupply: KILT_TOTAL_SUPPLY,
@@ -119,6 +123,7 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
     return {
       price: null, // No fallback price
       marketCap: null, // No fallback market cap
+      circulatingSupply: KILT_CIRCULATING_SUPPLY,
       volume24h: null, // No fallback volume
       priceChange24h: null, // No fallback price change
       totalSupply: KILT_TOTAL_SUPPLY,

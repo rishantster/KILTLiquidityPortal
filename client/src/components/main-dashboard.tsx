@@ -719,7 +719,7 @@ export function MainDashboard() {
               {/* Market Cap Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-20 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10">
                   <div className="flex items-center gap-1 mb-2">
                     <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
                       <Coins className="h-3 w-3 text-green-400" />

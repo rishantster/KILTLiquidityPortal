@@ -675,16 +675,16 @@ export function MainDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6 tab-content-safe">
-            {/* Metrics Cards - Horizontal Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            {/* Metrics Cards - Single Row */}
+            <div className="grid grid-cols-4 gap-2 mb-6">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-                        <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
+                    <div className="flex items-center gap-1">
+                      <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
+                        <img src={kiltLogo} alt="KILT" className="w-3 h-3" />
                       </div>
                       <span className="text-white/70 text-xs font-medium">KILT Price</span>
                     </div>
@@ -716,8 +716,8 @@ export function MainDashboard() {
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
+                  <div className="flex items-center gap-1 mb-2">
+                    <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center">
                       <Coins className="h-3 w-3 text-green-400" />
                     </div>
                     <span className="text-white/70 text-xs font-medium">Market Cap</span>
@@ -737,8 +737,8 @@ export function MainDashboard() {
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
+                  <div className="flex items-center gap-1 mb-2">
+                    <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center">
                       <TrendingUp className="h-3 w-3 text-emerald-400" />
                     </div>
                     <span className="text-white/70 text-xs font-medium">Trading Fees APR</span>
@@ -756,8 +756,8 @@ export function MainDashboard() {
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-500/30"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center">
+                  <div className="flex items-center gap-1 mb-2">
+                    <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center">
                       <Award className="h-3 w-3 text-green-500" />
                     </div>
                     <span className="text-white/70 text-xs font-medium">Program APR</span>

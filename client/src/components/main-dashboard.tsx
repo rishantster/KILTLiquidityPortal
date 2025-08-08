@@ -772,10 +772,10 @@ export function MainDashboard() {
               </div>
             </div>
 
-            {/* Two Column Layout - Fixed Mobile Responsive */}
-            <div className="mobile-two-column-fix lg:grid lg:grid-cols-2 lg:gap-6">
+            {/* Two Column Layout - Desktop First Approach */}
+            <div className="grid md:grid-cols-2 gap-6">
               {/* Left Column - Position Registration */}
-              <div className="mobile-column mb-6 lg:mb-0">
+              <div className="space-y-4">
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
                   <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span className="hidden sm:inline">Register Existing Positions</span>
@@ -787,7 +787,7 @@ export function MainDashboard() {
               </div>
 
               {/* Right Column - Quick Add Liquidity */}
-              <div className="mobile-column">
+              <div className="space-y-4">
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white flex items-center gap-2 mb-3 mobile-responsive-title">
                   <Zap className="h-4 w-4" style={{ color: '#ff0066' }} />
                   <span className="hidden sm:inline">Quick Add Liquidity</span>

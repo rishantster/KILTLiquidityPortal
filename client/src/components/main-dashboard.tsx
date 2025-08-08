@@ -289,7 +289,7 @@ export function MainDashboard() {
       console.log('🚀 Starting Quick Add Liquidity process...');
       
       const amounts = calculateOptimalAmounts();
-      const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
+      const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 2;
       
       if (hasInsufficientBalance) {
         toast({
@@ -949,7 +949,7 @@ export function MainDashboard() {
                         </div>
                         {(() => {
                           const amounts = calculateOptimalAmounts();
-                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
+                          const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 2;
                           
                           if (hasInsufficientBalance) {
                             return (
@@ -991,7 +991,7 @@ export function MainDashboard() {
                       {/* Action Button */}
                       {(() => {
                         const amounts = calculateOptimalAmounts();
-                        const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 10;
+                        const hasInsufficientBalance = parseFloat(amounts.kiltAmount) <= 0 || parseFloat(amounts.ethAmount) <= 0 || parseFloat(amounts.totalValue) < 2;
                         const isDisabled = isMinting || !address || hasInsufficientBalance;
                         
                         return (

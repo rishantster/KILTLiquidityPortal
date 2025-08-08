@@ -163,19 +163,6 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
-  const [isMobile, setIsMobile] = useState(false);
-  
-  // Check screen size for responsive styles
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth <= 640);
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
 
   const { toast } = useToast();
 
@@ -618,73 +605,33 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* NUCLEAR OPTION - JAVASCRIPT RESPONSIVE INLINE STYLES */}
-        <div style={{
-          background: isMobile ? 'rgba(0, 255, 0, 0.8)' : 'rgba(255, 0, 0, 0.8)',
-          border: isMobile ? '5px solid purple' : '5px solid yellow',
-          padding: isMobile ? '12px' : '24px',
-          marginBottom: isMobile ? '16px' : '32px',
-          width: '100%',
-          display: 'block'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            gap: isMobile ? '8px' : '32px',
-            flexWrap: 'nowrap'
-          }}>
-            {/* Left Section */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: isMobile ? '8px' : '24px',
-              flex: '1',
-              minWidth: '0'
-            }}>
-              <div style={{
-                width: isMobile ? '32px' : '48px',
-                height: isMobile ? '32px' : '48px',
-                flexShrink: '0'
-              }}>
-                <CyberpunkKiltLogo size="sm" />
+        {/* BRAND NEW CLEAN HEADER */}
+        <header className="w-full mb-8">
+          <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-4">
+              {/* Logo and Title */}
+              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0">
+                  <CyberpunkKiltLogo size="sm" />
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 min-w-0">
+                  <h1 className="text-lg sm:text-2xl font-bold text-white font-mono truncate">
+                    <span className="hidden sm:inline">KILT Liquidity Portal</span>
+                    <span className="sm:hidden">KILT Portal</span>
+                  </h1>
+                  <div className="bg-white text-[#ff0066] px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold w-fit">
+                    Beta
+                  </div>
+                </div>
               </div>
-              <h1 style={{
-                fontSize: isMobile ? '14px' : '24px',
-                lineHeight: isMobile ? '20px' : '32px',
-                fontWeight: '700',
-                color: 'white',
-                fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace',
-                whiteSpace: 'nowrap',
-                margin: '0',
-                padding: '0',
-                overflow: isMobile ? 'hidden' : 'visible',
-                textOverflow: isMobile ? 'ellipsis' : 'clip',
-                maxWidth: isMobile ? '120px' : 'none'
-              }}>
-                {isMobile ? 'KILT Portal' : 'KILT Liquidity Portal'}
-              </h1>
-              <div style={{
-                background: 'white',
-                color: '#ff0066',
-                padding: isMobile ? '4px 8px' : '8px 16px',
-                borderRadius: '9999px',
-                fontSize: isMobile ? '12px' : '14px',
-                fontWeight: '700',
-                whiteSpace: 'nowrap',
-                flexShrink: '0'
-              }}>
-                Beta
+              
+              {/* Wallet Connect */}
+              <div className="flex-shrink-0">
+                <MobileWalletConnect />
               </div>
-            </div>
-            
-            {/* Right Section - Wallet Connect */}
-            <div style={{ flexShrink: '0' }}>
-              <MobileWalletConnect />
             </div>
           </div>
-        </div>
+        </header>
 
         {/* Enhanced Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => {

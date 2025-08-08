@@ -605,16 +605,16 @@ export function MainDashboard() {
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-6 py-8 relative" style={{ zIndex: 10 }}>
         {/* Clean Professional Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
               <CyberpunkKiltLogo size="sm" />
             </div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold text-white font-mono">KILT Liquidity Portal</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white font-mono">KILT Liquidity Portal</h1>
               
               {/* Clean Beta Badge - Dashboard Header */}
-              <div className="bg-white backdrop-blur-sm rounded-full px-4 py-2 text-sm font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
+              <div className="bg-white backdrop-blur-sm rounded-full px-3 py-1 text-xs sm:text-sm font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0 w-fit">
                 Beta
               </div>
             </div>
@@ -671,7 +671,7 @@ export function MainDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
             {/* Sophisticated Metrics Grid */}
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
@@ -792,39 +792,32 @@ export function MainDashboard() {
                       {/* Balance Display */}
                       <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 cluely-card">
                         <h4 className="text-white font-bold text-base mb-3">Wallet Balance</h4>
-                        <div className="flex flex-row !flex-row gap-2 sm:gap-3 w-full justify-between" style={{ display: 'flex !important', flexDirection: 'row !important', width: '100%', backgroundColor: 'rgba(255, 0, 102, 0.1)', border: '1px solid rgba(255, 0, 102, 0.3)' }}>
+                        <div className="grid grid-cols-3 gap-3">
                           {/* KILT Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0" style={{ flex: '1', minWidth: '0', maxWidth: '33.333%', width: 'calc(33.333% - 8px)' }}>
-                            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex flex-col items-center gap-2">
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#ff0066]/20 border border-[#ff0066]/40">
                               <img 
                                 src={kiltLogo} 
                                 alt="KILT" 
-                                className="w-3 h-3 sm:w-4 sm:h-4"
-                                style={{ 
-                                  filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))'
-                                }}
+                                className="w-5 h-5"
                               />
                             </div>
-                            <div className="text-center min-w-0 w-full">
-                              <div className="text-white text-[10px] sm:text-xs font-medium truncate">KILT</div>
-                              <div 
-                                className="text-[#ff0066] font-bold text-[10px] sm:text-xs numeric-display truncate" 
-                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
-                              >
+                            <div className="text-center">
+                              <div className="text-white text-sm font-medium">KILT</div>
+                              <div className="text-pink-400 font-bold text-sm numeric-mono">
                                 {kiltBalance && parseFloat(kiltBalance) >= 1000 
                                   ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
                                   : kiltBalance 
-                                    ? parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
-                                    : '0'}
+                                    ? parseFloat(kiltBalance).toFixed(2)
+                                    : '0.00'}
                               </div>
                             </div>
                           </div>
                           
                           {/* ETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0" style={{ flex: '1', minWidth: '0', maxWidth: '33.333%', width: 'calc(33.333% - 8px)' }}>
-                            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-4 h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex flex-col items-center gap-2">
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500/20 border border-blue-500/40">
+                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
                                 <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
                                 <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
@@ -833,16 +826,12 @@ export function MainDashboard() {
                                 <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
                               </svg>
                             </div>
-                            <div className="text-center min-w-0 w-full">
-                              <div className="text-white text-[10px] sm:text-xs font-medium truncate">ETH</div>
-                              <div 
-                                className="text-[#ff0066] font-bold text-[10px] sm:text-xs numeric-display truncate" 
-                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                title={ethBalance ? `Exact balance: ${parseFloat(ethBalance).toFixed(8)} ETH` : 'No ETH balance'}
-                              >
+                            <div className="text-center">
+                              <div className="text-white text-sm font-medium">ETH</div>
+                              <div className="text-pink-400 font-bold text-sm numeric-mono">
                                 {ethBalance ? (
                                   parseFloat(ethBalance) >= 1 
-                                    ? parseFloat(ethBalance).toFixed(2)
+                                    ? parseFloat(ethBalance).toFixed(3)
                                     : parseFloat(ethBalance).toFixed(6)
                                 ) : '0.000000'}
                               </div>
@@ -850,27 +839,23 @@ export function MainDashboard() {
                           </div>
                           
                           {/* WETH Balance Card */}
-                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-1.5 border border-white/10 flex flex-col items-center gap-1.5 flex-1 min-w-0" style={{ flex: '1', minWidth: '0', maxWidth: '33.333%', width: 'calc(33.333% - 8px)' }}>
-                            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'rgba(255, 0, 102, 0.3)', borderColor: 'rgba(255, 0, 102, 0.5)' }}>
-                              <svg className="w-4 h-4" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'brightness(1.5) contrast(1.2) drop-shadow(0 0 3px rgba(255,255,255,0.3))' }}>
-                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#8A92B2"/>
-                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#62688F"/>
-                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#8A92B2"/>
-                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#62688F"/>
-                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#454A75"/>
-                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#8A92B2"/>
+                          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex flex-col items-center gap-2">
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-orange-500/20 border border-orange-500/40">
+                              <svg className="w-5 h-5" viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M127.961 0L125.44 8.55656V285.168L127.961 287.688L255.922 212.32L127.961 0Z" fill="#D97706"/>
+                                <path d="M127.962 0L0 212.32L127.962 287.688V153.864V0Z" fill="#B45309"/>
+                                <path d="M127.961 312.187L126.385 314.154V415.484L127.961 417L255.922 237.832L127.961 312.187Z" fill="#D97706"/>
+                                <path d="M127.962 417V312.187L0 237.832L127.962 417Z" fill="#B45309"/>
+                                <path d="M127.961 287.688L255.922 212.32L127.961 153.864V287.688Z" fill="#92400E"/>
+                                <path d="M0 212.32L127.962 287.688V153.864L0 212.32Z" fill="#D97706"/>
                               </svg>
                             </div>
-                            <div className="text-center min-w-0 w-full">
-                              <div className="text-white text-[10px] sm:text-xs font-medium truncate">WETH</div>
-                              <div 
-                                className="text-[#ff0066] font-bold text-[10px] sm:text-xs numeric-display truncate" 
-                                style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                                title={wethBalance ? `Exact balance: ${parseFloat(wethBalance).toFixed(8)} WETH` : 'No WETH balance'}
-                              >
+                            <div className="text-center">
+                              <div className="text-white text-sm font-medium">WETH</div>
+                              <div className="text-pink-400 font-bold text-sm numeric-mono">
                                 {wethBalance ? (
                                   parseFloat(wethBalance) >= 1 
-                                    ? parseFloat(wethBalance).toFixed(2)
+                                    ? parseFloat(wethBalance).toFixed(3)
                                     : parseFloat(wethBalance).toFixed(6)
                                 ) : '0.000000'}
                               </div>

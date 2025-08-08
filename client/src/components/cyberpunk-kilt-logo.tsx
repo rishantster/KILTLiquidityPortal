@@ -2,13 +2,14 @@ import React from 'react';
 import kiltLogo from '@assets/KILT_400x400_transparent_1754560178965.png';
 
 interface CyberpunkKiltLogoProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
 export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKiltLogoProps) {
   const sizeClasses = {
-    sm: 'w-8 h-8',
+    xs: 'w-6 h-6',
+    sm: 'w-8 h-8', 
     md: 'w-16 h-16',
     lg: 'w-24 h-24',
     xl: 'w-32 h-32'

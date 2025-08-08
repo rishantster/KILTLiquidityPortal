@@ -229,16 +229,16 @@ app.use((req, res, next) => {
   // Check if production build exists and prioritize it (for deployment readiness)
   if (fs.existsSync(distPath)) {
     console.log('🚀 Serving production build from:', distPath);
-    // Serve static assets with proper caching
+    // Serve static assets with minimal caching for development-friendly workflow
     app.use(express.static(distPath, {
-      maxAge: '1y',
+      maxAge: '5m', // 5 minutes instead of 1 year
       etag: true,
       lastModified: true,
       setHeaders: (res, filePath) => {
         if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+          res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate'); // 5 minutes, revalidate
         } else if (filePath.endsWith('.html')) {
-          res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+          res.setHeader('Cache-Control', 'no-cache, must-revalidate'); // No caching for HTML
         }
       }
     }));

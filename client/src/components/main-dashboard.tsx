@@ -684,7 +684,7 @@ export function MainDashboard() {
               {/* KILT Price Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10 flex flex-col justify-between">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-28 transition-all duration-300 group-hover:border-[#ff0066]/30 group-hover:shadow-lg group-hover:shadow-[#ff0066]/10 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1 min-w-0 flex-1">
                       <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center flex-shrink-0">
@@ -719,7 +719,7 @@ export function MainDashboard() {
               {/* Market Cap Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10 flex flex-col justify-between">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-28 transition-all duration-300 group-hover:border-green-400/30 group-hover:shadow-lg group-hover:shadow-green-400/10 flex flex-col justify-between">
                   <div className="flex items-center gap-1 mb-2">
                     <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-green-400/20 to-green-400/10 border border-green-400/30 flex items-center justify-center flex-shrink-0">
                       <Coins className="h-3 w-3 text-green-400" />
@@ -740,7 +740,7 @@ export function MainDashboard() {
               {/* Trading Fees APR Card - Using Real Data */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-emerald-400/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10 flex flex-col justify-between">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-28 transition-all duration-300 group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-400/10 flex flex-col justify-between">
                   <div className="flex items-center gap-1 mb-2">
                     <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 border border-emerald-400/30 flex items-center justify-center flex-shrink-0">
                       <TrendingUp className="h-3 w-3 text-emerald-400" />
@@ -759,7 +759,7 @@ export function MainDashboard() {
               {/* Program APR Card */}
               <div className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-green-500/30"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-24 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10 flex flex-col justify-between">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-28 transition-all duration-300 group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10 flex flex-col justify-between">
                   <div className="flex items-center gap-1 mb-2">
                     <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/30 flex items-center justify-center flex-shrink-0">
                       <Award className="h-3 w-3 text-green-500" />

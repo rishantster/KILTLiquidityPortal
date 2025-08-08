@@ -891,45 +891,48 @@ export function MainDashboard() {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex w-full overflow-x-auto bg-black/20 backdrop-blur-sm border border-white/10 h-14 scrollbar-hide">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 bg-black/20 backdrop-blur-sm border border-white/10 h-14">
             <TabsTrigger 
               value="overview" 
-              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
-              Overview
+              <span className="hidden lg:inline">Overview</span>
+              <span className="lg:hidden">Overview</span>
             </TabsTrigger>
             <TabsTrigger 
               value="add-liquidity" 
-              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
-              <span className="hidden sm:inline">Add Liquidity</span>
-              <span className="sm:hidden">+ Liquidity</span>
+              <span className="hidden lg:inline">Add Liquidity</span>
+              <span className="lg:hidden">+ Liq</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
-              Positions
+              <span className="hidden lg:inline">Positions</span>
+              <span className="lg:hidden">Pos</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rewards" 
-              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
             >
-              Rewards
+              <span className="hidden lg:inline">Rewards</span>
+              <span className="lg:hidden">Rewards</span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap hidden md:flex"
             >
-              <span className="hidden sm:inline">Analytics</span>
-              <span className="sm:hidden">Stats</span>
+              <span className="hidden lg:inline">Analytics</span>
+              <span className="lg:hidden">Stats</span>
             </TabsTrigger>
             <TabsTrigger 
               value="integration" 
-              className="flex-shrink-0 text-sm sm:text-base px-3 sm:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap"
+              className="text-xs md:text-sm lg:text-base px-2 md:px-3 lg:px-4 py-3 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 whitespace-nowrap hidden lg:flex"
             >
-              <span className="hidden sm:inline">Integration</span>
-              <span className="sm:hidden">API</span>
+              <span className="hidden lg:inline">Integration</span>
+              <span className="lg:hidden">API</span>
             </TabsTrigger>
           </TabsList>
 

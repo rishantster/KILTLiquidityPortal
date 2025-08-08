@@ -140,8 +140,8 @@ export function MobileWalletConnect() {
             Switch to Base
           </Badge>
         ) : (
-          <Badge variant="outline" className="bg-[#ff0066]/10 text-[#ff0066] border-[#ff0066]/30">
-            <div className="w-2 h-2 bg-[#ff0066] rounded-full mr-2 animate-pulse"></div>
+          <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
             Connected • Base
           </Badge>
         )}

@@ -152,7 +152,7 @@ export function MobileWalletConnect() {
         )}
         <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-xl border border-[#ff0066]/20 rounded-xl px-2 sm:px-4 py-2">
           <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-[#ff0066]" />
-          <span className="wallet-address-fix">
+          <span className="wallet-address">
             <span className="sm:hidden">{address.slice(0, 4)}...{address.slice(-3)}</span>
             <span className="hidden sm:inline">{address.slice(0, 6)}...{address.slice(-4)}</span>
           </span>
@@ -162,7 +162,7 @@ export function MobileWalletConnect() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="mobile-button-small ml-1 sm:ml-2 h-5 sm:h-6 px-1 sm:px-2 text-xs hover:bg-white/10 hover:text-white"
+                className="btn-base btn-secondary text-xs h-5 sm:h-6 px-1 sm:px-2 ml-1 sm:ml-2"
               >
                 <ChevronDown className="h-3 w-3" />
               </Button>
@@ -247,7 +247,7 @@ export function MobileWalletConnect() {
       <Button
         onClick={() => setShowModal(true)}
         disabled={isPending}
-        className="mobile-button-fix inline-flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] shadow-medium-modern hover:shadow-strong-modern hover:-translate-y-0.5 h-10 sm:h-11 py-2 sm:py-2.5 bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white border-0 shadow-lg hover:shadow-xl shadow-[#ff0066]/20 transition-all duration-300 px-4 sm:px-6"
+        className="btn-base btn-primary"
       >
         {isPending ? (
           <>
@@ -263,7 +263,7 @@ export function MobileWalletConnect() {
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="mobile-dialog-fix bg-black/95 backdrop-blur-xl border border-gray-800 max-w-[100vw] sm:max-w-[600px] lg:max-w-[700px] w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto p-6 sm:p-8 m-0 sm:mx-auto sm:my-4 rounded-none sm:rounded-xl" aria-describedby="wallet-connect-description">
+        <DialogContent className="dialog-mobile bg-glass-strong border-glass custom-scrollbar" aria-describedby="wallet-connect-description">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold flex items-center justify-center gap-4 mb-6 sm:mb-8 text-center">
               <div className="p-3 bg-gradient-to-r from-[#ff0066] to-[#cc0052] rounded-full">

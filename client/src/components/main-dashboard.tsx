@@ -552,7 +552,7 @@ export function MainDashboard() {
               <img src={kiltLogo} alt="KILT" className="w-9 h-9" />
             </div>
             <div>
-              <h1 className="header-title-fix">KILT Liquidity Portal</h1>
+              <h1 className="header-title">KILT Liquidity Portal</h1>
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span>Live on Base Network</span>
@@ -892,32 +892,32 @@ export function MainDashboard() {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="tabs-list-fix">
-            <TabsTrigger value="overview" className="tab-trigger-fix">
+          <TabsList className="nav-tabs-list tabs-container">
+            <TabsTrigger value="overview" className="tab-trigger">
               <span className="truncate">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="add-liquidity" className="tab-trigger-fix">
+            <TabsTrigger value="add-liquidity" className="tab-trigger">
               <span className="truncate">
                 <span className="hidden md:inline">Add Liquidity</span>
                 <span className="md:hidden">+ Liq</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger value="positions" className="tab-trigger-fix">
+            <TabsTrigger value="positions" className="tab-trigger">
               <span className="truncate">
                 <span className="hidden md:inline">Positions</span>
                 <span className="md:hidden">Pos</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger value="rewards" className="tab-trigger-fix">
+            <TabsTrigger value="rewards" className="tab-trigger">
               <span className="truncate">Rewards</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="tab-trigger-fix hidden md:flex">
+            <TabsTrigger value="analytics" className="tab-trigger hidden md:flex">
               <span className="truncate">
                 <span className="hidden lg:inline">Analytics</span>
                 <span className="lg:hidden">Stats</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger value="integration" className="tab-trigger-fix hidden lg:flex">
+            <TabsTrigger value="integration" className="tab-trigger hidden lg:flex">
               <span className="truncate">
                 <span className="hidden xl:inline">Integration</span>
                 <span className="xl:hidden">API</span>

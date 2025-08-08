@@ -604,70 +604,24 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* Desktop Header - Force Layout with Inline Styles */}
-        <div 
-          style={{
-            width: '100%',
-            marginBottom: '2rem',
-            padding: '1.5rem',
-            background: 'rgba(0, 0, 0, 0.2)',
-            backdropFilter: 'blur(12px)',
-            borderRadius: '0.75rem',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}
-        >
-          <div 
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-              gap: '3rem'
-            }}
-          >
+        {/* Desktop Header - Use CSS classes to allow mobile fixes */}
+        <div className="w-full mb-8 p-6">
+          <div className="flex items-center justify-between">
             {/* Left Section */}
-            <div 
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '2rem',
-                flex: '1'
-              }}
-            >
-              <div style={{ width: '3rem', height: '3rem', flexShrink: 0 }}>
+            <div className="flex items-center space-x-6">
+              <div className="w-12 h-12 flex-shrink-0">
                 <CyberpunkKiltLogo size="sm" />
               </div>
-              <h1 
-                style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  color: 'white',
-                  fontFamily: 'monospace',
-                  whiteSpace: 'nowrap',
-                  margin: 0,
-                  padding: 0
-                }}
-              >
+              <h1 className="text-2xl font-bold text-white font-mono whitespace-nowrap">
                 KILT Liquidity Portal
               </h1>
-              <div 
-                style={{
-                  background: 'white',
-                  color: '#ff0066',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '9999px',
-                  fontSize: '0.875rem',
-                  fontWeight: '700',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                  whiteSpace: 'nowrap'
-                }}
-              >
+              <div className="bg-white rounded-full px-4 py-2 text-sm font-bold text-[#ff0066] shadow-lg whitespace-nowrap">
                 Beta
               </div>
             </div>
             
             {/* Right Section */}
-            <div style={{ flexShrink: 0 }}>
+            <div className="flex-shrink-0">
               <MobileWalletConnect />
             </div>
           </div>

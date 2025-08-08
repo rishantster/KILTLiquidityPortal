@@ -281,24 +281,38 @@ export function BuyKilt({
                 />
                 <div className="flex justify-between text-xs text-white/60">
                   <span>0.001 ETH</span>
-                  <span className="text-pink-400 font-medium">{ethAmount} ETH</span>
-                  <span>{maxEthAmount.toFixed(3)} ETH</span>
+                  <div className="text-center">
+                    <div className="text-pink-400 font-medium">{ethAmount} ETH</div>
+                    <div className="text-white/40">
+                      {maxEthAmount > 0 ? `${Math.round((parseFloat(ethAmount) / maxEthAmount) * 100)}%` : '0%'}
+                    </div>
+                  </div>
+                  <span>{maxEthAmount.toFixed(3)} ETH (100%)</span>
                 </div>
               </div>
               
-              {/* Quick Amount Buttons */}
+              {/* Percentage-based Quick Buttons */}
               <div className="grid grid-cols-4 gap-2">
-                {[0.001, 0.01, 0.1, maxEthAmount * 0.5].map((amount) => (
-                  <Button
-                    key={amount}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSliderValue([Math.min(amount, maxEthAmount)])}
-                    className="border-white/10 bg-white/5 text-white/80 hover:bg-white/10 text-xs"
-                  >
-                    {amount < 0.01 ? amount.toFixed(3) : amount.toFixed(2)}
-                  </Button>
-                ))}
+                {[
+                  { label: '25%', percentage: 0.25 },
+                  { label: '50%', percentage: 0.5 },
+                  { label: '75%', percentage: 0.75 },
+                  { label: '100%', percentage: 1.0 }
+                ].map(({ label, percentage }) => {
+                  const amount = maxEthAmount * percentage;
+                  return (
+                    <Button
+                      key={label}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSliderValue([Math.max(0.001, amount)])}
+                      className="border-white/10 bg-white/5 text-white/80 hover:bg-white/10 text-xs"
+                      disabled={amount < 0.001}
+                    >
+                      {label}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 

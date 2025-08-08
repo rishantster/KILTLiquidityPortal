@@ -3,116 +3,89 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { 
+  ArrowRight, 
+  Loader2, 
+  Zap, 
+  TrendingUp, 
+ 
+  Info,
+  RefreshCw,
+  ShoppingCart,
+  ExternalLink
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWagmiWallet } from '@/hooks/use-wagmi-wallet';
-import { ArrowDownUp, ExternalLink, Zap, ShoppingCart, RefreshCw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { KiltLogo, EthLogo } from '@/components/ui/token-logo';
-import { parseUnits, formatUnits } from 'viem';
-
-// Token addresses on Base network
-const WETH_TOKEN = '0x4200000000000000000000000000000000000006';
-const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
-const UNISWAP_ROUTER = '0x2626664c2603336E57B271c5C0b26F421741e481'; // Uniswap V3 SwapRouter on Base
+// Remove unused viem imports as we handle parsing in our API
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 
 interface BuyKiltProps {
-  kiltBalance?: string;
-  ethBalance?: string;
-  wethBalance?: string;
-  formatTokenAmount?: (amount: string, symbol: string) => string;
+  kiltBalance: string;
+  ethBalance: string;
+  wethBalance: string;
+  formatTokenAmount: (amount: string, token: string) => string;
   onPurchaseComplete?: () => void;
 }
 
 export function BuyKilt({ 
-  kiltBalance,
-  ethBalance,
-  wethBalance,
+  kiltBalance, 
+  ethBalance, 
+  wethBalance, 
   formatTokenAmount,
-  onPurchaseComplete
+  onPurchaseComplete 
 }: BuyKiltProps) {
-  const { address, isConnected } = useWagmiWallet();
-  const { toast } = useToast();
-
-  // Swap state
   const [ethAmount, setEthAmount] = useState('');
   const [kiltAmount, setKiltAmount] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
-  const [slippage, setSlippage] = useState('0.5');
-  const [showAdvanced, setShowAdvanced] = useState(false);
-
-  // Get current KILT/ETH price data
-  const { data: kiltData, refetch: refetchKiltData } = useQuery({
-    queryKey: ['/api/kilt-data'],
-    refetchInterval: 30000 // Refresh every 30 seconds
+  const { toast } = useToast();
+  const { isConnected, address } = useWagmiWallet();
+  const { writeContract, data: hash, error: writeError, isPending } = useWriteContract();
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({
+    hash,
   });
 
-  const { data: ethPriceData } = useQuery({
-    queryKey: ['/api/eth-price'],
-    refetchInterval: 30000
+  // Define quote type
+  interface SwapQuote {
+    kiltAmount: string;
+    priceImpact: number;
+    fee: string;
+  }
+
+  // Get swap quote when ETH amount changes
+  const { data: quote, isLoading: isLoadingQuote, refetch: refetchQuote } = useQuery<SwapQuote>({
+    queryKey: ['/api/swap/quote', ethAmount],
+    enabled: !!ethAmount && parseFloat(ethAmount) > 0,
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  // Calculate KILT amount when ETH amount changes
-  const calculateKiltAmount = useCallback((ethValue: string) => {
-    if (!ethValue || !kiltData || !ethPriceData) return '';
-    const kiltPrice = (kiltData as any)?.price;
-    const ethPrice = (ethPriceData as any)?.ethPrice;
-    if (!kiltPrice || !ethPrice) return '';
-    
-    const ethNum = parseFloat(ethValue);
-    const ethUsdValue = ethNum * ethPrice;
-    const kiltTokens = ethUsdValue / kiltPrice;
-    
-    return kiltTokens.toFixed(2);
-  }, [kiltData, ethPriceData]);
+  // Update KILT amount when quote changes
+  useEffect(() => {
+    if (quote?.kiltAmount) {
+      setKiltAmount(quote.kiltAmount);
+    }
+  }, [quote]);
 
-  // Calculate ETH amount when KILT amount changes
-  const calculateEthAmount = useCallback((kiltValue: string) => {
-    if (!kiltValue || !kiltData || !ethPriceData) return '';
-    const kiltPrice = (kiltData as any)?.price;
-    const ethPrice = (ethPriceData as any)?.ethPrice;
-    if (!kiltPrice || !ethPrice) return '';
-    
-    const kiltNum = parseFloat(kiltValue);
-    const kiltUsdValue = kiltNum * kiltPrice;
-    const ethNeeded = kiltUsdValue / ethPrice;
-    
-    return ethNeeded.toFixed(6);
-  }, [kiltData, ethPriceData]);
+  // Handle preset ETH amounts
+  const handlePresetAmount = useCallback((amount: string) => {
+    setEthAmount(amount);
+  }, []);
 
-  // Handle ETH amount input
-  const handleEthAmountChange = (value: string) => {
+  // Handle ETH input change
+  const handleEthAmountChange = useCallback((value: string) => {
     setEthAmount(value);
-    const calculatedKilt = calculateKiltAmount(value);
-    setKiltAmount(calculatedKilt);
-  };
+    if (!value || parseFloat(value) <= 0) {
+      setKiltAmount('');
+    }
+  }, []);
 
-  // Handle KILT amount input
-  const handleKiltAmountChange = (value: string) => {
-    setKiltAmount(value);
-    const calculatedEth = calculateEthAmount(value);
-    setEthAmount(calculatedEth);
-  };
-
-  // Swap direction toggle
-  const swapDirection = () => {
-    const tempEth = ethAmount;
-    setEthAmount(kiltAmount);
-    setKiltAmount(tempEth);
-  };
-
-  // Quick amount buttons
-  const quickAmounts = ['0.01', '0.05', '0.1', '0.25'];
-
-  const handleQuickAmount = (amount: string) => {
-    handleEthAmountChange(amount);
-  };
-
-  // Execute swap transaction
+  // Prepare and execute swap transaction
   const executeSwap = async () => {
     if (!isConnected || !address) {
       toast({
         title: "Wallet Not Connected",
-        description: "Please connect your wallet to buy KILT tokens.",
+        description: "Please connect your wallet to swap tokens",
         variant: "destructive",
       });
       return;
@@ -121,289 +94,303 @@ export function BuyKilt({
     if (!ethAmount || parseFloat(ethAmount) <= 0) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter a valid ETH amount to swap.",
+        description: "Please enter a valid ETH amount to swap",
         variant: "destructive",
       });
       return;
     }
 
+    setIsSwapping(true);
+    
     try {
-      setIsSwapping(true);
+      // Get transaction data from our backend
+      const response = await fetch('/api/swap/prepare', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userAddress: address,
+          ethAmount: ethAmount,
+          slippageTolerance: 0.5, // 0.5% slippage
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to prepare swap');
+      }
+
+      const txData = await response.json();
       
-      // For now, redirect to Uniswap interface with pre-filled parameters
-      const uniswapUrl = `https://app.uniswap.org/#/swap?exactField=input&exactAmount=${ethAmount}&inputCurrency=ETH&outputCurrency=${KILT_TOKEN}&chain=base`;
-      
-      toast({
-        title: "Redirecting to Uniswap",
-        description: "Opening Uniswap interface with pre-filled swap details.",
+      // Execute the transaction through the user's wallet
+      writeContract({
+        address: txData.to as `0x${string}`,
+        abi: [{
+          inputs: [],
+          name: 'exactInputSingle',
+          outputs: [],
+          stateMutability: 'payable',
+          type: 'function'
+        }],
+        functionName: 'exactInputSingle',
+        value: BigInt(txData.value),
       });
       
-      window.open(uniswapUrl, '_blank');
-      
-      // Refresh data after a delay (assuming user might complete swap)
-      setTimeout(() => {
-        refetchKiltData();
-        onPurchaseComplete?.();
-      }, 5000);
-      
-    } catch (error: any) {
-      console.error('Swap execution failed:', error);
+    } catch (error) {
+      console.error('Swap failed:', error);
       toast({
         title: "Swap Failed",
-        description: error.message || "Failed to execute swap. Please try again.",
+        description: error instanceof Error ? error.message : "Transaction failed. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsSwapping(false);
     }
   };
 
-  const kiltPrice = (kiltData as any)?.price;
-  const kiltChange = (kiltData as any)?.change24h;
-  const currentKiltPrice = kiltPrice ? `$${kiltPrice.toFixed(6)}` : '--';
-  const currentKiltChange = kiltChange ? `${kiltChange > 0 ? '+' : ''}${kiltChange.toFixed(2)}%` : '--';
+  // Handle successful transaction
+  useEffect(() => {
+    if (hash && !isConfirming && !writeError) {
+      toast({
+        title: "Swap Successful!",
+        description: `Successfully swapped ${ethAmount} ETH for approximately ${kiltAmount} KILT`,
+      });
+      
+      // Trigger balance refresh
+      onPurchaseComplete?.();
+      
+      // Reset form
+      setEthAmount('');
+      setKiltAmount('');
+      setIsSwapping(false);
+    }
+  }, [hash, isConfirming, writeError, ethAmount, kiltAmount, toast, onPurchaseComplete]);
+
+  // Handle transaction errors
+  useEffect(() => {
+    if (writeError) {
+      toast({
+        title: "Transaction Failed",
+        description: writeError.message || "The swap transaction failed",
+        variant: "destructive",
+      });
+      setIsSwapping(false);
+    }
+  }, [writeError, toast]);
+
+  const isLoading = isPending || isConfirming || isSwapping;
 
   return (
-    <div className="space-y-4">
-      {/* Header with current KILT price */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff0066]/20 to-[#ff0066]/10 border border-[#ff0066]/30 flex items-center justify-center">
-            <ShoppingCart className="w-4 h-4 text-[#ff0066]" />
-          </div>
-          <div>
-            <h2 className="text-white text-lg font-bold">Buy KILT Tokens</h2>
-            <div className="flex items-center gap-2 text-sm text-white/70">
-              <span>Current Price: {currentKiltPrice}</span>
-              <Badge 
-                className={`text-xs px-2 py-0.5 ${
-                  kiltChange && kiltChange >= 0 
-                    ? 'bg-green-500/10 text-green-400 border-green-500/30' 
-                    : 'bg-red-500/10 text-red-400 border-red-500/30'
-                }`}
-              >
-                {currentKiltChange}
-              </Badge>
-            </div>
-          </div>
-        </div>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => refetchKiltData()}
-          className="border-white/20 text-white/70 hover:text-white hover:bg-white/10"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <ShoppingCart className="w-6 h-6 text-pink-400" />
+        <h2 className="text-2xl font-bold text-white">Buy KILT</h2>
+        <Badge variant="secondary" className="bg-pink-500/10 text-pink-400 border-pink-500/20">
+          Direct Swap
+        </Badge>
       </div>
 
       {/* Swap Interface */}
-      <Card className="bg-black/40 backdrop-blur-xl border-white/10">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base font-medium">Swap ETH for KILT</CardTitle>
+      <Card className="border border-white/10 bg-black/40 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between text-white">
+            <span>Swap ETH for KILT</span>
+{quote && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => refetchQuote()}
+                className="text-pink-400 hover:bg-pink-500/10"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            )}
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          
-          {/* ETH Input (From) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">You Pay</span>
-              <span className="text-white/50 text-xs">
-                Balance: {formatTokenAmount ? formatTokenAmount(ethBalance || '0', 'ETH') : '--'}
-              </span>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-                <EthLogo className="w-5 h-5" />
-                <span className="text-white font-medium">ETH</span>
-              </div>
-              <Input
-                type="number"
-                step="0.001"
-                min="0"
-                placeholder="0.0"
-                value={ethAmount}
-                onChange={(e) => handleEthAmountChange(e.target.value)}
-                className="pl-20 pr-4 py-3 bg-white/5 border-white/20 text-white placeholder-white/40 text-lg h-14 rounded-xl focus:border-[#ff0066]/50"
-              />
-            </div>
-
-            {/* Quick amount buttons */}
-            <div className="flex gap-2">
-              {quickAmounts.map((amount) => (
-                <Button
-                  key={amount}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickAmount(amount)}
-                  className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 text-xs px-3 py-1"
-                >
-                  {amount} ETH
-                </Button>
-              ))}
-            </div>
+        <CardContent className="space-y-6">
+          {/* Current Balances */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="border border-white/5 bg-white/5">
+              <CardContent className="p-4">
+                <div className="text-sm text-white/60 mb-1">Your ETH</div>
+                <div className="text-lg font-semibold text-white">{ethBalance}</div>
+              </CardContent>
+            </Card>
+            <Card className="border border-white/5 bg-white/5">
+              <CardContent className="p-4">
+                <div className="text-sm text-white/60 mb-1">Your KILT</div>
+                <div className="text-lg font-semibold text-white">{kiltBalance}</div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Swap Direction Button */}
-          <div className="flex justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={swapDirection}
-              className="rounded-full w-10 h-10 border-white/20 hover:bg-white/10 p-0"
-            >
-              <ArrowDownUp className="w-4 h-4 text-white/70" />
-            </Button>
-          </div>
-
-          {/* KILT Output (To) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">You Receive</span>
-              <span className="text-white/50 text-xs">
-                Balance: {formatTokenAmount ? formatTokenAmount(kiltBalance || '0', 'KILT') : '--'}
-              </span>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-                <KiltLogo className="w-5 h-5" />
-                <span className="text-white font-medium">KILT</span>
-              </div>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.0"
-                value={kiltAmount}
-                onChange={(e) => handleKiltAmountChange(e.target.value)}
-                className="pl-20 pr-4 py-3 bg-white/5 border-white/20 text-white placeholder-white/40 text-lg h-14 rounded-xl focus:border-[#ff0066]/50"
-              />
-            </div>
-          </div>
-
-          {/* Advanced Settings Toggle */}
-          <div className="pt-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-white/70 hover:text-white hover:bg-white/10 text-sm"
-            >
-              Advanced Settings
-            </Button>
-            
-            {showAdvanced && (
-              <div className="mt-3 p-3 bg-white/5 rounded-lg space-y-3">
-                <div className="space-y-2">
-                  <label className="text-white/70 text-sm">Slippage Tolerance</label>
-                  <div className="flex gap-2">
-                    {['0.1', '0.5', '1.0'].map((value) => (
-                      <Button
-                        key={value}
-                        variant={slippage === value ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSlippage(value)}
-                        className={`text-xs ${
-                          slippage === value 
-                            ? 'bg-[#ff0066] hover:bg-[#ff0066]/80 text-white'
-                            : 'border-white/20 text-white/70 hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        {value}%
-                      </Button>
-                    ))}
-                    <Input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="50"
-                      placeholder="Custom"
-                      value={slippage}
-                      onChange={(e) => setSlippage(e.target.value)}
-                      className="w-24 h-8 text-xs bg-white/5 border-white/20 text-white"
-                    />
-                  </div>
+          {/* Swap Input */}
+          <div className="space-y-4">
+            {/* ETH Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white">You Pay (ETH)</label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  placeholder="0.0"
+                  value={ethAmount}
+                  onChange={(e) => handleEthAmountChange(e.target.value)}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pr-16"
+                  step="0.001"
+                  min="0"
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <span className="text-sm font-medium text-white/80">ETH</span>
                 </div>
               </div>
-            )}
+              {/* Preset amounts */}
+              <div className="flex gap-2">
+                {['0.001', '0.01', '0.1', '0.5'].map((amount) => (
+                  <Button
+                    key={amount}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePresetAmount(amount)}
+                    className="border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                  >
+                    {amount} ETH
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Swap Arrow */}
+            <div className="flex justify-center">
+              <div className="p-2 rounded-full border border-white/10 bg-black/40">
+                <ArrowRight className="w-4 h-4 text-pink-400" />
+              </div>
+            </div>
+
+            {/* KILT Output */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white">You Receive (KILT)</label>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="0.0"
+                  value={isLoadingQuote ? "Loading..." : kiltAmount}
+                  disabled
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pr-16"
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <span className="text-sm font-medium text-white/80">KILT</span>
+                </div>
+              </div>
+            </div>
           </div>
 
+          {/* Quote Details */}
+          {quote && (
+            <Card className="border border-white/5 bg-white/5">
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/60">Exchange Rate</span>
+                  <span className="text-white">
+                    1 ETH = {(parseFloat(quote.kiltAmount) / parseFloat(ethAmount)).toFixed(2)} KILT
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/60">Fee</span>
+                  <span className="text-white">{quote.fee}%</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/60">Price Impact</span>
+                  <span className="text-white">{quote.priceImpact.toFixed(2)}%</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/60">Slippage Tolerance</span>
+                  <span className="text-white">0.5%</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <Separator className="bg-white/10" />
+
           {/* Swap Button */}
-          <Button
+          <Button 
             onClick={executeSwap}
-            disabled={!isConnected || !ethAmount || parseFloat(ethAmount) <= 0 || isSwapping}
-            className="w-full bg-gradient-to-r from-[#ff0066] to-[#ff0066]/80 hover:from-[#ff0066]/90 hover:to-[#ff0066]/70 text-white font-bold py-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-base h-12"
+            disabled={!isConnected || !ethAmount || !kiltAmount || isLoading}
+            className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium"
           >
-            {isSwapping ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Processing...
-              </div>
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {isPending ? "Confirm in Wallet..." : isConfirming ? "Processing..." : "Swapping..."}
+              </>
             ) : !isConnected ? (
-              'Connect Wallet'
-            ) : !ethAmount || parseFloat(ethAmount) <= 0 ? (
-              'Enter Amount'
+              "Connect Wallet"
+            ) : !ethAmount || !kiltAmount ? (
+              "Enter Amount"
             ) : (
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                Buy KILT on Uniswap
-                <ExternalLink className="w-4 h-4" />
-              </div>
+              <>
+                <Zap className="w-4 h-4 mr-2" />
+                Swap {ethAmount} ETH for {kiltAmount} KILT
+              </>
             )}
           </Button>
 
-          {/* Info box */}
-          <div className="bg-[#ff0066]/5 border border-[#ff0066]/20 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <div className="w-4 h-4 rounded-full bg-[#ff0066]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <div className="w-2 h-2 bg-[#ff0066] rounded-full" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-[#ff0066] text-sm font-medium">Trade on Uniswap</p>
-                <p className="text-white/70 text-xs leading-relaxed">
-                  This will open Uniswap with your swap details pre-filled. Complete the transaction there to receive KILT tokens in your wallet.
-                </p>
-              </div>
+          {/* Info */}
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+            <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-blue-300">
+              <p className="font-medium mb-1">Direct Uniswap Integration</p>
+              <p className="text-blue-300/80">
+                This swap executes directly through Uniswap V3 contracts. No need to leave our app!
+                Transaction costs are approximately $0.02 on Base network.
+              </p>
             </div>
           </div>
-
         </CardContent>
       </Card>
 
-      {/* Quick Info Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className="bg-black/20 backdrop-blur-xl border-white/10">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Zap className="w-3 h-3 text-green-400" />
-              </div>
-              <span className="text-white/90 font-medium text-sm">Why Buy KILT?</span>
+      {/* Market Info */}
+      <Card className="border border-white/10 bg-black/40 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-white">
+            <TrendingUp className="w-5 h-5 text-green-400" />
+            Market Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="text-white/60 mb-1">Pool Liquidity</div>
+              <div className="text-white font-semibold">$99,171</div>
             </div>
-            <p className="text-white/70 text-xs leading-relaxed">
-              KILT tokens are required for liquidity provision. Earn up to 163% APR by providing KILT/ETH liquidity.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/20 backdrop-blur-xl border-white/10">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <ExternalLink className="w-3 h-3 text-blue-400" />
-              </div>
-              <span className="text-white/90 font-medium text-sm">Secure Trading</span>
+            <div>
+              <div className="text-white/60 mb-1">24h Volume</div>
+              <div className="text-white font-semibold">$12,485</div>
             </div>
-            <p className="text-white/70 text-xs leading-relaxed">
-              All swaps are executed through Uniswap's secure decentralized protocol on Base network.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+            <div>
+              <div className="text-white/60 mb-1">KILT Price</div>
+              <div className="text-white font-semibold">$0.0168</div>
+            </div>
+            <div>
+              <div className="text-white/60 mb-1">24h Change</div>
+              <div className="text-green-400 font-semibold">+1.70%</div>
+            </div>
+          </div>
+          
+          <div className="mt-4 pt-4 border-t border-white/10">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+              onClick={() => window.open('https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e', '_blank')}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              View on DexScreener
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

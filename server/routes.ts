@@ -4425,6 +4425,61 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Import swap service
+  const { SwapService } = await import('./swap-service');
+  const swapService = new SwapService();
+
+  // Swap quote endpoint
+  app.get('/api/swap/quote', async (req, res) => {
+    try {
+      const { ethAmount } = req.query;
+      
+      if (!ethAmount || typeof ethAmount !== 'string') {
+        return res.status(400).json({ error: 'ETH amount is required' });
+      }
+
+      swapService.validateSwapParams('0x0000000000000000000000000000000000000000', ethAmount);
+      const quote = await swapService.getSwapQuote(ethAmount);
+      
+      res.json(quote);
+    } catch (error) {
+      console.error('Swap quote error:', error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : 'Failed to get swap quote' 
+      });
+    }
+  });
+
+  // Prepare swap transaction endpoint
+  app.post('/api/swap/prepare', async (req, res) => {
+    try {
+      const { userAddress, ethAmount, slippageTolerance = 0.5 } = req.body;
+      
+      swapService.validateSwapParams(userAddress, ethAmount, slippageTolerance);
+      const transaction = await swapService.prepareSwapTransaction(userAddress, ethAmount, slippageTolerance);
+      
+      res.json(transaction);
+    } catch (error) {
+      console.error('Prepare swap error:', error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : 'Failed to prepare swap transaction' 
+      });
+    }
+  });
+
+  // Pool info endpoint
+  app.get('/api/swap/pool-info', async (req, res) => {
+    try {
+      const poolInfo = await swapService.getPoolInfo();
+      res.json(poolInfo);
+    } catch (error) {
+      console.error('Pool info error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get pool information' 
+      });
+    }
+  });
+
   return httpServer;
 }
 

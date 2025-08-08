@@ -683,6 +683,16 @@ export function MainDashboard() {
                 <span className="hidden sm:inline">Buy KILT</span>
               </span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="buy-kilt" 
+              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
+            >
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
+              <span className="text-xs sm:text-sm font-medium">
+                <span className="sm:hidden">Buy</span>
+                <span className="hidden sm:inline">Buy KILT</span>
+              </span>
+            </TabsTrigger>
 
           </TabsList>
 

@@ -604,24 +604,24 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* Desktop Header - Use CSS classes to allow mobile fixes */}
-        <div className="header-container w-full mb-8 p-6">
-          <div className="header-flex flex items-center justify-between">
+        {/* Desktop Header - Fixed with direct CSS classes */}
+        <div className="header-container">
+          <div className="header-flex">
             {/* Left Section */}
-            <div className="flex items-center space-x-6">
-              <div className="w-12 h-12 flex-shrink-0">
+            <div className="header-left">
+              <div className="header-logo w-12 h-12 flex-shrink-0">
                 <CyberpunkKiltLogo size="sm" />
               </div>
-              <h1 className="text-2xl font-bold text-white font-mono whitespace-nowrap">
+              <h1 className="header-title">
                 KILT Liquidity Portal
               </h1>
-              <div className="bg-white rounded-full px-4 py-2 text-sm font-bold text-[#ff0066] shadow-lg whitespace-nowrap">
+              <div className="header-beta">
                 Beta
               </div>
             </div>
             
             {/* Right Section */}
-            <div className="flex-shrink-0">
+            <div className="header-right">
               <MobileWalletConnect />
             </div>
           </div>

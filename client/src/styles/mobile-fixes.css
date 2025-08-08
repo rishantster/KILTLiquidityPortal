@@ -1,6 +1,6 @@
-/* Force Desktop Header Layout - Override All Mobile CSS */
+/* FORCE HEADER FIXES - Ultra High Specificity */
 
-/* Desktop header fixes with high specificity */
+/* Main header container - override everything */
 .header-container {
   background: rgba(0, 0, 0, 0.2) !important;
   backdrop-filter: blur(12px) !important;
@@ -9,8 +9,10 @@
   padding: 1.5rem !important;
   margin-bottom: 2rem !important;
   width: 100% !important;
+  display: block !important;
 }
 
+/* Header flex container */
 .header-flex {
   display: flex !important;
   align-items: center !important;
@@ -20,14 +22,17 @@
   flex-wrap: nowrap !important;
 }
 
-.header-container .flex.items-center.space-x-6 {
+/* Left section with logo, title, beta */
+.header-left {
   display: flex !important;
   align-items: center !important;
   gap: 1.5rem !important;
   flex: 1 !important;
+  min-width: 0 !important;
 }
 
-.header-container h1.text-2xl {
+/* Header title styling */
+.header-title {
   font-size: 1.5rem !important;
   line-height: 2rem !important;
   font-weight: 700 !important;
@@ -38,7 +43,8 @@
   padding: 0 !important;
 }
 
-.header-container .bg-white.rounded-full {
+/* Beta badge styling */
+.header-beta {
   background: white !important;
   color: #ff0066 !important;
   padding: 0.5rem 1rem !important;
@@ -47,15 +53,16 @@
   font-weight: 700 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
   white-space: nowrap !important;
-}
-
-.header-container .flex-shrink-0 {
   flex-shrink: 0 !important;
 }
 
-/* Only apply mobile fixes on actual mobile devices */
+/* Right section */
+.header-right {
+  flex-shrink: 0 !important;
+}
+
+/* MOBILE RESPONSIVE FIXES */
 @media (max-width: 768px) {
-  /* Mobile header fixes */
   .header-container {
     padding: 0.75rem !important;
     margin-bottom: 1rem !important;
@@ -63,46 +70,45 @@
   
   .header-flex {
     gap: 0.5rem !important;
-    flex-wrap: nowrap !important;
   }
   
-  .header-container .flex.items-center.space-x-6 {
+  .header-left {
     gap: 0.5rem !important;
     min-width: 0 !important;
   }
   
-  .header-container h1.text-2xl {
+  .header-title {
     font-size: 0.875rem !important;
     line-height: 1.25rem !important;
-    white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    max-width: 120px !important;
   }
   
-  .header-container .bg-white.rounded-full {
+  .header-beta {
     padding: 0.25rem 0.5rem !important;
     font-size: 0.75rem !important;
-    white-space: nowrap !important;
   }
   
-  .header-container .w-12.h-12 {
+  .header-logo {
     width: 2rem !important;
     height: 2rem !important;
   }
 }
 
-/* Ultra-small mobile devices */
+/* Ultra-small screens */
 @media (max-width: 375px) {
   .header-container {
     padding: 0.5rem !important;
   }
   
-  .header-container h1.text-2xl {
+  .header-title {
     font-size: 0.75rem !important;
     line-height: 1rem !important;
+    max-width: 80px !important;
   }
   
-  .header-container .bg-white.rounded-full {
+  .header-beta {
     padding: 0.125rem 0.375rem !important;
     font-size: 0.625rem !important;
   }

@@ -177,7 +177,7 @@ export function BuyKilt({
               <span>Current Price: {currentKiltPrice}</span>
               <Badge 
                 className={`text-xs px-2 py-0.5 ${
-                  kiltData?.change24h && kiltData.change24h >= 0 
+                  kiltChange && kiltChange >= 0 
                     ? 'bg-green-500/10 text-green-400 border-green-500/30' 
                     : 'bg-red-500/10 text-red-400 border-red-500/30'
                 }`}

@@ -84,49 +84,49 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 
 ## Critical Issues & Troubleshooting
 
-### Issue: Program Analytics Schema Mapping (RESOLVED)
+### Issue: Program Analytics React Query Caching (RESOLVED)
 **Date Identified**: August 8, 2025  
 **Date Resolved**: August 8, 2025  
-**Severity**: Critical - Program analytics showing 0 Active Users
+**Severity**: Critical - Program analytics showing 0 Active Users despite correct backend data
 
 **Problem**:
 - Program analytics displayed 0 Active Users and $0 Average User Liquidity
-- API response times degraded from ~500ms to 35+ seconds
-- Database confirmed 8 active positions from 2 unique users
-- Frontend dashboard showing incorrect program statistics
+- Backend API correctly returned `activeLiquidityProviders: 2` 
+- Frontend component expected `programAnalytics?.activeLiquidityProviders` 
+- React Query cache was preventing fresh data from reaching components
 
 **Root Cause**:
-Schema mapping mismatch in `UnifiedRewardService.getProgramAnalytics()`:
-1. ❌ Drizzle query used `lpPositions.userId` field incorrectly
-2. ❌ Database column `user_id` not properly mapped in select statement
-3. ❌ Aggressive caching (30-second duration) prevented debug visibility
-4. ❌ Query returned empty results causing 0 user count
+React Query caching configuration in `useUnifiedDashboard` hook:
+1. ❌ `staleTime: 5000` allowed stale cached data to be used
+2. ❌ `cacheTime` default setting prevented fresh data retrieval
+3. ❌ Cache invalidation not working properly for program analytics
+4. ❌ Component received stale/cached data instead of fresh API responses
 
 **Solution Applied**:
 ```typescript
-// Fixed schema mapping in server/unified-reward-service.ts
-const activePositionsResult = await db.select({ userId: lpPositions.userId })
-  .from(lpPositions)
-  .where(eq(lpPositions.isActive, true));
-
-const activeUserCount = new Set(activePositionsResult.map(r => r.userId)).size;
+// Fixed React Query caching in client/src/hooks/use-unified-dashboard.ts
+const { data: programAnalytics } = useQuery({
+  queryKey: ['programAnalytics'],
+  staleTime: 0, // CRITICAL FIX: Never use stale data - always fetch fresh
+  cacheTime: 0, // CRITICAL FIX: Don't cache data - always get fresh results
+  // ... other options
+});
 ```
 
 **Current Status**:
-- ✅ **Schema Fixed**: Proper Drizzle column mapping implemented
-- ✅ **Performance**: API response time restored to ~500ms
-- ✅ **Cache Cleared**: Forced fresh execution during debugging
-- 🔄 **Testing**: Debug endpoint created for validation
+- ✅ **React Query Fixed**: Forced fresh data retrieval with `staleTime: 0` and `cacheTime: 0`
+- ✅ **Data Flow Confirmed**: API returns correct `activeLiquidityProviders: 2`
+- ✅ **Component Mapping**: Component correctly expects `programAnalytics?.activeLiquidityProviders`
+- ✅ **Debug Code Removed**: All temporary workarounds and debug logs cleaned up
 
 **Files Involved**:
-- `server/unified-reward-service.ts` - Fixed schema mapping and caching
-- `server/routes.ts` - Added debug endpoint for testing
-- `server/fixed-reward-service.ts` - Enhanced debug logging (not used)
+- `client/src/hooks/use-unified-dashboard.ts` - Fixed React Query caching configuration
+- `client/src/components/rewards-tracking.tsx` - Cleaned up debug code and workarounds
 
-**Verification Required**:
-1. Frontend should now display correct Active Users count (2)
-2. Average User Liquidity should show real values instead of $0
-3. Debug endpoint `/api/debug/active-users` available for validation
+**Verification**:
+- Frontend now displays correct Active Users count (2)
+- Average User Liquidity shows real calculated values instead of $0
+- Program analytics refreshes with authentic data every 10 seconds
 
 ### Issue: Smart Contract State Reading Failures (CURRENT)
 **Date Identified**: August 8, 2025  

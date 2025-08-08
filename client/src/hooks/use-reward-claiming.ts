@@ -214,21 +214,26 @@ export function useRewardClaiming() {
       const signatureData = await signatureResponse.json();
       console.log('📋 CLAIM LOG 15: Full signature response:', JSON.stringify(signatureData, null, 2));
       
-      const { signature, nonce } = signatureData;
+      const { signature, nonce, totalRewardBalance } = signatureData;
       console.log('📋 CLAIM LOG 16: Extracted signature:', signature);
       console.log('📋 CLAIM LOG 17: Signature type:', typeof signature);
       console.log('📋 CLAIM LOG 18: Signature length:', signature?.length);
       console.log('📋 CLAIM LOG 19: Extracted nonce:', nonce);
       console.log('📋 CLAIM LOG 20: Nonce type:', typeof nonce);
+      console.log('📋 CLAIM LOG 20.5: Backend signed amount:', totalRewardBalance);
+      
+      // CRITICAL: Use the EXACT amount that was signed by the backend
+      const signedAmount = totalRewardBalance || calculatedAmount;
+      console.log('📋 CLAIM LOG 20.6: Using signed amount for contract call:', signedAmount);
       
       // Step 3: User claims rewards directly from treasury contract
       console.log('📋 CLAIM LOG 21: Preparing smart contract call...');
-      const totalRewardBalanceWei = parseUnits(calculatedAmount.toString(), 18);
+      const totalRewardBalanceWei = parseUnits(signedAmount.toString(), 18);
       console.log('📋 CLAIM LOG 22: Amount in wei:', totalRewardBalanceWei.toString());
       console.log('📋 CLAIM LOG 23: Contract ABI function:', 'claimRewards');
       console.log('📋 CLAIM LOG 24: Contract arguments:');
       console.log('  - user:', address);
-      console.log('  - amount:', totalRewardBalanceWei.toString());
+      console.log('  - amount (signed):', totalRewardBalanceWei.toString());
       console.log('  - nonce:', nonce, 'type:', typeof nonce);
       console.log('  - signature:', signature);
       
@@ -248,7 +253,29 @@ export function useRewardClaiming() {
         console.log('🔗 CLAIM LOG 25.2: Gas estimation successful:', gasEstimate.toString());
       } catch (gasError) {
         console.error('🔗 CLAIM LOG 25.3: Gas estimation failed:', gasError);
-        throw new Error(`Transaction would fail: ${gasError instanceof Error ? gasError.message : 'Unknown gas estimation error'}`);
+        console.error('🔗 CLAIM LOG 25.4: Error details:', {
+          name: gasError instanceof Error ? gasError.name : 'Unknown',
+          message: gasError instanceof Error ? gasError.message : 'Unknown gas estimation error',
+          stack: gasError instanceof Error ? gasError.stack : undefined
+        });
+        
+        // Check if it's a revert error and extract the reason
+        let revertReason = 'Unknown revert reason';
+        if (gasError instanceof Error) {
+          const errorStr = gasError.message.toLowerCase();
+          if (errorStr.includes('revert')) {
+            revertReason = gasError.message;
+          } else if (errorStr.includes('signature')) {
+            revertReason = 'Invalid signature verification';
+          } else if (errorStr.includes('nonce')) {
+            revertReason = 'Invalid nonce - user may have already claimed';
+          } else if (errorStr.includes('insufficient')) {
+            revertReason = 'Insufficient contract balance or user allowance';
+          }
+        }
+        
+        console.error('🔗 CLAIM LOG 25.5: Likely revert reason:', revertReason);
+        throw new Error(`Transaction would fail: ${revertReason}`);
       }
       
       const claimHash = await walletClient.writeContract({
@@ -276,7 +303,7 @@ export function useRewardClaiming() {
       return {
         success: true,
         transactionHash: claimHash,
-        claimedAmount: calculatedAmount.toFixed(4),
+        claimedAmount: signedAmount.toFixed(4),
       };
 
     } catch (error) {

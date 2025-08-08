@@ -605,11 +605,27 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* TEST HEADER TO SEE IF CHANGES WORK */}
-        <div className="w-full mb-8 bg-red-500 p-8 text-center">
-          <h1 className="text-4xl font-bold text-white">TEST HEADER - NEW</h1>
-          <p className="text-white text-xl">If you see this, the changes are working!</p>
-          <MobileWalletConnect />
+        {/* Clean Professional Header */}
+        <div className="w-full mb-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Logo and Title Section */}
+          <div className="flex items-center gap-4">
+            <div className="relative w-12 h-12">
+              <CyberpunkKiltLogo size="md" className="w-full h-full" />
+            </div>
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+                KILT Liquidity Portal
+              </h1>
+              <p className="text-white/60 text-sm font-medium">
+                Base Network • Uniswap V3
+              </p>
+            </div>
+          </div>
+          
+          {/* Wallet Connection Section */}
+          <div className="flex-shrink-0">
+            <MobileWalletConnect />
+          </div>
         </div>
 
         {/* Enhanced Navigation Tabs */}

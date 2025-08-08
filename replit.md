@@ -81,3 +81,11 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 **APIs**:
 - **CoinGecko API**: Real-time KILT token data.
 - **DexScreener API**: Real-time KILT/ETH pool conversion rates.
+
+## Recent Critical Fix
+**Smart Contract Claim Function Resolution (January 2025)**:
+- **Issue Identified**: Smart contract claimRewards calls were failing with "missing revert data" internal errors due to function signature mismatch
+- **Root Cause**: Frontend ABI contained incorrect function signature claimRewards(address user, uint256 amount, uint256 nonce, bytes signature) while deployed contract expects claimRewards(uint256 totalRewardBalance, bytes signature)
+- **Solution Applied**: Updated frontend ABI to match deployed contract, corrected all claim transaction parameters to use only totalRewardBalance and signature
+- **Impact**: Critical claim functionality now operational, users can successfully claim accumulated KILT treasury rewards via smart contract
+- **Status**: Fixed and ready for production use

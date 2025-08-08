@@ -242,7 +242,7 @@ export function useRewardClaiming() {
       console.log('  - msg.sender (from wallet):', address);
       
       console.log('🔗 CLAIM LOG 25: Calling smart contract claimRewards function...');
-      // Contract function: claimRewards(address user, uint256 amount, uint256 nonce, bytes signature)
+      // Contract function: claimRewards(uint256 totalRewardBalance, bytes signature)
       
       // Try to estimate gas first to catch any revert issues early
       console.log('🔗 CLAIM LOG 25.1: Estimating gas for transaction...');

@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
 import { 
   ArrowRight, 
   Loader2, 
   Zap, 
   TrendingUp, 
- 
+  AlertTriangle,
   Info,
   RefreshCw,
   ShoppingCart,
@@ -36,11 +37,23 @@ export function BuyKilt({
   formatTokenAmount,
   onPurchaseComplete 
 }: BuyKiltProps) {
-  const [ethAmount, setEthAmount] = useState('');
+  const [sliderValue, setSliderValue] = useState([0.01]);
   const [kiltAmount, setKiltAmount] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
   const { toast } = useToast();
   const { isConnected, address } = useWagmiWallet();
+  
+  // Calculate ETH amount from slider value (0.001 to 1 ETH range)
+  const ethAmount = useMemo(() => {
+    const value = sliderValue[0];
+    return value.toFixed(value < 0.01 ? 4 : value < 0.1 ? 3 : 2);
+  }, [sliderValue]);
+  
+  // Calculate max ETH available for slider
+  const maxEthAmount = useMemo(() => {
+    const available = parseFloat(ethBalance?.replace(/[^\d.-]/g, '') || '0');
+    return Math.min(available * 0.95, 1); // Use 95% of balance or max 1 ETH
+  }, [ethBalance]);
   const { writeContract, data: hash, error: writeError, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({
     hash,
@@ -67,16 +80,28 @@ export function BuyKilt({
     }
   }, [quote]);
 
-  // Handle preset ETH amounts
-  const handlePresetAmount = useCallback((amount: string) => {
-    setEthAmount(amount);
+  // Handle slider change
+  const handleSliderChange = useCallback((values: number[]) => {
+    setSliderValue(values);
   }, []);
 
-  // Handle ETH input change
-  const handleEthAmountChange = useCallback((value: string) => {
-    setEthAmount(value);
-    if (!value || parseFloat(value) <= 0) {
-      setKiltAmount('');
+  // Handle manual ETH input
+  const handleEthInput = useCallback((value: string) => {
+    const numValue = parseFloat(value) || 0.001;
+    const clampedValue = Math.min(Math.max(numValue, 0.001), maxEthAmount);
+    setSliderValue([clampedValue]);
+  }, [maxEthAmount]);
+  
+  // Get price impact color and warning
+  const getPriceImpactDisplay = useCallback((impact: number) => {
+    if (impact < 1) {
+      return { color: 'text-green-400', warning: false, label: 'Low' };
+    } else if (impact < 3) {
+      return { color: 'text-yellow-400', warning: false, label: 'Medium' };
+    } else if (impact < 5) {
+      return { color: 'text-orange-400', warning: true, label: 'High' };
+    } else {
+      return { color: 'text-red-400', warning: true, label: 'Very High' };
     }
   }, []);
 
@@ -160,7 +185,7 @@ export function BuyKilt({
       onPurchaseComplete?.();
       
       // Reset form
-      setEthAmount('');
+      setSliderValue([0.01]);
       setKiltAmount('');
       setIsSwapping(false);
     }
@@ -226,35 +251,52 @@ export function BuyKilt({
           </div>
 
           {/* Swap Input */}
-          <div className="space-y-4">
-            {/* ETH Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white">You Pay (ETH)</label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  placeholder="0.0"
-                  value={ethAmount}
-                  onChange={(e) => handleEthAmountChange(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pr-16"
-                  step="0.001"
-                  min="0"
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <span className="text-sm font-medium text-white/80">ETH</span>
+          <div className="space-y-6">
+            {/* ETH Amount Slider */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-white">You Pay (ETH)</label>
+                <div className="text-right">
+                  <Input
+                    type="number"
+                    value={ethAmount}
+                    onChange={(e) => handleEthInput(e.target.value)}
+                    className="w-24 h-8 text-right bg-white/5 border-white/10 text-white text-sm"
+                    step="0.001"
+                    min="0.001"
+                    max={maxEthAmount}
+                  />
                 </div>
               </div>
-              {/* Preset amounts */}
-              <div className="flex gap-2">
-                {['0.001', '0.01', '0.1', '0.5'].map((amount) => (
+              
+              {/* Interactive Slider */}
+              <div className="space-y-3">
+                <Slider
+                  value={sliderValue}
+                  onValueChange={handleSliderChange}
+                  max={maxEthAmount}
+                  min={0.001}
+                  step={0.001}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-white/60">
+                  <span>0.001 ETH</span>
+                  <span className="text-pink-400 font-medium">{ethAmount} ETH</span>
+                  <span>{maxEthAmount.toFixed(3)} ETH</span>
+                </div>
+              </div>
+              
+              {/* Quick Amount Buttons */}
+              <div className="grid grid-cols-4 gap-2">
+                {[0.001, 0.01, 0.1, maxEthAmount * 0.5].map((amount) => (
                   <Button
                     key={amount}
                     variant="outline"
                     size="sm"
-                    onClick={() => handlePresetAmount(amount)}
-                    className="border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                    onClick={() => setSliderValue([Math.min(amount, maxEthAmount)])}
+                    className="border-white/10 bg-white/5 text-white/80 hover:bg-white/10 text-xs"
                   >
-                    {amount} ETH
+                    {amount < 0.01 ? amount.toFixed(3) : amount.toFixed(2)}
                   </Button>
                 ))}
               </div>
@@ -285,30 +327,80 @@ export function BuyKilt({
             </div>
           </div>
 
-          {/* Quote Details */}
+          {/* Real-time Quote Details */}
           {quote && (
-            <Card className="border border-white/5 bg-white/5">
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60">Exchange Rate</span>
-                  <span className="text-white">
-                    1 ETH = {(parseFloat(quote.kiltAmount) / parseFloat(ethAmount)).toFixed(2)} KILT
-                  </span>
+            <div className="space-y-4">
+              {/* Price Impact Warning */}
+              {quote.priceImpact > 3 && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                  <AlertTriangle className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-orange-400">High Price Impact Warning</p>
+                    <p className="text-orange-300/80">
+                      This large trade will move the market price by {quote.priceImpact.toFixed(2)}%. 
+                      Consider splitting into smaller trades.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60">Fee</span>
-                  <span className="text-white">{quote.fee}%</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60">Price Impact</span>
-                  <span className="text-white">{quote.priceImpact.toFixed(2)}%</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60">Slippage Tolerance</span>
-                  <span className="text-white">0.5%</span>
-                </div>
-              </CardContent>
-            </Card>
+              )}
+              
+              {/* Enhanced Quote Card */}
+              <Card className="border border-white/5 bg-white/5">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-white/60">Exchange Rate</span>
+                    <span className="text-white font-mono">
+                      1 ETH = {(parseFloat(quote.kiltAmount) / parseFloat(ethAmount)).toLocaleString(undefined, {maximumFractionDigits: 0})} KILT
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-white/60">Trading Fee</span>
+                    <span className="text-white">{quote.fee}%</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-white/60">Price Impact</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`font-medium ${getPriceImpactDisplay(quote.priceImpact).color}`}>
+                        {quote.priceImpact.toFixed(3)}%
+                      </span>
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs ${
+                          getPriceImpactDisplay(quote.priceImpact).color.includes('green') 
+                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                            : getPriceImpactDisplay(quote.priceImpact).color.includes('yellow')
+                            ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                            : getPriceImpactDisplay(quote.priceImpact).color.includes('orange')
+                            ? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                            : 'bg-red-500/10 text-red-400 border-red-500/20'
+                        }`}
+                      >
+                        {getPriceImpactDisplay(quote.priceImpact).label}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-white/60">Slippage Tolerance</span>
+                    <span className="text-white">0.5%</span>
+                  </div>
+                  
+                  {/* Market Movement Prediction */}
+                  {quote.priceImpact > 1 && (
+                    <div className="pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-white/60">Predicted Price Movement</span>
+                        <span className={`font-medium ${getPriceImpactDisplay(quote.priceImpact).color}`}>
+                          +{quote.priceImpact.toFixed(3)}% increase
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           <Separator className="bg-white/10" />

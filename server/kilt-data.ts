@@ -107,7 +107,7 @@ export async function fetchKiltTokenData(): Promise<KiltTokenData> {
       marketCap: marketCap ? Math.round(marketCap * 100) / 100 : null, // Calculated consistently from our price
       circulatingSupply: KILT_CIRCULATING_SUPPLY, // Add explicit circulating supply
       volume24h: volume24h > 0 ? Math.round(volume24h * 100) / 100 : null, // Only real volume
-      priceChange24h: priceChange24h !== 0 ? Math.round(priceChange24h * 100) / 100 : null, // Only real 24h change
+      priceChange24h: priceChange24h !== null && priceChange24h !== undefined ? Math.round(priceChange24h * 100) / 100 : null, // Only real 24h change
       totalSupply: KILT_TOTAL_SUPPLY,
       treasuryAllocation: TREASURY_TOTAL,
       treasuryRemaining,

@@ -779,7 +779,7 @@ export function MainDashboard() {
               <div className="space-y-4">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-3">
                   <Plus className="h-4 w-4" style={{ color: '#ff0066' }} />
-                  <span>Eligible Positions</span>
+                  <span>Register Positions</span>
                 </h2>
                 <div className="h-[350px] sm:h-[400px] lg:h-[520px] flex flex-col">
                   <PositionRegistration />

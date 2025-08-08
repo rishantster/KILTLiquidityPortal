@@ -620,15 +620,15 @@ export function MainDashboard() {
           </div>
         </div>
 
-        {/* Balance Cards - Clean Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
+        {/* Balance Cards */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <KiltLogo size="sm" />
-                <span className="font-semibold text-white">KILT</span>
+                <span className="font-medium text-white">KILT</span>
               </div>
-              <div className="text-lg font-bold text-white">
+              <div className="text-lg font-semibold text-white">
                 {formatTokenAmount(kiltBalance)}
               </div>
               <div className="text-xs text-white/60">
@@ -637,13 +637,13 @@ export function MainDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
+          <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <EthLogo size="sm" />
-                <span className="font-semibold text-white">ETH</span>
+                <span className="font-medium text-white">ETH</span>
               </div>
-              <div className="text-lg font-bold text-white">
+              <div className="text-lg font-semibold text-white">
                 {formatTokenAmount(ethBalance)}
               </div>
               <div className="text-xs text-white/60">
@@ -652,13 +652,13 @@ export function MainDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
+          <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <WethLogo size="sm" />
-                <span className="font-semibold text-white">WETH</span>
+                <span className="font-medium text-white">WETH</span>
               </div>
-              <div className="text-lg font-bold text-white">
+              <div className="text-lg font-semibold text-white">
                 {formatTokenAmount(wethBalance)}
               </div>
               <div className="text-xs text-white/60">
@@ -669,31 +669,31 @@ export function MainDashboard() {
         </div>
 
         {/* APR Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20">
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <Card className="glass-card">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-emerald-400">
+              <div className="text-xl font-semibold text-emerald-400">
                 <SingleSourceProgramAPR />
               </div>
-              <div className="text-sm text-white/80">Treasury APR</div>
+              <div className="text-sm text-white/60">Treasury APR</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20">
+          <Card className="glass-card">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-400">
+              <div className="text-xl font-semibold text-blue-400">
                 <SingleSourceTradingAPR />
               </div>
-              <div className="text-sm text-white/80">Trading Fees APR</div>
+              <div className="text-sm text-white/60">Trading Fees APR</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-pink-500/10 to-pink-600/10 border border-pink-500/20">
+          <Card className="glass-card">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-pink-400">
+              <div className="text-xl font-semibold text-numbers">
                 <SingleSourceTotalAPR />
               </div>
-              <div className="text-sm text-white/80">Total APR</div>
+              <div className="text-sm text-white/60">Total APR</div>
             </CardContent>
           </Card>
         </div>
@@ -709,23 +709,23 @@ export function MainDashboard() {
               }
             }
           }}>
-            <TabsList className="grid grid-cols-2 lg:grid-cols-6 w-full bg-black/40 backdrop-blur-sm border border-white/10">
-              <TabsTrigger value="overview" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsList className="grid grid-cols-6 w-full glass-card">
+              <TabsTrigger value="overview" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="add-liquidity" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="add-liquidity" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Add Liquidity
               </TabsTrigger>
-              <TabsTrigger value="positions" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="positions" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Positions
               </TabsTrigger>
-              <TabsTrigger value="rewards" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="rewards" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Rewards
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="analytics" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Analytics
               </TabsTrigger>
-              <TabsTrigger value="integration" className="text-base h-14 px-4 py-3 text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+              <TabsTrigger value="integration" className="text-white data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                 Integration
               </TabsTrigger>
             </TabsList>

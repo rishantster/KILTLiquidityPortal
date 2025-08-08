@@ -145,6 +145,7 @@ export function MainDashboard() {
   
   // Chart modal state
   const [showChartModal, setShowChartModal] = useState(false);
+  const [showBuyKiltModal, setShowBuyKiltModal] = useState(false);
   
   // Removed responsive state - now using pure CSS media queries
   
@@ -673,16 +674,6 @@ export function MainDashboard() {
                 <span className="hidden sm:inline">Positions</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="buy-kilt" 
-              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
-            >
-              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium">
-                <span className="sm:hidden">Buy</span>
-                <span className="hidden sm:inline">Buy KILT</span>
-              </span>
-            </TabsTrigger>
 
           </TabsList>
 
@@ -902,7 +893,25 @@ export function MainDashboard() {
                           </div>
                         </div>
                         
-                        
+                        {/* Buy KILT Quick Action */}
+                        <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-white text-sm font-medium">Need more KILT?</span>
+                            <Badge variant="secondary" className="bg-pink-500/10 text-pink-400 border-pink-500/20 text-xs">
+                              Direct Swap
+                            </Badge>
+                          </div>
+                          <Button
+                            onClick={() => {
+                              // Create modal or expand inline swap interface
+                              setShowBuyKiltModal(true);
+                            }}
+                            className="w-full h-8 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium text-sm"
+                          >
+                            <ShoppingCart className="w-3 h-3 mr-2" />
+                            Buy KILT with ETH
+                          </Button>
+                        </div>
                       </div>
 
                       {/* Percentage Selector */}
@@ -1074,21 +1083,7 @@ export function MainDashboard() {
             </Suspense>
           </TabsContent>
           
-          {/* Buy KILT Tab */}
-          <TabsContent value="buy-kilt" className="space-y-6 tab-content-safe">
-            <Suspense fallback={<OptimizedLoadingFallback height="400px" />}>
-              <BuyKilt 
-                kiltBalance={formatTokenAmount(kiltBalance || '0', 'KILT')}
-                ethBalance={formatTokenAmount(ethBalance || '0', 'ETH')}
-                wethBalance={formatTokenAmount(wethBalance || '0', 'WETH')}
-                formatTokenAmount={formatTokenAmount}
-                onPurchaseComplete={() => {
-                  // Refresh token balances after purchase
-                  queryClient.invalidateQueries({ queryKey: ['/api/positions/wallet', address] });
-                }}
-              />
-            </Suspense>
-          </TabsContent>
+
 
 
 
@@ -1146,6 +1141,47 @@ export function MainDashboard() {
                   Open Full Chart
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Buy KILT Modal */}
+      {showBuyKiltModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-black/90 backdrop-blur-xl border border-pink-500/30 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-6 h-6 text-pink-400" />
+                <h2 className="text-white text-lg font-bold">Buy KILT</h2>
+                <Badge className="bg-pink-500/10 text-pink-400 border-pink-500/30">
+                  Direct Swap
+                </Badge>
+              </div>
+              <button
+                onClick={() => setShowBuyKiltModal(false)}
+                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-200 group"
+              >
+                <svg className="w-4 h-4 text-white/70 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Buy KILT Component */}
+            <div className="p-4">
+              <BuyKilt 
+                kiltBalance={formatTokenAmount(kiltBalance || '0', 'KILT')}
+                ethBalance={formatTokenAmount(ethBalance || '0', 'ETH')}
+                wethBalance={formatTokenAmount(wethBalance || '0', 'WETH')}
+                formatTokenAmount={formatTokenAmount}
+                onPurchaseComplete={() => {
+                  // Refresh token balances after purchase and close modal
+                  queryClient.invalidateQueries({ queryKey: ['/api/positions/wallet', address] });
+                  setShowBuyKiltModal(false);
+                }}
+              />
             </div>
           </div>
         </div>

@@ -605,23 +605,23 @@ export function MainDashboard() {
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto mobile-container-fix relative" style={{ zIndex: 10 }}>
         {/* Clean Professional Header - Fixed Single Row Layout */}
-        <div className="flex items-center justify-between flex-wrap gap-3 sm:gap-4 mb-6 sm:mb-8 w-full">
+        <header className="kilt-header-fixed flex items-center justify-between w-full mb-6 sm:mb-8 p-3 sm:p-4">
           {/* Left Section: Logo + Title + Beta Badge */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl flex items-center justify-center flex-shrink-0">
+          <div className="kilt-header-left flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center flex-shrink-0">
               <CyberpunkKiltLogo size="sm" />
             </div>
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white font-mono flex-shrink-0">KILT Liquidity Portal</h1>
-            <div className="bg-white backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
+            <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-white font-mono flex-shrink-0 truncate">KILT Liquidity Portal</h1>
+            <div className="bg-white backdrop-blur-sm rounded-full px-2 py-1 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200 flex-shrink-0">
               Beta
             </div>
           </div>
           
           {/* Right Section: Connection Status + Wallet */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="kilt-header-right flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <MobileWalletConnect />
           </div>
-        </div>
+        </header>
 
         {/* Enhanced Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => {

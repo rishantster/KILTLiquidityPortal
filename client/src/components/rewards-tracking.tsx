@@ -326,8 +326,10 @@ export function RewardsTracking() {
   const handleRefresh = () => {
     console.log('🚀 Admin change detected - triggering blazing fast cache refresh');
     
-    // Invalidate all relevant queries to force fresh data
-    queryClient.invalidateQueries({ queryKey: ['reward-stats'] });
+    // FIXED: Invalidate correct query keys to force fresh data
+    queryClient.invalidateQueries({ queryKey: ['/api/rewards/user'], exact: false }); // Match actual API calls
+    queryClient.invalidateQueries({ queryKey: ['reward-stats'] }); // Legacy compatibility
+    queryClient.invalidateQueries({ queryKey: ['user-stats'], exact: false }); // Alternative pattern
     queryClient.invalidateQueries({ queryKey: ['user-average-apr'] });
     queryClient.invalidateQueries({ queryKey: ['program-analytics'] });
     queryClient.invalidateQueries({ queryKey: ['claimability'] });
@@ -336,8 +338,10 @@ export function RewardsTracking() {
     queryClient.invalidateQueries({ queryKey: ['expected-returns'] });
     queryClient.invalidateQueries({ queryKey: ['maximum-apr'] });
     
-    // Trigger a complete page reload for the rewards tab
-    window.location.reload();
+    // Force refresh the specific user stats that power the UI
+    if (unifiedData?.user?.id) {
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/user', unifiedData.user.id, 'stats'] });
+    }
   };
 
   return (

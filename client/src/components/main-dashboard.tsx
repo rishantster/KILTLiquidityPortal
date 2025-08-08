@@ -163,6 +163,19 @@ export function MainDashboard() {
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
   const [isBaseNetworkConnected, setIsBaseNetworkConnected] = useState(false);
   const [selectedPercentage, setSelectedPercentage] = useState(80);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check screen size for responsive styles
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 640);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const { toast } = useToast();
 
@@ -605,25 +618,69 @@ export function MainDashboard() {
       {/* Transparent overlay for content readability */}
       <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }}></div>
       <div className="max-w-7xl mx-auto px-4 relative" style={{ zIndex: 10 }}>
-        {/* BULLETPROOF RESPONSIVE HEADER - PURE CSS APPROACH */}
-        <div className="kilt-portal-header">
-          <div className="kilt-header-content">
+        {/* NUCLEAR OPTION - JAVASCRIPT RESPONSIVE INLINE STYLES */}
+        <div style={{
+          background: isMobile ? 'rgba(0, 255, 0, 0.8)' : 'rgba(255, 0, 0, 0.8)',
+          border: isMobile ? '5px solid purple' : '5px solid yellow',
+          padding: isMobile ? '12px' : '24px',
+          marginBottom: isMobile ? '16px' : '32px',
+          width: '100%',
+          display: 'block'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            gap: isMobile ? '8px' : '32px',
+            flexWrap: 'nowrap'
+          }}>
             {/* Left Section */}
-            <div className="kilt-header-left">
-              <div className="kilt-logo-container">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isMobile ? '8px' : '24px',
+              flex: '1',
+              minWidth: '0'
+            }}>
+              <div style={{
+                width: isMobile ? '32px' : '48px',
+                height: isMobile ? '32px' : '48px',
+                flexShrink: '0'
+              }}>
                 <CyberpunkKiltLogo size="sm" />
               </div>
-              <h1 className="kilt-header-title">
-                <span className="kilt-title-mobile">KILT Portal</span>
-                <span className="kilt-title-desktop">KILT Liquidity Portal</span>
+              <h1 style={{
+                fontSize: isMobile ? '14px' : '24px',
+                lineHeight: isMobile ? '20px' : '32px',
+                fontWeight: '700',
+                color: 'white',
+                fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace',
+                whiteSpace: 'nowrap',
+                margin: '0',
+                padding: '0',
+                overflow: isMobile ? 'hidden' : 'visible',
+                textOverflow: isMobile ? 'ellipsis' : 'clip',
+                maxWidth: isMobile ? '120px' : 'none'
+              }}>
+                {isMobile ? 'KILT Portal' : 'KILT Liquidity Portal'}
               </h1>
-              <div className="kilt-beta-badge">
+              <div style={{
+                background: 'white',
+                color: '#ff0066',
+                padding: isMobile ? '4px 8px' : '8px 16px',
+                borderRadius: '9999px',
+                fontSize: isMobile ? '12px' : '14px',
+                fontWeight: '700',
+                whiteSpace: 'nowrap',
+                flexShrink: '0'
+              }}>
                 Beta
               </div>
             </div>
             
             {/* Right Section - Wallet Connect */}
-            <div className="kilt-header-right">
+            <div style={{ flexShrink: '0' }}>
               <MobileWalletConnect />
             </div>
           </div>

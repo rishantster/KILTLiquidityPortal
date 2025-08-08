@@ -259,10 +259,19 @@ export function useRewardClaiming() {
           stack: gasError instanceof Error ? gasError.stack : undefined
         });
         
+        // Check if this is a specific contract issue
+        const errorStr = gasError instanceof Error ? gasError.message.toLowerCase() : '';
+        
+        if (errorStr.includes('execution reverted') || errorStr.includes('contractfunctionexecutionerror')) {
+          console.error('🔒 CONTRACT ISSUE: Transaction would revert on contract execution');
+          
+          // More specific error message for users
+          throw new Error(`Claim Transaction Would Fail: The smart contract rejected the claim transaction. This could be due to insufficient contract balance, calculator authorization issues, or recent changes to your position. Please try again in a few minutes or contact support if the issue persists.`);
+        }
+        
         // Check if it's a revert error and extract the reason
         let revertReason = 'Unknown revert reason';
         if (gasError instanceof Error) {
-          const errorStr = gasError.message.toLowerCase();
           if (errorStr.includes('revert')) {
             revertReason = gasError.message;
           } else if (errorStr.includes('signature')) {

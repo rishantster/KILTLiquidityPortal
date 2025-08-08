@@ -84,7 +84,51 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 
 ## Critical Issues & Troubleshooting
 
-### Issue: Code Changes Not Reflected in Browser (Server Routing Configuration)
+### Issue: Smart Contract State Reading Failures (CURRENT)
+**Date Identified**: August 8, 2025  
+**Severity**: Critical - Reward claiming system non-functional  
+
+**Problem**:
+- All reward claim transactions fail with "execution reverted" errors
+- Contract state reading functions return "missing revert data"
+- Users cannot claim accumulated rewards (~801.93 KILT waiting)
+- Gas estimation fails for all claim transactions
+
+**Root Cause**:
+Smart contract at `0x09bcB93e7E2FF067232d83f5e7a7E8360A458175` has internal state reading issues:
+1. ✅ Contract is deployed and calculator is authorized
+2. ✅ Signature generation works correctly  
+3. ❌ `userClaimedAmounts()` function reverts
+4. ❌ `claimRewards()` gas estimation fails
+5. ❌ Basic state queries return "missing revert data"
+
+**Evidence**:
+```
+❌ Gas estimation failed: missing revert data (code=CALL_EXCEPTION)
+❌ Cannot read claimed amounts: missing revert data
+✅ Calculator authorized: true
+✅ User nonce: 1
+✅ Contract deployed: YES (29,706 bytes)
+```
+
+**Current Status**:
+- 🔄 **Investigation**: Contract owner needs to debug state issues
+- 📱 **UI**: Updated with user-friendly error messages
+- 🛡️ **Security**: User funds safe, rewards continue accumulating
+- ⏳ **Timeline**: Awaiting contract fix or redeployment
+
+**Files Involved**:
+- `client/src/hooks/use-reward-claiming.ts` - Enhanced error handling
+- `debug-contract-authorization.js` - Diagnostic script
+- `test-contract-claim.js` - Contract testing utility
+- `contract-diagnosis-final.md` - Full technical analysis
+
+**Required Actions**:
+1. Contract owner investigation of state corruption
+2. Possible contract redeployment with proper initialization
+3. Alternative emergency distribution mechanism if needed
+
+### Issue: Code Changes Not Reflected in Browser (RESOLVED)
 **Date Resolved**: August 8, 2025  
 **Severity**: Critical - Development workflow completely broken  
 

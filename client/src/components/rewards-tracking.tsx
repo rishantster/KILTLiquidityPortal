@@ -354,19 +354,14 @@ export function RewardsTracking() {
           </CardContent>
         </Card>
 
-        <Card className={`bg-black/40 backdrop-blur-xl ${(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) ? 'border border-[#ff0066]/30' : 'border border-gray-600/50'} rounded-lg cluely-card`}>
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#ff0066]/30 rounded-lg cluely-card">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium text-sm">Claimable</h3>
-              {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) ? 
-                <Unlock className="h-4 w-4 text-[#ff0066]" /> : 
-                <Lock className="h-4 w-4 text-gray-400" />
-              }
+              <Unlock className="h-4 w-4 text-[#ff0066]" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
-              {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0) 
-                ? (rewardStats?.totalAccumulated || 0).toFixed(2)
-                : '0.00'}
+              {(rewardStats?.totalClaimable || 0).toFixed(2)}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
@@ -374,19 +369,21 @@ export function RewardsTracking() {
               />
             </div>
             <div className="text-xs text-white/60 mb-1">
-              {(rewardStats?.totalAccumulated || 0) > 0
-                ? claimability?.canClaim 
-                  ? 'Available now'
-                  : claimability?.daysRemaining 
-                    ? `Available in ${claimability.daysRemaining} days`
-                    : 'Checking availability...'
-                : 'Start earning rewards'
+              {(rewardStats?.totalClaimable || 0) > 0 
+                ? 'Available now'
+                : (rewardStats?.totalAccumulated || 0) > 0
+                  ? claimability?.canClaim 
+                    ? 'Available now'
+                    : claimability?.daysRemaining 
+                      ? `Available in ${claimability.daysRemaining} days`
+                      : 'Checking availability...'
+                  : 'Start earning rewards'
               }
             </div>
             <div className="flex items-center justify-between">
               <div className="text-xs text-[#ff0066] font-medium">
-                {(claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0)
-                  ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                {(rewardStats?.totalClaimable || 0) > 0 
+                  ? `≈ $${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
                   : (rewardStats?.totalAccumulated || 0) > 0
                     ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
                     : 'Connect positions to earn'

@@ -24,9 +24,7 @@ const DYNAMIC_TREASURY_POOL_ABI = [
   },
   {
     inputs: [
-      { name: 'user', type: 'address' },
-      { name: 'amount', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
+      { name: 'totalRewardBalance', type: 'uint256' },
       { name: 'signature', type: 'bytes' }
     ],
     name: 'claimRewards',
@@ -63,6 +61,13 @@ const DYNAMIC_TREASURY_POOL_ABI = [
   {
     inputs: [{ name: 'user', type: 'address' }],
     name: 'getUserNonce',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'user', type: 'address' }],
+    name: 'nonces',
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
@@ -232,10 +237,9 @@ export function useRewardClaiming() {
       console.log('📋 CLAIM LOG 22: Amount in wei:', totalRewardBalanceWei.toString());
       console.log('📋 CLAIM LOG 23: Contract ABI function:', 'claimRewards');
       console.log('📋 CLAIM LOG 24: Contract arguments:');
-      console.log('  - user:', address);
-      console.log('  - amount (signed):', totalRewardBalanceWei.toString());
-      console.log('  - nonce:', nonce, 'type:', typeof nonce);
+      console.log('  - totalRewardBalance:', totalRewardBalanceWei.toString());
       console.log('  - signature:', signature);
+      console.log('  - msg.sender (from wallet):', address);
       
       console.log('🔗 CLAIM LOG 25: Calling smart contract claimRewards function...');
       // Contract function: claimRewards(address user, uint256 amount, uint256 nonce, bytes signature)
@@ -243,11 +247,13 @@ export function useRewardClaiming() {
       // Try to estimate gas first to catch any revert issues early
       console.log('🔗 CLAIM LOG 25.1: Estimating gas for transaction...');
       try {
+        // CRITICAL FIX: Contract signature is claimRewards(uint256 totalRewardBalance, bytes signature)
+        // NOT claimRewards(address user, uint256 amount, uint256 nonce, bytes signature)
         const gasEstimate = await baseClient.estimateContractGas({
           address: DYNAMIC_TREASURY_POOL_ADDRESS,
           abi: DYNAMIC_TREASURY_POOL_ABI,
           functionName: 'claimRewards',
-          args: [address, totalRewardBalanceWei, BigInt(nonce), signature],
+          args: [totalRewardBalanceWei, signature], // Fixed: Only amount and signature
           account: address as `0x${string}`,
         });
         console.log('🔗 CLAIM LOG 25.2: Gas estimation successful:', gasEstimate.toString());
@@ -291,7 +297,7 @@ export function useRewardClaiming() {
         address: DYNAMIC_TREASURY_POOL_ADDRESS,
         abi: DYNAMIC_TREASURY_POOL_ABI,
         functionName: 'claimRewards',
-        args: [address, totalRewardBalanceWei, BigInt(nonce), signature],
+        args: [totalRewardBalanceWei, signature], // Fixed: Only amount and signature
         // Let MetaMask handle the wallet transaction nonce automatically
       });
       

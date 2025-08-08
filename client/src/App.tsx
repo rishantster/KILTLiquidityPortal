@@ -260,6 +260,25 @@ function CyberpunkVideoBackground() {
 }
 
 function App() {
+  // Clear React Query cache on checkpoint rollback
+  useEffect(() => {
+    const checkForRollback = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('cb')) {
+        console.log('Checkpoint rollback detected - clearing React Query cache');
+        queryClient.clear();
+        queryClient.resetQueries();
+        
+        // Remove cache-busting parameter from URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('cb');
+        window.history.replaceState({}, '', url.toString());
+      }
+    };
+    
+    checkForRollback();
+  }, []);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

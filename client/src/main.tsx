@@ -65,8 +65,42 @@ class ErrorBoundary extends React.Component<
   }
 }
 
+// Checkpoint detection and cache clearing
+function detectCheckpointRollback() {
+  try {
+    const currentVersion = Date.now().toString();
+    const storedVersion = localStorage.getItem('app-version');
+    
+    // If no stored version or app was reloaded from checkpoint, clear cache
+    if (!storedVersion) {
+      console.log('Checkpoint rollback detected - clearing all cached data');
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear service worker cache if available
+      if ('serviceWorker' in navigator && 'caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => caches.delete(name));
+        }).catch(console.warn);
+      }
+      
+      // Set new version
+      localStorage.setItem('app-version', currentVersion);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.warn('Cache detection failed:', error);
+    return false;
+  }
+}
+
 // Ensure root element exists and is accessible
 function initializeApp() {
+  // Check for checkpoint rollback and clear cache if needed
+  const wasRolledBack = detectCheckpointRollback();
+  
   let rootElement = document.getElementById("root");
   
   if (!rootElement) {
@@ -81,6 +115,14 @@ function initializeApp() {
   rootElement.style.display = 'block';
   rootElement.style.visibility = 'visible';
   rootElement.style.opacity = '1';
+  
+  // If rollback was detected, add cache-busting parameter
+  if (wasRolledBack && !window.location.search.includes('cb=')) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('cb', Date.now().toString());
+    window.location.replace(url.toString());
+    return;
+  }
   
   // Create React root and render app
   try {

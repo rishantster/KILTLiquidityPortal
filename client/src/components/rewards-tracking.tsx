@@ -166,7 +166,7 @@ export function RewardsTracking() {
 
   // Real-time countdown timer with live updates
   const [countdownText, setCountdownText] = useState('');
-  const [timeRemaining, setTimeRemaining] = useState(null);
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
   
   useEffect(() => {
     if (!claimability?.nextClaimDate) {
@@ -393,10 +393,6 @@ export function RewardsTracking() {
             <div className="flex items-center justify-between">
               <div className="text-xs text-[#ff0066] font-medium">
                 ≈ ${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD
-              </div>
-              <div className={`text-xs flex items-center gap-1 ${isNearNextReward ? 'text-yellow-400' : 'text-green-400'}`}>
-                <Timer className="h-3 w-3" />
-                {timeUntilNextReward}
               </div>
             </div>
             <div className="text-xs text-green-400/80 mt-1">

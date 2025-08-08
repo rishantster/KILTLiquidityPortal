@@ -300,7 +300,7 @@ export class UnifiedRewardService {
   }
 
   /**
-   * Get program analytics with caching
+   * Get program analytics with REAL blockchain pool data
    */
   async getProgramAnalytics(): Promise<{
     totalLiquidity: number;
@@ -316,16 +316,19 @@ export class UnifiedRewardService {
   }> {
     const marketData = await this.getMarketData();
     
-    // Get active user count efficiently - fixed schema mapping
+    // Get active registered users count from database
     const activePositionsResult = await db.select({ userId: lpPositions.userId })
       .from(lpPositions)
       .where(eq(lpPositions.isActive, true));
     
     const activeUserCount = new Set(activePositionsResult.map(r => r.userId)).size;
 
+    // Use market data TVL which should be real pool TVL from DexScreener
+    console.log('🔍 PROGRAM ANALYTICS - Pool TVL:', marketData.poolTVL, 'Registered Users:', activeUserCount);
+    
     return {
-      totalLiquidity: marketData.poolTVL,
-      activeLiquidityProviders: activeUserCount,
+      totalLiquidity: marketData.poolTVL, // Real pool TVL from market data
+      activeLiquidityProviders: activeUserCount, // Registered users in our app
       totalRewardsDistributed: 0, // Calculate if needed
       dailyEmissionRate: marketData.dailyBudget,
       programAPR: marketData.programAPR,

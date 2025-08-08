@@ -1,5 +1,31 @@
 /* Mobile Optimization CSS - Comprehensive mobile alignment fixes */
 
+/* Header alignment fixes for all screen sizes */
+.mobile-header-fix {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-header-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 /* Mobile-first responsive design */
 @media (max-width: 768px) {
   /* Root container fixes */
@@ -12,29 +38,16 @@
     overflow-x: hidden;
   }
 
-  /* Header alignment fixes */
+  /* Override header spacing for mobile */
   .mobile-header-fix {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: nowrap;
     gap: 0.5rem;
-    width: 100%;
-    min-width: 0;
   }
 
   .mobile-header-left {
-    display: flex;
-    align-items: center;
     gap: 0.5rem;
-    flex: 1;
-    min-width: 0;
   }
 
   .mobile-header-right {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
     gap: 0.5rem;
   }
 

@@ -1574,6 +1574,39 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // DEBUG TEST: Direct database query test
+  app.get("/api/debug/active-users", async (req, res) => {
+    try {
+      console.log(`🧪 DEBUG TEST: Direct database query for active users`);
+      
+      // Test 1: Direct Drizzle query
+      const activePositionsResult = await db.select({ userId: lpPositions.userId })
+        .from(lpPositions)
+        .where(eq(lpPositions.isActive, true));
+      
+      const activeUserCount = new Set(activePositionsResult.map(r => r.userId)).size;
+      
+      // Test 2: Raw SQL query
+      const rawResult = await db.execute(sql`SELECT COUNT(DISTINCT user_id) as unique_users, COUNT(*) as total_positions FROM lp_positions WHERE is_active = true`);
+      
+      console.log(`🧪 DEBUG RESULTS: Drizzle found ${activePositionsResult.length} positions, ${activeUserCount} users`);
+      console.log(`🧪 DEBUG RESULTS: Raw SQL found:`, rawResult);
+      
+      res.json({
+        drizzleResults: {
+          totalPositions: activePositionsResult.length,
+          activeUsers: activeUserCount,
+          sampleData: activePositionsResult.slice(0, 3)
+        },
+        rawSqlResults: rawResult,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Debug test error:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
   // Get program analytics 
   app.get("/api/rewards/program-analytics", async (req, res) => {
     try {

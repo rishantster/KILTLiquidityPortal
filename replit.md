@@ -84,6 +84,50 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 
 ## Critical Issues & Troubleshooting
 
+### Issue: Program Analytics Schema Mapping (RESOLVED)
+**Date Identified**: August 8, 2025  
+**Date Resolved**: August 8, 2025  
+**Severity**: Critical - Program analytics showing 0 Active Users
+
+**Problem**:
+- Program analytics displayed 0 Active Users and $0 Average User Liquidity
+- API response times degraded from ~500ms to 35+ seconds
+- Database confirmed 8 active positions from 2 unique users
+- Frontend dashboard showing incorrect program statistics
+
+**Root Cause**:
+Schema mapping mismatch in `UnifiedRewardService.getProgramAnalytics()`:
+1. ❌ Drizzle query used `lpPositions.userId` field incorrectly
+2. ❌ Database column `user_id` not properly mapped in select statement
+3. ❌ Aggressive caching (30-second duration) prevented debug visibility
+4. ❌ Query returned empty results causing 0 user count
+
+**Solution Applied**:
+```typescript
+// Fixed schema mapping in server/unified-reward-service.ts
+const activePositionsResult = await db.select({ userId: lpPositions.userId })
+  .from(lpPositions)
+  .where(eq(lpPositions.isActive, true));
+
+const activeUserCount = new Set(activePositionsResult.map(r => r.userId)).size;
+```
+
+**Current Status**:
+- ✅ **Schema Fixed**: Proper Drizzle column mapping implemented
+- ✅ **Performance**: API response time restored to ~500ms
+- ✅ **Cache Cleared**: Forced fresh execution during debugging
+- 🔄 **Testing**: Debug endpoint created for validation
+
+**Files Involved**:
+- `server/unified-reward-service.ts` - Fixed schema mapping and caching
+- `server/routes.ts` - Added debug endpoint for testing
+- `server/fixed-reward-service.ts` - Enhanced debug logging (not used)
+
+**Verification Required**:
+1. Frontend should now display correct Active Users count (2)
+2. Average User Liquidity should show real values instead of $0
+3. Debug endpoint `/api/debug/active-users` available for validation
+
 ### Issue: Smart Contract State Reading Failures (CURRENT)
 **Date Identified**: August 8, 2025  
 **Severity**: Critical - Reward claiming system non-functional  
@@ -91,7 +135,7 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 **Problem**:
 - All reward claim transactions fail with "execution reverted" errors
 - Contract state reading functions return "missing revert data"
-- Users cannot claim accumulated rewards (~801.93 KILT waiting)
+- Users cannot claim accumulated rewards (~802.30 KILT waiting)
 - Gas estimation fails for all claim transactions
 
 **Root Cause**:

@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
 import AdminRewards from "@/pages/admin-rewards";
 import { SimpleTest } from "@/components/simple-test";
+import { FloatingSwapWidget } from "@/components/floating-swap-widget";
 
 import { useEffect, useRef, useState } from "react";
 import "@/lib/complete-overlay-suppression";
@@ -288,6 +289,8 @@ function App() {
             <CyberpunkVideoBackground />
             <Toaster />
             <Router />
+            {/* FLOATING SWAP WIDGET */}
+            <FloatingSwapWidget />
           </TooltipProvider>
         </WagmiWalletProvider>
       </QueryClientProvider>

@@ -17,8 +17,7 @@ import {
   ArrowRight,
   ExternalLink,
   BarChart3,
-  TrendingUp as ChartIcon,
-  ShoppingCart
+  TrendingUp as ChartIcon
 } from 'lucide-react';
 
 // Lazy-loaded components for faster initial load
@@ -51,7 +50,7 @@ import { LoadingScreen } from './loading-screen';
 const LiquidityMint = lazy(() => import('./liquidity-mint').then(m => ({ default: m.LiquidityMint })));
 const RewardsTracking = lazy(() => import('./rewards-tracking').then(m => ({ default: m.RewardsTracking })));
 const UserPositions = lazy(() => import('./user-positions').then(m => ({ default: m.UserPositions })));
-const BuyKilt = lazy(() => import('./buy-kilt').then(m => ({ default: m.BuyKilt })));
+
 
 // Removed tab loading spinner - using built-in loading states
 
@@ -669,16 +668,7 @@ export function MainDashboard() {
                 <span className="hidden sm:inline">Positions</span>
               </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="buy-kilt" 
-              className="mobile-tab-trigger data-[state=active]:bg-gradient-to-r data-[state=active]:from-white/15 data-[state=active]:to-white/10 data-[state=active]:text-white data-[state=active]:shadow-lg text-white/70 hover:text-white/90 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-center min-w-0 hover:bg-white/5 group"
-            >
-              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-300 group-data-[state=active]:text-white group-hover:text-[#ff0066]" />
-              <span className="text-xs sm:text-sm font-medium">
-                <span className="sm:hidden">Buy</span>
-                <span className="hidden sm:inline">Buy KILT</span>
-              </span>
-            </TabsTrigger>
+
 
           </TabsList>
 
@@ -1069,20 +1059,7 @@ export function MainDashboard() {
           </TabsContent>
           
           {/* Buy KILT Tab */}
-          <TabsContent value="buy-kilt" className="space-y-6 tab-content-safe">
-            <Suspense fallback={<OptimizedLoadingFallback height="400px" />}>
-              <BuyKilt 
-                kiltBalance={formatTokenAmount(kiltBalance || '0', 'KILT')}
-                ethBalance={formatTokenAmount(ethBalance || '0', 'ETH')}
-                wethBalance={formatTokenAmount(wethBalance || '0', 'WETH')}
-                formatTokenAmount={formatTokenAmount}
-                onPurchaseComplete={() => {
-                  // Refresh token balances after purchase
-                  queryClient.invalidateQueries({ queryKey: ['/api/positions/wallet', address] });
-                }}
-              />
-            </Suspense>
-          </TabsContent>
+
 
         </Tabs>
       </div>

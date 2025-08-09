@@ -352,20 +352,6 @@ export function RewardsTracking() {
 
   return (
     <div className="space-y-4">
-      {/* Smart Contract Issue Alert */}
-      <Card className="bg-red-500/10 backdrop-blur-xl border-red-500/30 rounded-lg">
-        <CardContent className="p-3">
-          <div className="flex items-center space-x-3">
-            <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
-            <div className="space-y-1">
-              <div className="text-red-400 font-medium text-sm">Claiming Temporarily Unavailable</div>
-              <div className="text-red-300/80 text-xs">
-                Smart contract experiencing technical issues. Your rewards are safely accumulating and will be claimable once resolved.
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Stats Header with Refresh Button */}
       <div className="flex items-center justify-between mb-4">

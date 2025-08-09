@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Wallet, AlertTriangle, Loader2, ChevronDown, RefreshCw, Monitor } from 'lucide-react';
+import { Wallet, AlertTriangle, Loader2, ChevronDown, LogOut, Monitor } from 'lucide-react';
 import { useState } from 'react';
 import { base } from 'wagmi/chains';
 
@@ -101,49 +101,7 @@ export function WagmiWalletConnect() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-black/90 backdrop-blur-md border border-white/10 text-white">
-              <DropdownMenuItem 
-                onClick={handleSwitchAccount}
-                disabled={isSwitchingAccount}
-                className="hover:bg-white/10 focus:bg-white/10 cursor-pointer"
-              >
-                {isSwitchingAccount ? (
-                  <>
-                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                    Switching...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-3 w-3" />
-                    Switch Account
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem 
-                onClick={() => {
-                  // Clear wallet cache completely
-                  localStorage.removeItem('wagmi.connected');
-                  localStorage.removeItem('wagmi.store');
-                  localStorage.removeItem('wagmi.cache');
-                  localStorage.removeItem('wagmi.injected.shimDisconnect');
-                  
-                  // Clear Phantom-specific storage
-                  if ((window as any).phantom?.ethereum) {
-                    try {
-                      (window as any).phantom.ethereum.disconnect?.();
-                    } catch (error) {
-                      console.log('Phantom disconnect not available');
-                    }
-                  }
-                  
-                  disconnect();
-                  setShowModal(true);
-                }}
-                className="hover:bg-blue-500/20 focus:bg-blue-500/20 hover:text-blue-400 focus:text-blue-400 cursor-pointer"
-              >
-                <RefreshCw className="mr-2 h-3 w-3" />
-                Switch Wallet
-              </DropdownMenuItem>
+
               <DropdownMenuItem 
                 onClick={() => {
                   // Clear all wallet-related localStorage when disconnecting
@@ -165,7 +123,7 @@ export function WagmiWalletConnect() {
                 }}
                 className="hover:bg-red-500/20 focus:bg-red-500/20 hover:text-red-400 focus:text-red-400 cursor-pointer"
               >
-                <Wallet className="mr-2 h-3 w-3" />
+                <LogOut className="mr-2 h-3 w-3" />
                 Disconnect
               </DropdownMenuItem>
             </DropdownMenuContent>

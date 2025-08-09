@@ -11,12 +11,12 @@ const disableRuntimeErrorOverlay = () => {
     // Override sendError globally
     (window as any).sendError = () => {};
     
-    // Block ALL error overlays from showing
+    // Block only specific error overlay requests, not legitimate API calls
     const originalFetch = window.fetch;
     window.fetch = function(...args) {
-      // Block any requests related to error overlays
+      // Block only Vite runtime error overlay requests
       const url = args[0]?.toString() || '';
-      if (url.includes('error') && url.includes('overlay')) {
+      if (url.includes('/__vite_runtime_error') || url.includes('@vite/plugin-runtime-error')) {
         return Promise.resolve(new Response('', { status: 204 }));
       }
       return originalFetch.apply(this, args);

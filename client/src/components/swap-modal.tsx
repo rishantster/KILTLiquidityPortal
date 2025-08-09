@@ -197,7 +197,8 @@ export const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               <div className="text-sm text-gray-400 mb-3">You Receive (KILT)</div>
               <div className="flex items-center justify-between">
                 <div className="text-2xl font-bold text-white font-mono">
-                  {quoteLoading ? 'Calculating...' : parseFloat(kiltOutput).toLocaleString()}
+                  {quoteLoading ? 'Calculating...' : 
+                   parseFloat(kiltOutput) > 0 ? parseFloat(kiltOutput).toLocaleString(undefined, {maximumFractionDigits: 2}) : '0.00'}
                 </div>
                 <span className="text-gray-400 font-bold">KILT</span>
               </div>

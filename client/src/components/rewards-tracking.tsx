@@ -690,7 +690,7 @@ export function RewardsTracking() {
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Treasury Value:</span>
-                  <span className="text-white">${((programAnalytics?.treasuryRemaining || 2905600) * (kiltData?.price || 0)).toFixed(0)}</span>
+                  <span className="text-white">${programAnalytics?.treasuryRemaining && kiltData?.price ? ((programAnalytics.treasuryRemaining * kiltData.price).toFixed(0)) : '...'}</span>
                 </div>
               </div>
             </div>

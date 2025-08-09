@@ -71,10 +71,21 @@ export class UnifiedRewardService {
       const programData = programResponse.status === 'fulfilled' ? programResponse.value : null;
       const config = adminConfig.status === 'fulfilled' ? adminConfig.value : { dailyBudget: 25000, treasuryAllocation: 1500000 };
 
+      // Calculate program APR from first principles
+      const poolTVL = poolData?.totalLiquidity || this.FALLBACK_POOL_TVL;
+      const dailyBudget = config.dailyBudget;
+      
+      // Program APR calculation: (Daily Budget × 365 days) / Pool TVL × 100
+      // This represents the annual percentage return from treasury rewards
+      const annualRewardBudget = dailyBudget * 365; // Total annual KILT rewards
+      const calculatedProgramAPR = poolTVL > 0 ? (annualRewardBudget / poolTVL) * 100 : 0;
+      
+      console.log(`💰 PROGRAM APR CALCULATED: ${calculatedProgramAPR.toFixed(2)}% (Daily Budget: ${dailyBudget}, Pool TVL: ${poolTVL}, Annual: ${annualRewardBudget})`);
+
       const marketData: CachedData = {
-        poolTVL: poolData?.totalLiquidity || this.FALLBACK_POOL_TVL,
+        poolTVL: poolTVL,
         tradingAPR: tradingData?.tradingFeesAPR || this.FALLBACK_TRADING_APR,
-        programAPR: parseFloat(programData?.incentiveAPR) || this.FALLBACK_PROGRAM_APR,
+        programAPR: calculatedProgramAPR,
         dailyBudget: config.dailyBudget,
         treasuryAllocation: config.treasuryAllocation,
         timestamp: Date.now()
@@ -85,11 +96,17 @@ export class UnifiedRewardService {
     } catch (error) {
       console.warn('Failed to fetch market data, using fallbacks:', error);
       
-      // Return fallback data
+      // Calculate fallback program APR
+      const fallbackDailyBudget = 25000;
+      const fallbackPoolTVL = this.FALLBACK_POOL_TVL;
+      const fallbackAnnualBudget = fallbackDailyBudget * 365;
+      const fallbackProgramAPR = fallbackPoolTVL > 0 ? (fallbackAnnualBudget / fallbackPoolTVL) * 100 : 0;
+
+      // Return fallback data with calculated APR
       const fallbackData: CachedData = {
         poolTVL: this.FALLBACK_POOL_TVL,
         tradingAPR: this.FALLBACK_TRADING_APR,
-        programAPR: this.FALLBACK_PROGRAM_APR,
+        programAPR: fallbackProgramAPR,
         dailyBudget: 25000,
         treasuryAllocation: 1500000,
         timestamp: Date.now()

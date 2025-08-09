@@ -10,6 +10,33 @@ const UNISWAP_V3_QUOTER = '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a'; // Quote
 const WETH_ADDRESS = '0x4200000000000000000000000000000000000006';
 const KILT_ADDRESS = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
 
+// Uniswap V3 Quoter V2 ABI
+const QUOTER_V2_ABI = [
+  {
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'tokenIn', type: 'address' },
+          { name: 'tokenOut', type: 'address' },
+          { name: 'amountIn', type: 'uint256' },
+          { name: 'fee', type: 'uint24' },
+          { name: 'sqrtPriceLimitX96', type: 'uint160' }
+        ]
+      }
+    ],
+    name: 'quoteExactInputSingle',
+    outputs: [
+      { name: 'amountOut', type: 'uint256' },
+      { name: 'sqrtPriceX96After', type: 'uint160' },
+      { name: 'initializedTicksCrossed', type: 'uint32' },
+      { name: 'gasEstimate', type: 'uint256' }
+    ],
+    type: 'function'
+  }
+] as const;
+
 // Uniswap V3 Router ABI (key functions only)
 const ROUTER_ABI = [
   {
@@ -49,25 +76,7 @@ const ROUTER_ABI = [
     outputs: [],
     type: 'function'
   },
-  {
-    inputs: [
-      {
-        components: [
-          { name: 'tokenIn', type: 'address' },
-          { name: 'tokenOut', type: 'address' },
-          { name: 'fee', type: 'uint24' },
-          { name: 'amountIn', type: 'uint256' },
-          { name: 'sqrtPriceLimitX96', type: 'uint256' }
-        ],
-        name: 'params',
-        type: 'tuple'
-      }
-    ],
-    name: 'quoteExactInputSingle',
-    outputs: [{ name: 'amountOut', type: 'uint256' }],
-    type: 'function',
-    stateMutability: 'view'
-  }
+
 ] as const;
 
 // Initialize clients with multiple RPC endpoints for reliability
@@ -104,18 +113,21 @@ export class SwapService {
         // ETH to KILT swap
         const amountIn = parseUnits(amount, 18);
         
-        const amountOut = await publicClient.readContract({
+        // Use proper Quoter V2 struct parameter
+        const quoteResult = await publicClient.readContract({
           address: UNISWAP_V3_QUOTER,
-          abi: ROUTER_ABI,
+          abi: QUOTER_V2_ABI,
           functionName: 'quoteExactInputSingle',
           args: [{
             tokenIn: WETH_ADDRESS,
             tokenOut: KILT_ADDRESS,
-            fee: 3000, // 0.3% fee tier
             amountIn,
+            fee: 3000, // 0.3% fee tier
             sqrtPriceLimitX96: 0n
           }]
         });
+        
+        const amountOut = quoteResult[0]; // First element is amountOut
 
         const kiltAmount = formatUnits(amountOut as bigint, 18);
         
@@ -134,18 +146,21 @@ export class SwapService {
         // KILT to ETH swap
         const amountIn = parseUnits(amount, 18);
         
-        const amountOut = await publicClient.readContract({
+        // Use proper Quoter V2 struct parameter
+        const quoteResult = await publicClient.readContract({
           address: UNISWAP_V3_QUOTER,
-          abi: ROUTER_ABI,
+          abi: QUOTER_V2_ABI,
           functionName: 'quoteExactInputSingle',
           args: [{
             tokenIn: KILT_ADDRESS,
             tokenOut: WETH_ADDRESS,
-            fee: 3000, // 0.3% fee tier
             amountIn,
+            fee: 3000, // 0.3% fee tier
             sqrtPriceLimitX96: 0n
           }]
         });
+        
+        const amountOut = quoteResult[0]; // First element is amountOut
 
         const ethAmount = formatUnits(amountOut as bigint, 18);
         

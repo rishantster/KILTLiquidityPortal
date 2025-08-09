@@ -18,8 +18,8 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
   return (
     <div className={`relative ${sizeClasses[size]} ${className}`}>
       <div className="cyberpunk-logo-container relative w-full h-full">
-        {/* Digital grid background */}
-        <div className="absolute -inset-4 digital-grid"></div>
+        {/* Digital grid background - more contained */}
+        <div className="absolute -inset-3 digital-grid"></div>
         
         {/* Holographic scanlines */}
         <div className="absolute -inset-2 scanlines"></div>
@@ -44,12 +44,12 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           />
         </div>
         
-        {/* Neon glow rings */}
-        <div className="absolute -inset-3 neon-ring-1"></div>
-        <div className="absolute -inset-4 neon-ring-2"></div>
+        {/* Neon glow rings - more contained */}
+        <div className="absolute -inset-2 neon-ring-1"></div>
+        <div className="absolute -inset-3 neon-ring-2"></div>
         
-        {/* Data stream particles */}
-        <div className="absolute -inset-6 data-streams"></div>
+        {/* Data stream particles - more contained */}
+        <div className="absolute -inset-4 data-streams"></div>
         
         {/* Hexagonal overlay */}
         <div className="absolute -inset-2 hex-overlay"></div>
@@ -57,7 +57,7 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
 
       <style>{`
         .cyberpunk-logo-container {
-          filter: drop-shadow(0 0 20px rgba(255, 0, 102, 0.6));
+          filter: drop-shadow(0 0 15px rgba(255, 0, 102, 0.5));
           overflow: visible;
           perspective: 1000px;
         }

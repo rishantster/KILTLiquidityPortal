@@ -306,12 +306,13 @@ export class SwapService {
       }
 
       const amountIn = parseUnits(amount, 18);
-      // Use more generous slippage to prevent failures - real slippage protection from quote
-      const minOutputAmount = outputNum * (1 - Math.max(slippageTolerance, 2) / 100); // Min 2% slippage
+      // Use much more generous slippage to prevent MetaMask failure warnings
+      const actualSlippage = Math.max(slippageTolerance, 5); // Min 5% slippage for reliability
+      const minOutputAmount = outputNum * (1 - actualSlippage / 100);
       const amountOutMinimum = parseUnits(minOutputAmount.toString(), 18);
 
-      // Prepare transaction data - use multicall for ETH swaps
-      const deadline = BigInt(Math.floor(Date.now() / 1000) + 1800); // 30 minutes from now
+      // Prepare transaction data - use multicall for ETH swaps  
+      const deadline = Math.floor(Date.now() / 1000) + 1800; // 30 minutes from now (as number)
       const { encodeFunctionData } = await import('viem');
 
       let swapData;
@@ -343,11 +344,11 @@ export class SwapService {
           args: [0n] // Refund any leftover ETH
         });
 
-        // Create multicall transaction with proper value handling
+        // Create multicall transaction with proper parameter types
         const multicallData = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'multicall',
-          args: [deadline, [exactInputCall, refundETHCall]]
+          args: [BigInt(deadline), [exactInputCall, refundETHCall]]
         });
 
         swapData = {
@@ -355,7 +356,7 @@ export class SwapService {
           to: UNISWAP_V3_ROUTER,
           data: multicallData,
           value: `0x${amountIn.toString(16)}`, // Send ETH with transaction
-          gasLimit: '0x7a120' // 500000 in hex (higher for multicall)
+          gasLimit: '0xf4240' // 1,000,000 in hex (increased for multicall reliability)
         };
       } else {
         // KILT to ETH: Regular exactInputSingle (requires prior token approval)

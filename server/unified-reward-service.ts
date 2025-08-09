@@ -176,10 +176,9 @@ export class UnifiedRewardService {
     const liquidityRatio = L_u / L_T;
     const currentTimeBoost = 1 + ((D_u / P) * b_time);
     
-    // REALISTIC DAILY RATE: Use average time boost for next 30 days instead of current
-    // This gives users a more realistic expectation of future earnings
-    const futureTimeBoostAverage = 1 + (((D_u + 15) / P) * b_time); // Avg boost for next 30 days
-    const dailyRewards = liquidityRatio * futureTimeBoostAverage * IRM * FRB * R_P;
+    // DAILY RATE: Use current time boost for accurate "today's rate" display
+    // Historical accumulation uses average boost, but daily rate shows current snapshot
+    const dailyRewards = liquidityRatio * currentTimeBoost * IRM * FRB * R_P;
 
     // ACCUMULATION: Always from position creation (hourly incremental as requested)
     const hourlyRewards = dailyRewards / 24;

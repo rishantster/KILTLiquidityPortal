@@ -213,16 +213,16 @@ export const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
 
             {/* Swap Button */}
             <Button
-              disabled={!ethAmount || parseFloat(ethAmount) <= 0 || quoteLoading}
+              disabled={!ethAmount || parseFloat(ethAmount) <= 0}
               onClick={() => {
                 const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${ethAmount}&exactField=input`;
                 window.open(swapUrl, '_blank');
+                onClose(); // Close modal after redirecting
               }}
               className="w-full bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white font-bold py-4 text-lg transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
             >
               {parseFloat(ethAmount) <= 0 ? 'Enter Amount' : 
-               quoteLoading ? 'Getting Quote...' : 
-               `Swap ${ethAmount} ETH for ${parseFloat(kiltOutput) > 0 ? parseFloat(kiltOutput).toLocaleString(undefined, {maximumFractionDigits: 0}) : '0'} KILT`}
+               `Continue to Uniswap → ${parseFloat(kiltOutput) > 0 ? parseFloat(kiltOutput).toLocaleString(undefined, {maximumFractionDigits: 0}) : '0'} KILT`}
             </Button>
 
             {/* Direct Integration Notice */}

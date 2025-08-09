@@ -1432,37 +1432,20 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get user reward statistics with emergency timeout protection
+  // Get user reward statistics - optimized without fallbacks
   app.get("/api/rewards/user/:userId/stats", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      console.log(`⚡ STREAMLINED USER STATS: Processing userId=${userId}`);
+      console.log(`⚡ USER STATS: Processing userId=${userId}`);
       
-      // Emergency timeout for user stats calculation
-      const statsPromise = Promise.race([
-        unifiedRewardService.getUserRewardStats(userId),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('User stats calculation timeout')), 750) // 750ms emergency timeout
-        )
-      ]);
+      const stats = await unifiedRewardService.getUserRewardStats(userId);
+      console.log(`⚡ RESULT: Daily: ${stats.avgDailyRewards.toFixed(2)} KILT, Accumulated: ${stats.totalAccumulated.toFixed(2)} KILT, Claimable: ${stats.totalClaimable.toFixed(2)} KILT`);
       
-      const stats = await statsPromise as any;
-      console.log(`⚡ STREAMLINED RESULT: Daily: ${stats.avgDailyRewards.toFixed(2)} KILT, Accumulated: ${stats.totalAccumulated.toFixed(2)} KILT, Claimable: ${stats.totalClaimable.toFixed(2)} KILT`);
-      res.setHeader('X-Source', 'database-success');
       res.json(stats);
       
     } catch (error) {
-      console.warn('⚡ USER STATS EMERGENCY FALLBACK - Database too slow:', (error as Error).message);
-      // Emergency fallback with real data
-      res.setHeader('X-Source', 'emergency-realtime');
-      res.json({
-        totalAccumulated: 1886.43, // Real claimed amount
-        avgDailyRewards: 669.60, // Current daily earning rate  
-        totalClaimed: 1886.43, // Actual claimed from contract
-        totalClaimable: 0.00, // Currently claimable
-        activePositions: 7, // Active positions
-        lastUpdated: Date.now()
-      });
+      console.error('User stats calculation failed:', error);
+      res.status(500).json({ error: "Failed to calculate user reward statistics" });
     }
   });
 
@@ -2167,9 +2150,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         nftTokenId: position.nftTokenId,
         positionValue: Number(position.currentValueUSD),
         apr: {
-          tradingFee: rewardResult.tradingFeeAPR,
-          incentive: rewardResult.incentiveAPR,
-          total: rewardResult.totalAPR
+          tradingFee: rewardResult.tradingFeeAPR || 0,
+          incentive: rewardResult.incentiveAPR || 0,
+          total: (rewardResult.tradingFeeAPR || 0) + (rewardResult.incentiveAPR || 0)
         },
         breakdown: {
           // Default breakdown structure when not available

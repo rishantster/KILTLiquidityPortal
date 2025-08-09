@@ -1154,8 +1154,17 @@ export class UniswapIntegrationService {
       const { kiltPriceService } = await import('./kilt-price-service.js');
       const kiltPrice = await kiltPriceService.getCurrentPrice();
       
-      // ETH price - in production would use real price feed
-      const ethPrice = 3635; // Current ETH price to match Uniswap interface
+      // Get real ETH price from external API (internal server call not possible)
+      let ethPrice = 4200; // Current market price
+      try {
+        const ethPriceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const ethPriceData = await ethPriceResponse.json();
+        if (ethPriceData?.ethereum?.usd) {
+          ethPrice = ethPriceData.ethereum.usd;
+        }
+      } catch (error) {
+        console.warn('ETH price fetch failed, using market estimate:', ethPrice);
+      }
       
       // Identify which token is which and assign prices
       const token0Address = token0.toLowerCase();

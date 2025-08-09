@@ -101,7 +101,6 @@ export function WagmiWalletConnect() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-black/90 backdrop-blur-md border border-white/10 text-white">
-
               <DropdownMenuItem 
                 onClick={() => {
                   // Clear all wallet-related localStorage when disconnecting

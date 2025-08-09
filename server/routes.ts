@@ -4513,19 +4513,25 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Prepare swap transaction endpoint
-  app.post('/api/swap/prepare', async (req, res) => {
+  // Swap redirect endpoint - no transaction preparation needed
+  app.post('/api/swap/redirect', async (req, res) => {
     try {
-      const { userAddress, ethAmount, slippageTolerance = 0.5 } = req.body;
+      const { ethAmount } = req.body;
       
-      swapService.validateSwapParams(userAddress, ethAmount, slippageTolerance);
-      const transaction = await swapService.prepareSwapTransaction(userAddress, ethAmount, slippageTolerance);
+      if (!ethAmount || parseFloat(ethAmount) <= 0) {
+        return res.status(400).json({ error: 'Valid ETH amount is required' });
+      }
       
-      res.json(transaction);
+      const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${ethAmount}&exactField=input`;
+      
+      res.json({ 
+        redirectUrl: swapUrl,
+        message: 'Redirect to Uniswap for swap execution'
+      });
     } catch (error) {
-      console.error('Prepare swap error:', error);
+      console.error('Swap redirect error:', error);
       res.status(500).json({ 
-        error: error instanceof Error ? error.message : 'Failed to prepare swap transaction' 
+        error: error instanceof Error ? error.message : 'Failed to generate swap redirect' 
       });
     }
   });

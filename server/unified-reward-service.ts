@@ -235,8 +235,12 @@ export class UnifiedRewardService {
 
       const actualClaimableAmount = Math.max(0, totals.accumulated - actualClaimedAmount);
 
+      // Fix for UI consistency: Total Earned = Already Claimed + Currently Claimable
+      // This ensures Total Earned is never less than Claimed amount
+      const adjustedTotalEarned = actualClaimedAmount + actualClaimableAmount;
+
       return {
-        totalAccumulated: totals.accumulated,
+        totalAccumulated: Math.max(totals.accumulated, adjustedTotalEarned),
         totalClaimable: actualClaimableAmount,
         totalClaimed: actualClaimedAmount || 0,
         activePositions: activePositions.length,

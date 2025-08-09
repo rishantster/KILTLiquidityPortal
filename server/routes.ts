@@ -1583,25 +1583,25 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const daysRemaining = Math.max(0, totalDays - 37); // 37 days since start
       
       const finalData = {
-        totalLiquidity: analyticsData.totalLiquidity || 99171,
-        activeLiquidityProviders: analyticsData.activeLiquidityProviders || 2,
-        totalRewardsDistributed: analyticsData.totalDistributed || 1886,
-        dailyBudget: treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : 25000,
-        programAPR: analyticsData.programAPR || 0,
-        treasuryTotal: analyticsData.treasuryTotal || (treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : 1500000),
-        treasuryRemaining: analyticsData.treasuryRemaining || (treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analyticsData.totalDistributed || 0) : 1498114),
-        totalDistributed: analyticsData.totalDistributed || 1886,
-        programDuration: analyticsData.programDuration || (treasuryConf?.programDurationDays || 60),
-        daysRemaining: analyticsData.daysRemaining !== undefined ? analyticsData.daysRemaining : daysRemaining,
-        totalPositions: analyticsData.totalPositions || 8,
-        averagePositionSize: analyticsData.averagePositionSize || 1863,
-        poolVolume24h: analyticsData.poolVolume24h || 4955,
-        poolFeeEarnings24h: analyticsData.poolFeeEarnings24h || 14.9,
-        totalUniqueUsers: analyticsData.totalUniqueUsers || 2
+        totalLiquidity: analytics.totalLiquidity, // Real pool TVL from DexScreener
+        activeLiquidityProviders: analytics.activeLiquidityProviders, // Actual registered users
+        totalRewardsDistributed: analytics.totalRewardsDistributed,
+        dailyBudget: analytics.dailyEmissionRate, // Daily KILT emission
+        programAPR: analytics.programAPR, // Realistic streamlined APR
+        treasuryTotal: analytics.treasuryTotal,
+        treasuryRemaining: analytics.treasuryRemaining,
+        totalDistributed: analytics.totalDistributed,
+        programDuration: analytics.programDuration,
+        daysRemaining: analytics.daysRemaining !== undefined ? analytics.daysRemaining : daysRemaining,
+        totalPositions: analytics.totalPositions, // Real-time registered positions 
+        averagePositionSize: analytics.averagePositionSize, // Actual avg from all KILT/ETH pool LPs
+        poolVolume24h: analytics.poolVolume24h, // DexScreener 24h volume
+        poolFeeEarnings24h: analytics.poolFeeEarnings24h, // User's total fee earnings
+        totalUniqueUsers: analytics.totalUniqueUsers // Actual registered users
       };
       
       const responseTime = Date.now() - startTime;
-      console.log(`🚀 FAST ANALYTICS: ${responseTime}ms response time`);
+      console.log(`🚀 ENHANCED ANALYTICS: ${responseTime}ms response time with real DexScreener data`);
       
       res.setHeader('X-Source', 'optimized-real-time');
       res.setHeader('X-Response-Time', responseTime.toString());

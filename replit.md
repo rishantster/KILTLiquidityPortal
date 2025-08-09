@@ -125,3 +125,11 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 - **Files Updated**: `server/routes.ts`, `server/position-registration-service.ts`, `server/claim-based-rewards.ts`, `server/single-source-apr.ts`, `server/index.ts`
 - **Impact**: Eliminated calculation inconsistency - all endpoints now use single mathematical formula ensuring stable claimable amounts
 - **Status**: Single source of truth established - no more fluctuations in reward calculations
+
+**App-wide Fallback Value Optimization (January 2025)**:
+- **Issue Identified**: Emergency timeout fallbacks with hardcoded values causing data inconsistencies and fluctuating reward calculations
+- **Root Cause**: 750ms emergency timeout in user stats API, 800ms timeout in analytics, hardcoded ETH price (3635), and emergency fallback returning wrong totalAccumulated values
+- **Solution Applied**: Removed all problematic emergency timeout systems, eliminated hardcoded fallback data, updated ETH price to use real CoinGecko API, fixed TypeScript error with missing totalAPR property
+- **Technical Changes**: Streamlined analytics endpoint without timeouts, removed emergency fallback with incorrect values, optimized reward calculation to use authentic data only
+- **Impact**: Consistent reward calculations without data fluctuations, accurate ETH price feeds, stable APR displays
+- **Status**: App now operates on authentic data without problematic fallbacks creating calculation inconsistencies

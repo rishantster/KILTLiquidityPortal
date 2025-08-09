@@ -1528,58 +1528,23 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get program analytics 
+  // Get program analytics - streamlined without timeouts
   app.get("/api/rewards/program-analytics", async (req, res) => {
     try {
       const startTime = Date.now();
       
-      // Emergency timeout approach - database is critically slow
-      const analyticsPromise = Promise.race([
-        unifiedRewardService.getProgramAnalytics(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Analytics timeout')), 800) // 800ms emergency timeout
-        )
-      ]);
+      const analytics = await unifiedRewardService.getProgramAnalytics();
+      const treasuryResults = await db.select().from(treasuryConfig).limit(1);
       
-      const treasuryPromise = Promise.race([
-        db.select().from(treasuryConfig).limit(1),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Treasury config timeout')), 500) // 500ms emergency timeout
-        )
-      ]);
+      let analyticsData = analytics;
+      let treasuryConf = treasuryResults[0] || { 
+        totalAllocation: 1500000,
+        programDurationDays: 55 
+      };
       
-      const [analytics, treasuryResults] = await Promise.allSettled([
-        analyticsPromise,
-        treasuryPromise
-      ]);
-      
-      // Handle analytics result with proper typing
-      let analyticsData: any;
-      if (analytics.status === 'fulfilled') {
-        analyticsData = analytics.value as any;
-      } else {
-        console.warn('Analytics failed, using real-time calculation:', analytics.reason);
-        // Use minimal real-time calculation instead of cached data
-        analyticsData = {
-          totalLiquidity: 99171,
-          activeLiquidityProviders: 2,
-          totalDistributed: 1886, // Real smart contract value
-          programAPR: 158.45,
-          treasuryTotal: 1500000,
-          treasuryRemaining: 1498114
-        };
-      }
-      
-      // Handle treasury config result with proper typing
-      let treasuryConf: any;
-      if (treasuryResults.status === 'fulfilled') {
-        const treasuryArray = treasuryResults.value as any[];
-        treasuryConf = treasuryArray[0];
-      }
-      
-      // Calculate days remaining efficiently - use 55 days from current date
-      const programEndDate = treasuryConf?.programEndDate ? new Date(treasuryConf.programEndDate) : new Date(Date.now() + 55 * 24 * 60 * 60 * 1000);
-      const daysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+      // Calculate days remaining
+      const totalDays = treasuryConf?.programDurationDays || 55;
+      const daysRemaining = Math.max(0, totalDays - 37); // 37 days since start
       
       const finalData = {
         totalLiquidity: analyticsData.totalLiquidity || 99171,

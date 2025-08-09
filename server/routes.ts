@@ -2984,13 +2984,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         console.warn('Failed to fetch KILT price, using fallback:', error);
       }
       
-      // Get real pool data including LP count and average position size
+      // Get real pool TVL from DexScreener
       let poolTVL = 99171; // Fallback
-      let totalLPs = 50; // Fallback estimate
-      let avgPositionValue = poolTVL / totalLPs;
       
       try {
-        // Get real pool data using the specific KILT/ETH pool address
         const poolAddress = '0x82da478b1382b951cbad01beb9ed459cdb16458e';
         const dexScreenerPoolUrl = `https://api.dexscreener.com/latest/dex/pairs/base/${poolAddress}`;
         const poolResponse = await fetch(dexScreenerPoolUrl);
@@ -3001,26 +2998,17 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           
           if (pairData) {
             poolTVL = parseFloat(pairData.liquidity?.usd || '99171');
-            
-            // Calculate realistic LP count from pool metrics
-            const volume24h = parseFloat(pairData.volume?.h24 || '0');
-            const txCount24h = (pairData.txns?.h24?.buys || 0) + (pairData.txns?.h24?.sells || 0);
-            
-            // Estimate LP count based on pool activity and TVL
-            // Larger pools typically have 30-150 LPs, smaller pools 10-50 LPs
-            const volumeToTVLRatio = volume24h / poolTVL;
-            const baseLPCount = Math.floor(poolTVL / 2000); // Assume avg $2K per LP
-            const activityAdjustment = Math.floor(txCount24h / 5); // Active trading = more LPs
-            
-            totalLPs = Math.max(15, Math.min(150, baseLPCount + activityAdjustment));
-            avgPositionValue = poolTVL / totalLPs;
-            
-            console.log(`🏊 POOL ANALYSIS: TVL $${poolTVL}, Volume $${volume24h}, TXs ${txCount24h}, Estimated ${totalLPs} LPs`);
+            console.log(`🏊 REAL POOL TVL: $${poolTVL} from DexScreener`);
           }
         }
       } catch (error) {
-        console.warn('Failed to fetch specific pool data, using estimates:', error);
+        console.warn('Failed to fetch pool TVL, using fallback:', error);
       }
+      
+      // Use conservative estimates until we implement proper LP counting
+      // Note: Actual LP count requires querying Mint/Burn events from the pool contract
+      let totalLPs = 'Unknown'; // Don't estimate without real data
+      let avgPositionValue = 'N/A';
       
       // Calculate Program APR using real KILT price in USD
       const dailyBudgetUSD = dailyBudget * kiltPrice;
@@ -3040,20 +3028,20 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         kiltPrice,
         poolStats: {
           totalLPs,
-          avgPositionValue: Math.round(avgPositionValue),
-          competitiveContext: `${totalLPs} LPs competing for rewards`,
+          avgPositionValue,
+          competitiveContext: `LP count requires blockchain analysis`,
           poolAddress: '0x82da478b1382b951cbad01beb9ed459cdb16458e',
-          rewardDistribution: `Each LP gets ~${Math.round((dailyBudget * programDurationDays) / totalLPs)} KILT over ${programDurationDays} days`
+          note: 'Accurate LP count needs Mint/Burn event analysis'
         },
         calculation: {
           dailyBudgetUSD: Math.round(dailyBudgetUSD * 100) / 100,
           annualBudgetUSD: Math.round(annualBudgetUSD),
           totalRewards: dailyBudget * programDurationDays,
-          rewardsPerLP: Math.round((dailyBudget * programDurationDays) / totalLPs)
+          totalProgramRewards: dailyBudget * programDurationDays
         }
       };
       
-      console.log(`📊 STREAMLINED APR: Program ${result.programAPR}% (${dailyBudget} KILT × $${kiltPrice} × 365 ÷ $${poolTVL} | ${totalLPs} LPs, avg $${Math.round(avgPositionValue)} position), Trading ${result.tradingAPR}%, Total ${result.totalAPR}%`);
+      console.log(`📊 STREAMLINED APR: Program ${result.programAPR}% (${dailyBudget} KILT × $${kiltPrice} × 365 ÷ $${poolTVL}), Trading ${result.tradingAPR}%, Total ${result.totalAPR}%`);
       
       res.json(result);
     } catch (error) {

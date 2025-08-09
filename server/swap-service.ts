@@ -293,69 +293,66 @@ export class SwapService {
       const minOutputAmount = outputNum * (1 - actualSlippage / 100);
       const amountOutMinimum = parseUnits(minOutputAmount.toFixed(18), 18);
 
-      // SwapRouter02 does NOT use deadline parameter in exactInputSingle
-      const { encodeFunctionData } = await import('viem');
-
+      // Direct manual encoding approach for maximum compatibility
       let swapData;
       
       if (fromToken === 'ETH') {
-        // ETH to KILT: SwapRouter02 exactInputSingle (NO deadline parameter)
-        const swapParams = {
-          tokenIn: WETH_ADDRESS,
-          tokenOut: KILT_ADDRESS,
-          fee: 3000,
-          recipient: getAddress(userAddress),
-          amountIn,
-          amountOutMinimum,
-          sqrtPriceLimitX96: 0n
-        };
+        // ETH to KILT: Use direct function selector and manual parameter encoding
+        // Function: exactInputSingle(params) where params is a tuple
+        const functionSelector = '0x86ca0dc0'; // Confirmed SwapRouter02 exactInputSingle selector
+        
+        // Encode parameters manually for SwapRouter02 (7 parameters, no deadline)
+        const params = [
+          WETH_ADDRESS.toLowerCase().slice(2).padStart(64, '0'),      // tokenIn
+          KILT_ADDRESS.toLowerCase().slice(2).padStart(64, '0'),      // tokenOut  
+          (3000).toString(16).padStart(64, '0'),                      // fee (3000 = 0.3%)
+          userAddress.toLowerCase().slice(2).padStart(64, '0'),       // recipient
+          amountIn.toString(16).padStart(64, '0'),                    // amountIn
+          amountOutMinimum.toString(16).padStart(64, '0'),            // amountOutMinimum
+          '0'.padStart(64, '0')                                       // sqrtPriceLimitX96 (0 = no limit)
+        ].join('');
 
-        const data = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'exactInputSingle',
-          args: [swapParams]
-        });
+        const transactionData = functionSelector + params;
 
         swapData = {
           from: getAddress(userAddress),
           to: UNISWAP_V3_ROUTER,
-          data,
+          data: transactionData,
           value: `0x${amountIn.toString(16)}`,
-          gasLimit: '0x186a0' // 100k gas for simple exactInputSingle
+          gasLimit: '0x186a0' // 100k gas
         };
       } else {
-        // KILT to ETH: SwapRouter02 exactInputSingle (NO deadline parameter)
-        const swapParams = {
-          tokenIn: KILT_ADDRESS,
-          tokenOut: WETH_ADDRESS,
-          fee: 3000,
-          recipient: getAddress(userAddress),
-          amountIn,
-          amountOutMinimum,
-          sqrtPriceLimitX96: 0n
-        };
+        // KILT to ETH: Manual encoding for SwapRouter02
+        const functionSelector = '0x86ca0dc0'; // Same function
+        
+        const params = [
+          KILT_ADDRESS.toLowerCase().slice(2).padStart(64, '0'),      // tokenIn
+          WETH_ADDRESS.toLowerCase().slice(2).padStart(64, '0'),      // tokenOut
+          (3000).toString(16).padStart(64, '0'),                      // fee
+          userAddress.toLowerCase().slice(2).padStart(64, '0'),       // recipient  
+          amountIn.toString(16).padStart(64, '0'),                    // amountIn
+          amountOutMinimum.toString(16).padStart(64, '0'),            // amountOutMinimum
+          '0'.padStart(64, '0')                                       // sqrtPriceLimitX96
+        ].join('');
 
-        const data = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'exactInputSingle',
-          args: [swapParams]
-        });
+        const transactionData = functionSelector + params;
 
         swapData = {
           from: getAddress(userAddress),
           to: UNISWAP_V3_ROUTER,
-          data,
+          data: transactionData,
           value: '0x0',
-          gasLimit: '0x493e0' // 300000 in hex
+          gasLimit: '0x186a0' // Consistent gas limit
         };
       }
 
-      console.log(`🔧 SwapRouter02 pattern for ${fromToken}:`, {
+      console.log(`🔧 Direct encoding for ${fromToken}:`, {
         amountIn: amountIn.toString(),
         amountOutMinimum: amountOutMinimum.toString(),
         slippage: actualSlippage + '%',
         recipient: userAddress,
-        pattern: 'SwapRouter02 exactInputSingle (NO deadline)'
+        functionSelector: '0x86ca0dc0',
+        pattern: 'Manual encoding - SwapRouter02 exactInputSingle (7 params)'
       });
 
       console.log(`✅ Swap data prepared:`, {

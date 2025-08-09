@@ -177,12 +177,29 @@ export class UnifiedRewardService {
     const currentTimeBoost = 1 + ((D_u / P) * b_time);
     
     // DAILY RATE: Use current time boost for accurate "today's rate" display
-    // Historical accumulation uses average boost, but daily rate shows current snapshot
     const dailyRewards = liquidityRatio * currentTimeBoost * IRM * FRB * R_P;
-
-    // ACCUMULATION: Always from position creation (hourly incremental as requested)
     const hourlyRewards = dailyRewards / 24;
-    const totalAccumulatedSinceCreation = hourlyRewards * positionAgeHours;
+
+    // ACCUMULATION: Integrate time boost over actual position lifetime
+    // Instead of current_rate × total_hours, calculate actual earned rewards
+    const baseHourlyRate = (liquidityRatio * IRM * FRB * R_P) / 24; // Base rate without time boost
+    
+    let totalAccumulatedSinceCreation = 0;
+    
+    // Calculate accumulated rewards hour by hour with proper time boost integration
+    // For performance, we'll use daily chunks since time boost changes slowly
+    for (let dayIndex = 0; dayIndex < Math.ceil(positionAgeDays); dayIndex++) {
+      const dayProgress = dayIndex / P; // Days since creation / Program duration
+      const dayTimeBoost = 1 + (dayProgress * b_time);
+      const dayRate = baseHourlyRate * dayTimeBoost;
+      
+      // For partial last day, only count actual hours
+      const hoursInThisDay = dayIndex === Math.floor(positionAgeDays) 
+        ? ((positionAgeDays - dayIndex) * 24) 
+        : 24;
+      
+      totalAccumulatedSinceCreation += dayRate * hoursInThisDay;
+    }
 
     // Calculate effective APR
     const effectiveAPR = marketData.tradingAPR + marketData.programAPR;

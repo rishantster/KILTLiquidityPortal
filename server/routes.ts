@@ -1840,23 +1840,26 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const fullRewards = await unifiedRewardService.getUserRewardStats(user.id);
       console.log(`💰 Full user rewards result for claimability:`, fullRewards);
       
-      // Only allow claiming if both conditions are met:
-      // 1. Admin lock period has passed
-      // 2. There are accumulated rewards to claim
+      // FIXED LOGIC: Show accumulated rewards that will be claimable, even during lock period
+      // The UI should display accumulating rewards, not hide them during lock period
       const totalAccumulated = fullRewards?.totalAccumulated || 0;
       const actualClaimable = fullRewards?.totalClaimable || 0;
-      const totalClaimable = canClaim && actualClaimable > 0 ? actualClaimable : 0;
       
-      console.log(`✅ Admin-based claimability check: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, actualClaimable=${actualClaimable}, totalClaimable=${totalClaimable}, lockPeriod=${effectiveLockHours}h`);
+      // UI displays: accumulated rewards that WILL be claimable (regardless of lock)
+      // Claim action: only allowed when lock period expired AND rewards > 0
+      const displayClaimable = actualClaimable; // Always show accumulating amount
+      const claimActionAllowed = canClaim && actualClaimable > 0; // Only allow claim after lock
+      
+      console.log(`✅ FIXED claimability logic: canClaim=${canClaim}, totalAccumulated=${totalAccumulated}, displayClaimable=${displayClaimable}, claimActionAllowed=${claimActionAllowed}, lockPeriod=${effectiveLockHours}h`);
       
       res.json({
-        claimable: actualClaimable,
-        canClaim: canClaim && actualClaimable > 0,
+        claimable: displayClaimable, // Show accumulating rewards
+        canClaim: claimActionAllowed, // But control claim button
         daysRemaining: Math.ceil(timeUntilClaimable / (1000 * 60 * 60 * 24)),
         lockExpired: canClaim,
         lockExpiryDate: nextClaimDate,
         nextClaimDate: nextClaimDate,
-        totalClaimable: totalClaimable,
+        totalClaimable: displayClaimable, // Match claimable for consistency
         timeUntilClaimable: timeUntilClaimable
       });
     } catch (error) {

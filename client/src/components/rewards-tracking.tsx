@@ -416,7 +416,8 @@ export function RewardsTracking() {
               <Unlock className="h-4 w-4 text-[#ff0066]" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
-              {(rewardStats?.totalClaimable || 0).toFixed(2)}
+              {/* FIXED: Use claimability data which shows accumulating rewards even during lock */}
+              {(claimability?.claimable || rewardStats?.totalClaimable || 0).toFixed(2)}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
@@ -424,19 +425,21 @@ export function RewardsTracking() {
               />
             </div>
             <div className="text-xs text-white/60 mb-1">
-              {(rewardStats?.totalClaimable || 0) > 0 
+              {/* FIXED: Show accurate status based on actual claimability */}
+              {claimability?.canClaim 
                 ? 'Available now'
-                : (rewardStats?.totalAccumulated || 0) > 0
-                  ? claimability?.canClaim 
-                    ? 'Available now'
-                    : countdownText || 'Checking availability...'
-                  : 'Start earning rewards'
+                : (claimability?.claimable || rewardStats?.totalClaimable || 0) > 0
+                  ? countdownText || 'Available in...'
+                  : (rewardStats?.totalAccumulated || 0) > 0
+                    ? 'Accumulating rewards...'
+                    : 'Start earning rewards'
               }
             </div>
             <div className="flex items-center justify-between">
               <div className="text-xs text-[#ff0066] font-medium">
-                {(rewardStats?.totalClaimable || 0) > 0 
-                  ? `≈ $${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                {/* FIXED: Always show USD value of accumulating rewards */}
+                {((claimability?.claimable || rewardStats?.totalClaimable || 0) > 0) 
+                  ? `≈ $${((claimability?.claimable || rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
                   : (rewardStats?.totalAccumulated || 0) > 0
                     ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
                     : 'Connect positions to earn'

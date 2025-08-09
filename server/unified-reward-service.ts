@@ -14,6 +14,7 @@ interface CachedData {
   programAPR: number;
   dailyBudget: number;
   treasuryAllocation: number;
+  totalDistributed?: number;
   timestamp: number;
 }
 
@@ -25,6 +26,8 @@ interface PositionReward {
   totalHours: number;
   liquidityAmount: number;
   effectiveAPR: number;
+  tradingFeeAPR?: number;
+  incentiveAPR?: number;
 }
 
 interface UserRewardStats {
@@ -201,8 +204,10 @@ export class UnifiedRewardService {
       totalAccumulatedSinceCreation += dayRate * hoursInThisDay;
     }
 
-    // Calculate effective APR
-    const effectiveAPR = marketData.tradingAPR + marketData.programAPR;
+    // Calculate APR breakdown
+    const tradingFeeAPR = marketData.tradingAPR;
+    const incentiveAPR = marketData.programAPR;
+    const effectiveAPR = tradingFeeAPR + incentiveAPR;
 
     return {
       nftTokenId: position.nftTokenId,
@@ -211,7 +216,9 @@ export class UnifiedRewardService {
       hourlyRewards: Math.max(0, hourlyRewards),
       totalHours: positionAgeHours,
       liquidityAmount: currentValueUSD,
-      effectiveAPR: Math.max(0, effectiveAPR)
+      effectiveAPR: Math.max(0, effectiveAPR),
+      tradingFeeAPR: Math.max(0, tradingFeeAPR),
+      incentiveAPR: Math.max(0, incentiveAPR)
     };
   }
 

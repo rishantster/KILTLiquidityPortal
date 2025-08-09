@@ -42,7 +42,7 @@ export const BidirectionalSwapModal = ({
   
   const [fromToken, setFromToken] = useState<'ETH' | 'KILT'>('ETH');
   const [toToken, setToToken] = useState<'ETH' | 'KILT'>('KILT');
-  const [fromAmount, setFromAmount] = useState('0.010');
+  const [fromAmount, setFromAmount] = useState('0');
   const [toAmount, setToAmount] = useState('0');
   const [priceImpact, setPriceImpact] = useState(0);
 
@@ -66,7 +66,7 @@ export const BidirectionalSwapModal = ({
   // Real-time swap quote calculation (supports both directions)
   const { data: swapQuote, isLoading: quoteLoading } = useQuery({
     queryKey: ['/api/swap/quote', fromAmount, fromToken, toToken],
-    enabled: !!fromAmount && parseFloat(fromAmount) > 0,
+    enabled: !!fromAmount && parseFloat(fromAmount) > 0 && parseFloat(fromAmount) > 0.000001,
     refetchInterval: 5000,
     staleTime: 4000,
     queryFn: async () => {
@@ -86,19 +86,26 @@ export const BidirectionalSwapModal = ({
 
   // Update output amount when quote changes
   useEffect(() => {
-    if (swapQuote) {
+    if (swapQuote && parseFloat(fromAmount) > 0.000001) {
       if (fromToken === 'ETH') {
         setToAmount(swapQuote.kiltAmount || '0');
       } else {
         setToAmount(swapQuote.ethAmount || '0');
       }
       setPriceImpact(swapQuote.priceImpact || 0);
+    } else if (parseFloat(fromAmount) <= 0.000001) {
+      setToAmount('0');
+      setPriceImpact(0);
     }
-  }, [swapQuote, fromToken]);
+  }, [swapQuote, fromToken, fromAmount]);
 
   // Handle percentage buttons for from amount
   const handlePercentageClick = (percentage: number) => {
     const currentBalance = getCurrentBalance();
+    if (currentBalance <= 0) {
+      setFromAmount('0');
+      return;
+    }
     const maxAmount = fromToken === 'ETH' 
       ? Math.min(currentBalance * 0.99, 0.005) // Keep ETH for gas
       : currentBalance * 0.99; // Can use most KILT

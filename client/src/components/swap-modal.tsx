@@ -225,14 +225,14 @@ export const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                `Continue to Uniswap → ${parseFloat(kiltOutput) > 0 ? parseFloat(kiltOutput).toLocaleString(undefined, {maximumFractionDigits: 0}) : '0'} KILT`}
             </Button>
 
-            {/* Direct Integration Notice */}
-            <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+            {/* Transaction Notice */}
+            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
               <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                <Info className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm">
-                  <div className="text-blue-400 font-semibold mb-1">Direct Uniswap Integration</div>
+                  <div className="text-green-400 font-semibold mb-1">Uniswap V3 Integration</div>
                   <div className="text-gray-300">
-                    This swap executes directly through Uniswap V3 contracts. No need to leave our app! Transaction costs are approximately $0.02 on Base network.
+                    Redirects to Uniswap with your exact amounts pre-filled. MetaMask "likely to fail" warnings are normal for token swaps and can be safely ignored.
                   </div>
                 </div>
               </div>

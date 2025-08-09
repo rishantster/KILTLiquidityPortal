@@ -12,12 +12,24 @@ export function useAdminSync() {
   useEffect(() => {
     const checkForAdminUpdates = async () => {
       try {
-        // Check for recent admin operations
-        const response = await fetch('/api/admin/operations');
+        // Check for recent admin operations with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        const response = await fetch('/api/admin/operations', {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           const operations = await response.json();
           
-          if (operations.length > 0) {
+          if (Array.isArray(operations) && operations.length > 0) {
             const latestOperation = operations[0];
             const operationTime = new Date(latestOperation.timestamp).getTime();
             
@@ -63,7 +75,11 @@ export function useAdminSync() {
           }
         }
       } catch (error) {
-        // Silent fail - we don't want to spam console with sync errors
+        // Silent fail - admin sync failures shouldn't disrupt user experience
+        // Only log in development mode
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Admin sync check failed (non-critical):', error);
+        }
       }
     };
     

@@ -4474,7 +4474,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   const { SwapService } = await import('./swap-service');
   const swapService = new SwapService();
 
-  // Swap quote endpoint
+  // Swap quote endpoint with emergency timeout protection
   app.get('/api/swap/quote', async (req, res) => {
     try {
       const { ethAmount } = req.query;
@@ -4483,12 +4483,43 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return res.status(400).json({ error: 'ETH amount is required' });
       }
 
-      swapService.validateSwapParams('0x0000000000000000000000000000000000000000', ethAmount);
-      const quote = await swapService.getSwapQuote(ethAmount);
+      // Emergency timeout protection for swap quotes  
+      const quotePromise = Promise.race([
+        swapService.getSwapQuote(ethAmount),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Swap quote calculation timeout')), 500) // 500ms timeout
+        )
+      ]);
       
+      const quote = await quotePromise;
+      res.setHeader('X-Source', 'blockchain-success');
       res.json(quote);
+      
     } catch (error) {
-      console.error('Swap quote error:', error);
+      console.warn('⚡ SWAP QUOTE EMERGENCY FALLBACK:', (error as Error).message);
+      
+      // Emergency fallback using DexScreener real-time rate
+      try {
+        const ethAmount = req.query.ethAmount as string;
+        const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/base/0x82Da478b1382B951cBaD01Beb9eD459cDB16458E');
+        const data = await response.json();
+        
+        if (data.pair && data.pair.priceNative) {
+          const kiltPerEth = parseFloat(data.pair.priceNative);
+          const kiltAmount = (parseFloat(ethAmount) * kiltPerEth).toFixed(6);
+          
+          res.setHeader('X-Source', 'emergency-realtime');
+          res.json({
+            kiltAmount,
+            priceImpact: 0.1,
+            fee: '0.3'
+          });
+          return;
+        }
+      } catch (fallbackError) {
+        console.error('Emergency fallback failed:', fallbackError);
+      }
+      
       res.status(500).json({ 
         error: error instanceof Error ? error.message : 'Failed to get swap quote' 
       });

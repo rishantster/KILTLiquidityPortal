@@ -45,6 +45,8 @@ export const BidirectionalSwapModal = ({
   const [fromAmount, setFromAmount] = useState('0');
   const [toAmount, setToAmount] = useState('0');
   const [priceImpact, setPriceImpact] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSwapping, setIsSwapping] = useState(false);
 
   // Use actual balances from props
   const ethBalance = parseFloat(propEthBalance?.replace(/[^\d.-]/g, '') || '0');
@@ -61,6 +63,15 @@ export const BidirectionalSwapModal = ({
     setToToken(fromToken);
     setFromAmount(toAmount);
     setToAmount(fromAmount);
+  };
+
+  // Reset modal state when closing
+  const handleClose = () => {
+    setErrorMessage('');
+    setIsSwapping(false);
+    setFromAmount('0');
+    setToAmount('0');
+    onClose();
   };
 
   // Real-time swap quote calculation (supports both directions)
@@ -131,14 +142,13 @@ export const BidirectionalSwapModal = ({
     try {
       // Check if user is connected via Wagmi
       if (!isConnected || !address) {
-        // Fallback to Uniswap redirect
-        const swapUrl = fromToken === 'ETH' 
-          ? `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${fromAmount}&exactField=input`
-          : `https://app.uniswap.org/#/swap?inputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&outputCurrency=ETH&chain=base&exactAmount=${fromAmount}&exactField=input`;
-        window.open(swapUrl, '_blank');
-        onClose();
+        setErrorMessage('Please connect your wallet to perform swaps');
         return;
       }
+
+      // Clear previous errors and show loading state
+      setErrorMessage('');
+      setIsSwapping(true);
 
       // Prepare swap based on direction using connected address
       const swapParams = fromToken === 'ETH' 
@@ -171,23 +181,27 @@ export const BidirectionalSwapModal = ({
 
       console.log('Swap transaction sent:', txHash);
       
-      // Trigger balance refresh
+      // Trigger balance refresh and close modal
       onPurchaseComplete?.();
-      onClose();
+      setIsSwapping(false);
+      handleClose();
       
     } catch (error) {
       console.error('Swap error:', error);
-      // Fallback to Uniswap redirect on any error
-      const swapUrl = fromToken === 'ETH' 
-        ? `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${fromAmount}&exactField=input`
-        : `https://app.uniswap.org/#/swap?inputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&outputCurrency=ETH&chain=base&exactAmount=${fromAmount}&exactField=input`;
-      window.open(swapUrl, '_blank');
-      onClose();
+      
+      // Set error message instead of automatic redirect
+      if (error && typeof error === 'object' && 'message' in error) {
+        setErrorMessage(error.message as string);
+      } else {
+        setErrorMessage('Transaction failed. Please check your wallet connection and try again.');
+      }
+      
+      setIsSwapping(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md bg-black/40 backdrop-blur-sm border border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -277,13 +291,21 @@ export const BidirectionalSwapModal = ({
             )}
           </div>
 
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+              <div className="text-red-400 text-sm">{errorMessage}</div>
+            </div>
+          )}
+
           {/* Swap Button */}
           <Button
-            disabled={!fromAmount || parseFloat(fromAmount) <= 0}
+            disabled={!fromAmount || parseFloat(fromAmount) <= 0 || isSwapping}
             onClick={executeSwap}
-            className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium transition-all duration-200"
+            className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium transition-all duration-200 disabled:opacity-50"
           >
-            {parseFloat(fromAmount) <= 0 ? 'Enter Amount' : 
+            {isSwapping ? 'Processing Transaction...' :
+             parseFloat(fromAmount) <= 0 ? 'Enter Amount' : 
              `Swap ${fromToken} → ${parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 4 : 0}) : '0'} ${toToken}`}
           </Button>
 
@@ -293,7 +315,7 @@ export const BidirectionalSwapModal = ({
         {/* Close Button */}
         <div className="space-y-2">
           <Button 
-            onClick={onClose}
+            onClick={handleClose}
             variant="outline" 
             className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
           >

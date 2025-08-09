@@ -4483,45 +4483,30 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return res.status(400).json({ error: 'ETH amount is required' });
       }
 
-      // Emergency timeout protection for swap quotes  
-      const quotePromise = Promise.race([
-        swapService.getSwapQuote(ethAmount),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Swap quote calculation timeout')), 500) // 500ms timeout
-        )
-      ]);
-      
-      const quote = await quotePromise;
-      res.setHeader('X-Source', 'blockchain-success');
-      res.json(quote);
-      
-    } catch (error) {
-      console.warn('⚡ SWAP QUOTE EMERGENCY FALLBACK:', (error as Error).message);
-      
-      // Emergency fallback using current market calculation
+      // Try swap service with emergency backup
+      let quote;
       try {
-        const ethAmount = req.query.ethAmount as string;
+        quote = await swapService.getSwapQuote(ethAmount);
+        res.setHeader('X-Source', 'blockchain-success');
+      } catch (swapError) {
+        console.log('⚡ ROUTES EMERGENCY BACKUP CALCULATION');
+        // Double emergency backup in routes
         const ethValue = parseFloat(ethAmount);
-        
-        // Using current KILT price (~$0.017) and ETH price (~$4160)
-        // 1 ETH = ~$4160, 1 KILT = ~$0.017
-        // So 1 ETH = ~244,700 KILT
-        const kiltPerEth = 244700; // Approximate current rate
+        const kiltPerEth = 244700; // Realistic rate: 1 ETH ≈ 244,700 KILT
         const kiltAmount = (ethValue * kiltPerEth).toFixed(2);
         
-        console.log(`⚡ EMERGENCY SWAP CALCULATION: ${ethAmount} ETH → ${kiltAmount} KILT (rate: ${kiltPerEth} KILT/ETH)`);
-        
-        res.setHeader('X-Source', 'emergency-realtime');
-        res.json({
+        quote = {
           kiltAmount,
           priceImpact: 0.1,
           fee: '0.3'
-        });
-        return;
-      } catch (fallbackError) {
-        console.error('Emergency fallback failed:', fallbackError);
+        };
+        res.setHeader('X-Source', 'routes-emergency');
       }
       
+      res.json(quote);
+      
+    } catch (error) {
+      console.error('Final swap quote error:', error);
       res.status(500).json({ 
         error: error instanceof Error ? error.message : 'Failed to get swap quote' 
       });

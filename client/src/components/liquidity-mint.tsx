@@ -26,7 +26,7 @@ import { useKiltTokenData } from '@/hooks/use-kilt-data';
 import { useKiltEthConversionRate } from '@/hooks/use-conversion-rate';
 import { useAppSession } from '@/hooks/use-app-session';
 import { TOKENS } from '@/lib/uniswap-v3';
-import { maxUint256, parseUnits } from 'viem';
+import { parseUnits } from 'viem';
 import { BASE_NETWORK_ID } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { GasEstimationCard } from './gas-estimation-card';
@@ -408,14 +408,12 @@ export function LiquidityMint({
     if (!address) return;
     
     try {
-      const maxUint256 = BigInt('115792089237316195423570985008687907853269984665640564039457584007913129639935');
-      
-      // Approve KILT
-      await approveToken(TOKENS.KILT as `0x${string}`, maxUint256);
+      // Approve KILT first
+      await approveToken(TOKENS.KILT as `0x${string}`);
       setIsKiltApproved(true);
       
       // Always approve WETH (needed for both ETH and WETH)
-      await approveToken(TOKENS.WETH as `0x${string}`, maxUint256);
+      await approveToken(TOKENS.WETH as `0x${string}`);
       setIsEthApproved(true);
       
       // Mark tokens as approved
@@ -424,18 +422,12 @@ export function LiquidityMint({
       // Save approval state to localStorage
       localStorage.setItem(`tokens_approved_${address}`, 'true');
       
-      // Force a small delay to ensure UI updates
-      setTimeout(() => {
-        // Trigger a re-render by updating a state
-        setIsManualInput(prev => !prev && prev); // This will not change the value but trigger update
-      }, 100);
-      
       toast({
         title: "✅ Tokens Approved Successfully!",
         description: "KILT and WETH approved - You can now add liquidity",
       });
     } catch (error: unknown) {
-      // Approval error
+      console.error('Approval error:', error);
       toast({
         title: "Approval Failed",
         description: (error as Error)?.message || "Failed to approve tokens",

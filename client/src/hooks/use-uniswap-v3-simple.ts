@@ -66,16 +66,19 @@ export function useSimpleUniswapV3() {
     transport: custom(window.ethereum)
   }) : null;
 
-  const approveToken = async (tokenAddress: string, amount: bigint = maxUint256) => {
+  const approveToken = async (tokenAddress: string, amount?: bigint) => {
     if (!walletClient || !address) throw new Error('Wallet not connected');
     
     setIsApproving(true);
     try {
+      // Use the correct maximum uint256 value
+      const approvalAmount = amount || BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
+      
       const hash = await walletClient.writeContract({
         address: tokenAddress as `0x${string}`,
         abi: APPROVE_ABI,
         functionName: 'approve',
-        args: [POSITION_MANAGER_ADDRESS as `0x${string}`, amount],
+        args: [POSITION_MANAGER_ADDRESS as `0x${string}`, approvalAmount],
         account: address as `0x${string}`,
       });
 

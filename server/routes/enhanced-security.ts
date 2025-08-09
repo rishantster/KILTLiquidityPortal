@@ -38,8 +38,8 @@ router.post('/generate-claim-signature', async (req, res) => {
     const userId = user[0].id;
     
     // Import reward service and get user's calculated rewards
-    const { fixedRewardService } = await import('../fixed-reward-service');
-    const userRewards = await fixedRewardService.getUserRewardStats(userId);
+    const { unifiedRewardService } = await import('../unified-reward-service');
+    const userRewards = await unifiedRewardService.getUserRewardStats(userId);
     
     const claimableAmount = userRewards.totalClaimable || 0;
     

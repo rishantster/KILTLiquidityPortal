@@ -763,10 +763,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       );
       
       // Create reward tracking entry
-      const rewardResult = await fixedRewardService.calculatePositionRewards(
+      const rewardResult = await unifiedRewardService.getPositionReward(
         userId,
-        nftId.toString(),
-        liquidityAddedAt
+        nftId.toString()
       );
       
       res.json({
@@ -1186,11 +1185,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      const calculation = await fixedRewardService.calculatePositionRewards(
+      const calculation = await unifiedRewardService.getPositionReward(
         parseInt(userId),
-        nftTokenId,
-        new Date(), // lastClaimTime
-        new Date()  // createdAt
+        nftTokenId
       );
       
       res.json(calculation);
@@ -1225,7 +1222,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   app.get("/api/rewards/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      const rewards = await fixedRewardService.getUserRewardStats(userId);
+      const rewards = await unifiedRewardService.getUserRewardStats(userId);
       res.json(rewards);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch user rewards" });
@@ -1257,7 +1254,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const userId = user[0].id;
       
       // Get user's calculated rewards
-      const userRewards = await fixedRewardService.getUserRewardStats(userId);
+      const userRewards = await unifiedRewardService.getUserRewardStats(userId);
       const claimableAmount = userRewards.totalClaimable || 0;
       
       if (claimableAmount <= 0) {
@@ -1392,7 +1389,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
       
       // Get calculated rewards from reward service
-      const userRewards = await fixedRewardService.getUserRewardStats(user.id);
+      const userRewards = await unifiedRewardService.getUserRewardStats(user.id);
       const totalRewardBalance = userRewards.totalClaimable;
       
       if (totalRewardBalance <= 0) {
@@ -1639,7 +1636,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     try {
       const maxAPR = 150000; // Maximum theoretical APR from unified calculations
       
-      res.setHeader('X-Source', 'fixed-reward-service');
+      res.setHeader('X-Source', 'unified-reward-service');
       res.json({ 
         maxAPR,
         theoretical: true,
@@ -2152,11 +2149,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       }
 
       // Calculate rewards (includes both trading fees and incentives)
-      const rewardResult = await fixedRewardService.calculatePositionRewards(
+      const rewardResult = await unifiedRewardService.getPositionReward(
         position.userId || 0,
-        position.nftTokenId,
-        new Date(), // lastClaimTime
-        position.createdAt ? new Date(position.createdAt) : new Date()
+        position.nftTokenId
       );
 
       res.json({

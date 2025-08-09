@@ -188,35 +188,20 @@ export const BidirectionalSwapModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg bg-black/95 backdrop-blur-xl border border-gray-800/50 text-white">
+      <DialogContent className="max-w-md bg-black/40 backdrop-blur-sm border border-white/10 text-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-xl">
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="h-5 w-5 text-[#ff0066]" />
-              <span>Swap</span>
-            </div>
-            <div className="flex items-center gap-1">
-              {fromToken === 'ETH' ? (
-                <EthereumLogo className="w-5 h-5" />
-              ) : (
-                <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-              )}
-              <ArrowDownUp className="h-4 w-4 text-gray-400" />
-              {toToken === 'ETH' ? (
-                <EthereumLogo className="w-5 h-5" />
-              ) : (
-                <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-              )}
-            </div>
+          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
+            <ArrowUpDown className="h-5 w-5 text-pink-400" />
+            <span>Swap</span>
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* From Token Input */}
-          <div className="p-4 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg">
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-gray-400">You Pay</div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-white/60">You Pay</div>
+              <div className="text-sm text-white/60">
                 Balance: {getCurrentBalance().toFixed(fromToken === 'ETH' ? 6 : 2)} {fromToken}
               </div>
             </div>
@@ -225,21 +210,16 @@ export const BidirectionalSwapModal = ({
                 type="text"
                 value={fromAmount}
                 onChange={(e) => handleFromAmountChange(e.target.value)}
-                placeholder="0.0"
-                className="text-2xl font-bold bg-transparent border-none text-white font-mono p-0 h-auto focus-visible:ring-0"
+                placeholder="0.000000"
+                className="text-2xl font-bold bg-transparent border-none text-white p-0 h-auto focus-visible:ring-0"
               />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {fromToken === 'ETH' ? (
-                  <>
-                    <EthereumLogo className="w-6 h-6" />
-                    <span className="font-bold">{fromToken}</span>
-                  </>
+                  <EthereumLogo className="w-6 h-6" />
                 ) : (
-                  <>
-                    <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
-                    <span className="font-bold">{fromToken}</span>
-                  </>
+                  <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
                 )}
+                <span className="font-bold text-white">{fromToken}</span>
               </div>
             </div>
             
@@ -251,7 +231,7 @@ export const BidirectionalSwapModal = ({
                   onClick={() => handlePercentageClick(percentage)}
                   variant="outline"
                   size="sm"
-                  className="text-xs border-gray-600 text-gray-300 hover:bg-gray-800"
+                  className="text-xs border-white/10 text-white/60 hover:bg-white/5"
                 >
                   {percentage}%
                 </Button>
@@ -265,34 +245,27 @@ export const BidirectionalSwapModal = ({
               onClick={swapTokens}
               variant="outline"
               size="icon"
-              className="rounded-full border-gray-600 hover:bg-gray-800"
+              className="rounded-full border-white/10 hover:bg-white/5 bg-gradient-to-r from-pink-500 to-purple-500"
             >
-              <div className="p-2 bg-gradient-to-r from-[#ff0066] to-pink-600 rounded-full">
-                <ArrowUpDown className="h-4 w-4 text-white" />
-              </div>
+              <ArrowUpDown className="h-4 w-4 text-white" />
             </Button>
           </div>
 
           {/* To Token Output */}
-          <div className="p-4 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg">
-            <div className="text-sm text-gray-400 mb-3">You Receive</div>
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+            <div className="text-sm text-white/60 mb-3">You Receive</div>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-white font-mono">
+              <div className="text-2xl font-bold text-white">
                 {quoteLoading ? 'Calculating...' : 
-                 parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 6 : 2}) : '0.00'}
+                 parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 6 : 2}) : '0'}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {toToken === 'ETH' ? (
-                  <>
-                    <EthereumLogo className="w-6 h-6" />
-                    <span className="font-bold">{toToken}</span>
-                  </>
+                  <EthereumLogo className="w-6 h-6" />
                 ) : (
-                  <>
-                    <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
-                    <span className="font-bold">{toToken}</span>
-                  </>
+                  <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
                 )}
+                <span className="font-bold text-white">{toToken}</span>
               </div>
             </div>
             
@@ -308,7 +281,7 @@ export const BidirectionalSwapModal = ({
           <Button
             disabled={!fromAmount || parseFloat(fromAmount) <= 0}
             onClick={executeSwap}
-            className="w-full bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white font-bold py-4 text-lg transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+            className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium transition-all duration-200"
           >
             {parseFloat(fromAmount) <= 0 ? 'Enter Amount' : 
              `Swap ${fromToken} → ${parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 4 : 0}) : '0'} ${toToken}`}

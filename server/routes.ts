@@ -4474,32 +4474,45 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   const { SwapService } = await import('./swap-service');
   const swapService = new SwapService();
 
-  // Swap quote endpoint with emergency timeout protection
+  // Bidirectional swap quote endpoint with emergency timeout protection
   app.get('/api/swap/quote', async (req, res) => {
     try {
-      const { ethAmount } = req.query;
+      const { ethAmount, kiltAmount } = req.query;
       
-      if (!ethAmount || typeof ethAmount !== 'string') {
-        return res.status(400).json({ error: 'ETH amount is required' });
+      if (!ethAmount && !kiltAmount) {
+        return res.status(400).json({ error: 'Either ETH amount or KILT amount is required' });
       }
+
+      const isEthToKilt = !!ethAmount;
+      const amount = (ethAmount || kiltAmount) as string;
+      const fromToken = isEthToKilt ? 'ETH' : 'KILT';
 
       // Try swap service with emergency backup
       let quote;
       try {
-        quote = await swapService.getSwapQuote(ethAmount);
+        quote = await swapService.getSwapQuote(amount, fromToken);
         res.setHeader('X-Source', 'blockchain-success');
       } catch (swapError) {
-        console.log('⚡ ROUTES EMERGENCY BACKUP CALCULATION');
+        console.log(`⚡ ROUTES EMERGENCY BACKUP CALCULATION: ${fromToken} swap`);
         // Double emergency backup in routes
-        const ethValue = parseFloat(ethAmount);
+        const value = parseFloat(amount);
         const kiltPerEth = 244700; // Realistic rate: 1 ETH ≈ 244,700 KILT
-        const kiltAmount = (ethValue * kiltPerEth).toFixed(2);
         
-        quote = {
-          kiltAmount,
-          priceImpact: 0.1,
-          fee: '0.3'
-        };
+        if (isEthToKilt) {
+          const kiltAmount = (value * kiltPerEth).toFixed(2);
+          quote = {
+            kiltAmount,
+            priceImpact: 0.1,
+            fee: '0.3'
+          };
+        } else {
+          const ethAmount = (value / kiltPerEth).toFixed(6);
+          quote = {
+            ethAmount,
+            priceImpact: 0.1,
+            fee: '0.3'
+          };
+        }
         res.setHeader('X-Source', 'routes-emergency');
       }
       
@@ -4513,16 +4526,28 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // In-app swap preparation (DexScreener style)
+  // In-app bidirectional swap preparation (DexScreener style)
   app.post('/api/swap/prepare', async (req, res) => {
     try {
-      const { userAddress, ethAmount, slippageTolerance = 0.5 } = req.body;
+      const { userAddress, ethAmount, kiltAmount, slippageTolerance = 0.5 } = req.body;
       
-      if (!userAddress || !ethAmount || parseFloat(ethAmount) <= 0) {
-        return res.status(400).json({ error: 'Valid user address and ETH amount are required' });
+      if (!userAddress) {
+        return res.status(400).json({ error: 'User address is required' });
+      }
+
+      if (!ethAmount && !kiltAmount) {
+        return res.status(400).json({ error: 'Either ETH amount or KILT amount is required' });
+      }
+
+      const isEthToKilt = !!ethAmount;
+      const amount = ethAmount || kiltAmount;
+      const fromToken = isEthToKilt ? 'ETH' : 'KILT';
+
+      if (parseFloat(amount) <= 0) {
+        return res.status(400).json({ error: 'Amount must be greater than 0' });
       }
       
-      const swapData = await swapService.prepareInAppSwap(userAddress, ethAmount, slippageTolerance);
+      const swapData = await swapService.prepareInAppSwap(userAddress, amount, slippageTolerance, fromToken);
       
       res.json(swapData);
     } catch (error) {

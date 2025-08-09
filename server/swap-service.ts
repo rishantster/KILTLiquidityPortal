@@ -62,17 +62,18 @@ const publicClient = createPublicClient({
 export class SwapService {
   
   /**
-   * Get a quote for ETH to KILT swap using DexScreener API (like DexScreener does)
+   * Get a quote for bidirectional swaps using DexScreener API (like DexScreener does)
    */
-  async getSwapQuote(ethAmount: string): Promise<{
-    kiltAmount: string;
+  async getSwapQuote(amount: string, fromToken: 'ETH' | 'KILT' = 'ETH'): Promise<{
+    kiltAmount?: string;
+    ethAmount?: string;
     priceImpact: number;
     fee: string;
     source: string;
   }> {
     // First try DexScreener API for most accurate quotes
     try {
-      const dexScreenerQuote = await this.getDexScreenerQuote(ethAmount);
+      const dexScreenerQuote = await this.getDexScreenerQuote(amount, fromToken);
       if (dexScreenerQuote) {
         return { ...dexScreenerQuote, source: 'dexscreener' };
       }
@@ -82,55 +83,95 @@ export class SwapService {
 
     // Fallback to Uniswap V3 quoter
     try {
-      const amountIn = parseUnits(ethAmount, 18);
-      
-      const amountOut = await publicClient.readContract({
-        address: UNISWAP_V3_ROUTER,
-        abi: ROUTER_ABI,
-        functionName: 'quoteExactInputSingle',
-        args: [{
-          tokenIn: WETH_ADDRESS,
-          tokenOut: KILT_ADDRESS,
-          fee: 3000, // 0.3% fee tier
-          amountIn,
-          sqrtPriceLimitX96: 0n
-        }]
-      });
+      if (fromToken === 'ETH') {
+        // ETH to KILT swap
+        const amountIn = parseUnits(amount, 18);
+        
+        const amountOut = await publicClient.readContract({
+          address: UNISWAP_V3_ROUTER,
+          abi: ROUTER_ABI,
+          functionName: 'quoteExactInputSingle',
+          args: [{
+            tokenIn: WETH_ADDRESS,
+            tokenOut: KILT_ADDRESS,
+            fee: 3000, // 0.3% fee tier
+            amountIn,
+            sqrtPriceLimitX96: 0n
+          }]
+        });
 
-      const kiltAmount = formatUnits(amountOut as bigint, 18);
-      const priceImpact = 0.1; // Estimate for now
-      
-      return {
-        kiltAmount,
-        priceImpact,
-        fee: '0.3',
-        source: 'uniswap'
-      };
+        const kiltAmount = formatUnits(amountOut as bigint, 18);
+        
+        return {
+          kiltAmount,
+          priceImpact: 0.1,
+          fee: '0.3',
+          source: 'uniswap'
+        };
+      } else {
+        // KILT to ETH swap
+        const amountIn = parseUnits(amount, 18);
+        
+        const amountOut = await publicClient.readContract({
+          address: UNISWAP_V3_ROUTER,
+          abi: ROUTER_ABI,
+          functionName: 'quoteExactInputSingle',
+          args: [{
+            tokenIn: KILT_ADDRESS,
+            tokenOut: WETH_ADDRESS,
+            fee: 3000, // 0.3% fee tier
+            amountIn,
+            sqrtPriceLimitX96: 0n
+          }]
+        });
+
+        const ethAmount = formatUnits(amountOut as bigint, 18);
+        
+        return {
+          ethAmount,
+          priceImpact: 0.1,
+          fee: '0.3',
+          source: 'uniswap'
+        };
+      }
       
     } catch (error) {
       console.error('Quote failed:', error);
       
       // ALWAYS use realistic emergency calculation
-      const ethValue = parseFloat(ethAmount);
+      const value = parseFloat(amount);
       const kiltPerEth = 244700; // Realistic emergency rate
-      const kiltAmount = (ethValue * kiltPerEth).toFixed(2);
       
-      console.log(`⚡ SWAP SERVICE EMERGENCY CALCULATION: ${ethAmount} ETH → ${kiltAmount} KILT (rate: ${kiltPerEth} KILT/ETH)`);
-      
-      return {
-        kiltAmount,
-        priceImpact: 0.1,
-        fee: '0.3',
-        source: 'emergency'
-      };
+      if (fromToken === 'ETH') {
+        const kiltAmount = (value * kiltPerEth).toFixed(2);
+        console.log(`⚡ SWAP SERVICE EMERGENCY CALCULATION: ${amount} ETH → ${kiltAmount} KILT (rate: ${kiltPerEth} KILT/ETH)`);
+        
+        return {
+          kiltAmount,
+          priceImpact: 0.1,
+          fee: '0.3',
+          source: 'emergency'
+        };
+      } else {
+        const ethAmount = (value / kiltPerEth).toFixed(6);
+        console.log(`⚡ SWAP SERVICE EMERGENCY CALCULATION: ${amount} KILT → ${ethAmount} ETH (rate: ${kiltPerEth} KILT/ETH)`);
+        
+        return {
+          ethAmount,
+          priceImpact: 0.1,
+          fee: '0.3',
+          source: 'emergency'
+        };
+      }
     }
   }
 
   /**
-   * Get quote from DexScreener API (like they do internally)
+   * Get quote from DexScreener API (like they do internally) for bidirectional swaps
    */
-  private async getDexScreenerQuote(ethAmount: string): Promise<{
-    kiltAmount: string;
+  private async getDexScreenerQuote(amount: string, fromToken: 'ETH' | 'KILT'): Promise<{
+    kiltAmount?: string;
+    ethAmount?: string;
     priceImpact: number;
     fee: string;
   } | null> {
@@ -153,25 +194,35 @@ export class SwapService {
       
       if (!pair?.priceUsd) throw new Error('No price data');
       
-      // Calculate KILT amount using DexScreener price
-      const ethValue = parseFloat(ethAmount);
+      // Calculate amounts using DexScreener price for bidirectional swaps
+      const value = parseFloat(amount);
       const kiltPriceUsd = parseFloat(pair.priceUsd);
       const ethPriceUsd = 4180; // Approximate ETH price
       
-      const kiltAmount = ((ethValue * ethPriceUsd) / kiltPriceUsd).toFixed(2);
-      
       // Extract price impact from volume/liquidity data
       const liquidityUsd = pair.liquidity?.usd || 0;
-      const swapValue = ethValue * ethPriceUsd;
-      const priceImpact = Math.min((swapValue / liquidityUsd) * 100, 15); // Cap at 15%
+      const swapValueUsd = fromToken === 'ETH' ? (value * ethPriceUsd) : (value * kiltPriceUsd);
+      const priceImpact = Math.min((swapValueUsd / liquidityUsd) * 100, 15); // Cap at 15%
       
-      console.log(`🚀 DEXSCREENER QUOTE: ${ethAmount} ETH → ${kiltAmount} KILT (price: $${kiltPriceUsd})`);
-      
-      return {
-        kiltAmount,
-        priceImpact: Number(priceImpact.toFixed(2)),
-        fee: '0.3'
-      };
+      if (fromToken === 'ETH') {
+        const kiltAmount = ((value * ethPriceUsd) / kiltPriceUsd).toFixed(2);
+        console.log(`🚀 DEXSCREENER QUOTE: ${amount} ETH → ${kiltAmount} KILT (price: $${kiltPriceUsd})`);
+        
+        return {
+          kiltAmount,
+          priceImpact: Number(priceImpact.toFixed(2)),
+          fee: '0.3'
+        };
+      } else {
+        const ethAmount = ((value * kiltPriceUsd) / ethPriceUsd).toFixed(6);
+        console.log(`🚀 DEXSCREENER QUOTE: ${amount} KILT → ${ethAmount} ETH (price: $${kiltPriceUsd})`);
+        
+        return {
+          ethAmount,
+          priceImpact: Number(priceImpact.toFixed(2)),
+          fee: '0.3'
+        };
+      }
       
     } catch (error) {
       console.log('DexScreener quote failed:', error);
@@ -180,48 +231,48 @@ export class SwapService {
   }
 
   /**
-   * Prepare in-app swap execution (DexScreener style)
+   * Prepare in-app bidirectional swap execution (DexScreener style)
    */
-  async prepareInAppSwap(userAddress: string, ethAmount: string, slippageTolerance: number = 0.5): Promise<{
+  async prepareInAppSwap(userAddress: string, amount: string, slippageTolerance: number = 0.5, fromToken: 'ETH' | 'KILT' = 'ETH'): Promise<{
     swapData: any;
     quote: any;
   }> {
     try {
       // Validate inputs first
-      if (!userAddress || !ethAmount) {
+      if (!userAddress || !amount) {
         throw new Error('Missing required parameters');
       }
 
-      const ethValue = parseFloat(ethAmount);
-      if (isNaN(ethValue) || ethValue <= 0) {
-        throw new Error('Invalid ETH amount');
+      const value = parseFloat(amount);
+      if (isNaN(value) || value <= 0) {
+        throw new Error('Invalid amount');
       }
 
-      console.log(`🔧 Preparing swap: ${ethAmount} ETH for user ${userAddress}`);
+      console.log(`🔧 Preparing ${fromToken} swap: ${amount} ${fromToken} for user ${userAddress}`);
 
-      const quote = await this.getSwapQuote(ethAmount);
+      const quote = await this.getSwapQuote(amount, fromToken);
       console.log(`📊 Quote received:`, quote);
 
-      if (!quote?.kiltAmount) {
+      const expectedOutput = fromToken === 'ETH' ? quote.kiltAmount : quote.ethAmount;
+      if (!expectedOutput) {
         throw new Error('Failed to get valid quote');
       }
 
-      const amountIn = parseUnits(ethAmount, 18);
-      const kiltAmountNum = parseFloat(quote.kiltAmount);
-      
-      if (isNaN(kiltAmountNum) || kiltAmountNum <= 0) {
-        throw new Error('Invalid KILT amount in quote');
+      const outputNum = parseFloat(expectedOutput);
+      if (isNaN(outputNum) || outputNum <= 0) {
+        throw new Error('Invalid output amount in quote');
       }
 
-      const minKiltAmount = kiltAmountNum * (1 - slippageTolerance / 100);
-      const amountOutMinimum = parseUnits(minKiltAmount.toString(), 18);
+      const amountIn = parseUnits(amount, 18);
+      const minOutputAmount = outputNum * (1 - slippageTolerance / 100);
+      const amountOutMinimum = parseUnits(minOutputAmount.toString(), 18);
 
       // Prepare transaction data for exactInputSingle
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1800); // 30 minutes from now
 
       const swapParams = {
-        tokenIn: WETH_ADDRESS,
-        tokenOut: KILT_ADDRESS,
+        tokenIn: fromToken === 'ETH' ? WETH_ADDRESS : KILT_ADDRESS,
+        tokenOut: fromToken === 'ETH' ? KILT_ADDRESS : WETH_ADDRESS,
         fee: 3000,
         recipient: getAddress(userAddress),
         deadline,
@@ -248,7 +299,7 @@ export class SwapService {
       const swapData = {
         to: UNISWAP_V3_ROUTER,
         data,
-        value: `0x${amountIn.toString(16)}`, // Convert to hex string
+        value: fromToken === 'ETH' ? `0x${amountIn.toString(16)}` : '0x0', // Only send ETH for ETH->Token swaps
         gasLimit: '0x493e0' // 300000 in hex
       };
 

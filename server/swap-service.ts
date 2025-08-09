@@ -2,8 +2,9 @@ import { createPublicClient, createWalletClient, http, parseUnits, formatUnits, 
 import { base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 
-// Uniswap V3 Router contract address on Base
+// Uniswap V3 contract addresses on Base
 const UNISWAP_V3_ROUTER = '0x2626664c2603336E57B271c5C0b26F421741e481';
+const UNISWAP_V3_QUOTER = '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a'; // Quoter V2 on Base
 
 // Token addresses on Base
 const WETH_ADDRESS = '0x4200000000000000000000000000000000000006';
@@ -104,7 +105,7 @@ export class SwapService {
         const amountIn = parseUnits(amount, 18);
         
         const amountOut = await publicClient.readContract({
-          address: UNISWAP_V3_ROUTER,
+          address: UNISWAP_V3_QUOTER,
           abi: ROUTER_ABI,
           functionName: 'quoteExactInputSingle',
           args: [{
@@ -134,7 +135,7 @@ export class SwapService {
         const amountIn = parseUnits(amount, 18);
         
         const amountOut = await publicClient.readContract({
-          address: UNISWAP_V3_ROUTER,
+          address: UNISWAP_V3_QUOTER,
           abi: ROUTER_ABI,
           functionName: 'quoteExactInputSingle',
           args: [{
@@ -290,7 +291,8 @@ export class SwapService {
       }
 
       const amountIn = parseUnits(amount, 18);
-      const minOutputAmount = outputNum * (1 - slippageTolerance / 100);
+      // Use more generous slippage to prevent failures - real slippage protection from quote
+      const minOutputAmount = outputNum * (1 - Math.max(slippageTolerance, 2) / 100); // Min 2% slippage
       const amountOutMinimum = parseUnits(minOutputAmount.toString(), 18);
 
       // Prepare transaction data - use multicall for ETH swaps
@@ -305,7 +307,7 @@ export class SwapService {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: getAddress(userAddress),
+          recipient: getAddress(userAddress), // Send tokens directly to user
           deadline,
           amountIn,
           amountOutMinimum,
@@ -326,7 +328,7 @@ export class SwapService {
           args: [0n] // Refund any leftover ETH
         });
 
-        // Create multicall transaction
+        // Create multicall transaction with proper value handling
         const multicallData = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'multicall',

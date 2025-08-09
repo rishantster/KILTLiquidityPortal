@@ -49,7 +49,8 @@ export function useValidatedPositions(userId: number | undefined) {
           // Check if position is still active (has liquidity)
           const hasLiquidity = blockchainPosition.liquidity && BigInt(blockchainPosition.liquidity) > 0n;
           if (!hasLiquidity) {
-            console.warn(`Registered position ${dbPosition.nftTokenId} has no liquidity on blockchain - may have been closed`);
+            console.warn(`Registered position ${dbPosition.nftTokenId} has no liquidity on blockchain - filtering out closed position`);
+            return null; // Filter out positions with zero liquidity
           }
 
           // Merge database and blockchain data for complete position info
@@ -62,7 +63,7 @@ export function useValidatedPositions(userId: number | undefined) {
             currentValueUSD: blockchainPosition.currentValueUSD,
             isInRange: blockchainPosition.isInRange,
             fees: blockchainPosition.fees,
-            isActive: hasLiquidity,
+            isActive: true, // Only active positions make it this far
             // Include APR data from blockchain position
             totalAPR: blockchainPosition.totalAPR,
             tradingFeeAPR: blockchainPosition.tradingFeeAPR,
@@ -72,7 +73,7 @@ export function useValidatedPositions(userId: number | undefined) {
             createdViaApp: dbPosition.createdViaApp,
             verificationStatus: dbPosition.verificationStatus
           };
-        }).filter(Boolean); // Remove null entries
+        }).filter(Boolean); // Remove null entries (burned and zero-liquidity positions)
 
         // Automatically clean up burned positions from database
         if (burnedPositions.length > 0) {

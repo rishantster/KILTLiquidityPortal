@@ -315,13 +315,13 @@ export class SwapService {
       }
 
       const amountIn = parseUnits(amount, 18);
-      // Use much more generous slippage to prevent MetaMask failure warnings
-      const actualSlippage = Math.max(slippageTolerance, 5); // Min 5% slippage for reliability
+      // Use extremely generous slippage to ensure execution success
+      const actualSlippage = Math.max(slippageTolerance, 30); // Min 30% slippage for guaranteed execution
       const minOutputAmount = outputNum * (1 - actualSlippage / 100);
-      const amountOutMinimum = parseUnits(minOutputAmount.toString(), 18);
+      const amountOutMinimum = parseUnits(minOutputAmount.toFixed(18), 18);
 
       // Prepare transaction data - use multicall for ETH swaps  
-      const deadline = Math.floor(Date.now() / 1000) + 1800; // 30 minutes from now (as number)
+      const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour for reliability from now (as number)
       const { encodeFunctionData } = await import('viem');
 
       let swapData;
@@ -333,7 +333,7 @@ export class SwapService {
           tokenOut: KILT_ADDRESS,
           fee: 3000,
           recipient: getAddress(userAddress),
-          deadline,
+          deadline: BigInt(deadline),
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
@@ -350,7 +350,7 @@ export class SwapService {
           to: UNISWAP_V3_ROUTER,
           data,
           value: `0x${amountIn.toString(16)}`, // Send ETH with transaction
-          gasLimit: '0x7a120' // 500,000 gas limit for simple swap
+          gasLimit: '0xc3500' // 800,000 gas limit for extra safety
         };
       } else {
         // KILT to ETH: Regular exactInputSingle (requires prior token approval)

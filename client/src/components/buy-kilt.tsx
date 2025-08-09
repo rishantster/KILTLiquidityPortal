@@ -32,20 +32,12 @@ export function BuyKilt({
       {/* Header */}
       <div className="flex items-center gap-3">
         <ArrowUpDown className="w-6 h-6 text-pink-400" />
-        <h2 className="text-2xl font-bold text-white">Swap Tokens</h2>
-        <Badge variant="secondary" className="bg-pink-500/10 text-pink-400 border-pink-500/20">
-          Bidirectional
-        </Badge>
+        <h2 className="text-2xl font-bold text-white">Swap</h2>
       </div>
 
-      {/* New Bidirectional Swap Interface */}
+      {/* Swap Interface */}
       <Card className="border border-white/10 bg-black/40 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between text-white">
-            <span>Professional DexScreener-Style Swap</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pt-6">
           {/* Current Balances */}
           <div className="grid grid-cols-2 gap-4">
             <Card className="border border-white/5 bg-white/5">
@@ -65,25 +57,11 @@ export function BuyKilt({
           {/* Open Swap Modal Button */}
           <Button 
             onClick={() => setShowSwapModal(true)}
-            className="w-full h-16 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105"
+            className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium transition-all duration-200"
           >
-            <ArrowUpDown className="w-6 h-6 mr-3" />
-            Open Bidirectional Swap Interface
+            <ArrowUpDown className="w-4 h-4 mr-2" />
+            Open Swap Interface
           </Button>
-
-          {/* Info */}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-blue-300">
-              <p className="font-medium mb-1">Enhanced DexScreener-Style Trading</p>
-              <p className="text-blue-300/80">
-                🔄 <strong>Bidirectional:</strong> Swap both ETH→KILT and KILT→ETH<br/>
-                📊 <strong>Real-time quotes:</strong> DexScreener API with smart fallbacks<br/>
-                ⚡ <strong>In-app execution:</strong> No external redirects<br/>
-                💰 <strong>Low fees:</strong> ~$0.02 total transaction costs on Base
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
 

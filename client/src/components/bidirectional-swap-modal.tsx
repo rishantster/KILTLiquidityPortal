@@ -301,18 +301,7 @@ export const BidirectionalSwapModal = ({ isOpen, onClose }: BidirectionalSwapMod
              `Swap ${fromToken} → ${parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 4 : 0}) : '0'} ${toToken}`}
           </Button>
 
-          {/* Bidirectional Integration Notice */}
-          <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-            <div className="flex items-start gap-2">
-              <Info className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-              <div className="text-sm">
-                <div className="text-purple-400 font-semibold mb-1">Bidirectional DexScreener-Style Swap</div>
-                <div className="text-gray-300">
-                  Swap both ETH→KILT and KILT→ETH using DexScreener API for quotes with Uniswap execution. Professional interface with $0.02 gas fees.
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
         
         {/* Close Button */}

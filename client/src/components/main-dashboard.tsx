@@ -436,12 +436,7 @@ export function MainDashboard() {
         {/* Overlay for content readability */}
         <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
         
-        {/* Clean Beta Badge - Fixed position in top right corner */}
-        <div className="fixed top-6 right-6 sm:top-8 sm:right-8 z-50">
-          <div className="bg-white backdrop-blur-sm rounded-full px-4 py-2 text-xs sm:text-sm font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20 hover:scale-105 transition-all duration-200">
-            Beta
-          </div>
-        </div>
+
 
         <div className="max-w-5xl mx-auto relative" style={{ zIndex: 10 }}>
           <div className="text-center pt-16 pb-8">

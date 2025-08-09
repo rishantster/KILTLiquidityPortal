@@ -14,10 +14,8 @@ export function LoadingScreen() {
             KILT Liquidity Program
           </h2>
           
-          {/* Clean Beta Badge - Loading Screen */}
-          <div className="bg-white backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold text-[#ff0066] shadow-lg border border-[#ff0066]/20">
-            Beta
-          </div>
+
+
         </div>
         <div className="flex items-center justify-center space-x-2" style={{ color: '#ff0066' }}>
           <Loader2 className="h-5 w-5 animate-spin" />

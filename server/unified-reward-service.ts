@@ -182,16 +182,7 @@ export class UnifiedRewardService {
 
     // ACCUMULATION: Always from position creation (hourly incremental as requested)
     const hourlyRewards = dailyRewards / 24;
-    
-    // FIXED: Calculate historical accumulation with time boost integration
-    // Instead of current_rate * total_hours, integrate boost over time
-    const baseHourlyRate = (liquidityRatio * IRM * FRB * R_P) / 24; // Without time boost
-    let totalAccumulatedSinceCreation = 0;
-    
-    // Integrate time boost over position lifetime (more accurate but computationally expensive)
-    // For performance, use average time boost approximation
-    const averageTimeBoost = 1 + ((positionAgeDays / 2 / P) * b_time); // Average boost over lifetime
-    totalAccumulatedSinceCreation = baseHourlyRate * averageTimeBoost * positionAgeHours;
+    const totalAccumulatedSinceCreation = hourlyRewards * positionAgeHours;
 
     // Calculate effective APR
     const effectiveAPR = marketData.tradingAPR + marketData.programAPR;

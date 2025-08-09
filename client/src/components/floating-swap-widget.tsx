@@ -42,58 +42,64 @@ export const FloatingSwapWidget = () => {
     <div className="fixed bottom-6 right-6 z-50">
       {/* Expanded Widget */}
       {isExpanded && (
-        <div className="absolute bottom-16 right-0 mb-2">
+        <div className="absolute bottom-20 right-0 mb-2">
           <div className="relative group">
-            {/* Cyberpunk glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-[#ff3385]/10 rounded-2xl blur-xl scale-110"></div>
+            {/* Strong cyberpunk glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/40 to-[#ff3385]/20 rounded-2xl blur-2xl scale-110"></div>
             
-            <div className="relative bg-black/80 backdrop-blur-xl border border-[#ff0066]/30 rounded-2xl p-4 min-w-[320px] shadow-2xl">
+            <div className="relative bg-gradient-to-br from-black/95 to-gray-900/95 backdrop-blur-xl border-2 border-[#ff0066]/50 rounded-2xl p-5 min-w-[340px] shadow-2xl">
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <ArrowUpDown className="h-4 w-4 text-[#ff0066]" />
-                  <span className="text-white font-medium text-sm">Quick Swap</span>
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 bg-[#ff0066]/20 rounded-lg">
+                    <ArrowUpDown className="h-4 w-4 text-[#ff0066]" />
+                  </div>
+                  <span className="text-white font-semibold text-base">Quick Swap</span>
                 </div>
                 <button
                   onClick={() => setIsExpanded(false)}
-                  className="text-white/60 hover:text-white transition-colors"
+                  className="text-white/60 hover:text-white transition-colors text-xl font-bold w-6 h-6 flex items-center justify-center hover:bg-white/10 rounded"
                 >
                   ×
                 </button>
               </div>
 
               {/* Swap Preview */}
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center justify-between p-3 bg-black/40 rounded-xl border border-white/10">
-                  <div className="flex items-center gap-2">
-                    <EthereumLogo className="w-5 h-5" />
-                    <span className="text-white text-sm">ETH</span>
+              <div className="space-y-4 mb-5">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-black/60 to-gray-900/60 rounded-xl border border-[#ff0066]/20 backdrop-blur-sm">
+                  <div className="flex items-center gap-3">
+                    <EthereumLogo className="w-6 h-6 drop-shadow-lg" />
+                    <span className="text-white font-medium">ETH</span>
                   </div>
-                  <ArrowUpDown className="h-3 w-3 text-[#ff0066]" />
-                  <div className="flex items-center gap-2">
-                    <img src={kiltLogo} alt="KILT" className="w-5 h-5" />
-                    <span className="text-white text-sm">KILT</span>
+                  <div className="p-1 bg-[#ff0066]/20 rounded-full">
+                    <ArrowUpDown className="h-4 w-4 text-[#ff0066]" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <img src={kiltLogo} alt="KILT" className="w-6 h-6 drop-shadow-lg" />
+                    <span className="text-white font-medium">KILT</span>
                   </div>
                 </div>
                 
                 {/* Current Price */}
-                <div className="text-center text-xs text-white/70">
-                  Current Price: ${kiltData?.price?.toFixed(6) || '...'} KILT
+                <div className="text-center p-2 bg-[#ff0066]/10 rounded-lg">
+                  <div className="text-white/90 text-sm font-medium">
+                    Current Price: <span className="text-[#ff0066]">${kiltData?.price?.toFixed(6) || '...'}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Action Button */}
               <Button
                 onClick={handleSwapClick}
-                className="w-full bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#cc0052] hover:to-[#e6005c] text-white font-medium text-sm rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0"
+                className="w-full bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#ff0066] hover:to-[#cc0052] text-white font-semibold text-base rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0 py-3 hover:scale-105"
               >
-                <ExternalLink className="h-3 w-3 mr-2" />
+                <ExternalLink className="h-4 w-4 mr-2" />
                 Trade on Uniswap
               </Button>
 
               {/* Info */}
-              <div className="text-xs text-white/50 text-center mt-2">
-                Base Network • 0.3% Pool Fee
+              <div className="text-xs text-white/60 text-center mt-3 bg-black/30 rounded-lg py-2">
+                Base Network • 0.3% Pool Fee • Instant Trading
               </div>
             </div>
           </div>
@@ -103,26 +109,29 @@ export const FloatingSwapWidget = () => {
       {/* Floating Button */}
       <Button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="relative group w-14 h-14 rounded-full bg-black/80 backdrop-blur-xl border border-[#ff0066]/30 hover:border-[#ff0066]/60 transition-all duration-300 shadow-2xl hover:shadow-[0_0_30px_rgba(255,0,102,0.3)]"
+        className="relative group w-16 h-16 rounded-full bg-gradient-to-br from-[#ff0066] to-[#ff3385] hover:from-[#ff0066] hover:to-[#cc0052] border-2 border-white/20 hover:border-white/40 transition-all duration-300 shadow-2xl hover:shadow-[0_0_40px_rgba(255,0,102,0.6)] hover:scale-110"
       >
-        {/* Cyberpunk glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-full blur-lg scale-110 group-hover:scale-125 transition-transform duration-300"></div>
+        {/* Strong cyberpunk glow */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066] to-[#ff3385] rounded-full blur-xl scale-125 opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
         
         {/* Button content */}
-        <div className="relative flex items-center justify-center">
+        <div className="relative flex items-center justify-center z-10">
           {isExpanded ? (
-            <span className="text-white text-lg">×</span>
+            <span className="text-white text-xl font-bold">×</span>
           ) : (
             <div className="flex items-center">
-              <EthereumLogo className="w-4 h-4 -mr-1" />
-              <ArrowUpDown className="h-3 w-3 text-[#ff0066] mx-0.5" />
-              <img src={kiltLogo} alt="KILT" className="w-4 h-4 -ml-1" />
+              <EthereumLogo className="w-5 h-5 -mr-1 drop-shadow-lg" />
+              <ArrowUpDown className="h-4 w-4 text-white mx-0.5 drop-shadow-lg" />
+              <img src={kiltLogo} alt="KILT" className="w-5 h-5 -ml-1 drop-shadow-lg" />
             </div>
           )}
         </div>
 
-        {/* Pulse animation */}
-        <div className="absolute inset-0 rounded-full border border-[#ff0066]/30 animate-ping opacity-30"></div>
+        {/* Outer pulse ring */}
+        <div className="absolute inset-0 rounded-full border-2 border-[#ff0066] animate-ping opacity-60 scale-125"></div>
+        
+        {/* Inner highlight */}
+        <div className="absolute inset-1 rounded-full bg-gradient-to-t from-transparent to-white/20"></div>
       </Button>
     </div>
   );

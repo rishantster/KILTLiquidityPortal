@@ -44,7 +44,7 @@ export class SingleSourceAPR {
   private fixedRewardService: FixedRewardService;
   private static cache: APRData | null = null;
   private static cacheExpiry: number = 0;
-  private static readonly CACHE_DURATION = 30000; // 30 seconds
+  private static readonly CACHE_DURATION = 30000; // 30 seconds - balance between speed and accuracy
 
   constructor(database: IStorage) {
     this.database = database;

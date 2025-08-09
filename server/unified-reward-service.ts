@@ -38,7 +38,7 @@ interface UserRewardStats {
 
 export class UnifiedRewardService {
   private cache: Map<string, CachedData> = new Map();
-  private readonly CACHE_DURATION = 30000; // 30 seconds cache
+  private readonly CACHE_DURATION = 30000; // 30 seconds - balance between performance and real-time data
   private readonly FALLBACK_POOL_TVL = 99171; // Fallback TVL
   private readonly FALLBACK_TRADING_APR = 4.68;
   private readonly FALLBACK_PROGRAM_APR = 158.45;

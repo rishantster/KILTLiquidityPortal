@@ -12,19 +12,18 @@ export function useAdminSync() {
   useEffect(() => {
     const checkForAdminUpdates = async () => {
       try {
-        // Check for recent admin operations with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-        
-        const response = await fetch('/api/admin/operations', {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        clearTimeout(timeoutId);
+        // Simple fetch without AbortController to avoid unhandled rejections
+        const response = await Promise.race([
+          fetch('/api/admin/operations', {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          }),
+          new Promise<Response>((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 3000)
+          )
+        ]);
         
         if (response.ok) {
           const operations = await response.json();
@@ -76,14 +75,8 @@ export function useAdminSync() {
         }
       } catch (error) {
         // Silent fail - admin sync failures shouldn't disrupt user experience
-        // Only log in development mode
-        if (process.env.NODE_ENV === 'development') {
-          if (error instanceof Error && error.name === 'AbortError') {
-            console.debug('Admin sync timeout (non-critical)');
-          } else {
-            console.debug('Admin sync check failed (non-critical):', error);
-          }
-        }
+        // Suppress all errors to prevent runtime overlays
+        return;
       }
     };
     

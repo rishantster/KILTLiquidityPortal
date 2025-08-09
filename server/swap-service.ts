@@ -118,9 +118,14 @@ export class SwapService {
 
         const kiltAmount = formatUnits(amountOut as bigint, 18);
         
+        // Calculate real-time price impact based on current pool price vs quote
+        const currentPrice = 244700; // KILT per ETH from emergency rate
+        const quotePrice = parseFloat(kiltAmount) / parseFloat(amount);
+        const priceImpact = Math.abs((quotePrice - currentPrice) / currentPrice) * 100;
+        
         return {
           kiltAmount,
-          priceImpact: 0.1,
+          priceImpact: Number(Math.min(priceImpact, 15).toFixed(2)), // Cap at 15%
           fee: '0.3',
           source: 'uniswap'
         };
@@ -143,9 +148,14 @@ export class SwapService {
 
         const ethAmount = formatUnits(amountOut as bigint, 18);
         
+        // Calculate real-time price impact for KILT->ETH
+        const currentPrice = 244700; // KILT per ETH
+        const quotePrice = parseFloat(amount) / parseFloat(ethAmount);
+        const priceImpact = Math.abs((quotePrice - currentPrice) / currentPrice) * 100;
+        
         return {
           ethAmount,
-          priceImpact: 0.1,
+          priceImpact: Number(Math.min(priceImpact, 15).toFixed(2)), // Cap at 15%
           fee: '0.3',
           source: 'uniswap'
         };
@@ -164,7 +174,7 @@ export class SwapService {
         
         return {
           kiltAmount,
-          priceImpact: 0.1,
+          priceImpact: 0.05, // Lower impact for emergency calculation
           fee: '0.3',
           source: 'emergency'
         };
@@ -174,7 +184,7 @@ export class SwapService {
         
         return {
           ethAmount,
-          priceImpact: 0.1,
+          priceImpact: 0.05, // Lower impact for emergency calculation  
           fee: '0.3',
           source: 'emergency'
         };

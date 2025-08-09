@@ -78,7 +78,11 @@ export function useAdminSync() {
         // Silent fail - admin sync failures shouldn't disrupt user experience
         // Only log in development mode
         if (process.env.NODE_ENV === 'development') {
-          console.debug('Admin sync check failed (non-critical):', error);
+          if (error instanceof Error && error.name === 'AbortError') {
+            console.debug('Admin sync timeout (non-critical)');
+          } else {
+            console.debug('Admin sync check failed (non-critical):', error);
+          }
         }
       }
     };

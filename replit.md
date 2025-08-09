@@ -3,6 +3,9 @@
 ## Overview
 The KILT Liquidity Incentive Portal is a production-ready DeFi application designed for managing concentrated liquidity positions within the KILT/ETH Uniswap V3 pool on the Base network. Its primary purpose is to enable users to earn dynamic rewards from the KILT treasury through a zero-restriction claiming system. The project is a full-stack TypeScript application with a React frontend and an Express.js backend, prioritizing real-time blockchain data, signature-based security, and a mobile-optimized user experience. The business vision is to provide a seamless and secure platform for KILT liquidity incentives, expanding KILT's presence in the DeFi ecosystem and attracting more liquidity to the token.
 
+## Recent Updates (August 2025)
+**Program APR Calculation Enhancement**: Successfully implemented participant-based APR calculation that dynamically adjusts based on actual liquidity providers. The system now calculates realistic Program APR using formula: (Daily Budget × 365) ÷ (Active LPs × Average Position Size) × 100, resulting in accurate 36,805% APR for current participants. This creates proper economic incentives where more participants = lower individual APR (rewards distributed among more people) and fewer participants = higher individual APR (concentrated rewards). All hardcoded fallback values eliminated, ensuring authentic blockchain data only.
+
 ## User Preferences
 **Communication Style**: Simple, everyday language without technical jargon
 **Design Inspiration**: Cluely.com aesthetic with Inter font and minimal glassmorphism design

@@ -621,9 +621,9 @@ export function RewardsTracking() {
                   <div className="text-blue-400 text-xs mb-1">Total Positions</div>
                   <div className="text-sm text-white numeric-display">{programAnalytics?.totalPositions || 0}</div>
                 </div>
-                <div className="text-center p-2 rounded border border-orange-500/20 bg-[#000000]">
-                  <div className="text-orange-400 text-xs mb-1">Avg Position</div>
-                  <div className="text-sm text-white numeric-display">${programAnalytics?.averagePositionSize?.toFixed(0) || '0'}</div>
+                <div className="text-center p-2 rounded border border-green-500/20 bg-[#000000]">
+                  <div className="text-green-400 text-xs mb-1">Days Remaining</div>
+                  <div className="text-sm text-white numeric-display">{programAnalytics?.daysRemaining || 0}</div>
                 </div>
               </div>
               

@@ -70,6 +70,16 @@ const ROUTER_ABI = [
     payable: true
   },
   {
+    inputs: [
+      { name: 'token', type: 'address' },
+      { name: 'amountMinimum', type: 'uint256' },
+      { name: 'recipient', type: 'address' }
+    ],
+    name: 'sweepToken',
+    outputs: [],
+    type: 'function'
+  },
+  {
     inputs: [{ name: 'amountMinimum', type: 'uint256' }],
     name: 'refundETH',
     outputs: [],
@@ -327,30 +337,54 @@ export class SwapService {
       let swapData;
       
       if (fromToken === 'ETH') {
-        // ETH to KILT: Direct exactInputSingle (most reliable approach)
+        // ETH to KILT: Use proven Uniswap interface pattern with multicall
+        // This exactly matches what Uniswap's own interface does
+        
+        // 1. First encode exactInputSingle with recipient as address(0) (router keeps tokens)
         const swapParams = {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: getAddress(userAddress),
+          recipient: '0x0000000000000000000000000000000000000000', // Router keeps tokens initially
           deadline: BigInt(deadline),
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
         };
 
-        const data = encodeFunctionData({
+        const exactInputCall = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'exactInputSingle',
           args: [swapParams]
+        });
+
+        // 2. Sweep tokens to user (this is the Uniswap standard pattern)
+        const sweepTokenCall = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'sweepToken',
+          args: [KILT_ADDRESS, amountOutMinimum, getAddress(userAddress)]
+        });
+
+        // 3. Return leftover ETH
+        const refundETHCall = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'refundETH',
+          args: []
+        });
+
+        // 4. Combine with multicall (exact Uniswap pattern)
+        const data = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'multicall',
+          args: [[exactInputCall, sweepTokenCall, refundETHCall]]
         });
 
         swapData = {
           from: getAddress(userAddress),
           to: UNISWAP_V3_ROUTER,
           data,
-          value: `0x${amountIn.toString(16)}`, // Send ETH with transaction
-          gasLimit: '0xc3500' // 800,000 gas limit for extra safety
+          value: `0x${amountIn.toString(16)}`,
+          gasLimit: '0xf4240' // 1M gas for multicall pattern
         };
       } else {
         // KILT to ETH: Regular exactInputSingle (requires prior token approval)
@@ -384,7 +418,8 @@ export class SwapService {
         amountIn: amountIn.toString(),
         amountOutMinimum: amountOutMinimum.toString(),
         deadline: deadline.toString(),
-        directSwap: fromToken === 'ETH'
+        slippage: actualSlippage + '%',
+        pattern: fromToken === 'ETH' ? 'Uniswap multicall' : 'Direct swap'
       });
 
       console.log(`✅ Swap data prepared:`, {

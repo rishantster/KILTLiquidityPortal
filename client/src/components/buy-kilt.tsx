@@ -71,15 +71,6 @@ export function BuyKilt({
         </div>
       </div>
 
-      {/* Swap Button */}
-      <Button 
-        onClick={() => setShowSwapModal(true)}
-        className="w-full h-12 bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#cc0052] hover:to-[#e6005c] text-white font-medium text-sm rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0"
-      >
-        <ArrowUpDown className="w-4 h-4 mr-2" />
-        Open Swap Interface
-      </Button>
-
       {/* Market Information Grid */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3">
         {/* Pool TVL */}
@@ -139,15 +130,27 @@ export function BuyKilt({
         </div>
       </div>
 
-      {/* DexScreener Link - Full Width */}
-      <Button
-        variant="outline"
-        className="w-full border-white/20 bg-black/30 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/30 rounded-xl px-4 py-2 text-xs transition-all duration-300"
-        onClick={() => window.open('https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e', '_blank')}
-      >
-        <ExternalLink className="w-3 h-3 mr-2" />
-        View on DexScreener
-      </Button>
+      {/* Action Buttons Row */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+        {/* Swap Button */}
+        <Button 
+          onClick={() => setShowSwapModal(true)}
+          className="h-12 bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#cc0052] hover:to-[#e6005c] text-white font-medium text-sm rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0"
+        >
+          <ArrowUpDown className="w-4 h-4 mr-2" />
+          Open Swap Interface
+        </Button>
+
+        {/* DexScreener Button */}
+        <Button
+          variant="outline"
+          className="h-12 border-white/20 bg-black/30 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/30 rounded-xl px-4 text-xs transition-all duration-300"
+          onClick={() => window.open('https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e', '_blank')}
+        >
+          <ExternalLink className="w-3 h-3 mr-2" />
+          View on DexScreener
+        </Button>
+      </div>
 
       {/* Bidirectional Swap Modal */}
       <BidirectionalSwapModal 

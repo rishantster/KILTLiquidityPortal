@@ -630,15 +630,11 @@ export function RewardsTracking() {
               <div className="text-center p-2 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded border border-green-500/30">
                 <div className="text-green-400 text-xs mb-1">Program APR</div>
                 <div className="text-sm text-green-400 numeric-display font-bold">
-                  <SingleSourceProgramAPR />
+                  {programAnalytics?.programAPR ? `${programAnalytics.programAPR.toFixed(1)}%` : 'Loading...'}
                 </div>
               </div>
               
               <div className="space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-white/60">Daily Emission:</span>
-                  <span className="text-white">{programAnalytics?.dailyEmissionRate?.toLocaleString() || '0'} KILT</span>
-                </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">24h Volume:</span>
                   <span className="text-white">${programAnalytics?.poolVolume24h?.toLocaleString() || '0'}</span>

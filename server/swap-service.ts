@@ -76,6 +76,16 @@ const ROUTER_ABI = [
     outputs: [],
     type: 'function'
   },
+  {
+    inputs: [
+      { name: 'token', type: 'address' },
+      { name: 'amountMinimum', type: 'uint256' },
+      { name: 'recipient', type: 'address' }
+    ],
+    name: 'sweepToken',
+    outputs: [],
+    type: 'function'
+  },
 
 ] as const;
 
@@ -318,37 +328,44 @@ export class SwapService {
       let swapData;
       
       if (fromToken === 'ETH') {
-        // ETH to KILT: Use multicall with exactInputSingle + refundETH
+        // ETH to KILT: Use multicall with exactInputSingle + sweepToken + refundETH  
         const swapParams = {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: getAddress(userAddress), // Send tokens directly to user
+          recipient: getAddress(UNISWAP_V3_ROUTER), // Send to router for multicall processing
           deadline,
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
         };
 
-        // Encode exactInputSingle call
+        // Step 1: exactInputSingle call
         const exactInputCall = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'exactInputSingle',
           args: [swapParams]
         });
 
-        // Encode refundETH call
+        // Step 2: sweepToken call to send KILT to user
+        const sweepTokenCall = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'sweepToken',
+          args: [KILT_ADDRESS, 0n, getAddress(userAddress)] // Send all KILT to user
+        });
+
+        // Step 3: refundETH call  
         const refundETHCall = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'refundETH',
           args: [0n] // Refund any leftover ETH
         });
 
-        // Create multicall transaction with proper parameter types
+        // Create multicall transaction
         const multicallData = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'multicall',
-          args: [BigInt(deadline), [exactInputCall, refundETHCall]]
+          args: [BigInt(deadline), [exactInputCall, sweepTokenCall, refundETHCall]]
         });
 
         swapData = {

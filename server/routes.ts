@@ -4673,6 +4673,35 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // Health check endpoint for deployment diagnostics
+  app.get("/api/health", (req: Request, res: Response) => {
+    try {
+      const health = {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || "unknown",
+        database: !!process.env.DATABASE_URL ? "connected" : "missing",
+        calculatorKey: !!process.env.CALCULATOR_PRIVATE_KEY ? "present" : "missing",
+        rewardKey: !!process.env.REWARD_WALLET_PRIVATE_KEY ? "present" : "missing"
+      };
+      res.json(health);
+    } catch (error) {
+      res.status(500).json({ 
+        status: "error",
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Simple root endpoint
+  app.get("/", (req: Request, res: Response) => {
+    res.json({ 
+      message: "KILT Liquidity Portal API",
+      status: "running",
+      version: "1.0.0"
+    });
+  });
+
   return httpServer;
 }
 

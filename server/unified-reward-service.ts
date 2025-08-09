@@ -425,16 +425,21 @@ export class UnifiedRewardService {
       };
     }
 
-    // Get actual registered users from database
-    let registeredUserCount = 2;
-    let totalRegisteredPositions = 8;
+    // Get actual registered users and positions from database
+    let registeredUserCount = 2; // Unique wallet addresses registered on the app
+    let totalRegisteredPositions = 8; // Total active positions across all users
     try {
       const { sql, eq } = await import('drizzle-orm');
-      const userCountResult = await db.select({ count: sql<number>`count(*)` }).from(users);
+      
+      // Count unique wallet addresses (users) registered on the app
+      const userCountResult = await db.select({ count: sql<number>`count(distinct address)` }).from(users);
       registeredUserCount = userCountResult[0]?.count || 2;
 
+      // Count total active positions across all users
       const positionCountResult = await db.select({ count: sql<number>`count(*)` }).from(lpPositions).where(eq(lpPositions.isActive, true));
       totalRegisteredPositions = positionCountResult[0]?.count || 8;
+      
+      console.log('📊 USER ANALYTICS - Unique Registered Wallets:', registeredUserCount, 'Total Active Positions:', totalRegisteredPositions);
     } catch (error) {
       console.warn('Database query failed, using known values for program analytics');
     }
@@ -446,7 +451,7 @@ export class UnifiedRewardService {
     const actualTotalDistributed = 1886; // Known claimed amount from contract
     const treasuryRemaining = 1500000 - actualTotalDistributed;
     
-    console.log('🔍 ENHANCED PROGRAM ANALYTICS - Pool TVL:', dexScreenerData.poolTVL, 'Active Users:', registeredUserCount, 'Total Positions:', totalRegisteredPositions, 'Avg Position:', dexScreenerData.avgPositionValue.toFixed(0));
+    console.log('🔍 ENHANCED PROGRAM ANALYTICS - Pool TVL: $' + dexScreenerData.poolTVL.toLocaleString(), 'Unique Registered Users:', registeredUserCount, 'Total Active Positions:', totalRegisteredPositions, 'Avg Position: $' + dexScreenerData.avgPositionValue.toLocaleString());
     console.log('💰 TREASURY ANALYTICS - Total Distributed:', actualTotalDistributed, 'KILT, Remaining:', treasuryRemaining, 'KILT');
     
     return {

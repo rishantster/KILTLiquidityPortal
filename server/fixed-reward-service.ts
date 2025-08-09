@@ -325,11 +325,16 @@ export class FixedRewardService {
       // Calculate actual claimable amount (total accumulated since creation - already claimed)
       const actualClaimableAmount = Math.max(0, totalAccumulated - actualClaimedAmount);
       
-      console.log(`💰 USER STATS ENDPOINT: FINAL RESULTS - Daily: ${totalDailyRewards} KILT, Accumulated: ${totalAccumulated} KILT`);
-      console.log(`💰 USER STATS ENDPOINT: Returning stats: {totalAccumulated: ${totalAccumulated}, totalClaimable: ${actualClaimableAmount}, totalClaimed: ${actualClaimedAmount}, activePositions: ${activePositions.length}, avgDailyRewards: ${totalDailyRewards}}`);
+      // Fix for UI consistency: Use the higher of calculated accumulated or actual claimed as "Total Earned"
+      // This ensures that previously claimed rewards are properly reflected in the total
+      const adjustedTotalEarned = Math.max(totalAccumulated, actualClaimedAmount + actualClaimableAmount);
+      
+      console.log(`💰 USER STATS ENDPOINT: FINAL RESULTS - Daily: ${totalDailyRewards} KILT, Calculated Accumulated: ${totalAccumulated} KILT`);
+      console.log(`💰 USER STATS ENDPOINT: Claimed from contract: ${actualClaimedAmount} KILT, Adjusted Total Earned: ${adjustedTotalEarned} KILT`);
+      console.log(`💰 USER STATS ENDPOINT: Returning stats: {totalAccumulated: ${adjustedTotalEarned}, totalClaimable: ${actualClaimableAmount}, totalClaimed: ${actualClaimedAmount}, activePositions: ${activePositions.length}, avgDailyRewards: ${totalDailyRewards}}`);
 
       return {
-        totalAccumulated: Math.max(0, totalAccumulated),
+        totalAccumulated: Math.max(0, adjustedTotalEarned), // Use adjusted total to include historical claims
         totalClaimable: actualClaimableAmount, // Subtract already claimed to prevent double spending
         totalClaimed: actualClaimedAmount, // Real claimed amount from blockchain
         activePositions: activePositions.length,

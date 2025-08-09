@@ -328,44 +328,37 @@ export class SwapService {
       let swapData;
       
       if (fromToken === 'ETH') {
-        // ETH to KILT: Use multicall with exactInputSingle + sweepToken + refundETH  
+        // ETH to KILT: Use simple exactInputSingle (send KILT directly to user)
         const swapParams = {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: getAddress(UNISWAP_V3_ROUTER), // Send to router for multicall processing
+          recipient: getAddress(userAddress), // Send KILT directly to user
           deadline,
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
         };
 
-        // Step 1: exactInputSingle call
+        // Single exactInputSingle call with multicall for ETH handling
         const exactInputCall = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'exactInputSingle',
           args: [swapParams]
         });
 
-        // Step 2: sweepToken call to send KILT to user
-        const sweepTokenCall = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'sweepToken',
-          args: [KILT_ADDRESS, 0n, getAddress(userAddress)] // Send all KILT to user
-        });
-
-        // Step 3: refundETH call  
+        // refundETH call to return any leftover ETH
         const refundETHCall = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'refundETH',
-          args: [0n] // Refund any leftover ETH
+          args: [0n]
         });
 
-        // Create multicall transaction
+        // Simple 2-step multicall: exactInputSingle + refundETH
         const multicallData = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'multicall',
-          args: [BigInt(deadline), [exactInputCall, sweepTokenCall, refundETHCall]]
+          args: [BigInt(deadline), [exactInputCall, refundETHCall]]
         });
 
         swapData = {

@@ -47,7 +47,6 @@ const ROUTER_ABI = [
           { name: 'tokenOut', type: 'address' },
           { name: 'fee', type: 'uint24' },
           { name: 'recipient', type: 'address' },
-          { name: 'deadline', type: 'uint256' },
           { name: 'amountIn', type: 'uint256' },
           { name: 'amountOutMinimum', type: 'uint256' },
           { name: 'sqrtPriceLimitX96', type: 'uint256' }
@@ -294,20 +293,18 @@ export class SwapService {
       const minOutputAmount = outputNum * (1 - actualSlippage / 100);
       const amountOutMinimum = parseUnits(minOutputAmount.toFixed(18), 18);
 
-      // Prepare transaction data - use multicall for ETH swaps  
-      const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour for reliability from now (as number)
+      // SwapRouter02 does NOT use deadline parameter in exactInputSingle
       const { encodeFunctionData } = await import('viem');
 
       let swapData;
       
       if (fromToken === 'ETH') {
-        // ETH to KILT: Use simple exactInputSingle - research shows this is the most reliable approach
+        // ETH to KILT: SwapRouter02 exactInputSingle (NO deadline parameter)
         const swapParams = {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: getAddress(userAddress), // Send tokens directly to user
-          deadline: BigInt(deadline),
+          recipient: getAddress(userAddress),
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
@@ -327,13 +324,12 @@ export class SwapService {
           gasLimit: '0x186a0' // 100k gas for simple exactInputSingle
         };
       } else {
-        // KILT to ETH: Regular exactInputSingle (requires prior token approval)
+        // KILT to ETH: SwapRouter02 exactInputSingle (NO deadline parameter)
         const swapParams = {
           tokenIn: KILT_ADDRESS,
           tokenOut: WETH_ADDRESS,
           fee: 3000,
           recipient: getAddress(userAddress),
-          deadline: BigInt(deadline),
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
@@ -354,13 +350,12 @@ export class SwapService {
         };
       }
 
-      console.log(`🔧 Official Uniswap pattern for ${fromToken}:`, {
+      console.log(`🔧 SwapRouter02 pattern for ${fromToken}:`, {
         amountIn: amountIn.toString(),
         amountOutMinimum: amountOutMinimum.toString(),
-        deadline: deadline.toString(),
         slippage: actualSlippage + '%',
         recipient: userAddress,
-        pattern: 'Simple exactInputSingle (research-based fix)'
+        pattern: 'SwapRouter02 exactInputSingle (NO deadline)'
       });
 
       console.log(`✅ Swap data prepared:`, {

@@ -44,12 +44,12 @@ export function CyberpunkKiltLogo({ size = 'md', className = '' }: CyberpunkKilt
           />
         </div>
         
-        {/* Neon glow rings - more contained */}
-        <div className="absolute -inset-2 neon-ring-1"></div>
-        <div className="absolute -inset-3 neon-ring-2"></div>
+        {/* Neon glow rings - highly contained for alignment */}
+        <div className="absolute -inset-1 neon-ring-1"></div>
+        <div className="absolute -inset-2 neon-ring-2"></div>
         
-        {/* Data stream particles - more contained */}
-        <div className="absolute -inset-4 data-streams"></div>
+        {/* Data stream particles - highly contained */}
+        <div className="absolute -inset-2 data-streams"></div>
         
         {/* Hexagonal overlay */}
         <div className="absolute -inset-2 hex-overlay"></div>

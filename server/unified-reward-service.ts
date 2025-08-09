@@ -71,16 +71,21 @@ export class UnifiedRewardService {
       const programData = programResponse.status === 'fulfilled' ? programResponse.value : null;
       const config = adminConfig.status === 'fulfilled' ? adminConfig.value : { dailyBudget: 25000, treasuryAllocation: 1500000 };
 
-      // Calculate program APR from first principles
+      // Calculate program APR based on ACTUAL participants, not entire pool
       const poolTVL = poolData?.totalLiquidity || this.FALLBACK_POOL_TVL;
       const dailyBudget = config.dailyBudget;
       
-      // Program APR calculation: (Daily Budget × 365 days) / Pool TVL × 100
-      // This represents the annual percentage return from treasury rewards
-      const annualRewardBudget = dailyBudget * 365; // Total annual KILT rewards
-      const calculatedProgramAPR = poolTVL > 0 ? (annualRewardBudget / poolTVL) * 100 : 0;
+      // Get actual participant data for realistic APR calculation
+      const activeParticipants = poolData?.activeLiquidityProviders || 2; // Current active LPs
+      const avgPositionSize = poolData?.averagePositionSize || 12396; // Average LP position size
+      const totalParticipantTVL = activeParticipants * avgPositionSize; // TVL from actual participants
       
-      console.log(`💰 PROGRAM APR CALCULATED: ${calculatedProgramAPR.toFixed(2)}% (Daily Budget: ${dailyBudget}, Pool TVL: ${poolTVL}, Annual: ${annualRewardBudget})`);
+      // Realistic Program APR: Annual rewards distributed among actual participants
+      // Formula: (Daily Budget × 365) / Total Participant TVL × 100
+      const annualRewardBudget = dailyBudget * 365;
+      const calculatedProgramAPR = totalParticipantTVL > 0 ? (annualRewardBudget / totalParticipantTVL) * 100 : 0;
+      
+      console.log(`💰 REALISTIC PROGRAM APR: ${calculatedProgramAPR.toFixed(2)}% (Daily Budget: ${dailyBudget}, Active LPs: ${activeParticipants}, Avg Position: $${avgPositionSize}, Participant TVL: $${totalParticipantTVL})`);
 
       const marketData: CachedData = {
         poolTVL: poolTVL,
@@ -96,11 +101,13 @@ export class UnifiedRewardService {
     } catch (error) {
       console.warn('Failed to fetch market data, using fallbacks:', error);
       
-      // Calculate fallback program APR
+      // Calculate fallback program APR based on actual participants
       const fallbackDailyBudget = 25000;
-      const fallbackPoolTVL = this.FALLBACK_POOL_TVL;
+      const fallbackActiveParticipants = 2; // Known active LPs
+      const fallbackAvgPositionSize = 12396; // Known average position size
+      const fallbackParticipantTVL = fallbackActiveParticipants * fallbackAvgPositionSize;
       const fallbackAnnualBudget = fallbackDailyBudget * 365;
-      const fallbackProgramAPR = fallbackPoolTVL > 0 ? (fallbackAnnualBudget / fallbackPoolTVL) * 100 : 0;
+      const fallbackProgramAPR = fallbackParticipantTVL > 0 ? (fallbackAnnualBudget / fallbackParticipantTVL) * 100 : 0;
 
       // Return fallback data with calculated APR
       const fallbackData: CachedData = {

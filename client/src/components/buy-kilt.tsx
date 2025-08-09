@@ -139,18 +139,15 @@ export function BuyKilt({
         </div>
       </div>
 
-      {/* DexScreener Link */}
-      <div className="flex justify-center">
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-white/20 bg-black/30 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/30 rounded-xl px-4 py-2 text-xs transition-all duration-300"
-          onClick={() => window.open('https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e', '_blank')}
-        >
-          <ExternalLink className="w-3 h-3 mr-2" />
-          View on DexScreener
-        </Button>
-      </div>
+      {/* DexScreener Link - Full Width */}
+      <Button
+        variant="outline"
+        className="w-full border-white/20 bg-black/30 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/30 rounded-xl px-4 py-2 text-xs transition-all duration-300"
+        onClick={() => window.open('https://dexscreener.com/base/0x82da478b1382b951cbad01beb9ed459cdb16458e', '_blank')}
+      >
+        <ExternalLink className="w-3 h-3 mr-2" />
+        View on DexScreener
+      </Button>
 
       {/* Bidirectional Swap Modal */}
       <BidirectionalSwapModal 

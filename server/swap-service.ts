@@ -34,6 +34,22 @@ const ROUTER_ABI = [
   },
   {
     inputs: [
+      { name: 'deadline', type: 'uint256' },
+      { name: 'data', type: 'bytes[]' }
+    ],
+    name: 'multicall',
+    outputs: [{ name: 'results', type: 'bytes[]' }],
+    type: 'function',
+    payable: true
+  },
+  {
+    inputs: [{ name: 'amountMinimum', type: 'uint256' }],
+    name: 'refundETH',
+    outputs: [],
+    type: 'function'
+  },
+  {
+    inputs: [
       {
         components: [
           { name: 'tokenIn', type: 'address' },
@@ -267,42 +283,87 @@ export class SwapService {
       const minOutputAmount = outputNum * (1 - slippageTolerance / 100);
       const amountOutMinimum = parseUnits(minOutputAmount.toString(), 18);
 
-      // Prepare transaction data for exactInputSingle
+      // Prepare transaction data - use multicall for ETH swaps
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1800); // 30 minutes from now
+      const { encodeFunctionData } = await import('viem');
 
-      const swapParams = {
-        tokenIn: fromToken === 'ETH' ? WETH_ADDRESS : KILT_ADDRESS,
-        tokenOut: fromToken === 'ETH' ? KILT_ADDRESS : WETH_ADDRESS,
-        fee: 3000,
-        recipient: getAddress(userAddress),
-        deadline,
-        amountIn,
-        amountOutMinimum,
-        sqrtPriceLimitX96: 0n
-      };
+      let swapData;
+      
+      if (fromToken === 'ETH') {
+        // ETH to KILT: Use multicall with exactInputSingle + refundETH
+        const swapParams = {
+          tokenIn: WETH_ADDRESS,
+          tokenOut: KILT_ADDRESS,
+          fee: 3000,
+          recipient: getAddress(userAddress),
+          deadline,
+          amountIn,
+          amountOutMinimum,
+          sqrtPriceLimitX96: 0n
+        };
 
-      console.log(`🔧 Swap params:`, {
-        ...swapParams,
+        // Encode exactInputSingle call
+        const exactInputCall = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'exactInputSingle',
+          args: [swapParams]
+        });
+
+        // Encode refundETH call
+        const refundETHCall = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'refundETH',
+          args: [0n] // Refund any leftover ETH
+        });
+
+        // Create multicall transaction
+        const multicallData = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'multicall',
+          args: [deadline, [exactInputCall, refundETHCall]]
+        });
+
+        swapData = {
+          from: getAddress(userAddress),
+          to: UNISWAP_V3_ROUTER,
+          data: multicallData,
+          value: `0x${amountIn.toString(16)}`, // Send ETH with transaction
+          gasLimit: '0x7a120' // 500000 in hex (higher for multicall)
+        };
+      } else {
+        // KILT to ETH: Regular exactInputSingle (requires prior token approval)
+        const swapParams = {
+          tokenIn: KILT_ADDRESS,
+          tokenOut: WETH_ADDRESS,
+          fee: 3000,
+          recipient: getAddress(userAddress),
+          deadline,
+          amountIn,
+          amountOutMinimum,
+          sqrtPriceLimitX96: 0n
+        };
+
+        const data = encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: 'exactInputSingle',
+          args: [swapParams]
+        });
+
+        swapData = {
+          from: getAddress(userAddress),
+          to: UNISWAP_V3_ROUTER,
+          data,
+          value: '0x0',
+          gasLimit: '0x493e0' // 300000 in hex
+        };
+      }
+
+      console.log(`🔧 Swap params for ${fromToken}:`, {
         amountIn: amountIn.toString(),
         amountOutMinimum: amountOutMinimum.toString(),
-        deadline: deadline.toString()
+        deadline: deadline.toString(),
+        useMulticall: fromToken === 'ETH'
       });
-
-      // Encode the transaction data
-      const { encodeFunctionData } = await import('viem');
-      const data = encodeFunctionData({
-        abi: ROUTER_ABI,
-        functionName: 'exactInputSingle',
-        args: [swapParams]
-      });
-
-      const swapData = {
-        from: getAddress(userAddress), // Required by MetaMask
-        to: UNISWAP_V3_ROUTER,
-        data,
-        value: fromToken === 'ETH' ? `0x${amountIn.toString(16)}` : '0x0', // Only send ETH for ETH->Token swaps
-        gasLimit: '0x493e0' // 300000 in hex
-      };
 
       console.log(`✅ Swap data prepared:`, {
         to: swapData.to,

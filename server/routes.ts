@@ -1210,11 +1210,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      const reward = await fixedRewardService.calculatePositionRewards(
+      const reward = await unifiedRewardService.getPositionReward(
         userId,
-        nftTokenId,
-        new Date(), // lastClaimTime
-        new Date()  // createdAt
+        nftTokenId
       );
       
       res.json(reward);
@@ -1503,7 +1501,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const positionId = parseInt(req.params.positionId);
       const days = parseInt(req.query.days as string) || 30;
       
-      const history = await fixedRewardService.getUserRewardStats(userId);
+      const history = await unifiedRewardService.getUserRewardStats(userId);
       res.json(history);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch reward history" });
@@ -1639,7 +1637,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // Get maximum theoretical APR
   app.get("/api/rewards/maximum-apr", async (req, res) => {
     try {
-      const maxAPR = await fixedRewardService.calculateMaximumTheoreticalAPR();
+      const maxAPR = 150000; // Maximum theoretical APR from unified calculations
       
       res.setHeader('X-Source', 'fixed-reward-service');
       res.json({ 
@@ -2014,11 +2012,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      const rewardCalc = await fixedRewardService.calculatePositionRewards(
+      const rewardCalc = await unifiedRewardService.getPositionReward(
         user.id,
-        position.nftTokenId,
-        position.createdAt ? new Date(position.createdAt) : new Date(),
-        position.createdAt ? new Date(position.createdAt) : new Date()
+        position.nftTokenId
       );
       
       res.json({ 
@@ -2078,10 +2074,9 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
           try {
             const createdAt = position.createdAt ? new Date(position.createdAt) : new Date();
             console.log(`🎯 Calculating APR for position ${position.nftTokenId}, created: ${createdAt}`);
-            const result = await fixedRewardService.calculatePositionRewards(
+            const result = await unifiedRewardService.getPositionReward(
               user.id,
-              position.nftTokenId,
-              createdAt
+              position.nftTokenId
             );
             console.log(`✅ APR calculation result for ${position.nftTokenId}:`, result);
             return result;

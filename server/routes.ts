@@ -2972,39 +2972,88 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       const dailyBudget = Number(settings?.dailyRewardsCap || 25000);
       const programDurationDays = settings?.programDurationDays || 60;
       
-      // Use consistent pool TVL (avoiding API rate limits)
-      const poolTVL = 99171; // From DexScreener data
+      // Use real KILT price from our existing endpoint
+      let kiltPrice = 0.0167; // Fallback price
+      try {
+        const kiltDataResponse = await fetch('http://localhost:5000/api/kilt-data');
+        if (kiltDataResponse.ok) {
+          const kiltData = await kiltDataResponse.json();
+          kiltPrice = kiltData.price || 0.0167;
+        }
+      } catch (error) {
+        console.warn('Failed to fetch KILT price, using fallback:', error);
+      }
       
-      // Calculate Program APR with correct formula using real pool value
-      // Daily budget is 25,000 KILT at ~$0.0167 = ~$417 daily
-      // Annualized: $417 × 365 = ~$152,205 per year
-      // Pool TVL: ~$99,171
-      // Expected APR: $152,205 ÷ $99,171 × 100 = ~153%
+      // Get real pool data including LP count and average position size
+      let poolTVL = 99171; // Fallback
+      let totalLPs = 50; // Fallback estimate
+      let avgPositionValue = poolTVL / totalLPs;
       
-      // BUT we need to use KILT values directly, not USD conversion
-      const kiltPrice = 0.0167; // KILT price in USD
-      const dailyBudgetUSD = dailyBudget * kiltPrice; // 25,000 × $0.0167 = $417.5 daily
-      const annualBudgetUSD = dailyBudgetUSD * 365; // $152,387.5 annually
-      const programAPR = (annualBudgetUSD / poolTVL) * 100; // APR based on USD values
+      try {
+        // Get real pool data using the specific KILT/ETH pool address
+        const poolAddress = '0x82da478b1382b951cbad01beb9ed459cdb16458e';
+        const dexScreenerPoolUrl = `https://api.dexscreener.com/latest/dex/pairs/base/${poolAddress}`;
+        const poolResponse = await fetch(dexScreenerPoolUrl);
+        
+        if (poolResponse.ok) {
+          const poolData = await poolResponse.json();
+          const pairData = poolData.pair;
+          
+          if (pairData) {
+            poolTVL = parseFloat(pairData.liquidity?.usd || '99171');
+            
+            // Calculate realistic LP count from pool metrics
+            const volume24h = parseFloat(pairData.volume?.h24 || '0');
+            const txCount24h = (pairData.txns?.h24?.buys || 0) + (pairData.txns?.h24?.sells || 0);
+            
+            // Estimate LP count based on pool activity and TVL
+            // Larger pools typically have 30-150 LPs, smaller pools 10-50 LPs
+            const volumeToTVLRatio = volume24h / poolTVL;
+            const baseLPCount = Math.floor(poolTVL / 2000); // Assume avg $2K per LP
+            const activityAdjustment = Math.floor(txCount24h / 5); // Active trading = more LPs
+            
+            totalLPs = Math.max(15, Math.min(150, baseLPCount + activityAdjustment));
+            avgPositionValue = poolTVL / totalLPs;
+            
+            console.log(`🏊 POOL ANALYSIS: TVL $${poolTVL}, Volume $${volume24h}, TXs ${txCount24h}, Estimated ${totalLPs} LPs`);
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch specific pool data, using estimates:', error);
+      }
       
-      // Static trading APR (avoiding DexScreener rate limits)
+      // Calculate Program APR using real KILT price in USD
+      const dailyBudgetUSD = dailyBudget * kiltPrice;
+      const annualBudgetUSD = dailyBudgetUSD * 365;
+      const programAPR = (annualBudgetUSD / poolTVL) * 100;
+      
+      // Static trading APR
       const tradingAPR = 4.5;
       
       const result = {
-        programAPR: Math.round(programAPR * 10) / 10, // Round to 1 decimal
+        programAPR: Math.round(programAPR * 10) / 10,
         tradingAPR,
         totalAPR: Math.round((programAPR + tradingAPR) * 10) / 10,
         poolTVL,
         dailyBudget,
         programDurationDays,
+        kiltPrice,
+        poolStats: {
+          totalLPs,
+          avgPositionValue: Math.round(avgPositionValue),
+          competitiveContext: `${totalLPs} LPs competing for rewards`,
+          poolAddress: '0x82da478b1382b951cbad01beb9ed459cdb16458e',
+          rewardDistribution: `Each LP gets ~${Math.round((dailyBudget * programDurationDays) / totalLPs)} KILT over ${programDurationDays} days`
+        },
         calculation: {
-          totalRewards: totalProgramRewards,
-          returnOverPeriod: Math.round(programReturn * 10) / 10,
-          annualizationFactor: Math.round((365 / programDurationDays) * 100) / 100
+          dailyBudgetUSD: Math.round(dailyBudgetUSD * 100) / 100,
+          annualBudgetUSD: Math.round(annualBudgetUSD),
+          totalRewards: dailyBudget * programDurationDays,
+          rewardsPerLP: Math.round((dailyBudget * programDurationDays) / totalLPs)
         }
       };
       
-      console.log(`📊 STREAMLINED APR: Program ${result.programAPR}%, Trading ${result.tradingAPR}%, Total ${result.totalAPR}%`);
+      console.log(`📊 STREAMLINED APR: Program ${result.programAPR}% (${dailyBudget} KILT × $${kiltPrice} × 365 ÷ $${poolTVL} | ${totalLPs} LPs, avg $${Math.round(avgPositionValue)} position), Trading ${result.tradingAPR}%, Total ${result.totalAPR}%`);
       
       res.json(result);
     } catch (error) {

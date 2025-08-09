@@ -829,13 +829,11 @@ export function MainDashboard() {
                             <div 
                               className="mobile-balance-value text-[#ff0066] font-bold text-xs sm:text-sm numeric-display" 
                               style={{ textShadow: '0 0 10px rgba(255, 0, 102, 0.4)' }}
-                              title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(2)} KILT` : 'No KILT balance'}
+                              title={kiltBalance ? `Exact balance: ${parseFloat(kiltBalance).toFixed(4)} KILT` : 'No KILT balance'}
                             >
-                              {kiltBalance && parseFloat(kiltBalance) >= 1000 
-                                ? `${(parseFloat(kiltBalance) / 1000).toFixed(1)}K`
-                                : kiltBalance 
-                                  ? parseFloat(kiltBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })
-                                  : '0'}
+                              {kiltBalance 
+                                ? parseFloat(kiltBalance).toFixed(4)
+                                : '0.0000'}
                             </div>
                           </div>
                           

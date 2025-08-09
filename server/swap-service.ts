@@ -60,34 +60,7 @@ const ROUTER_ABI = [
     outputs: [{ name: 'amountOut', type: 'uint256' }],
     type: 'function'
   },
-  {
-    inputs: [
-      { name: 'data', type: 'bytes[]' }
-    ],
-    name: 'multicall',
-    outputs: [{ name: 'results', type: 'bytes[]' }],
-    type: 'function',
-    payable: true
-  },
-  {
-    inputs: [
-      { name: 'token', type: 'address' },
-      { name: 'amountMinimum', type: 'uint256' },
-      { name: 'recipient', type: 'address' }
-    ],
-    name: 'sweepToken',
-    outputs: [],
-    type: 'function'
-  },
-  {
-    inputs: [
-      { name: 'amountMinimum', type: 'uint256' },
-      { name: 'recipient', type: 'address' }
-    ],
-    name: 'unwrapWETH9',
-    outputs: [],
-    type: 'function'
-  },
+
 
 ] as const;
 
@@ -139,9 +112,8 @@ export class SwapService {
           }]
         });
         
-        const amountOut = quoteResult[0]; // First element is amountOut
-
-        const kiltAmount = formatUnits(amountOut as bigint, 18);
+        const [amountOut] = quoteResult as [bigint, bigint, bigint, bigint]; // Proper quoter result structure
+        const kiltAmount = formatUnits(amountOut, 18);
         
         // Calculate real-time price impact based on current pool price vs quote
         const currentPrice = 244700; // KILT per ETH from emergency rate
@@ -172,9 +144,8 @@ export class SwapService {
           }]
         });
         
-        const amountOut = quoteResult[0]; // First element is amountOut
-
-        const ethAmount = formatUnits(amountOut as bigint, 18);
+        const [amountOut] = quoteResult as [bigint, bigint, bigint, bigint]; // Proper quoter result structure
+        const ethAmount = formatUnits(amountOut, 18);
         
         // Calculate real-time price impact for KILT->ETH
         const currentPrice = 244700; // KILT per ETH

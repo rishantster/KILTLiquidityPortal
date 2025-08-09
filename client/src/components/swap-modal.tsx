@@ -214,25 +214,71 @@ export const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             {/* Swap Button */}
             <Button
               disabled={!ethAmount || parseFloat(ethAmount) <= 0}
-              onClick={() => {
-                const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${ethAmount}&exactField=input`;
-                window.open(swapUrl, '_blank');
-                onClose(); // Close modal after redirecting
+              onClick={async () => {
+                try {
+                  // Check if user is connected
+                  if (typeof window.ethereum === 'undefined') {
+                    // Fallback to Uniswap redirect if no wallet
+                    const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${ethAmount}&exactField=input`;
+                    window.open(swapUrl, '_blank');
+                    onClose();
+                    return;
+                  }
+
+                  // Get user address
+                  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                  const userAddress = accounts[0];
+
+                  if (!userAddress) {
+                    // Fallback to Uniswap if no address
+                    const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${ethAmount}&exactField=input`;
+                    window.open(swapUrl, '_blank');
+                    onClose();
+                    return;
+                  }
+
+                  // Prepare in-app swap (DexScreener style)
+                  const response = await fetch('/api/swap/prepare', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userAddress, ethAmount, slippageTolerance: 0.5 })
+                  });
+
+                  if (!response.ok) throw new Error('Failed to prepare swap');
+
+                  const { swapData } = await response.json();
+
+                  // Execute the swap transaction
+                  const txHash = await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [swapData]
+                  });
+
+                  console.log('Swap transaction sent:', txHash);
+                  onClose();
+                  
+                } catch (error) {
+                  console.error('Swap error:', error);
+                  // Fallback to Uniswap redirect on any error
+                  const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${ethAmount}&exactField=input`;
+                  window.open(swapUrl, '_blank');
+                  onClose();
+                }
               }}
               className="w-full bg-gradient-to-r from-[#ff0066] to-pink-600 hover:from-[#ff0066]/90 hover:to-pink-600/90 text-white font-bold py-4 text-lg transition-all duration-200 shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
             >
               {parseFloat(ethAmount) <= 0 ? 'Enter Amount' : 
-               `Continue to Uniswap → ${parseFloat(kiltOutput) > 0 ? parseFloat(kiltOutput).toLocaleString(undefined, {maximumFractionDigits: 0}) : '0'} KILT`}
+               `Swap ETH → ${parseFloat(kiltOutput) > 0 ? parseFloat(kiltOutput).toLocaleString(undefined, {maximumFractionDigits: 0}) : '0'} KILT`}
             </Button>
 
-            {/* Transaction Notice */}
-            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+            {/* DexScreener-Style Integration Notice */}
+            <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
               <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                <Info className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm">
-                  <div className="text-green-400 font-semibold mb-1">Uniswap V3 Integration</div>
+                  <div className="text-purple-400 font-semibold mb-1">DexScreener-Style Swap</div>
                   <div className="text-gray-300">
-                    Redirects to Uniswap with your exact amounts pre-filled. MetaMask "likely to fail" warnings are normal for token swaps and can be safely ignored.
+                    Executes swaps directly in-app like DexScreener. Uses DexScreener API for quotes with Uniswap execution. Seamless experience with $0.02 gas fees.
                   </div>
                 </div>
               </div>

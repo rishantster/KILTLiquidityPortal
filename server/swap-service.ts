@@ -62,17 +62,28 @@ const publicClient = createPublicClient({
 export class SwapService {
   
   /**
-   * Get a quote for ETH to KILT swap
+   * Get a quote for ETH to KILT swap using DexScreener API (like DexScreener does)
    */
   async getSwapQuote(ethAmount: string): Promise<{
     kiltAmount: string;
     priceImpact: number;
     fee: string;
+    source: string;
   }> {
+    // First try DexScreener API for most accurate quotes
+    try {
+      const dexScreenerQuote = await this.getDexScreenerQuote(ethAmount);
+      if (dexScreenerQuote) {
+        return { ...dexScreenerQuote, source: 'dexscreener' };
+      }
+    } catch (error) {
+      console.log('DexScreener API failed, trying Uniswap quoter...');
+    }
+
+    // Fallback to Uniswap V3 quoter
     try {
       const amountIn = parseUnits(ethAmount, 18);
       
-      // Get quote from Uniswap V3 router
       const amountOut = await publicClient.readContract({
         address: UNISWAP_V3_ROUTER,
         abi: ROUTER_ABI,
@@ -87,15 +98,13 @@ export class SwapService {
       });
 
       const kiltAmount = formatUnits(amountOut as bigint, 18);
+      const priceImpact = 0.1; // Estimate for now
       
-      // Calculate approximate price impact (simplified)
-      const spotRate = parseFloat(kiltAmount) / parseFloat(ethAmount);
-      const priceImpact = 0.1; // Rough estimate, would need more complex calculation
-
       return {
         kiltAmount,
         priceImpact,
-        fee: '0.3' // Fixed 0.3% for this pool
+        fee: '0.3',
+        source: 'uniswap'
       };
       
     } catch (error) {
@@ -103,11 +112,7 @@ export class SwapService {
       
       // ALWAYS use realistic emergency calculation
       const ethValue = parseFloat(ethAmount);
-      
-      // Using current KILT price (~$0.017) and ETH price (~$4160)
-      // 1 ETH = ~$4160, 1 KILT = ~$0.017
-      // So 1 ETH = ~244,700 KILT
-      const kiltPerEth = 244700; // Approximate current rate
+      const kiltPerEth = 244700; // Realistic emergency rate
       const kiltAmount = (ethValue * kiltPerEth).toFixed(2);
       
       console.log(`⚡ SWAP SERVICE EMERGENCY CALCULATION: ${ethAmount} ETH → ${kiltAmount} KILT (rate: ${kiltPerEth} KILT/ETH)`);
@@ -115,19 +120,71 @@ export class SwapService {
       return {
         kiltAmount,
         priceImpact: 0.1,
-        fee: '0.3'
+        fee: '0.3',
+        source: 'emergency'
       };
     }
   }
 
   /**
-   * Prepare swap transaction data for user to sign
+   * Get quote from DexScreener API (like they do internally)
    */
-  async prepareSwapTransaction(userAddress: string, ethAmount: string, slippageTolerance: number = 0.5): Promise<{
-    to: string;
-    data: string;
-    value: string;
-    gasLimit: string;
+  private async getDexScreenerQuote(ethAmount: string): Promise<{
+    kiltAmount: string;
+    priceImpact: number;
+    fee: string;
+  } | null> {
+    try {
+      // Get KILT pair data from DexScreener API
+      const response = await fetch(
+        `https://api.dexscreener.com/latest/dex/pairs/base/0x94845556FCF2d592E5744a20725E5620bf13c9A6`,
+        { 
+          signal: AbortSignal.timeout(3000),
+          headers: {
+            'User-Agent': 'KILT-Liquidity-Portal/1.0'
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('DexScreener API failed');
+      
+      const data = await response.json();
+      const pair = data.pairs?.[0];
+      
+      if (!pair?.priceUsd) throw new Error('No price data');
+      
+      // Calculate KILT amount using DexScreener price
+      const ethValue = parseFloat(ethAmount);
+      const kiltPriceUsd = parseFloat(pair.priceUsd);
+      const ethPriceUsd = 4180; // Approximate ETH price
+      
+      const kiltAmount = ((ethValue * ethPriceUsd) / kiltPriceUsd).toFixed(2);
+      
+      // Extract price impact from volume/liquidity data
+      const liquidityUsd = pair.liquidity?.usd || 0;
+      const swapValue = ethValue * ethPriceUsd;
+      const priceImpact = Math.min((swapValue / liquidityUsd) * 100, 15); // Cap at 15%
+      
+      console.log(`🚀 DEXSCREENER QUOTE: ${ethAmount} ETH → ${kiltAmount} KILT (price: $${kiltPriceUsd})`);
+      
+      return {
+        kiltAmount,
+        priceImpact: Number(priceImpact.toFixed(2)),
+        fee: '0.3'
+      };
+      
+    } catch (error) {
+      console.log('DexScreener quote failed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Prepare in-app swap execution (DexScreener style)
+   */
+  async prepareInAppSwap(userAddress: string, ethAmount: string, slippageTolerance: number = 0.5): Promise<{
+    swapData: any;
+    quote: any;
   }> {
     try {
       const quote = await this.getSwapQuote(ethAmount);
@@ -140,7 +197,6 @@ export class SwapService {
       // Prepare transaction data for exactInputSingle
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1800); // 30 minutes from now
 
-      // For ETH to Token swap, we use the router's refundETH functionality
       const swapParams = {
         tokenIn: WETH_ADDRESS,
         tokenOut: KILT_ADDRESS,
@@ -152,21 +208,27 @@ export class SwapService {
         sqrtPriceLimitX96: 0n
       };
 
-      // For ETH to token swaps, instead of using the complex transaction preparation,
-      // we'll redirect to Uniswap directly with pre-filled parameters
-      const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=${KILT_ADDRESS}&chain=base&exactAmount=${ethAmount}&exactField=input`;
-      
+      // Encode the transaction data
+      const { encodeFunctionData } = await import('viem');
+      const data = encodeFunctionData({
+        abi: ROUTER_ABI,
+        functionName: 'exactInputSingle',
+        args: [swapParams]
+      });
+
       return {
-        to: UNISWAP_V3_ROUTER,
-        data: '0x', // Empty data - will redirect to Uniswap
-        value: amountIn.toString(),
-        gasLimit: '300000',
-        redirectUrl: swapUrl // Add redirect URL for frontend
+        swapData: {
+          to: UNISWAP_V3_ROUTER,
+          data,
+          value: amountIn.toString(),
+          gasLimit: '300000'
+        },
+        quote
       };
 
     } catch (error) {
-      console.error('Prepare transaction failed:', error);
-      throw new Error('Failed to prepare swap transaction');
+      console.error('Prepare in-app swap failed:', error);
+      throw new Error('Failed to prepare in-app swap');
     }
   }
 

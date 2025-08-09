@@ -62,7 +62,6 @@ const ROUTER_ABI = [
   },
   {
     inputs: [
-      { name: 'deadline', type: 'uint256' },
       { name: 'data', type: 'bytes[]' }
     ],
     name: 'multicall',
@@ -358,7 +357,7 @@ export class SwapService {
         const multicallData = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'multicall',
-          args: [BigInt(deadline), [exactInputCall, refundETHCall]]
+          args: [[exactInputCall, refundETHCall]]
         });
 
         swapData = {

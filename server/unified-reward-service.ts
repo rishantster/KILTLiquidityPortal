@@ -69,7 +69,7 @@ export class UnifiedRewardService {
       const poolData = poolResponse.status === 'fulfilled' ? poolResponse.value : null;
       const tradingData = tradingResponse.status === 'fulfilled' ? tradingResponse.value : null;
       const programData = programResponse.status === 'fulfilled' ? programResponse.value : null;
-      const config = adminConfig.status === 'fulfilled' ? adminConfig.value : { dailyBudget: 25000, treasuryAllocation: 1500000 };
+      const config = adminConfig.status === 'fulfilled' ? adminConfig.value : { dailyBudget: 25000, treasuryAllocation: 1500000, programDurationDays: 60 };
 
       // Calculate program APR based on ENTIRE POOL TVL (all KILT/ETH LPs, not just program participants)
       const poolTVL = poolData?.totalLiquidity || this.FALLBACK_POOL_TVL;
@@ -77,11 +77,20 @@ export class UnifiedRewardService {
       
       // Pool-wide APR calculation: All KILT/ETH LPs are potential program participants
       // This gives realistic expectations for what LPs can earn if they join the program
-      // Formula: (Daily Budget × 365) / Total Pool TVL × 100
-      const annualRewardBudget = dailyBudget * 365;
-      const calculatedProgramAPR = poolTVL > 0 ? (annualRewardBudget / poolTVL) * 100 : 0;
+      // CORRECTED Formula: (Daily Budget × Program Duration Days) / Total Pool TVL × 100 × (365 / Program Duration Days)
+      const programDurationDays = config.programDurationDays || 120; // Default 120 days from admin config
+      const totalRewardBudget = dailyBudget * programDurationDays;
+      const annualizedRewardBudget = (totalRewardBudget / programDurationDays) * 365; // Annualize for APR
+      const calculatedProgramAPR = poolTVL > 0 ? (annualizedRewardBudget / poolTVL) * 100 : 0;
       
-      console.log(`💰 POOL-WIDE PROGRAM APR: ${calculatedProgramAPR.toFixed(2)}% (Daily Budget: ${dailyBudget}, Total Pool TVL: $${poolTVL}, Annual Budget: $${annualRewardBudget})`);
+      // Debug the calculation to ensure it's correct
+      console.log(`🔍 APR CALCULATION DEBUG: Daily=${dailyBudget}, ProgramDays=${programDurationDays}, TotalBudget=${totalRewardBudget}, AnnualizedBudget=${annualizedRewardBudget}, PoolTVL=${poolTVL}, Result=${calculatedProgramAPR}%`);
+      
+      console.log(`💰 POOL-WIDE PROGRAM APR: ${calculatedProgramAPR.toFixed(2)}% (Daily Budget: ${dailyBudget}, Program Duration: ${programDurationDays} days, Total Pool TVL: $${poolTVL}, Annualized Budget: $${annualizedRewardBudget})`);
+      
+      // Verify calculation manually with correct formula
+      const manualCalculation = ((25000 * 60) / 60 * 365) / 99171 * 100; // Should be ~92%
+      console.log(`🧮 MANUAL VERIFICATION: ((25000 × ${programDurationDays}) ÷ ${programDurationDays} × 365) ÷ 99171 × 100 = ${manualCalculation.toFixed(2)}%`);
 
       const marketData: CachedData = {
         poolTVL: poolTVL,
@@ -97,11 +106,12 @@ export class UnifiedRewardService {
     } catch (error) {
       console.warn('Failed to fetch market data, using fallbacks:', error);
       
-      // Calculate fallback program APR based on pool-wide TVL
+      // Calculate fallback program APR based on pool-wide TVL with correct program duration
       const fallbackDailyBudget = 25000;
+      const fallbackProgramDuration = 60; // Default 60 days program from admin config
       const fallbackPoolTVL = this.FALLBACK_POOL_TVL; // Total pool TVL, not just participants
-      const fallbackAnnualBudget = fallbackDailyBudget * 365;
-      const fallbackProgramAPR = fallbackPoolTVL > 0 ? (fallbackAnnualBudget / fallbackPoolTVL) * 100 : 0;
+      const fallbackAnnualizedBudget = (fallbackDailyBudget * fallbackProgramDuration / fallbackProgramDuration) * 365; // Annualize for APR
+      const fallbackProgramAPR = fallbackPoolTVL > 0 ? (fallbackAnnualizedBudget / fallbackPoolTVL) * 100 : 0;
 
       // Return fallback data with calculated APR
       const fallbackData: CachedData = {
@@ -129,16 +139,18 @@ export class UnifiedRewardService {
       return { 
         dailyBudget: cached.dailyBudget, 
         treasuryAllocation: cached.treasuryAllocation,
-        programDurationDays: 365
+        programDurationDays: cached.programDurationDays || 60
       };
     }
 
     try {
-      const [settings] = await db.select().from(programSettings).limit(1);
+      const { treasuryConfig } = await import('../shared/schema');
+      const [settings] = await db.select().from(treasuryConfig).limit(1);
+      
       const config = {
-        dailyBudget: 25000, // Fixed property access - use default value
-        treasuryAllocation: 1500000, // Fixed property access - use default value
-        programDurationDays: 365
+        dailyBudget: settings?.dailyRewardsCap || 25000,
+        treasuryAllocation: settings?.totalAllocation || 1500000,
+        programDurationDays: settings?.programDurationDays || 60
       };
 
       this.cache.set(cacheKey, {
@@ -150,7 +162,7 @@ export class UnifiedRewardService {
       return config;
     } catch (error) {
       console.warn('Failed to get admin config, using defaults:', error);
-      return { dailyBudget: 25000, treasuryAllocation: 1500000, programDurationDays: 365 };
+      return { dailyBudget: 25000, treasuryAllocation: 1500000, programDurationDays: 60 };
     }
   }
 

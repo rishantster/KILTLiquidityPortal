@@ -86,30 +86,36 @@ const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
 
 
 
-// SINGLE SOURCE OF TRUTH APR COMPONENTS - Replaces all other APR calculations
-import { useExpectedReturns } from '@/hooks/use-single-source-apr';
-
-function SingleSourceProgramAPR() {
-  const { data: expectedReturns, isLoading, error } = useExpectedReturns();
+// APR Components using actual API endpoints
+function PoolWideProgramAPR() {
+  const { data: programData, isLoading, error } = useQuery({
+    queryKey: ['/api/rewards/program-analytics'],
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000, // 1 minute
+  });
 
   if (isLoading) return <span className="text-white/50">--</span>;
   if (error) return <span className="text-red-400">Error</span>;
   
-  const programAPR = expectedReturns?.incentiveAPR;
+  const programAPR = programData?.programAPR;
   return (
     <span>
-      {programAPR ? `${Math.round(parseFloat(programAPR))}%` : '--'}
+      {programAPR ? `${Math.round(programAPR)}%` : '--'}
     </span>
   );
 }
 
-function SingleSourceTradingAPR() {
-  const { data: expectedReturns, isLoading, error } = useExpectedReturns();
+function TradingFeesAPR() {
+  const { data: tradingData, isLoading, error } = useQuery({
+    queryKey: ['/api/trading-fees/pool-apr'],
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000, // 1 minute
+  });
 
   if (isLoading) return <span className="text-white/50">--</span>;
   if (error) return <span className="text-red-400">Error</span>;
   
-  const tradingAPR = expectedReturns?.tradingAPR;
+  const tradingAPR = tradingData?.tradingFeesAPR;
   return (
     <span>
       {tradingAPR ? `${parseFloat(tradingAPR).toFixed(1)}%` : '--'}
@@ -117,16 +123,24 @@ function SingleSourceTradingAPR() {
   );
 }
 
-function SingleSourceTotalAPR() {
-  const { data: expectedReturns, isLoading, error } = useExpectedReturns();
-
-  if (isLoading) return <span className="text-white/50">--</span>;
-  if (error) return <span className="text-red-400">Error</span>;
+function TotalAPR() {
+  const { data: programData } = useQuery({
+    queryKey: ['/api/rewards/program-analytics'],
+    staleTime: 30000,
+  });
   
-  const totalAPR = expectedReturns?.totalAPR;
+  const { data: tradingData } = useQuery({
+    queryKey: ['/api/trading-fees/pool-apr'],
+    staleTime: 30000,
+  });
+
+  const programAPR = programData?.programAPR || 0;
+  const tradingAPR = tradingData?.tradingFeesAPR || 0;
+  const totalAPR = programAPR + tradingAPR;
+  
   return (
     <span>
-      {totalAPR ? `${parseFloat(totalAPR).toFixed(1)}%` : '--'}
+      {totalAPR > 0 ? `${Math.round(totalAPR)}%` : '--'}
     </span>
   );
 }
@@ -755,7 +769,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-xs font-medium">Trading Fees APR</span>
                   </div>
                   <div className="text-white text-base font-bold mb-1 numeric-large">
-                    <SingleSourceTradingAPR />
+                    <TradingFeesAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     DexScreener API
@@ -774,7 +788,7 @@ export function MainDashboard() {
                     <span className="text-white/70 text-xs font-medium">Program APR</span>
                   </div>
                   <div className="text-white text-base font-bold mb-1 numeric-large">
-                    <SingleSourceProgramAPR />
+                    <PoolWideProgramAPR />
                   </div>
                   <div className="text-white/50 text-xs font-medium">
                     Treasury rewards

@@ -119,10 +119,13 @@ export const FloatingSwapWidget = () => {
           {isExpanded ? (
             <span className="text-white text-xl font-bold">×</span>
           ) : (
-            <div className="flex items-center">
-              <EthereumLogo className="w-5 h-5 -mr-1 drop-shadow-lg" />
-              <ArrowUpDown className="h-4 w-4 text-white mx-0.5 drop-shadow-lg" />
-              <img src={kiltLogo} alt="KILT" className="w-5 h-5 -ml-1 drop-shadow-lg" />
+            <div className="flex flex-col items-center justify-center">
+              <span className="text-white font-bold text-xs leading-none">SWAP</span>
+              <div className="flex items-center mt-0.5">
+                <span className="text-white font-bold text-[10px]">ETH</span>
+                <ArrowUpDown className="h-3 w-3 text-white mx-1" />
+                <span className="text-white font-bold text-[10px]">KILT</span>
+              </div>
             </div>
           )}
         </div>

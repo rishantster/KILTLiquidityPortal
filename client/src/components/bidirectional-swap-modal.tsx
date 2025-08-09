@@ -202,54 +202,64 @@ export const BidirectionalSwapModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md bg-black/40 backdrop-blur-sm border border-white/10 text-white">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
-            <ArrowUpDown className="h-5 w-5 text-pink-400" />
-            <span>Swap</span>
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-md bg-black/40 backdrop-blur-xl border border-white/10 text-white p-0 overflow-hidden">
+        {/* Modal Header */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/10 to-transparent blur-xl"></div>
+          <div className="relative bg-black/30 backdrop-blur-sm border-b border-white/10 p-4">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
+                <ArrowUpDown className="h-5 w-5 text-[#ff0066]" />
+                <span>Swap</span>
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+        </div>
 
-        <div className="space-y-4">
-          {/* From Token Input */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-white/60">You Pay</div>
-              <div className="text-sm text-white/60">
-                Balance: {getCurrentBalance().toFixed(fromToken === 'ETH' ? 6 : 2)} {fromToken}
+        <div className="p-4 space-y-4">
+          {/* From Token Section */}
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl blur-sm transition-all duration-300 group-hover:from-white/10"></div>
+            <div className="relative bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-white/20">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-sm text-white/70 font-medium">You Pay</div>
+                <div className="text-sm text-white/50">
+                  Balance: {getCurrentBalance().toFixed(fromToken === 'ETH' ? 6 : 2)} {fromToken}
+                </div>
               </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <Input
-                type="text"
-                value={fromAmount}
-                onChange={(e) => handleFromAmountChange(e.target.value)}
-                placeholder="0.000000"
-                className="text-2xl font-bold bg-transparent border-none text-white p-0 h-auto focus-visible:ring-0"
-              />
-              <div className="flex items-center gap-3">
-                {fromToken === 'ETH' ? (
-                  <EthereumLogo className="w-6 h-6" />
-                ) : (
-                  <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
-                )}
-                <span className="font-bold text-white">{fromToken}</span>
+              
+              <div className="flex items-center justify-between mb-4">
+                <Input
+                  type="text"
+                  value={fromAmount}
+                  onChange={(e) => handleFromAmountChange(e.target.value)}
+                  placeholder="0"
+                  className="text-2xl font-bold bg-transparent border-none text-white p-0 h-auto focus-visible:ring-0 placeholder:text-white/30"
+                />
+                <div className="flex items-center gap-3">
+                  {fromToken === 'ETH' ? (
+                    <EthereumLogo className="w-6 h-6" />
+                  ) : (
+                    <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
+                  )}
+                  <span className="font-bold text-white">{fromToken}</span>
+                </div>
               </div>
-            </div>
-            
-            {/* Percentage Buttons */}
-            <div className="flex gap-2 mt-3">
-              {[25, 50, 75, 100].map((percentage) => (
-                <Button
-                  key={percentage}
-                  onClick={() => handlePercentageClick(percentage)}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs border-white/10 text-white/60 hover:bg-white/5"
-                >
-                  {percentage}%
-                </Button>
-              ))}
+              
+              {/* Percentage Buttons */}
+              <div className="grid grid-cols-4 gap-2">
+                {[25, 50, 75, 100].map((percentage) => (
+                  <Button
+                    key={percentage}
+                    onClick={() => handlePercentageClick(percentage)}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs border-white/20 bg-black/30 text-white/70 hover:bg-white/10 hover:border-white/30 transition-all duration-300"
+                  >
+                    {percentage}%
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -259,41 +269,45 @@ export const BidirectionalSwapModal = ({
               onClick={swapTokens}
               variant="outline"
               size="icon"
-              className="rounded-full border-white/10 hover:bg-white/5 bg-gradient-to-r from-pink-500 to-purple-500"
+              className="w-10 h-10 rounded-full border-white/20 bg-black/40 backdrop-blur-sm hover:bg-black/60 hover:border-[#ff0066]/30 transition-all duration-300"
             >
-              <ArrowUpDown className="h-4 w-4 text-white" />
+              <ArrowUpDown className="h-4 w-4 text-[#ff0066]" />
             </Button>
           </div>
 
-          {/* To Token Output */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-            <div className="text-sm text-white/60 mb-3">You Receive</div>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-white">
-                {quoteLoading ? 'Calculating...' : 
-                 parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 6 : 2}) : '0'}
+          {/* To Token Section */}
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl blur-sm transition-all duration-300 group-hover:from-white/10"></div>
+            <div className="relative bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4 transition-all duration-300 group-hover:border-white/20">
+              <div className="text-sm text-white/70 font-medium mb-3">You Receive</div>
+              
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-2xl font-bold text-white">
+                  {quoteLoading ? '...' : 
+                   parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 6 : 2}) : '0'}
+                </div>
+                <div className="flex items-center gap-3">
+                  {toToken === 'ETH' ? (
+                    <EthereumLogo className="w-6 h-6" />
+                  ) : (
+                    <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
+                  )}
+                  <span className="font-bold text-white">{toToken}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                {toToken === 'ETH' ? (
-                  <EthereumLogo className="w-6 h-6" />
-                ) : (
-                  <img src={kiltLogo} alt="KILT" className="w-6 h-6" />
-                )}
-                <span className="font-bold text-white">{toToken}</span>
-              </div>
+              
+              {priceImpact > 0 && (
+                <div className="flex items-center gap-1 text-sm">
+                  <TrendingUp className="h-3 w-3 text-orange-400" />
+                  <span className="text-orange-400">Price Impact: {priceImpact.toFixed(2)}%</span>
+                </div>
+              )}
             </div>
-            
-            {priceImpact > 0 && (
-              <div className="mt-2 flex items-center gap-1 text-sm">
-                <TrendingUp className="h-3 w-3 text-orange-400" />
-                <span className="text-orange-400">Price Impact: {priceImpact.toFixed(2)}%</span>
-              </div>
-            )}
           </div>
 
           {/* Error Message */}
           {errorMessage && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+            <div className="bg-red-500/10 backdrop-blur-sm border border-red-500/20 rounded-xl p-3">
               <div className="text-red-400 text-sm">{errorMessage}</div>
             </div>
           )}
@@ -302,22 +316,18 @@ export const BidirectionalSwapModal = ({
           <Button
             disabled={!fromAmount || parseFloat(fromAmount) <= 0 || isSwapping}
             onClick={executeSwap}
-            className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium transition-all duration-200 disabled:opacity-50"
+            className="w-full h-12 bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#cc0052] hover:to-[#e6005c] text-white font-medium text-sm rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSwapping ? 'Processing Transaction...' :
              parseFloat(fromAmount) <= 0 ? 'Enter Amount' : 
-             `Swap ${fromToken} → ${parseFloat(toAmount) > 0 ? parseFloat(toAmount).toLocaleString(undefined, {maximumFractionDigits: toToken === 'ETH' ? 4 : 0}) : '0'} ${toToken}`}
+             'Enter Amount'}
           </Button>
 
-
-        </div>
-        
-        {/* Close Button */}
-        <div className="space-y-2">
+          {/* Close Button */}
           <Button 
             onClick={handleClose}
             variant="outline" 
-            className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
+            className="w-full border-white/20 bg-black/30 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/30 rounded-xl transition-all duration-300"
           >
             Close
           </Button>

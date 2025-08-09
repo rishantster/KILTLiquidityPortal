@@ -330,46 +330,22 @@ export class SwapService {
       let swapData;
       
       if (fromToken === 'ETH') {
-        // ETH to KILT: Use proven Uniswap interface pattern with multicall
-        // This exactly matches what Uniswap's own interface does
-        
-        // 1. First encode exactInputSingle with recipient as ADDRESS_THIS (standard multicall pattern)
+        // ETH to KILT: Use simple exactInputSingle - research shows this is the most reliable approach
         const swapParams = {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: '0x0000000000000000000000000000000000000002', // ADDRESS_THIS constant for multicall
+          recipient: getAddress(userAddress), // Send tokens directly to user
           deadline: BigInt(deadline),
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
         };
 
-        const exactInputCall = encodeFunctionData({
+        const data = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'exactInputSingle',
           args: [swapParams]
-        });
-
-        // 2. Sweep tokens to user (this is the Uniswap standard pattern)
-        const sweepTokenCall = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'sweepToken',
-          args: [KILT_ADDRESS, amountOutMinimum, getAddress(userAddress)]
-        });
-
-        // 3. Unwrap leftover WETH to ETH and send to user
-        const unwrapWETH9Call = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'unwrapWETH9',
-          args: [0n, getAddress(userAddress)] // Unwrap all WETH, send to user
-        });
-
-        // 4. Combine with multicall (exact Uniswap pattern)
-        const data = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'multicall',
-          args: [[exactInputCall, sweepTokenCall, unwrapWETH9Call]]
         });
 
         swapData = {
@@ -377,7 +353,7 @@ export class SwapService {
           to: UNISWAP_V3_ROUTER,
           data,
           value: `0x${amountIn.toString(16)}`,
-          gasLimit: '0xf4240' // 1M gas for multicall pattern
+          gasLimit: '0x186a0' // 100k gas for simple exactInputSingle
         };
       } else {
         // KILT to ETH: Regular exactInputSingle (requires prior token approval)
@@ -412,8 +388,8 @@ export class SwapService {
         amountOutMinimum: amountOutMinimum.toString(),
         deadline: deadline.toString(),
         slippage: actualSlippage + '%',
-        recipient: fromToken === 'ETH' ? 'ADDRESS_THIS (0x02)' : userAddress,
-        pattern: 'exactInputSingle + sweepToken + unwrapWETH9'
+        recipient: userAddress,
+        pattern: 'Simple exactInputSingle (research-based fix)'
       });
 
       console.log(`✅ Swap data prepared:`, {

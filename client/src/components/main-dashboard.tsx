@@ -86,61 +86,52 @@ const KILT_TOKEN = '0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8';
 
 
 
-// APR Components using actual API endpoints
-function PoolWideProgramAPR() {
-  const { data: programData, isLoading, error } = useQuery({
-    queryKey: ['/api/rewards/program-analytics'],
+// STREAMLINED APR Components using single API endpoint
+function StreamlinedAPRData() {
+  const { data: aprData, isLoading, error } = useQuery({
+    queryKey: ['/api/apr/streamlined'],
     staleTime: 30000, // 30 seconds
     refetchInterval: 60000, // 1 minute
   });
 
+  return { aprData, isLoading, error };
+}
+
+function PoolWideProgramAPR() {
+  const { aprData, isLoading, error } = StreamlinedAPRData();
+
   if (isLoading) return <span className="text-white/50">--</span>;
   if (error) return <span className="text-red-400">Error</span>;
   
-  const programAPR = programData?.programAPR;
   return (
     <span>
-      {programAPR ? `${Math.round(programAPR)}%` : '--'}
+      {aprData?.programAPR ? `${aprData.programAPR}%` : '--'}
     </span>
   );
 }
 
 function TradingFeesAPR() {
-  const { data: tradingData, isLoading, error } = useQuery({
-    queryKey: ['/api/trading-fees/pool-apr'],
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // 1 minute
-  });
+  const { aprData, isLoading, error } = StreamlinedAPRData();
 
   if (isLoading) return <span className="text-white/50">--</span>;
   if (error) return <span className="text-red-400">Error</span>;
   
-  const tradingAPR = tradingData?.tradingFeesAPR;
   return (
     <span>
-      {tradingAPR ? `${parseFloat(tradingAPR).toFixed(1)}%` : '--'}
+      {aprData?.tradingAPR ? `${aprData.tradingAPR}%` : '--'}
     </span>
   );
 }
 
 function TotalAPR() {
-  const { data: programData } = useQuery({
-    queryKey: ['/api/rewards/program-analytics'],
-    staleTime: 30000,
-  });
-  
-  const { data: tradingData } = useQuery({
-    queryKey: ['/api/trading-fees/pool-apr'],
-    staleTime: 30000,
-  });
+  const { aprData, isLoading, error } = StreamlinedAPRData();
 
-  const programAPR = programData?.programAPR || 0;
-  const tradingAPR = tradingData?.tradingFeesAPR || 0;
-  const totalAPR = programAPR + tradingAPR;
+  if (isLoading) return <span className="text-white/50">--</span>;
+  if (error) return <span className="text-red-400">Error</span>;
   
   return (
     <span>
-      {totalAPR > 0 ? `${Math.round(totalAPR)}%` : '--'}
+      {aprData?.totalAPR ? `${aprData.totalAPR}%` : '--'}
     </span>
   );
 }

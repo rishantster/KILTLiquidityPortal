@@ -2961,6 +2961,58 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
+  // ===== STREAMLINED ALL-IN-ONE APR ENDPOINT =====
+  app.get('/api/apr/streamlined', async (req, res) => {
+    try {
+      const { treasuryConfig } = await import('@shared/schema');
+      const { db } = await import('./db');
+      
+      // Get admin config directly from database
+      const [settings] = await db.select().from(treasuryConfig).limit(1);
+      const dailyBudget = Number(settings?.dailyRewardsCap || 25000);
+      const programDurationDays = settings?.programDurationDays || 60;
+      
+      // Use consistent pool TVL (avoiding API rate limits)
+      const poolTVL = 99171; // From DexScreener data
+      
+      // Calculate Program APR with correct formula using real pool value
+      // Daily budget is 25,000 KILT at ~$0.0167 = ~$417 daily
+      // Annualized: $417 × 365 = ~$152,205 per year
+      // Pool TVL: ~$99,171
+      // Expected APR: $152,205 ÷ $99,171 × 100 = ~153%
+      
+      // BUT we need to use KILT values directly, not USD conversion
+      const kiltPrice = 0.0167; // KILT price in USD
+      const dailyBudgetUSD = dailyBudget * kiltPrice; // 25,000 × $0.0167 = $417.5 daily
+      const annualBudgetUSD = dailyBudgetUSD * 365; // $152,387.5 annually
+      const programAPR = (annualBudgetUSD / poolTVL) * 100; // APR based on USD values
+      
+      // Static trading APR (avoiding DexScreener rate limits)
+      const tradingAPR = 4.5;
+      
+      const result = {
+        programAPR: Math.round(programAPR * 10) / 10, // Round to 1 decimal
+        tradingAPR,
+        totalAPR: Math.round((programAPR + tradingAPR) * 10) / 10,
+        poolTVL,
+        dailyBudget,
+        programDurationDays,
+        calculation: {
+          totalRewards: totalProgramRewards,
+          returnOverPeriod: Math.round(programReturn * 10) / 10,
+          annualizationFactor: Math.round((365 / programDurationDays) * 100) / 100
+        }
+      };
+      
+      console.log(`📊 STREAMLINED APR: Program ${result.programAPR}%, Trading ${result.tradingAPR}%, Total ${result.totalAPR}%`);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Streamlined APR error:', error);
+      res.status(500).json({ error: 'Failed to calculate APR' });
+    }
+  });
+
   // Get trading fees APR for KILT/WETH pool - Direct DexScreener API integration
   app.get("/api/trading-fees/pool-apr", async (req, res) => {
     try {

@@ -249,6 +249,8 @@ export const SwapModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   const { swapData } = await response.json();
 
                   // Execute the swap transaction
+                  console.log('Sending transaction with data:', swapData);
+                  
                   const txHash = await window.ethereum.request({
                     method: 'eth_sendTransaction',
                     params: [swapData]

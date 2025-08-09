@@ -187,12 +187,34 @@ export class SwapService {
     quote: any;
   }> {
     try {
+      // Validate inputs first
+      if (!userAddress || !ethAmount) {
+        throw new Error('Missing required parameters');
+      }
+
+      const ethValue = parseFloat(ethAmount);
+      if (isNaN(ethValue) || ethValue <= 0) {
+        throw new Error('Invalid ETH amount');
+      }
+
+      console.log(`🔧 Preparing swap: ${ethAmount} ETH for user ${userAddress}`);
+
       const quote = await this.getSwapQuote(ethAmount);
+      console.log(`📊 Quote received:`, quote);
+
+      if (!quote?.kiltAmount) {
+        throw new Error('Failed to get valid quote');
+      }
+
       const amountIn = parseUnits(ethAmount, 18);
-      const amountOutMinimum = parseUnits(
-        (parseFloat(quote.kiltAmount) * (1 - slippageTolerance / 100)).toString(),
-        18
-      );
+      const kiltAmountNum = parseFloat(quote.kiltAmount);
+      
+      if (isNaN(kiltAmountNum) || kiltAmountNum <= 0) {
+        throw new Error('Invalid KILT amount in quote');
+      }
+
+      const minKiltAmount = kiltAmountNum * (1 - slippageTolerance / 100);
+      const amountOutMinimum = parseUnits(minKiltAmount.toString(), 18);
 
       // Prepare transaction data for exactInputSingle
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1800); // 30 minutes from now
@@ -208,6 +230,13 @@ export class SwapService {
         sqrtPriceLimitX96: 0n
       };
 
+      console.log(`🔧 Swap params:`, {
+        ...swapParams,
+        amountIn: amountIn.toString(),
+        amountOutMinimum: amountOutMinimum.toString(),
+        deadline: deadline.toString()
+      });
+
       // Encode the transaction data
       const { encodeFunctionData } = await import('viem');
       const data = encodeFunctionData({
@@ -216,19 +245,28 @@ export class SwapService {
         args: [swapParams]
       });
 
+      const swapData = {
+        to: UNISWAP_V3_ROUTER,
+        data,
+        value: `0x${amountIn.toString(16)}`, // Convert to hex string
+        gasLimit: '0x493e0' // 300000 in hex
+      };
+
+      console.log(`✅ Swap data prepared:`, {
+        to: swapData.to,
+        value: swapData.value,
+        gasLimit: swapData.gasLimit,
+        dataLength: swapData.data.length
+      });
+
       return {
-        swapData: {
-          to: UNISWAP_V3_ROUTER,
-          data,
-          value: amountIn.toString(),
-          gasLimit: '300000'
-        },
+        swapData,
         quote
       };
 
     } catch (error) {
       console.error('Prepare in-app swap failed:', error);
-      throw new Error('Failed to prepare in-app swap');
+      throw new Error(`Failed to prepare in-app swap: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

@@ -297,6 +297,7 @@ export class SwapService {
       });
 
       const swapData = {
+        from: getAddress(userAddress), // Required by MetaMask
         to: UNISWAP_V3_ROUTER,
         data,
         value: fromToken === 'ETH' ? `0x${amountIn.toString(16)}` : '0x0', // Only send ETH for ETH->Token swaps

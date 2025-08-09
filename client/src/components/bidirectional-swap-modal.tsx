@@ -23,11 +23,22 @@ const EthereumLogo = ({ className = "w-5 h-5" }) => (
 interface BidirectionalSwapModalProps {
   isOpen: boolean;
   onClose: () => void;
+  kiltBalance: string;
+  ethBalance: string;
+  formatTokenAmount: (amount: string, token: string) => string;
+  onPurchaseComplete?: () => void;
 }
 
-export const BidirectionalSwapModal = ({ isOpen, onClose }: BidirectionalSwapModalProps) => {
+export const BidirectionalSwapModal = ({ 
+  isOpen, 
+  onClose, 
+  kiltBalance: propKiltBalance, 
+  ethBalance: propEthBalance,
+  formatTokenAmount,
+  onPurchaseComplete 
+}: BidirectionalSwapModalProps) => {
   const { data: kiltData } = useKiltTokenData();
-  const { address } = useWagmiWallet();
+  const { address, isConnected } = useWagmiWallet();
   
   const [fromToken, setFromToken] = useState<'ETH' | 'KILT'>('ETH');
   const [toToken, setToToken] = useState<'ETH' | 'KILT'>('KILT');
@@ -35,9 +46,9 @@ export const BidirectionalSwapModal = ({ isOpen, onClose }: BidirectionalSwapMod
   const [toAmount, setToAmount] = useState('0');
   const [priceImpact, setPriceImpact] = useState(0);
 
-  // Mock balances for display
-  const ethBalance = 0.005404;
-  const kiltBalance = 51544.325239;
+  // Use actual balances from props
+  const ethBalance = parseFloat(propEthBalance?.replace(/[^\d.-]/g, '') || '0');
+  const kiltBalance = parseFloat(propKiltBalance?.replace(/[^\d.-]/g, '') || '0');
 
   // Get current balance for from token
   const getCurrentBalance = () => {
@@ -108,11 +119,11 @@ export const BidirectionalSwapModal = ({ isOpen, onClose }: BidirectionalSwapMod
     }
   }, []);
 
-  // Execute swap
+  // Execute swap using connected wallet (supports Phantom, MetaMask, etc.)
   const executeSwap = async () => {
     try {
-      // Check if user is connected
-      if (typeof window.ethereum === 'undefined') {
+      // Check if user is connected via Wagmi
+      if (!isConnected || !address) {
         // Fallback to Uniswap redirect
         const swapUrl = fromToken === 'ETH' 
           ? `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${fromAmount}&exactField=input`
@@ -122,24 +133,10 @@ export const BidirectionalSwapModal = ({ isOpen, onClose }: BidirectionalSwapMod
         return;
       }
 
-      // Get user address
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const userAddress = accounts[0];
-
-      if (!userAddress) {
-        // Fallback to Uniswap
-        const swapUrl = fromToken === 'ETH' 
-          ? `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&chain=base&exactAmount=${fromAmount}&exactField=input`
-          : `https://app.uniswap.org/#/swap?inputCurrency=0x5D0DD05bB095fdD6Af4865A1AdF97c39C85ad2d8&outputCurrency=ETH&chain=base&exactAmount=${fromAmount}&exactField=input`;
-        window.open(swapUrl, '_blank');
-        onClose();
-        return;
-      }
-
-      // Prepare swap based on direction
+      // Prepare swap based on direction using connected address
       const swapParams = fromToken === 'ETH' 
-        ? { userAddress, ethAmount: fromAmount, slippageTolerance: 0.5 }
-        : { userAddress, kiltAmount: fromAmount, slippageTolerance: 0.5 };
+        ? { userAddress: address, ethAmount: fromAmount, slippageTolerance: 0.5 }
+        : { userAddress: address, kiltAmount: fromAmount, slippageTolerance: 0.5 };
 
       const response = await fetch('/api/swap/prepare', {
         method: 'POST',
@@ -151,15 +148,24 @@ export const BidirectionalSwapModal = ({ isOpen, onClose }: BidirectionalSwapMod
 
       const { swapData } = await response.json();
 
-      // Execute the swap transaction
+      // Execute via any connected wallet (Phantom, MetaMask, etc.)
       console.log('Sending transaction with data:', swapData);
       
-      const txHash = await window.ethereum.request({
+      // Use the wallet provider that's actually connected
+      const provider = window.ethereum;
+      if (!provider) {
+        throw new Error('No wallet provider found');
+      }
+      
+      const txHash = await provider.request({
         method: 'eth_sendTransaction',
         params: [swapData]
       });
 
       console.log('Swap transaction sent:', txHash);
+      
+      // Trigger balance refresh
+      onPurchaseComplete?.();
       onClose();
       
     } catch (error) {

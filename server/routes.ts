@@ -1594,8 +1594,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         treasuryConf = treasuryArray[0];
       }
       
-      // Calculate days remaining efficiently
-      const programEndDate = treasuryConf?.programEndDate ? new Date(treasuryConf.programEndDate) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+      // Calculate days remaining efficiently - use 55 days from current date
+      const programEndDate = treasuryConf?.programEndDate ? new Date(treasuryConf.programEndDate) : new Date(Date.now() + 55 * 24 * 60 * 60 * 1000);
       const daysRemaining = Math.max(0, Math.ceil((programEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
       
       const finalData = {

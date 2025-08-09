@@ -80,8 +80,11 @@ const ROUTER_ABI = [
     type: 'function'
   },
   {
-    inputs: [{ name: 'amountMinimum', type: 'uint256' }],
-    name: 'refundETH',
+    inputs: [
+      { name: 'amountMinimum', type: 'uint256' },
+      { name: 'recipient', type: 'address' }
+    ],
+    name: 'unwrapWETH9',
     outputs: [],
     type: 'function'
   },
@@ -330,12 +333,12 @@ export class SwapService {
         // ETH to KILT: Use proven Uniswap interface pattern with multicall
         // This exactly matches what Uniswap's own interface does
         
-        // 1. First encode exactInputSingle with recipient as address(0) (router keeps tokens)
+        // 1. First encode exactInputSingle with recipient as ADDRESS_THIS (standard multicall pattern)
         const swapParams = {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: '0x0000000000000000000000000000000000000000', // Router keeps tokens initially
+          recipient: '0x0000000000000000000000000000000000000002', // ADDRESS_THIS constant for multicall
           deadline: BigInt(deadline),
           amountIn,
           amountOutMinimum,
@@ -355,18 +358,18 @@ export class SwapService {
           args: [KILT_ADDRESS, amountOutMinimum, getAddress(userAddress)]
         });
 
-        // 3. Return leftover ETH
-        const refundETHCall = encodeFunctionData({
+        // 3. Unwrap leftover WETH to ETH and send to user
+        const unwrapWETH9Call = encodeFunctionData({
           abi: ROUTER_ABI,
-          functionName: 'refundETH',
-          args: [0n] // Minimum amount to refund (0 means refund any leftover ETH)
+          functionName: 'unwrapWETH9',
+          args: [0n, getAddress(userAddress)] // Unwrap all WETH, send to user
         });
 
         // 4. Combine with multicall (exact Uniswap pattern)
         const data = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'multicall',
-          args: [[exactInputCall, sweepTokenCall, refundETHCall]]
+          args: [[exactInputCall, sweepTokenCall, unwrapWETH9Call]]
         });
 
         swapData = {
@@ -404,12 +407,13 @@ export class SwapService {
         };
       }
 
-      console.log(`🔧 Swap params for ${fromToken}:`, {
+      console.log(`🔧 Official Uniswap pattern for ${fromToken}:`, {
         amountIn: amountIn.toString(),
         amountOutMinimum: amountOutMinimum.toString(),
         deadline: deadline.toString(),
         slippage: actualSlippage + '%',
-        pattern: fromToken === 'ETH' ? 'Uniswap multicall' : 'Direct swap'
+        recipient: fromToken === 'ETH' ? 'ADDRESS_THIS (0x02)' : userAddress,
+        pattern: 'exactInputSingle + sweepToken + unwrapWETH9'
       });
 
       console.log(`✅ Swap data prepared:`, {

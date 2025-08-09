@@ -430,9 +430,14 @@ export class UnifiedRewardService {
     try {
       const { sql, eq } = await import('drizzle-orm');
       
-      // Count unique wallet addresses (users) registered on the app
-      const userCountResult = await db.select({ count: sql<number>`count(distinct address)` }).from(users);
-      registeredUserCount = userCountResult[0]?.count || 2;
+      // Count unique users with active positions using raw SQL for simplicity
+      const userCountResult = await db.execute(sql`
+        SELECT COUNT(DISTINCT u.address) as count 
+        FROM users u 
+        INNER JOIN lp_positions lp ON u.id = lp.user_id 
+        WHERE lp.is_active = true
+      `);
+      registeredUserCount = Number(userCountResult.rows[0]?.count) || 2;
 
       // Count total active positions across all users
       const positionCountResult = await db.select({ count: sql<number>`count(*)` }).from(lpPositions).where(eq(lpPositions.isActive, true));
@@ -440,7 +445,7 @@ export class UnifiedRewardService {
       
       // Note: Average position value calculation removed as it's no longer displayed in UI
       
-      console.log('📊 USER ANALYTICS - Unique Registered Wallets:', registeredUserCount, 'Total Active Positions:', totalRegisteredPositions);
+      console.log('📊 USER ANALYTICS - Users with Active Positions:', registeredUserCount, 'Total Active Positions:', totalRegisteredPositions);
     } catch (error) {
       console.warn('Database query failed, using known values for program analytics');
     }

@@ -86,7 +86,7 @@ export class SwapService {
         }]
       });
 
-      const kiltAmount = formatUnits(amountOut, 18);
+      const kiltAmount = formatUnits(amountOut as bigint, 18);
       
       // Calculate approximate price impact (simplified)
       const spotRate = parseFloat(kiltAmount) / parseFloat(ethAmount);
@@ -152,20 +152,16 @@ export class SwapService {
         sqrtPriceLimitX96: 0n
       };
 
-      // Encode the function call
-      const { data } = await publicClient.simulateContract({
-        address: UNISWAP_V3_ROUTER,
-        abi: ROUTER_ABI,
-        functionName: 'exactInputSingle',
-        args: [swapParams],
-        value: amountIn
-      });
-
+      // For ETH to token swaps, instead of using the complex transaction preparation,
+      // we'll redirect to Uniswap directly with pre-filled parameters
+      const swapUrl = `https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=${KILT_ADDRESS}&chain=base&exactAmount=${ethAmount}&exactField=input`;
+      
       return {
         to: UNISWAP_V3_ROUTER,
-        data: data as string,
+        data: '0x', // Empty data - will redirect to Uniswap
         value: amountIn.toString(),
-        gasLimit: '300000' // Conservative gas limit
+        gasLimit: '300000',
+        redirectUrl: swapUrl // Add redirect URL for frontend
       };
 
     } catch (error) {

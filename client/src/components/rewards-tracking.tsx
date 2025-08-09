@@ -424,12 +424,12 @@ export function RewardsTracking() {
             </div>
             <div className="text-xs text-white/60 mb-1">
               {/* FIXED: Show accurate status based on lock period enforcement */}
-              {claimability?.lockExpired && claimability?.canClaim 
+              {claimability?.canClaim && (claimability?.claimable || 0) > 0
                 ? 'Available now'
-                : claimability?.daysRemaining > 0
-                  ? `Lock expires in ${claimability.daysRemaining} day${claimability.daysRemaining !== 1 ? 's' : ''}`
+                : claimability?.lockExpiryDate && !claimability?.canClaim
+                  ? `Next claim: ${new Date(claimability.lockExpiryDate).toLocaleDateString()}`
                   : (claimability?.claimable || rewardStats?.totalClaimable || 0) > 0
-                    ? countdownText || 'Available in...'
+                    ? countdownText || 'Accumulating...'
                     : (rewardStats?.totalAccumulated || 0) > 0
                       ? 'Accumulating rewards...'
                       : 'Start earning rewards'
@@ -501,10 +501,10 @@ export function RewardsTracking() {
           <CardContent className="space-y-3 p-3">
             <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
               <div className="text-white/60 text-xs mb-1 font-medium">
-                {claimability?.lockExpired && claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 
+                {claimability?.canClaim && (claimability?.claimable || 0) > 0
                   ? 'Available Now' 
-                  : claimability?.daysRemaining > 0
-                    ? `Lock Period: ${claimability.daysRemaining} day${claimability.daysRemaining !== 1 ? 's' : ''} remaining`
+                  : claimability?.lockExpiryDate && !claimability?.canClaim
+                    ? `Lock until: ${new Date(claimability.lockExpiryDate).toLocaleDateString()}`
                     : (rewardStats?.totalAccumulated || 0) > 0
                       ? 'Accumulating'
                       : 'Status'
@@ -524,9 +524,9 @@ export function RewardsTracking() {
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards || !claimability?.lockExpired || !claimability?.canClaim}
+                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards || !claimability?.canClaim}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
-                  hasCalculatedRewards && claimability?.lockExpired && claimability?.canClaim
+                  hasCalculatedRewards && claimability?.canClaim
                     ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
@@ -536,15 +536,15 @@ export function RewardsTracking() {
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     {isClaiming ? 'Processing Smart Contract Transaction...' : 'Distributing & Claiming...'}
                   </>
-                ) : hasCalculatedRewards && claimability?.lockExpired && claimability?.canClaim ? (
+                ) : hasCalculatedRewards && claimability?.canClaim ? (
                   <>
                     <Award className="h-4 w-4 mr-2" />
                     Claim {calculatedRewards.toFixed(2)} KILT
                   </>
-                ) : hasCalculatedRewards && claimability?.daysRemaining > 0 ? (
+                ) : hasCalculatedRewards && !claimability?.canClaim ? (
                   <>
                     <Clock className="h-4 w-4 mr-2" />
-                    Locked for {claimability.daysRemaining} day{claimability.daysRemaining !== 1 ? 's' : ''}
+                    Locked until {claimability?.lockExpiryDate ? new Date(claimability.lockExpiryDate).toLocaleDateString() : 'next claim'}
                   </>
                 ) : (
                   <>

@@ -12,7 +12,6 @@
  */
 
 import { sql } from 'drizzle-orm';
-import { FixedRewardService } from './fixed-reward-service';
 import type { IStorage } from './storage';
 import { unifiedRewardService } from './unified-reward-service';
 import { db } from './db';
@@ -41,14 +40,12 @@ export interface APRData {
 
 export class SingleSourceAPR {
   private database: IStorage;
-  private fixedRewardService: FixedRewardService;
   private static cache: APRData | null = null;
   private static cacheExpiry: number = 0;
   private static readonly CACHE_DURATION = 30000; // 30 seconds - balance between speed and accuracy
 
   constructor(database: IStorage) {
     this.database = database;
-    this.fixedRewardService = new FixedRewardService();
   }
 
   /**

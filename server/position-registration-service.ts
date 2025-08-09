@@ -9,7 +9,7 @@ import {
   type InsertAppTransaction
 } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
-import { fixedRewardService } from './fixed-reward-service';
+import { unifiedRewardService } from './unified-reward-service';
 import { blockchainConfigService } from './blockchain-config-service';
 import { uniswapIntegrationService } from './uniswap-integration-service';
 import { rateLimitBypassService } from './rate-limit-bypass-service';
@@ -283,10 +283,9 @@ export class PositionRegistrationService {
       console.log(`✅ Eligibility record created for position ${createdPosition.id}`);
 
       // Calculate reward information
-      const rewardCalc = await fixedRewardService.calculatePositionRewards(
+      const rewardCalc = await unifiedRewardService.getPositionReward(
         userId,
-        positionData.nftTokenId,
-        new Date()   // Use registration date as liquidity start date
+        positionData.nftTokenId
       );
 
       // Create initial reward tracking (updateRewardRecord is private, use createRewardRecord instead)
@@ -305,7 +304,7 @@ export class PositionRegistrationService {
         liquidityTypeResult,
         rewardInfo: {
           dailyRewards: rewardCalc.dailyRewards,
-          estimatedAPR: rewardCalc.totalAPR,
+          estimatedAPR: rewardCalc.effectiveAPR,
           lockPeriodDays: 7
         }
       };

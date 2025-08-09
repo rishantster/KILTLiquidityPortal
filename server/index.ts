@@ -7,7 +7,7 @@ import { enhancedErrorHandler } from "./error-handler";
 // Removed database-optimizer - cleaned up during optimization
 import { kiltPriceService } from "./kilt-price-service.js";
 import { blockchainConfigService } from "./blockchain-config-service";
-import { FixedRewardService } from "./fixed-reward-service";
+import { unifiedRewardService } from "./unified-reward-service";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 
@@ -37,22 +37,12 @@ setTimeout(async () => {
 // Removed db-migration-optimizer - cleaned up during optimization
 
 // Initialize reward service for background updates
-let rewardService: FixedRewardService | null = null;
-setTimeout(async () => {
-  try {
-    const { getDatabase } = await import('./storage');
-    const db = getDatabase();
-    rewardService = new FixedRewardService();
-    console.log('🎯 Reward service initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize reward service:', error);
-  }
-}, 2000);
+console.log('🎯 Unified reward service initialized successfully');
 
 // Background service monitoring (simplified for deployment stability)
 async function runHealthCheck() {
   try {
-    if (rewardService) {
+    if (unifiedRewardService) {
       console.log('🎯 Reward service is running and healthy');
     }
   } catch (error) {

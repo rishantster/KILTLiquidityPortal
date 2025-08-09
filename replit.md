@@ -117,3 +117,11 @@ The KILT Liquidity Incentive Portal is a full-stack TypeScript application empha
 - **Mathematical Formula**: For each day in position lifetime: `baseRate × (1 + (dayIndex/365 × 0.6)) × 24hours`
 - **Impact**: Claimable amount corrected from 1983+ KILT over-projection to realistic 101.52 KILT accumulation
 - **Status**: Mathematical accuracy restored - reward calculations now properly reflect actual historical earnings with progressive time boost
+
+**Codebase Consolidation and Dual System Elimination (January 2025)**:
+- **Issue Identified**: Two separate reward calculation systems running simultaneously causing persistent fluctuations in claimable amounts (95.05 → 101.52 → 1983.10 → 95.05 KILT)
+- **Root Cause**: Legacy `fixed-reward-service.ts` using old "hourly_rate × total_hours" calculation while `unified-reward-service.ts` used correct progressive time boost integration
+- **Solution Applied**: Complete removal of dual calculation systems - deleted `fixed-reward-service.ts` and updated all imports to use `unified-reward-service.ts` exclusively
+- **Files Updated**: `server/routes.ts`, `server/position-registration-service.ts`, `server/claim-based-rewards.ts`, `server/single-source-apr.ts`, `server/index.ts`
+- **Impact**: Eliminated calculation inconsistency - all endpoints now use single mathematical formula ensuring stable claimable amounts
+- **Status**: Single source of truth established - no more fluctuations in reward calculations

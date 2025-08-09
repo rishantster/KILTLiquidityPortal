@@ -33,7 +33,6 @@ import { z } from "zod";
 import { rpcManager } from './rpc-connection-manager';
 import { fetchKiltTokenData, calculateRewards, getBaseNetworkStats } from "./kilt-data";
 
-import { fixedRewardService } from "./fixed-reward-service";
 import { unifiedRewardService } from "./unified-reward-service";
 import { DirectFeeService } from "./direct-fee-service";
 import { SimpleFeeService } from "./simple-fee-service";

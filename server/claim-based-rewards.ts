@@ -4,7 +4,7 @@ import { rewards, users, adminOperations } from '@shared/schema';
 import { eq, and, lt, isNull } from 'drizzle-orm';
 import { smartContractService } from './smart-contract-service';
 import { blockchainConfigService } from './blockchain-config-service';
-import { fixedRewardService } from './fixed-reward-service';
+import { unifiedRewardService } from './unified-reward-service';
 
 export interface ClaimResult {
   success: boolean;
@@ -88,7 +88,7 @@ export class ClaimBasedRewards {
         if (lockPeriodDays === 0) {
           try {
             console.log(`📊 Fetching reward stats for user ID: ${user.id}`);
-            const rewardStats = await fixedRewardService.getUserRewardStats(user.id);
+            const rewardStats = await unifiedRewardService.getUserRewardStats(user.id);
             console.log(`📊 Reward stats result:`, rewardStats);
             const totalClaimable = rewardStats.totalAccumulated || 0;
             console.log(`💰 Total claimable calculated: ${totalClaimable} KILT`);
@@ -136,7 +136,7 @@ export class ClaimBasedRewards {
           // If no reward records, use the reward calculation service to get real-time accumulated amount
           try {
             console.log(`Fetching reward stats for user ID: ${user.id}`);
-            const rewardStats = await fixedRewardService.getUserRewardStats(user.id);
+            const rewardStats = await unifiedRewardService.getUserRewardStats(user.id);
             console.log(`Reward stats result:`, rewardStats);
             totalClaimable = rewardStats.totalAccumulated || 0;
             console.log(`Total claimable amount: ${totalClaimable}`);

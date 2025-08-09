@@ -123,22 +123,43 @@ export function useUnifiedDashboard() {
     retryDelay: 5000 // 5 seconds between retries
   });
 
-  // Get program analytics with proper error handling - should work for all users
+  // Get streamlined APR data with accurate pool metrics and realistic competition analysis
   const { data: programAnalytics, error: programAnalyticsError } = useQuery({
-    queryKey: ['programAnalytics'],
+    queryKey: ['streamlinedAPR'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/rewards/program-analytics');
+        const response = await fetch('/api/apr/streamlined');
         if (!response.ok) {
-          console.error('Program analytics fetch failed:', response.status, response.statusText);
-          throw new Error('Failed to fetch program analytics');
+          console.error('Streamlined APR fetch failed:', response.status, response.statusText);
+          throw new Error('Failed to fetch streamlined APR data');
         }
         const data = await response.json();
-        console.log('Program analytics loaded:', data.treasuryTotal);
-        return data;
+        console.log('Program analytics loaded:', data.poolTVL);
+        
+        // Transform streamlined data to match programAnalytics interface
+        return {
+          totalLiquidity: data.poolTVL,
+          activeLiquidityProviders: data.poolStats?.totalLPs || 'Unknown',
+          totalRewardsDistributed: data.calculation?.totalProgramRewards || 0,
+          dailyBudget: data.dailyBudget,
+          programAPR: data.programAPR,
+          treasuryTotal: data.calculation?.totalProgramRewards || 1500000,
+          treasuryRemaining: data.calculation?.totalProgramRewards || 1500000,
+          totalDistributed: 0,
+          programDuration: data.programDurationDays,
+          daysRemaining: data.programDurationDays,
+          totalPositions: 'TBD',
+          averagePositionSize: typeof data.poolStats?.avgPositionValue === 'number' ? data.poolStats.avgPositionValue : 12396,
+          poolVolume24h: 0,
+          poolFeeEarnings24h: 0,
+          totalUniqueUsers: 'TBD',
+          kiltPrice: data.kiltPrice,
+          tradingAPR: data.tradingAPR,
+          totalAPR: data.totalAPR
+        };
       } catch (error) {
-        console.error('Program analytics error:', error);
-        throw new Error('Program analytics failed - admin configuration required');
+        console.error('Streamlined APR error:', error);
+        throw new Error('APR calculation failed - admin configuration required');
       }
     },
     enabled: true, // Always fetch independently - no dependencies

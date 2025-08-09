@@ -45,7 +45,9 @@ export class ClaimBasedRewards {
     try {
       const { programSettings } = await import('../shared/schema');
       const [settings] = await db.select().from(programSettings).limit(1);
-      return settings?.lockPeriod || 0; // Default to 0 days if not configured
+      const lockPeriod = settings?.lockPeriod || 0;
+      console.log(`🔒 LOCK PERIOD DEBUG: Retrieved from DB: ${lockPeriod} days (settings exists: ${!!settings})`);
+      return lockPeriod; // Default to 0 days if not configured
     } catch (error: unknown) {
       console.error('Error fetching lock period from admin config:', error instanceof Error ? error.message : 'Unknown error');
       return 0;
@@ -59,6 +61,7 @@ export class ClaimBasedRewards {
     try {
       // Get the current lock period from admin configuration
       const lockPeriodDays = await this.getLockPeriodDays();
+      console.log(`🔒 CLAIMABILITY CHECK: Lock period is ${lockPeriodDays} days for user ${userAddress}`);
       
       // Get user from database
       const [user] = await db.select().from(users).where(eq(users.address, userAddress));

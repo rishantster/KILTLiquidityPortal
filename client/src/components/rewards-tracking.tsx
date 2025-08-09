@@ -425,14 +425,16 @@ export function RewardsTracking() {
               />
             </div>
             <div className="text-xs text-white/60 mb-1">
-              {/* FIXED: Show accurate status based on actual claimability */}
-              {claimability?.canClaim 
+              {/* FIXED: Show accurate status based on lock period enforcement */}
+              {claimability?.lockExpired && claimability?.canClaim 
                 ? 'Available now'
-                : (claimability?.claimable || rewardStats?.totalClaimable || 0) > 0
-                  ? countdownText || 'Available in...'
-                  : (rewardStats?.totalAccumulated || 0) > 0
-                    ? 'Accumulating rewards...'
-                    : 'Start earning rewards'
+                : claimability?.daysRemaining > 0
+                  ? `Lock expires in ${claimability.daysRemaining} day${claimability.daysRemaining !== 1 ? 's' : ''}`
+                  : (claimability?.claimable || rewardStats?.totalClaimable || 0) > 0
+                    ? countdownText || 'Available in...'
+                    : (rewardStats?.totalAccumulated || 0) > 0
+                      ? 'Accumulating rewards...'
+                      : 'Start earning rewards'
               }
             </div>
             <div className="flex items-center justify-between">
@@ -501,7 +503,14 @@ export function RewardsTracking() {
           <CardContent className="space-y-3 p-3">
             <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
               <div className="text-white/60 text-xs mb-1 font-medium">
-                {(rewardStats?.totalAccumulated || 0) > 0 ? 'Available Now' : 'Status'}
+                {claimability?.lockExpired && claimability?.canClaim && (rewardStats?.totalAccumulated || 0) > 0 
+                  ? 'Available Now' 
+                  : claimability?.daysRemaining > 0
+                    ? `Lock Period: ${claimability.daysRemaining} day${claimability.daysRemaining !== 1 ? 's' : ''} remaining`
+                    : (rewardStats?.totalAccumulated || 0) > 0
+                      ? 'Accumulating'
+                      : 'Status'
+                }
               </div>
               <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
                 {(rewardStats?.totalClaimable || 0).toFixed(2)} 
@@ -517,9 +526,9 @@ export function RewardsTracking() {
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards}
+                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards || !claimability?.lockExpired || !claimability?.canClaim}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
-                  hasCalculatedRewards 
+                  hasCalculatedRewards && claimability?.lockExpired && claimability?.canClaim
                     ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
@@ -529,10 +538,15 @@ export function RewardsTracking() {
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     {isClaiming ? 'Processing Smart Contract Transaction...' : 'Distributing & Claiming...'}
                   </>
-                ) : hasCalculatedRewards ? (
+                ) : hasCalculatedRewards && claimability?.lockExpired && claimability?.canClaim ? (
                   <>
                     <Award className="h-4 w-4 mr-2" />
                     Claim {calculatedRewards.toFixed(2)} KILT
+                  </>
+                ) : hasCalculatedRewards && claimability?.daysRemaining > 0 ? (
+                  <>
+                    <Clock className="h-4 w-4 mr-2" />
+                    Locked for {claimability.daysRemaining} day{claimability.daysRemaining !== 1 ? 's' : ''}
                   </>
                 ) : (
                   <>

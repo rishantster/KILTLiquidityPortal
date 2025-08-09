@@ -39,7 +39,7 @@ export const BidirectionalSwapModal = ({
   const { data: kiltData } = useKiltTokenData();
   const { address, isConnected } = useWagmiWallet();
   
-  const [activeTab, setActiveTab] = useState<'widget' | 'fallback'>('widget');
+  const [activeTab, setActiveTab] = useState<'widget' | 'fallback'>('fallback');
 
   // Reset modal state when closing
   const handleClose = () => {
@@ -116,35 +116,26 @@ export const BidirectionalSwapModal = ({
         <div className="p-4 space-y-4">
           {activeTab === 'widget' ? (
             <>
-              {/* Embedded Uniswap Widget */}
+              {/* Widget Blocked Notice */}
               <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl blur-sm"></div>
-                <div className="relative bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden">
-                  <iframe
-                    src={getUniswapWidgetUrl()}
-                    className="w-full h-[600px] rounded-xl"
-                    style={{
-                      border: 'none',
-                      minHeight: '600px'
-                    }}
-                    allow="clipboard-write"
-                    title="Uniswap Widget"
-                  />
-                </div>
-              </div>
-
-              {/* Info Section */}
-              <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-3">
-                <div className="text-sm text-white/70">
-                  <div className="flex items-center gap-2 mb-2">
-                    <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
-                    <span className="font-medium">Trading KILT on Base Network</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-orange/10 to-transparent rounded-xl blur-sm"></div>
+                <div className="relative bg-black/30 backdrop-blur-sm border border-orange-500/20 rounded-xl p-6 text-center">
+                  <div className="text-orange-400 mb-4">
+                    <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold mb-2">Widget Blocked</h3>
+                    <p className="text-sm text-white/70 mb-4">
+                      Embedded trading widgets are blocked by security policies. Use the "External" tab for full Uniswap access.
+                    </p>
                   </div>
-                  <div className="text-xs text-white/50 space-y-1">
-                    <div>• Direct integration with Uniswap V3</div>
-                    <div>• Real-time pricing and slippage protection</div>
-                    <div>• Transactions executed through your connected wallet</div>
-                  </div>
+                  
+                  <Button
+                    onClick={() => setActiveTab('fallback')}
+                    className="bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#cc0052] hover:to-[#e6005c] text-white font-medium rounded-xl transition-all duration-300"
+                  >
+                    Switch to External Trading
+                  </Button>
                 </div>
               </div>
             </>
@@ -175,8 +166,38 @@ export const BidirectionalSwapModal = ({
                       Open Uniswap Interface
                     </Button>
 
-                    <div className="text-xs text-white/50">
-                      Opens app.uniswap.org with KILT token pre-configured
+                    <div className="text-xs text-white/50 space-y-1">
+                      <div>• Opens app.uniswap.org with KILT token pre-configured</div>
+                      <div>• Connects with your wallet automatically</div>
+                      <div>• Base network and KILT/ETH pair pre-selected</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Trading Info */}
+              <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+                <div className="text-sm text-white/70">
+                  <div className="flex items-center gap-2 mb-3">
+                    <img src={kiltLogo} alt="KILT" className="w-4 h-4" />
+                    <span className="font-medium">KILT Trading Information</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <div className="text-white/50 mb-1">Token Address</div>
+                      <div className="font-mono text-white/80">0x5D0D...2d8</div>
+                    </div>
+                    <div>
+                      <div className="text-white/50 mb-1">Network</div>
+                      <div className="text-white/80">Base</div>
+                    </div>
+                    <div>
+                      <div className="text-white/50 mb-1">Pool Fee</div>
+                      <div className="text-white/80">0.3%</div>
+                    </div>
+                    <div>
+                      <div className="text-white/50 mb-1">Current Price</div>
+                      <div className="text-white/80">${kiltData?.price?.toFixed(6) || '...'}</div>
                     </div>
                   </div>
                 </div>

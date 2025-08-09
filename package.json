@@ -50,6 +50,7 @@
     "@uniswap/v3-core": "^1.0.1",
     "@uniswap/v3-periphery": "^1.4.4",
     "@uniswap/v3-sdk": "^3.25.2",
+    "@uniswap/widgets": "^2.59.0",
     "@walletconnect/core": "^2.21.5",
     "@walletconnect/types": "^2.21.5",
     "@walletconnect/utils": "^2.21.5",

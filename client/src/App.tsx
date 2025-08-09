@@ -289,8 +289,6 @@ function App() {
             <CyberpunkVideoBackground />
             <Toaster />
             <Router />
-            {/* FLOATING SWAP WIDGET */}
-            <FloatingSwapWidget />
           </TooltipProvider>
         </WagmiWalletProvider>
       </QueryClientProvider>

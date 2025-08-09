@@ -327,45 +327,30 @@ export class SwapService {
       let swapData;
       
       if (fromToken === 'ETH') {
-        // ETH to KILT: Use simple exactInputSingle (send KILT directly to user)
+        // ETH to KILT: Direct exactInputSingle (most reliable approach)
         const swapParams = {
           tokenIn: WETH_ADDRESS,
           tokenOut: KILT_ADDRESS,
           fee: 3000,
-          recipient: getAddress(userAddress), // Send KILT directly to user
+          recipient: getAddress(userAddress),
           deadline,
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n
         };
 
-        // Single exactInputSingle call with multicall for ETH handling
-        const exactInputCall = encodeFunctionData({
+        const data = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'exactInputSingle',
           args: [swapParams]
         });
 
-        // refundETH call to return any leftover ETH
-        const refundETHCall = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'refundETH',
-          args: [0n]
-        });
-
-        // Simple 2-step multicall: exactInputSingle + refundETH
-        const multicallData = encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: 'multicall',
-          args: [[exactInputCall, refundETHCall]]
-        });
-
         swapData = {
           from: getAddress(userAddress),
           to: UNISWAP_V3_ROUTER,
-          data: multicallData,
+          data,
           value: `0x${amountIn.toString(16)}`, // Send ETH with transaction
-          gasLimit: '0xf4240' // 1,000,000 in hex (increased for multicall reliability)
+          gasLimit: '0x7a120' // 500,000 gas limit for simple swap
         };
       } else {
         // KILT to ETH: Regular exactInputSingle (requires prior token approval)
@@ -399,7 +384,7 @@ export class SwapService {
         amountIn: amountIn.toString(),
         amountOutMinimum: amountOutMinimum.toString(),
         deadline: deadline.toString(),
-        useMulticall: fromToken === 'ETH'
+        directSwap: fromToken === 'ETH'
       });
 
       console.log(`✅ Swap data prepared:`, {

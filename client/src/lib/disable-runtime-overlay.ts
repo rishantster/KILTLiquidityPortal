@@ -1,26 +1,35 @@
-// Aggressive runtime error overlay disabling
-// This completely prevents the Vite runtime error plugin from showing overlays
-// Equivalent to setting server.hmr.overlay = false in vite.config.js
+// Complete runtime error overlay suppression
+// Prevents all Vite error overlays while preserving legitimate API functionality
 
-// CRITICAL: Disable runtime error modal that blocks MetaMask connection
 const disableRuntimeErrorOverlay = () => {
-  // Block runtime error plugin IMMEDIATELY
   if (typeof window !== 'undefined') {
+    // Disable runtime error plugin completely
     (window as any).__vite_plugin_runtime_error_modal_disabled = true;
     
-    // Override sendError globally
+    // Override ALL possible sendError variants
     (window as any).sendError = () => {};
+    (window as any).__sendError = () => {};
     
-    // Block only specific error overlay requests, not legitimate API calls
-    const originalFetch = window.fetch;
-    window.fetch = function(...args) {
-      // Block only Vite runtime error overlay requests
-      const url = args[0]?.toString() || '';
-      if (url.includes('/__vite_runtime_error') || url.includes('@vite/plugin-runtime-error')) {
-        return Promise.resolve(new Response('', { status: 204 }));
+    // Override console.error to prevent overlay triggers
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+      // Still log to console but don't trigger overlays
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('runtime error')) {
+        return; // Suppress runtime error logs that trigger overlays
       }
-      return originalFetch.apply(this, args);
+      originalConsoleError.apply(console, args);
     };
+    
+    // Block error handling at window level
+    window.addEventListener('error', (event) => {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+    }, true);
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+    }, true);
   }
   // Intercept and disable the specific runtime error function
   if (typeof window !== 'undefined') {

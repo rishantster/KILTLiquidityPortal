@@ -12,6 +12,7 @@ import { eq, and } from 'drizzle-orm';
 // Smart contract configuration from database - Single Source of Truth
 import { blockchainConfigService } from './blockchain-config-service';
 import { treasuryConfig } from '@shared/schema';
+import { rpcManager } from './rpc-connection-manager';
 const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 
 // Use calculator private key instead of owner private key for signing
@@ -147,6 +148,7 @@ export class SmartContractService {
   private isContractDeployed: boolean = false; // Production: Deploy contracts before enabling
 
   constructor() {
+    // Initialize with primary RPC but use connection manager for resilient calls
     this.provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
     
     // Initialize contracts dynamically using database configuration
@@ -154,6 +156,93 @@ export class SmartContractService {
       console.error('Failed to initialize contracts:', error);
       this.isContractDeployed = false;
     });
+  }
+
+  /**
+   * Make resilient contract calls with automatic RPC failover
+   */
+  private async makeResilientCall<T>(
+    contractMethod: () => Promise<T>,
+    methodName: string,
+    maxRetries: number = 3
+  ): Promise<T> {
+    let lastError: Error | null = null;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔄 ${methodName} attempt ${attempt}/${maxRetries}`);
+        const result = await contractMethod();
+        console.log(`✅ ${methodName} successful on attempt ${attempt}`);
+        return result;
+      } catch (error: any) {
+        lastError = error;
+        console.log(`❌ ${methodName} failed on attempt ${attempt}:`, error.message);
+        
+        // Check if it's a rate limit error
+        if (error.message?.includes('rate limit') || error.message?.includes('over rate limit') || error.code === -32016) {
+          console.log(`⏳ Rate limit detected, switching RPC provider for attempt ${attempt + 1}`);
+          
+          if (attempt < maxRetries) {
+            // Get a different RPC client and recreate contracts
+            try {
+              await this.switchToAlternativeRPC();
+              await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Progressive delay
+              continue;
+            } catch (switchError) {
+              console.log(`❌ Failed to switch RPC provider:`, switchError);
+            }
+          }
+        }
+        
+        // If not rate limit or final attempt, wait and retry
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+      }
+    }
+    
+    throw lastError || new Error(`${methodName} failed after ${maxRetries} attempts`);
+  }
+
+  /**
+   * Switch to alternative RPC provider when primary fails
+   */
+  private async switchToAlternativeRPC(): Promise<void> {
+    try {
+      // Get an alternative RPC client from the connection manager
+      const altClient = await rpcManager.getClient();
+      
+      // Create new provider using the transport from alternative client
+      this.provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
+      
+      // Reinitialize contracts with new provider
+      if (this.wallet) {
+        this.wallet = new ethers.Wallet(this.wallet.privateKey, this.provider);
+        
+        if (this.rewardPoolContract) {
+          const contractAddress = await getSmartContractAddress();
+          this.rewardPoolContract = new ethers.Contract(
+            contractAddress,
+            REWARD_POOL_ABI,
+            this.wallet
+          );
+        }
+        
+        if (this.kiltTokenContract) {
+          const kilt = await blockchainConfigService.getKiltTokenAddress();
+          this.kiltTokenContract = new ethers.Contract(
+            kilt,
+            KILT_TOKEN_ABI,
+            this.wallet
+          );
+        }
+      }
+      
+      console.log(`🔄 Successfully switched to alternative RPC provider`);
+    } catch (error) {
+      console.error('Failed to switch RPC provider:', error);
+      throw error;
+    }
   }
 
   /**
@@ -363,7 +452,7 @@ export class SmartContractService {
    */
   async generateClaimSignature(
     userAddress: string,
-    amount?: number
+    amount?: number | null
   ): Promise<{ success: boolean; signature?: string; nonce?: number; totalRewardBalance?: number; error?: string }> {
     console.log('🏁 ============ BACKEND SIGNATURE GENERATION DETAILED LOG ============');
     console.log('🔐 SERVER LOG 1: generateClaimSignature called');
@@ -371,7 +460,7 @@ export class SmartContractService {
     console.log('🔐 SERVER LOG 3: Amount requested:', amount || 'Auto-calculated', 'KILT');
     
     // If amount not provided, calculate user's full claimable amount
-    if (!amount) {
+    if (!amount || amount <= 0) {
       console.log('🔐 SERVER LOG 3.1: Getting user claimable amount from API...');
       try {
         const response = await fetch(`http://localhost:5000/api/rewards/claimability/${userAddress}`);
@@ -398,14 +487,26 @@ export class SmartContractService {
       console.log('🔐 SERVER LOG 9: Contract address:', contractAddress);
       
       console.log('🔐 SERVER LOG 10: Getting user nonce from contract.nonces()...');
-      const userNonce = await this.rewardPoolContract.nonces(userAddress);
+      const userNonce = await this.makeResilientCall(
+        () => this.rewardPoolContract!.nonces(userAddress),
+        'nonces'
+      );
       console.log('🔐 SERVER LOG 11: User nonce from contract.nonces():', userNonce.toString());
       
       console.log('🔐 SERVER LOG 12: Getting absolute maximum claim limit...');
-      const absoluteMaxClaim = await this.rewardPoolContract.getAbsoluteMaxClaim();
+      const absoluteMaxClaim = await this.makeResilientCall(
+        () => this.rewardPoolContract!.getAbsoluteMaxClaim(),
+        'getAbsoluteMaxClaim'
+      );
       const absoluteMaxFormatted = Number(ethers.formatUnits(absoluteMaxClaim, 18));
       console.log('🔐 SERVER LOG 13: Absolute max claim:', absoluteMaxFormatted, 'KILT');
       
+      // Final validation: ensure amount is valid
+      if (!amount || amount <= 0) {
+        console.error('❌ SERVER LOG 13.5: Invalid amount after calculation');
+        return { success: false, error: 'Invalid claimable amount calculated' };
+      }
+
       // Validate amount against absolute claim limit
       if (amount > absoluteMaxFormatted) {
         console.error('❌ SERVER LOG 14: Amount exceeds maximum limit');
@@ -438,7 +539,10 @@ export class SmartContractService {
       
       console.log('🔐 SERVER LOG 24: Checking calculator authorization...');
       const calculatorAddress = this.wallet.address;
-      const isAuthorized = await this.rewardPoolContract.authorizedCalculators(calculatorAddress);
+      const isAuthorized = await this.makeResilientCall(
+        () => this.rewardPoolContract!.authorizedCalculators(calculatorAddress),
+        'authorizedCalculators'
+      );
       console.log('🔐 SERVER LOG 25: Calculator authorization status:', isAuthorized);
       
       console.log('🔐 SERVER LOG 26: Checking contract balance...');
@@ -462,7 +566,7 @@ export class SmartContractService {
         success: true,
         signature,
         nonce: Number(userNonce),
-        totalRewardBalance: amount
+        totalRewardBalance: amount! // We've already validated amount is not null/undefined above
       };
       
     } catch (error: unknown) {

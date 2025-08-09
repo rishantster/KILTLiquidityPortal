@@ -435,56 +435,7 @@ export function MainDashboard() {
         {/* Overlay for content readability */}
         <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }}></div>
         
-        {/* Vertical Social Widget - Desktop Only (Landing Page) */}
-        <div className="hidden lg:block fixed right-6 top-1/2 transform -translate-y-1/2 z-50">
-          <div className="flex flex-col gap-3 p-3 bg-black/60 backdrop-blur-sm border border-gray-800/50 rounded-xl shadow-2xl">
-            <a 
-              href="https://x.com/kiltprotocol" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/50 rounded-lg transition-all duration-300 backdrop-blur-sm hover:scale-110"
-              title="Follow KILT on X (Twitter)"
-            >
-              <SiX className="h-5 w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-            </a>
-            <a 
-              href="https://github.com/KILTprotocol" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/50 rounded-lg transition-all duration-300 backdrop-blur-sm hover:scale-110"
-              title="KILT Protocol on GitHub"
-            >
-              <SiGithub className="h-5 w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-            </a>
-            <a 
-              href="https://discord.gg/kiltprotocol" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/50 rounded-lg transition-all duration-300 backdrop-blur-sm hover:scale-110"
-              title="Join KILT Discord Community"
-            >
-              <SiDiscord className="h-5 w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-            </a>
-            <a 
-              href="https://t.me/KILTProtocolChat" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/50 rounded-lg transition-all duration-300 backdrop-blur-sm hover:scale-110"
-              title="KILT Protocol Telegram"
-            >
-              <SiTelegram className="h-5 w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-            </a>
-            <a 
-              href="https://kilt-protocol.medium.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group p-3 bg-black/40 hover:bg-[#ff0066]/10 border border-gray-800 hover:border-[#ff0066]/50 rounded-lg transition-all duration-300 backdrop-blur-sm hover:scale-110"
-              title="KILT Protocol on Medium"
-            >
-              <SiMedium className="h-5 w-5 text-white/80 group-hover:text-[#ff0066] transition-colors duration-300" />
-            </a>
-          </div>
-        </div>
+
 
         <div className="max-w-5xl mx-auto relative" style={{ zIndex: 10 }}>
           <div className="text-center pt-16 pb-8">
@@ -581,8 +532,8 @@ export function MainDashboard() {
               </p>
             </div>
 
-            {/* Social Media Links for Mobile */}
-            <div className="flex justify-center items-center gap-3 lg:hidden">
+            {/* Clean Social Media Links */}
+            <div className="flex justify-center items-center gap-3">
               <a 
                 href="https://x.com/kiltprotocol" 
                 target="_blank" 

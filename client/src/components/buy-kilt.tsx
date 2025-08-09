@@ -30,8 +30,8 @@ export function BuyKilt({
 
   return (
     <div className="space-y-6 tab-content-safe">
-      {/* Compact Balance Cards - Matching Overview Style */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-6">
+      {/* Balance Cards Row */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         {/* ETH Balance Card */}
         <div className="group relative">
           <div className="absolute inset-0 bg-gradient-to-br from-[#ff0066]/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-[#ff0066]/30"></div>
@@ -71,20 +71,18 @@ export function BuyKilt({
         </div>
       </div>
 
-      {/* Compact Swap Button */}
-      <div className="mb-6">
-        <Button 
-          onClick={() => setShowSwapModal(true)}
-          className="w-full h-12 bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#cc0052] hover:to-[#e6005c] text-white font-medium text-sm rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0"
-        >
-          <ArrowUpDown className="w-4 h-4 mr-2" />
-          Open Swap Interface
-        </Button>
-      </div>
+      {/* Swap Button */}
+      <Button 
+        onClick={() => setShowSwapModal(true)}
+        className="w-full h-12 bg-gradient-to-r from-[#ff0066] to-[#ff3385] hover:from-[#cc0052] hover:to-[#e6005c] text-white font-medium text-sm rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0"
+      >
+        <ArrowUpDown className="w-4 h-4 mr-2" />
+        Open Swap Interface
+      </Button>
 
-      {/* Market Information - Compact Grid */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-6">
-        {/* Pool Liquidity */}
+      {/* Market Information Grid */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+        {/* Pool TVL */}
         <div className="group relative">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent rounded-xl blur-xl transition-all duration-300 group-hover:from-blue-400/30"></div>
           <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-3 h-20 transition-all duration-300 group-hover:border-blue-400/30 group-hover:shadow-lg group-hover:shadow-blue-400/10 flex flex-col justify-between">

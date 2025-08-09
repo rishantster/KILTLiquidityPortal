@@ -352,7 +352,6 @@ export function RewardsTracking() {
 
   return (
     <div className="space-y-4">
-
       {/* Stats Header with Refresh Button */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-white text-lg font-heading">Reward Statistics</h2>
@@ -366,7 +365,6 @@ export function RewardsTracking() {
           Refresh
         </Button>
       </div>
-      
       {/* Detailed Reward Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {/* User Average APR Card */}
@@ -636,7 +634,7 @@ export function RewardsTracking() {
               
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="text-white/60">24h Volume:</span>
+                  <span className="text-white/60">24h Trading Volume:</span>
                   <span className="text-white">${programAnalytics?.poolVolume24h?.toLocaleString() || '0'}</span>
                 </div>
                 <div className="flex justify-between text-xs">

@@ -223,10 +223,25 @@ export class SwapService {
       const kiltPriceUsd = parseFloat(pair.priceUsd);
       const ethPriceUsd = 4180; // Approximate ETH price
       
-      // Extract price impact from volume/liquidity data
-      const liquidityUsd = pair.liquidity?.usd || 0;
+      // Calculate realistic price impact based on AMM mechanics
+      const liquidityUsd = pair.liquidity?.usd || 100000; // Use 100k as default if missing
       const swapValueUsd = fromToken === 'ETH' ? (value * ethPriceUsd) : (value * kiltPriceUsd);
-      const priceImpact = Math.min((swapValueUsd / liquidityUsd) * 100, 15); // Cap at 15%
+      
+      // More realistic price impact calculation for AMM pools
+      // For small swaps (<$100), impact should be minimal (0.01-0.1%)
+      // For medium swaps ($100-1000), linear scaling (0.1-1%)
+      // For large swaps (>$1000), higher impact (1%+)
+      let priceImpact = 0.05; // Base 0.05% impact
+      
+      if (swapValueUsd < 100) {
+        priceImpact = Math.max(0.01, (swapValueUsd / liquidityUsd) * 50); // Very small impact
+      } else if (swapValueUsd < 1000) {
+        priceImpact = 0.1 + (swapValueUsd / liquidityUsd) * 100; // Linear scaling
+      } else {
+        priceImpact = Math.min((swapValueUsd / liquidityUsd) * 100, 15); // Original formula for large swaps
+      }
+      
+      priceImpact = Math.max(0.01, Math.min(priceImpact, 15)); // Keep between 0.01% and 15%
       
       if (fromToken === 'ETH') {
         const kiltAmount = ((value * ethPriceUsd) / kiltPriceUsd).toFixed(2);

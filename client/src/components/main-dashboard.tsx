@@ -606,7 +606,7 @@ export function MainDashboard() {
         {/* Clean Professional Header */}
         <div className="w-full mb-8 py-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
           {/* Logo and Title Section - aligned with tabs/cards */}
-          <div className="flex items-center gap-4 flex-1">
+          <div className="flex items-center gap-6 flex-1">
             <div className="relative w-8 h-8 flex items-center justify-center ml-1">
               <CyberpunkKiltLogo size="sm" className="w-full h-full" />
             </div>

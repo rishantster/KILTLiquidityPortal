@@ -174,8 +174,12 @@ export class UnifiedRewardService {
 
     // CORE CALCULATION: R_u = (L_u/L_T) × (1 + ((D_u/P) × b_time)) × IRM × FRB × (R/P)
     const liquidityRatio = L_u / L_T;
-    const timeBoost = 1 + ((D_u / P) * b_time);
-    const dailyRewards = liquidityRatio * timeBoost * IRM * FRB * R_P;
+    const currentTimeBoost = 1 + ((D_u / P) * b_time);
+    
+    // REALISTIC DAILY RATE: Use average time boost for next 30 days instead of current
+    // This gives users a more realistic expectation of future earnings
+    const futureTimeBoostAverage = 1 + (((D_u + 15) / P) * b_time); // Avg boost for next 30 days
+    const dailyRewards = liquidityRatio * futureTimeBoostAverage * IRM * FRB * R_P;
 
     // ACCUMULATION: Always from position creation (hourly incremental as requested)
     const hourlyRewards = dailyRewards / 24;

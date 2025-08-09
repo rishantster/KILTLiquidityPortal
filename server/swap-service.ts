@@ -85,16 +85,6 @@ const ROUTER_ABI = [
     outputs: [],
     type: 'function'
   },
-  {
-    inputs: [
-      { name: 'token', type: 'address' },
-      { name: 'amountMinimum', type: 'uint256' },
-      { name: 'recipient', type: 'address' }
-    ],
-    name: 'sweepToken',
-    outputs: [],
-    type: 'function'
-  },
 
 ] as const;
 
@@ -369,7 +359,7 @@ export class SwapService {
         const refundETHCall = encodeFunctionData({
           abi: ROUTER_ABI,
           functionName: 'refundETH',
-          args: []
+          args: [0n] // Minimum amount to refund (0 means refund any leftover ETH)
         });
 
         // 4. Combine with multicall (exact Uniswap pattern)
@@ -393,7 +383,7 @@ export class SwapService {
           tokenOut: WETH_ADDRESS,
           fee: 3000,
           recipient: getAddress(userAddress),
-          deadline,
+          deadline: BigInt(deadline),
           amountIn,
           amountOutMinimum,
           sqrtPriceLimitX96: 0n

@@ -1551,7 +1551,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         activeLiquidityProviders: analyticsData.activeLiquidityProviders || 2,
         totalRewardsDistributed: analyticsData.totalDistributed || 1886,
         dailyBudget: treasuryConf?.dailyRewardsCap ? parseFloat(treasuryConf.dailyRewardsCap) : 25000,
-        programAPR: analyticsData.programAPR || 158.45,
+        programAPR: analyticsData.programAPR || 0,
         treasuryTotal: analyticsData.treasuryTotal || (treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) : 1500000),
         treasuryRemaining: analyticsData.treasuryRemaining || (treasuryConf?.totalAllocation ? parseFloat(treasuryConf.totalAllocation) - (analyticsData.totalDistributed || 0) : 1498114),
         totalDistributed: analyticsData.totalDistributed || 1886,
@@ -1648,14 +1648,10 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       res.json(displayData);
     } catch (error) {
       console.warn('⚡ EMERGENCY FALLBACK - Database too slow, instant response:', (error as Error).message);
-      // Instant real-time response to prevent UI blocking
-      res.setHeader('X-Source', 'emergency-realtime');
-      res.json({
-        tradingAPR: "4.49", // Current market rate
-        incentiveAPR: "158.45", // Treasury calculation
-        totalAPR: "162.94",
-        description: "Emergency real-time data",
-        source: "emergency_bypass"
+      // Return error instead of fallback values
+      res.status(503).json({
+        error: "Unable to retrieve authentic APR data",
+        message: "Please try again in a moment"
       });
     }
   });

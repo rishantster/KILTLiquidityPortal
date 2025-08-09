@@ -44,7 +44,7 @@ export class PerformanceCache {
       totalLiquidity: 99171, // Current pool TVL from DexScreener
       activeLiquidityProviders: 2, // Actual user count
       totalDistributed: 1886, // Real smart contract value
-      programAPR: 158.45,
+      programAPR: 0,
       totalPositions: 8, // Current active positions
       averagePositionSize: 1863,
       timestamp: Date.now()

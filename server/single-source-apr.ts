@@ -91,9 +91,9 @@ export class SingleSourceAPR {
       // Create the SINGLE SOURCE OF TRUTH
       const aprData: APRData = {
         // Program-wide APR (OFFICIAL VALUES)
-        programAPR: analytics.programAPR || 158.45,
-        tradingAPR: tradingAPR || 4.49,
-        totalProgramAPR: (analytics.programAPR || 158.45) + (tradingAPR || 4.49),
+        programAPR: analytics.programAPR || 0,
+        tradingAPR: tradingAPR || 0,
+        totalProgramAPR: (analytics.programAPR || 0) + (tradingAPR || 0),
         
         // Maximum theoretical
         maxTheoreticalAPR: maxAPR,
@@ -118,18 +118,8 @@ export class SingleSourceAPR {
       return aprData;
     } catch (error) {
       console.error('❌ Failed to get single source APR:', error);
-      // Return fallback values if everything fails
-      const fallbackData: APRData = {
-        programAPR: 158.45,
-        tradingAPR: 4.49,
-        totalProgramAPR: 162.94,
-        maxTheoreticalAPR: 150000,
-        source: 'authentic_program_data',
-        timestamp: Date.now(),
-        totalParticipants: 50,
-        totalProgramTVL: 99171
-      };
-      return fallbackData;
+      // Return authentic data only - no fallbacks
+      throw new Error('Unable to retrieve authentic APR data. Please try again.');
     }
   }
 
@@ -194,13 +184,8 @@ export class SingleSourceAPR {
       };
     } catch (error) {
       console.error('❌ getExpectedReturnsDisplay failed:', error);
-      // Return fallback values to prevent frontend errors
-      return {
-        tradingAPR: '4.49',
-        incentiveAPR: '158.45',
-        totalAPR: '162.94',
-        source: 'Fallback Values'
-      };
+      // Return error instead of fallback values
+      throw new Error('Unable to retrieve display values from authentic sources');
     }
   }
 

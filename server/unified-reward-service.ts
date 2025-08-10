@@ -297,14 +297,18 @@ export class UnifiedRewardService {
         { dailyRewards: 0, accumulated: 0 }
       );
 
-      const actualClaimableAmount = Math.max(0, totals.accumulated - actualClaimedAmount);
+      // FIXED: Ensure consistent calculation logic
+      // Total Accumulated = All rewards ever earned (both claimed + unclaimed)
+      // Total Claimable = Only unclaimed rewards available to claim now
+      
+      const totalAccumulated = Math.max(0, totals.accumulated);
+      const actualClaimableAmount = Math.max(0, totalAccumulated - actualClaimedAmount);
 
-      // Fix for UI consistency: Total Earned = Already Claimed + Currently Claimable
-      // This ensures Total Earned is never less than Claimed amount
-      const adjustedTotalEarned = actualClaimedAmount + actualClaimableAmount;
+      // Ensure Total Earned is never less than Claimed (data consistency check)
+      const adjustedTotalEarned = Math.max(totalAccumulated, actualClaimedAmount + actualClaimableAmount);
 
       return {
-        totalAccumulated: Math.max(totals.accumulated, adjustedTotalEarned),
+        totalAccumulated: adjustedTotalEarned,
         totalClaimable: actualClaimableAmount,
         totalClaimed: actualClaimedAmount || 0,
         activePositions: activePositions.length,

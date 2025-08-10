@@ -166,15 +166,17 @@ app.use((req, res, next) => {
 
 // Application startup
 (async () => {
-  // Health check endpoint for deployment (must be before all other routes)
-  app.get('/health', (req: Request, res: Response) => {
-    res.status(200).json({ 
-      status: 'ok', 
-      timestamp: new Date().toISOString(),
-      service: 'kilt-liquidity-portal',
-      environment: app.get("env")
+  try {
+    // Health check endpoint for deployment (must be before all other routes)
+    app.get('/health', (req: Request, res: Response) => {
+      res.status(200).json({ 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        service: 'kilt-liquidity-portal',
+        environment: app.get("env"),
+        uptime: process.uptime()
+      });
     });
-  });
 
   // Simple test endpoint to diagnose routing issues
   app.get('/test', (req: Request, res: Response) => {
@@ -253,16 +255,37 @@ app.use((req, res, next) => {
     enhancedErrorHandler(error, req, res, next);
   });
 
-  // Start server on port 5000
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, async () => {
-    log(`serving on port ${port}`);
+    // Start server
+    const port = parseInt(process.env.PORT || '5000');
+    server.listen({
+      port,
+      host: "0.0.0.0",
+    }, async () => {
+      log(`serving on port ${port}`);
+      console.log('✓ Server services initialized successfully');
+    });
+
+  } catch (error) {
+    console.error('❌ Fatal server startup error:', error);
     
-    // Server initialization complete
-    console.log('✓ Server services initialized successfully');
-  });
-})();
+    // Create minimal health endpoint even if startup fails
+    app.get('/health', (req: Request, res: Response) => {
+      res.status(503).json({ 
+        status: 'error', 
+        error: 'Server startup failed',
+        timestamp: new Date().toISOString()
+      });
+    });
+    
+    // Start server anyway with minimal functionality
+    const port = parseInt(process.env.PORT || '5000');
+    const http = await import('http');
+    const errorServer = http.createServer(app);
+    errorServer.listen(port, "0.0.0.0", () => {
+      console.log(`❌ Server started in error mode on port ${port}`);
+    });
+  }
+})().catch(error => {
+  console.error('❌ Uncaught startup error:', error);
+  process.exit(1);
+});

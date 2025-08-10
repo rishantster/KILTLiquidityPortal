@@ -4693,14 +4693,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Simple root endpoint
-  app.get("/", (req: Request, res: Response) => {
-    res.json({ 
-      message: "KILT Liquidity Portal API",
-      status: "running",
-      version: "1.0.0"
-    });
-  });
+  // Root endpoint removed - let Vite dev server handle React frontend
 
   return httpServer;
 }

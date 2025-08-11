@@ -194,8 +194,13 @@ app.use((req, res, next) => {
   try {
     console.log('🚀 Starting KILT Liquidity Portal server...');
     
-    // Emergency bypass for production deployment issues
-    if (process.env.NODE_ENV === 'production') {
+    // Emergency bypass for production deployment issues (force production on Replit)
+    const isProduction = process.env.NODE_ENV === 'production' || 
+                        process.env.REPLIT_DEPLOYMENT === '1' || 
+                        process.env.REPL_DEPLOYMENT === '1' ||
+                        (process.env.REPL_ID && !process.env.VITE_DEV_SERVER_URL);
+    
+    if (isProduction) {
       console.log('🚨 Emergency production mode: Minimal server configuration');
       
       // Basic health endpoint

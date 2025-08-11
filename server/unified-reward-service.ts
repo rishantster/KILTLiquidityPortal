@@ -457,8 +457,35 @@ export class UnifiedRewardService {
     // Calculate 24h pool fee earnings (0.3% fee tier)
     const poolFeeEarnings24h = (dexScreenerData.volume24h || 0) * 0.003;
     
-    // Get actual total distributed amount
-    const actualTotalDistributed = 1886; // Known claimed amount from contract
+    // Get actual total distributed amount by calling the unified reward service for all users
+    let actualTotalDistributed = 1886; // Fallback
+    try {
+      // Get all active users and sum their accumulated rewards
+      const { sql } = await import('drizzle-orm');
+      const usersResult = await db.execute(sql`
+        SELECT DISTINCT u.id 
+        FROM users u 
+        INNER JOIN lp_positions lp ON u.id = lp.user_id 
+        WHERE lp.is_active = true
+      `);
+      
+      let totalAccumulated = 0;
+      for (const userRow of usersResult.rows) {
+        try {
+          const userStats = await this.getUserRewardStats(Number(userRow.id));
+          totalAccumulated += userStats.totalAccumulated;
+        } catch (error) {
+          console.warn('Failed to get user stats for user', userRow.id);
+        }
+      }
+      
+      if (totalAccumulated > 0) {
+        actualTotalDistributed = Math.round(totalAccumulated);
+        console.log('💰 DYNAMIC DISTRIBUTED: Calculated', actualTotalDistributed, 'KILT from', usersResult.rows.length, 'users');
+      }
+    } catch (error) {
+      console.warn('Failed to calculate dynamic distributed amount, using fallback:', error);
+    }
     const treasuryRemaining = 1500000 - actualTotalDistributed;
     
     console.log('🔍 ENHANCED PROGRAM ANALYTICS - Pool TVL: $' + (dexScreenerData.poolTVL || 0).toLocaleString(), 'Unique Registered Users:', registeredUserCount, 'Total Active Positions:', totalRegisteredPositions);

@@ -460,7 +460,7 @@ export class UnifiedRewardService {
     // Get actual total distributed amount by calling the unified reward service for all users
     let actualTotalDistributed = 1886; // Fallback
     try {
-      // Get all active users and sum their accumulated rewards
+      // Get all active users and sum their CLAIMED rewards (not accumulated)
       const { sql } = await import('drizzle-orm');
       const usersResult = await db.execute(sql`
         SELECT DISTINCT u.id 
@@ -469,19 +469,19 @@ export class UnifiedRewardService {
         WHERE lp.is_active = true
       `);
       
-      let totalAccumulated = 0;
+      let totalClaimed = 0;
       for (const userRow of usersResult.rows) {
         try {
           const userStats = await this.getUserRewardStats(Number(userRow.id));
-          totalAccumulated += userStats.totalAccumulated;
+          totalClaimed += userStats.totalClaimed; // Use totalClaimed instead of totalAccumulated
         } catch (error) {
           console.warn('Failed to get user stats for user', userRow.id);
         }
       }
       
-      if (totalAccumulated > 0) {
-        actualTotalDistributed = Math.round(totalAccumulated);
-        console.log('💰 DYNAMIC DISTRIBUTED: Calculated', actualTotalDistributed, 'KILT from', usersResult.rows.length, 'users');
+      if (totalClaimed > 0) {
+        actualTotalDistributed = Math.round(totalClaimed);
+        console.log('💰 DYNAMIC DISTRIBUTED: Calculated', actualTotalDistributed, 'KILT claimed (total:', totalClaimed, ') from', usersResult.rows.length, 'users');
       }
     } catch (error) {
       console.warn('Failed to calculate dynamic distributed amount, using fallback:', error);

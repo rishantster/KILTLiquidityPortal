@@ -468,12 +468,13 @@ export class UnifiedRewardService {
     // Get actual total distributed amount with cached fallback for RPC failures
     let actualTotalDistributed = 3240; // Updated fallback to last known good value
     
-    // Check cache first to avoid fluctuations
+    // Check cache first to avoid fluctuations, but force fresh calculation if cache is older than 1 minute  
     const cachedDistributed = this.cache.get('total_distributed') as { amount: number; timestamp: number } | undefined;
-    if (cachedDistributed && (Date.now() - cachedDistributed.timestamp) < (this.CACHE_DURATION * 2)) {
+    if (cachedDistributed && (Date.now() - cachedDistributed.timestamp) < 60000) { // Only use cache for 1 minute
       actualTotalDistributed = cachedDistributed.amount;
-      console.log('💰 CACHED DISTRIBUTED: Using cached value', actualTotalDistributed, 'KILT to prevent fluctuations');
+      console.log('💰 CACHED DISTRIBUTED: Using cached value', actualTotalDistributed, 'KILT (cache age:', Math.round((Date.now() - cachedDistributed.timestamp) / 1000), 'seconds)');
     } else {
+      console.log('💰 FRESH CALCULATION: Cache expired or missing, calculating fresh distributed amount...');
       try {
         // Get all active users and sum their CLAIMED rewards (not accumulated)
         const { sql } = await import('drizzle-orm');
@@ -490,26 +491,26 @@ export class UnifiedRewardService {
         for (const userRow of usersResult.rows) {
           try {
             const userStats = await this.getUserRewardStats(Number(userRow.id));
-            if (userStats.totalClaimed >= 0) { // Only count successful responses
-              totalClaimed += userStats.totalClaimed;
-              successfulCalls++;
-            }
+            // Always count user stats - getUserRewardStats uses smart contract + database fallback
+            totalClaimed += userStats.totalClaimed;
+            successfulCalls++;
+            console.log(`📊 User ${userRow.id} claimed amount: ${userStats.totalClaimed} KILT`);
           } catch (error) {
             console.warn('Failed to get user stats for user', userRow.id);
           }
         }
         
-        // Only update if we got successful responses from smart contract calls
-        if (totalClaimed > 0 && successfulCalls > 0) {
+        // Always update if we got any response - getUserRewardStats handles smart contract failures internally
+        if (successfulCalls > 0) {
           actualTotalDistributed = Math.round(totalClaimed);
           // Cache the successful result to prevent fluctuations
           this.cache.set('total_distributed', { 
             amount: actualTotalDistributed, 
             timestamp: Date.now() 
           });
-          console.log('💰 DYNAMIC DISTRIBUTED: Calculated', actualTotalDistributed, 'KILT claimed (total:', totalClaimed, ') from', successfulCalls, 'successful calls');
+          console.log('💰 AUTHENTIC DISTRIBUTED: Calculated', actualTotalDistributed, 'KILT claimed (total:', totalClaimed, ') from', successfulCalls, 'user calculations');
         } else {
-          console.log('💰 DISTRIBUTED FALLBACK: RPC calls failed, using cached/fallback value', actualTotalDistributed, 'KILT');
+          console.log('💰 DISTRIBUTED FALLBACK: All user calculations failed, using cached/fallback value', actualTotalDistributed, 'KILT');
         }
       } catch (error) {
         console.warn('Failed to calculate dynamic distributed amount, using fallback:', error);

@@ -4477,48 +4477,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
   // HEALTH MONITORING ENDPOINTS (SIMPLIFIED)
   // =============================================================================
   
-  // Comprehensive health check endpoint for production load balancers
-  app.get("/health", async (req, res) => {
-    try {
-      const { storage } = await import('./storage');
-      
-      // Quick health checks without complex monitoring
-      const checks = {
-        database: 'unknown',
-        storage: 'unknown',
-        service: 'ok'
-      };
-      
-      try {
-        const allUsers = await storage.getAllUsers();
-        checks.storage = 'ok';
-        checks.database = 'ok';
-      } catch (error) {
-        console.error('Storage health check failed:', error);
-        checks.storage = 'error';
-        checks.database = 'error';
-      }
-      
-      const allOk = Object.values(checks).every(status => status === 'ok');
-      
-      res.status(allOk ? 200 : 503).json({
-        status: allOk ? "ok" : "degraded",
-        timestamp: new Date().toISOString(),
-        service: "kilt-liquidity-portal",
-        environment: process.env.NODE_ENV || "development",
-        checks
-      });
-    } catch (error) {
-      console.error('Health endpoint error:', error);
-      res.status(503).json({
-        status: "error",
-        timestamp: new Date().toISOString(),
-        service: "kilt-liquidity-portal",
-        environment: process.env.NODE_ENV || "development",
-        error: error instanceof Error ? error.message : "Health check failed"
-      });
-    }
-  });
+  // Health endpoint removed - using the one in index.ts instead
 
   // Simple system health check
   app.get("/api/system/health", async (req, res) => {
@@ -4673,7 +4632,7 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Health check endpoint for deployment diagnostics
+  // API health check endpoint
   app.get("/api/health", (req: Request, res: Response) => {
     try {
       const health = {

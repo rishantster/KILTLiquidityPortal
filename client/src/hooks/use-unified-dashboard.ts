@@ -82,8 +82,8 @@ export function useUnifiedDashboard() {
       }
     },
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds - much less aggressive
-    staleTime: 15000, // Consider data fresh for 15 seconds
+    refetchInterval: 15000, // Consistent 15 second refresh 
+    staleTime: 10000, // 10 second cache for consistency
     refetchOnWindowFocus: true,
     refetchOnMount: true
   });

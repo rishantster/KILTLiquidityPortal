@@ -98,8 +98,8 @@ export function RewardsTracking() {
       if (!response.ok) throw new Error('Failed to fetch APR data');
       return response.json();
     },
-    refetchInterval: 2000, // Ultra-fast refresh every 2 seconds for instant admin changes
-    staleTime: 0, // Always consider data stale for immediate updates
+    refetchInterval: 15000, // Consistent 15 second refresh 
+    staleTime: 10000, // 10 second cache for consistency
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnMount: true // Always refetch on component mount
   });
@@ -136,8 +136,8 @@ export function RewardsTracking() {
       }
     },
     enabled: !!address,
-    staleTime: 0,
-    refetchInterval: 3000, // Fast refresh for instant position updates
+    staleTime: 10000, // 10 second cache for consistency
+    refetchInterval: 15000, // Consistent 15 second refresh
     refetchOnWindowFocus: true
   });
 
@@ -150,8 +150,8 @@ export function RewardsTracking() {
       return response.json();
     },
     enabled: !!address,
-    staleTime: 0, // Force fresh data to show position count fix
-    refetchInterval: 5000, // Check every 5 seconds for immediate admin changes
+    staleTime: 10000, // 10 second cache for consistency
+    refetchInterval: 15000, // Consistent 15 second refresh
     refetchOnWindowFocus: true // Refetch when window gets focus
   });
 
@@ -164,7 +164,8 @@ export function RewardsTracking() {
       return response.json();
     },
     enabled: !!address,
-    refetchInterval: 60000 // Check every minute
+    staleTime: 10000, // 10 second cache for consistency
+    refetchInterval: 15000 // Consistent 15 second refresh
   });
 
   // Real-time countdown timer with live updates
@@ -265,7 +266,8 @@ export function RewardsTracking() {
       return response.json();
     },
     enabled: !!address,
-    refetchInterval: 30000
+    staleTime: 10000, // 10 second cache for consistency
+    refetchInterval: 15000 // Consistent 15 second refresh
   });
 
   // Get blockchain claiming functionality
@@ -414,8 +416,8 @@ export function RewardsTracking() {
               <Unlock className="h-4 w-4 text-[#ff0066]" />
             </div>
             <div className="text-lg font-bold tabular-nums text-white flex items-center gap-2 mb-1">
-              {/* FIXED: Use claimability data which shows accumulating rewards even during lock */}
-              {(claimability?.claimable || rewardStats?.totalClaimable || 0).toFixed(2)}
+              {/* CONSISTENT: Always use rewardStats as primary source */}
+              {(rewardStats?.totalClaimable || 0).toFixed(2)}
               <img 
                 src={kiltLogo} 
                 alt="KILT" 
@@ -423,26 +425,20 @@ export function RewardsTracking() {
               />
             </div>
             <div className="text-xs text-white/60 mb-1">
-              {/* FIXED: Show accurate status based on lock period enforcement */}
-              {claimability?.canClaim && (claimability?.claimable || 0) > 0
+              {/* CONSISTENT: Use rewardStats for status */}
+              {(rewardStats?.totalClaimable || 0) > 0
                 ? 'Available now'
-                : claimability?.lockExpiryDate && !claimability?.canClaim
-                  ? `Next claim: ${new Date(claimability.lockExpiryDate).toLocaleDateString()}`
-                  : (claimability?.claimable || rewardStats?.totalClaimable || 0) > 0
-                    ? countdownText || 'Accumulating...'
-                    : (rewardStats?.totalAccumulated || 0) > 0
-                      ? 'Accumulating rewards...'
-                      : 'Start earning rewards'
+                : (rewardStats?.totalAccumulated || 0) > 0
+                  ? 'Accumulating rewards...'
+                  : 'Start earning rewards'
               }
             </div>
             <div className="flex items-center justify-between">
               <div className="text-xs text-[#ff0066] font-medium">
-                {/* FIXED: Always show USD value of accumulating rewards */}
-                {((claimability?.claimable || rewardStats?.totalClaimable || 0) > 0) 
-                  ? `≈ $${((claimability?.claimable || rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
-                  : (rewardStats?.totalAccumulated || 0) > 0
-                    ? `≈ $${((rewardStats?.totalAccumulated || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
-                    : 'Connect positions to earn'
+                {/* CONSISTENT: Always use rewardStats for USD calculations */}
+                {(rewardStats?.totalClaimable || 0) > 0 
+                  ? `≈ $${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD`
+                  : 'Connect positions to earn'
                 }
               </div>
             </div>
@@ -501,16 +497,15 @@ export function RewardsTracking() {
           <CardContent className="space-y-3 p-3">
             <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
               <div className="text-white/60 text-xs mb-1 font-medium">
-                {claimability?.canClaim && (claimability?.claimable || 0) > 0
+                {(rewardStats?.totalClaimable || 0) > 0
                   ? 'Available Now' 
-                  : claimability?.lockExpiryDate && !claimability?.canClaim
-                    ? `Lock until: ${new Date(claimability.lockExpiryDate).toLocaleDateString()}`
-                    : (rewardStats?.totalAccumulated || 0) > 0
-                      ? 'Accumulating'
-                      : 'Status'
+                  : (rewardStats?.totalAccumulated || 0) > 0
+                    ? 'Accumulating'
+                    : 'Status'
                 }
               </div>
               <div className="text-white text-xl mb-2 flex items-center justify-center gap-2 numeric-large">
+                {/* CORRECTED: Show actual claimable amount, not accumulated */}
                 {(rewardStats?.totalClaimable || 0).toFixed(2)} 
                 <img 
                   src={kiltLogo} 
@@ -518,15 +513,21 @@ export function RewardsTracking() {
                   className="h-5 w-5"
                 />
               </div>
+              {/* Show accumulated amount when claimable is 0 but accumulated > 0 */}
+              {(rewardStats?.totalClaimable || 0) === 0 && (rewardStats?.totalAccumulated || 0) > 0 && (
+                <div className="text-green-400/80 text-xs mb-2">
+                  {(rewardStats?.totalAccumulated || 0).toFixed(2)} KILT accumulated (locked)
+                </div>
+              )}
               <div className="text-white/50 text-sm mb-3">
                 ≈ ${((rewardStats?.totalClaimable || 0) * (kiltData?.price || 0)).toFixed(2)} USD
               </div>
               
               <Button 
                 onClick={() => claimMutation.mutate()}
-                disabled={claimMutation.isPending || isClaiming || !hasCalculatedRewards || !claimability?.canClaim}
+                disabled={claimMutation.isPending || isClaiming || (rewardStats?.totalClaimable || 0) === 0 || !claimability?.canClaim}
                 className={`w-full font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-300 ${
-                  hasCalculatedRewards && claimability?.canClaim
+                  (rewardStats?.totalClaimable || 0) > 0 && claimability?.canClaim
                     ? 'bg-gradient-to-r from-[#ff0066] to-[#cc0052] hover:from-[#ff1a75] hover:to-[#e60059] text-white shadow-lg hover:shadow-xl shadow-[#ff0066]/20' 
                     : 'bg-gray-600 text-gray-300 cursor-not-allowed'
                 }`}
@@ -536,15 +537,15 @@ export function RewardsTracking() {
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     {isClaiming ? 'Processing Smart Contract Transaction...' : 'Distributing & Claiming...'}
                   </>
-                ) : hasCalculatedRewards && claimability?.canClaim ? (
+                ) : (rewardStats?.totalClaimable || 0) > 0 ? (
                   <>
                     <Award className="h-4 w-4 mr-2" />
-                    Claim {calculatedRewards.toFixed(2)} KILT
+                    Claim {(rewardStats?.totalClaimable || 0).toFixed(2)} KILT
                   </>
-                ) : hasCalculatedRewards && !claimability?.canClaim ? (
+                ) : (rewardStats?.totalAccumulated || 0) > 0 && !claimability?.canClaim ? (
                   <>
                     <Clock className="h-4 w-4 mr-2" />
-                    Locked until {claimability?.lockExpiryDate ? new Date(claimability.lockExpiryDate).toLocaleDateString() : 'next claim'}
+                    Locked until {claimability?.lockExpiryDate ? new Date(claimability.lockExpiryDate).toLocaleDateString() : 'tomorrow'}
                   </>
                 ) : (
                   <>

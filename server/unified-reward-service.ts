@@ -41,7 +41,7 @@ interface UserRewardStats {
 }
 
 export class UnifiedRewardService {
-  private cache: Map<string, CachedData> = new Map();
+  private cache: Map<string, any> = new Map(); // Allow different cache types
   private readonly CACHE_DURATION = 30000; // 30 seconds - balance between performance and real-time data
   private readonly FALLBACK_POOL_TVL = 99171; // Fallback TVL
   private readonly FALLBACK_TRADING_APR = 0;
@@ -457,34 +457,55 @@ export class UnifiedRewardService {
     // Calculate 24h pool fee earnings (0.3% fee tier)
     const poolFeeEarnings24h = (dexScreenerData.volume24h || 0) * 0.003;
     
-    // Get actual total distributed amount by calling the unified reward service for all users
-    let actualTotalDistributed = 1886; // Fallback
-    try {
-      // Get all active users and sum their CLAIMED rewards (not accumulated)
-      const { sql } = await import('drizzle-orm');
-      const usersResult = await db.execute(sql`
-        SELECT DISTINCT u.id 
-        FROM users u 
-        INNER JOIN lp_positions lp ON u.id = lp.user_id 
-        WHERE lp.is_active = true
-      `);
-      
-      let totalClaimed = 0;
-      for (const userRow of usersResult.rows) {
-        try {
-          const userStats = await this.getUserRewardStats(Number(userRow.id));
-          totalClaimed += userStats.totalClaimed; // Use totalClaimed instead of totalAccumulated
-        } catch (error) {
-          console.warn('Failed to get user stats for user', userRow.id);
+    // Get actual total distributed amount with cached fallback for RPC failures
+    let actualTotalDistributed = 3240; // Updated fallback to last known good value
+    
+    // Check cache first to avoid fluctuations
+    const cachedDistributed = this.cache.get('total_distributed') as { amount: number; timestamp: number } | undefined;
+    if (cachedDistributed && (Date.now() - cachedDistributed.timestamp) < (this.CACHE_DURATION * 2)) {
+      actualTotalDistributed = cachedDistributed.amount;
+      console.log('💰 CACHED DISTRIBUTED: Using cached value', actualTotalDistributed, 'KILT to prevent fluctuations');
+    } else {
+      try {
+        // Get all active users and sum their CLAIMED rewards (not accumulated)
+        const { sql } = await import('drizzle-orm');
+        const usersResult = await db.execute(sql`
+          SELECT DISTINCT u.id 
+          FROM users u 
+          INNER JOIN lp_positions lp ON u.id = lp.user_id 
+          WHERE lp.is_active = true
+        `);
+        
+        let totalClaimed = 0;
+        let successfulCalls = 0;
+        
+        for (const userRow of usersResult.rows) {
+          try {
+            const userStats = await this.getUserRewardStats(Number(userRow.id));
+            if (userStats.totalClaimed >= 0) { // Only count successful responses
+              totalClaimed += userStats.totalClaimed;
+              successfulCalls++;
+            }
+          } catch (error) {
+            console.warn('Failed to get user stats for user', userRow.id);
+          }
         }
+        
+        // Only update if we got successful responses from smart contract calls
+        if (totalClaimed > 0 && successfulCalls > 0) {
+          actualTotalDistributed = Math.round(totalClaimed);
+          // Cache the successful result to prevent fluctuations
+          this.cache.set('total_distributed', { 
+            amount: actualTotalDistributed, 
+            timestamp: Date.now() 
+          });
+          console.log('💰 DYNAMIC DISTRIBUTED: Calculated', actualTotalDistributed, 'KILT claimed (total:', totalClaimed, ') from', successfulCalls, 'successful calls');
+        } else {
+          console.log('💰 DISTRIBUTED FALLBACK: RPC calls failed, using cached/fallback value', actualTotalDistributed, 'KILT');
+        }
+      } catch (error) {
+        console.warn('Failed to calculate dynamic distributed amount, using fallback:', error);
       }
-      
-      if (totalClaimed > 0) {
-        actualTotalDistributed = Math.round(totalClaimed);
-        console.log('💰 DYNAMIC DISTRIBUTED: Calculated', actualTotalDistributed, 'KILT claimed (total:', totalClaimed, ') from', usersResult.rows.length, 'users');
-      }
-    } catch (error) {
-      console.warn('Failed to calculate dynamic distributed amount, using fallback:', error);
     }
     const treasuryRemaining = 1500000 - actualTotalDistributed;
     

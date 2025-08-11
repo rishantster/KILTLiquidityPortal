@@ -327,28 +327,111 @@ export function RewardsTracking() {
     );
   }
 
-  // Refresh function to reload all data
-  const handleRefresh = () => {
-    console.log('🚀 Admin change detected - triggering blazing fast cache refresh');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Refresh function to reload all rewards data (tab-specific, not whole page)
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    console.log('🔄 Refreshing rewards tab data only...');
     
-    // CRITICAL: Clear the programAnalytics cache completely
-    queryClient.removeQueries({ queryKey: ['programAnalytics'] });
-    queryClient.invalidateQueries({ queryKey: ['programAnalytics'] });
-    
-    // FIXED: Invalidate correct query keys to force fresh data
-    queryClient.invalidateQueries({ queryKey: ['/api/rewards/user'], exact: false }); // Match actual API calls
-    queryClient.invalidateQueries({ queryKey: ['reward-stats'] }); // Legacy compatibility
-    queryClient.invalidateQueries({ queryKey: ['user-stats'], exact: false }); // Alternative pattern
-    queryClient.invalidateQueries({ queryKey: ['user-average-apr'] });
-    queryClient.invalidateQueries({ queryKey: ['claimability'] });
-    queryClient.invalidateQueries({ queryKey: ['reward-history'] });
-    queryClient.invalidateQueries({ queryKey: ['kilt-data'] });
-    queryClient.invalidateQueries({ queryKey: ['expected-returns'] });
-    queryClient.invalidateQueries({ queryKey: ['maximum-apr'] });
-    
-    // Force refresh the specific user stats that power the UI
-    if (unifiedData?.user?.id) {
-      queryClient.invalidateQueries({ queryKey: ['/api/rewards/user', unifiedData.user.id, 'stats'] });
+    try {
+      // Force immediate refetch of all rewards-related data
+      const refreshPromises = [];
+      
+      // Clear and refetch core rewards data
+      queryClient.removeQueries({ queryKey: ['programAnalytics'] });
+      queryClient.removeQueries({ queryKey: ['claimability', address] });
+      queryClient.removeQueries({ queryKey: ['reward-history', address] });
+      queryClient.removeQueries({ queryKey: ['maxAPR'] });
+      queryClient.removeQueries({ queryKey: ['expected-returns'] });
+      queryClient.removeQueries({ queryKey: ['eligible-positions', address] });
+      
+      // Force refetch with immediate execution - using proper queryFn definitions
+      if (address) {
+        refreshPromises.push(
+          queryClient.fetchQuery({
+            queryKey: ['programAnalytics'],
+            queryFn: async () => {
+              const response = await fetch('/api/rewards/program-analytics');
+              if (!response.ok) throw new Error('Failed to fetch program analytics');
+              return response.json();
+            }
+          }),
+          queryClient.fetchQuery({
+            queryKey: ['claimability', address],
+            queryFn: async () => {
+              const response = await fetch(`/api/rewards/claimability/${address}`);
+              if (!response.ok) throw new Error('Failed to fetch claimability');
+              return response.json();
+            }
+          }),
+          queryClient.fetchQuery({
+            queryKey: ['reward-history', address],
+            queryFn: async () => {
+              const response = await fetch(`/api/rewards/history/${address}`);
+              if (!response.ok) throw new Error('Failed to fetch reward history');
+              return response.json();
+            }
+          }),
+          queryClient.fetchQuery({
+            queryKey: ['maxAPR'],
+            queryFn: async () => {
+              const response = await fetch('/api/rewards/maximum-apr');
+              if (!response.ok) throw new Error('Failed to fetch APR data');
+              return response.json();
+            }
+          }),
+          queryClient.fetchQuery({
+            queryKey: ['expected-returns'],
+            queryFn: async () => {
+              const response = await fetch('/api/rewards/expected-returns');
+              if (!response.ok) throw new Error('Failed to fetch expected returns');
+              return response.json();
+            }
+          }),
+          queryClient.fetchQuery({
+            queryKey: ['eligible-positions', address],
+            queryFn: async () => {
+              const response = await fetch(`/api/positions/eligible/${address}`);
+              if (!response.ok) throw new Error('Failed to fetch eligible positions');
+              return response.json();
+            }
+          })
+        );
+      }
+      
+      // Force refresh user stats if available
+      if (unifiedData?.user?.id) {
+        queryClient.removeQueries({ queryKey: ['/api/rewards/user', unifiedData.user.id, 'stats'] });
+        refreshPromises.push(
+          queryClient.fetchQuery({
+            queryKey: ['/api/rewards/user', unifiedData.user.id, 'stats'],
+            queryFn: async () => {
+              const response = await fetch(`/api/rewards/user/${unifiedData.user.id}/stats`);
+              if (!response.ok) throw new Error('Failed to fetch user stats');
+              return response.json();
+            }
+          })
+        );
+      }
+      
+      // Wait for all refreshes to complete
+      await Promise.allSettled(refreshPromises);
+      
+      toast({
+        title: "Rewards Data Refreshed",
+        description: "All rewards information has been updated successfully",
+      });
+      
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      toast({
+        title: "Refresh Failed",
+        description: "Failed to refresh rewards data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -359,12 +442,17 @@ export function RewardsTracking() {
         <h2 className="text-white text-lg font-heading">Reward Statistics</h2>
         <Button
           onClick={handleRefresh}
+          disabled={isRefreshing}
           variant="outline"
           size="sm"
-          className="bg-black/40 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50 text-white/80 hover:text-white transition-all duration-200"
+          className="bg-black/40 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50 text-white/80 hover:text-white transition-all duration-200 disabled:opacity-50"
         >
-          <RefreshCw className="h-3 w-3 mr-1" />
-          Refresh
+          {isRefreshing ? (
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3 w-3 mr-1" />
+          )}
+          {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
       {/* Detailed Reward Overview */}

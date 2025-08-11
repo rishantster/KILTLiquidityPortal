@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { db } from './db';
 import { rewards, users, adminOperations } from '@shared/schema';
-import { eq, and, lt, isNull } from 'drizzle-orm';
+import { eq, and, lt, isNull, isNotNull } from 'drizzle-orm';
 import { smartContractService } from './smart-contract-service';
 import { blockchainConfigService } from './blockchain-config-service';
 import { unifiedRewardService } from './unified-reward-service';
@@ -59,9 +59,9 @@ export class ClaimBasedRewards {
    */
   async checkClaimability(userAddress: string): Promise<RewardClaimability> {
     try {
-      // Get the current lock period from admin configuration
-      const lockPeriodDays = await this.getLockPeriodDays();
-      console.log(`🔒 CLAIMABILITY CHECK: Lock period is ${lockPeriodDays} days for user ${userAddress}`);
+      // Get the current lock period from admin configuration (only applies to first-ever claim)
+      const baseLockPeriodDays = await this.getLockPeriodDays();
+      console.log(`🔒 CLAIMABILITY CHECK: Base lock period is ${baseLockPeriodDays} days for first-time claims only`);
       
       // Get user from database
       const [user] = await db.select().from(users).where(eq(users.address, userAddress));
@@ -69,11 +69,27 @@ export class ClaimBasedRewards {
         return {
           canClaim: false,
           lockExpired: false,
-          daysRemaining: lockPeriodDays,
+          daysRemaining: baseLockPeriodDays,
           totalClaimable: 0,
           lockExpiryDate: new Date()
         };
       }
+
+      // Check if user has ever claimed rewards before (determine if this is first-time claim)
+      const claimedRewards = await db.select()
+        .from(rewards)
+        .where(
+          and(
+            eq(rewards.userId, user.id),
+            isNotNull(rewards.claimedAt)
+          )
+        )
+        .limit(1);
+
+      const hasClaimedBefore = claimedRewards.length > 0;
+      const effectiveLockPeriodDays = hasClaimedBefore ? 0 : baseLockPeriodDays; // No lock after first claim
+
+      console.log(`🎯 EFFECTIVE_LOCK_PERIOD: ${effectiveLockPeriodDays} days (${hasClaimedBefore ? 'Returning user - no lock' : 'First-time user - applying lock'})`);
 
       // Get all unclaimed rewards for this user
       const userRewards = await db.select()
@@ -89,7 +105,7 @@ export class ClaimBasedRewards {
         // No database records - check if user has accumulated rewards via calculation
         console.log(`🔍 No reward records found for user ${user.id}, checking calculated rewards`);
         
-        if (lockPeriodDays === 0) {
+        if (effectiveLockPeriodDays === 0) {
           try {
             console.log(`📊 Fetching reward stats for user ID: ${user.id}`);
             const rewardStats = await unifiedRewardService.getUserRewardStats(user.id);
@@ -113,23 +129,23 @@ export class ClaimBasedRewards {
             console.log('❌ Error fetching calculated rewards:', error);
           }
         } else {
-          console.log(`🔒 Lock period is ${lockPeriodDays} days, rewards not immediately claimable`);
+          console.log(`🔒 First-time user lock period is ${effectiveLockPeriodDays} days, rewards not immediately claimable`);
         }
         
         return {
           canClaim: false,
           lockExpired: false,
-          daysRemaining: lockPeriodDays, // Show configured lock period as countdown
+          daysRemaining: effectiveLockPeriodDays, // Show configured lock period as countdown
           totalClaimable: 0,
           lockExpiryDate: new Date()
         };
       }
 
-      // DYNAMIC LOCK LOGIC: Admin-configured lock period, then daily claims
+      // DYNAMIC LOCK LOGIC: Admin-configured lock period applies only to first-ever claim
       const now = new Date();
       
-      // If lock period is 0 days, rewards are immediately claimable
-      if (lockPeriodDays === 0) {
+      // If effective lock period is 0 days (returning user or no lock configured), rewards are immediately claimable
+      if (effectiveLockPeriodDays === 0) {
         // Get accumulated rewards from the same source as reward stats
         let totalClaimable = 0;
         if (userRewards.length > 0) {
@@ -166,13 +182,13 @@ export class ClaimBasedRewards {
         return rewardDate < earliestDate ? reward : earliest;
       });
 
-      // Calculate when the lock period expires from first reward
+      // Calculate when the lock period expires from first reward (only for first-time claimers)
       const lockExpiryDate = new Date(earliestReward.createdAt || new Date());
-      lockExpiryDate.setDate(lockExpiryDate.getDate() + lockPeriodDays);
+      lockExpiryDate.setDate(lockExpiryDate.getDate() + effectiveLockPeriodDays);
       
-      // Check if initial 7-day lock period has expired
+      // Check if initial lock period has expired (or if user is returning user with no lock)
       if (now >= lockExpiryDate) {
-        // After Day 8: User can claim ALL accumulated rewards (daily claims)
+        // After lock expires OR returning user: User can claim ALL accumulated rewards
         const totalClaimable = userRewards.reduce((sum, reward) => {
           return sum + parseFloat(reward.dailyRewardAmount || '0');
         }, 0);
@@ -185,7 +201,7 @@ export class ClaimBasedRewards {
           lockExpiryDate
         };
       } else {
-        // Still in initial 7-day lock period
+        // Still in initial lock period (first-time claimers only)
         const daysRemaining = Math.ceil((lockExpiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return {
           canClaim: false,
@@ -269,16 +285,31 @@ export class ClaimBasedRewards {
         return rewardDate < earliestDate ? reward : earliest;
       });
 
-      // Calculate when the 7-day lock period expires from first reward
+      // Check if user has ever claimed before (same logic as checkClaimability)
+      const claimedRewards = await db.select()
+        .from(rewards)
+        .where(
+          and(
+            eq(rewards.userId, user.id),
+            isNotNull(rewards.claimedAt)
+          )
+        )
+        .limit(1);
+
+      const hasClaimedBefore = claimedRewards.length > 0;
+      const baseLockPeriodDays = await this.getLockPeriodDays();
+      const effectiveLockPeriodDays = hasClaimedBefore ? 0 : baseLockPeriodDays; // No lock after first claim
+
+      // Calculate when the lock period expires from first reward (only for first-time claimers)
       const lockExpiryDate = new Date(earliestReward.createdAt || new Date());
-      lockExpiryDate.setDate(lockExpiryDate.getDate() + await this.getLockPeriodDays());
+      lockExpiryDate.setDate(lockExpiryDate.getDate() + effectiveLockPeriodDays);
       
-      // Check if lock period has expired
+      // Check if lock period has expired (or if user is returning user with no lock)
       if (now < lockExpiryDate) {
         const daysRemaining = Math.ceil((lockExpiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return {
           success: false,
-          error: `Lock period active. ${daysRemaining} days remaining until you can claim rewards.`,
+          error: `First-time claim lock period active. ${daysRemaining} days remaining until you can claim rewards.`,
           amount: 0,
           recipient: userAddress,
           lockExpired: false,
@@ -286,7 +317,7 @@ export class ClaimBasedRewards {
         };
       }
 
-      // After Day 8: All rewards are claimable (daily claim pattern)
+      // After lock expires OR returning user: All rewards are claimable
       const claimableRewards = userRewards; // All rewards are claimable
 
       // Calculate total amount to claim (all accumulated rewards)

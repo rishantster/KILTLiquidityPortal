@@ -1793,76 +1793,110 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         return;
       }
       
-      // Get admin panel lock period configuration from database
+      // Get admin panel lock period configuration from database (applies only to first-ever claim)
       const { programSettings } = await import('../shared/schema');
       const [settings] = await db.select().from(programSettings).limit(1);
-      const lockPeriodDays = settings?.lockPeriod || 0;
-      // ADMIN-CONFIGURABLE: If lock period is 0, rewards are immediately available
-      const effectiveLockHours = lockPeriodDays * 24;
+      const baseLockPeriodDays = settings?.lockPeriod || 0;
       
-      console.log(`🔧 Admin panel lock period: ${lockPeriodDays} days (effective: ${effectiveLockHours} hours) ${lockPeriodDays === 0 ? '- IMMEDIATE AVAILABILITY' : ''}`);
-      
-      // Get user's ACTUAL last claim time from smart contract
+      // Check if user has ever claimed before to determine effective lock period
+      let hasClaimedBefore = false;
       let lastClaimTime;
+      
       try {
         // First try to get actual last claim time from smart contract user stats
         const userStats = await smartContractService.getUserStats(userAddress);
         if (userStats.success && userStats.lastClaim && userStats.lastClaim > 0) {
           lastClaimTime = new Date(userStats.lastClaim * 1000); // Convert Unix timestamp to Date
-          console.log(`🔧 Using REAL last claim time from smart contract: ${lastClaimTime.toISOString()}`);
+          hasClaimedBefore = true;
+          console.log(`🔧 User has claimed before: ${lastClaimTime.toISOString()}`);
         } else {
-          // Fallback: Users with no claim history wait from registration time
-          lastClaimTime = user.createdAt;
-          console.log(`🔧 User has never claimed, using registration time: ${lastClaimTime}`);
+          // Check database for claim history as fallback
+          const userRewards = await storage.getRewardsByUserId(user.id);
+          const lastClaim = userRewards.find(r => r.claimedAt);
+          if (lastClaim) {
+            lastClaimTime = lastClaim.claimedAt;
+            hasClaimedBefore = true;
+            console.log(`🔧 User has claimed before (DB): ${lastClaimTime}`);
+          } else {
+            // User has never claimed, use registration time for lock calculation
+            lastClaimTime = user.createdAt;
+            hasClaimedBefore = false;
+            console.log(`🔧 User has NEVER claimed - applying first-time lock from registration: ${lastClaimTime}`);
+          }
         }
       } catch (contractError) {
         console.log(`⚠️ Smart contract check failed, using database fallback:`, contractError);
         // Fallback to database if smart contract call fails
         const userRewards = await storage.getRewardsByUserId(user.id);
-        lastClaimTime = userRewards.find(r => r.claimedAt)?.claimedAt || user.createdAt;
+        const lastClaim = userRewards.find(r => r.claimedAt);
+        if (lastClaim) {
+          lastClaimTime = lastClaim.claimedAt;
+          hasClaimedBefore = true;
+        } else {
+          lastClaimTime = user.createdAt;
+          hasClaimedBefore = false;
+        }
       }
+
+      // FIRST-CLAIM-ONLY LOCK: Lock period only applies to users who have never claimed
+      const effectiveLockPeriodDays = hasClaimedBefore ? 0 : baseLockPeriodDays;
+      const effectiveLockHours = effectiveLockPeriodDays * 24;
       
-      // Calculate next claim availability based on admin setting
-      // If lock period is 0, rewards are immediately available
-      const nextClaimMs = lockPeriodDays === 0 ? Date.now() : (lastClaimTime?.getTime() || Date.now()) + (effectiveLockHours * 60 * 60 * 1000);
+      console.log(`🎯 FIRST-CLAIM-ONLY LOCK: Base period ${baseLockPeriodDays} days, effective ${effectiveLockPeriodDays} days (${hasClaimedBefore ? 'Returning user - no lock' : 'First-time user - applying lock'})`);
+      
+      // Calculate next claim availability - immediate for returning users
+      const nextClaimMs = effectiveLockPeriodDays === 0 ? Date.now() : (lastClaimTime?.getTime() || Date.now()) + (effectiveLockHours * 60 * 60 * 1000);
       const now = Date.now();
       const canClaim = now >= nextClaimMs;
       const nextClaimDate = new Date(nextClaimMs);
       const timeUntilClaimable = Math.max(0, nextClaimMs - now);
       
-      console.log(`⏰ Admin-based claimability: lastClaim=${lastClaimTime}, nextClaim=${nextClaimDate}, canClaim=${canClaim}`);
+      console.log(`⏰ First-claim-only claimability: lastClaim=${lastClaimTime}, nextClaim=${nextClaimDate}, canClaim=${canClaim}, hasClaimedBefore=${hasClaimedBefore}`);
       
-      // PERFORMANCE FIX: Use fast cached calculation instead of slow unified service
-      // This prevents the long calculation delay that causes wrong data to be served
+      // Use unified reward service for accurate accumulated/claimable amounts
       let totalAccumulated = 0;
       let actualClaimable = 0;
       
       try {
-        // Fast calculation using cached smart contract data
+        // First try smart contract data for performance
         const userStats = await smartContractService.getUserStats(userAddress);
-        if (userStats.success) {
+        if (userStats.success && parseFloat(userStats.claimableAmount || "0") > 0) {
           actualClaimable = parseFloat(userStats.claimableAmount || "0");
           totalAccumulated = actualClaimable; // For display consistency
-          console.log(`⚡ Fast claimability calculation: ${actualClaimable} KILT (cached smart contract)`);
+          console.log(`⚡ Fast claimability calculation: ${actualClaimable} KILT (smart contract)`);
         } else {
-          // Initialize global cache if it doesn't exist
+          // If smart contract shows 0 or fails, use unified reward service calculation
+          console.log(`📊 Smart contract shows 0 KILT, using unified reward calculation...`);
+          const { unifiedRewardService } = await import('./unified-reward-service');
+          const rewardStats = await unifiedRewardService.getUserRewardStats(user.id);
+          
+          totalAccumulated = rewardStats.totalAccumulated || 0;
+          actualClaimable = rewardStats.totalClaimable || 0;
+          
+          console.log(`⚡ Unified reward calculation: Accumulated: ${totalAccumulated}, Claimable: ${actualClaimable} KILT`);
+          
+          // Cache this result for performance
           if (!global.rewardStatsCache) {
             global.rewardStatsCache = new Map();
           }
-          
-          // Ultra-fast fallback: Get from recent cache if available
           const cacheKey = `user_rewards_${user.id}`;
-          const cachedRewards = global.rewardStatsCache.get(cacheKey);
-          if (cachedRewards && Date.now() - cachedRewards.timestamp < 30000) { // 30 second cache
-            totalAccumulated = cachedRewards.data.totalAccumulated || 0;
-            actualClaimable = cachedRewards.data.totalClaimable || 0;
-            console.log(`⚡ Ultra-fast cached claimability: ${actualClaimable} KILT`);
-          } else {
-            console.log(`⚠️ No cached data available, using fallback values`);
-          }
+          global.rewardStatsCache.set(cacheKey, {
+            data: { totalAccumulated, totalClaimable: actualClaimable },
+            timestamp: Date.now()
+          });
         }
       } catch (error) {
-        console.log(`⚠️ Fast claimability check failed, using fallback:`, error);
+        console.log(`⚠️ Reward calculation failed, using fallback:`, error);
+        // Last resort: Check cache
+        if (global.rewardStatsCache) {
+          const cacheKey = `user_rewards_${user.id}`;
+          const cachedRewards = global.rewardStatsCache.get(cacheKey);
+          if (cachedRewards && Date.now() - cachedRewards.timestamp < 60000) { // 1 minute cache
+            totalAccumulated = cachedRewards.data.totalAccumulated || 0;
+            actualClaimable = cachedRewards.data.totalClaimable || 0;
+            console.log(`⚡ Using cached fallback: ${actualClaimable} KILT`);
+          }
+        }
       }
       
       // UI displays: accumulated rewards that WILL be claimable (regardless of lock)

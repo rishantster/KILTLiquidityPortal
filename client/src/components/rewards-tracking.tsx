@@ -425,11 +425,11 @@ export function RewardsTracking() {
               />
             </div>
             <div className="text-xs text-white/60 mb-1">
-              {/* CONSISTENT: Use rewardStats for status */}
-              {(rewardStats?.totalClaimable || 0) > 0
+              {/* CONSISTENT: Use claimability API for accurate status */}
+              {claimability?.canClaim && (rewardStats?.totalClaimable || 0) > 0
                 ? 'Available now'
                 : (rewardStats?.totalAccumulated || 0) > 0
-                  ? 'Accumulating rewards...'
+                  ? (claimability?.nextClaimDate ? countdownText || 'Accumulating rewards...' : 'Accumulating rewards...')
                   : 'Start earning rewards'
               }
             </div>
@@ -497,10 +497,10 @@ export function RewardsTracking() {
           <CardContent className="space-y-3 p-3">
             <div className="text-center py-3 rounded-lg border border-[#ff0066]/20 bg-black/60">
               <div className="text-white/60 text-xs mb-1 font-medium">
-                {(rewardStats?.totalClaimable || 0) > 0
+                {claimability?.canClaim && (rewardStats?.totalClaimable || 0) > 0
                   ? 'Available Now' 
                   : (rewardStats?.totalAccumulated || 0) > 0
-                    ? 'Accumulating'
+                    ? (claimability?.nextClaimDate ? countdownText || 'Accumulating' : 'Accumulating')
                     : 'Status'
                 }
               </div>

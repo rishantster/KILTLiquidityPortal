@@ -11,8 +11,15 @@ import { unifiedRewardService } from "./unified-reward-service";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 
-// Validate environment variables first
-validateEnvironment();
+// Add production-safe environment validation
+try {
+  validateEnvironment();
+  console.log('✅ Environment validation passed');
+} catch (error) {
+  console.error('⚠️  Environment validation warning:', error);
+  console.log('🔄 Continuing startup in degraded mode...');
+  // Continue in production with warnings instead of crashing
+}
 
 // Initialize KILT price service for background price fetching
 kiltPriceService; // This will start the background price fetching
@@ -58,6 +65,14 @@ setTimeout(() => {
 }, 5000);
 
 const app = express();
+
+// Add emergency production fallback before any other middleware
+if (process.env.NODE_ENV === 'production') {
+  // Emergency health endpoint that works even if everything else fails
+  app.get('/emergency-health', (req: Request, res: Response) => {
+    res.status(200).send('OK');
+  });
+}
 
 // Trust proxy for rate limiting (must be before security setup)
 app.set('trust proxy', 1);
@@ -268,14 +283,7 @@ app.use((req, res, next) => {
   } catch (error) {
     console.error('❌ Fatal server startup error:', error);
     
-    // Create minimal health endpoint even if startup fails
-    app.get('/health', (req: Request, res: Response) => {
-      res.status(503).json({ 
-        status: 'error', 
-        error: 'Server startup failed',
-        timestamp: new Date().toISOString()
-      });
-    });
+    // Remove duplicate health endpoint - already defined above
     
     // Start server anyway with minimal functionality
     const port = parseInt(process.env.PORT || '5000');

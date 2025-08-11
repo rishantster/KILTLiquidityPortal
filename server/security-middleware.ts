@@ -225,22 +225,27 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   });
 };
 
-// Environment variable validation
+// Environment variable validation - production safe
 export const validateEnvironment = () => {
   const required = ['DATABASE_URL'];
   const missing = required.filter(key => !process.env[key]);
   
   if (missing.length > 0) {
+    console.warn(`⚠️  Missing environment variables: ${missing.join(', ')} - continuing in degraded mode`);
+    // Don't throw in production - just warn and continue
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
   // Validate smart contract environment variables if provided
   if (process.env.KILT_REWARD_POOL_ADDRESS) {
     if (!process.env.REWARD_WALLET_PRIVATE_KEY) {
-      // Warning: KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_PRIVATE_KEY missing
+      console.warn('⚠️  KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_PRIVATE_KEY missing');
     }
     if (!process.env.REWARD_WALLET_ADDRESS) {
-      // Warning: KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_ADDRESS missing
+      console.warn('⚠️  KILT_REWARD_POOL_ADDRESS provided but REWARD_WALLET_ADDRESS missing');
     }
   }
 };

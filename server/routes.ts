@@ -3466,7 +3466,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       // Check if wallet is authorized for admin access (case-insensitive)
       const authorizedWallets = [
         '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
-        '0x861722f739539CF31d86F1221460Fa96C9baB95C'
+        '0x861722f739539CF31d86F1221460Fa96C9baB95C',
+        '0x97A6c2DE9a2aC3d75e85d70e465bd5a621813CE8'  // Emergency withdrawal and smart contract operations
       ];
       
       const normalizedWalletAddress = walletAddress.toLowerCase();
@@ -3550,6 +3551,93 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       res.status(500).json({ 
         error: 'Failed to reset distributed counter',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Emergency withdrawal endpoint (admin only)
+  app.post('/api/admin/treasury/emergency-withdraw', async (req, res) => {
+    try {
+      const { amount, recipientAddress } = req.body;
+      const { walletAddress } = req.body; // Admin wallet performing the operation
+      
+      console.log('🚨 Admin emergency withdrawal request:', { amount, recipientAddress, performedBy: walletAddress });
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ 
+          success: false,
+          error: 'Valid withdrawal amount required' 
+        });
+      }
+
+      // Validate admin authorization
+      const authorizedWallets = [
+        '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
+        '0x861722f739539CF31d86F1221460Fa96C9baB95C',
+        '0x97A6c2DE9a2aC3d75e85d70e465bd5a621813CE8'  // Emergency withdrawal and smart contract operations
+      ];
+      
+      const normalizedWalletAddress = walletAddress?.toLowerCase();
+      const normalizedAuthorizedWallets = authorizedWallets.map(addr => addr.toLowerCase());
+      
+      if (!walletAddress || !normalizedAuthorizedWallets.includes(normalizedWalletAddress)) {
+        return res.status(401).json({ 
+          success: false,
+          error: 'Unauthorized wallet for emergency withdrawal operations',
+          code: 'EMERGENCY_UNAUTHORIZED'
+        });
+      }
+      
+      // Perform emergency withdrawal
+      const result = await smartContractService.emergencyWithdraw(amount, recipientAddress);
+      
+      // Log this critical admin operation
+      await logAdminOperation(
+        'EMERGENCY_WITHDRAWAL',
+        `Emergency withdrawal of ${amount} KILT to ${recipientAddress || 'performer wallet'}`,
+        walletAddress,
+        amount.toString(),
+        result.transactionHash,
+        result.success,
+        result.error
+      );
+      
+      if (result.success) {
+        console.log(`✅ Emergency withdrawal successful: ${amount} KILT. Transaction: ${result.transactionHash}`);
+        res.json({
+          success: true,
+          message: `Emergency withdrawal successful: ${amount} KILT`,
+          amount: amount,
+          recipient: recipientAddress || 'Performing wallet',
+          transactionHash: result.transactionHash,
+          performedBy: walletAddress
+        });
+      } else {
+        console.error('❌ Emergency withdrawal failed:', result.error);
+        res.status(500).json({
+          success: false,
+          error: result.error || 'Emergency withdrawal failed',
+          amount: amount,
+          performedBy: walletAddress
+        });
+      }
+    } catch (error) {
+      console.error('❌ Emergency withdrawal endpoint error:', error);
+      
+      await logAdminOperation(
+        'EMERGENCY_WITHDRAWAL',
+        'Emergency withdrawal system error',
+        req.body.walletAddress || 'unknown',
+        req.body.amount?.toString() || '0',
+        undefined,
+        false,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+      
+      res.status(500).json({ 
+        success: false,
+        error: 'Emergency withdrawal system error',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }

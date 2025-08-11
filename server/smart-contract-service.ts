@@ -1363,6 +1363,55 @@ export class SmartContractService {
   }
 
   /**
+   * Emergency withdrawal of KILT tokens from the treasury contract
+   * Can be called by authorized admin wallets to withdraw funds to their wallet
+   */
+  async emergencyWithdraw(amount: number, recipientAddress?: string): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+    if (!this.isContractDeployed || !this.rewardPoolContract || !this.wallet) {
+      return {
+        success: false,
+        error: 'Smart contracts not deployed or wallet not initialized'
+      };
+    }
+
+    try {
+      console.log(`🚨 Emergency withdrawal: ${amount} KILT requested by ${this.wallet.address}`);
+      
+      // Convert amount to wei
+      const amountWei = ethers.parseUnits(amount.toString(), 18);
+      
+      // Default to the performing wallet address if no recipient specified
+      const withdrawalRecipient = recipientAddress || this.wallet.address;
+      
+      console.log(`💰 Emergency withdrawal to: ${withdrawalRecipient}`);
+      
+      // Call emergency withdraw function on the contract
+      const tx = await this.rewardPoolContract.emergencyWithdraw(amountWei);
+      const receipt = await tx.wait();
+      
+      if (receipt?.status !== 1) {
+        return {
+          success: false,
+          error: 'Emergency withdrawal transaction failed'
+        };
+      }
+
+      console.log(`✅ Emergency withdrawal successful: ${amount} KILT withdrawn to ${withdrawalRecipient}. Transaction: ${receipt.hash}`);
+      
+      return {
+        success: true,
+        transactionHash: receipt.hash
+      };
+    } catch (error: unknown) {
+      console.error('Emergency withdrawal failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to perform emergency withdrawal'
+      };
+    }
+  }
+
+  /**
    * Get the current provider instance for debugging purposes
    */
   getProvider() {

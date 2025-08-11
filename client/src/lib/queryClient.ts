@@ -127,9 +127,9 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes - more aggressive caching
+      refetchInterval: 45 * 1000, // Auto-refresh every 45 seconds
+      refetchOnWindowFocus: true, // Refresh when user returns to tab
+      staleTime: 1000 * 30, // 30 seconds for faster updates
       retry: (failureCount, error) => {
         // Retry network errors but not other types of errors
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {

@@ -201,49 +201,10 @@ app.use((req, res, next) => {
                         (process.env.REPL_ID && !process.env.VITE_DEV_SERVER_URL);
     
     if (isProduction) {
-      console.log('🚨 Emergency production mode: Minimal server configuration');
+      console.log('🚀 Production mode: Full server configuration with optimizations');
       
-      // Basic health endpoint
-      app.get('/health', (req: Request, res: Response) => {
-        res.status(200).json({ 
-          status: 'healthy', 
-          timestamp: new Date().toISOString(),
-          service: 'kilt-liquidity-portal',
-          environment: 'production-emergency',
-          uptime: process.uptime()
-        });
-      });
-      
-      // Serve static files for production
-      const path = await import('path');
-      const fs = await import('fs');
-      const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
-      
-      if (fs.existsSync(distPath)) {
-        console.log('📁 Serving static files from:', distPath);
-        app.use(express.static(distPath));
-        
-        // SPA fallback
-        app.get('*', (req, res) => {
-          if (req.path.startsWith('/api/')) {
-            return res.status(503).json({ error: 'API temporarily unavailable in emergency mode' });
-          }
-          res.sendFile(path.resolve(distPath, "index.html"));
-        });
-      } else {
-        console.error('❌ No build directory found');
-        app.get('*', (req, res) => {
-          res.status(500).send('Emergency: No build directory found');
-        });
-      }
-      
-      // Start emergency server
-      const port = parseInt(process.env.PORT || '5000');
-      app.listen(port, '0.0.0.0', () => {
-        console.log(`🚨 Emergency server running on port ${port}`);
-      });
-      
-      return; // Skip complex initialization in production
+      // Skip heavy background services in production for stability
+      console.log('⚡ Production optimization: Lightweight service initialization');
     }
     
     // Development mode continues with full functionality
@@ -289,20 +250,17 @@ app.use((req, res, next) => {
   
   const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
   
-  // Development mode: prioritize Vite dev server for hot reloading
-  if (app.get("env") === "development") {
-    console.log('🔧 Development mode: using Vite dev server with hot reloading');
-    await setupVite(app, server);
-  } else if (fs.existsSync(distPath)) {
+  // Production or development mode handling
+  if (isProduction && fs.existsSync(distPath)) {
     console.log('🚀 Production mode: serving from build directory:', distPath);
-    // Serve static assets with minimal caching for development-friendly workflow
+    // Serve static assets with optimized caching
     app.use(express.static(distPath, {
-      maxAge: '5m', // 5 minutes instead of 1 year
+      maxAge: '1h', // 1 hour caching for better performance
       etag: true,
       lastModified: true,
       setHeaders: (res, filePath) => {
         if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {
-          res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate'); // 5 minutes, revalidate
+          res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate'); // 1 hour
         } else if (filePath.endsWith('.html')) {
           res.setHeader('Cache-Control', 'no-cache, must-revalidate'); // No caching for HTML
         }
@@ -316,6 +274,9 @@ app.use((req, res, next) => {
       }
       res.sendFile(path.resolve(distPath, "index.html"));
     });
+  } else if (!isProduction) {
+    console.log('🔧 Development mode: using Vite dev server with hot reloading');
+    await setupVite(app, server);
   } else {
     console.warn('⚠️ Production mode but no build directory found, falling back to serveStatic');
     serveStatic(app);

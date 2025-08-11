@@ -280,13 +280,21 @@ export class UnifiedRewardService {
 
       // Get claimed amount in parallel with position calculations
       const [claimedResult, positionRewards] = await Promise.all([
-        smartContractService.getClaimedAmount(walletAddress),
+        smartContractService.getClaimedAmount(walletAddress).catch(error => {
+          console.warn(`⚠️ Failed to get claimed amount for ${walletAddress}, using 0:`, error.message);
+          return { success: false, claimedAmount: 0, error: error.message };
+        }),
         Promise.all(activePositions.map(position => 
           this.calculatePositionReward(position, marketData, position.createdAt || new Date())
         ))
       ]);
 
       const actualClaimedAmount = claimedResult?.success ? (claimedResult.claimedAmount || 0) : 0;
+      console.log(`💰 Claimed amount for ${walletAddress}: ${actualClaimedAmount} KILT (success: ${claimedResult?.success})`);
+      console.log(`📊 Position rewards calculated: ${positionRewards.length} positions`);
+      positionRewards.forEach((reward, idx) => {
+        console.log(`  Position ${idx + 1}: ${reward.nftTokenId} - Daily: ${reward.dailyRewards.toFixed(2)}, Accumulated: ${reward.accumulatedRewards.toFixed(2)}`);
+      });
 
       // Aggregate results efficiently
       const totals = positionRewards.reduce(

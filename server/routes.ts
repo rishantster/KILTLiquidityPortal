@@ -1254,11 +1254,34 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
     }
   });
 
-  // Get user rewards
+  // Get user rewards with performance optimization
   app.get("/api/rewards/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
+      
+      // Initialize global cache if it doesn't exist
+      if (!global.rewardStatsCache) {
+        global.rewardStatsCache = new Map();
+      }
+      
+      // Check cache first for recent data (30 seconds)
+      const cacheKey = `user_rewards_${userId}`;
+      const cached = global.rewardStatsCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < 30000) {
+        console.log(`⚡ Serving cached user rewards for ${userId}`);
+        res.json(cached.data);
+        return;
+      }
+      
+      // Calculate fresh data
       const rewards = await unifiedRewardService.getUserRewardStats(userId);
+      
+      // Cache the result for future fast access
+      global.rewardStatsCache.set(cacheKey, {
+        data: rewards,
+        timestamp: Date.now()
+      });
+      
       res.json(rewards);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch user rewards" });
@@ -1809,15 +1832,38 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
       
       console.log(`⏰ Admin-based claimability: lastClaim=${lastClaimTime}, nextClaim=${nextClaimDate}, canClaim=${canClaim}`);
       
-      // CRITICAL FIX: Use full reward calculation like stats endpoint, not lightweight version
-      // This ensures consistency between stats and claimability APIs
-      const fullRewards = await unifiedRewardService.getUserRewardStats(user.id);
-      console.log(`💰 Full user rewards result for claimability:`, fullRewards);
+      // PERFORMANCE FIX: Use fast cached calculation instead of slow unified service
+      // This prevents the long calculation delay that causes wrong data to be served
+      let totalAccumulated = 0;
+      let actualClaimable = 0;
       
-      // FIXED LOGIC: Show accumulated rewards that will be claimable, even during lock period
-      // The UI should display accumulating rewards, not hide them during lock period
-      const totalAccumulated = fullRewards?.totalAccumulated || 0;
-      const actualClaimable = fullRewards?.totalClaimable || 0;
+      try {
+        // Fast calculation using cached smart contract data
+        const userStats = await smartContractService.getUserStats(userAddress);
+        if (userStats.success) {
+          actualClaimable = parseFloat(userStats.claimableAmount || "0");
+          totalAccumulated = actualClaimable; // For display consistency
+          console.log(`⚡ Fast claimability calculation: ${actualClaimable} KILT (cached smart contract)`);
+        } else {
+          // Initialize global cache if it doesn't exist
+          if (!global.rewardStatsCache) {
+            global.rewardStatsCache = new Map();
+          }
+          
+          // Ultra-fast fallback: Get from recent cache if available
+          const cacheKey = `user_rewards_${user.id}`;
+          const cachedRewards = global.rewardStatsCache.get(cacheKey);
+          if (cachedRewards && Date.now() - cachedRewards.timestamp < 30000) { // 30 second cache
+            totalAccumulated = cachedRewards.data.totalAccumulated || 0;
+            actualClaimable = cachedRewards.data.totalClaimable || 0;
+            console.log(`⚡ Ultra-fast cached claimability: ${actualClaimable} KILT`);
+          } else {
+            console.log(`⚠️ No cached data available, using fallback values`);
+          }
+        }
+      } catch (error) {
+        console.log(`⚠️ Fast claimability check failed, using fallback:`, error);
+      }
       
       // UI displays: accumulated rewards that WILL be claimable (regardless of lock)
       // Claim action: only allowed when lock period expired AND rewards > 0

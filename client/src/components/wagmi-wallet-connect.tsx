@@ -68,16 +68,35 @@ export function WagmiWalletConnect() {
           <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
             <div className="flex items-center gap-2 text-red-400 mb-2">
               <AlertTriangle className="h-4 w-4" />
-              <span className="text-sm font-semibold">Please Switch to Base Network</span>
+              <span className="text-sm font-semibold">CRITICAL: Wrong Network Detected</span>
             </div>
+            <p className="text-xs text-red-300 mb-2">
+              You're connected to <strong>chain {chainId}</strong> but KILT Portal requires <strong>Base network (8453)</strong>.
+            </p>
             <p className="text-xs text-red-300 mb-3">
-              The KILT Liquidity Portal only works on Base Network. Please switch your wallet network to continue.
+              All transactions will fail until you switch networks. Click below to switch automatically.
             </p>
             <Button
-              onClick={() => switchChain({ chainId: base.id })}
+              onClick={async () => {
+                console.log(`🚨 URGENT: Manual switch triggered - User on chain ${chainId}, need Base (8453)`);
+                try {
+                  await switchChain({ chainId: base.id });
+                } catch (error: any) {
+                  console.error('Manual switch failed:', error);
+                  // Try direct MetaMask method
+                  try {
+                    await window.ethereum?.request({
+                      method: 'wallet_switchEthereumChain',
+                      params: [{ chainId: '0x2105' }], // Base chain ID in hex
+                    });
+                  } catch (metaMaskError) {
+                    alert('CRITICAL: Please manually switch to Base network in your wallet settings. You are currently on the wrong network and transactions will fail.');
+                  }
+                }
+              }}
               className="bg-red-600 hover:bg-red-500 text-white text-sm h-8 px-4 w-full"
             >
-              Switch to Base Network
+              Fix Network Issue - Switch to Base (8453)
             </Button>
           </div>
         )}

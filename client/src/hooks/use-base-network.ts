@@ -21,8 +21,8 @@ export function useBaseNetwork() {
     } catch (error) {
       console.error('Failed to switch to Base:', error);
       toast({
-        title: "Network Switch Failed",
-        description: "Please manually switch to Base network in your wallet",
+        title: "Manual Network Switch Required",
+        description: "Please open your wallet and manually switch to Base network. The KILT Portal requires Base to function properly.",
         variant: "destructive",
       });
     }

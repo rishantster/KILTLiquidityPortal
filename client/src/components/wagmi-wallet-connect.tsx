@@ -65,16 +65,19 @@ export function WagmiWalletConnect() {
     return (
       <div className="flex items-center gap-3">
         {isWrongNetwork && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-2">
-            <div className="flex items-center gap-2 text-red-400 mb-1">
-              <AlertTriangle className="h-3 w-3" />
-              <span className="text-xs font-semibold">Wrong Network</span>
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-red-400 mb-2">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="text-sm font-semibold">Please Switch to Base Network</span>
             </div>
+            <p className="text-xs text-red-300 mb-3">
+              The KILT Liquidity Portal only works on Base Network. Please switch your wallet network to continue.
+            </p>
             <Button
               onClick={() => switchChain({ chainId: base.id })}
-              className="bg-red-600 hover:bg-red-500 text-white text-xs h-6 px-2"
+              className="bg-red-600 hover:bg-red-500 text-white text-sm h-8 px-4 w-full"
             >
-              Switch to Base
+              Switch to Base Network
             </Button>
           </div>
         )}

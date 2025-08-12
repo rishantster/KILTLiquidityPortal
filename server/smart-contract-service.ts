@@ -768,7 +768,8 @@ export class SmartContractService {
       const authorizedAdminWallets = [
         '0x5bF25Dc1BAf6A96C5A0F724E05EcF4D456c7652e',
         '0x861722f739539CF31d86F1221460Fa96C9baB95C',
-        '0x97A6c2DE9a2aC3d75e85d70e465bd5a621813CE8'
+        '0x97A6c2DE9a2aC3d75e85d70e465bd5a621813CE8',
+        '0xD117738595dfAFe4c2f96bcF63Ed381788E08d39'   // User-requested admin access
       ];
       
       if (authorizedAdminWallets.map(addr => addr.toLowerCase()).includes(userAddress.toLowerCase())) {

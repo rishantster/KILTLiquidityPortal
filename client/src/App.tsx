@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import AdminPage from "@/pages/admin";
 import AdminRewards from "@/pages/admin-rewards";
+import SocialMediaPage from "@/pages/social-media";
 import { SimpleTest } from "@/components/simple-test";
 
 
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/admin/rewards" component={AdminRewards} />
+      <Route path="/social" component={SocialMediaPage} />
       <Route component={NotFound} />
     </Switch>
   );

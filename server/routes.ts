@@ -59,6 +59,7 @@ import { productionErrorHandler, withProductionErrorHandling } from "./productio
 import rewardDistributionRoutes from "./routes/reward-distribution";
 import enhancedSecurityRoutes from "./routes/enhanced-security";
 import { blockchainSyncValidator } from "./blockchain-sync-validator";
+import { socialMediaService } from "./social-media-service";
 // Removed registerUniswapOptimizedRoutes - cleaned up during optimization
 // Removed systemHealthRouter - consolidated into main routes
 // Removed uniswapPositionsRouter - consolidated into main routes
@@ -4819,6 +4820,80 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         status: "error",
         message: error instanceof Error ? error.message : "Unknown error" 
       });
+    }
+  });
+
+  // ============================================
+  // SOCIAL MEDIA INTEGRATION ROUTES
+  // ============================================
+  
+  // Submit tweet URL for processing
+  app.post("/api/social-media/submit-tweet", async (req, res) => {
+    try {
+      const { username, tweetUrl } = req.body;
+      
+      if (!username || !tweetUrl) {
+        res.status(400).json({ error: "Username and tweet URL are required" });
+        return;
+      }
+      
+      const result = await socialMediaService.processTweetSubmission(username, tweetUrl);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: result.message,
+          submissionId: result.submissionId
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.message
+        });
+      }
+    } catch (error) {
+      console.error('Tweet submission error:', error);
+      res.status(500).json({ error: "Failed to process tweet submission" });
+    }
+  });
+
+  // Get social media submissions
+  app.get("/api/social-media/submissions", async (req, res) => {
+    try {
+      const submissions = socialMediaService.getSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+      res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+  });
+
+  // Get social media metrics
+  app.get("/api/social-media/metrics", async (req, res) => {
+    try {
+      const metrics = socialMediaService.getMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error('Error fetching social media metrics:', error);
+      res.status(500).json({ error: "Failed to fetch metrics" });
+    }
+  });
+
+  // Check if user is eligible based on social media submission
+  app.get("/api/social-media/eligibility/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const isEligible = socialMediaService.isUserEligible(username);
+      const submission = socialMediaService.getSubmissionByUsername(username);
+      
+      res.json({
+        username,
+        isEligible,
+        submission: submission || null
+      });
+    } catch (error) {
+      console.error('Error checking eligibility:', error);
+      res.status(500).json({ error: "Failed to check eligibility" });
     }
   });
 

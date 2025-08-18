@@ -214,8 +214,8 @@ export class PositionRegistrationService {
         poolAddress: positionData.poolAddress,
         token0Address: positionData.token0Address,
         token1Address: positionData.token1Address,
-        token0Amount: positionData.amount0,
-        token1Amount: positionData.amount1,
+        token0Amount: positionData.amount0 || '0', // Provide default value if null/undefined
+        token1Amount: positionData.amount1 || '0', // Provide default value if null/undefined
         minPrice: positionData.minPrice || '0', // Provide default value if null
         maxPrice: positionData.maxPrice || '999999999', // Provide default value if null
         liquidity: positionData.liquidity,
@@ -478,8 +478,8 @@ export class PositionRegistrationService {
             poolAddress: position.poolAddress,
             token0Address: position.token0,
             token1Address: position.token1,
-            amount0: position.token0Amount,
-            amount1: position.token1Amount,
+            amount0: position.token0Amount || '0',
+            amount1: position.token1Amount || '0',
             minPrice: "0", // Would need to calculate from ticks
             maxPrice: "0", // Would need to calculate from ticks
             liquidity: position.liquidity,
@@ -515,8 +515,8 @@ export class PositionRegistrationService {
         poolAddress: position.poolAddress,
         token0Address: position.token0,
         token1Address: position.token1,
-        amount0: position.token0Amount,
-        amount1: position.token1Amount,
+        amount0: position.token0Amount || '0',
+        amount1: position.token1Amount || '0',
         minPrice: "0", // Would need to calculate from ticks
         maxPrice: "0", // Would need to calculate from ticks
         liquidity: position.liquidity,

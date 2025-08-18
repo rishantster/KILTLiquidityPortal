@@ -2970,8 +2970,8 @@ export async function registerRoutes(app: Express, security: any): Promise<Serve
         tickLower: pos.tickLower,
         tickUpper: pos.tickUpper,
         liquidity: pos.liquidity?.toString() || '0',
-        amount0: pos.token0Amount?.toString() || '0',
-        amount1: pos.token1Amount?.toString() || '0',
+        amount0: (pos.token0Amount?.toString() || '0'),
+        amount1: (pos.token1Amount?.toString() || '0'),
         currentValueUSD: pos.currentValueUSD || 0,
         fees: {
           token0: pos.fees?.token0?.toString() || '0',
